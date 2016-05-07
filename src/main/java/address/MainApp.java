@@ -9,7 +9,7 @@ import address.model.DataManager;
 import address.preferences.PreferencesManager;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
-import address.view.*;
+import address.controller.*;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

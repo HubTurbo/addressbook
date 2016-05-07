@@ -1,4 +1,4 @@
-package address.view;
+package address.controller;
 
 import address.model.DataManager;
 import javafx.fxml.FXML;
