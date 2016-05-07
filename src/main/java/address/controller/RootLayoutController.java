@@ -23,17 +23,16 @@ import address.MainApp;
 public class RootLayoutController {
 
     // Reference to the main application
-    private MainApp mainApp;
+    private MainController mainController;
     private DataManager dataManager;
 
     /**
      * Is called by the main application to give a reference back to itself.
      * 
-     * @param mainApp
      */
-    public void setMainApp(MainApp mainApp, DataManager dataManager) {
+    public void setMainController(MainController mainController, DataManager dataManager) {
 
-        this.mainApp = mainApp;
+        this.mainController = mainController;
         this.dataManager = dataManager;
     }
 
@@ -59,7 +58,7 @@ public class RootLayoutController {
         fileChooser.getExtensionFilters().add(extFilter);
 
         // Show save file dialog
-        File file = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
+        File file = fileChooser.showOpenDialog(mainController.getPrimaryStage());
 
         if (file != null) {
             EventManager.getInstance().post(new OpenFileEvent(file, dataManager.getPersonData()));
@@ -93,7 +92,7 @@ public class RootLayoutController {
         fileChooser.getExtensionFilters().add(extFilter);
 
         // Show save file dialog
-        File file = fileChooser.showSaveDialog(mainApp.getPrimaryStage());
+        File file = fileChooser.showSaveDialog(mainController.getPrimaryStage());
 
         if (file != null) {
             // Make sure it has the correct extension
@@ -130,6 +129,6 @@ public class RootLayoutController {
      */
     @FXML
     private void handleShowBirthdayStatistics() {
-      mainApp.showBirthdayStatistics();
+        mainController.showBirthdayStatistics();
     }
 }

@@ -8,7 +8,7 @@ import java.io.File;
 
 public class PreferencesManager {
 
-    public static final String REGISTER_FILE_PATH = "address-book-filePath";
+    public static final String REGISTER_FILE_PATH = "address-book-filePath1";
     private static PreferencesManager instance;
 
     public static PreferencesManager getInstance(){

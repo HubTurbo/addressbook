@@ -33,7 +33,7 @@ public class PersonOverviewController {
     private Label birthdayLabel;
 
     // Reference to the main application.
-    private MainApp mainApp;
+    private MainController mainController;
     private DataManager dataManager;
 
     /**
@@ -64,10 +64,10 @@ public class PersonOverviewController {
     /**
      * Is called by the main application to give a reference back to itself.
      * 
-     * @param mainApp
+     * @param mainController
      */
-    public void setMainApp(MainApp mainApp, DataManager dataManager) {
-        this.mainApp = mainApp;
+    public void setMainController(MainController mainController, DataManager dataManager) {
+        this.mainController = mainController;
         this.dataManager = dataManager;
         // Add observable list data to the table
         personTable.setItems(dataManager.getPersonData());
@@ -110,7 +110,7 @@ public class PersonOverviewController {
         } else {
             // Nothing selected.
             Alert alert = new Alert(AlertType.WARNING);
-            alert.initOwner(mainApp.getPrimaryStage());
+            alert.initOwner(mainController.getPrimaryStage());
             alert.setTitle("No Selection");
             alert.setHeaderText("No Person Selected");
             alert.setContentText("Please select a person in the table.");
@@ -126,7 +126,7 @@ public class PersonOverviewController {
     @FXML
     private void handleNewPerson() {
         Person tempPerson = new Person();
-        boolean okClicked = mainApp.showPersonEditDialog(tempPerson);
+        boolean okClicked = mainController.showPersonEditDialog(tempPerson);
         if (okClicked) {
             dataManager.getPersonData().add(tempPerson);
         }
@@ -140,7 +140,7 @@ public class PersonOverviewController {
     private void handleEditPerson() {
         Person selectedPerson = personTable.getSelectionModel().getSelectedItem();
         if (selectedPerson != null) {
-            boolean okClicked = mainApp.showPersonEditDialog(selectedPerson);
+            boolean okClicked = mainController.showPersonEditDialog(selectedPerson);
             if (okClicked) {
                 showPersonDetails(selectedPerson);
             }
@@ -148,7 +148,7 @@ public class PersonOverviewController {
         } else {
             // Nothing selected.
             Alert alert = new Alert(AlertType.WARNING);
-            alert.initOwner(mainApp.getPrimaryStage());
+            alert.initOwner(mainController.getPrimaryStage());
             alert.setTitle("No Selection");
             alert.setHeaderText("No Person Selected");
             alert.setContentText("Please select a person in the table.");

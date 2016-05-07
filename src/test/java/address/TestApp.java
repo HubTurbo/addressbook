@@ -11,7 +11,7 @@ public class TestApp extends MainApp {
     @Override
     protected void setupComponents(){
         super.setupComponents();
-        appTitle = "TestApp";
+        //TODO change some values
     }
 
     public static void main(String[] args) {
