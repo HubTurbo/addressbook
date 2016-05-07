@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import address.events.EventManager;
 import address.events.FileNameChangedEvent;
+import address.events.FileOpeningExceptionEvent;
 import address.model.DataManager;
 import address.preferences.PreferencesManager;
 import address.storage.StorageManager;
@@ -14,6 +15,7 @@ import com.google.common.eventbus.Subscribe;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -94,8 +96,13 @@ public class MainApp extends Application {
 
         // Try to load last opened person file.
         File file = PreferencesManager.getInstance().getPersonFilePath();
-        if (file != null) {
+
+        if (file == null) { return; }
+
+        try {
             storageManager.loadPersonDataFromFile(file, dataManager.getPersonData());
+        } catch (Exception e) {
+            showFileOpeningExceptionMessage(e, file);
         }
     }
 
@@ -212,6 +219,20 @@ public class MainApp extends Application {
         } else {
             primaryStage.setTitle(appTitle);
         }
+    }
+
+    @Subscribe
+    private void handleFileOpeningExceptionEvent(FileOpeningExceptionEvent foee){
+        showFileOpeningExceptionMessage(foee.exception, foee.file);
+    }
+
+    private void showFileOpeningExceptionMessage(Exception exception, File file) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("Could not load data");
+        alert.setContentText("Could not load data from file:\n" + file.getPath());
+
+        alert.showAndWait();
     }
 
     public static void main(String[] args) {

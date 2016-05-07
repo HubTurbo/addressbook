@@ -1,6 +1,7 @@
 package address.storage;
 
 import address.events.EventManager;
+import address.events.FileOpeningExceptionEvent;
 import address.events.OpenFileEvent;
 import address.events.SaveEvent;
 import address.model.Person;
@@ -32,34 +33,34 @@ public class StorageManager {
      *
      * @param file
      */
-    public void loadPersonDataFromFile(File file, ObservableList<Person> personData) {
-        try {
-            JAXBContext context = JAXBContext
-                    .newInstance(PersonListWrapper.class);
-            Unmarshaller um = context.createUnmarshaller();
+    public void loadPersonDataFromFile(File file, ObservableList<Person> personData) throws Exception {
+        JAXBContext context = JAXBContext
+                .newInstance(PersonListWrapper.class);
+        Unmarshaller um = context.createUnmarshaller();
 
-            // Reading XML from the file and unmarshalling.
-            PersonListWrapper wrapper = (PersonListWrapper) um.unmarshal(file);
+        // Reading XML from the file and unmarshalling.
+        PersonListWrapper wrapper = (PersonListWrapper) um.unmarshal(file);
 
-            personData.clear();
-            personData.addAll(wrapper.getPersons());
+        personData.clear();
+        personData.addAll(wrapper.getPersons());
 
-            // Save the file path to the registry.
-            PreferencesManager.getInstance().setPersonFilePath(file);
-
-        } catch (Exception e) { // catches ANY exception
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Could not load data");
-            alert.setContentText("Could not load data from file:\n" + file.getPath());
-
-            alert.showAndWait();
-        }
+        // Save the file path to the registry.
+        PreferencesManager.getInstance().setPersonFilePath(file);
     }
 
     @Subscribe
     private void handleOpenFileEvent(OpenFileEvent ofe) {
-        loadPersonDataFromFile(ofe.file, ofe.personData);
+        try {
+            loadPersonDataFromFile(ofe.file, ofe.personData);
+        } catch (Exception e) {
+            EventManager.getInstance().post(new FileOpeningExceptionEvent(e,ofe.file));
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Could not load data");
+            alert.setContentText("Could not load data from file:\n" + ofe.file.getPath());
+
+            alert.showAndWait();
+        }
     }
 
     /**
