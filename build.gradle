@@ -1,0 +1,59 @@
+/*
+ * Gradle Configuration File
+ *
+ * For more details take a look at the Java Quickstart chapter in the Gradle
+ * user guide available at http://gradle.org/docs/2.2.1/userguide/tutorial_java_projects.html
+ */
+
+
+allprojects {
+
+    apply plugin: 'idea'
+    apply plugin: 'java'
+
+    version = '3.27.0'
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url "https://repo.eclipse.org/content/repositories/egit-releases/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+
+    project.ext {
+        log4jVersion = '2.3'
+        controlsfxVersion = '8.40.10'
+        gsonVersion = '2.3.1'
+        guavaVersion = '19.0'
+        junitVersion = '4.12'
+        testFxVersion = '3.1.0'
+        mockitoVersion = '1+'
+        mockServerVersion = '3.10.1'
+    }
+
+    dependencies {
+        compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
+        compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+        compile "org.controlsfx:controlsfx:$controlsfxVersion"
+        compile "com.google.code.gson:gson:$gsonVersion"
+        compile "com.google.guava:guava:$guavaVersion"
+        testCompile "junit:junit:$junitVersion"
+		testCompile "org.testfx:testfx-core:4.0.+"
+    	testCompile "org.testfx:testfx-junit:4.0.+"
+		testCompile "org.testfx:testfx-legacy:4.0.+", {
+        	exclude group: "junit", module: "junit"
+    	}
+        testCompile "org.mockito:mockito-core:$mockitoVersion"
+        testCompile group: "org.mock-server", name: "mockserver-netty", version: "$mockServerVersion"
+ 		testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
+        compile fileTree(dir: 'lib', include: '*.jar')
+    }
+
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.12'
+}
