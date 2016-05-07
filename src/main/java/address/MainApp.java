@@ -28,7 +28,6 @@ public class MainApp extends Application {
         storageManager = new StorageManager();
         syncManager = new SyncManager();
         mainController = new MainController(dataManager, storageManager);
-        EventManager.getInstance().registerHandler(this);
         syncManager.startSyncingData(5);
     }
 

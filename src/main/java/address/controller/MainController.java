@@ -1,6 +1,7 @@
 package address.controller;
 
 import address.MainApp;
+import address.events.EventManager;
 import address.events.FileNameChangedEvent;
 import address.events.FileOpeningExceptionEvent;
 import address.model.DataManager;
@@ -34,6 +35,7 @@ public class MainController {
     private DataManager dataManager;
 
     public MainController(DataManager dataManager, StorageManager storageManager){
+        EventManager.getInstance().registerHandler(this);
         this.dataManager = dataManager;
         this. storageManager = storageManager;
         this.appTitle = "Address Book";
