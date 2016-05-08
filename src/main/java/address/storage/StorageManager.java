@@ -4,6 +4,7 @@ import address.events.EventManager;
 import address.events.FileOpeningExceptionEvent;
 import address.events.LoadDataRequestEvent;
 import address.events.SaveRequestEvent;
+import address.model.ModelManager;
 import address.model.Person;
 import address.preferences.PreferencesManager;
 import address.util.XmlHelper;
@@ -19,6 +20,8 @@ import java.util.List;
 
 public class StorageManager {
 
+    private ModelManager modelManager;
+
     public StorageManager(){
         EventManager.getInstance().registerHandler(this);
     }
@@ -29,11 +32,10 @@ public class StorageManager {
      * be replaced.
      *
      */
-    public void loadPersonDataFromFile(File file, ObservableList<Person> personData) throws Exception {
+    public void loadPersonDataFromFile(File file) throws Exception {
         List<Person> data  = XmlHelper.getDataFromFile(file);
 
-        personData.clear();
-        personData.addAll(data);
+        modelManager.resetData(data);
 
         // Save the file path to the registry.
         PreferencesManager.getInstance().setPersonFilePath(file);
@@ -44,7 +46,7 @@ public class StorageManager {
     @Subscribe
     private void handleOpenFileEvent(LoadDataRequestEvent ofe) {
         try {
-            loadPersonDataFromFile(ofe.file, ofe.personData);
+            loadPersonDataFromFile(ofe.file);
         } catch (Exception e) {
             EventManager.getInstance().post(new FileOpeningExceptionEvent(e,ofe.file));
         }
@@ -85,5 +87,9 @@ public class StorageManager {
             EventManager.getInstance().post(new FileOpeningExceptionEvent(e, file));
             return Collections.emptyList();
         }
+    }
+
+    public void setModel(ModelManager modelManager) {
+        this.modelManager = modelManager;
     }
 }

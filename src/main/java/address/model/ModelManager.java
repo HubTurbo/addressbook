@@ -67,4 +67,9 @@ public class ModelManager {
     private void handleNewDataEvent(NewMirrorData nde){
         addNewData(nde.personData);
     }
+
+    public void resetData(List<Person> newData) {
+        personData.clear();
+        personData.addAll(newData);
+    }
 }

@@ -28,6 +28,7 @@ public class MainApp extends Application {
         preferencesManager = PreferencesManager.getInstance();
         storageManager = new StorageManager();
         modelManager = new ModelManager(storageManager.getPersonDataFromFile(preferencesManager.getPersonFilePath()));
+        storageManager.setModel(modelManager);
         mainController = new MainController(modelManager);
         syncManager = new SyncManager();
         syncManager.startSyncingData(5);
