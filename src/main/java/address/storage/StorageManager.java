@@ -2,8 +2,8 @@ package address.storage;
 
 import address.events.EventManager;
 import address.events.FileOpeningExceptionEvent;
-import address.events.OpenFileEvent;
-import address.events.SaveEvent;
+import address.events.LoadDataRequestEvent;
+import address.events.SaveRequestEvent;
 import address.model.Person;
 import address.preferences.PreferencesManager;
 import address.util.XmlHelper;
@@ -14,8 +14,6 @@ import javafx.scene.control.Alert;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
-
-import static java.util.Collections.emptyList;
 
 
 
@@ -44,7 +42,7 @@ public class StorageManager {
 
 
     @Subscribe
-    private void handleOpenFileEvent(OpenFileEvent ofe) {
+    private void handleOpenFileEvent(LoadDataRequestEvent ofe) {
         try {
             loadPersonDataFromFile(ofe.file, ofe.personData);
         } catch (Exception e) {
@@ -57,7 +55,7 @@ public class StorageManager {
      *
      * @param file
      */
-    public void savePersonDataToFile(File file, ObservableList<Person> personData) {
+    public void savePersonDataToFile(File file, List<Person> personData) {
         try {
             XmlHelper.saveToFile(file, personData);
 
@@ -76,7 +74,7 @@ public class StorageManager {
 
 
     @Subscribe
-    private void handleSaveEvent(SaveEvent se){
+    private void handleSaveEvent(SaveRequestEvent se){
         savePersonDataToFile(se.file, se.personData);
     }
 

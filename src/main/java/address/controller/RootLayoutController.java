@@ -3,8 +3,8 @@ package address.controller;
 import java.io.File;
 
 import address.events.EventManager;
-import address.events.OpenFileEvent;
-import address.events.SaveEvent;
+import address.events.LoadDataRequestEvent;
+import address.events.SaveRequestEvent;
 import address.model.ModelManager;
 import address.preferences.PreferencesManager;
 import javafx.fxml.FXML;
@@ -47,7 +47,7 @@ public class RootLayoutController {
         File file = fileChooser.showOpenDialog(mainController.getPrimaryStage());
 
         if (file != null) {
-            EventManager.getInstance().post(new OpenFileEvent(file, modelManager.getPersonData()));
+            EventManager.getInstance().post(new LoadDataRequestEvent(file, modelManager.getPersonData()));
         }
     }
 
@@ -59,7 +59,7 @@ public class RootLayoutController {
     private void handleSave() {
         File personFile = PreferencesManager.getInstance().getPersonFilePath();
         if (personFile != null) {
-            EventManager.getInstance().post(new SaveEvent(personFile, modelManager.getPersonData()));
+            EventManager.getInstance().post(new SaveRequestEvent(personFile, modelManager.getPersonData()));
         } else {
             handleSaveAs();
         }
@@ -80,7 +80,7 @@ public class RootLayoutController {
             if (!file.getPath().endsWith(".xml")) {
                 file = new File(file.getPath() + ".xml");
             }
-            EventManager.getInstance().post(new SaveEvent(file, modelManager.getPersonData()));
+            EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonData()));
         }
     }
 

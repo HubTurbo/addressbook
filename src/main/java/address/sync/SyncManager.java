@@ -2,14 +2,13 @@ package address.sync;
 
 
 import address.events.EventManager;
-import address.events.NewDataEvent;
+import address.events.NewMirrorData;
 import address.model.Person;
 import address.preferences.PreferencesManager;
 import address.util.XmlHelper;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -44,7 +43,7 @@ public class SyncManager {
             }
 
             if(!newData.isEmpty()) {
-                EventManager.getInstance().post(new NewDataEvent(newData));
+                EventManager.getInstance().post(new NewMirrorData(newData));
             }
         };
 

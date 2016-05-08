@@ -1,10 +1,10 @@
 package address.events;
 
-import address.model.Person;
-import javafx.collections.ObservableList;
-
 import java.io.File;
 
+/**
+ * Indicates an exception during a file opening
+ */
 public class FileOpeningExceptionEvent {
 
     public Exception exception;

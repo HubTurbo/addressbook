@@ -2,6 +2,9 @@ package address.events;
 
 import com.google.common.eventbus.EventBus;
 
+/**
+ * Manages the event dispatching of the app.
+ */
 public class EventManager {
     private static EventBus eventBus;
     private static EventManager instance;

@@ -1,7 +1,7 @@
 package address.model;
 
 import address.events.EventManager;
-import address.events.NewDataEvent;
+import address.events.NewMirrorData;
 import com.google.common.eventbus.Subscribe;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -64,7 +64,7 @@ public class ModelManager {
     }
 
     @Subscribe
-    private void handleNewDataEvent(NewDataEvent nde){
+    private void handleNewDataEvent(NewMirrorData nde){
         addNewData(nde.personData);
     }
 }
