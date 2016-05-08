@@ -27,7 +27,9 @@ public class SyncManager {
     private List<Person> previousList = Collections.emptyList();
 
     public void startSyncingData(long interval){
-        updatePeriodically(interval);
+        if(interval > 0) {
+            updatePeriodically(interval);
+        }
     }
 
 

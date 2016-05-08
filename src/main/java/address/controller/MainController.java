@@ -8,6 +8,7 @@ import address.events.FileSavingExceptionEvent;
 import address.model.ModelManager;
 import address.model.Person;
 import address.preferences.PreferencesManager;
+import address.util.Config;
 import com.google.common.eventbus.Subscribe;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -26,16 +27,16 @@ import java.io.IOException;
  */
 public class MainController {
 
-    protected String appTitle;
+    private Config config;
     private Stage primaryStage;
     private BorderPane rootLayout;
 
     private ModelManager modelManager;
 
-    public MainController(ModelManager modelManager){
+    public MainController(ModelManager modelManager, Config config){
         EventManager.getInstance().registerHandler(this);
         this.modelManager = modelManager;
-        this.appTitle = "Address Book";
+        this.config = config;
     }
 
 
@@ -43,7 +44,7 @@ public class MainController {
     public void start(Stage primaryStage){
 
         this.primaryStage = primaryStage;
-        setTitle(PreferencesManager.getInstance().getPersonFilePath());
+        setTitle(config.appTitle, PreferencesManager.getInstance().getPersonFilePath());
 
         // Set the application icon.
         this.primaryStage.getIcons().add(getImage("/images/address_book_32.png"));
@@ -180,14 +181,14 @@ public class MainController {
 
     @Subscribe
     public void handleFileNameChangedEvent(FileNameChangedEvent fnce){
-        setTitle(fnce.file);
+        setTitle(config.appTitle, fnce.file);
     }
 
     /**
      * Sets the title of the app UI based on the file location
      * @param file the data file used by the app
      */
-    public void setTitle(File file){
+    public void setTitle(String appTitle, File file){
         if (file != null) {
             primaryStage.setTitle(appTitle + " - " + file.getName());
         } else {
