@@ -5,7 +5,9 @@ import address.events.FileNameChangedEvent;
 
 import java.io.File;
 
-
+/**
+ * Manages saving/retrieving of preferences in the registry.
+  */
 public class PreferencesManager {
 
     public static final String REGISTER_FILE_PATH = "address-book-filePath1";
@@ -23,7 +25,6 @@ public class PreferencesManager {
      * The preference is read from the OS specific registry. If no such
      * preference can be found, null is returned.
      *
-     * @return
      */
     public File getPersonFilePath() {
         java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(PreferencesManager.class);
