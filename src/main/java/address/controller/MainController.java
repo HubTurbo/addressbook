@@ -6,6 +6,7 @@ import address.events.FileNameChangedEvent;
 import address.events.FileOpeningExceptionEvent;
 import address.model.ModelManager;
 import address.model.Person;
+import address.preferences.PreferencesManager;
 import address.storage.StorageManager;
 import com.google.common.eventbus.Subscribe;
 import javafx.fxml.FXMLLoader;
@@ -42,7 +43,7 @@ public class MainController {
     public void start(Stage primaryStage){
 
         this.primaryStage = primaryStage;
-        this.primaryStage.setTitle(appTitle);
+        setTitle(PreferencesManager.getInstance().getPersonFilePath());
 
         // Set the application icon.
         this.primaryStage.getIcons().add(getImage("/images/address_book_32.png"));
