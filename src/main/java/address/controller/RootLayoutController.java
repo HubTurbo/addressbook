@@ -5,13 +5,12 @@ import java.io.File;
 import address.events.EventManager;
 import address.events.OpenFileEvent;
 import address.events.SaveEvent;
-import address.model.DataManager;
+import address.model.ModelManager;
 import address.preferences.PreferencesManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.FileChooser;
-import address.MainApp;
 
 /**
  * The controller for the root layout. The root layout provides the basic
@@ -24,16 +23,16 @@ public class RootLayoutController {
 
     // Reference to the main application
     private MainController mainController;
-    private DataManager dataManager;
+    private ModelManager modelManager;
 
     /**
      * Is called by the main application to give a reference back to itself.
      * 
      */
-    public void setMainController(MainController mainController, DataManager dataManager) {
+    public void setMainController(MainController mainController, ModelManager modelManager) {
 
         this.mainController = mainController;
-        this.dataManager = dataManager;
+        this.modelManager = modelManager;
     }
 
     /**
@@ -41,7 +40,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleNew() {
-        dataManager.getPersonData().clear();
+        modelManager.getPersonData().clear();
         PreferencesManager.getInstance().setPersonFilePath(null);
     }
 
@@ -61,7 +60,7 @@ public class RootLayoutController {
         File file = fileChooser.showOpenDialog(mainController.getPrimaryStage());
 
         if (file != null) {
-            EventManager.getInstance().post(new OpenFileEvent(file, dataManager.getPersonData()));
+            EventManager.getInstance().post(new OpenFileEvent(file, modelManager.getPersonData()));
         }
     }
 
@@ -73,7 +72,7 @@ public class RootLayoutController {
     private void handleSave() {
         File personFile = PreferencesManager.getInstance().getPersonFilePath();
         if (personFile != null) {
-            EventManager.getInstance().post(new SaveEvent(personFile, dataManager.getPersonData()));
+            EventManager.getInstance().post(new SaveEvent(personFile, modelManager.getPersonData()));
         } else {
             handleSaveAs();
         }
@@ -99,7 +98,7 @@ public class RootLayoutController {
             if (!file.getPath().endsWith(".xml")) {
                 file = new File(file.getPath() + ".xml");
             }
-            EventManager.getInstance().post(new SaveEvent(file, dataManager.getPersonData()));
+            EventManager.getInstance().post(new SaveEvent(file, modelManager.getPersonData()));
         }
     }
 

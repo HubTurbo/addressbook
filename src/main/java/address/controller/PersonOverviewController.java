@@ -1,13 +1,12 @@
 package address.controller;
 
-import address.model.DataManager;
+import address.model.ModelManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import address.MainApp;
 import address.model.Person;
 import address.util.DateUtil;
 
@@ -34,7 +33,7 @@ public class PersonOverviewController {
 
     // Reference to the main application.
     private MainController mainController;
-    private DataManager dataManager;
+    private ModelManager modelManager;
 
     /**
      * The constructor.
@@ -66,11 +65,11 @@ public class PersonOverviewController {
      * 
      * @param mainController
      */
-    public void setMainController(MainController mainController, DataManager dataManager) {
+    public void setMainController(MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
-        this.dataManager = dataManager;
+        this.modelManager = modelManager;
         // Add observable list data to the table
-        personTable.setItems(dataManager.getPersonData());
+        personTable.setItems(modelManager.getPersonData());
     }
     
     /**
@@ -128,7 +127,7 @@ public class PersonOverviewController {
         Person tempPerson = new Person();
         boolean okClicked = mainController.showPersonEditDialog(tempPerson);
         if (okClicked) {
-            dataManager.getPersonData().add(tempPerson);
+            modelManager.getPersonData().add(tempPerson);
         }
     }
 

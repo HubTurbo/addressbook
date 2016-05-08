@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by dcsdcr on 4/5/2016.
  */
-public class DataManager {
+public class ModelManager {
 
     /**
      * The data as an observable list of Persons.
@@ -21,8 +21,8 @@ public class DataManager {
     /**
      * Constructor
      */
-    public DataManager() {
-        // Add some sample dataManager
+    public ModelManager() {
+        // Add some sample data
         populateInitialData();
         EventManager.getInstance().registerHandler(this);
     }

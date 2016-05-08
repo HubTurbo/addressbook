@@ -4,7 +4,7 @@ import address.MainApp;
 import address.events.EventManager;
 import address.events.FileNameChangedEvent;
 import address.events.FileOpeningExceptionEvent;
-import address.model.DataManager;
+import address.model.ModelManager;
 import address.model.Person;
 import address.preferences.PreferencesManager;
 import address.storage.StorageManager;
@@ -32,11 +32,11 @@ public class MainController {
 
     //TODO remove these two
     private StorageManager storageManager;
-    private DataManager dataManager;
+    private ModelManager modelManager;
 
-    public MainController(DataManager dataManager, StorageManager storageManager){
+    public MainController(ModelManager modelManager, StorageManager storageManager){
         EventManager.getInstance().registerHandler(this);
-        this.dataManager = dataManager;
+        this.modelManager = modelManager;
         this. storageManager = storageManager;
         this.appTitle = "Address Book";
     }
@@ -75,7 +75,7 @@ public class MainController {
 
             // Give the controller access to the main app.
             RootLayoutController controller = loader.getController();
-            controller.setMainController(this, dataManager);
+            controller.setMainController(this, modelManager);
 
             primaryStage.show();
         } catch (IOException e) {
@@ -88,7 +88,7 @@ public class MainController {
         if (file == null) { return; }
 
         try {
-            storageManager.loadPersonDataFromFile(file, dataManager.getPersonData());
+            storageManager.loadPersonDataFromFile(file, modelManager.getPersonData());
         } catch (Exception e) {
             showFileOpeningExceptionMessage(e, file);
         }
@@ -109,7 +109,7 @@ public class MainController {
 
             // Give the controller access to the main app.
             PersonOverviewController controller = loader.getController();
-            controller.setMainController(this, dataManager);
+            controller.setMainController(this, modelManager);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -178,7 +178,7 @@ public class MainController {
 
             // Set the persons into the controller.
             BirthdayStatisticsController controller = loader.getController();
-            controller.setPersonData(dataManager.getPersonData());
+            controller.setPersonData(modelManager.getPersonData());
 
             dialogStage.show();
 

@@ -1,8 +1,7 @@
 package address;
 
 import address.controller.MainController;
-import address.events.EventManager;
-import address.model.DataManager;
+import address.model.ModelManager;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
 import javafx.application.Application;
@@ -12,7 +11,7 @@ public class MainApp extends Application {
 
 
     protected StorageManager storageManager;
-    protected DataManager dataManager;
+    protected ModelManager modelManager;
     protected SyncManager syncManager;
     private MainController mainController;
 
@@ -24,10 +23,10 @@ public class MainApp extends Application {
     }
 
     protected void setupComponents() {
-        dataManager = new DataManager();
+        modelManager = new ModelManager();
         storageManager = new StorageManager();
         syncManager = new SyncManager();
-        mainController = new MainController(dataManager, storageManager);
+        mainController = new MainController(modelManager, storageManager);
         syncManager.startSyncingData(5);
     }
 
