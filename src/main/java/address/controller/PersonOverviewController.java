@@ -65,7 +65,7 @@ public class PersonOverviewController {
      * 
      * @param mainController
      */
-    public void setMainController(MainController mainController, ModelManager modelManager) {
+    public void setConnections(MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
         this.modelManager = modelManager;
         // Add observable list data to the table

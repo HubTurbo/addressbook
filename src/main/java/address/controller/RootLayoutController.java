@@ -16,21 +16,13 @@ import javafx.stage.FileChooser;
  * The controller for the root layout. The root layout provides the basic
  * application layout containing a menu bar and space where other JavaFX
  * elements can be placed.
- * 
- * @author Marco Jakob
  */
 public class RootLayoutController {
 
-    // Reference to the main application
     private MainController mainController;
     private ModelManager modelManager;
 
-    /**
-     * Is called by the main application to give a reference back to itself.
-     * 
-     */
-    public void setMainController(MainController mainController, ModelManager modelManager) {
-
+    public void setConnections(MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
         this.modelManager = modelManager;
     }
@@ -130,4 +122,6 @@ public class RootLayoutController {
     private void handleShowBirthdayStatistics() {
         mainController.showBirthdayStatistics();
     }
+
+
 }

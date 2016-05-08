@@ -73,11 +73,12 @@ public class MainController {
             Scene scene = new Scene(rootLayout);
             primaryStage.setScene(scene);
 
-            // Give the controller access to the main app.
-            RootLayoutController controller = loader.getController();
-            controller.setMainController(this, modelManager);
+            // Give the rootController access to the main controller and modelManager
+            RootLayoutController rootController = loader.getController();
+            rootController.setConnections(this, modelManager);
 
             primaryStage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -107,9 +108,9 @@ public class MainController {
             // Set person overview into the center of root layout.
             rootLayout.setCenter(personOverview);
 
-            // Give the controller access to the main app.
-            PersonOverviewController controller = loader.getController();
-            controller.setMainController(this, modelManager);
+            // Give the personOverviewController access to the main app and modelManager.
+            PersonOverviewController personOverviewController = loader.getController();
+            personOverviewController.setConnections(this, modelManager);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -138,19 +139,18 @@ public class MainController {
             dialogStage.initOwner(primaryStage);
             Scene scene = new Scene(page);
             dialogStage.setScene(scene);
+            dialogStage.getIcons().add(getImage("/images/edit.png"));
 
             // Set the person into the controller.
-            PersonEditDialogController controller = loader.getController();
-            controller.setDialogStage(dialogStage);
-            controller.setPerson(person);
-
-            // Set the dialog icon.
-            dialogStage.getIcons().add(getImage("/images/edit.png"));
+            PersonEditDialogController personEditDialogController = loader.getController();
+            personEditDialogController.setDialogStage(dialogStage);
+            personEditDialogController.setPerson(person);
 
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
 
-            return controller.isOkClicked();
+            return personEditDialogController.isOkClicked();
+
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -172,8 +172,6 @@ public class MainController {
             dialogStage.initOwner(primaryStage);
             Scene scene = new Scene(page);
             dialogStage.setScene(scene);
-
-            // Set the dialog icon.
             dialogStage.getIcons().add(getImage("/images/calendar.png"));
 
             // Set the persons into the controller.
