@@ -10,7 +10,9 @@ import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.util.List;
 
-
+/**
+ * Helps with reading from and writing to the XML file.
+ */
 public class XmlHelper {
     public static List<Person> getDataFromFile(File file) throws JAXBException {
         JAXBContext context = JAXBContext
