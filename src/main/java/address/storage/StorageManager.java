@@ -5,16 +5,12 @@ import address.events.FileOpeningExceptionEvent;
 import address.events.OpenFileEvent;
 import address.events.SaveEvent;
 import address.model.Person;
-import address.model.PersonListWrapper;
 import address.preferences.PreferencesManager;
+import address.util.XmlHelper;
 import com.google.common.eventbus.Subscribe;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -22,9 +18,7 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 
 
-/**
- * Created by dcsdcr on 4/5/2016.
- */
+
 public class StorageManager {
 
     public StorageManager(){
@@ -36,10 +30,9 @@ public class StorageManager {
      * Loads person data from the specified file. The current person data will
      * be replaced.
      *
-     * @param file
      */
     public void loadPersonDataFromFile(File file, ObservableList<Person> personData) throws Exception {
-        List<Person> data  = getDataFromFile(file);
+        List<Person> data  = XmlHelper.getDataFromFile(file);
 
         personData.clear();
         personData.addAll(data);
@@ -48,14 +41,7 @@ public class StorageManager {
         PreferencesManager.getInstance().setPersonFilePath(file);
     }
 
-    private List<Person> getDataFromFile(File file) throws JAXBException {
-        JAXBContext context = JAXBContext
-                .newInstance(PersonListWrapper.class);
-        Unmarshaller um = context.createUnmarshaller();
 
-        // Reading XML from the file and unmarshalling.
-        return ((PersonListWrapper) um.unmarshal(file)).getPersons();
-    }
 
     @Subscribe
     private void handleOpenFileEvent(OpenFileEvent ofe) {
@@ -79,20 +65,11 @@ public class StorageManager {
      */
     public void savePersonDataToFile(File file, ObservableList<Person> personData) {
         try {
-            JAXBContext context = JAXBContext
-                    .newInstance(PersonListWrapper.class);
-            Marshaller m = context.createMarshaller();
-            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            // Wrapping our person data.
-            PersonListWrapper wrapper = new PersonListWrapper();
-            wrapper.setPersons(personData);
-
-            // Marshalling and saving XML to the file.
-            m.marshal(wrapper, file);
+            XmlHelper.saveToFile(file, personData);
 
             // Save the file path to the registry.
             PreferencesManager.getInstance().setPersonFilePath(file);
+
         } catch (Exception e) { // catches ANY exception
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
@@ -103,6 +80,7 @@ public class StorageManager {
         }
     }
 
+
     @Subscribe
     private void handleSaveEvent(SaveEvent se){
         savePersonDataToFile(se.file, se.personData);
@@ -110,8 +88,8 @@ public class StorageManager {
 
     public List<Person> getPersonDataFromFile(File file)  {
         try {
-            return file == null ? null : getDataFromFile(file);
-        } catch (JAXBException e) {
+            return file == null ? null : XmlHelper.getDataFromFile(file);
+        } catch (Exception e) {
             EventManager.getInstance().post(new FileOpeningExceptionEvent(e, file));
             return Collections.emptyList();
         }
