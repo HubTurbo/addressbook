@@ -2,6 +2,7 @@ package address;
 
 import address.controller.MainController;
 import address.model.ModelManager;
+import address.preferences.PreferencesManager;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
 import javafx.application.Application;
@@ -13,6 +14,7 @@ public class MainApp extends Application {
     protected StorageManager storageManager;
     protected ModelManager modelManager;
     protected SyncManager syncManager;
+    protected PreferencesManager preferencesManager;
     private MainController mainController;
 
     /**
@@ -23,8 +25,9 @@ public class MainApp extends Application {
     }
 
     protected void setupComponents() {
-        modelManager = new ModelManager();
+        preferencesManager = PreferencesManager.getInstance();
         storageManager = new StorageManager();
+        modelManager = new ModelManager(storageManager.getPersonDataFromFile(preferencesManager.getPersonFilePath()));
         syncManager = new SyncManager();
         mainController = new MainController(modelManager, storageManager);
         syncManager.startSyncingData(5);

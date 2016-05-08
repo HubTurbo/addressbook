@@ -12,9 +12,14 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 
 /**
@@ -34,18 +39,22 @@ public class StorageManager {
      * @param file
      */
     public void loadPersonDataFromFile(File file, ObservableList<Person> personData) throws Exception {
+        List<Person> data  = getDataFromFile(file);
+
+        personData.clear();
+        personData.addAll(data);
+
+        // Save the file path to the registry.
+        PreferencesManager.getInstance().setPersonFilePath(file);
+    }
+
+    private List<Person> getDataFromFile(File file) throws JAXBException {
         JAXBContext context = JAXBContext
                 .newInstance(PersonListWrapper.class);
         Unmarshaller um = context.createUnmarshaller();
 
         // Reading XML from the file and unmarshalling.
-        PersonListWrapper wrapper = (PersonListWrapper) um.unmarshal(file);
-
-        personData.clear();
-        personData.addAll(wrapper.getPersons());
-
-        // Save the file path to the registry.
-        PreferencesManager.getInstance().setPersonFilePath(file);
+        return ((PersonListWrapper) um.unmarshal(file)).getPersons();
     }
 
     @Subscribe
@@ -99,4 +108,12 @@ public class StorageManager {
         savePersonDataToFile(se.file, se.personData);
     }
 
+    public List<Person> getPersonDataFromFile(File file)  {
+        try {
+            return file == null ? null : getDataFromFile(file);
+        } catch (JAXBException e) {
+            EventManager.getInstance().post(new FileOpeningExceptionEvent(e, file));
+            return Collections.emptyList();
+        }
+    }
 }

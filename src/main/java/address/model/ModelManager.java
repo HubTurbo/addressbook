@@ -21,9 +21,14 @@ public class ModelManager {
     /**
      * Constructor
      */
-    public ModelManager() {
-        // Add some sample data
-        populateInitialData();
+    public ModelManager(List<Person> initialData) {
+        if (initialData != null) {
+            System.out.println("Persons found : " + initialData.size());
+            personData.addAll(initialData);
+        } else {
+            // Add some sample data
+            populateInitialData();
+        }
         EventManager.getInstance().registerHandler(this);
     }
 

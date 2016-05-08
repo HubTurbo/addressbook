@@ -6,7 +6,6 @@ import address.events.FileNameChangedEvent;
 import address.events.FileOpeningExceptionEvent;
 import address.model.ModelManager;
 import address.model.Person;
-import address.preferences.PreferencesManager;
 import address.storage.StorageManager;
 import com.google.common.eventbus.Subscribe;
 import javafx.fxml.FXMLLoader;
@@ -21,23 +20,18 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Created by damithch on 5/7/2016.
- */
+
 public class MainController {
 
     protected String appTitle;
     private Stage primaryStage;
     private BorderPane rootLayout;
 
-    //TODO remove these two
-    private StorageManager storageManager;
     private ModelManager modelManager;
 
     public MainController(ModelManager modelManager, StorageManager storageManager){
         EventManager.getInstance().registerHandler(this);
         this.modelManager = modelManager;
-        this. storageManager = storageManager;
         this.appTitle = "Address Book";
     }
 
@@ -81,17 +75,6 @@ public class MainController {
 
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-        // Try to load last opened person file.
-        File file = PreferencesManager.getInstance().getPersonFilePath();
-
-        if (file == null) { return; }
-
-        try {
-            storageManager.loadPersonDataFromFile(file, modelManager.getPersonData());
-        } catch (Exception e) {
-            showFileOpeningExceptionMessage(e, file);
         }
     }
 
