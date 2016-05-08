@@ -4,8 +4,13 @@ package address.sync;
 import address.events.EventManager;
 import address.events.NewDataEvent;
 import address.model.Person;
+import address.preferences.PreferencesManager;
+import address.util.XmlHelper;
 
+import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -17,6 +22,8 @@ public class SyncManager {
     private final ScheduledExecutorService scheduler =
             Executors.newScheduledThreadPool(1);
 
+    private List<Person> previousList = Collections.emptyList();
+
     public void startSyncingData(long interval){
         updatePeriodically(interval);
     }
@@ -27,9 +34,18 @@ public class SyncManager {
 
         Runnable task = () -> {
             System.out.println("Updating data: " + System.nanoTime());
-            List<Person> newData = new ArrayList<>();
-            newData.add(new Person("Mr "+System.nanoTime(), ""));
-            EventManager.getInstance().post(new NewDataEvent(newData));
+            File mirrorFile = null;
+            List<Person> newData = Collections.emptyList();
+            try {
+                mirrorFile = new File(PreferencesManager.getInstance().getPersonFilePath().toString() + "-mirror.xml");
+                newData = XmlHelper.getDataFromFile(mirrorFile);
+            } catch (JAXBException e) {
+                System.out.println("File not found or is not in valid xml format : " + mirrorFile);
+            }
+
+            if(!newData.isEmpty()) {
+                EventManager.getInstance().post(new NewDataEvent(newData));
+            }
         };
 
         int initialDelay = 0;

@@ -53,8 +53,14 @@ public class ModelManager {
     }
 
     public void addNewData(List<Person> newData){
-        System.out.println("New data added "+ newData);
-        personData.addAll(newData);
+        System.out.println("Attempting to add a list of size " + newData.size());
+
+        for(Person p: newData){
+            if(!personData.contains(p)){
+                personData.add(p);
+                System.out.println("New data added " + p);
+            }
+        }
     }
 
     @Subscribe

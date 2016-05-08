@@ -123,4 +123,32 @@ public class Person {
     public ObjectProperty<LocalDate> birthdayProperty() {
         return birthday;
     }
+
+    @Override
+    public boolean equals(Object otherPerson){
+        if (otherPerson == null) {
+            return false;
+        }
+        if (!Person.class.isAssignableFrom(otherPerson.getClass())) {
+            return false;
+        }
+        final Person other = (Person) otherPerson;
+        if ((this.getFirstName() == null) ? (other.getFirstName() != null) : !this.getFirstName().equals(other.getFirstName())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 53 * hash + (this.getFirstName() != null ? this.getFirstName().hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public String toString(){
+        return "Person : " + getFirstName();
+    }
 }
