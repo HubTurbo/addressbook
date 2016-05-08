@@ -221,4 +221,14 @@ public class MainController {
         alert.showAndWait();
     }
 
+    public void showWarningDialogAndWait(String title, String headerText, String contentText){
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.initOwner(primaryStage);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+
+        alert.showAndWait();
+    }
+
 }

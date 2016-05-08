@@ -60,12 +60,7 @@ public class PersonOverviewController {
                 (observable, oldValue, newValue) -> showPersonDetails(newValue));
     }
 
-    /**
-     * Is called by the main application to give a reference back to itself.
-     * 
-     * @param mainController
-     */
-    public void setConnections(MainController mainController, ModelManager modelManager) {
+   public void setConnections(MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
         this.modelManager = modelManager;
         // Add observable list data to the table
@@ -108,13 +103,8 @@ public class PersonOverviewController {
             personTable.getItems().remove(selectedIndex);
         } else {
             // Nothing selected.
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.initOwner(mainController.getPrimaryStage());
-            alert.setTitle("No Selection");
-            alert.setHeaderText("No Person Selected");
-            alert.setContentText("Please select a person in the table.");
-            
-            alert.showAndWait();
+            mainController.showWarningDialogAndWait("No Selection",
+                    "No Person Selected", "Please select a person in the table.");
         }
     }
     
@@ -146,13 +136,8 @@ public class PersonOverviewController {
 
         } else {
             // Nothing selected.
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.initOwner(mainController.getPrimaryStage());
-            alert.setTitle("No Selection");
-            alert.setHeaderText("No Person Selected");
-            alert.setContentText("Please select a person in the table.");
-            
-            alert.showAndWait();
+            mainController.showWarningDialogAndWait("No Selection",
+                    "No Person Selected", "Please select a person in the table.");
         }
     }
 }
