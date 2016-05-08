@@ -1,7 +1,7 @@
 package address.model;
 
 import address.events.EventManager;
-import address.events.NewMirrorData;
+import address.events.NewMirrorDataEvent;
 import com.google.common.eventbus.Subscribe;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,7 +9,7 @@ import javafx.collections.ObservableList;
 import java.util.List;
 
 /**
- * Created by dcsdcr on 4/5/2016.
+ * Represents the in-memory model of the address book data.
  */
 public class ModelManager {
 
@@ -19,7 +19,8 @@ public class ModelManager {
     private ObservableList<Person> personData = FXCollections.observableArrayList();
 
     /**
-     * Constructor
+     * @param initialData Initial data to populate the model. If the list is
+     *                    empty, some dummy data will be added instead.
      */
     public ModelManager(List<Person> initialData) {
         if (initialData != null) {
@@ -27,12 +28,12 @@ public class ModelManager {
             personData.addAll(initialData);
         } else {
             // Add some sample data
-            populateInitialData();
+            populateDummyData();
         }
         EventManager.getInstance().registerHandler(this);
     }
 
-    protected void populateInitialData() {
+    protected void populateDummyData() {
         personData.add(new Person("Hans", "Muster"));
         personData.add(new Person("Ruth", "Mueller"));
         personData.add(new Person("Heinz", "Kurz"));
@@ -52,9 +53,15 @@ public class ModelManager {
         return personData;
     }
 
+    /**
+     * Adds new data to existing data. If a Person in the new data has the same
+     * first name as an existing Person, the older one will be kept.
+     * @param newData
+     */
     public void addNewData(List<Person> newData){
         System.out.println("Attempting to add a list of size " + newData.size());
 
+        //TODO: change to use streams instead
         for(Person p: newData){
             if(!personData.contains(p)){
                 personData.add(p);
@@ -64,10 +71,14 @@ public class ModelManager {
     }
 
     @Subscribe
-    private void handleNewDataEvent(NewMirrorData nde){
+    private void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
         addNewData(nde.personData);
     }
 
+    /**
+     * Clears existing model and replaces with the provided new data.
+     * @param newData
+     */
     public void resetData(List<Person> newData) {
         personData.clear();
         personData.addAll(newData);

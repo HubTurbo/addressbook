@@ -2,7 +2,7 @@ package address.sync;
 
 
 import address.events.EventManager;
-import address.events.NewMirrorData;
+import address.events.NewMirrorDataEvent;
 import address.model.Person;
 import address.preferences.PreferencesManager;
 import address.util.XmlHelper;
@@ -44,7 +44,7 @@ public class SyncManager {
             List<Person> mirrorData = getMirrorData();
 
             if(!mirrorData.isEmpty()) {
-                EventManager.getInstance().post(new NewMirrorData(mirrorData));
+                EventManager.getInstance().post(new NewMirrorDataEvent(mirrorData));
             }
         };
 
