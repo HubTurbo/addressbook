@@ -7,7 +7,6 @@ import address.events.FileOpeningExceptionEvent;
 import address.model.ModelManager;
 import address.model.Person;
 import address.preferences.PreferencesManager;
-import address.storage.StorageManager;
 import com.google.common.eventbus.Subscribe;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -21,7 +20,9 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 
-
+/**
+ * The controller that creates the other controllers
+ */
 public class MainController {
 
     protected String appTitle;
@@ -30,15 +31,13 @@ public class MainController {
 
     private ModelManager modelManager;
 
-    public MainController(ModelManager modelManager, StorageManager storageManager){
+    public MainController(ModelManager modelManager){
         EventManager.getInstance().registerHandler(this);
         this.modelManager = modelManager;
         this.appTitle = "Address Book";
     }
 
-    private Image getImage(String imagePath) {
-        return new Image(MainApp.class.getResourceAsStream(imagePath));
-    }
+
 
     public void start(Stage primaryStage){
 
@@ -194,6 +193,10 @@ public class MainController {
     @Subscribe
     private void handleFileOpeningExceptionEvent(FileOpeningExceptionEvent foee){
         showFileOpeningExceptionMessage(foee.exception, foee.file);
+    }
+
+    private Image getImage(String imagePath) {
+        return new Image(MainApp.class.getResourceAsStream(imagePath));
     }
 
     private void showFileOpeningExceptionMessage(Exception exception, File file) {

@@ -8,6 +8,9 @@ import address.sync.SyncManager;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+/**
+ * The main entry point to the application.
+ */
 public class MainApp extends Application {
 
 
@@ -17,9 +20,6 @@ public class MainApp extends Application {
     protected PreferencesManager preferencesManager;
     private MainController mainController;
 
-    /**
-     * Constructor
-     */
     public MainApp() {
         setupComponents();
     }
@@ -28,8 +28,8 @@ public class MainApp extends Application {
         preferencesManager = PreferencesManager.getInstance();
         storageManager = new StorageManager();
         modelManager = new ModelManager(storageManager.getPersonDataFromFile(preferencesManager.getPersonFilePath()));
+        mainController = new MainController(modelManager);
         syncManager = new SyncManager();
-        mainController = new MainController(modelManager, storageManager);
         syncManager.startSyncingData(5);
     }
 

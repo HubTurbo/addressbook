@@ -84,6 +84,10 @@ public class RootLayoutController {
         }
     }
 
+    /**
+     * @return a file chooser for choosing xml files. The initial folder is set to the same folder that the
+     *     current data file is located (if any).
+     */
     private FileChooser getFileChooser() {
         FileChooser fileChooser = new FileChooser();
 
@@ -91,9 +95,9 @@ public class RootLayoutController {
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
                 "XML files (*.xml)", "*.xml");
         fileChooser.getExtensionFilters().add(extFilter);
-        File previousFolder = PreferencesManager.getInstance().getPersonFilePath().getParentFile();
-        if(previousFolder.isDirectory()) {
-            fileChooser.setInitialDirectory(previousFolder);
+        File currentFile = PreferencesManager.getInstance().getPersonFilePath();
+        if(currentFile != null) {
+            fileChooser.setInitialDirectory(currentFile.getParentFile());
         }
         return fileChooser;
     }
