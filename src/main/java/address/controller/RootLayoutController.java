@@ -102,7 +102,7 @@ public class RootLayoutController {
     	Alert alert = new Alert(AlertType.INFORMATION);
     	alert.setTitle("AddressApp");
     	alert.setHeaderText("About");
-    	alert.setContentText("Author: Marco Jakob\nWebsite: http://code.makery.ch");
+    	alert.setContentText("Some code adapted from http://code.makery.ch");
 
     	alert.showAndWait();
     }
