@@ -41,12 +41,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleOpen() {
-        FileChooser fileChooser = new FileChooser();
-
-        // Set extension filter
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
-                "XML files (*.xml)", "*.xml");
-        fileChooser.getExtensionFilters().add(extFilter);
+        FileChooser fileChooser = getFileChooser();
 
         // Show save file dialog
         File file = fileChooser.showOpenDialog(mainController.getPrimaryStage());
@@ -75,12 +70,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleSaveAs() {
-        FileChooser fileChooser = new FileChooser();
-
-        // Set extension filter
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
-                "XML files (*.xml)", "*.xml");
-        fileChooser.getExtensionFilters().add(extFilter);
+        FileChooser fileChooser = getFileChooser();
 
         // Show save file dialog
         File file = fileChooser.showSaveDialog(mainController.getPrimaryStage());
@@ -92,6 +82,20 @@ public class RootLayoutController {
             }
             EventManager.getInstance().post(new SaveEvent(file, modelManager.getPersonData()));
         }
+    }
+
+    private FileChooser getFileChooser() {
+        FileChooser fileChooser = new FileChooser();
+
+        // Set extension filter
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+                "XML files (*.xml)", "*.xml");
+        fileChooser.getExtensionFilters().add(extFilter);
+        File previousFolder = PreferencesManager.getInstance().getPersonFilePath().getParentFile();
+        if(previousFolder.isDirectory()) {
+            fileChooser.setInitialDirectory(previousFolder);
+        }
+        return fileChooser;
     }
 
     /**
