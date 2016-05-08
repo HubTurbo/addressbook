@@ -197,9 +197,10 @@ public class MainController {
 
     private void showFileOpeningExceptionMessage(Exception exception, File file) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.initOwner(primaryStage);
         alert.setTitle("Error");
         alert.setHeaderText("Could not load data");
-        alert.setContentText("Could not load data from file:\n" + file.getPath());
+        alert.setContentText("Could not load data from file:\n" + (file == null ? "none" : file.getPath()));
 
         alert.showAndWait();
     }

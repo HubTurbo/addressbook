@@ -49,12 +49,6 @@ public class StorageManager {
             loadPersonDataFromFile(ofe.file, ofe.personData);
         } catch (Exception e) {
             EventManager.getInstance().post(new FileOpeningExceptionEvent(e,ofe.file));
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Could not load data");
-            alert.setContentText("Could not load data from file:\n" + ofe.file.getPath());
-
-            alert.showAndWait();
         }
     }
 
