@@ -182,6 +182,10 @@ public class MainController {
         setTitle(fnce.file);
     }
 
+    /**
+     * Sets the title of the app UI based on the file location
+     * @param file the data file used by the app
+     */
     public void setTitle(File file){
         if (file != null) {
             primaryStage.setTitle(appTitle + " - " + file.getName());
