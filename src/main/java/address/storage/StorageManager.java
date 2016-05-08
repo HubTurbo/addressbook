@@ -1,16 +1,11 @@
 package address.storage;
 
-import address.events.EventManager;
-import address.events.FileOpeningExceptionEvent;
-import address.events.LoadDataRequestEvent;
-import address.events.SaveRequestEvent;
+import address.events.*;
 import address.model.ModelManager;
 import address.model.Person;
 import address.preferences.PreferencesManager;
 import address.util.XmlHelper;
 import com.google.common.eventbus.Subscribe;
-import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
 
 import java.io.File;
 import java.util.Collections;
@@ -44,7 +39,7 @@ public class StorageManager {
 
 
     @Subscribe
-    private void handleOpenFileEvent(LoadDataRequestEvent ofe) {
+    private void handleLoadDataRequestEvent(LoadDataRequestEvent ofe) {
         try {
             loadPersonDataFromFile(ofe.file);
         } catch (Exception e) {
@@ -64,19 +59,14 @@ public class StorageManager {
             // Save the file path to the registry.
             PreferencesManager.getInstance().setPersonFilePath(file);
 
-        } catch (Exception e) { // catches ANY exception
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Could not save data");
-            alert.setContentText("Could not save data to file:\n" + file.getPath());
-
-            alert.showAndWait();
+        } catch (Exception e) {
+            EventManager.getInstance().post(new FileSavingExceptionEvent(e,file));
         }
     }
 
 
     @Subscribe
-    private void handleSaveEvent(SaveRequestEvent se){
+    private void handleSaveRequestEvent(SaveRequestEvent se){
         savePersonDataToFile(se.file, se.personData);
     }
 

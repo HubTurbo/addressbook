@@ -4,6 +4,7 @@ import address.MainApp;
 import address.events.EventManager;
 import address.events.FileNameChangedEvent;
 import address.events.FileOpeningExceptionEvent;
+import address.events.FileSavingExceptionEvent;
 import address.model.ModelManager;
 import address.model.Person;
 import address.preferences.PreferencesManager;
@@ -197,6 +198,16 @@ public class MainController {
     @Subscribe
     private void handleFileOpeningExceptionEvent(FileOpeningExceptionEvent foee){
         showFileOpeningExceptionMessage(foee.exception, foee.file);
+    }
+
+    @Subscribe
+    private void handleFileSavingExceptionEvent(FileSavingExceptionEvent fsee){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("Could not save data");
+        alert.setContentText("Could not save data to file:\n" + fsee.file.getPath());
+
+        alert.showAndWait();
     }
 
     private Image getImage(String imagePath) {
