@@ -33,7 +33,7 @@ public class MainApp extends Application {
         storageManager.setModel(modelManager);
         mainController = new MainController(modelManager, config);
         syncManager = new SyncManager();
-        syncManager.startSyncingData(config.updateInterval);
+        syncManager.startSyncingData(config.updateInterval, config.isSimulateRandomChanges);
     }
 
     protected Config getConfig() {

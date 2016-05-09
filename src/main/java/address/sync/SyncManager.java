@@ -24,8 +24,11 @@ public class SyncManager {
 
     private List<Person> previousList = Collections.emptyList();
 
-    public void startSyncingData(long interval){
+    private boolean isSimulatedRandomChanges = false;
+
+    public void startSyncingData(long interval, boolean isSimulateRandomChanges) {
         if(interval > 0) {
+            this.isSimulatedRandomChanges = isSimulateRandomChanges;
             updatePeriodically(interval);
         }
     }
@@ -55,7 +58,7 @@ public class SyncManager {
     private List<Person> getMirrorData() {
         System.out.println("Updating data: " + System.nanoTime());
         File mirrorFile = new File(PreferencesManager.getInstance().getPersonFilePath().toString() + "-mirror.xml");
-        CloudSimulator simulator = new CloudSimulator(mirrorFile);
-        return simulator.getSimulatedCloudData();
+        CloudSimulator cloudSimulator = new CloudSimulator(this.isSimulatedRandomChanges);
+        return cloudSimulator.getSimulatedCloudData(mirrorFile);
     }
 }

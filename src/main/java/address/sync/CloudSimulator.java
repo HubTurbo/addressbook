@@ -11,20 +11,20 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class CloudSimulator {
-    private double FAILURE_PROBABILITY = 0.1;
+    private static final double FAILURE_PROBABILITY = 0.1;
 
-    private int MIN_DELAY_IN_SEC = 1;
-    private int DELAY_RANGE = 5;
+    private static final int MIN_DELAY_IN_SEC = 1;
+    private static final int DELAY_RANGE = 5;
 
-    private double MODIFY_PERSON_PROBABILITY = 0.1;
-    private double ADD_PERSON_PROBABILITY = 0.05;
-    private int MAX_NUM_PERSONS_TO_ADD = 2;
+    private static final double MODIFY_PERSON_PROBABILITY = 0.1;
+    private static final double ADD_PERSON_PROBABILITY = 0.05;
+    private static final int MAX_NUM_PERSONS_TO_ADD = 2;
 
-    private Random random = new Random();
-    private final File file;
+    private boolean isSimulateRandomChanges = false;
+    private static final Random random = new Random();
 
-    public CloudSimulator(File file) {
-        this.file = file;
+    public CloudSimulator(boolean isSimulateRandomChanges) {
+        this.isSimulateRandomChanges = isSimulateRandomChanges;
     }
 
     /**
@@ -33,27 +33,29 @@ public class CloudSimulator {
      * The data is possibly modified in each call to this method and is persisted onto the same file.
      * When failure condition occurs, this returns an empty data set.
      */
-    public List<Person> getSimulatedCloudData() {
-        System.out.print("Simulating cloud data retrieval...");
-
-        if (random.nextDouble() <= FAILURE_PROBABILITY) {
-            System.out.println("Cloud simulator: failure occurred!");
-            return new ArrayList<>();
-        }
-
+    public List<Person> getSimulatedCloudData(File file) {
+        System.out.println("Simulating cloud data retrieval...");
         List<Person> modifiedData = new ArrayList<>();
         try {
-            List<Person> data = XmlHelper.getDataFromFile(this.file);
+            List<Person> data = XmlHelper.getDataFromFile(file);
+            if (!this.isSimulateRandomChanges) {
+                return data;
+            }
+
+            if (random.nextDouble() <= FAILURE_PROBABILITY) {
+                System.out.println("Cloud simulator: failure occurred!");
+                return new ArrayList<>();
+            }
+
             modifiedData = simulateDataModification(data);
             modifiedData.addAll(simulateDataAddition());
-            XmlHelper.saveToFile(this.file, modifiedData);
+            XmlHelper.saveToFile(file, modifiedData);
             TimeUnit.SECONDS.sleep(random.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC);
         } catch (JAXBException e) {
             System.out.println("File not found or is not in valid xml format : " + file);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         return modifiedData;
     }
 
