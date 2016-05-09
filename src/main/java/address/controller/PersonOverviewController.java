@@ -1,5 +1,11 @@
 package address.controller;
 
+import com.google.common.eventbus.Subscribe;
+
+import address.events.EventManager;
+import address.events.FilterCommittedEvent;
+import address.events.FilterParseErrorEvent;
+import address.events.FilterSuccessEvent;
 import address.model.ModelManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -7,6 +13,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import address.model.Person;
 import address.util.DateUtil;
+import javafx.scene.control.TextField;
 
 public class PersonOverviewController {
     @FXML
@@ -15,6 +22,9 @@ public class PersonOverviewController {
     private TableColumn<Person, String> firstNameColumn;
     @FXML
     private TableColumn<Person, String> lastNameColumn;
+
+    @FXML
+    private TextField filterField;
 
     @FXML
     private Label firstNameLabel;
@@ -33,6 +43,7 @@ public class PersonOverviewController {
     private ModelManager modelManager;
 
     public PersonOverviewController() {
+        EventManager.getInstance().registerHandler(this);
     }
 
     /**
@@ -132,5 +143,20 @@ public class PersonOverviewController {
             mainController.showWarningDialogAndWait("No Selection",
                     "No Person Selected", "Please select a person in the table.");
         }
+    }
+
+    @FXML
+    private void handleFilterChanged() {
+        EventManager.getInstance().post(new FilterCommittedEvent(filterField.getText()));
+    }
+
+    @Subscribe
+    private void handleFilterParseErrorEvent(FilterParseErrorEvent fpe) {
+        filterField.getStyleClass().add("error");
+    }
+
+    @Subscribe
+    private void handleFilterSuccessEvent(FilterSuccessEvent fse) {
+        filterField.getStyleClass().remove("error");
     }
 }

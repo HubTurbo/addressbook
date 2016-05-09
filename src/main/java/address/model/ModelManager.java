@@ -2,11 +2,21 @@ package address.model;
 
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
+import address.events.FilterCommittedEvent;
 import address.events.NewMirrorDataEvent;
+import address.events.*;
+
 import com.google.common.eventbus.Subscribe;
+
+import address.parser.ParseException;
+import address.parser.Parser;
+import address.parser.expr.Expr;
+import address.parser.expr.PredExpr;
+import address.parser.qualifier.TrueQualifier;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +29,8 @@ public class ModelManager {
     /**
      * The data as an observable list of Persons.
      */
-    private ObservableList<Person> personData = FXCollections.observableArrayList();
+    private final ObservableList<Person> personData = FXCollections.observableArrayList();
+    private final FilteredList<Person> filteredPersonData = new FilteredList<>(personData);
 
     /**
      * @param initialData Initial data to populate the model. If the list is
@@ -61,7 +72,7 @@ public class ModelManager {
      * @return
      */
     public ObservableList<Person> getPersonData() {
-        return personData;
+        return filteredPersonData;
     }
 
     /**
@@ -109,6 +120,27 @@ public class ModelManager {
     @Subscribe
     private void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
         addNewData(nde.personData);
+    }
+
+    @Subscribe
+    private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
+
+        if (fce.filter.isEmpty()) {
+            filteredPersonData.setPredicate(new PredExpr(new TrueQualifier())::satisfies);
+            EventManager.getInstance().post(new FilterSuccessEvent());
+            return;
+        }
+
+        Expr filterExpression;
+        try {
+            filterExpression = Parser.parse(fce.filter);
+        } catch (ParseException e) {
+            EventManager.getInstance().post(new FilterParseErrorEvent(e.getLocalizedMessage()));
+            return;
+        }
+
+        filteredPersonData.setPredicate(filterExpression::satisfies);
+        EventManager.getInstance().post(new FilterSuccessEvent());
     }
 
     /**
