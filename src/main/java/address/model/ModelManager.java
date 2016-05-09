@@ -9,6 +9,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents the in-memory model of the address book data.
@@ -73,11 +74,24 @@ public class ModelManager {
 
         //TODO: change to use streams instead
         for(Person p: newData){
-            if(!personData.contains(p)){
+            Optional<Person> storedPerson = getPerson(p);
+            if (storedPerson.isPresent()){
+                updatePerson(storedPerson.get(), p);
+            } else {
                 personData.add(p);
                 System.out.println("New data added " + p);
             }
         }
+    }
+
+    private Optional<Person> getPerson(Person person) {
+        for (Person p : personData) {
+            if (p.equals(person)) {
+                return Optional.of(p);
+            }
+        }
+
+        return Optional.empty();
     }
 
     /**

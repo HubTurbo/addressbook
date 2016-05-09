@@ -5,9 +5,7 @@ import address.events.EventManager;
 import address.events.NewMirrorDataEvent;
 import address.model.Person;
 import address.preferences.PreferencesManager;
-import address.util.XmlHelper;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -26,8 +24,11 @@ public class SyncManager {
 
     private List<Person> previousList = Collections.emptyList();
 
-    public void startSyncingData(long interval){
+    private boolean isSimulatedRandomChanges = false;
+
+    public void startSyncingData(long interval, boolean isSimulateRandomChanges) {
         if(interval > 0) {
+            this.isSimulatedRandomChanges = isSimulateRandomChanges;
             updatePeriodically(interval);
         }
     }
@@ -56,14 +57,8 @@ public class SyncManager {
 
     private List<Person> getMirrorData() {
         System.out.println("Updating data: " + System.nanoTime());
-        File mirrorFile = null;
-        List<Person> mirrorData = Collections.emptyList();
-        try {
-            mirrorFile = new File(PreferencesManager.getInstance().getPersonFilePath().toString() + "-mirror.xml");
-            mirrorData = XmlHelper.getDataFromFile(mirrorFile);
-        } catch (JAXBException e) {
-            System.out.println("File not found or is not in valid xml format : " + mirrorFile);
-        }
-        return mirrorData;
+        File mirrorFile = new File(PreferencesManager.getInstance().getPersonFilePath().toString() + "-mirror.xml");
+        CloudSimulator cloudSimulator = new CloudSimulator(this.isSimulatedRandomChanges);
+        return cloudSimulator.getSimulatedCloudData(mirrorFile);
     }
 }

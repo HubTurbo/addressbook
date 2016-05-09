@@ -1,17 +1,10 @@
 package address.model;
 
-import java.time.LocalDate;
-
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import address.util.LocalDateAdapter;
+import javafx.beans.property.*;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import address.util.LocalDateAdapter;
+import java.time.LocalDate;
 
 /**
  * Model class for a Person.
@@ -48,7 +41,21 @@ public class Person {
         this.street = new SimpleStringProperty("some street");
         this.postalCode = new SimpleIntegerProperty(1234);
         this.city = new SimpleStringProperty("some city");
-        this.birthday = new SimpleObjectProperty<LocalDate>(LocalDate.of(1999, 2, 21));
+        this.birthday = new SimpleObjectProperty<>(LocalDate.of(1999, 2, 21));
+    }
+
+    /**
+     * Copy constructor
+     * @param person
+     */
+    public Person(Person person) {
+        this.firstName = new SimpleStringProperty(person.getFirstName());
+        this.lastName = new SimpleStringProperty(person.getLastName());
+
+        this.street = new SimpleStringProperty(person.getStreet());
+        this.postalCode = new SimpleIntegerProperty(person.getPostalCode());
+        this.city = new SimpleStringProperty(person.getCity());
+        this.birthday = new SimpleObjectProperty<>(person.getBirthday());
     }
 
     public String getFirstName() {
