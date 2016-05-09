@@ -151,4 +151,17 @@ public class Person {
     public String toString(){
         return "Person : " + getFirstName();
     }
+
+    /**
+     * Updated the attributes based on the values in the parameter.
+     * @param updated The object containing the new attributes.
+     */
+    public void update(Person updated) {
+        setFirstName(updated.getFirstName());
+        setLastName(updated.getLastName());
+        setStreet(updated.getStreet());
+        setPostalCode(updated.getPostalCode());
+        setCity(updated.getCity());
+        setBirthday(updated.getBirthday());
+    }
 }

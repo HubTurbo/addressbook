@@ -6,6 +6,7 @@ import address.model.Person;
 import address.preferences.PreferencesManager;
 import address.util.XmlHelper;
 import com.google.common.eventbus.Subscribe;
+import javafx.collections.ListChangeListener;
 
 import java.io.File;
 import java.util.Collections;
@@ -17,8 +18,9 @@ public class StorageManager {
 
     private ModelManager modelManager;
 
-    public StorageManager(){
+    public StorageManager(ModelManager modelManager){
         EventManager.getInstance().registerHandler(this);
+
     }
 
 
@@ -64,13 +66,24 @@ public class StorageManager {
         }
     }
 
+    @Subscribe
+    private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce){
+        System.out.println("Local data changed, saving to primary data file");
+        savePersonDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmce.personData);
+    }
 
     @Subscribe
     private void handleSaveRequestEvent(SaveRequestEvent se){
         savePersonDataToFile(se.file, se.personData);
     }
 
-    public List<Person> getPersonDataFromFile(File file)  {
+    /**
+     * Raises a FileOpeningExceptionEvent if there was any problem in reading data from the file
+     *  or if the file is not in the correct format.
+     * @param file File containing the data
+     * @return Person list in the file
+     */
+    public static List<Person> getPersonDataFromFile(File file)  {
         try {
             return file == null ? null : XmlHelper.getDataFromFile(file);
         } catch (Exception e) {
@@ -79,7 +92,4 @@ public class StorageManager {
         }
     }
 
-    public void setModel(ModelManager modelManager) {
-        this.modelManager = modelManager;
-    }
 }

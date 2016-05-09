@@ -129,6 +129,7 @@ public class MainController {
             // Set the person into the controller.
             PersonEditDialogController personEditDialogController = loader.getController();
             personEditDialogController.setDialogStage(dialogStage);
+            personEditDialogController.setModelManager(modelManager);
             personEditDialogController.setPerson(person);
 
             // Show the dialog and wait until the user closes it
