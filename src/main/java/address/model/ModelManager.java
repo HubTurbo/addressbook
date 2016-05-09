@@ -11,6 +11,8 @@ import com.google.common.eventbus.Subscribe;
 import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
+import address.parser.expr.PredExpr;
+import address.parser.qualifier.TrueQualifier;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -122,6 +124,12 @@ public class ModelManager {
 
     @Subscribe
     private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
+
+        if (fce.filter.isEmpty()) {
+            filteredPersonData.setPredicate(new PredExpr(new TrueQualifier())::satisfies);
+            EventManager.getInstance().post(new FilterSuccessEvent());
+            return;
+        }
 
         Expr filterExpression;
         try {
