@@ -1,7 +1,6 @@
 package address;
 
 
-import address.MainApp;
 import address.util.Config;
 
 public class TestApp extends MainApp {

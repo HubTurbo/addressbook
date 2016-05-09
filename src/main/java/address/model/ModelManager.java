@@ -1,9 +1,11 @@
 package address.model;
 
 import address.events.EventManager;
+import address.events.LocalModelChangedEvent;
 import address.events.NewMirrorDataEvent;
 import com.google.common.eventbus.Subscribe;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.util.List;
@@ -31,6 +33,14 @@ public class ModelManager {
             // Add some sample data
             populateDummyData();
         }
+
+        //Listen to any changed to person data and raise an event
+        //Note: this will not catch edits to Person objects
+        personData.addListener(
+                (ListChangeListener<? super Person>) (change) ->
+                        EventManager.getInstance().post(new LocalModelChangedEvent(personData)));
+
+        //Register for general events relevant to data manager
         EventManager.getInstance().registerHandler(this);
     }
 
@@ -66,7 +76,7 @@ public class ModelManager {
         for(Person p: newData){
             Optional<Person> storedPerson = getPerson(p);
             if (storedPerson.isPresent()){
-                storedPerson.get().updateWith(p);
+                updatePerson(storedPerson.get(), p);
             } else {
                 personData.add(p);
                 System.out.println("New data added " + p);
@@ -82,6 +92,18 @@ public class ModelManager {
         }
 
         return Optional.empty();
+    }
+
+    /**
+     * Updates the details of a Person object. Updates to Person objects should be
+     * done through this method to ensure the proper events are raised to indicate
+     * a change to the model.
+     * @param original The Person object to be changed.
+     * @param updated The temporary Person object containing new values.
+     */
+    public void updatePerson(Person original, Person updated){
+        original.update(updated);
+        EventManager.getInstance().post(new LocalModelChangedEvent(personData));
     }
 
     @Subscribe

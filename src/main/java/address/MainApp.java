@@ -28,9 +28,8 @@ public class MainApp extends Application {
     protected void setupComponents() {
         config = getConfig();
         preferencesManager = PreferencesManager.getInstance();
-        storageManager = new StorageManager();
-        modelManager = new ModelManager(storageManager.getPersonDataFromFile(preferencesManager.getPersonFilePath()));
-        storageManager.setModel(modelManager);
+        modelManager = new ModelManager(StorageManager.getPersonDataFromFile(preferencesManager.getPersonFilePath()));
+        storageManager = new StorageManager(modelManager);
         mainController = new MainController(modelManager, config);
         syncManager = new SyncManager();
         syncManager.startSyncingData(config.updateInterval, config.isSimulateRandomChanges);
@@ -44,6 +43,11 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         mainController.start(primaryStage);
+    }
+
+    @Override
+    public void stop(){
+        System.exit(0);
     }
 
     public static void main(String[] args) {
