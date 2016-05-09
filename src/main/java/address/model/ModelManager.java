@@ -3,6 +3,7 @@ package address.model;
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
 import address.events.FilterCommittedEvent;
+import address.events.LocalModelSyncedEvent;
 import address.events.NewMirrorDataEvent;
 import address.events.*;
 
@@ -87,12 +88,14 @@ public class ModelManager {
         for(Person p: newData){
             Optional<Person> storedPerson = getPerson(p);
             if (storedPerson.isPresent()){
-                updatePerson(storedPerson.get(), p);
+                storedPerson.get().update(p);
             } else {
                 personData.add(p);
                 System.out.println("New data added " + p);
             }
         }
+
+        EventManager.getInstance().post(new LocalModelSyncedEvent(personData));
     }
 
     private Optional<Person> getPerson(Person person) {
