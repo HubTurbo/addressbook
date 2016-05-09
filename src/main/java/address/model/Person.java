@@ -131,6 +131,15 @@ public class Person {
         return birthday;
     }
 
+    public void updateWith(Person updatedData) {
+        assert this.equals(updatedData);
+
+        this.setStreet(updatedData.getStreet());
+        this.setPostalCode(updatedData.getPostalCode());
+        this.setCity(updatedData.getCity());
+        this.setBirthday(updatedData.getBirthday());
+    }
+
     @Override
     public boolean equals(Object otherPerson){
         if (otherPerson == null) {
