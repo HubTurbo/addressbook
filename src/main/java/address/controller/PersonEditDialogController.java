@@ -1,5 +1,6 @@
 package address.controller;
 
+import address.model.ModelManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -31,6 +32,7 @@ public class PersonEditDialogController {
     private Stage dialogStage;
     private Person person;
     private boolean okClicked = false;
+    private ModelManager modelManager;
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -47,6 +49,10 @@ public class PersonEditDialogController {
      */
     public void setDialogStage(Stage dialogStage) {
         this.dialogStage = dialogStage;
+    }
+
+    public void setModelManager(ModelManager modelManager){
+        this.modelManager = modelManager;
     }
 
     /**
@@ -81,12 +87,16 @@ public class PersonEditDialogController {
     @FXML
     private void handleOk() {
         if (isInputValid()) {
-            person.setFirstName(firstNameField.getText());
-            person.setLastName(lastNameField.getText());
-            person.setStreet(streetField.getText());
-            person.setPostalCode(Integer.parseInt(postalCodeField.getText()));
-            person.setCity(cityField.getText());
-            person.setBirthday(DateUtil.parse(birthdayField.getText()));
+            //Call the update method instead of updating the Person object directly
+            //  to ensure proper event handling for model update.
+            Person updated = new Person();
+            updated.setFirstName(firstNameField.getText());
+            updated.setLastName(lastNameField.getText());
+            updated.setStreet(streetField.getText());
+            updated.setPostalCode(Integer.parseInt(postalCodeField.getText()));
+            updated.setCity(cityField.getText());
+            updated.setBirthday(DateUtil.parse(birthdayField.getText()));
+            modelManager.updatePerson(person, updated);
 
             okClicked = true;
             dialogStage.close();

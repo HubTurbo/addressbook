@@ -28,9 +28,8 @@ public class MainApp extends Application {
     protected void setupComponents() {
         config = getConfig();
         preferencesManager = PreferencesManager.getInstance();
-        storageManager = new StorageManager();
-        modelManager = new ModelManager(storageManager.getPersonDataFromFile(preferencesManager.getPersonFilePath()));
-        storageManager.setModel(modelManager);
+        modelManager = new ModelManager(StorageManager.getPersonDataFromFile(preferencesManager.getPersonFilePath()));
+        storageManager = new StorageManager(modelManager);
         mainController = new MainController(modelManager, config);
         syncManager = new SyncManager();
         syncManager.startSyncingData(config.updateInterval);
