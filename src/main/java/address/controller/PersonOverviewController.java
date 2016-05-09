@@ -5,6 +5,7 @@ import com.google.common.eventbus.Subscribe;
 import address.events.EventManager;
 import address.events.FilterCommittedEvent;
 import address.events.FilterParseErrorEvent;
+import address.events.FilterSuccessEvent;
 import address.model.ModelManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -42,6 +43,7 @@ public class PersonOverviewController {
     private ModelManager modelManager;
 
     public PersonOverviewController() {
+        EventManager.getInstance().registerHandler(this);
     }
 
     /**
@@ -146,5 +148,15 @@ public class PersonOverviewController {
     @FXML
     private void handleFilterChanged() {
         EventManager.getInstance().post(new FilterCommittedEvent(filterField.getText()));
+    }
+
+    @Subscribe
+    private void handleFilterParseErrorEvent(FilterParseErrorEvent fpe) {
+        filterField.getStyleClass().add("error");
+    }
+
+    @Subscribe
+    private void handleFilterSuccessEvent(FilterSuccessEvent fse) {
+        filterField.getStyleClass().remove("error");
     }
 }

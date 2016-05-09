@@ -4,6 +4,8 @@ import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
 import address.events.FilterCommittedEvent;
 import address.events.NewMirrorDataEvent;
+import address.events.*;
+
 import com.google.common.eventbus.Subscribe;
 
 import address.parser.ParseException;
@@ -125,11 +127,12 @@ public class ModelManager {
         try {
             filterExpression = Parser.parse(fce.filter);
         } catch (ParseException e) {
-            e.printStackTrace();
+            EventManager.getInstance().post(new FilterParseErrorEvent(e.getLocalizedMessage()));
             return;
         }
 
         filteredPersonData.setPredicate(filterExpression::satisfies);
+        EventManager.getInstance().post(new FilterSuccessEvent());
     }
 
     /**
