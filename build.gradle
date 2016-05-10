@@ -5,6 +5,9 @@
  * user guide available at http://gradle.org/docs/2.2.1/userguide/tutorial_java_projects.html
  */
 
+plugins {
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
+}
 
 allprojects {
 
@@ -51,6 +54,13 @@ allprojects {
         compile fileTree(dir: 'lib', include: '*.jar')
     }
 
+    jar {
+        manifest {
+            attributes 'Main-Class': 'address.MainApp'
+        }
+    }
+
+    assemble.dependsOn shadowJar
 }
 
 

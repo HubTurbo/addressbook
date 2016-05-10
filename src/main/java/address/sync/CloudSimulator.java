@@ -1,5 +1,7 @@
 package address.sync;
 
+import address.model.AddressBookWrapper;
+import address.model.ContactGroup;
 import address.model.Person;
 import address.util.XmlHelper;
 
@@ -35,23 +37,26 @@ public class CloudSimulator {
      * The data is possibly modified in each call to this method and is persisted onto the same file.
      * When failure condition occurs, this returns an empty data set.
      */
-    public List<Person> getSimulatedCloudData(File file) {
+    public AddressBookWrapper getSimulatedCloudData(File file) {
         System.out.println("Simulating cloud data retrieval...");
-        List<Person> modifiedData = new ArrayList<>();
+        AddressBookWrapper modifiedData = new AddressBookWrapper();
         try {
-            List<Person> data = XmlHelper.getDataFromFile(file);
+            AddressBookWrapper data = XmlHelper.getDataFromFile(file);
             if (!this.isSimulateRandomChanges) {
                 return data;
             }
 
             if (random.nextDouble() <= FAILURE_PROBABILITY) {
                 System.out.println("Cloud simulator: failure occurred!");
-                return new ArrayList<>();
+                AddressBookWrapper wrapper = new AddressBookWrapper();
+                wrapper.setPersons(new ArrayList<>());
+                wrapper.setGroups(new ArrayList<>());
+                return wrapper;
             }
 
             modifiedData = simulateDataModification(data);
-            modifiedData.addAll(simulateDataAddition());
-            XmlHelper.saveToFile(file, modifiedData);
+            modifiedData.getPersons().addAll(simulateDataAddition());
+            XmlHelper.saveToFile(file, modifiedData.getPersons(), modifiedData.getGroups());
             TimeUnit.SECONDS.sleep(random.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC);
         } catch (JAXBException e) {
             System.out.println("File not found or is not in valid xml format : " + file);
@@ -66,14 +71,13 @@ public class CloudSimulator {
      * written to the provided mirror file
      * @param delay Duration of delay in seconds to be simulated before the request is completed
      */
-    public void requestChangesToCloud(File file, List<Person> data, int delay) throws JAXBException {
+    public void requestChangesToCloud(File file, List<Person> data, List<ContactGroup> groups, int delay) throws JAXBException {
         if (file == null) {
             return;
         }
-
         List<Person> persons = data.stream().map(Person::new).collect(Collectors.toList());
         persons.forEach((p) -> p.setUpdatedAt(LocalDateTime.now()));
-        XmlHelper.saveToFile(file, persons);
+        XmlHelper.saveToFile(file, data, groups);
         try {
             TimeUnit.SECONDS.sleep(delay);
         } catch (InterruptedException e) {
@@ -96,10 +100,11 @@ public class CloudSimulator {
         return newData;
     }
 
-    private List<Person> simulateDataModification(List<Person> data) {
+    private AddressBookWrapper simulateDataModification(AddressBookWrapper data) {
         List<Person> modifiedData = new ArrayList<>();
 
-        for (Person person : data) {
+        // currently only modifies persons
+        for (Person person : data.getPersons()) {
             if (random.nextDouble() <= MODIFY_PERSON_PROBABILITY) {
                 System.out.println("Cloud simulator: modifying " + person);
                 person.setCity(java.util.UUID.randomUUID().toString());
@@ -110,6 +115,7 @@ public class CloudSimulator {
             modifiedData.add(person);
         }
 
-        return modifiedData;
+        data.setPersons(modifiedData);
+        return data;
     }
 }

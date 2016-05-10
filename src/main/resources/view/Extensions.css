@@ -2,3 +2,8 @@
 .error {
     -fx-background-color: red;
 }
+
+.list-cell .label {
+    -fx-text-fill: black;
+}
+

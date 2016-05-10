@@ -7,6 +7,8 @@ import javafx.beans.property.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Model class for a Person.
@@ -22,6 +24,7 @@ public class Person {
     private final StringProperty city;
     private final ObjectProperty<LocalDate> birthday;
     private ObjectProperty<LocalDateTime> updatedAt;
+    private final List<ContactGroup> contactGroups;
 
     /**
      * Default constructor.
@@ -45,6 +48,8 @@ public class Person {
         this.postalCode = new SimpleIntegerProperty(1234);
         this.city = new SimpleStringProperty("some city");
         this.birthday = new SimpleObjectProperty<>(LocalDate.of(1999, 2, 21));
+        this.contactGroups = new ArrayList<>();
+        contactGroups.add(new ContactGroup("friends"));
         this.updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
     }
 
@@ -60,7 +65,17 @@ public class Person {
         this.postalCode = new SimpleIntegerProperty(person.getPostalCode());
         this.city = new SimpleStringProperty(person.getCity());
         this.birthday = new SimpleObjectProperty<>(person.getBirthday());
+        this.contactGroups = new ArrayList<>(person.getContactGroups());
         this.updatedAt = new SimpleObjectProperty<>(person.getUpdatedAt());
+    }
+
+    public List<ContactGroup> getContactGroups() {
+        return contactGroups;
+    }
+
+    public void setContactGroups(List<ContactGroup> contactGroups) {
+        this.contactGroups.clear();
+        this.contactGroups.addAll(contactGroups);
     }
 
     public String getFirstName() {
@@ -185,5 +200,6 @@ public class Person {
         setCity(updated.getCity());
         setBirthday(updated.getBirthday());
         setUpdatedAt(updated.getUpdatedAt());
+        setContactGroups(updated.getContactGroups());
     }
 }

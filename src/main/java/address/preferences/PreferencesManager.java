@@ -37,7 +37,6 @@ public class PreferencesManager {
         java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(PreferencesManager.class);
         String filePath = prefs.get(PreferencesManager.appTitle + "/" + REGISTER_FILE_PATH, null);
         if (filePath != null) {
-            System.out.println("file path found : "+ filePath);
             return new File(filePath);
         } else {
             System.out.println("file path not found ");
@@ -50,7 +49,7 @@ public class PreferencesManager {
      * the OS specific registry.
      * @param file the file or null to remove the path
      */
-    public void setPersonFilePath(File file) {
+    public void setFilePath(File file) {
         java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(PreferencesManager.class);
         String key = PreferencesManager.appTitle + "/" + REGISTER_FILE_PATH;
         if (file != null) {

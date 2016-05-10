@@ -1,7 +1,6 @@
 package address.model;
 
 import address.events.EventManager;
-import address.events.LocalModelChangedEvent;
 import address.events.FilterCommittedEvent;
 import address.events.LocalModelSyncedEvent;
 import address.events.NewMirrorDataEvent;
@@ -9,16 +8,12 @@ import address.events.*;
 
 import com.google.common.eventbus.Subscribe;
 
-import address.parser.ParseException;
-import address.parser.Parser;
-import address.parser.expr.Expr;
-import address.parser.expr.PredExpr;
-import address.parser.qualifier.TrueQualifier;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,15 +27,20 @@ public class ModelManager {
      */
     private final ObservableList<Person> personData = FXCollections.observableArrayList();
     private final FilteredList<Person> filteredPersonData = new FilteredList<>(personData);
+    private final List<ContactGroup> contactGroups = new ArrayList<>();
 
     /**
-     * @param initialData Initial data to populate the model. If the list is
-     *                    empty, some dummy data will be added instead.
+     * @param initialPersons Initial persons to populate the model.
+     * @param initialGroups Initial groups to populate the model.
      */
-    public ModelManager(List<Person> initialData) {
-        if (initialData != null) {
-            System.out.println("Persons found : " + initialData.size());
-            personData.addAll(initialData);
+    public ModelManager(List<Person> initialPersons, List<ContactGroup> initialGroups) {
+        if (initialPersons != null || initialGroups != null) {
+            System.out.println("Data found.");
+            System.out.println("Persons found : " + initialPersons.size());
+            personData.addAll(initialPersons);
+            System.out.println("Groups found : " + initialGroups.size());
+            contactGroups.addAll(initialGroups);
+
         } else {
             // Add some sample data
             populateDummyData();
@@ -50,7 +50,7 @@ public class ModelManager {
         //Note: this will not catch edits to Person objects
         personData.addListener(
                 (ListChangeListener<? super Person>) (change) ->
-                        EventManager.getInstance().post(new LocalModelChangedEvent(personData)));
+                        EventManager.getInstance().post(new LocalModelChangedEvent(personData, contactGroups)));
 
         //Register for general events relevant to data manager
         EventManager.getInstance().registerHandler(this);
@@ -66,6 +66,9 @@ public class ModelManager {
         personData.add(new Person("Anna", "Best"));
         personData.add(new Person("Stefan", "Meier"));
         personData.add(new Person("Martin", "Mueller"));
+
+        contactGroups.add(new ContactGroup("relatives"));
+        contactGroups.add(new ContactGroup("friends"));
     }
 
     /**
@@ -77,15 +80,23 @@ public class ModelManager {
     }
 
     /**
-     * Adds new data to existing data. If a Person in the new data has the same
-     * first name as an existing Person, the older one will be kept.
-     * @param newData
+     * Returns the contact groups as a list.
+     * @return
      */
-    public synchronized void addNewData(List<Person> newData){
-        System.out.println("Attempting to add a list of size " + newData.size());
+    public List<ContactGroup> getContactGroups() {
+        return contactGroups;
+    }
 
-        //TODO: change to use streams instead
-        for (Person p : newData) {
+    /**
+     * Adds new data to existing data.
+     * If a Person in the new data has the same
+     * first name as an existing Person, the older one will be kept.
+     * @param data
+     */
+    public synchronized void addNewData(AddressBookWrapper data) {
+        System.out.println("Attempting to add a persons list of size " + data.getPersons().size());
+
+        for (Person p : data.getPersons()) {
             Optional<Person> storedPerson = getPerson(p);
             if (!storedPerson.isPresent()) {
                 personData.add(p);
@@ -99,13 +110,35 @@ public class ModelManager {
             }
         }
 
-        EventManager.getInstance().post(new LocalModelSyncedEvent(personData));
+        System.out.println("Attempting to add a groups list of size " + data.getGroups().size());
+
+        for (ContactGroup g : data.getGroups()) {
+            Optional<ContactGroup> storedGroup = getGroup(g);
+            if (storedGroup.isPresent()) {
+                storedGroup.get().update(g);
+            } else {
+                contactGroups.add(g);
+                System.out.println("New group data added " + g);
+            }
+        }
+
+        EventManager.getInstance().post(new LocalModelSyncedEvent(personData, contactGroups));
     }
 
     private Optional<Person> getPerson(Person person) {
         for (Person p : personData) {
             if (p.equals(person)) {
                 return Optional.of(p);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private Optional<ContactGroup> getGroup(ContactGroup group) {
+        for (ContactGroup g : contactGroups) {
+            if (g.equals(group)) {
+                return Optional.of(g);
             }
         }
 
@@ -122,7 +155,7 @@ public class ModelManager {
     public synchronized void updatePerson(Person original, Person updated){
         assert !updated.getUpdatedAt().isBefore(original.getUpdatedAt());
         original.update(updated);
-        EventManager.getInstance().post(new LocalModelChangedEvent(personData));
+        EventManager.getInstance().post(new LocalModelChangedEvent(personData, contactGroups));
     }
 
     /**
@@ -143,36 +176,23 @@ public class ModelManager {
 
     @Subscribe
     private void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
-        addNewData(nde.personData);
+        addNewData(nde.data);
     }
 
     @Subscribe
     private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
-
-        if (fce.filter.isEmpty()) {
-            filteredPersonData.setPredicate(new PredExpr(new TrueQualifier())::satisfies);
-            EventManager.getInstance().post(new FilterSuccessEvent());
-            return;
-        }
-
-        Expr filterExpression;
-        try {
-            filterExpression = Parser.parse(fce.filter);
-        } catch (ParseException e) {
-            EventManager.getInstance().post(new FilterParseErrorEvent(e.getLocalizedMessage()));
-            return;
-        }
-
-        filteredPersonData.setPredicate(filterExpression::satisfies);
-        EventManager.getInstance().post(new FilterSuccessEvent());
+        filteredPersonData.setPredicate(fce.filterExpression::satisfies);
     }
 
     /**
      * Clears existing model and replaces with the provided new data.
      * @param newData
      */
-    public void resetData(List<Person> newData) {
+    public void resetData(List<Person> newData, List<ContactGroup> newGroups) {
         personData.clear();
         personData.addAll(newData);
+
+        contactGroups.clear();
+        contactGroups.addAll(newGroups);
     }
 }

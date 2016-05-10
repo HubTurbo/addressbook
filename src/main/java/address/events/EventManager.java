@@ -25,7 +25,7 @@ public class EventManager {
     }
 
     public void post(Object event){
-        System.out.println("Event posted : " + event);
+        System.out.println(event);
         eventBus.post(event);
     }
 

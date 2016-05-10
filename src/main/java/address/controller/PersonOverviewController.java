@@ -1,43 +1,25 @@
 package address.controller;
 
-import com.google.common.eventbus.Subscribe;
-
 import address.events.EventManager;
 import address.events.FilterCommittedEvent;
-import address.events.FilterParseErrorEvent;
-import address.events.FilterSuccessEvent;
 import address.model.ModelManager;
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import address.model.Person;
-import address.util.DateUtil;
+import address.parser.ParseException;
+import address.parser.Parser;
+import address.parser.expr.Expr;
+import address.parser.expr.PredExpr;
+import address.ui.PersonListViewCell;
+import javafx.fxml.FXML;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 
 public class PersonOverviewController {
+
     @FXML
-    private TableView<Person> personTable;
-    @FXML
-    private TableColumn<Person, String> firstNameColumn;
-    @FXML
-    private TableColumn<Person, String> lastNameColumn;
+    private ListView<Person> personList;
 
     @FXML
     private TextField filterField;
-
-    @FXML
-    private Label firstNameLabel;
-    @FXML
-    private Label lastNameLabel;
-    @FXML
-    private Label streetLabel;
-    @FXML
-    private Label postalCodeLabel;
-    @FXML
-    private Label cityLabel;
-    @FXML
-    private Label birthdayLabel;
 
     private MainController mainController;
     private ModelManager modelManager;
@@ -52,66 +34,33 @@ public class PersonOverviewController {
      */
     @FXML
     private void initialize() {
-        // Initialize the person table with the two columns.
-        firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
-        lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
-        
-        // Clear person details.
-        showPersonDetails(null);
-
-        // Listen for selection changes and show the person details when changed.
-        personTable.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> showPersonDetails(newValue));
     }
 
-   public void setConnections(MainController mainController, ModelManager modelManager) {
+    public void setConnections(MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
         this.modelManager = modelManager;
-        // Add observable list data to the table
-        personTable.setItems(modelManager.getPersonData());
+
+        // Add observable list data to the list
+        personList.setItems(modelManager.getPersonData());
+        personList.setCellFactory(listView -> new PersonListViewCell());
     }
-    
-    /**
-     * Fills all text fields to show details about the person.
-     * If the specified person is null, all text fields are cleared.
-     * 
-     * @param person the person or null
-     */
-    private void showPersonDetails(Person person) {
-        if (person != null) {
-            // Fill the labels with info from the person object.
-            firstNameLabel.setText(person.getFirstName());
-            lastNameLabel.setText(person.getLastName());
-            streetLabel.setText(person.getStreet());
-            postalCodeLabel.setText(Integer.toString(person.getPostalCode()));
-            cityLabel.setText(person.getCity());
-            birthdayLabel.setText(DateUtil.format(person.getBirthday()));
-        } else {
-            // Person is null, remove all the text.
-            firstNameLabel.setText("");
-            lastNameLabel.setText("");
-            streetLabel.setText("");
-            postalCodeLabel.setText("");
-            cityLabel.setText("");
-            birthdayLabel.setText("");
-        }
-    }
-    
+
+
     /**
      * Called when the user clicks on the delete button.
      */
     @FXML
     private void handleDeletePerson() {
-        int selectedIndex = personTable.getSelectionModel().getSelectedIndex();
+        int selectedIndex = personList.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
-            modelManager.deletePerson(personTable.getItems().get(selectedIndex));
+            modelManager.deletePerson(personList.getItems().get(selectedIndex));
         } else {
             // Nothing selected.
             mainController.showWarningDialogAndWait("No Selection",
-                    "No Person Selected", "Please select a person in the table.");
+                    "No Person Selected", "Please select a person in the list.");
         }
     }
-    
+
     /**
      * Called when the user clicks the new button. Opens a dialog to edit
      * details for a new person.
@@ -131,32 +80,31 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleEditPerson() {
-        Person selectedPerson = personTable.getSelectionModel().getSelectedItem();
+        Person selectedPerson = personList.getSelectionModel().getSelectedItem();
         if (selectedPerson != null) {
             boolean okClicked = mainController.showPersonEditDialog(selectedPerson);
-            if (okClicked) {
-                showPersonDetails(selectedPerson);
-            }
-
         } else {
             // Nothing selected.
             mainController.showWarningDialogAndWait("No Selection",
-                    "No Person Selected", "Please select a person in the table.");
+                    "No Person Selected", "Please select a person in the list.");
         }
     }
 
     @FXML
     private void handleFilterChanged() {
-        EventManager.getInstance().post(new FilterCommittedEvent(filterField.getText()));
-    }
+        Expr filterExpression = PredExpr.TRUE;
+        boolean isFilterValid = true;
+        try {
+            filterExpression = Parser.parse(filterField.getText());
+        } catch (ParseException ignored) {
+            isFilterValid = false;
+        }
 
-    @Subscribe
-    private void handleFilterParseErrorEvent(FilterParseErrorEvent fpe) {
-        filterField.getStyleClass().add("error");
-    }
-
-    @Subscribe
-    private void handleFilterSuccessEvent(FilterSuccessEvent fse) {
-        filterField.getStyleClass().remove("error");
+        if (isFilterValid || filterField.getText().isEmpty()) {
+            filterField.getStyleClass().remove("error");
+        } else {
+            filterField.getStyleClass().add("error");
+        }
+        EventManager.getInstance().post(new FilterCommittedEvent(filterExpression));
     }
 }

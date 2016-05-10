@@ -11,17 +11,27 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * @author Marco Jakob
  */
-@XmlRootElement(name = "persons")
-public class PersonListWrapper {
+@XmlRootElement(name = "addressbook")
+public class AddressBookWrapper {
 
     private List<Person> persons;
+    private List<ContactGroup> groups;
 
     @XmlElement(name = "person")
     public List<Person> getPersons() {
         return persons;
     }
 
+    @XmlElement(name = "groups")
+    public List<ContactGroup> getGroups() {
+        return groups;
+    }
+
     public void setPersons(List<Person> persons) {
         this.persons = persons;
+    }
+
+    public void setGroups(List<ContactGroup> groups) {
+        this.groups = groups;
     }
 }

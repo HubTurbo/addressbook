@@ -1,19 +1,27 @@
 package address.controller;
 
-import address.model.ModelManager;
+import address.model.*;
+import address.events.EventManager;
+import address.events.GroupSearchResultsChangedEvent;
+import address.events.GroupsChangedEvent;
+import com.google.common.eventbus.Subscribe;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import address.model.Person;
 import address.util.DateUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Dialog to edit details of a person.
- * 
  */
 public class PersonEditDialogController {
+
 
     @FXML
     private TextField firstNameField;
@@ -27,12 +35,21 @@ public class PersonEditDialogController {
     private TextField cityField;
     @FXML
     private TextField birthdayField;
+    @FXML
+    private ScrollPane groupList;
+    @FXML
+    private TextField groupSearch;
+    @FXML
+    private ScrollPane groupResults;
 
-
+    private PersonEditDialogModel model;
     private Stage dialogStage;
     private Person person;
     private boolean okClicked = false;
     private ModelManager modelManager;
+
+    public PersonEditDialogController() {
+    }
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -40,6 +57,39 @@ public class PersonEditDialogController {
      */
     @FXML
     private void initialize() {
+        addListener();
+        EventManager.getInstance().registerHandler(this);
+    }
+
+    private void addListener() {
+        groupSearch.textProperty().addListener((observableValue, oldValue, newValue) -> {
+                handleInput(newValue);
+            });
+        groupSearch.setOnKeyTyped(e -> {
+            switch (e.getCharacter()) {
+                case " ":
+                    e.consume();
+                    model.toggleSelection();
+                    groupSearch.clear();
+                    break;
+                default:
+                    break;
+            }
+        });
+        groupSearch.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case DOWN:
+                    e.consume();
+                    model.selectNext();
+                    break;
+                case UP:
+                    e.consume();
+                    model.selectPrevious();
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
     /**
@@ -57,7 +107,7 @@ public class PersonEditDialogController {
 
     /**
      * Sets the person to be edited in the dialog.
-     * 
+     *
      * @param person
      */
     public void setPerson(Person person) {
@@ -70,6 +120,25 @@ public class PersonEditDialogController {
         cityField.setText(person.getCity());
         birthdayField.setText(DateUtil.format(person.getBirthday()));
         birthdayField.setPromptText("dd.mm.yyyy");
+    }
+
+    public void setModel(List<ContactGroup> contactGroups, List<ContactGroup> assignedGroups) {
+        model = new PersonEditDialogModel(contactGroups, assignedGroups);
+    }
+
+    private VBox getContactGroupsVBox(List<SelectableContactGroup> contactGroupList, boolean isSelectable) {
+        VBox content = new VBox();
+        contactGroupList.stream()
+                .forEach(contactGroup -> {
+                    Label newLabel = new Label(contactGroup.getName());
+                    if (isSelectable && contactGroup.isSelected()) {
+                        newLabel.setStyle("-fx-background-color: blue;");
+                    }
+                    newLabel.setPrefWidth(261);
+                    content.getChildren().add(newLabel);
+                });
+
+        return content;
     }
 
     /**
@@ -96,11 +165,17 @@ public class PersonEditDialogController {
             updated.setPostalCode(Integer.parseInt(postalCodeField.getText()));
             updated.setCity(cityField.getText());
             updated.setBirthday(DateUtil.parse(birthdayField.getText()));
+            updated.setContactGroups(model.getAssignedGroups());
             modelManager.updatePerson(person, updated);
 
             okClicked = true;
             dialogStage.close();
         }
+    }
+
+    @FXML
+    private void handleInput(String newInput) {
+        model.setFilter(newInput);
     }
 
     /**
@@ -166,5 +241,15 @@ public class PersonEditDialogController {
             
             return false;
         }
+    }
+
+    @Subscribe
+    public void handleGroupSearchResultsChangedEvent(GroupSearchResultsChangedEvent e) {
+        groupResults.setContent(getContactGroupsVBox(e.getSelectableContactGroups(), true));
+    }
+
+    @Subscribe
+    public void handleGroupsChangedEvent(GroupsChangedEvent e) {
+        groupList.setContent(getContactGroupsVBox(e.getResultGroup(), false));
     }
 }

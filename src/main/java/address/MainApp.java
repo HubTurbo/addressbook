@@ -1,6 +1,7 @@
 package address;
 
 import address.controller.MainController;
+import address.model.AddressBookWrapper;
 import address.model.ModelManager;
 import address.preferences.PreferencesManager;
 import address.storage.StorageManager;
@@ -22,15 +23,14 @@ public class MainApp extends Application {
     private MainController mainController;
 
     public MainApp() {
-        setupComponents();
     }
 
     protected void setupComponents() {
         config = getConfig();
         PreferencesManager.setAppTitle(config.appTitle);
         preferencesManager = PreferencesManager.getInstance();
-        modelManager = new ModelManager(StorageManager.getPersonDataFromFile(
-                preferencesManager.getPersonFilePath()));
+        AddressBookWrapper dataFromFile = StorageManager.getDataFromFile(preferencesManager.getPersonFilePath());
+        modelManager = new ModelManager(dataFromFile.getPersons(), dataFromFile.getGroups());
         storageManager = new StorageManager(modelManager);
         mainController = new MainController(modelManager, config);
         syncManager = new SyncManager();
@@ -44,6 +44,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        setupComponents();
         mainController.start(primaryStage);
     }
 
