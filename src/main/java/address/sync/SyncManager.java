@@ -2,10 +2,13 @@ package address.sync;
 
 
 import address.events.EventManager;
+import address.events.LocalModelChangedEvent;
 import address.events.NewMirrorDataEvent;
 import address.model.Person;
 import address.preferences.PreferencesManager;
+import com.google.common.eventbus.Subscribe;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +28,10 @@ public class SyncManager {
     private List<Person> previousList = Collections.emptyList();
 
     private boolean isSimulatedRandomChanges = false;
+
+    public SyncManager() {
+        EventManager.getInstance().registerHandler(this);
+    }
 
     public void startSyncingData(long interval, boolean isSimulateRandomChanges) {
         if(interval > 0) {
@@ -60,5 +67,17 @@ public class SyncManager {
         File mirrorFile = new File(PreferencesManager.getInstance().getPersonFilePath().toString() + "-mirror.xml");
         CloudSimulator cloudSimulator = new CloudSimulator(this.isSimulatedRandomChanges);
         return cloudSimulator.getSimulatedCloudData(mirrorFile);
+    }
+
+    @Subscribe
+    public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
+        System.out.println("Requesting changes to the cloud: " + System.nanoTime());
+        File mirrorFile = new File(PreferencesManager.getInstance().getPersonFilePath().toString() + "-mirror.xml");
+        CloudSimulator cloudSimulator = new CloudSimulator(this.isSimulatedRandomChanges);
+        try {
+            cloudSimulator.requestChangesToCloud(mirrorFile, lmce.personData, 3);
+        } catch (JAXBException e) {
+            System.out.println("Error requesting changes to the cloud");
+        }
     }
 }
