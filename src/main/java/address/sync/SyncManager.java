@@ -27,11 +27,9 @@ public class SyncManager {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ExecutorService requestExecutor = Executors.newCachedThreadPool();
 
-    private CloudSimulator cloudSimulator;
+    private CloudSimulator cloudSimulator = new CloudSimulator(false);
 
     private List<Person> previousList = Collections.emptyList();
-
-    private boolean isSimulatedRandomChanges = false;
 
     public SyncManager() {
         EventManager.getInstance().registerHandler(this);
@@ -39,7 +37,6 @@ public class SyncManager {
 
     public void startSyncingData(long interval, boolean isSimulateRandomChanges) {
         if(interval > 0) {
-            this.isSimulatedRandomChanges = isSimulateRandomChanges;
             this.cloudSimulator = new CloudSimulator(isSimulateRandomChanges);
             updatePeriodically(interval);
         }

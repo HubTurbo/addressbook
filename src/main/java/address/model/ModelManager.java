@@ -8,11 +8,6 @@ import address.events.*;
 
 import com.google.common.eventbus.Subscribe;
 
-import address.parser.ParseException;
-import address.parser.Parser;
-import address.parser.expr.Expr;
-import address.parser.expr.PredExpr;
-import address.parser.qualifier.TrueQualifier;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -101,20 +96,22 @@ public class ModelManager {
     public synchronized void addNewData(AddressBookWrapper data) {
         System.out.println("Attempting to add a persons list of size " + data.getPersons().size());
 
-        //TODO: change to use streams instead
         for (Person p : data.getPersons()) {
             Optional<Person> storedPerson = getPerson(p);
-            if (storedPerson.isPresent()) {
-                storedPerson.get().update(p);
-            } else {
+            if (!storedPerson.isPresent()) {
                 personData.add(p);
-                System.out.println("New person data added " + p);
+                System.out.println("New data added " + p);
+                continue;
+            }
+
+            Person personInModel = storedPerson.get();
+            if (!p.getUpdatedAt().isBefore(personInModel.getUpdatedAt())) {
+                storedPerson.get().update(p);
             }
         }
 
         System.out.println("Attempting to add a groups list of size " + data.getGroups().size());
 
-        //TODO: change to use streams instead
         for (ContactGroup g : data.getGroups()) {
             Optional<ContactGroup> storedGroup = getGroup(g);
             if (storedGroup.isPresent()) {
@@ -156,6 +153,7 @@ public class ModelManager {
      * @param updated The temporary Person object containing new values.
      */
     public synchronized void updatePerson(Person original, Person updated){
+        assert !updated.getUpdatedAt().isBefore(original.getUpdatedAt());
         original.update(updated);
         EventManager.getInstance().post(new LocalModelChangedEvent(personData, contactGroups));
     }

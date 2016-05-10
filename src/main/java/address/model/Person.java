@@ -1,18 +1,14 @@
 package address.model;
 
 import address.util.LocalDateAdapter;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import address.util.LocalDateTimeAdapter;
+import javafx.beans.property.*;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Model class for a Person.
@@ -27,6 +23,7 @@ public class Person {
     private final IntegerProperty postalCode;
     private final StringProperty city;
     private final ObjectProperty<LocalDate> birthday;
+    private ObjectProperty<LocalDateTime> updatedAt;
     private final List<ContactGroup> contactGroups;
 
     /**
@@ -53,6 +50,7 @@ public class Person {
         this.birthday = new SimpleObjectProperty<>(LocalDate.of(1999, 2, 21));
         this.contactGroups = new ArrayList<>();
         contactGroups.add(new ContactGroup("friends"));
+        this.updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
     }
 
     /**
@@ -68,6 +66,7 @@ public class Person {
         this.city = new SimpleStringProperty(person.getCity());
         this.birthday = new SimpleObjectProperty<>(person.getBirthday());
         this.contactGroups = new ArrayList<>(person.getContactGroups());
+        this.updatedAt = new SimpleObjectProperty<>(person.getUpdatedAt());
     }
 
     public List<ContactGroup> getContactGroups() {
@@ -148,6 +147,15 @@ public class Person {
         this.birthday.set(birthday);
     }
 
+    @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt.get();
+    }
+
+    public void setUpdatedAt(LocalDateTime birthday) {
+        this.updatedAt.set(birthday);
+    }
+
     public ObjectProperty<LocalDate> birthdayProperty() {
         return birthday;
     }
@@ -181,7 +189,7 @@ public class Person {
     }
 
     /**
-     * Updated the attributes based on the values in the parameter.
+     * Updates the attributes based on the values in the parameter.
      * @param updated The object containing the new attributes.
      */
     public void update(Person updated) {
@@ -191,6 +199,7 @@ public class Person {
         setPostalCode(updated.getPostalCode());
         setCity(updated.getCity());
         setBirthday(updated.getBirthday());
+        setUpdatedAt(updated.getUpdatedAt());
         setContactGroups(updated.getContactGroups());
     }
 }

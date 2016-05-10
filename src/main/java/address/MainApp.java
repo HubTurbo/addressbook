@@ -27,6 +27,7 @@ public class MainApp extends Application {
 
     protected void setupComponents() {
         config = getConfig();
+        PreferencesManager.setAppTitle(config.appTitle);
         preferencesManager = PreferencesManager.getInstance();
         AddressBookWrapper dataFromFile = StorageManager.getDataFromFile(preferencesManager.getPersonFilePath());
         modelManager = new ModelManager(dataFromFile.getPersons(), dataFromFile.getGroups());

@@ -7,10 +7,12 @@ import address.util.XmlHelper;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class CloudSimulator {
     private static final double FAILURE_PROBABILITY = 0.1;
@@ -70,6 +72,11 @@ public class CloudSimulator {
      * @param delay Duration of delay in seconds to be simulated before the request is completed
      */
     public void requestChangesToCloud(File file, List<Person> data, List<ContactGroup> groups, int delay) throws JAXBException {
+        if (file == null) {
+            return;
+        }
+        List<Person> persons = data.stream().map(Person::new).collect(Collectors.toList());
+        persons.forEach((p) -> p.setUpdatedAt(LocalDateTime.now()));
         XmlHelper.saveToFile(file, data, groups);
         try {
             TimeUnit.SECONDS.sleep(delay);
@@ -103,6 +110,7 @@ public class CloudSimulator {
                 person.setCity(java.util.UUID.randomUUID().toString());
                 person.setStreet(java.util.UUID.randomUUID().toString());
                 person.setPostalCode(random.nextInt(999999));
+                person.setUpdatedAt(LocalDateTime.now());
             }
             modifiedData.add(person);
         }
