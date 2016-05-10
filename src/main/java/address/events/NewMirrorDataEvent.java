@@ -16,6 +16,7 @@ public class NewMirrorDataEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : number of persons " + personData.size();
+        return this.getClass().getSimpleName() + " : number of persons " + data.getPersons().size()
+                + ", number of groups " + data.getGroups().size();
     }
 }
