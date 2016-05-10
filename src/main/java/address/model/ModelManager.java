@@ -85,7 +85,7 @@ public class ModelManager {
         System.out.println("Attempting to add a list of size " + newData.size());
 
         //TODO: change to use streams instead
-        for(Person p: newData) {
+        for (Person p : newData) {
             Optional<Person> storedPerson = getPerson(p);
             if (!storedPerson.isPresent()) {
                 personData.add(p);

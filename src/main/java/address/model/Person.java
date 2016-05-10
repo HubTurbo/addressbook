@@ -174,7 +174,7 @@ public class Person {
     }
 
     /**
-     * Updated the attributes based on the values in the parameter.
+     * Updates the attributes based on the values in the parameter.
      * @param updated The object containing the new attributes.
      */
     public void update(Person updated) {
