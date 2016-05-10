@@ -131,6 +131,7 @@ public class MainController {
             personEditDialogController.setDialogStage(dialogStage);
             personEditDialogController.setModelManager(modelManager);
             personEditDialogController.setPerson(person);
+            personEditDialogController.setModel(modelManager.getContactGroups(), person.getContactGroups());
 
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();

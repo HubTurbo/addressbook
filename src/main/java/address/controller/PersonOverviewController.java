@@ -6,6 +6,7 @@ import address.events.EventManager;
 import address.events.FilterCommittedEvent;
 import address.events.FilterParseErrorEvent;
 import address.events.FilterSuccessEvent;
+import address.model.ContactGroup;
 import address.model.ModelManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -14,6 +15,8 @@ import javafx.scene.control.TableView;
 import address.model.Person;
 import address.util.DateUtil;
 import javafx.scene.control.TextField;
+
+import java.util.List;
 
 public class PersonOverviewController {
     @FXML
@@ -38,6 +41,8 @@ public class PersonOverviewController {
     private Label cityLabel;
     @FXML
     private Label birthdayLabel;
+    @FXML
+    private Label contactGroupLabel;
 
     private MainController mainController;
     private ModelManager modelManager;
@@ -70,6 +75,17 @@ public class PersonOverviewController {
         // Add observable list data to the table
         personTable.setItems(modelManager.getPersonData());
     }
+
+    private String getContactGroupsString(List<ContactGroup> contactGroups) {
+        String contactGroupsString = "";
+        for (int i = 0; i < contactGroups.size(); i++) {
+            if (i > 0) {
+                contactGroupsString += ", ";
+            }
+            contactGroupsString += contactGroups.get(i).getName();
+        }
+        return contactGroupsString;
+    }
     
     /**
      * Fills all text fields to show details about the person.
@@ -86,6 +102,8 @@ public class PersonOverviewController {
             postalCodeLabel.setText(Integer.toString(person.getPostalCode()));
             cityLabel.setText(person.getCity());
             birthdayLabel.setText(DateUtil.format(person.getBirthday()));
+            List<ContactGroup> contactGroups = person.getContactGroups();
+            contactGroupLabel.setText(getContactGroupsString(contactGroups));
         } else {
             // Person is null, remove all the text.
             firstNameLabel.setText("");
@@ -94,6 +112,7 @@ public class PersonOverviewController {
             postalCodeLabel.setText("");
             cityLabel.setText("");
             birthdayLabel.setText("");
+            contactGroupLabel.setText("");
         }
     }
     

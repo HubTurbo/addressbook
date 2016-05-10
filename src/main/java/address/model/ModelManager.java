@@ -19,6 +19,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,7 @@ public class ModelManager {
      */
     private final ObservableList<Person> personData = FXCollections.observableArrayList();
     private final FilteredList<Person> filteredPersonData = new FilteredList<>(personData);
+    private final List<ContactGroup> contactGroups = new ArrayList<>();
 
     /**
      * @param initialData Initial data to populate the model. If the list is
@@ -66,6 +68,9 @@ public class ModelManager {
         personData.add(new Person("Anna", "Best"));
         personData.add(new Person("Stefan", "Meier"));
         personData.add(new Person("Martin", "Mueller"));
+
+        contactGroups.add(new ContactGroup("relatives"));
+        contactGroups.add(new ContactGroup("friends"));
     }
 
     /**
@@ -74,6 +79,14 @@ public class ModelManager {
      */
     public ObservableList<Person> getPersonData() {
         return filteredPersonData;
+    }
+
+    /**
+     * Returns the contact groups as a list.
+     * @return
+     */
+    public List<ContactGroup> getContactGroups() {
+        return contactGroups;
     }
 
     /**

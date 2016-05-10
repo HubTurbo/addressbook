@@ -44,6 +44,7 @@
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
                                 <Label text="First Name" />
@@ -58,6 +59,7 @@
                                 <Label fx:id="cityLabel" styleClass="label-bright" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                 <Label fx:id="postalCodeLabel" styleClass="label-bright" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                 <Label fx:id="birthdayLabel" styleClass="label-bright" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                <Label fx:id="contactGroupLabel" styleClass="label-bright" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                             </children>
                         </GridPane>
                         <ButtonBar layoutX="54.0" layoutY="250.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">
