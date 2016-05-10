@@ -4,6 +4,7 @@ package address.sync;
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
 import address.events.NewMirrorDataEvent;
+import address.model.AddressBookWrapper;
 import address.model.Person;
 import address.preferences.PreferencesManager;
 import address.sync.task.CloudUpdateTask;
@@ -53,9 +54,9 @@ public class SyncManager {
      */
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
-            List<Person> mirrorData = getMirrorData();
+            AddressBookWrapper mirrorData = getMirrorData();
 
-            if(!mirrorData.isEmpty()) {
+            if (!mirrorData.getPersons().isEmpty() || !mirrorData.getGroups().isEmpty()) {
                 EventManager.getInstance().post(new NewMirrorDataEvent(mirrorData));
             }
         };
@@ -64,7 +65,7 @@ public class SyncManager {
         scheduler.scheduleAtFixedRate(task, initialDelay, interval, TimeUnit.SECONDS);
     }
 
-    private List<Person> getMirrorData() {
+    private AddressBookWrapper getMirrorData() {
         System.out.println("Updating data: " + System.nanoTime());
         File mirrorFile = new File(PreferencesManager.getInstance().getPersonFilePath().toString() + "-mirror.xml");
         return this.cloudSimulator.getSimulatedCloudData(mirrorFile);
@@ -72,6 +73,6 @@ public class SyncManager {
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
-        requestExecutor.execute(new CloudUpdateTask(this.cloudSimulator, lmce.personData));
+        requestExecutor.execute(new CloudUpdateTask(this.cloudSimulator, lmce.personData, lmce.groupData));
     }
 }

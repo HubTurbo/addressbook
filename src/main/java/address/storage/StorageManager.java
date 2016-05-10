@@ -1,6 +1,8 @@
 package address.storage;
 
 import address.events.*;
+import address.model.AddressBookWrapper;
+import address.model.ContactGroup;
 import address.model.ModelManager;
 import address.model.Person;
 import address.preferences.PreferencesManager;
@@ -29,9 +31,9 @@ public class StorageManager {
      *
      */
     public void loadPersonDataFromFile(File file) throws Exception {
-        List<Person> data  = XmlHelper.getDataFromFile(file);
+        AddressBookWrapper data  = XmlHelper.getDataFromFile(file);
 
-        modelManager.resetData(data);
+        modelManager.resetData(data.getPersons(), data.getGroups());
 
         // Save the file path to the registry.
         PreferencesManager.getInstance().setPersonFilePath(file);
@@ -53,9 +55,9 @@ public class StorageManager {
      *
      * @param file
      */
-    public void savePersonDataToFile(File file, List<Person> personData) {
+    public void savePersonDataToFile(File file, List<Person> personData, List<ContactGroup> groupData) {
         try {
-            XmlHelper.saveToFile(file, personData);
+            XmlHelper.saveToFile(file, personData, groupData);
 
             // Save the file path to the registry.
             PreferencesManager.getInstance().setPersonFilePath(file);
@@ -68,18 +70,18 @@ public class StorageManager {
     @Subscribe
     private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce){
         System.out.println("Local data changed, saving to primary data file");
-        savePersonDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmce.personData);
+        savePersonDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmce.personData, lmce.groupData);
     }
 
     @Subscribe
     private void handleLocalModelSyncedEvent(LocalModelSyncedEvent lmse){
         System.out.println("Local data synced, saving to primary data file");
-        savePersonDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmse.personData);
+        savePersonDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmse.personData, lmse.groupData);
     }
 
     @Subscribe
     private void handleSaveRequestEvent(SaveRequestEvent se){
-        savePersonDataToFile(se.file, se.personData);
+        savePersonDataToFile(se.file, se.personData, se.groupData);
     }
 
     /**
@@ -88,12 +90,12 @@ public class StorageManager {
      * @param file File containing the data
      * @return Person list in the file
      */
-    public static List<Person> getPersonDataFromFile(File file)  {
+    public static AddressBookWrapper getDataFromFile(File file)  {
         try {
             return file == null ? null : XmlHelper.getDataFromFile(file);
         } catch (Exception e) {
             EventManager.getInstance().post(new FileOpeningExceptionEvent(e, file));
-            return Collections.emptyList();
+            return new AddressBookWrapper();
         }
     }
 

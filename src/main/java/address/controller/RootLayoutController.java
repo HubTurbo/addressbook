@@ -59,7 +59,7 @@ public class RootLayoutController {
     private void handleSave() {
         File personFile = PreferencesManager.getInstance().getPersonFilePath();
         if (personFile != null) {
-            EventManager.getInstance().post(new SaveRequestEvent(personFile, modelManager.getPersonData()));
+            EventManager.getInstance().post(new SaveRequestEvent(personFile, modelManager.getPersonData(), modelManager.getContactGroups()));
         } else {
             handleSaveAs();
         }
@@ -80,7 +80,7 @@ public class RootLayoutController {
             if (!file.getPath().endsWith(".xml")) {
                 file = new File(file.getPath() + ".xml");
             }
-            EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonData()));
+            EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonData(), modelManager.getContactGroups()));
         }
     }
 

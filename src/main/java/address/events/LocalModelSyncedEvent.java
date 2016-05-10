@@ -1,5 +1,6 @@
 package address.events;
 
+import address.model.ContactGroup;
 import address.model.Person;
 
 import java.util.List;
@@ -9,8 +10,11 @@ public class LocalModelSyncedEvent {
 
     public List<Person> personData;
 
-    public LocalModelSyncedEvent(List<Person> personData){
+    public List<ContactGroup> groupData;
+
+    public LocalModelSyncedEvent(List<Person> personData, List<ContactGroup> groupData) {
         this.personData = personData;
+        this.groupData = groupData;
     }
 
     @Override
