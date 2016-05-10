@@ -33,7 +33,7 @@ public class RootLayoutController {
     @FXML
     private void handleNew() {
         modelManager.getPersonData().clear();
-        PreferencesManager.getInstance().setPersonFilePath(null);
+        PreferencesManager.getInstance().setFilePath(null);
     }
 
     /**

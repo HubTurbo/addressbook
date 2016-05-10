@@ -23,4 +23,9 @@ public class ContactGroup {
     public void update(ContactGroup group) {
         setName(group.getName());
     }
+
+    @Override
+    public boolean equals(Object otherGroup){
+        return this.getName().equals(((ContactGroup) otherGroup).getName());
+    }
 }

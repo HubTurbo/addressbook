@@ -10,7 +10,6 @@ import address.util.XmlHelper;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -21,7 +20,6 @@ public class StorageManager {
 
     public StorageManager(ModelManager modelManager){
         EventManager.getInstance().registerHandler(this);
-
     }
 
 
@@ -36,7 +34,7 @@ public class StorageManager {
         modelManager.resetData(data.getPersons(), data.getGroups());
 
         // Save the file path to the registry.
-        PreferencesManager.getInstance().setPersonFilePath(file);
+        PreferencesManager.getInstance().setFilePath(file);
     }
 
 
@@ -55,12 +53,12 @@ public class StorageManager {
      *
      * @param file
      */
-    public void savePersonDataToFile(File file, List<Person> personData, List<ContactGroup> groupData) {
+    public void saveDataToFile(File file, List<Person> personData, List<ContactGroup> groupData) {
         try {
             XmlHelper.saveToFile(file, personData, groupData);
 
             // Save the file path to the registry.
-            PreferencesManager.getInstance().setPersonFilePath(file);
+            PreferencesManager.getInstance().setFilePath(file);
 
         } catch (Exception e) {
             EventManager.getInstance().post(new FileSavingExceptionEvent(e,file));
@@ -70,18 +68,18 @@ public class StorageManager {
     @Subscribe
     private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce){
         System.out.println("Local data changed, saving to primary data file");
-        savePersonDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmce.personData, lmce.groupData);
+        saveDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmce.personData, lmce.groupData);
     }
 
     @Subscribe
     private void handleLocalModelSyncedEvent(LocalModelSyncedEvent lmse){
         System.out.println("Local data synced, saving to primary data file");
-        savePersonDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmse.personData, lmse.groupData);
+        saveDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmse.personData, lmse.groupData);
     }
 
     @Subscribe
     private void handleSaveRequestEvent(SaveRequestEvent se){
-        savePersonDataToFile(se.file, se.personData, se.groupData);
+        saveDataToFile(se.file, se.personData, se.groupData);
     }
 
     /**

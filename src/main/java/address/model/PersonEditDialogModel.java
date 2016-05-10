@@ -17,8 +17,6 @@ public class PersonEditDialogModel {
     List<SelectableContactGroup> assignedGroups = new ArrayList<>();
 
     public PersonEditDialogModel(List<ContactGroup> groups, List<ContactGroup> assignedGroups) {
-        System.err.println("Total of " + groups.size() + " contact groups.");
-        System.err.println(assignedGroups.size() + " groups assigned.");
         List<SelectableContactGroup> selectableContactGroups = groups.stream()
                                                                 .map(SelectableContactGroup::new)
                                                                 .collect(Collectors.toList());
