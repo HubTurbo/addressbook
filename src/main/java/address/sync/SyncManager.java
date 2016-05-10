@@ -75,7 +75,7 @@ public class SyncManager {
         File mirrorFile = new File(PreferencesManager.getInstance().getPersonFilePath().toString() + "-mirror.xml");
         CloudSimulator cloudSimulator = new CloudSimulator(this.isSimulatedRandomChanges);
         try {
-            cloudSimulator.requestChangesToCloud(mirrorFile, lmce.personData, 3);
+            cloudSimulator.requestChangesToCloud(mirrorFile, lmce.personData, 2);
         } catch (JAXBException e) {
             System.out.println("Error requesting changes to the cloud");
         }
