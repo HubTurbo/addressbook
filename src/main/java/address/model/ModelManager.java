@@ -124,8 +124,16 @@ public class ModelManager {
      * Deletes the person from the model.
      * @param personToDelete
      */
-    public void deletePerson(Person personToDelete){
+    public synchronized void deletePerson(Person personToDelete){
         personData.remove(personToDelete);
+    }
+
+    /**
+     * Adds a person to the model
+     * @param personToAdd
+     */
+    public synchronized void addPerson(Person personToAdd) {
+        personData.add(personToAdd);
     }
 
     @Subscribe
