@@ -1,22 +1,22 @@
 package address.controller;
 
-import com.google.common.eventbus.Subscribe;
+import java.util.List;
 
 import address.events.EventManager;
 import address.events.FilterCommittedEvent;
-import address.events.FilterParseErrorEvent;
-import address.events.FilterSuccessEvent;
 import address.model.ContactGroup;
 import address.model.ModelManager;
+import address.model.Person;
+import address.parser.ParseException;
+import address.parser.Parser;
+import address.parser.expr.Expr;
+import address.parser.expr.PredExpr;
+import address.util.DateUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import address.model.Person;
-import address.util.DateUtil;
 import javafx.scene.control.TextField;
-
-import java.util.List;
 
 public class PersonOverviewController {
     @FXML
@@ -166,16 +166,19 @@ public class PersonOverviewController {
 
     @FXML
     private void handleFilterChanged() {
-        EventManager.getInstance().post(new FilterCommittedEvent(filterField.getText()));
-    }
+        Expr filterExpression = PredExpr.TRUE;
+        boolean isFilterValid = true;
+        try {
+            filterExpression = Parser.parse(filterField.getText());
+        } catch (ParseException ignored) {
+            isFilterValid = false;
+        }
 
-    @Subscribe
-    private void handleFilterParseErrorEvent(FilterParseErrorEvent fpe) {
-        filterField.getStyleClass().add("error");
-    }
-
-    @Subscribe
-    private void handleFilterSuccessEvent(FilterSuccessEvent fse) {
-        filterField.getStyleClass().remove("error");
+        if (isFilterValid || filterField.getText().isEmpty()) {
+            filterField.getStyleClass().remove("error");
+        } else {
+            filterField.getStyleClass().add("error");
+        }
+        EventManager.getInstance().post(new FilterCommittedEvent(filterExpression));
     }
 }
