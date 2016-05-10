@@ -1,10 +1,12 @@
 package address.model;
 
 import address.util.LocalDateAdapter;
+import address.util.LocalDateTimeAdapter;
 import javafx.beans.property.*;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Model class for a Person.
@@ -19,7 +21,7 @@ public class Person {
     private final IntegerProperty postalCode;
     private final StringProperty city;
     private final ObjectProperty<LocalDate> birthday;
-    private ObjectProperty<LocalDate> updatedAt;
+    private ObjectProperty<LocalDateTime> updatedAt;
 
     /**
      * Default constructor.
@@ -43,7 +45,7 @@ public class Person {
         this.postalCode = new SimpleIntegerProperty(1234);
         this.city = new SimpleStringProperty("some city");
         this.birthday = new SimpleObjectProperty<>(LocalDate.of(1999, 2, 21));
-        this.updatedAt = new SimpleObjectProperty<>(LocalDate.of(1999, 2, 21));
+        this.updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
     }
 
     /**
@@ -130,12 +132,12 @@ public class Person {
         this.birthday.set(birthday);
     }
 
-    @XmlJavaTypeAdapter(LocalDateAdapter.class)
-    public LocalDate getUpdatedAt() {
+    @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
+    public LocalDateTime getUpdatedAt() {
         return updatedAt.get();
     }
 
-    public void setUpdatedAt(LocalDate birthday) {
+    public void setUpdatedAt(LocalDateTime birthday) {
         this.updatedAt.set(birthday);
     }
 
@@ -182,5 +184,6 @@ public class Person {
         setPostalCode(updated.getPostalCode());
         setCity(updated.getCity());
         setBirthday(updated.getBirthday());
+        setUpdatedAt(updated.getUpdatedAt());
     }
 }

@@ -85,13 +85,17 @@ public class ModelManager {
         System.out.println("Attempting to add a list of size " + newData.size());
 
         //TODO: change to use streams instead
-        for(Person p: newData){
+        for(Person p: newData) {
             Optional<Person> storedPerson = getPerson(p);
-            if (storedPerson.isPresent()){
-                storedPerson.get().update(p);
-            } else {
+            if (!storedPerson.isPresent()) {
                 personData.add(p);
                 System.out.println("New data added " + p);
+                continue;
+            }
+
+            Person personInModel = storedPerson.get();
+            if (!p.getUpdatedAt().isBefore(personInModel.getUpdatedAt())) {
+                storedPerson.get().update(p);
             }
         }
 
@@ -116,6 +120,7 @@ public class ModelManager {
      * @param updated The temporary Person object containing new values.
      */
     public synchronized void updatePerson(Person original, Person updated){
+        assert !updated.getUpdatedAt().isBefore(original.getUpdatedAt());
         original.update(updated);
         EventManager.getInstance().post(new LocalModelChangedEvent(personData));
     }
