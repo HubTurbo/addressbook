@@ -191,5 +191,6 @@ public class Person {
         setPostalCode(updated.getPostalCode());
         setCity(updated.getCity());
         setBirthday(updated.getBirthday());
+        setContactGroups(updated.getContactGroups());
     }
 }

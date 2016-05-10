@@ -1,17 +1,15 @@
 package address.controller;
 
-import address.model.ModelManager;
+import address.model.*;
 import address.events.EventManager;
 import address.events.GroupSearchResultsChangedEvent;
 import address.events.GroupsChangedEvent;
-import address.model.ContactGroup;
 import com.google.common.eventbus.Subscribe;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import address.model.Person;
 import address.util.DateUtil;
 
 import java.util.ArrayList;
@@ -23,150 +21,7 @@ import java.util.stream.Collectors;
  * Dialog to edit details of a person.
  */
 public class PersonEditDialogController {
-    public class SelectableContactGroup extends ContactGroup {
-        private boolean isSelected = false;
 
-        private SelectableContactGroup(ContactGroup contactGroup) {
-            super(contactGroup.getName());
-        }
-
-        private void setSelected(boolean isSelected) {
-            this.isSelected = isSelected;
-        }
-
-        private boolean isSelected() {
-            return this.isSelected;
-        }
-    }
-    private class PersonEditDialogModel {
-        List<SelectableContactGroup> groups = new ArrayList<>();
-        List<SelectableContactGroup> filteredGroups = new ArrayList<>();
-        Optional<Integer> selectedGroupIndex = Optional.empty();
-
-        List<SelectableContactGroup> assignedGroups = new ArrayList<>();
-
-        private PersonEditDialogModel(List<ContactGroup> groups, List<ContactGroup> assignedGroups) {
-            List<SelectableContactGroup> selectableContactGroups = groups.stream()
-                    .map(SelectableContactGroup::new)
-                    .collect(Collectors.toList());
-            this.groups.addAll(selectableContactGroups);
-
-            assignedGroups.stream()
-                    .forEach(assignedGroup -> {
-                        this.assignedGroups.addAll(this.groups.stream()
-                                .filter(group -> group.getName().equals(assignedGroup.getName()))
-                                .collect(Collectors.toList()));
-                    });
-
-            EventManager.getInstance().post(new GroupsChangedEvent(this.assignedGroups));
-            setFilter("");
-        }
-
-        private Optional<SelectableContactGroup> getSelection() {
-            return filteredGroups.stream()
-                    .filter(SelectableContactGroup::isSelected)
-                    .findFirst();
-        }
-
-        private void toggleSelection() {
-            Optional<SelectableContactGroup> selection = getSelection();
-            if (!selection.isPresent()) return;
-
-            if (assignedGroups.contains(selection.get())) {
-                assignedGroups.remove(selection.get());
-            } else {
-                assignedGroups.add(selection.get());
-            }
-
-            EventManager.getInstance().post(new GroupsChangedEvent(assignedGroups));
-        }
-
-        private void selectIndex(int index) {
-            clearSelection();
-            for (int i = 0; i < filteredGroups.size(); i++) {
-                if (i == index) {
-                    SelectableContactGroup group = filteredGroups.remove(i);
-                    group.setSelected(true);
-                    filteredGroups.add(i, group);
-                }
-            }
-        }
-
-        private void clearSelection() {
-            for (int i = 0; i < filteredGroups.size(); i++) {
-                if (filteredGroups.get(i).isSelected()) {
-                    SelectableContactGroup group = filteredGroups.remove(i);
-                    group.setSelected(false);
-                    filteredGroups.add(i, group);
-                }
-            }
-        }
-
-        private void selectNext() {
-            if (!canIncreaseIndex()) return;
-            selectedGroupIndex = Optional.of(selectedGroupIndex.orElse(-1) + 1);
-            updateSelection();
-            EventManager.getInstance().post(new GroupSearchResultsChangedEvent(filteredGroups));
-        }
-
-        private void updateSelection() {
-            if (selectedGroupIndex.isPresent()) {
-                selectIndex(selectedGroupIndex.get());
-            } else {
-                clearSelection();
-            }
-        }
-
-        private boolean canIncreaseIndex() {
-            return !filteredGroups.isEmpty() && (!selectedGroupIndex.isPresent() || selectedGroupIndex.get() < filteredGroups.size() - 1);
-        }
-
-        private void selectPrevious() {
-            if (!canDecreaseIndex()) return;
-            selectedGroupIndex = Optional.of(selectedGroupIndex.get() - 1);
-            updateSelection();
-            EventManager.getInstance().post(new GroupSearchResultsChangedEvent(filteredGroups));
-        }
-
-        private boolean canDecreaseIndex() {
-            return selectedGroupIndex.isPresent() && selectedGroupIndex.get() > 0;
-        }
-
-        private void setFilter(String filter) {
-
-            List<SelectableContactGroup> newContactGroups = groups.stream()
-                    .filter(group -> group.getName().contains(filter))
-                    .collect(Collectors.toList());
-
-            List<SelectableContactGroup> toBeAdded = newContactGroups.stream()
-                    .filter(newContactGroup -> !filteredGroups.contains(newContactGroup))
-                    .collect(Collectors.toList());
-            List<SelectableContactGroup> toBeRemoved = filteredGroups.stream()
-                    .filter(oldContactGroup -> !newContactGroups.contains(oldContactGroup))
-                    .collect(Collectors.toList());
-
-            toBeRemoved.stream()
-                    .forEach(toRemove -> filteredGroups.remove(toRemove));
-            toBeAdded.stream()
-                    .forEach(toAdd -> filteredGroups.add(toAdd));
-
-            if (!filter.isEmpty() && !filteredGroups.isEmpty()) {
-                selectedGroupIndex = Optional.of(0);
-            } else {
-                selectedGroupIndex = Optional.empty();
-            }
-
-            updateSelection();
-
-            EventManager.getInstance().post(new GroupSearchResultsChangedEvent(filteredGroups));
-        }
-
-        private List<ContactGroup> getAssignedGroups() {
-            return assignedGroups.stream()
-                    .map(assignedGroup -> new ContactGroup(assignedGroup.getName()))
-                    .collect(Collectors.toList());
-        }
-    }
 
     @FXML
     private TextField firstNameField;

@@ -1,6 +1,6 @@
 package address.events;
 
-import address.controller.PersonEditDialogController.SelectableContactGroup;
+import address.model.SelectableContactGroup;
 
 import java.util.List;
 
