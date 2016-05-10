@@ -104,7 +104,7 @@ public class PersonOverviewController {
     private void handleDeletePerson() {
         int selectedIndex = personTable.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
-            personTable.getItems().remove(selectedIndex);
+            modelManager.deletePerson(personTable.getItems().get(selectedIndex));
         } else {
             // Nothing selected.
             mainController.showWarningDialogAndWait("No Selection",

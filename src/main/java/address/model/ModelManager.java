@@ -120,6 +120,14 @@ public class ModelManager {
         EventManager.getInstance().post(new LocalModelChangedEvent(personData));
     }
 
+    /**
+     * Deletes the person from the model.
+     * @param personToDelete
+     */
+    public void deletePerson(Person personToDelete){
+        personData.remove(personToDelete);
+    }
+
     @Subscribe
     private void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
         addNewData(nde.personData);
