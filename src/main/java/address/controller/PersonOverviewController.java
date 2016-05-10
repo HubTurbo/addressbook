@@ -121,7 +121,7 @@ public class PersonOverviewController {
         Person tempPerson = new Person();
         boolean okClicked = mainController.showPersonEditDialog(tempPerson);
         if (okClicked) {
-            modelManager.getPersonData().add(tempPerson);
+            modelManager.addPerson(tempPerson);
         }
     }
 
