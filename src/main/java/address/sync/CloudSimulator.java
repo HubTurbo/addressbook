@@ -67,6 +67,10 @@ public class CloudSimulator {
      * @param delay Duration of delay in seconds to be simulated before the request is completed
      */
     public void requestChangesToCloud(File file, List<Person> data, int delay) throws JAXBException {
+        if (file == null) {
+            return;
+        }
+
         List<Person> persons = data.stream().map(Person::new).collect(Collectors.toList());
         persons.forEach((p) -> p.setUpdatedAt(LocalDateTime.now()));
         XmlHelper.saveToFile(file, persons);

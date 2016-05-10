@@ -13,6 +13,8 @@ public class PreferencesManager {
     public static final String REGISTER_FILE_PATH = "address-book-filePath1";
     private static PreferencesManager instance;
 
+    private static String appTitle = "";
+
     public static PreferencesManager getInstance(){
         if (instance == null){
             instance = new PreferencesManager();
@@ -20,6 +22,11 @@ public class PreferencesManager {
 
         return instance;
     }
+
+    public static void setAppTitle(String appTitle) {
+        PreferencesManager.appTitle = appTitle;
+    }
+
     /**
      * Returns the person file preference, i.e. the file that was last opened.
      * The preference is read from the OS specific registry. If no such
@@ -28,7 +35,7 @@ public class PreferencesManager {
      */
     public File getPersonFilePath() {
         java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(PreferencesManager.class);
-        String filePath = prefs.get(REGISTER_FILE_PATH, null);
+        String filePath = prefs.get(PreferencesManager.appTitle + "/" + REGISTER_FILE_PATH, null);
         if (filePath != null) {
             System.out.println("file path found : "+ filePath);
             return new File(filePath);
@@ -41,15 +48,15 @@ public class PreferencesManager {
     /**
      * Sets the file path of the currently loaded file. The path is persisted in
      * the OS specific registry.
-     *
      * @param file the file or null to remove the path
      */
     public void setPersonFilePath(File file) {
         java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(PreferencesManager.class);
+        String key = PreferencesManager.appTitle + "/" + REGISTER_FILE_PATH;
         if (file != null) {
-            prefs.put(REGISTER_FILE_PATH, file.getPath());
+            prefs.put(key, file.getPath());
         } else {
-            prefs.remove(REGISTER_FILE_PATH);
+            prefs.remove(key);
         }
 
         EventManager.getInstance().post(new FileNameChangedEvent(file));
