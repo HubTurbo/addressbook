@@ -19,6 +19,7 @@ public class Person {
     private final IntegerProperty postalCode;
     private final StringProperty city;
     private final ObjectProperty<LocalDate> birthday;
+    private ObjectProperty<LocalDate> updatedAt;
 
     /**
      * Default constructor.
@@ -42,6 +43,7 @@ public class Person {
         this.postalCode = new SimpleIntegerProperty(1234);
         this.city = new SimpleStringProperty("some city");
         this.birthday = new SimpleObjectProperty<>(LocalDate.of(1999, 2, 21));
+        this.updatedAt = new SimpleObjectProperty<>(LocalDate.of(1999, 2, 21));
     }
 
     /**
@@ -56,6 +58,7 @@ public class Person {
         this.postalCode = new SimpleIntegerProperty(person.getPostalCode());
         this.city = new SimpleStringProperty(person.getCity());
         this.birthday = new SimpleObjectProperty<>(person.getBirthday());
+        this.updatedAt = new SimpleObjectProperty<>(person.getUpdatedAt());
     }
 
     public String getFirstName() {
@@ -125,6 +128,15 @@ public class Person {
 
     public void setBirthday(LocalDate birthday) {
         this.birthday.set(birthday);
+    }
+
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
+    public LocalDate getUpdatedAt() {
+        return updatedAt.get();
+    }
+
+    public void setUpdatedAt(LocalDate birthday) {
+        this.updatedAt.set(birthday);
     }
 
     public ObjectProperty<LocalDate> birthdayProperty() {
