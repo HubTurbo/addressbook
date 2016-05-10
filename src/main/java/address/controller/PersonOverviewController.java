@@ -12,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import address.model.Person;
-import address.util.DateUtil;
 import javafx.scene.control.TextField;
 
 public class PersonOverviewController {
@@ -80,12 +79,12 @@ public class PersonOverviewController {
     private void showPersonDetails(Person person) {
         if (person != null) {
             // Fill the labels with info from the person object.
-            firstNameLabel.setText(person.getFirstName());
-            lastNameLabel.setText(person.getLastName());
-            streetLabel.setText(person.getStreet());
-            postalCodeLabel.setText(Integer.toString(person.getPostalCode()));
-            cityLabel.setText(person.getCity());
-            birthdayLabel.setText(DateUtil.format(person.getBirthday()));
+            firstNameLabel.textProperty().bind(person.firstNameProperty());
+            lastNameLabel.textProperty().bind(person.lastNameProperty());
+            streetLabel.textProperty().bind(person.streetProperty());
+            postalCodeLabel.textProperty().bind(person.postalCodeProperty().asString());
+            cityLabel.textProperty().bind(person.cityProperty());
+            birthdayLabel.textProperty().bind(person.birthdayProperty().asString());
         } else {
             // Person is null, remove all the text.
             firstNameLabel.setText("");
@@ -94,6 +93,12 @@ public class PersonOverviewController {
             postalCodeLabel.setText("");
             cityLabel.setText("");
             birthdayLabel.setText("");
+            firstNameLabel.textProperty().unbind();
+            lastNameLabel.textProperty().unbind();
+            streetLabel.textProperty().unbind();
+            postalCodeLabel.textProperty().unbind();
+            cityLabel.textProperty().unbind();
+            birthdayLabel.textProperty().unbind();
         }
     }
     
