@@ -81,7 +81,7 @@ public class ModelManager {
      * first name as an existing Person, the older one will be kept.
      * @param newData
      */
-    public void addNewData(List<Person> newData){
+    public synchronized void addNewData(List<Person> newData){
         System.out.println("Attempting to add a list of size " + newData.size());
 
         //TODO: change to use streams instead
@@ -115,7 +115,7 @@ public class ModelManager {
      * @param original The Person object to be changed.
      * @param updated The temporary Person object containing new values.
      */
-    public void updatePerson(Person original, Person updated){
+    public synchronized void updatePerson(Person original, Person updated){
         original.update(updated);
         EventManager.getInstance().post(new LocalModelChangedEvent(personData));
     }

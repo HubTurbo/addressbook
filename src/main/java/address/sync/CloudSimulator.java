@@ -65,12 +65,11 @@ public class CloudSimulator {
      * @param delay Duration of delay in seconds to be simulated before the request is completed
      */
     public void requestChangesToCloud(File file, List<Person> data, int delay) throws JAXBException {
+        XmlHelper.saveToFile(file, data);
         try {
             TimeUnit.SECONDS.sleep(delay);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } finally {
-            XmlHelper.saveToFile(file, data);
         }
     }
 
