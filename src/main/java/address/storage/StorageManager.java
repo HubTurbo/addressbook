@@ -6,7 +6,6 @@ import address.model.Person;
 import address.preferences.PreferencesManager;
 import address.util.XmlHelper;
 import com.google.common.eventbus.Subscribe;
-import javafx.collections.ListChangeListener;
 
 import java.io.File;
 import java.util.Collections;
@@ -70,6 +69,12 @@ public class StorageManager {
     private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce){
         System.out.println("Local data changed, saving to primary data file");
         savePersonDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmce.personData);
+    }
+
+    @Subscribe
+    private void handleLocalModelSyncedEvent(LocalModelSyncedEvent lmse){
+        System.out.println("Local data synced, saving to primary data file");
+        savePersonDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmse.personData);
     }
 
     @Subscribe

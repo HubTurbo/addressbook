@@ -59,6 +59,21 @@ public class CloudSimulator {
         return modifiedData;
     }
 
+    /**
+     * Requests the simulated cloud to update its data with the given data. This data should be
+     * written to the provided mirror file
+     * @param delay Duration of delay in seconds to be simulated before the request is completed
+     */
+    public void requestChangesToCloud(File file, List<Person> data, int delay) throws JAXBException {
+        try {
+            TimeUnit.SECONDS.sleep(delay);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            XmlHelper.saveToFile(file, data);
+        }
+    }
+
     private List<Person> simulateDataAddition() {
         List<Person> newData = new ArrayList<>();
 
