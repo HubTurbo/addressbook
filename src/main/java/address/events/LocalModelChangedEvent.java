@@ -12,4 +12,9 @@ public class LocalModelChangedEvent {
     public LocalModelChangedEvent(List<Person> personData){
         this.personData = personData;
     }
+
+    @Override
+    public String toString(){
+        return this.getClass().getSimpleName() + " : number of persons " + personData.size();
+    }
 }

@@ -20,4 +20,9 @@ public class LoadDataRequestEvent {
         this.file = file;
         this.personData = personData;
     }
+
+    @Override
+    public String toString(){
+        return this.getClass().getSimpleName() + " : from " + file;
+    }
 }

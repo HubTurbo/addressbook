@@ -10,4 +10,9 @@ public class FilterParseErrorEvent {
     public FilterParseErrorEvent(String reason){
         this.reason = reason;
     }
+
+    @Override
+    public String toString(){
+        return this.getClass().getSimpleName() + " : " + reason;
+    }
 }

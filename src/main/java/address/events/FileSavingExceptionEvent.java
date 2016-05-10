@@ -13,4 +13,9 @@ public class FileSavingExceptionEvent {
     public FileSavingExceptionEvent(Exception exception, File file){
         this.exception = exception;
     }
+
+    @Override
+    public String toString(){
+        return this.getClass().getSimpleName() + " : " + exception.toString();
+    }
 }

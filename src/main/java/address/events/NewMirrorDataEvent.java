@@ -12,4 +12,9 @@ public class NewMirrorDataEvent {
     public NewMirrorDataEvent(List<Person> personData){
         this.personData = personData;
     }
+
+    @Override
+    public String toString(){
+        return this.getClass().getSimpleName() + " : number of persons " + personData.size();
+    }
 }

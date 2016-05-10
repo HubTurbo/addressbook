@@ -10,4 +10,9 @@ public class FilterCommittedEvent {
     public FilterCommittedEvent(String filter){
         this.filter = filter;
     }
+
+    @Override
+    public String toString(){
+        return this.getClass().getSimpleName() + " : " + filter;
+    }
 }

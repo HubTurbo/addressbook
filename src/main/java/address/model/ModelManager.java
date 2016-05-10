@@ -82,8 +82,6 @@ public class ModelManager {
      * @param newData
      */
     public synchronized void addNewData(List<Person> newData){
-        System.out.println("Attempting to add a list of size " + newData.size());
-
         //TODO: change to use streams instead
         for(Person p: newData){
             Optional<Person> storedPerson = getPerson(p);

@@ -13,4 +13,9 @@ public class FileNameChangedEvent {
     public FileNameChangedEvent(File file){
         this.file = file;
     }
+
+    @Override
+    public String toString(){
+        return this.getClass().getSimpleName() + " : New file name is " + file;
+    }
 }
