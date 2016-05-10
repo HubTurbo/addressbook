@@ -183,23 +183,7 @@ public class ModelManager {
 
     @Subscribe
     private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
-
-        if (fce.filter.isEmpty()) {
-            filteredPersonData.setPredicate(new PredExpr(new TrueQualifier())::satisfies);
-            EventManager.getInstance().post(new FilterSuccessEvent());
-            return;
-        }
-
-        Expr filterExpression;
-        try {
-            filterExpression = Parser.parse(fce.filter);
-        } catch (ParseException e) {
-            EventManager.getInstance().post(new FilterParseErrorEvent(e.getLocalizedMessage()));
-            return;
-        }
-
-        filteredPersonData.setPredicate(filterExpression::satisfies);
-        EventManager.getInstance().post(new FilterSuccessEvent());
+        filteredPersonData.setPredicate(fce.filterExpression::satisfies);
     }
 
     /**
