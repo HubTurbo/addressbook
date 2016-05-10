@@ -1,5 +1,6 @@
 package address.events;
 
+import address.model.AddressBookWrapper;
 import address.model.Person;
 
 import java.util.List;
@@ -7,14 +8,15 @@ import java.util.List;
 /** Indicates some new data is available from the mirror*/
 public class NewMirrorDataEvent {
 
-    public List<Person> personData;
+    public AddressBookWrapper data;
 
-    public NewMirrorDataEvent(List<Person> personData){
-        this.personData = personData;
+    public NewMirrorDataEvent(AddressBookWrapper data){
+        this.data = data;
     }
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : number of persons " + personData.size();
+        return this.getClass().getSimpleName() + " : number of persons " + data.getPersons().size()
+                + ", number of groups " + data.getGroups().size();
     }
 }

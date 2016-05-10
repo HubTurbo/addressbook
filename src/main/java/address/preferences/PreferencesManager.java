@@ -43,7 +43,7 @@ public class PreferencesManager {
      *
      * @param file the file or null to remove the path
      */
-    public void setPersonFilePath(File file) {
+    public void setFilePath(File file) {
         java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(PreferencesManager.class);
         if (file != null) {
             prefs.put(REGISTER_FILE_PATH, file.getPath());
