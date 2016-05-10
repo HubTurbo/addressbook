@@ -14,6 +14,7 @@ import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.parser.qualifier.TrueQualifier;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -116,7 +117,7 @@ public class ModelManager {
      * @param updated The temporary Person object containing new values.
      */
     public void updatePerson(Person original, Person updated){
-        original.update(updated);
+        Platform.runLater(() -> original.update(updated));
         EventManager.getInstance().post(new LocalModelChangedEvent(personData));
     }
 
