@@ -23,7 +23,6 @@ public class MainApp extends Application {
     private MainController mainController;
 
     public MainApp() {
-        setupComponents();
     }
 
     protected void setupComponents() {
@@ -44,6 +43,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        setupComponents();
         mainController.start(primaryStage);
     }
 
