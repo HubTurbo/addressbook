@@ -40,17 +40,15 @@ public class MainController {
     }
 
 
-
     public void start(Stage primaryStage){
 
         this.primaryStage = primaryStage;
-        setTitle(config.appTitle, PreferencesManager.getInstance().getPersonFile().orElse(null));
+        setTitle(config.appTitle, PreferencesManager.getInstance().getPersonFile());
 
         // Set the application icon.
         this.primaryStage.getIcons().add(getImage("/images/address_book_32.png"));
 
         initRootLayout();
-
         showPersonOverview();
     }
 
@@ -183,7 +181,7 @@ public class MainController {
 
     @Subscribe
     public void handleFileNameChangedEvent(FileNameChangedEvent fnce){
-        setTitle(config.appTitle, fnce.file);
+        setTitle(config.appTitle, fnce.file != null ? fnce.file : new File(PreferencesManager.DEFAULT_FILE_PATH));
     }
 
     /**
@@ -191,11 +189,7 @@ public class MainController {
      * @param file the data file used by the app, or null if no file chosen
      */
     public void setTitle(String appTitle, File file){
-        if (file != null) {
-            primaryStage.setTitle(appTitle + " - " + file.getName());
-        } else {
-            primaryStage.setTitle(appTitle + " - (no save file chosen)");
-        }
+        primaryStage.setTitle(appTitle + " - " + file.getName());
     }
 
     @Subscribe

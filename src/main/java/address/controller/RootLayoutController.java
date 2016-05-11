@@ -2,7 +2,6 @@ package address.controller;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.Optional;
 
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
@@ -30,7 +29,7 @@ public class RootLayoutController {
     }
 
     /**
-     * Creates an empty address book.
+     * Creates an new empty address book at the default filepath
      */
     @FXML
     private void handleNew() {
@@ -59,12 +58,8 @@ public class RootLayoutController {
      */
     @FXML
     private void handleSave() {
-        final Optional<File> saveFile = PreferencesManager.getInstance().getPersonFile();
-        if (saveFile.isPresent()) {
-            EventManager.getInstance().post(new SaveRequestEvent(saveFile.get(), modelManager.getPersonData(), modelManager.getContactGroups()));
-        } else {
-            handleSaveAs();
-        }
+        final File saveFile = PreferencesManager.getInstance().getPersonFile();
+        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getPersonData(), modelManager.getContactGroups()));
     }
 
     /**
@@ -99,10 +94,8 @@ public class RootLayoutController {
         final FileChooser fileChooser = new FileChooser();
 
         fileChooser.getExtensionFilters().add(extFilter);
-        final Optional<File> currentFile = PreferencesManager.getInstance().getPersonFile();
-        if(currentFile.isPresent()) {
-            fileChooser.setInitialDirectory(currentFile.get().getParentFile());
-        }
+        final File currentFile = PreferencesManager.getInstance().getPersonFile();
+        fileChooser.setInitialDirectory(currentFile.getParentFile());
         return fileChooser;
     }
 

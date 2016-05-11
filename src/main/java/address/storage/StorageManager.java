@@ -11,7 +11,6 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.util.List;
-import java.util.Optional;
 
 
 public class StorageManager {
@@ -60,22 +59,16 @@ public class StorageManager {
 
     @Subscribe
     private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce){
-        final Optional<File> targetFile = PreferencesManager.getInstance().getPersonFile();
-        if (!targetFile.isPresent()) {
-            return;
-        }
+        final File targetFile = PreferencesManager.getInstance().getPersonFile();
         System.out.println("Local data changed, saving to primary data file");
-        saveDataToFile(targetFile.get(), lmce.personData, lmce.groupData);
+        saveDataToFile(targetFile, lmce.personData, lmce.groupData);
     }
 
     @Subscribe
     private void handleLocalModelSyncedEvent(LocalModelSyncedEvent lmse){
-        final Optional<File> targetFile = PreferencesManager.getInstance().getPersonFile();
-        if (!targetFile.isPresent()) {
-            return;
-        }
+        final File targetFile = PreferencesManager.getInstance().getPersonFile();
         System.out.println("Local data synced, saving to primary data file");
-        saveDataToFile(targetFile.get(), lmse.personData, lmse.groupData);
+        saveDataToFile(targetFile, lmse.personData, lmse.groupData);
     }
 
     @Subscribe

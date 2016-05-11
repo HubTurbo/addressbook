@@ -51,7 +51,7 @@ public class SyncManager {
      */
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
-            AddressBookWrapper mirrorData = getMirrorData();
+            final AddressBookWrapper mirrorData = getMirrorData();
 
             if (!mirrorData.getPersons().isEmpty() || !mirrorData.getGroups().isEmpty()) {
                 EventManager.getInstance().post(new NewMirrorDataEvent(mirrorData));
@@ -64,7 +64,7 @@ public class SyncManager {
 
     private AddressBookWrapper getMirrorData() {
         System.out.println("Updating data: " + System.nanoTime());
-        File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().get().toString() + "-mirror.xml");
+        File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().toString() + "-mirror.xml");
         return this.cloudSimulator.getSimulatedCloudData(mirrorFile);
     }
 

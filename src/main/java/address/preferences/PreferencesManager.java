@@ -4,7 +4,6 @@ import address.events.EventManager;
 import address.events.FileNameChangedEvent;
 
 import java.io.File;
-import java.util.Optional;
 
 /**
  * Manages saving/retrieving of preferences in the registry.
@@ -12,6 +11,7 @@ import java.util.Optional;
 public class PreferencesManager {
 
     public static final String REGISTER_FILE_PATH = "address-book-filePath1";
+    public static final String DEFAULT_FILE_PATH = "default-address-book.xml";
 
     private static PreferencesManager instance;
 
@@ -34,14 +34,10 @@ public class PreferencesManager {
      * preference can be found, null is returned.
      *
      */
-    public Optional<File> getPersonFile() {
+    public File getPersonFile() {
         java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(PreferencesManager.class);
-        String filePath = prefs.get(PreferencesManager.appTitle + "/" + REGISTER_FILE_PATH, null);
-        if (filePath == null) {
-            return Optional.empty();
-        } else {
-            return Optional.of(new File(filePath));
-        }
+        String filePath = prefs.get(PreferencesManager.appTitle + "/" + REGISTER_FILE_PATH, DEFAULT_FILE_PATH);
+        return new File(DEFAULT_FILE_PATH);
     }
 
     /**
