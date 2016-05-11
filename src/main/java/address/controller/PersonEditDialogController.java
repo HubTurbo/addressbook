@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Dialog to edit details of a person.
  */
-public class PersonEditDialogController {
+public class PersonEditDialogController extends EditDialogController {
 
 
     @FXML
@@ -40,9 +40,7 @@ public class PersonEditDialogController {
     private ScrollPane groupResults;
 
     private PersonEditDialogModel model;
-    private Stage dialogStage;
     private Person person;
-    private boolean okClicked = false;
     private ModelManager modelManager;
 
     public PersonEditDialogController() {
@@ -138,20 +136,12 @@ public class PersonEditDialogController {
         return content;
     }
 
-    /**
-     * Returns true if the user clicked OK, false otherwise.
-     * 
-     * @return
-     */
-    public boolean isOkClicked() {
-        return okClicked;
-    }
 
     /**
      * Called when the user clicks ok.
      */
     @FXML
-    private void handleOk() {
+    protected void handleOk() {
         if (isInputValid()) {
             //Call the update method instead of updating the Person object directly
             //  to ensure proper event handling for model update.
@@ -165,7 +155,7 @@ public class PersonEditDialogController {
             updated.setContactGroups(model.getAssignedGroups());
             modelManager.updatePerson(person, updated);
 
-            okClicked = true;
+            isOkClicked = true;
             dialogStage.close();
         }
     }
@@ -179,7 +169,7 @@ public class PersonEditDialogController {
      * Called when the user clicks cancel.
      */
     @FXML
-    private void handleCancel() {
+    protected void handleCancel() {
         dialogStage.close();
     }
 

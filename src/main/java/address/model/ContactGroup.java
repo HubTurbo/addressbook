@@ -6,6 +6,7 @@ public class ContactGroup {
     SimpleStringProperty name;
 
     public ContactGroup() {
+        this.name = new SimpleStringProperty("");
     }
 
     public ContactGroup(String name) {
@@ -26,6 +27,9 @@ public class ContactGroup {
 
     @Override
     public boolean equals(Object otherGroup){
+        if (otherGroup == null) {
+            return false;
+        }
         return this.getName().equals(((ContactGroup) otherGroup).getName());
     }
 }

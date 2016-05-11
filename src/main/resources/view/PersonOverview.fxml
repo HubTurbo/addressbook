@@ -18,9 +18,9 @@
                 <ListView fx:id="personList" prefHeight="282.0" prefWidth="248.0" />
                 <HBox>
                     <children>
-                        <Button mnemonicParsing="false" onAction="#handleDeletePerson" prefHeight="33.0" prefWidth="120.0" text="Delete" />
-                        <Button mnemonicParsing="false" onAction="#handleNewPerson" prefHeight="33.0" prefWidth="120.0" text="New" />
-                        <Button mnemonicParsing="false" onAction="#handleEditPerson" prefHeight="33.0" prefWidth="120.0" text="Edit" />
+                        <Button styleClass="button" mnemonicParsing="false" onAction="#handleDeletePerson" prefHeight="33.0" maxWidth="Infinity" HBox.hgrow="ALWAYS" text="Delete" />
+                        <Button styleClass="button" mnemonicParsing="false" onAction="#handleNewPerson" prefHeight="33.0" maxWidth="Infinity" HBox.hgrow="ALWAYS" text="New" />
+                        <Button styleClass="button" mnemonicParsing="false" onAction="#handleEditPerson" prefHeight="33.0" maxWidth="Infinity" HBox.hgrow="ALWAYS" text="Edit" />
                     </children>
                 </HBox>
             </children>

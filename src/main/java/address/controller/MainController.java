@@ -5,6 +5,7 @@ import address.events.EventManager;
 import address.events.FileNameChangedEvent;
 import address.events.FileOpeningExceptionEvent;
 import address.events.FileSavingExceptionEvent;
+import address.model.ContactGroup;
 import address.model.ModelManager;
 import address.model.Person;
 import address.preferences.PreferencesManager;
@@ -21,6 +22,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * The controller that creates the other controllers
@@ -38,10 +40,8 @@ public class MainController {
         this.modelManager = modelManager;
         this.config = config;
     }
-
-
-    public void start(Stage primaryStage){
-
+    
+    public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         setTitle(config.appTitle, PreferencesManager.getInstance().getPersonFile());
 
@@ -129,12 +129,87 @@ public class MainController {
             personEditDialogController.setDialogStage(dialogStage);
             personEditDialogController.setModelManager(modelManager);
             personEditDialogController.setPerson(person);
-            personEditDialogController.setModel(modelManager.getContactGroups(), person.getContactGroups());
+            personEditDialogController.setModel(modelManager.getGroupData(), person.getContactGroups());
 
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
 
             return personEditDialogController.isOkClicked();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Opens a dialog to edit details for the specified group. If the user
+     * clicks OK, the changes are saved into the provided group object and true
+     * is returned.
+     *
+     * @param group the group object to be edited
+     * @return true if the user clicked OK, false otherwise.
+     */
+    public boolean showGroupEditDialog(ContactGroup group) {
+        try {
+            // Load the fxml file and create a new stage for the popup dialog.
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("/view/GroupEditDialog.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+
+            // Create the dialog Stage.
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Edit Group");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(primaryStage);
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+            dialogStage.getIcons().add(getImage("/images/edit.png"));
+
+            // Set the group into the controller.
+            GroupEditDialogController groupEditDialogController = loader.getController();
+            groupEditDialogController.setDialogStage(dialogStage);
+            groupEditDialogController.setModelManager(modelManager);
+            groupEditDialogController.setGroup(group);
+            groupEditDialogController.setGroups(modelManager.getGroupData());
+
+            // Show the dialog and wait until the user closes it
+            dialogStage.showAndWait();
+
+            return groupEditDialogController.isOkClicked();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean showGroupList(List<ContactGroup> groups) {
+        try {
+            // Load the fxml file and create a new stage for the popup dialog.
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("/view/GroupList.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+
+            // Create the dialog Stage.
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("List of Contact Groups");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(primaryStage);
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+            //dialogStage.getIcons().add(getImage("/images/edit.png"));
+
+            // Set the group into the controller.
+            GroupListController groupListController = loader.getController();
+            groupListController.setDialogStage(dialogStage);
+            groupListController.setModelManager(modelManager);
+            groupListController.setGroups(modelManager.getGroupData(), this, modelManager);
+
+            // Show the dialog and wait until the user closes it
+            dialogStage.showAndWait();
+
+            return true;
 
         } catch (IOException e) {
             e.printStackTrace();

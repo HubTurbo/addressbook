@@ -27,7 +27,7 @@ public class ModelManager {
      */
     private final ObservableList<Person> personData = FXCollections.observableArrayList();
     private final FilteredList<Person> filteredPersonData = new FilteredList<>(personData);
-    private final List<ContactGroup> contactGroups = new ArrayList<>();
+    private final ObservableList<ContactGroup> groupData = FXCollections.observableArrayList();
 
     /**
      * @param initialPersons Initial persons to populate the model.
@@ -41,14 +41,20 @@ public class ModelManager {
             System.out.println("Persons found : " + initialPersons.size());
             personData.addAll(initialPersons);
             System.out.println("Groups found : " + initialGroups.size());
-            contactGroups.addAll(initialGroups);
+            groupData.addAll(initialGroups);
         }
 
         //Listen to any changed to person data and raise an event
         //Note: this will not catch edits to Person objects
         personData.addListener(
                 (ListChangeListener<? super Person>) (change) ->
-                        EventManager.getInstance().post(new LocalModelChangedEvent(personData, contactGroups)));
+                        EventManager.getInstance().post(new LocalModelChangedEvent(personData, groupData)));
+
+        //Listen to any changed to group data and raise an event
+        //Note: this will not catch edits to ContactGroup objects
+        groupData.addListener(
+                (ListChangeListener<? super ContactGroup>) (change) ->
+                        EventManager.getInstance().post(new LocalModelChangedEvent(personData, groupData)));
 
         //Register for general events relevant to data manager
         EventManager.getInstance().registerHandler(this);
@@ -70,12 +76,12 @@ public class ModelManager {
         personData.add(new Person("Stefan", "Meier"));
         personData.add(new Person("Martin", "Mueller"));
 
-        contactGroups.add(new ContactGroup("relatives"));
-        contactGroups.add(new ContactGroup("friends"));
+        groupData.add(new ContactGroup("relatives"));
+        groupData.add(new ContactGroup("friends"));
     }
 
     /**
-     * Returns the data as an observable list of Persons.
+     * Returns the persons data as an observable list of Persons.
      * @return
      */
     public ObservableList<Person> getPersonData() {
@@ -83,11 +89,11 @@ public class ModelManager {
     }
 
     /**
-     * Returns the contact groups as a list.
+     * Returns the groups data as as observable list of Groups
      * @return
      */
-    public List<ContactGroup> getContactGroups() {
-        return contactGroups;
+    public ObservableList<ContactGroup> getGroupData() {
+        return groupData;
     }
 
     /**
@@ -120,12 +126,12 @@ public class ModelManager {
             if (storedGroup.isPresent()) {
                 storedGroup.get().update(g);
             } else {
-                contactGroups.add(g);
+                groupData.add(g);
                 System.out.println("New group data added " + g);
             }
         }
 
-        EventManager.getInstance().post(new LocalModelSyncedEvent(personData, contactGroups));
+        EventManager.getInstance().post(new LocalModelSyncedEvent(personData, groupData));
     }
 
     private Optional<Person> getPerson(Person person) {
@@ -139,7 +145,7 @@ public class ModelManager {
     }
 
     private Optional<ContactGroup> getGroup(ContactGroup group) {
-        for (ContactGroup g : contactGroups) {
+        for (ContactGroup g : groupData) {
             if (g.equals(group)) {
                 return Optional.of(g);
             }
@@ -158,7 +164,7 @@ public class ModelManager {
     public synchronized void updatePerson(Person original, Person updated){
         assert !updated.getUpdatedAt().isBefore(original.getUpdatedAt());
         original.update(updated);
-        EventManager.getInstance().post(new LocalModelChangedEvent(personData, contactGroups));
+        EventManager.getInstance().post(new LocalModelChangedEvent(personData, groupData));
     }
 
     /**
@@ -175,6 +181,34 @@ public class ModelManager {
      */
     public synchronized void addPerson(Person personToAdd) {
         personData.add(personToAdd);
+    }
+
+    /**
+     * Updates the details of a ContactGroup object. Updates to ContactGroup objects should be
+     * done through this method to ensure the proper events are raised to indicate
+     * a change to the model.
+     * @param original The ContactGroup object to be changed.
+     * @param updated The temporary ContactGroup object containing new values.
+     */
+    public synchronized void updateGroup(ContactGroup original, ContactGroup updated){
+        original.update(updated);
+        EventManager.getInstance().post(new LocalModelChangedEvent(personData, groupData));
+    }
+
+    /**
+     * Deletes the group from the model.
+     * @param groupToDelete
+     */
+    public synchronized void deleteGroup(ContactGroup groupToDelete){
+        groupData.remove(groupToDelete);
+    }
+
+    /**
+     * Adds a group to the model
+     * @param groupToAdd
+     */
+    public synchronized void addGroup(ContactGroup groupToAdd) {
+        groupData.add(groupToAdd);
     }
 
     @Subscribe
@@ -195,7 +229,7 @@ public class ModelManager {
         personData.clear();
         personData.addAll(newData);
 
-        contactGroups.clear();
-        contactGroups.addAll(newGroups);
+        groupData.clear();
+        groupData.addAll(newGroups);
     }
 }
