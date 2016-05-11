@@ -29,7 +29,7 @@ public class MainApp extends Application {
         config = getConfig();
         PreferencesManager.setAppTitle(config.appTitle);
         preferencesManager = PreferencesManager.getInstance();
-        AddressBookWrapper dataFromFile = StorageManager.getDataFromFile(preferencesManager.getPersonFilePath());
+        AddressBookWrapper dataFromFile = StorageManager.getDataFromFile(preferencesManager.getPersonFile());
         modelManager = new ModelManager(dataFromFile.getPersons(), dataFromFile.getGroups());
         storageManager = new StorageManager(modelManager);
         mainController = new MainController(modelManager, config);

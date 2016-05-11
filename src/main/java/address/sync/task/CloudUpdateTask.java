@@ -23,7 +23,7 @@ public class CloudUpdateTask implements Runnable {
     @Override
     public void run() {
         System.out.println("Requesting changes to the cloud: " + System.nanoTime());
-        File mirrorFile = new File(PreferencesManager.getInstance().getPersonFilePath().toString() + "-mirror.xml");
+        File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().toString() + "-mirror.xml");
         try {
             simulator.requestChangesToCloud(mirrorFile, this.personsData, this.groupsData, 3);
         } catch (JAXBException e) {

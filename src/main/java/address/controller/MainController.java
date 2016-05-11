@@ -44,7 +44,7 @@ public class MainController {
     public void start(Stage primaryStage){
 
         this.primaryStage = primaryStage;
-        setTitle(config.appTitle, PreferencesManager.getInstance().getPersonFilePath());
+        setTitle(config.appTitle, PreferencesManager.getInstance().getPersonFile());
 
         // Set the application icon.
         this.primaryStage.getIcons().add(getImage("/images/address_book_32.png"));

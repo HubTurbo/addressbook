@@ -1,6 +1,7 @@
 package address.controller;
 
 import java.io.File;
+import java.util.Collections;
 
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
@@ -32,8 +33,8 @@ public class RootLayoutController {
      */
     @FXML
     private void handleNew() {
-        modelManager.getPersonData().clear();
-        PreferencesManager.getInstance().setFilePath(null);
+        PreferencesManager.getInstance().setPersonFilePath(null);
+        modelManager.resetData(Collections.emptyList(), Collections.emptyList());
     }
 
     /**
@@ -57,7 +58,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleSave() {
-        File personFile = PreferencesManager.getInstance().getPersonFilePath();
+        File personFile = PreferencesManager.getInstance().getPersonFile();
         if (personFile != null) {
             EventManager.getInstance().post(new SaveRequestEvent(personFile, modelManager.getPersonData(), modelManager.getContactGroups()));
         } else {
@@ -95,7 +96,7 @@ public class RootLayoutController {
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
                 "XML files (*.xml)", "*.xml");
         fileChooser.getExtensionFilters().add(extFilter);
-        File currentFile = PreferencesManager.getInstance().getPersonFilePath();
+        File currentFile = PreferencesManager.getInstance().getPersonFile();
         if(currentFile != null) {
             fileChooser.setInitialDirectory(currentFile.getParentFile());
         }

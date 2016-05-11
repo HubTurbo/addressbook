@@ -34,7 +34,7 @@ public class StorageManager {
         modelManager.resetData(data.getPersons(), data.getGroups());
 
         // Save the file path to the registry.
-        PreferencesManager.getInstance().setFilePath(file);
+        PreferencesManager.getInstance().setPersonFilePath(file);
     }
 
 
@@ -58,7 +58,7 @@ public class StorageManager {
             XmlHelper.saveToFile(file, personData, groupData);
 
             // Save the file path to the registry.
-            PreferencesManager.getInstance().setFilePath(file);
+            PreferencesManager.getInstance().setPersonFilePath(file);
 
         } catch (Exception e) {
             EventManager.getInstance().post(new FileSavingExceptionEvent(e,file));
@@ -68,13 +68,13 @@ public class StorageManager {
     @Subscribe
     private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce){
         System.out.println("Local data changed, saving to primary data file");
-        saveDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmce.personData, lmce.groupData);
+        saveDataToFile(PreferencesManager.getInstance().getPersonFile(), lmce.personData, lmce.groupData);
     }
 
     @Subscribe
     private void handleLocalModelSyncedEvent(LocalModelSyncedEvent lmse){
         System.out.println("Local data synced, saving to primary data file");
-        saveDataToFile(PreferencesManager.getInstance().getPersonFilePath(), lmse.personData, lmse.groupData);
+        saveDataToFile(PreferencesManager.getInstance().getPersonFile(), lmse.personData, lmse.groupData);
     }
 
     @Subscribe

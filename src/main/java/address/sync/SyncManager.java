@@ -64,7 +64,7 @@ public class SyncManager {
 
     private AddressBookWrapper getMirrorData() {
         System.out.println("Updating data: " + System.nanoTime());
-        File mirrorFile = new File(PreferencesManager.getInstance().getPersonFilePath().toString() + "-mirror.xml");
+        File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().toString() + "-mirror.xml");
         return this.cloudSimulator.getSimulatedCloudData(mirrorFile);
     }
 
