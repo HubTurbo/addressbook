@@ -34,6 +34,13 @@
                   <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
                </items>
           </Menu>
+          <Menu mnemonicParsing="false" text="Group">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#handleNewGroup" text="New Group" />
+              <MenuItem mnemonicParsing="false" onAction="#handleEditGroup" text="Edit Group" />
+              <MenuItem mnemonicParsing="false" onAction="#handleRemoveGroup" text="Remove Group" />
+            </items>
+          </Menu>
           <Menu mnemonicParsing="false" text="Statistics">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#handleShowBirthdayStatistics" text="Show Statistics" />

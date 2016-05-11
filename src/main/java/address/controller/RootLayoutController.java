@@ -6,6 +6,7 @@ import java.util.Collections;
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
 import address.events.SaveRequestEvent;
+import address.model.ContactGroup;
 import address.model.ModelManager;
 import address.preferences.PreferencesManager;
 import javafx.fxml.FXML;
@@ -129,4 +130,20 @@ public class RootLayoutController {
     }
 
 
+    @FXML
+    private void handleNewGroup() {
+        ContactGroup tempGroup = new ContactGroup();
+        boolean okClicked = mainController.showGroupEditDialog(tempGroup);
+        if (okClicked) {
+            modelManager.addGroup(tempGroup);
+        }
+    }
+
+    @FXML
+    private void handleEditGroup() {
+    }
+
+    @FXML
+    private void handleRemoveGroup() {
+    }
 }

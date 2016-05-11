@@ -21,7 +21,6 @@
                         <Button styleClass="button" mnemonicParsing="false" onAction="#handleDeletePerson" prefHeight="33.0" maxWidth="Infinity" HBox.hgrow="ALWAYS" text="Delete" />
                         <Button styleClass="button" mnemonicParsing="false" onAction="#handleNewPerson" prefHeight="33.0" maxWidth="Infinity" HBox.hgrow="ALWAYS" text="New" />
                         <Button styleClass="button" mnemonicParsing="false" onAction="#handleEditPerson" prefHeight="33.0" maxWidth="Infinity" HBox.hgrow="ALWAYS" text="Edit" />
-                        <Button styleClass="button" mnemonicParsing="false" onAction="#handleNewGroup" prefHeight="33.0" maxWidth="Infinity"  HBox.hgrow="ALWAYS" text="New Group"/>
                     </children>
                 </HBox>
             </children>
