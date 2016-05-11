@@ -59,7 +59,7 @@ public class RootLayoutController {
     @FXML
     private void handleSave() {
         final File saveFile = PreferencesManager.getInstance().getPersonFile();
-        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getPersonData(), modelManager.getContactGroups()));
+        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getPersonData(), modelManager.getGroupData()));
     }
 
     /**
@@ -78,7 +78,7 @@ public class RootLayoutController {
                 file = new File(file.getPath() + ".xml");
             }
             PreferencesManager.getInstance().setPersonFilePath(file);
-            EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonData(), modelManager.getContactGroups()));
+            EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonData(), modelManager.getGroupData()));
         }
     }
 

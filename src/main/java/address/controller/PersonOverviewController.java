@@ -107,4 +107,13 @@ public class PersonOverviewController {
         }
         EventManager.getInstance().post(new FilterCommittedEvent(filterExpression));
     }
+
+    @FXML
+    private void handleNewGroup() {
+        ContactGroup tempGroup = new ContactGroup();
+        boolean okClicked = mainController.showGroupEditDialog(tempGroup);
+        if (okClicked) {
+            modelManager.addGroup(tempGroup);
+        }
+    }
 }
