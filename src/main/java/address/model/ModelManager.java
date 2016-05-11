@@ -9,13 +9,11 @@ import address.events.*;
 import address.util.PlatformEx;
 import com.google.common.eventbus.Subscribe;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +35,7 @@ public class ModelManager {
      */
     public ModelManager(List<Person> initialPersons, List<ContactGroup> initialGroups) {
         if (initialPersons == null || initialGroups == null) {
-            populateDummyData();
+            appendSampleData();
         } else {
             System.out.println("Data found.");
             System.out.println("Persons found : " + initialPersons.size());
@@ -67,19 +65,24 @@ public class ModelManager {
             addressBook == null ? null : addressBook.getGroups());
     }
 
-    protected void populateDummyData() {
-        personData.add(new Person("Hans", "Muster"));
-        personData.add(new Person("Ruth", "Mueller"));
-        personData.add(new Person("Heinz", "Kurz"));
-        personData.add(new Person("Cornelia", "Meier"));
-        personData.add(new Person("Werner", "Meyer"));
-        personData.add(new Person("Lydia", "Kunz"));
-        personData.add(new Person("Anna", "Best"));
-        personData.add(new Person("Stefan", "Meier"));
-        personData.add(new Person("Martin", "Mueller"));
-
-        groupData.add(new ContactGroup("relatives"));
-        groupData.add(new ContactGroup("friends"));
+    public void appendSampleData() {
+        final Person[] SAMPLE_PERSON_DATA = {
+            new Person("Hans", "Muster"),
+            new Person("Ruth", "Mueller"),
+            new Person("Heinz", "Kurz"),
+            new Person("Cornelia", "Meier"),
+            new Person("Werner", "Meyer"),
+            new Person("Lydia", "Kunz"),
+            new Person("Anna", "Best"),
+            new Person("Stefan", "Meier"),
+            new Person("Martin", "Mueller")
+        };
+        final ContactGroup[] SAMPLE_GROUP_DATA = {
+            new ContactGroup("relatives"),
+            new ContactGroup("friends")
+        };
+        personData.addAll(SAMPLE_PERSON_DATA);
+        groupData.addAll(SAMPLE_GROUP_DATA);
     }
 
     /**

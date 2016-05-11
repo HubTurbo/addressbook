@@ -84,6 +84,15 @@ public class RootLayoutController {
     }
 
     /**
+     * Appends dummy data to existing data
+     */
+    @FXML
+    private void handleAppendSampleData() {
+        modelManager.appendSampleData();
+    }
+
+
+    /**
      * @return a file chooser for choosing xml files. The initial folder is set to the same folder that the
      *     current data file is located (if any).
      */
