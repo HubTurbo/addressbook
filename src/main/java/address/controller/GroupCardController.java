@@ -1,6 +1,5 @@
 package address.controller;
 
-import address.MainApp;
 import address.model.ContactGroup;
 import address.model.ModelManager;
 import javafx.fxml.FXML;

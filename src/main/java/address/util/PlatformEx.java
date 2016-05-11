@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
  */
 public final class PlatformEx {
 
-  private static final ExecutorService delayExecutor = Executors.newSingleThreadExecutor();
+  private static final ExecutorService DELAY_EXECUTOR = Executors.newSingleThreadExecutor();
 
   /**
    * Similar to Platform.runLater, but with a small delay, so UI updates have time to propagate.
@@ -26,7 +26,7 @@ public final class PlatformEx {
   }
 
   public static void runLaterDelayed(Runnable action, int delay) {
-    delayExecutor.execute(() -> {
+    DELAY_EXECUTOR.execute(() -> {
       try {
         Thread.sleep(delay);
       } catch (InterruptedException e) {

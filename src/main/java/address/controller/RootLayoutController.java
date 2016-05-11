@@ -114,12 +114,12 @@ public class RootLayoutController {
      */
     @FXML
     private void handleAbout() {
-    	Alert alert = new Alert(AlertType.INFORMATION);
-    	alert.setTitle("AddressApp");
-    	alert.setHeaderText("About");
-    	alert.setContentText("Some code adapted from http://code.makery.ch");
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("AddressApp");
+        alert.setHeaderText("About");
+        alert.setContentText("Some code adapted from http://code.makery.ch");
 
-    	alert.showAndWait();
+        alert.showAndWait();
     }
 
     /**

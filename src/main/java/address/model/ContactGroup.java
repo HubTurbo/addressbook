@@ -32,4 +32,9 @@ public class ContactGroup {
         }
         return this.getName().equals(((ContactGroup) otherGroup).getName());
     }
+
+    @Override
+    public int hashCode() {
+        return getName().hashCode() * 39 + getName().hashCode() % 97;
+    }
 }

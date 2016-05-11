@@ -71,4 +71,11 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.12'
 }
 
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
 defaultTasks 'check', 'clean', 'test'
