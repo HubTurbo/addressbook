@@ -13,6 +13,9 @@ allprojects {
 
     apply plugin: 'idea'
     apply plugin: 'java'
+    apply plugin: 'checkstyle'
+    apply plugin: 'pmd'
+    apply plugin: 'findbugs'
 
     version = '3.27.0'
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -67,3 +70,5 @@ allprojects {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.12'
 }
+
+defaultTasks 'check', 'clean', 'test'
