@@ -10,6 +10,8 @@ import address.util.Config;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.io.File;
+
 /**
  * The main entry point to the application.
  */
@@ -19,7 +21,6 @@ public class MainApp extends Application {
     protected StorageManager storageManager;
     protected ModelManager modelManager;
     protected SyncManager syncManager;
-    protected PreferencesManager preferencesManager;
     private MainController mainController;
 
     public MainApp() {
@@ -28,9 +29,8 @@ public class MainApp extends Application {
     protected void setupComponents() {
         config = getConfig();
         PreferencesManager.setAppTitle(config.appTitle);
-        preferencesManager = PreferencesManager.getInstance();
-        AddressBookWrapper dataFromFile = StorageManager.getDataFromFile(preferencesManager.getPersonFilePath());
-        modelManager = new ModelManager(dataFromFile.getPersons(), dataFromFile.getGroups());
+        AddressBookWrapper dataFromFile = StorageManager.getDataFromFile(PreferencesManager.getInstance().getPersonFile().orElse(null));
+        modelManager = new ModelManager(dataFromFile);
         storageManager = new StorageManager(modelManager);
         mainController = new MainController(modelManager, config);
         syncManager = new SyncManager();

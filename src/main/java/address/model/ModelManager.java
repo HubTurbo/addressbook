@@ -34,16 +34,14 @@ public class ModelManager {
      * @param initialGroups Initial groups to populate the model.
      */
     public ModelManager(List<Person> initialPersons, List<ContactGroup> initialGroups) {
-        if (initialPersons != null || initialGroups != null) {
+        if (initialPersons == null || initialGroups == null) {
+            populateDummyData();
+        } else {
             System.out.println("Data found.");
             System.out.println("Persons found : " + initialPersons.size());
             personData.addAll(initialPersons);
             System.out.println("Groups found : " + initialGroups.size());
             contactGroups.addAll(initialGroups);
-
-        } else {
-            // Add some sample data
-            populateDummyData();
         }
 
         //Listen to any changed to person data and raise an event
@@ -54,6 +52,11 @@ public class ModelManager {
 
         //Register for general events relevant to data manager
         EventManager.getInstance().registerHandler(this);
+    }
+
+    public ModelManager(AddressBookWrapper addressBook) {
+        this(addressBook == null ? null : addressBook.getPersons(),
+            addressBook == null ? null : addressBook.getGroups());
     }
 
     protected void populateDummyData() {

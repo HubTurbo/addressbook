@@ -4,6 +4,7 @@ import address.events.EventManager;
 import address.events.FileNameChangedEvent;
 
 import java.io.File;
+import java.util.Optional;
 
 /**
  * Manages saving/retrieving of preferences in the registry.
@@ -11,6 +12,7 @@ import java.io.File;
 public class PreferencesManager {
 
     public static final String REGISTER_FILE_PATH = "address-book-filePath1";
+
     private static PreferencesManager instance;
 
     private static String appTitle = "";
@@ -19,7 +21,6 @@ public class PreferencesManager {
         if (instance == null){
             instance = new PreferencesManager();
         }
-
         return instance;
     }
 
@@ -33,14 +34,13 @@ public class PreferencesManager {
      * preference can be found, null is returned.
      *
      */
-    public File getPersonFilePath() {
+    public Optional<File> getPersonFile() {
         java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(PreferencesManager.class);
         String filePath = prefs.get(PreferencesManager.appTitle + "/" + REGISTER_FILE_PATH, null);
-        if (filePath != null) {
-            return new File(filePath);
+        if (filePath == null) {
+            return Optional.empty();
         } else {
-            System.out.println("file path not found ");
-            return null;
+            return Optional.of(new File(filePath));
         }
     }
 
@@ -49,15 +49,14 @@ public class PreferencesManager {
      * the OS specific registry.
      * @param file the file or null to remove the path
      */
-    public void setFilePath(File file) {
+    public void setPersonFilePath(File file) {
         java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(PreferencesManager.class);
         String key = PreferencesManager.appTitle + "/" + REGISTER_FILE_PATH;
-        if (file != null) {
-            prefs.put(key, file.getPath());
-        } else {
+        if (file == null) {
             prefs.remove(key);
+        } else {
+            prefs.put(key, file.getPath());
         }
-
         EventManager.getInstance().post(new FileNameChangedEvent(file));
     }
 }
