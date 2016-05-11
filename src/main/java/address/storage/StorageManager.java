@@ -19,6 +19,7 @@ public class StorageManager {
     private ModelManager modelManager;
 
     public StorageManager(ModelManager modelManager){
+        this.modelManager = modelManager;
         EventManager.getInstance().registerHandler(this);
     }
 
