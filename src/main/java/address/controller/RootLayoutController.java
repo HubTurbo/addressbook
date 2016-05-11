@@ -2,6 +2,7 @@ package address.controller;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.Optional;
 
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
@@ -58,9 +59,9 @@ public class RootLayoutController {
      */
     @FXML
     private void handleSave() {
-        File personFile = PreferencesManager.getInstance().getPersonFile();
-        if (personFile != null) {
-            EventManager.getInstance().post(new SaveRequestEvent(personFile, modelManager.getPersonData(), modelManager.getContactGroups()));
+        final Optional<File> saveFile = PreferencesManager.getInstance().getPersonFile();
+        if (saveFile.isPresent()) {
+            EventManager.getInstance().post(new SaveRequestEvent(saveFile.get(), modelManager.getPersonData(), modelManager.getContactGroups()));
         } else {
             handleSaveAs();
         }
@@ -81,6 +82,7 @@ public class RootLayoutController {
             if (!file.getPath().endsWith(".xml")) {
                 file = new File(file.getPath() + ".xml");
             }
+            PreferencesManager.getInstance().setPersonFilePath(file);
             EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonData(), modelManager.getContactGroups()));
         }
     }
@@ -90,15 +92,16 @@ public class RootLayoutController {
      *     current data file is located (if any).
      */
     private FileChooser getFileChooser() {
-        FileChooser fileChooser = new FileChooser();
 
         // Set extension filter
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+        final FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
                 "XML files (*.xml)", "*.xml");
+        final FileChooser fileChooser = new FileChooser();
+
         fileChooser.getExtensionFilters().add(extFilter);
-        File currentFile = PreferencesManager.getInstance().getPersonFile();
-        if(currentFile != null) {
-            fileChooser.setInitialDirectory(currentFile.getParentFile());
+        final Optional<File> currentFile = PreferencesManager.getInstance().getPersonFile();
+        if(currentFile.isPresent()) {
+            fileChooser.setInitialDirectory(currentFile.get().getParentFile());
         }
         return fileChooser;
     }

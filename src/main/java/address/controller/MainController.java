@@ -44,7 +44,7 @@ public class MainController {
     public void start(Stage primaryStage){
 
         this.primaryStage = primaryStage;
-        setTitle(config.appTitle, PreferencesManager.getInstance().getPersonFile());
+        setTitle(config.appTitle, PreferencesManager.getInstance().getPersonFile().orElse(null));
 
         // Set the application icon.
         this.primaryStage.getIcons().add(getImage("/images/address_book_32.png"));
@@ -188,13 +188,13 @@ public class MainController {
 
     /**
      * Sets the title of the app UI based on the file location
-     * @param file the data file used by the app
+     * @param file the data file used by the app, or null if no file chosen
      */
     public void setTitle(String appTitle, File file){
         if (file != null) {
             primaryStage.setTitle(appTitle + " - " + file.getName());
         } else {
-            primaryStage.setTitle(appTitle);
+            primaryStage.setTitle(appTitle + " - (no save file chosen)");
         }
     }
 

@@ -4,6 +4,7 @@ import address.events.EventManager;
 import address.events.FileNameChangedEvent;
 
 import java.io.File;
+import java.util.Optional;
 
 /**
  * Manages saving/retrieving of preferences in the registry.
@@ -11,8 +12,6 @@ import java.io.File;
 public class PreferencesManager {
 
     public static final String REGISTER_FILE_PATH = "address-book-filePath1";
-    public static final String DEFAULT_PERSON_FILE_PATH_PREFIX = "address_book";
-    public static final String FILE_FORMAT_POSTFIX = ".xml";
 
     private static PreferencesManager instance;
 
@@ -32,17 +31,17 @@ public class PreferencesManager {
     /**
      * Returns the person file preference, i.e. the file that was last opened.
      * The preference is read from the OS specific registry. If no such
-     * preference can be found, the default  is returned.
+     * preference can be found, null is returned.
      *
      */
-    public File getPersonFile() {
+    public Optional<File> getPersonFile() {
         java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(PreferencesManager.class);
         String filePath = prefs.get(PreferencesManager.appTitle + "/" + REGISTER_FILE_PATH, null);
         if (filePath == null) {
-            System.out.println("file path not found, using default file path");
-            filePath = DEFAULT_PERSON_FILE_PATH_PREFIX + FILE_FORMAT_POSTFIX;
+            return Optional.empty();
+        } else {
+            return Optional.of(new File(filePath));
         }
-        return new File(filePath);
     }
 
     /**

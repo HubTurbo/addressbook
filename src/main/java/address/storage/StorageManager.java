@@ -11,7 +11,7 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.util.List;
-
+import java.util.Optional;
 
 
 public class StorageManager {
@@ -30,14 +30,10 @@ public class StorageManager {
      */
     public void loadPersonDataFromFile(File file) throws Exception {
         AddressBookWrapper data  = XmlHelper.getDataFromFile(file);
-
         modelManager.resetData(data.getPersons(), data.getGroups());
-
         // Save the file path to the registry.
         PreferencesManager.getInstance().setPersonFilePath(file);
     }
-
-
 
     @Subscribe
     private void handleLoadDataRequestEvent(LoadDataRequestEvent ofe) {
@@ -56,10 +52,6 @@ public class StorageManager {
     public void saveDataToFile(File file, List<Person> personData, List<ContactGroup> groupData) {
         try {
             XmlHelper.saveToFile(file, personData, groupData);
-
-            // Save the file path to the registry.
-            PreferencesManager.getInstance().setPersonFilePath(file);
-
         } catch (Exception e) {
             EventManager.getInstance().post(new FileSavingExceptionEvent(e,file));
         }
@@ -67,14 +59,22 @@ public class StorageManager {
 
     @Subscribe
     private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce){
+        final Optional<File> targetFile = PreferencesManager.getInstance().getPersonFile();
+        if (!targetFile.isPresent()) {
+            return;
+        }
         System.out.println("Local data changed, saving to primary data file");
-        saveDataToFile(PreferencesManager.getInstance().getPersonFile(), lmce.personData, lmce.groupData);
+        saveDataToFile(targetFile.get(), lmce.personData, lmce.groupData);
     }
 
     @Subscribe
     private void handleLocalModelSyncedEvent(LocalModelSyncedEvent lmse){
+        final Optional<File> targetFile = PreferencesManager.getInstance().getPersonFile();
+        if (!targetFile.isPresent()) {
+            return;
+        }
         System.out.println("Local data synced, saving to primary data file");
-        saveDataToFile(PreferencesManager.getInstance().getPersonFile(), lmse.personData, lmse.groupData);
+        saveDataToFile(targetFile.get(), lmse.personData, lmse.groupData);
     }
 
     @Subscribe
@@ -86,7 +86,7 @@ public class StorageManager {
      * Raises a FileOpeningExceptionEvent if there was any problem in reading data from the file
      *  or if the file is not in the correct format.
      * @param file File containing the data
-     * @return Person list in the file
+     * @return address book in the file or an empty address book if file is null
      */
     public static AddressBookWrapper getDataFromFile(File file)  {
         try {

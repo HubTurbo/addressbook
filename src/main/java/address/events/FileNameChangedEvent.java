@@ -16,6 +16,11 @@ public class FileNameChangedEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : New file name is " + file;
+        final String className = this.getClass().getSimpleName();
+        if (file == null) {
+            return className + " : File name cleared";
+        } else {
+            return className + " : New file name is " + file;
+        }
     }
 }

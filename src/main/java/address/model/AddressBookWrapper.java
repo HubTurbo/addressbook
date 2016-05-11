@@ -15,9 +15,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class AddressBookWrapper {
 
     private List<Person> persons;
+
     private List<ContactGroup> groups;
 
-    @XmlElement(name = "person")
+    @XmlElement(name = "persons")
     public List<Person> getPersons() {
         return persons;
     }
