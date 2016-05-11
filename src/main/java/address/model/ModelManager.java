@@ -6,8 +6,10 @@ import address.events.LocalModelSyncedEvent;
 import address.events.NewMirrorDataEvent;
 import address.events.*;
 
+import address.util.PlatformEx;
 import com.google.common.eventbus.Subscribe;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -130,8 +132,6 @@ public class ModelManager {
                 System.out.println("New group data added " + g);
             }
         }
-
-        EventManager.getInstance().post(new LocalModelSyncedEvent(personData, groupData));
     }
 
     private Optional<Person> getPerson(Person person) {
@@ -212,8 +212,9 @@ public class ModelManager {
     }
 
     @Subscribe
-    private void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
-        addNewData(nde.data);
+    private synchronized void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
+        PlatformEx.runLaterAndWait(() -> resetData(nde.data));
+        EventManager.getInstance().post(new LocalModelSyncedEvent(personData, groupData));
     }
 
     @Subscribe
@@ -223,13 +224,17 @@ public class ModelManager {
 
     /**
      * Clears existing model and replaces with the provided new data.
-     * @param newData
+     * @param newPeople
      */
-    public void resetData(List<Person> newData, List<ContactGroup> newGroups) {
+    public void resetData(List<Person> newPeople, List<ContactGroup> newGroups) {
         personData.clear();
-        personData.addAll(newData);
+        personData.addAll(newPeople);
 
         groupData.clear();
         groupData.addAll(newGroups);
+    }
+
+    public void resetData(AddressBookWrapper newData) {
+        resetData(newData.getPersons(), newData.getGroups());
     }
 }

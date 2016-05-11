@@ -21,7 +21,17 @@ public class MainApp extends Application {
     protected SyncManager syncManager;
     private MainController mainController;
 
-    public MainApp() {
+    public MainApp() {}
+
+    protected Config getConfig() {
+        return new Config();
+    }
+
+
+    @Override
+    public void start(Stage primaryStage) {
+        setupComponents();
+        mainController.start(primaryStage);
     }
 
     protected void setupComponents() {
@@ -33,17 +43,6 @@ public class MainApp extends Application {
         mainController = new MainController(modelManager, config);
         syncManager = new SyncManager();
         syncManager.startSyncingData(config.updateInterval, config.isSimulateRandomChanges);
-    }
-
-    protected Config getConfig() {
-        return new Config();
-    }
-
-
-    @Override
-    public void start(Stage primaryStage) {
-        setupComponents();
-        mainController.start(primaryStage);
     }
 
     @Override

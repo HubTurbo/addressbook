@@ -42,7 +42,6 @@ public class SyncManager {
         }
     }
 
-
     /**
      * Runs periodically and adds any entries in the mirror file that is missing
      * in the primary data file. The mirror file should be at the same location
@@ -51,7 +50,7 @@ public class SyncManager {
      */
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
-            final AddressBookWrapper mirrorData = getMirrorData();
+            AddressBookWrapper mirrorData = getMirrorData();
 
             if (!mirrorData.getPersons().isEmpty() || !mirrorData.getGroups().isEmpty()) {
                 EventManager.getInstance().post(new NewMirrorDataEvent(mirrorData));
@@ -63,8 +62,8 @@ public class SyncManager {
     }
 
     private AddressBookWrapper getMirrorData() {
-        System.out.println("Updating data: " + System.nanoTime());
-        File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().toString() + "-mirror.xml");
+        System.out.println("Updating data from cloud: " + System.nanoTime());
+        final File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().toString() + "-mirror.xml");
         return this.cloudSimulator.getSimulatedCloudData(mirrorFile);
     }
 
