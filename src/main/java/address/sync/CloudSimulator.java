@@ -37,17 +37,18 @@ public class CloudSimulator {
      * The data is possibly modified in each call to this method and is persisted onto the same file.
      * When failure condition occurs, this returns an empty data set.
      */
-    public AddressBookWrapper getSimulatedCloudData(File file) {
+    public AddressBookWrapper getSimulatedCloudData(File cloudFile) {
         System.out.println("Simulating cloud data retrieval...");
         AddressBookWrapper modifiedData = new AddressBookWrapper();
         try {
-            AddressBookWrapper data = XmlHelper.getDataFromFile(file);
+            AddressBookWrapper data = XmlHelper.getDataFromFile(cloudFile);
             if (!this.isSimulateRandomChanges) {
                 return data;
             }
 
+            // no data could be retrieved
             if (random.nextDouble() <= FAILURE_PROBABILITY) {
-                System.out.println("Cloud simulator: failure occurred!");
+                System.out.println("Cloud simulator: failure occurred! Could not retrieve data");
                 AddressBookWrapper wrapper = new AddressBookWrapper();
                 wrapper.setPersons(new ArrayList<>());
                 wrapper.setGroups(new ArrayList<>());
@@ -56,10 +57,10 @@ public class CloudSimulator {
 
             modifiedData = simulateDataModification(data);
             modifiedData.getPersons().addAll(simulateDataAddition());
-            XmlHelper.saveToFile(file, modifiedData.getPersons(), modifiedData.getGroups());
+            XmlHelper.saveToFile(cloudFile, modifiedData.getPersons(), modifiedData.getGroups());
             TimeUnit.SECONDS.sleep(random.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC);
         } catch (JAXBException e) {
-            System.out.println("File not found or is not in valid xml format : " + file);
+            System.out.println("File not found or is not in valid xml format : " + cloudFile);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -71,13 +72,13 @@ public class CloudSimulator {
      * written to the provided mirror file
      * @param delay Duration of delay in seconds to be simulated before the request is completed
      */
-    public void requestChangesToCloud(File file, List<Person> data, List<ContactGroup> groups, int delay) throws JAXBException {
+    public void requestChangesToCloud(File file, List<Person> people, List<ContactGroup> groups, int delay) throws JAXBException {
         if (file == null) {
             return;
         }
-        List<Person> persons = data.stream().map(Person::new).collect(Collectors.toList());
+        List<Person> persons = people.stream().map(Person::new).collect(Collectors.toList());
         persons.forEach((p) -> p.setUpdatedAt(LocalDateTime.now()));
-        XmlHelper.saveToFile(file, data, groups);
+        XmlHelper.saveToFile(file, people, groups);
         try {
             TimeUnit.SECONDS.sleep(delay);
         } catch (InterruptedException e) {
