@@ -1,5 +1,6 @@
 package address.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -14,9 +15,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "addressbook")
 public class AddressBookWrapper {
 
-    private List<Person> persons;
-
-    private List<ContactGroup> groups;
+    private List<Person> persons = new ArrayList<>(); // so empty lists from file will not be null
+    private List<ContactGroup> groups = new ArrayList<>(); // ditto
 
     @XmlElement(name = "persons")
     public List<Person> getPersons() {
