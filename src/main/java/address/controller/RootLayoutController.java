@@ -140,10 +140,7 @@ public class RootLayoutController {
     }
 
     @FXML
-    private void handleEditGroup() {
-    }
-
-    @FXML
-    private void handleRemoveGroup() {
+    private void handleShowGroups() {
+        mainController.showGroupList(modelManager.getGroupData());
     }
 }

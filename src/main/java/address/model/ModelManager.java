@@ -81,7 +81,7 @@ public class ModelManager {
     }
 
     /**
-     * Returns the data as an observable list of Persons.
+     * Returns the persons data as an observable list of Persons.
      * @return
      */
     public ObservableList<Person> getPersonData() {
@@ -89,10 +89,10 @@ public class ModelManager {
     }
 
     /**
-     * Returns the contact groups as a list.
+     * Returns the groups data as as observable list of Groups
      * @return
      */
-    public List<ContactGroup> getGroupData() {
+    public ObservableList<ContactGroup> getGroupData() {
         return groupData;
     }
 

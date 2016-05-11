@@ -34,11 +34,10 @@
                   <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
                </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Group">
+          <Menu mnemonicParsing="false" text="Groups">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#handleNewGroup" text="New Group" />
-              <MenuItem mnemonicParsing="false" onAction="#handleEditGroup" text="Edit Group" />
-              <MenuItem mnemonicParsing="false" onAction="#handleRemoveGroup" text="Remove Group" />
+              <MenuItem mnemonicParsing="false" onAction="#handleShowGroups" text="Show All" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Statistics">

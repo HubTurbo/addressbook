@@ -22,6 +22,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * The controller that creates the other controllers
@@ -178,6 +179,39 @@ public class MainController {
             dialogStage.showAndWait();
 
             return groupEditDialogController.isOkClicked();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean showGroupList(List<ContactGroup> groups) {
+        try {
+            // Load the fxml file and create a new stage for the popup dialog.
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("/view/GroupList.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+
+            // Create the dialog Stage.
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("List of Contact Groups");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(primaryStage);
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+            //dialogStage.getIcons().add(getImage("/images/edit.png"));
+
+            // Set the group into the controller.
+            GroupListController groupListController = loader.getController();
+            groupListController.setDialogStage(dialogStage);
+            groupListController.setModelManager(modelManager);
+            groupListController.setGroups(modelManager.getGroupData());
+
+            // Show the dialog and wait until the user closes it
+            dialogStage.showAndWait();
+
+            return true;
 
         } catch (IOException e) {
             e.printStackTrace();
