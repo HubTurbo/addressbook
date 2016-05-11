@@ -23,6 +23,7 @@ public class GroupEditDialogController extends EditDialogController {
 
     public void setGroup(ContactGroup group) {
         this.group = group;
+        groupNameField.setText(group.getName());
     }
 
     public void setGroups(List<ContactGroup> groups) {

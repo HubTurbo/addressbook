@@ -37,7 +37,7 @@
           <Menu mnemonicParsing="false" text="Groups">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#handleNewGroup" text="New Group" />
-              <MenuItem mnemonicParsing="false" onAction="#handleShowGroups" text="Show All" />
+              <MenuItem mnemonicParsing="false" onAction="#handleShowGroups" text="Manage Groups" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Statistics">

@@ -40,10 +40,8 @@ public class MainController {
         this.modelManager = modelManager;
         this.config = config;
     }
-
-
-    public void start(Stage primaryStage){
-
+    
+    public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         setTitle(config.appTitle, PreferencesManager.getInstance().getPersonFile());
 
@@ -206,7 +204,7 @@ public class MainController {
             GroupListController groupListController = loader.getController();
             groupListController.setDialogStage(dialogStage);
             groupListController.setModelManager(modelManager);
-            groupListController.setGroups(modelManager.getGroupData());
+            groupListController.setGroups(modelManager.getGroupData(), this, modelManager);
 
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();

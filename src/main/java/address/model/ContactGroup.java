@@ -6,6 +6,7 @@ public class ContactGroup {
     SimpleStringProperty name;
 
     public ContactGroup() {
+        this.name = new SimpleStringProperty("");
     }
 
     public ContactGroup(String name) {

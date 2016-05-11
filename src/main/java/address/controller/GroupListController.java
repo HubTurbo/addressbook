@@ -23,10 +23,10 @@ public class GroupListController {
     private void initialize() {
     }
 
-    public void setGroups(ObservableList<ContactGroup> groupList) {
+    public void setGroups(ObservableList<ContactGroup> groupList, MainController mainController, ModelManager modelManager) {
         this.groupList = groupList;
         groups.setItems(groupList);
-        groups.setCellFactory(listItem -> new GroupListViewCell());
+        groups.setCellFactory(listItem -> new GroupListViewCell(mainController, modelManager));
     }
 
     public void setDialogStage(Stage dialogStage) {
@@ -37,7 +37,4 @@ public class GroupListController {
         this.modelManager = modelManager;
     }
 
-    public void setMainController(MainController mainController) {
-        this.mainController = mainController;
-    }
 }
