@@ -1,6 +1,7 @@
 package address.storage;
 
 import address.events.*;
+import address.exceptions.FileContainsDuplicatesException;
 import address.model.AddressBookWrapper;
 import address.model.ContactGroup;
 import address.model.ModelManager;
@@ -9,6 +10,7 @@ import address.preferences.PreferencesManager;
 import address.util.XmlHelper;
 import com.google.common.eventbus.Subscribe;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.util.List;
 
@@ -24,9 +26,14 @@ public class StorageManager {
 
     @Subscribe
     private void handleLoadDataRequestEvent(LoadDataRequestEvent ofe) {
-        AddressBookWrapper data = getDataFromSaveFile(ofe.file);
-        PreferencesManager.getInstance().setPersonFilePath(ofe.file);
-        modelManager.resetData(data);
+        try {
+            AddressBookWrapper data = loadDataFromSaveFile(ofe.file);
+            PreferencesManager.getInstance().setPersonFilePath(ofe.file);
+            modelManager.resetData(data);
+        } catch (JAXBException | FileContainsDuplicatesException e) {
+            System.out.println(e);
+            EventManager.getInstance().post(new FileOpeningExceptionEvent(e, ofe.file));
+        }
     }
 
     @Subscribe
@@ -67,13 +74,10 @@ public class StorageManager {
      * @param file File containing the data
      * @return address book in the file or an empty address book if file is null
      */
-    public static AddressBookWrapper getDataFromSaveFile(File file)  {
-        try {
-            return file == null ? null : XmlHelper.getDataFromFile(file);
-        } catch (Exception e) {
-            EventManager.getInstance().post(new FileOpeningExceptionEvent(e, file));
-            return new AddressBookWrapper();
-        }
+    public static AddressBookWrapper loadDataFromSaveFile(File file) throws JAXBException, FileContainsDuplicatesException {
+        AddressBookWrapper data = XmlHelper.getDataFromFile(file);
+        if (data.containsDuplicates()) throw new FileContainsDuplicatesException();
+        return data;
     }
 
 }

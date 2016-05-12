@@ -291,7 +291,7 @@ public class MainController {
         content.append(message)
             .append(":\n")
             .append(file == null ? "none" : file.getPath())
-            .append("\n\nDetails:\n=====\ng")
+            .append("\n\nDetails:\n=====\n")
             .append(e.toString());
 
         alert.setContentText(content.toString());

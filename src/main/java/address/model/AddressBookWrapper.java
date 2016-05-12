@@ -1,7 +1,9 @@
 package address.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -34,5 +36,17 @@ public class AddressBookWrapper {
 
     public void setGroups(List<ContactGroup> groups) {
         this.groups = groups;
+    }
+
+    public boolean containsDuplicates() {
+        final Set<Person> personSet = new HashSet<>();
+        final Set<ContactGroup> groupSet = new HashSet<>();
+        for (Person p : persons) {
+            if (!personSet.add(p)) return true;
+        }
+        for (ContactGroup cg : groups) {
+            if (!groupSet.add(cg)) return true;
+        }
+        return false;
     }
 }
