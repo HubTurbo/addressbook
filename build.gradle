@@ -51,6 +51,7 @@ allprojects {
         compile "org.controlsfx:controlsfx:$controlsfxVersion"
         compile "com.google.code.gson:gson:$gsonVersion"
         compile "com.google.guava:guava:$guavaVersion"
+        testCompile 'org.testng:testng:6.9.10'
         testCompile "junit:junit:$junitVersion"
     		testCompile "org.testfx:testfx-core:4.0.+"
         testCompile "org.testfx:testfx-junit:4.0.+"
