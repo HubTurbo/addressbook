@@ -4,15 +4,13 @@ package address.sync;
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
 import address.events.NewMirrorDataEvent;
+import address.exceptions.FileContainsDuplicatesException;
 import address.model.AddressBookWrapper;
-import address.model.Person;
 import address.preferences.PreferencesManager;
 import address.sync.task.CloudUpdateTask;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,10 +45,12 @@ public class SyncManager {
      */
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
-            AddressBookWrapper mirrorData = getMirrorData();
-
-            if (!mirrorData.getPersons().isEmpty() || !mirrorData.getGroups().isEmpty()) {
+            try {
+                AddressBookWrapper mirrorData = getMirrorData();
                 EventManager.getInstance().post(new NewMirrorDataEvent(mirrorData));
+            } catch (FileContainsDuplicatesException e) {
+                // do not sync changes from mirror if duplicates found in mirror
+                System.out.println("Duplicate data found in mirror, cancelling sync...");
             }
         };
 
@@ -58,10 +58,12 @@ public class SyncManager {
         scheduler.scheduleAtFixedRate(task, initialDelay, interval, TimeUnit.SECONDS);
     }
 
-    private AddressBookWrapper getMirrorData() {
+    private AddressBookWrapper getMirrorData() throws FileContainsDuplicatesException {
         System.out.println("Updating data from cloud: " + System.nanoTime());
         final File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().toString() + "-mirror.xml");
-        return this.cloudSimulator.getSimulatedCloudData(mirrorFile);
+        final AddressBookWrapper data = cloudSimulator.getSimulatedCloudData(mirrorFile);
+        if (data.containsDuplicates()) throw new FileContainsDuplicatesException();
+        return data;
     }
 
     @Subscribe

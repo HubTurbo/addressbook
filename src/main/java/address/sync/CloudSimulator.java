@@ -100,6 +100,13 @@ public class CloudSimulator {
         return newData;
     }
 
+    /**
+     * WARNING: MUTATES data ARGUMENT
+     * TODO: currently only modifies Persons
+     *
+     * @param data
+     * @return the (possibly) modified argument addressbookwrapper
+     */
     private AddressBookWrapper simulateDataModification(AddressBookWrapper data) {
         List<Person> modifiedData = new ArrayList<>();
 
