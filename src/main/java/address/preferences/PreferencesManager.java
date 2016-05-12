@@ -35,7 +35,13 @@ public class PreferencesManager {
      *
      */
     public File getPersonFile() {
-        return new File(DEFAULT_FILE_PATH);
+        final java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(PreferencesManager.class);
+        final String filePath = prefs.get(PreferencesManager.appTitle + "/" + REGISTER_FILE_PATH, null);
+        if (filePath == null) {
+            return new File(DEFAULT_FILE_PATH);
+        } else {
+            return new File(filePath);
+        }
     }
 
     /**
