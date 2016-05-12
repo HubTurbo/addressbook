@@ -29,7 +29,10 @@ public class PersonCardController {
     @FXML
     private Label contactGroups;
 
+
+    Person person;
     public PersonCardController(Person person) {
+        this.person = person;
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/view/PersonListCard.fxml"));
         fxmlLoader.setController(this);
@@ -38,7 +41,10 @@ public class PersonCardController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    @FXML
+    public void initialize() {
         firstName.setText(person.getFirstName());
         lastName.setText(person.getLastName());
         street.setText(person.getStreet());

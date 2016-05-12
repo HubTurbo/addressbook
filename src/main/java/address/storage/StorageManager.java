@@ -40,7 +40,7 @@ public class StorageManager {
         try {
             loadPersonDataFromFile(ofe.file);
         } catch (Exception e) {
-            EventManager.getInstance().post(new FileOpeningExceptionEvent(e,ofe.file));
+            EventManager.getInstance().post(new FileOpeningExceptionEvent(e, ofe.file));
         }
     }
 
@@ -53,7 +53,7 @@ public class StorageManager {
         try {
             XmlHelper.saveToFile(file, personData, groupData);
         } catch (Exception e) {
-            EventManager.getInstance().post(new FileSavingExceptionEvent(e,file));
+            EventManager.getInstance().post(new FileSavingExceptionEvent(e, file));
         }
     }
 

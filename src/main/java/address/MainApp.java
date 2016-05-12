@@ -37,16 +37,17 @@ public class MainApp extends Application {
     protected void setupComponents() {
         config = getConfig();
         PreferencesManager.setAppTitle(config.appTitle);
-        AddressBookWrapper dataFromFile = StorageManager.getDataFromFile(PreferencesManager.getInstance().getPersonFile());
+        AddressBookWrapper dataFromFile = StorageManager.getDataFromFile(
+                                                PreferencesManager.getInstance().getPersonFile());
         modelManager = new ModelManager(dataFromFile);
         storageManager = new StorageManager(modelManager);
-        mainController = new MainController(modelManager, config);
+        mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
         syncManager.startSyncingData(config.updateInterval, config.isSimulateRandomChanges);
     }
 
     @Override
-    public void stop(){
+    public void stop() {
         System.exit(0);
     }
 

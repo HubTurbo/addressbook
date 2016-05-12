@@ -12,6 +12,7 @@ public class FileSavingExceptionEvent {
 
     public FileSavingExceptionEvent(Exception exception, File file){
         this.exception = exception;
+        this.file = file;
     }
 
     @Override

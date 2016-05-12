@@ -7,10 +7,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Helper class to wrap a list of persons. This is used for saving the
- * list of persons to XML.
+ * Helper class to wrap an address book. This is used for saving the
+ * lists of persons and groups to XML.
  * 
- * @author Marco Jakob
+ * Adapted and modified from Marco Jakob
  */
 @XmlRootElement(name = "addressbook")
 public class AddressBookWrapper {

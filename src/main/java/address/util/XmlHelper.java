@@ -25,7 +25,8 @@ public class XmlHelper {
         return ((AddressBookWrapper) um.unmarshal(file));
     }
 
-    public static void saveToFile(File file, List<Person> personData, List<ContactGroup> groupData) throws JAXBException {
+    public static void saveToFile(File file, List<Person> personData, List<ContactGroup> groupData)
+            throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(AddressBookWrapper.class);
         Marshaller m = context.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

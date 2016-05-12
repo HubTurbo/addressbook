@@ -72,10 +72,9 @@ public class CloudSimulator {
      * written to the provided mirror file
      * @param delay Duration of delay in seconds to be simulated before the request is completed
      */
-    public void requestChangesToCloud(File file, List<Person> people, List<ContactGroup> groups, int delay) throws JAXBException {
-        if (file == null) {
-            return;
-        }
+    public void requestChangesToCloud(File file, List<Person> people, List<ContactGroup> groups, int delay)
+            throws JAXBException {
+        if (file == null) return;
         List<Person> persons = people.stream().map(Person::new).collect(Collectors.toList());
         persons.forEach((p) -> p.setUpdatedAt(LocalDateTime.now()));
         XmlHelper.saveToFile(file, people, groups);

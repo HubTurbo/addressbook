@@ -3,6 +3,7 @@ package address.controller;
 import java.io.File;
 import java.util.Collections;
 
+import address.MainApp;
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
 import address.events.SaveRequestEvent;
@@ -23,10 +24,12 @@ public class RootLayoutController {
 
     private MainController mainController;
     private ModelManager modelManager;
+    private MainApp mainApp;
 
-    public void setConnections(MainController mainController, ModelManager modelManager) {
+    public void setConnections(MainApp mainApp, MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
         this.modelManager = modelManager;
+        this.mainApp = mainApp;
     }
 
     /**
@@ -49,7 +52,7 @@ public class RootLayoutController {
         File file = fileChooser.showOpenDialog(mainController.getPrimaryStage());
 
         if (file != null) {
-            EventManager.getInstance().post(new LoadDataRequestEvent(file, modelManager.getPersonData()));
+            EventManager.getInstance().post(new LoadDataRequestEvent(file));
         }
     }
 
@@ -60,7 +63,8 @@ public class RootLayoutController {
     @FXML
     private void handleSave() {
         final File saveFile = PreferencesManager.getInstance().getPersonFile();
-        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getPersonData(), modelManager.getGroupData()));
+        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getPersonData(),
+                                                             modelManager.getGroupData()));
     }
 
     /**
@@ -79,7 +83,8 @@ public class RootLayoutController {
                 file = new File(file.getPath() + ".xml");
             }
             PreferencesManager.getInstance().setPersonFilePath(file);
-            EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonData(), modelManager.getGroupData()));
+            EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonData(),
+                                                                 modelManager.getGroupData()));
         }
     }
 
@@ -127,7 +132,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleExit() {
-        System.exit(0);
+        mainApp.stop();
     }
     
     /**

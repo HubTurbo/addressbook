@@ -66,7 +66,7 @@ public class ModelManager {
     }
 
     public void appendSampleData() {
-        final Person[] SAMPLE_PERSON_DATA = {
+        final Person[] samplePersonData = {
             new Person("Hans", "Muster"),
             new Person("Ruth", "Mueller"),
             new Person("Heinz", "Kurz"),
@@ -77,12 +77,12 @@ public class ModelManager {
             new Person("Stefan", "Meier"),
             new Person("Martin", "Mueller")
         };
-        final ContactGroup[] SAMPLE_GROUP_DATA = {
+        final ContactGroup[] sampleGroupData = {
             new ContactGroup("relatives"),
             new ContactGroup("friends")
         };
-        personData.addAll(SAMPLE_PERSON_DATA);
-        groupData.addAll(SAMPLE_GROUP_DATA);
+        personData.addAll(samplePersonData);
+        groupData.addAll(sampleGroupData);
     }
 
     /**
