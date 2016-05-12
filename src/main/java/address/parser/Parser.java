@@ -37,10 +37,10 @@ public class Parser {
 
     private static Expr createPredicate(String type, String content) throws ParseException {
         switch (type) {
-            case "name":
-                return new PredExpr(new NameQualifier(content));
-            default:
-                throw new ParseException("Unrecognised qualifier " + type);
+        case "name":
+            return new PredExpr(new NameQualifier(content));
+        default:
+            throw new ParseException("Unrecognised qualifier " + type);
         }
     }
 }

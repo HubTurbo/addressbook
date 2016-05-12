@@ -35,8 +35,6 @@ public class PreferencesManager {
      *
      */
     public File getPersonFile() {
-        java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(PreferencesManager.class);
-        String filePath = prefs.get(PreferencesManager.appTitle + "/" + REGISTER_FILE_PATH, DEFAULT_FILE_PATH);
         return new File(DEFAULT_FILE_PATH);
     }
 

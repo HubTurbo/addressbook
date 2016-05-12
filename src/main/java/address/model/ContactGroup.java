@@ -27,9 +27,13 @@ public class ContactGroup {
 
     @Override
     public boolean equals(Object otherGroup){
-        if (otherGroup == null) {
-            return false;
-        }
+        if (!(otherGroup instanceof ContactGroup)) return false;
+        if (otherGroup == this) return true;
         return this.getName().equals(((ContactGroup) otherGroup).getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return getName().hashCode() * 39 + getName().hashCode() % 97;
     }
 }

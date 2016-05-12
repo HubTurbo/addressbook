@@ -29,17 +29,14 @@ public class SyncManager {
 
     private CloudSimulator cloudSimulator = new CloudSimulator(false);
 
-    private List<Person> previousList = Collections.emptyList();
-
     public SyncManager() {
         EventManager.getInstance().registerHandler(this);
     }
 
     public void startSyncingData(long interval, boolean isSimulateRandomChanges) {
-        if(interval > 0) {
-            this.cloudSimulator = new CloudSimulator(isSimulateRandomChanges);
-            updatePeriodically(interval);
-        }
+        if (interval <= 0) return;
+        this.cloudSimulator = new CloudSimulator(isSimulateRandomChanges);
+        updatePeriodically(interval);
     }
 
     /**

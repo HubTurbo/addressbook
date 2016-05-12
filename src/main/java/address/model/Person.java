@@ -162,18 +162,12 @@ public class Person {
 
     @Override
     public boolean equals(Object otherPerson){
-        if (otherPerson == null) {
-            return false;
-        }
-        if (!Person.class.isAssignableFrom(otherPerson.getClass())) {
-            return false;
-        }
-        final Person other = (Person) otherPerson;
-        if ((this.getFirstName() == null) ? (other.getFirstName() != null) : !this.getFirstName().equals(other.getFirstName())) {
-            return false;
-        }
+        if (otherPerson == null) return false;
+        if (!Person.class.isAssignableFrom(otherPerson.getClass())) return false;
 
-        return true;
+        final Person other = (Person) otherPerson;
+        if (this.getFirstName() == other.getFirstName()) return true;
+        return this.getFirstName().equals(other.getFirstName());
     }
 
     @Override

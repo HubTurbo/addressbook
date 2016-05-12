@@ -13,6 +13,15 @@ allprojects {
 
     apply plugin: 'idea'
     apply plugin: 'java'
+    apply plugin: 'checkstyle'
+    checkstyle {
+        toolVersion = '6.7'
+    }
+    apply plugin: 'pmd'
+    apply plugin: 'findbugs'
+    findbugs {
+        excludeFilter = file("${projectDir}/config/findbugs/excludeFilter.xml")
+    }
 
     version = '3.27.0'
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -43,14 +52,14 @@ allprojects {
         compile "com.google.code.gson:gson:$gsonVersion"
         compile "com.google.guava:guava:$guavaVersion"
         testCompile "junit:junit:$junitVersion"
-		testCompile "org.testfx:testfx-core:4.0.+"
-    	testCompile "org.testfx:testfx-junit:4.0.+"
-		testCompile "org.testfx:testfx-legacy:4.0.+", {
-        	exclude group: "junit", module: "junit"
-    	}
+    		testCompile "org.testfx:testfx-core:4.0.+"
+        testCompile "org.testfx:testfx-junit:4.0.+"
+    		testCompile "org.testfx:testfx-legacy:4.0.+", {
+            	exclude group: "junit", module: "junit"
+        }
         testCompile "org.mockito:mockito-core:$mockitoVersion"
         testCompile group: "org.mock-server", name: "mockserver-netty", version: "$mockServerVersion"
- 		testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
+ 		    testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
         compile fileTree(dir: 'lib', include: '*.jar')
     }
 
@@ -63,7 +72,15 @@ allprojects {
     assemble.dependsOn shadowJar
 }
 
-
 task wrapper(type: Wrapper) {
     gradleVersion = '2.12'
 }
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+defaultTasks 'check', 'clean', 'test'

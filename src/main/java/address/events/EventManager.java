@@ -9,14 +9,14 @@ public class EventManager {
     private static EventBus eventBus;
     private static EventManager instance;
 
-    public static EventManager getInstance(){
-        if(instance == null){
+    public static EventManager getInstance() {
+        if (instance == null) {
             instance = new EventManager();
         }
         return instance;
     }
 
-    private EventManager(){
+    private EventManager() {
         eventBus = new EventBus();
     }
 
@@ -24,7 +24,7 @@ public class EventManager {
         eventBus.register(handler);
     }
 
-    public void post(Object event){
+    public void post(Object event) {
         System.out.println(event);
         eventBus.post(event);
     }

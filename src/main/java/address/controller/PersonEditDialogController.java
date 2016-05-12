@@ -61,7 +61,7 @@ public class PersonEditDialogController extends EditDialogController {
                 handleInput(newValue);
             });
         groupSearch.setOnKeyTyped(e -> {
-            switch (e.getCharacter()) {
+                switch (e.getCharacter()) {
                 case " ":
                     e.consume();
                     model.toggleSelection();
@@ -69,10 +69,10 @@ public class PersonEditDialogController extends EditDialogController {
                     break;
                 default:
                     break;
-            }
-        });
+                }
+            });
         groupSearch.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
+                switch (e.getCode()) {
                 case DOWN:
                     e.consume();
                     model.selectNext();
@@ -83,8 +83,8 @@ public class PersonEditDialogController extends EditDialogController {
                     break;
                 default:
                     break;
-            }
-        });
+                }
+            });
     }
 
     /**
@@ -125,13 +125,13 @@ public class PersonEditDialogController extends EditDialogController {
         VBox content = new VBox();
         contactGroupList.stream()
                 .forEach(contactGroup -> {
-                    Label newLabel = new Label(contactGroup.getName());
-                    if (isSelectable && contactGroup.isSelected()) {
-                        newLabel.setStyle("-fx-background-color: blue;");
-                    }
-                    newLabel.setPrefWidth(261);
-                    content.getChildren().add(newLabel);
-                });
+                        Label newLabel = new Label(contactGroup.getName());
+                        if (isSelectable && contactGroup.isSelected()) {
+                            newLabel.setStyle("-fx-background-color: blue;");
+                        }
+                        newLabel.setPrefWidth(261);
+                        content.getChildren().add(newLabel);
+                    });
 
         return content;
     }

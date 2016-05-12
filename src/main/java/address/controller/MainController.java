@@ -34,11 +34,13 @@ public class MainController {
     private BorderPane rootLayout;
 
     private ModelManager modelManager;
+    private MainApp mainApp;
 
-    public MainController(ModelManager modelManager, Config config){
+    public MainController(MainApp mainApp, ModelManager modelManager, Config config){
         EventManager.getInstance().registerHandler(this);
         this.modelManager = modelManager;
         this.config = config;
+        this.mainApp = mainApp;
     }
     
     public void start(Stage primaryStage) {
@@ -69,7 +71,7 @@ public class MainController {
 
             // Give the rootController access to the main controller and modelManager
             RootLayoutController rootController = loader.getController();
-            rootController.setConnections(this, modelManager);
+            rootController.setConnections(mainApp, this, modelManager);
 
             primaryStage.show();
 
@@ -202,8 +204,6 @@ public class MainController {
 
             // Set the group into the controller.
             GroupListController groupListController = loader.getController();
-            groupListController.setDialogStage(dialogStage);
-            groupListController.setModelManager(modelManager);
             groupListController.setGroups(modelManager.getGroupData(), this, modelManager);
 
             // Show the dialog and wait until the user closes it

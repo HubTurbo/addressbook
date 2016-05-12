@@ -1,9 +1,6 @@
 package address.events;
 
 import address.model.AddressBookWrapper;
-import address.model.Person;
-
-import java.util.List;
 
 /** Indicates some new data is available from the mirror*/
 public class NewMirrorDataEvent {

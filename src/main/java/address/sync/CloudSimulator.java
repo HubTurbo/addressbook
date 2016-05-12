@@ -25,7 +25,7 @@ public class CloudSimulator {
     private static final int MAX_NUM_PERSONS_TO_ADD = 2;
 
     private boolean isSimulateRandomChanges = false;
-    private static final Random random = new Random();
+    private static final Random RANDOM_GENERATOR = new Random();
 
     public CloudSimulator(boolean isSimulateRandomChanges) {
         this.isSimulateRandomChanges = isSimulateRandomChanges;
@@ -47,7 +47,7 @@ public class CloudSimulator {
             }
 
             // no data could be retrieved
-            if (random.nextDouble() <= FAILURE_PROBABILITY) {
+            if (RANDOM_GENERATOR.nextDouble() <= FAILURE_PROBABILITY) {
                 System.out.println("Cloud simulator: failure occurred! Could not retrieve data");
                 AddressBookWrapper wrapper = new AddressBookWrapper();
                 wrapper.setPersons(new ArrayList<>());
@@ -58,7 +58,7 @@ public class CloudSimulator {
             modifiedData = simulateDataModification(data);
             modifiedData.getPersons().addAll(simulateDataAddition());
             XmlHelper.saveToFile(cloudFile, modifiedData.getPersons(), modifiedData.getGroups());
-            TimeUnit.SECONDS.sleep(random.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC);
+            TimeUnit.SECONDS.sleep(RANDOM_GENERATOR.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC);
         } catch (JAXBException e) {
             System.out.println("File not found or is not in valid xml format : " + cloudFile);
         } catch (InterruptedException e) {
@@ -72,10 +72,9 @@ public class CloudSimulator {
      * written to the provided mirror file
      * @param delay Duration of delay in seconds to be simulated before the request is completed
      */
-    public void requestChangesToCloud(File file, List<Person> people, List<ContactGroup> groups, int delay) throws JAXBException {
-        if (file == null) {
-            return;
-        }
+    public void requestChangesToCloud(File file, List<Person> people, List<ContactGroup> groups, int delay)
+            throws JAXBException {
+        if (file == null) return;
         List<Person> persons = people.stream().map(Person::new).collect(Collectors.toList());
         persons.forEach((p) -> p.setUpdatedAt(LocalDateTime.now()));
         XmlHelper.saveToFile(file, people, groups);
@@ -90,7 +89,7 @@ public class CloudSimulator {
         List<Person> newData = new ArrayList<>();
 
         for (int i = 0; i < MAX_NUM_PERSONS_TO_ADD; i++) {
-            if (random.nextDouble() <= ADD_PERSON_PROBABILITY) {
+            if (RANDOM_GENERATOR.nextDouble() <= ADD_PERSON_PROBABILITY) {
                 Person person = new Person(java.util.UUID.randomUUID().toString(),
                                            java.util.UUID.randomUUID().toString());
                 System.out.println("Cloud simulator: adding " + person);
@@ -106,11 +105,11 @@ public class CloudSimulator {
 
         // currently only modifies persons
         for (Person person : data.getPersons()) {
-            if (random.nextDouble() <= MODIFY_PERSON_PROBABILITY) {
+            if (RANDOM_GENERATOR.nextDouble() <= MODIFY_PERSON_PROBABILITY) {
                 System.out.println("Cloud simulator: modifying " + person);
                 person.setCity(java.util.UUID.randomUUID().toString());
                 person.setStreet(java.util.UUID.randomUUID().toString());
-                person.setPostalCode(random.nextInt(999999));
+                person.setPostalCode(RANDOM_GENERATOR.nextInt(999999));
                 person.setUpdatedAt(LocalDateTime.now());
             }
             modifiedData.add(person);

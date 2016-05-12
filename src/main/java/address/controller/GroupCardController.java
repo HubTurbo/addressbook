@@ -1,6 +1,5 @@
 package address.controller;
 
-import address.MainApp;
 import address.model.ContactGroup;
 import address.model.ModelManager;
 import javafx.fxml.FXML;
@@ -37,7 +36,10 @@ public class GroupCardController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    @FXML
+    public void initialize() {
         groupName.setText(group.getName());
         setListener();
     }
@@ -47,12 +49,12 @@ public class GroupCardController {
 
         MenuItem newGroup = new MenuItem("New");
         newGroup.setOnAction(e -> {
-            ContactGroup tempGroup = new ContactGroup();
-            boolean okClicked = mainController.showGroupEditDialog(tempGroup);
-            if (okClicked) {
-                modelManager.addGroup(tempGroup);
-            }
-        });
+                ContactGroup tempGroup = new ContactGroup();
+                boolean okClicked = mainController.showGroupEditDialog(tempGroup);
+                if (okClicked) {
+                    modelManager.addGroup(tempGroup);
+                }
+            });
         MenuItem editGroup = new MenuItem("Edit");
         editGroup.setOnAction(e -> mainController.showGroupEditDialog(group));
         MenuItem removeGroup = new MenuItem("Remove");
@@ -66,17 +68,17 @@ public class GroupCardController {
 
     public void setListener() {
         box.setOnMouseClicked(mouseEvent -> {
-            if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                if (mouseEvent.getClickCount() == 2) {
-                    mainController.showGroupEditDialog(group);
+                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                    if (mouseEvent.getClickCount() == 2) {
+                        mainController.showGroupEditDialog(group);
+                    }
                 }
-            }
-            if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
-                if (mouseEvent.getClickCount() == 1) {
-                    getContextMenu().show(groupName, Side.BOTTOM, 0, 0);
+                if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
+                    if (mouseEvent.getClickCount() == 1) {
+                        getContextMenu().show(groupName, Side.BOTTOM, 0, 0);
+                    }
                 }
-            }
-        });
+            });
     }
 
     public VBox getLayout() {

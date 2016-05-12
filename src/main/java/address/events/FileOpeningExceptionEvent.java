@@ -12,10 +12,12 @@ public class FileOpeningExceptionEvent {
 
     public FileOpeningExceptionEvent(Exception exception, File file){
         this.exception = exception;
+        this.file = file;
     }
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : " + exception.toString();
+        return this.getClass().getSimpleName() + " : " + exception.toString()
+                + "while opening " + file.getName();
     }
 }

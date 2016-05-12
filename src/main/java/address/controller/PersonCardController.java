@@ -29,7 +29,10 @@ public class PersonCardController {
     @FXML
     private Label contactGroups;
 
+
+    Person person;
     public PersonCardController(Person person) {
+        this.person = person;
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/view/PersonListCard.fxml"));
         fxmlLoader.setController(this);
@@ -38,7 +41,10 @@ public class PersonCardController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    @FXML
+    public void initialize() {
         firstName.setText(person.getFirstName());
         lastName.setText(person.getLastName());
         street.setText(person.getStreet());
@@ -49,14 +55,14 @@ public class PersonCardController {
     }
 
     private String getContactGroupsString(List<ContactGroup> contactGroups) {
-        String contactGroupsString = "";
+        StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < contactGroups.size(); i++) {
             if (i > 0) {
-                contactGroupsString += ", ";
+                buffer.append(", ");
             }
-            contactGroupsString += contactGroups.get(i).getName();
+            buffer.append(contactGroups.get(i).getName());
         }
-        return contactGroupsString;
+        return buffer.toString();
     }
 
     public VBox getLayout() {
