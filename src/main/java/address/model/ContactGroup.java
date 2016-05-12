@@ -27,9 +27,13 @@ public class ContactGroup {
 
     @Override
     public boolean equals(Object otherGroup){
-        if (!(otherGroup instanceof ContactGroup)) return false;
         if (otherGroup == this) return true;
-        return this.getName().equals(((ContactGroup) otherGroup).getName());
+        if (otherGroup == null) return false;
+        if (!ContactGroup.class.isAssignableFrom(otherGroup.getClass())) return false;
+
+        final ContactGroup other = (ContactGroup) otherGroup;
+        if (this.getName() == other.getName()) return true;
+        return this.getName().equals(other.getName());
     }
 
     @Override
