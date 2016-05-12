@@ -6,7 +6,7 @@ import com.google.common.eventbus.EventBus;
  * Manages the event dispatching of the app.
  */
 public class EventManager {
-    private static EventBus eventBus;
+    private final EventBus eventBus;
     private static EventManager instance;
 
     public static EventManager getInstance() {
