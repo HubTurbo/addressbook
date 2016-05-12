@@ -179,8 +179,8 @@ public class Person {
     }
 
     @Override
-    public String toString(){
-        return "Person : " + getFirstName();
+    public String toString() {
+        return String.format("Person : %1$s %2$s", getFirstName(), getLastName());
     }
 
     /**

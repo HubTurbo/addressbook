@@ -40,4 +40,9 @@ public class ContactGroup {
     public int hashCode() {
         return getName().hashCode() * 39 + getName().hashCode() % 97;
     }
+
+    @Override
+    public String toString() {
+        return "Group : " + getName();
+    }
 }
