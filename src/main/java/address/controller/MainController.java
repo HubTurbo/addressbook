@@ -273,31 +273,33 @@ public class MainController {
 
     @Subscribe
     private void handleFileOpeningExceptionEvent(FileOpeningExceptionEvent foee){
-        showFileOpeningExceptionMessage(foee.exception, foee.file);
+        showFileOperationAlert("Could not load data", "Could not load data from file", foee.file, foee.exception);
     }
 
     @Subscribe
     private void handleFileSavingExceptionEvent(FileSavingExceptionEvent fsee){
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText("Could not save data");
-        alert.setContentText("Could not save data to file:\n" + fsee.file.getPath());
+        showFileOperationAlert("Could not save data", "Could not save data to file", fsee.file, fsee.exception);
+    }
 
+    private void showFileOperationAlert(String header, String message, File file, Exception e) {
+        final Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.initOwner(primaryStage);
+        alert.setTitle("Error");
+        alert.setHeaderText(header);
+
+        final StringBuilder content = new StringBuilder();
+        content.append(message)
+            .append(":\n")
+            .append(file == null ? "none" : file.getPath())
+            .append("\n\nDetails:\n=====\ng")
+            .append(e.toString());
+
+        alert.setContentText(content.toString());
         alert.showAndWait();
     }
 
     private Image getImage(String imagePath) {
         return new Image(MainApp.class.getResourceAsStream(imagePath));
-    }
-
-    private void showFileOpeningExceptionMessage(Exception exception, File file) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.initOwner(primaryStage);
-        alert.setTitle("Error");
-        alert.setHeaderText("Could not load data");
-        alert.setContentText("Could not load data from file:\n" + (file == null ? "none" : file.getPath()));
-
-        alert.showAndWait();
     }
 
     public void showWarningDialogAndWait(String title, String headerText, String contentText){

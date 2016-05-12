@@ -37,7 +37,7 @@ public class MainApp extends Application {
     protected void setupComponents() {
         config = getConfig();
         PreferencesManager.setAppTitle(config.appTitle);
-        AddressBookWrapper dataFromFile = StorageManager.getDataFromFile(
+        AddressBookWrapper dataFromFile = StorageManager.getDataFromSaveFile(
                                                 PreferencesManager.getInstance().getPersonFile());
         modelManager = new ModelManager(dataFromFile);
         storageManager = new StorageManager(modelManager);
