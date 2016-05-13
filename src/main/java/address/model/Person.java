@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author Marco Jakob
  */
-public class Person {
+public final class Person implements UniqueCopyable<Person> {
 
     private final StringProperty firstName;
     private final StringProperty lastName;
@@ -23,14 +23,14 @@ public class Person {
     private final IntegerProperty postalCode;
     private final StringProperty city;
     private final ObjectProperty<LocalDate> birthday;
-    private ObjectProperty<LocalDateTime> updatedAt;
+    private final ObjectProperty<LocalDateTime> updatedAt;
     private final List<ContactGroup> contactGroups;
 
     /**
      * Default constructor.
      */
     public Person() {
-        this(null, null);
+        this("", "");
     }
 
     /**
@@ -54,7 +54,7 @@ public class Person {
     }
 
     /**
-     * Copy constructor
+     * Deep copy constructor
      * @param person
      */
     public Person(Person person) {
@@ -65,14 +65,23 @@ public class Person {
         this.postalCode = new SimpleIntegerProperty(person.getPostalCode());
         this.city = new SimpleStringProperty(person.getCity());
         this.birthday = new SimpleObjectProperty<>(person.getBirthday());
-        this.contactGroups = new ArrayList<>(person.getContactGroups());
+        this.contactGroups = new ArrayList<>(person.getContactGroupsCopy());
         this.updatedAt = new SimpleObjectProperty<>(person.getUpdatedAt());
     }
 
-    public List<ContactGroup> getContactGroups() {
-        return contactGroups;
+    /**
+     * @return a deep copy of the contactGroups
+     */
+    public List<ContactGroup> getContactGroupsCopy() {
+        final List<ContactGroup> copy = new ArrayList<>();
+        contactGroups.forEach((cg)->copy.add(cg));
+        return copy;
     }
 
+    /**
+     * Note: references point back to argument list (no defensive copying)
+     * @param contactGroups
+     */
     public void setContactGroups(List<ContactGroup> contactGroups) {
         this.contactGroups.clear();
         this.contactGroups.addAll(contactGroups);
@@ -173,9 +182,7 @@ public class Person {
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 53 * hash + (this.getFirstName() != null ? this.getFirstName().hashCode() : 0);
-        return hash;
+        return (getFirstName()+getLastName()).hashCode();
     }
 
     @Override
@@ -185,9 +192,12 @@ public class Person {
 
     /**
      * Updates the attributes based on the values in the parameter.
+     * Mutable references are cloned.
+     *
      * @param updated The object containing the new attributes.
+     * @return self
      */
-    public void update(Person updated) {
+    public Person update(Person updated) {
         setFirstName(updated.getFirstName());
         setLastName(updated.getLastName());
         setStreet(updated.getStreet());
@@ -195,6 +205,15 @@ public class Person {
         setCity(updated.getCity());
         setBirthday(updated.getBirthday());
         setUpdatedAt(updated.getUpdatedAt());
-        setContactGroups(updated.getContactGroups());
+        setContactGroups(updated.getContactGroupsCopy());
+        return this;
+    }
+
+    /**
+     * @return a deep copy
+     */
+    @Override
+    public Person clone() {
+        return new Person(this);
     }
 }

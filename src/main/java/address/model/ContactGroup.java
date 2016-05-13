@@ -2,8 +2,9 @@ package address.model;
 
 import javafx.beans.property.SimpleStringProperty;
 
-public class ContactGroup {
-    SimpleStringProperty name;
+public final class ContactGroup implements UniqueCopyable<ContactGroup> {
+
+    private final SimpleStringProperty name;
 
     public ContactGroup() {
         this.name = new SimpleStringProperty("");
@@ -18,11 +19,13 @@ public class ContactGroup {
     }
 
     public void setName(String name) {
-        this.name = new SimpleStringProperty(name);
+        this.name.set(name);
     }
 
-    public void update(ContactGroup group) {
+    @Override
+    public ContactGroup update(ContactGroup group) {
         setName(group.getName());
+        return this;
     }
 
     @Override
@@ -38,11 +41,16 @@ public class ContactGroup {
 
     @Override
     public int hashCode() {
-        return getName().hashCode() * 39 + getName().hashCode() % 97;
+        return getName().hashCode();
     }
 
     @Override
     public String toString() {
         return "Group : " + getName();
+    }
+
+    @Override
+    public ContactGroup clone() {
+        return new ContactGroup(getName());
     }
 }

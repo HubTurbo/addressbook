@@ -14,17 +14,13 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Represents the in-memory model of the address book data.
  */
 public class ModelManager {
 
-    /**
-     * The data as an observable list of Persons.
-     */
     private final ObservableList<Person> personData = FXCollections.observableArrayList();
     private final FilteredList<Person> filteredPersonData = new FilteredList<>(personData);
     private final ObservableList<ContactGroup> groupData = FXCollections.observableArrayList();
@@ -86,75 +82,24 @@ public class ModelManager {
     }
 
     /**
-     * Returns the persons data as an observable list of Persons.
-     * @return
+     * @return observablelist of persons in model
      */
-    public ObservableList<Person> getPersonData() {
+    public ObservableList<Person> getPersons() {
+        return personData;
+    }
+
+    /**
+     * @return data of persons in active filtered view
+     */
+    public ObservableList<Person> getFilteredPersons() {
         return filteredPersonData;
     }
 
     /**
-     * Returns the groups data as as observable list of Groups
-     * @return
+     * @return observablelist of groups in model
      */
     public ObservableList<ContactGroup> getGroupData() {
         return groupData;
-    }
-
-    /**
-     * Adds new data to existing data.
-     * If a Person in the new data has the same
-     * first name as an existing Person, the older one will be kept.
-     * @param data
-     */
-    public synchronized void addNewData(AddressBookWrapper data) {
-        System.out.println("Attempting to add a persons list of size " + data.getPersons().size());
-
-        for (Person p : data.getPersons()) {
-            Optional<Person> storedPerson = getPerson(p);
-            if (!storedPerson.isPresent()) {
-                personData.add(p);
-                System.out.println("New data added " + p);
-                continue;
-            }
-
-            Person personInModel = storedPerson.get();
-            if (!p.getUpdatedAt().isBefore(personInModel.getUpdatedAt())) {
-                storedPerson.get().update(p);
-            }
-        }
-
-        System.out.println("Attempting to add a groups list of size " + data.getGroups().size());
-
-        for (ContactGroup g : data.getGroups()) {
-            Optional<ContactGroup> storedGroup = getGroup(g);
-            if (storedGroup.isPresent()) {
-                storedGroup.get().update(g);
-            } else {
-                groupData.add(g);
-                System.out.println("New group data added " + g);
-            }
-        }
-    }
-
-    private Optional<Person> getPerson(Person person) {
-        for (Person p : personData) {
-            if (p.equals(person)) {
-                return Optional.of(p);
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    private Optional<ContactGroup> getGroup(ContactGroup group) {
-        for (ContactGroup g : groupData) {
-            if (g.equals(group)) {
-                return Optional.of(g);
-            }
-        }
-
-        return Optional.empty();
     }
 
     /**
@@ -216,7 +161,8 @@ public class ModelManager {
 
     @Subscribe
     private synchronized void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
-        PlatformEx.runLaterAndWait(() -> resetData(nde.data));
+        // NewMirrorDataEvent is created from outside FX Application thread
+        PlatformEx.runLaterAndWait(() -> updateUsingExternalData(nde.data));
         EventManager.getInstance().post(new LocalModelSyncedEvent(personData, groupData));
     }
 
@@ -226,15 +172,58 @@ public class ModelManager {
     }
 
     /**
+     * Diffs extData with the current model and updates the current model with minimal change.
+     * @param extData data from an external canonical source
+     */
+    public void updateUsingExternalData(AddressBookWrapper extData) {
+        assert !extData.containsDuplicates() : "Duplicates are not allowed.";
+        diffUpdate(extData.getPersons(), personData);
+        diffUpdate(extData.getGroups(), groupData);
+    }
+
+    /**
+     * Performs a diff-update (minimal change) on target using newData.
+     * Specification:
+     *   _________________________________________________
+     *  | in newData | in target | Result                |
+     *  --------------------------------------------------
+     *  | yes        | yes       | update item in target |
+     *  | yes        | no        | remove from target    |
+     *  | no         | yes       | copy-add to target    |
+     *  | no         | no        | N/A                   |
+     *  --------------------------------------------------
+     * Any form of data element ordering in newData will not be enforced on target.
+     *
+     * @param newData
+     * @param target
+     * @param <E>
+     */
+    public static <E extends UniqueCopyable<E>> void diffUpdate(Collection<E> newData, Collection<E> target) {
+        final Map<E, E> unconsidered = new HashMap<>();
+        newData.forEach((item) -> unconsidered.put(item, item));
+
+        final Iterator<E> targetIter = target.iterator();
+        while (targetIter.hasNext()) {
+            final E oldItem = targetIter.next();
+            final E newItem = unconsidered.remove(oldItem);
+            if (newItem == null) { // not in newData
+                targetIter.remove();
+            } else { // in newData
+                oldItem.update(newItem);
+            }
+        }
+
+        // not in target
+        unconsidered.keySet().forEach((item) -> target.add(item));
+    }
+
+    /**
      * Clears existing model and replaces with the provided new data.
      * @param newPeople
      */
     public void resetData(List<Person> newPeople, List<ContactGroup> newGroups) {
-        personData.clear();
-        personData.addAll(newPeople);
-
-        groupData.clear();
-        groupData.addAll(newGroups);
+        personData.setAll(newPeople);
+        groupData.setAll(newGroups);
     }
 
     public void resetData(AddressBookWrapper newData) {

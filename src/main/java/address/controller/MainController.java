@@ -135,7 +135,7 @@ public class MainController {
             personEditDialogController.setDialogStage(dialogStage);
             personEditDialogController.setModelManager(modelManager);
             personEditDialogController.setPerson(person);
-            personEditDialogController.setModel(modelManager.getGroupData(), person.getContactGroups());
+            personEditDialogController.setModel(modelManager.getGroupData(), person.getContactGroupsCopy());
 
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
@@ -240,7 +240,7 @@ public class MainController {
 
             // Set the persons into the controller.
             BirthdayStatisticsController controller = loader.getController();
-            controller.setPersonData(modelManager.getPersonData());
+            controller.setPersonData(modelManager.getFilteredPersons());
 
             dialogStage.show();
 

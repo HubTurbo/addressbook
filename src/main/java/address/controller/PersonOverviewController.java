@@ -41,7 +41,7 @@ public class PersonOverviewController {
         this.modelManager = modelManager;
 
         // Add observable list data to the list
-        personList.setItems(modelManager.getPersonData());
+        personList.setItems(modelManager.getFilteredPersons());
         personList.setCellFactory(listView -> new PersonListViewCell());
     }
 

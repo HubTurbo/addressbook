@@ -29,7 +29,7 @@ public class StorageManager {
         try {
             AddressBookWrapper data = loadDataFromSaveFile(ofe.file);
             PreferencesManager.getInstance().setPersonFilePath(ofe.file);
-            modelManager.resetData(data);
+            modelManager.updateUsingExternalData(data);
         } catch (JAXBException | FileContainsDuplicatesException e) {
             System.out.println(e);
             EventManager.getInstance().post(new FileOpeningExceptionEvent(e, ofe.file));
@@ -72,9 +72,10 @@ public class StorageManager {
      * Raises a FileOpeningExceptionEvent if there was any problem in reading data from the file
      *  or if the file is not in the correct format.
      * @param file File containing the data
-     * @return address book in the file or an empty address book if file is null
+     * @return address book in the file or an empty address book
      */
     public static AddressBookWrapper loadDataFromSaveFile(File file) throws JAXBException, FileContainsDuplicatesException {
+        assert file != null;
         AddressBookWrapper data = XmlHelper.getDataFromFile(file);
         if (data.containsDuplicates()) throw new FileContainsDuplicatesException();
         return data;

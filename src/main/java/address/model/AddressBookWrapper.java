@@ -1,9 +1,6 @@
 package address.model;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,13 +8,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Helper class to wrap an address book. This is used for saving the
  * lists of persons and groups to XML.
+ *
+ * Duplicates are not allowed (by .equals comparison)
+ * TODO: truly enforce set property through code (Sets, XML Schemas)
  * 
  * Adapted and modified from Marco Jakob
  */
 @XmlRootElement(name = "addressbook")
 public class AddressBookWrapper {
 
-    private List<Person> persons = new ArrayList<>(); // so empty lists from file will not be null
+    private List<Person> persons = new ArrayList<>(); // so empty lists from file will not make this null
     private List<ContactGroup> groups = new ArrayList<>(); // ditto
 
     @XmlElement(name = "persons")
@@ -38,6 +38,7 @@ public class AddressBookWrapper {
         this.groups = groups;
     }
 
+    // Deprecated (to be removed when no-dupe property is properly enforced
     public boolean containsDuplicates() {
         final Set<Person> personSet = new HashSet<>();
         final Set<ContactGroup> groupSet = new HashSet<>();
@@ -49,4 +50,5 @@ public class AddressBookWrapper {
         }
         return false;
     }
+
 }
