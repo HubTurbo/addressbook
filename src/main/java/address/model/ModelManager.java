@@ -6,6 +6,7 @@ import address.events.LocalModelSyncedEvent;
 import address.events.NewMirrorDataEvent;
 import address.events.*;
 
+import address.exceptions.AddDuplicatePersonException;
 import address.util.PlatformEx;
 import com.google.common.eventbus.Subscribe;
 
@@ -61,7 +62,7 @@ public class ModelManager {
             addressBook == null ? null : addressBook.getGroups());
     }
 
-    public void appendSampleData() {
+    public synchronized void appendSampleData() {
         final Person[] samplePersonData = {
             new Person("Hans", "Muster"),
             new Person("Ruth", "Mueller"),
@@ -127,7 +128,10 @@ public class ModelManager {
      * Adds a person to the model
      * @param personToAdd
      */
-    public synchronized void addPerson(Person personToAdd) {
+    public synchronized void addPerson(Person personToAdd) throws AddDuplicatePersonException {
+        if (personData.contains(personToAdd)) {
+            throw new AddDuplicatePersonException(personToAdd.getFirstName() + ' ' + personToAdd.getLastName());
+        }
         personData.add(personToAdd);
     }
 
@@ -160,7 +164,7 @@ public class ModelManager {
     }
 
     @Subscribe
-    private synchronized void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
+    private void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
         // NewMirrorDataEvent is created from outside FX Application thread
         PlatformEx.runLaterAndWait(() -> updateUsingExternalData(nde.data));
         EventManager.getInstance().post(new LocalModelSyncedEvent(personData, groupData));
@@ -175,7 +179,7 @@ public class ModelManager {
      * Diffs extData with the current model and updates the current model with minimal change.
      * @param extData data from an external canonical source
      */
-    public void updateUsingExternalData(AddressBookWrapper extData) {
+    public synchronized void updateUsingExternalData(AddressBookWrapper extData) {
         assert !extData.containsDuplicates() : "Duplicates are not allowed.";
         diffUpdate(extData.getPersons(), personData);
         diffUpdate(extData.getGroups(), groupData);
@@ -198,7 +202,7 @@ public class ModelManager {
      * @param target
      * @param <E>
      */
-    public static <E extends UniqueCopyable<E>> void diffUpdate(Collection<E> newData, Collection<E> target) {
+    private static <E extends UniqueCopyable<E>> void diffUpdate(Collection<E> newData, Collection<E> target) {
         final Map<E, E> unconsidered = new HashMap<>();
         newData.forEach((item) -> unconsidered.put(item, item));
 
@@ -221,7 +225,7 @@ public class ModelManager {
      * Clears existing model and replaces with the provided new data.
      * @param newPeople
      */
-    public void resetData(List<Person> newPeople, List<ContactGroup> newGroups) {
+    public synchronized void resetData(List<Person> newPeople, List<ContactGroup> newGroups) {
         personData.setAll(newPeople);
         groupData.setAll(newGroups);
     }
