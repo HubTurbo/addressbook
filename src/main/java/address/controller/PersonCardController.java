@@ -9,11 +9,11 @@ import address.model.Person;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.GridPane;
 
 public class PersonCardController {
     @FXML
-    private VBox box;
+    private GridPane gridPane;
     @FXML
     private Label firstName;
     @FXML
@@ -65,7 +65,7 @@ public class PersonCardController {
         return buffer.toString();
     }
 
-    public VBox getLayout() {
-        return box;
+    public GridPane getLayout() {
+        return gridPane;
     }
 }
