@@ -2,16 +2,10 @@ package address;
 
 
 import address.util.Config;
+import com.google.common.util.concurrent.SettableFuture;
+import javafx.stage.Stage;
 
 public class TestApp extends MainApp {
-    public TestApp(){
-        super();
-    }
-
-    @Override
-    protected void setupComponents(){
-        super.setupComponents();
-    }
 
     @Override
     protected Config getConfig() {

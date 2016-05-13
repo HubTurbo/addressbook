@@ -8,7 +8,6 @@
     </Match>
     <Match>
         <Class name="address.events.EventManager"/>
-        <Method name="getInstance" />
         <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD" />
     </Match>
 </FindBugsFilter>

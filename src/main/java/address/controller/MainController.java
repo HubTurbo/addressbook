@@ -160,6 +160,7 @@ public class MainController {
         try {
             // Load the fxml file and create a new stage for the popup dialog.
             FXMLLoader loader = new FXMLLoader();
+            //FXMLLoader.setDefaultClassLoader(GroupEditDialogController.class.getClassLoader());
             loader.setLocation(MainApp.class.getResource("/view/GroupEditDialog.fxml"));
             AnchorPane page = (AnchorPane) loader.load();
 
