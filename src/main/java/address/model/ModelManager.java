@@ -181,8 +181,8 @@ public class ModelManager {
      */
     public synchronized void updateUsingExternalData(AddressBookWrapper extData) {
         assert !extData.containsDuplicates() : "Duplicates are not allowed.";
-        diffUpdate(extData.getPersons(), personData);
-        diffUpdate(extData.getGroups(), groupData);
+        diffUpdate(personData, extData.getPersons());
+        diffUpdate(groupData, extData.getGroups());
     }
 
     /**
@@ -202,7 +202,7 @@ public class ModelManager {
      * @param target
      * @param <E>
      */
-    private static <E extends UniqueCopyable<E>> void diffUpdate(Collection<E> newData, Collection<E> target) {
+    private static <E extends DataType> void diffUpdate(Collection<E> target, Collection<E> newData) {
         final Map<E, E> unconsidered = new HashMap<>();
         newData.forEach((item) -> unconsidered.put(item, item));
 
@@ -213,12 +213,30 @@ public class ModelManager {
             if (newItem == null) { // not in newData
                 targetIter.remove();
             } else { // in newData
-                oldItem.update(newItem);
+                updateDataItem(oldItem, newItem);
             }
         }
-
         // not in target
         unconsidered.keySet().forEach((item) -> target.add(item));
+    }
+
+    /**
+     * Allows generic DataType .update() calling without having to know which class it is.
+     * Because java does not allow self-referential generic type parameters.
+     *
+     * @param target to be updated
+     * @param newData data used for update
+     */
+    public static <E extends DataType> void updateDataItem(E target, E newData) {
+        if (target instanceof Person && newData instanceof Person) {
+            ((Person) target).update((Person) newData);
+            return;
+        }
+        if (target instanceof ContactGroup && newData instanceof ContactGroup) {
+            ((ContactGroup) target).update((ContactGroup) newData);
+            return;
+        }
+        assert false : "need to add logic for any new DataType classes";
     }
 
     /**

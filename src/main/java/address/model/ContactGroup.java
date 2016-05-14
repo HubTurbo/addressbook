@@ -2,7 +2,7 @@ package address.model;
 
 import javafx.beans.property.SimpleStringProperty;
 
-public final class ContactGroup implements UniqueCopyable<ContactGroup> {
+public class ContactGroup implements DataType {
 
     private final SimpleStringProperty name;
 
@@ -22,7 +22,6 @@ public final class ContactGroup implements UniqueCopyable<ContactGroup> {
         this.name.set(name);
     }
 
-    @Override
     public ContactGroup update(ContactGroup group) {
         setName(group.getName());
         return this;

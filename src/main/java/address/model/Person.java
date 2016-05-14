@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author Marco Jakob
  */
-public final class Person implements UniqueCopyable<Person> {
+public class Person implements DataType {
 
     private final StringProperty firstName;
     private final StringProperty lastName;
