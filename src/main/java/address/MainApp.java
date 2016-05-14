@@ -45,6 +45,7 @@ public class MainApp extends Application {
         config = getConfig();
         PreferencesManager.setAppTitle(config.appTitle);
 
+        //TODO: launch dialogue from MainApp instead of using events
         final File initialFile = PreferencesManager.getInstance().getPersonFile();
         AddressBookWrapper dataFromFile;
         Exception fileLoadException = null;

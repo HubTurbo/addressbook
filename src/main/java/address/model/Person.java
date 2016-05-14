@@ -95,10 +95,6 @@ public class Person implements DataType {
         this.firstName.set(firstName);
     }
 
-    public StringProperty firstNameProperty() {
-        return firstName;
-    }
-
     public String getLastName() {
         return lastName.get();
     }
@@ -107,8 +103,8 @@ public class Person implements DataType {
         this.lastName.set(lastName);
     }
 
-    public StringProperty lastNameProperty() {
-        return lastName;
+    public String getFullName() {
+        return getFirstName() + ' ' + getLastName();
     }
 
     public String getStreet() {

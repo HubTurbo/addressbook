@@ -4,13 +4,14 @@ import address.model.*;
 import address.events.EventManager;
 import address.events.GroupSearchResultsChangedEvent;
 import address.events.GroupsChangedEvent;
+import address.util.DateUtil;
+
 import com.google.common.eventbus.Subscribe;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import address.util.DateUtil;
 
 import java.util.List;
 
@@ -18,7 +19,6 @@ import java.util.List;
  * Dialog to edit details of a person.
  */
 public class PersonEditDialogController extends EditDialogController {
-
 
     @FXML
     private TextField firstNameField;
@@ -32,6 +32,7 @@ public class PersonEditDialogController extends EditDialogController {
     private TextField cityField;
     @FXML
     private TextField birthdayField;
+
     @FXML
     private ScrollPane groupList;
     @FXML
@@ -39,9 +40,8 @@ public class PersonEditDialogController extends EditDialogController {
     @FXML
     private ScrollPane groupResults;
 
-    private PersonEditDialogModel model;
-    private Person person;
-    private ModelManager modelManager;
+    private PersonEditDialogGroupsModel model;
+    private Person finalPerson;
 
     public PersonEditDialogController() {
     }
@@ -52,13 +52,13 @@ public class PersonEditDialogController extends EditDialogController {
      */
     @FXML
     private void initialize() {
-        addListener();
+        addListeners();
         EventManager.getInstance().registerHandler(this);
     }
 
-    private void addListener() {
+    private void addListeners() {
         groupSearch.textProperty().addListener((observableValue, oldValue, newValue) -> {
-                handleInput(newValue);
+                handleGroupInput(newValue);
             });
         groupSearch.setOnKeyTyped(e -> {
                 switch (e.getCharacter()) {
@@ -96,18 +96,10 @@ public class PersonEditDialogController extends EditDialogController {
         this.dialogStage = dialogStage;
     }
 
-    public void setModelManager(ModelManager modelManager){
-        this.modelManager = modelManager;
-    }
-
     /**
-     * Sets the person to be edited in the dialog.
-     *
-     * @param person
+     * Sets the initial placeholder data in the dialog fields
      */
-    public void setPerson(Person person) {
-        this.person = person;
-
+    public void setInitialPersonData(Person person) {
         firstNameField.setText(person.getFirstName());
         lastNameField.setText(person.getLastName());
         streetField.setText(person.getStreet());
@@ -117,52 +109,33 @@ public class PersonEditDialogController extends EditDialogController {
         birthdayField.setPromptText("dd.mm.yyyy");
     }
 
-    public void setModel(List<ContactGroup> contactGroups, List<ContactGroup> assignedGroups) {
-        model = new PersonEditDialogModel(contactGroups, assignedGroups);
+    public void setGroupsModel(List<ContactGroup> contactGroups, List<ContactGroup> assignedGroups) {
+        model = new PersonEditDialogGroupsModel(contactGroups, assignedGroups);
     }
-
-    private VBox getContactGroupsVBox(List<SelectableContactGroup> contactGroupList, boolean isSelectable) {
-        VBox content = new VBox();
-        contactGroupList.stream()
-                .forEach(contactGroup -> {
-                        Label newLabel = new Label(contactGroup.getName());
-                        if (isSelectable && contactGroup.isSelected()) {
-                            newLabel.setStyle("-fx-background-color: blue;");
-                        }
-                        newLabel.setPrefWidth(261);
-                        content.getChildren().add(newLabel);
-                    });
-
-        return content;
-    }
-
 
     /**
      * Called when the user clicks ok.
+     * Stores input as a Person object into finalData and isOkClicked flag to true
      */
     @FXML
     protected void handleOk() {
         if (isInputValid()) {
-            //Call the update method instead of updating the Person object directly
-            //  to ensure proper event handling for model update.
-            Person updated = new Person();
-            updated.setFirstName(firstNameField.getText());
-            updated.setLastName(lastNameField.getText());
-            updated.setStreet(streetField.getText());
-            updated.setPostalCode(Integer.parseInt(postalCodeField.getText()));
-            updated.setCity(cityField.getText());
-            updated.setBirthday(DateUtil.parse(birthdayField.getText()));
-            updated.setContactGroups(model.getAssignedGroups());
-            modelManager.updatePerson(person, updated);
+            finalPerson = new Person();
+            finalPerson.setFirstName(firstNameField.getText());
+            finalPerson.setLastName(lastNameField.getText());
+            finalPerson.setStreet(streetField.getText());
+            finalPerson.setPostalCode(Integer.parseInt(postalCodeField.getText()));
+            finalPerson.setCity(cityField.getText());
+            finalPerson.setBirthday(DateUtil.parse(birthdayField.getText()));
+            finalPerson.setContactGroups(model.getAssignedGroups());
 
             isOkClicked = true;
             dialogStage.close();
         }
     }
 
-    @FXML
-    private void handleInput(String newInput) {
-        model.setFilter(newInput);
+    public Person getPersonData() {
+        return finalPerson;
     }
 
     /**
@@ -239,4 +212,26 @@ public class PersonEditDialogController extends EditDialogController {
     public void handleGroupsChangedEvent(GroupsChangedEvent e) {
         groupList.setContent(getContactGroupsVBox(e.getResultGroup(), false));
     }
+
+    private VBox getContactGroupsVBox(List<SelectableContactGroup> contactGroupList, boolean isSelectable) {
+        VBox content = new VBox();
+        contactGroupList.stream()
+                .forEach(contactGroup -> {
+                    Label newLabel = new Label(contactGroup.getName());
+                    if (isSelectable && contactGroup.isSelected()) {
+                        newLabel.setStyle("-fx-background-color: blue;");
+                    }
+                    newLabel.setPrefWidth(261);
+                    content.getChildren().add(newLabel);
+                });
+
+        return content;
+    }
+
+    @FXML
+    protected void handleGroupInput(String newGroups) {
+        model.setFilter(newGroups);
+    }
+
+
 }

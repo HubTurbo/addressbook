@@ -6,7 +6,7 @@ import address.events.LocalModelSyncedEvent;
 import address.events.NewMirrorDataEvent;
 import address.events.*;
 
-import address.exceptions.AddDuplicatePersonException;
+import address.exceptions.DuplicatePersonException;
 import address.util.PlatformEx;
 import com.google.common.eventbus.Subscribe;
 
@@ -110,7 +110,7 @@ public class ModelManager {
      * @param original The Person object to be changed.
      * @param updated The temporary Person object containing new values.
      */
-    public synchronized void updatePerson(Person original, Person updated){
+    public synchronized void updatePerson(Person original, Person updated) {
         assert !updated.getUpdatedAt().isBefore(original.getUpdatedAt());
         original.update(updated);
         EventManager.getInstance().post(new LocalModelChangedEvent(personData, groupData));
@@ -128,9 +128,9 @@ public class ModelManager {
      * Adds a person to the model
      * @param personToAdd
      */
-    public synchronized void addPerson(Person personToAdd) throws AddDuplicatePersonException {
+    public synchronized void addPerson(Person personToAdd) throws DuplicatePersonException {
         if (personData.contains(personToAdd)) {
-            throw new AddDuplicatePersonException(personToAdd.getFirstName() + ' ' + personToAdd.getLastName());
+            throw new DuplicatePersonException(personToAdd.getFirstName() + ' ' + personToAdd.getLastName());
         }
         personData.add(personToAdd);
     }
