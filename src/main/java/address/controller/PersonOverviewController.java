@@ -53,12 +53,8 @@ public class PersonOverviewController {
         // Add observable list data to the list
         personList.setItems(modelManager.getFilteredPersons());
         personList.setCellFactory(listView -> new PersonListViewCell());
-        personList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Person>() {
-
-            @Override
-            public void changed(ObservableValue<? extends Person> observable, Person oldValue, Person newValue) {
-                mainController.loadBrowserUrl(newValue.getWebPageUrl());
-            }
+        personList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            mainController.loadBrowserUrl(newValue.getWebPageUrl());
         });
     }
 
