@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 public class GroupEditDialogTest extends UITest {
     @Test
-    public void GroupEditDialogLoadTest() {
+    public void groupEditDialogLoadTest() {
         clickOn("Groups").clickOn("New Group");
         assertTrue(findStageByTitle("Edit Group") != null);
 
