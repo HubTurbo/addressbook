@@ -5,6 +5,8 @@ import address.util.LocalDateTimeAdapter;
 import javafx.beans.property.*;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class Person {
     private final IntegerProperty postalCode;
     private final StringProperty city;
     private final ObjectProperty<LocalDate> birthday;
+    private URL webPageUrl;
     private ObjectProperty<LocalDateTime> updatedAt;
     private final List<ContactGroup> contactGroups;
 
@@ -39,7 +42,7 @@ public class Person {
      * @param firstName
      * @param lastName
      */
-    public Person(String firstName, String lastName) {
+    public Person(String firstName, String lastName){
         this.firstName = new SimpleStringProperty(firstName);
         this.lastName = new SimpleStringProperty(lastName);
 
@@ -51,6 +54,12 @@ public class Person {
         this.contactGroups = new ArrayList<>();
         contactGroups.add(new ContactGroup("friends"));
         this.updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
+        try {
+            this.webPageUrl = new URL("https://www.github.com");
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error parsing a parsable URL");
+        }
+
     }
 
     /**
@@ -67,6 +76,7 @@ public class Person {
         this.birthday = new SimpleObjectProperty<>(person.getBirthday());
         this.contactGroups = new ArrayList<>(person.getContactGroups());
         this.updatedAt = new SimpleObjectProperty<>(person.getUpdatedAt());
+        this.webPageUrl = person.getWebPageUrl();
     }
 
     public List<ContactGroup> getContactGroups() {
@@ -156,6 +166,18 @@ public class Person {
         this.updatedAt.set(birthday);
     }
 
+    public URL getWebPageUrl() {
+        return webPageUrl;
+    }
+
+    public URL webPageUrlProperty() {
+        return webPageUrl;
+    }
+
+    public void setWebPageUrl(URL webPageUrl) {
+        this.webPageUrl = webPageUrl;
+    }
+
     public ObjectProperty<LocalDate> birthdayProperty() {
         return birthday;
     }
@@ -194,6 +216,7 @@ public class Person {
         setCity(updated.getCity());
         setBirthday(updated.getBirthday());
         setUpdatedAt(updated.getUpdatedAt());
+        setWebPageUrl(updated.getWebPageUrl());
         setContactGroups(updated.getContactGroups());
     }
 }
