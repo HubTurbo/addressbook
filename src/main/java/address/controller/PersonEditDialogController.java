@@ -119,22 +119,23 @@ public class PersonEditDialogController extends EditDialogController {
      */
     @FXML
     protected void handleOk() {
-        if (isInputValid()) {
-            finalPerson = new Person();
-            finalPerson.setFirstName(firstNameField.getText());
-            finalPerson.setLastName(lastNameField.getText());
-            finalPerson.setStreet(streetField.getText());
-            finalPerson.setPostalCode(Integer.parseInt(postalCodeField.getText()));
-            finalPerson.setCity(cityField.getText());
-            finalPerson.setBirthday(DateUtil.parse(birthdayField.getText()));
-            finalPerson.setContactGroups(model.getAssignedGroups());
-
-            isOkClicked = true;
-            dialogStage.close();
+        if (!isInputValid()) {
+            return;
         }
+        finalPerson = new Person();
+        finalPerson.setFirstName(firstNameField.getText());
+        finalPerson.setLastName(lastNameField.getText());
+        finalPerson.setStreet(streetField.getText());
+        finalPerson.setPostalCode(Integer.parseInt(postalCodeField.getText()));
+        finalPerson.setCity(cityField.getText());
+        finalPerson.setBirthday(DateUtil.parse(birthdayField.getText()));
+        finalPerson.setContactGroups(model.getAssignedGroups());
+
+        isOkClicked = true;
+        dialogStage.close();
     }
 
-    public Person getPersonData() {
+    public Person getFinalInput() {
         return finalPerson;
     }
 

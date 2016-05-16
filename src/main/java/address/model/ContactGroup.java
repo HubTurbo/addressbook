@@ -14,6 +14,11 @@ public class ContactGroup extends DataType {
         this.name = new SimpleStringProperty(name);
     }
 
+    // Copy constructor
+    public ContactGroup(ContactGroup grp) {
+        name = new SimpleStringProperty(grp.getName());
+    }
+
     public String getName() {
         return name.get();
     }
@@ -45,7 +50,7 @@ public class ContactGroup extends DataType {
 
     @Override
     public String toString() {
-        return "Group : " + getName();
+        return "Group: " + getName();
     }
 
 }

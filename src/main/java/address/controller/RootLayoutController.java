@@ -2,11 +2,13 @@ package address.controller;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.Optional;
 
 import address.MainApp;
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
 import address.events.SaveRequestEvent;
+import address.exceptions.DuplicateGroupException;
 import address.model.ContactGroup;
 import address.model.ModelManager;
 import address.preferences.PreferencesManager;
@@ -146,10 +148,19 @@ public class RootLayoutController {
 
     @FXML
     private void handleNewGroup() {
-        ContactGroup tempGroup = new ContactGroup();
-        boolean okClicked = mainController.showGroupEditDialog(tempGroup);
-        if (okClicked) {
-            modelManager.addGroup(tempGroup);
+        Optional<ContactGroup> newGroup = Optional.of(new ContactGroup());
+        while (true) { // keep re-asking until user provides valid input or cancels operation.
+            newGroup = mainController.getGroupDataInput(newGroup.get());
+            if (newGroup.isPresent()) { // user provided input
+                try {
+                    modelManager.addGroup(newGroup.get());
+                } catch (DuplicateGroupException e) {
+                    mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
+                            "Cannot have duplicate groups", e.toString());
+                    continue;
+                }
+            }
+            break;
         }
     }
 

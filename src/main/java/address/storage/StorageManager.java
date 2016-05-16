@@ -77,7 +77,7 @@ public class StorageManager {
     public static AddressBookWrapper loadDataFromSaveFile(File file) throws JAXBException, FileContainsDuplicatesException {
         assert file != null;
         AddressBookWrapper data = XmlHelper.getDataFromFile(file);
-        if (data.containsDuplicates()) throw new FileContainsDuplicatesException();
+        if (data.containsDuplicates()) throw new FileContainsDuplicatesException(file);
         return data;
     }
 

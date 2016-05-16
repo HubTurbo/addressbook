@@ -205,7 +205,7 @@ public class Person extends DataType {
 
     @Override
     public String toString() {
-        return "Person : " + getFullName();
+        return "Person: " + getFullName();
     }
 
 }

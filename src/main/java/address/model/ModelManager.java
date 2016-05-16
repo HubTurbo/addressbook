@@ -6,6 +6,7 @@ import address.events.LocalModelSyncedFromCloudEvent;
 import address.events.NewMirrorDataEvent;
 import address.events.*;
 
+import address.exceptions.DuplicateGroupException;
 import address.exceptions.DuplicatePersonException;
 import address.util.DataConstraints;
 import address.util.PlatformEx;
@@ -107,6 +108,17 @@ public class ModelManager {
     }
 
     /**
+     * Adds a person to the model
+     * @param personToAdd
+     */
+    public synchronized void addPerson(Person personToAdd) throws DuplicatePersonException {
+        if (personData.contains(personToAdd)) {
+            throw new DuplicatePersonException(personToAdd);
+        }
+        personData.add(personToAdd);
+    }
+
+    /**
      * Updates the details of a Person object. Updates to Person objects should be
      * done through this method to ensure the proper events are raised to indicate
      * a change to the model.
@@ -130,14 +142,14 @@ public class ModelManager {
     }
 
     /**
-     * Adds a person to the model
-     * @param personToAdd
+     * Adds a group to the model
+     * @param groupToAdd
      */
-    public synchronized void addPerson(Person personToAdd) throws DuplicatePersonException {
-        if (personData.contains(personToAdd)) {
-            throw new DuplicatePersonException(personToAdd);
+    public synchronized void addGroup(ContactGroup groupToAdd) throws DuplicateGroupException {
+        if (groupData.contains(groupToAdd)) {
+            throw new DuplicateGroupException(groupToAdd);
         }
-        personData.add(personToAdd);
+        groupData.add(groupToAdd);
     }
 
     /**
@@ -147,7 +159,10 @@ public class ModelManager {
      * @param original The ContactGroup object to be changed.
      * @param updated The temporary ContactGroup object containing new values.
      */
-    public synchronized void updateGroup(ContactGroup original, ContactGroup updated) {
+    public synchronized void updateGroup(ContactGroup original, ContactGroup updated) throws DuplicateGroupException {
+        if (!original.equals(updated) && groupData.contains(updated)) {
+            throw new DuplicateGroupException(updated);
+        }
         original.update(updated);
         EventManager.getInstance().post(new LocalModelChangedEvent(personData, groupData));
     }
@@ -158,14 +173,6 @@ public class ModelManager {
      */
     public synchronized void deleteGroup(ContactGroup groupToDelete){
         groupData.remove(groupToDelete);
-    }
-
-    /**
-     * Adds a group to the model
-     * @param groupToAdd
-     */
-    public synchronized void addGroup(ContactGroup groupToAdd) {
-        groupData.add(groupToAdd);
     }
 
     @Subscribe

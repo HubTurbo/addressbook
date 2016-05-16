@@ -2,6 +2,7 @@ package address.controller;
 
 import javafx.stage.Stage;
 
+// deprecated, 
 abstract class EditDialogController {
     protected Stage dialogStage;
     protected boolean isOkClicked = false;

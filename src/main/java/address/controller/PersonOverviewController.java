@@ -12,7 +12,6 @@ import address.parser.expr.PredExpr;
 import address.ui.PersonListViewCell;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -75,14 +74,13 @@ public class PersonOverviewController {
     private void handleNewPerson() {
         Optional<Person> newPerson = Optional.of(new Person());
         while (true) { // keep re-asking until user provides valid input or cancels operation.
-
             newPerson = mainController.getPersonDataInput(newPerson.get());
             if (newPerson.isPresent()) { // user provided input
                 try {
                     modelManager.addPerson(newPerson.get());
                 } catch (DuplicatePersonException e) {
                     mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                            "Cannot add duplicate person", e.toString());
+                            "Cannot have duplicate person", e.toString());
                     continue;
                 }
             }
@@ -102,13 +100,14 @@ public class PersonOverviewController {
                 "No Person Selected", "Please select a person in the list.");
             return;
         }
+
         Optional<Person> updated = Optional.of(new Person(selected));
         while (true) { // keep re-asking until user provides valid input or cancels operation.
-
             updated = mainController.getPersonDataInput(updated.get());
             if (updated.isPresent()) { // user provided input
                 try {
                     modelManager.updatePerson(selected, updated.get());
+                    break;
                 } catch (DuplicatePersonException e) {
                     mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
                             "Cannot have duplicate person", e.toString());

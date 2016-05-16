@@ -62,7 +62,7 @@ public class SyncManager {
         System.out.println("Updating data from cloud: " + System.nanoTime());
         final File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().toString() + "-mirror.xml");
         final AddressBookWrapper data = cloudSimulator.getSimulatedCloudData(mirrorFile);
-        if (data.containsDuplicates()) throw new FileContainsDuplicatesException();
+        if (data.containsDuplicates()) throw new FileContainsDuplicatesException(mirrorFile);
         return data;
     }
 
