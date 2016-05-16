@@ -14,7 +14,7 @@ import org.testfx.api.FxToolkit;
 
 import java.util.concurrent.TimeoutException;
 
-public class UITest extends GuiTest {
+public class GuiTestBase extends GuiTest {
     Stage stage;
 
     @Override
@@ -24,7 +24,7 @@ public class UITest extends GuiTest {
         return root;
     }
 
-    public UITest() {
+    public GuiTestBase() {
         try {
             FXMLLoader.setDefaultClassLoader(MainApp.class.getClassLoader()); // workaround to fxml loading problems
             FxToolkit.registerPrimaryStage();

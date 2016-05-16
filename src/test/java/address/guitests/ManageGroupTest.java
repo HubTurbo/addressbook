@@ -1,11 +1,11 @@
 package address.guitests;
 
-import address.UITest;
+import address.GuiTestBase;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class ManageGroupTest extends UITest {
+public class ManageGroupTest extends GuiTestBase {
     @Test
     public void manageGroupsFromMenuTest() {
         clickOn("Groups").clickOn("Manage Groups");

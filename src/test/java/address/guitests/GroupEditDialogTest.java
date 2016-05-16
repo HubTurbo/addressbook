@@ -1,11 +1,11 @@
 package address.guitests;
 
-import address.UITest;
+import address.GuiTestBase;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class GroupEditDialogTest extends UITest {
+public class GroupEditDialogTest extends GuiTestBase {
     @Test
     public void groupEditDialogLoadTest() {
         clickOn("Groups").clickOn("New Group");
