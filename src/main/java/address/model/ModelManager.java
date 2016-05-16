@@ -2,11 +2,12 @@ package address.model;
 
 import address.events.EventManager;
 import address.events.FilterCommittedEvent;
-import address.events.LocalModelSyncedEvent;
+import address.events.LocalModelSyncedFromCloudEvent;
 import address.events.NewMirrorDataEvent;
 import address.events.*;
 
 import address.exceptions.DuplicatePersonException;
+import address.util.DataConstraints;
 import address.util.PlatformEx;
 import com.google.common.eventbus.Subscribe;
 
@@ -16,6 +17,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Represents the in-memory model of the address book data.
@@ -111,7 +113,6 @@ public class ModelManager {
      * @param updated The temporary Person object containing new values.
      */
     public synchronized void updatePerson(Person original, Person updated) {
-        assert !updated.getUpdatedAt().isBefore(original.getUpdatedAt());
         original.update(updated);
         EventManager.getInstance().post(new LocalModelChangedEvent(personData, groupData));
     }
@@ -142,7 +143,7 @@ public class ModelManager {
      * @param original The ContactGroup object to be changed.
      * @param updated The temporary ContactGroup object containing new values.
      */
-    public synchronized void updateGroup(ContactGroup original, ContactGroup updated){
+    public synchronized void updateGroup(ContactGroup original, ContactGroup updated) {
         original.update(updated);
         EventManager.getInstance().post(new LocalModelChangedEvent(personData, groupData));
     }
@@ -164,15 +165,15 @@ public class ModelManager {
     }
 
     @Subscribe
-    private void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
-        // NewMirrorDataEvent is created from outside FX Application thread
-        PlatformEx.runLaterAndWait(() -> updateUsingExternalData(nde.data));
-        EventManager.getInstance().post(new LocalModelSyncedEvent(personData, groupData));
+    private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
+        filteredPersonData.setPredicate(fce.filterExpression::satisfies);
     }
 
     @Subscribe
-    private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
-        filteredPersonData.setPredicate(fce.filterExpression::satisfies);
+    private void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
+        // NewMirrorDataEvent is created from outside FX Application thread
+        PlatformEx.runLaterAndWait(() -> updateUsingExternalData(nde.data));
+        EventManager.getInstance().post(new LocalModelSyncedFromCloudEvent(personData, groupData));
     }
 
     /**
@@ -180,13 +181,21 @@ public class ModelManager {
      * @param extData data from an external canonical source
      */
     public synchronized void updateUsingExternalData(AddressBookWrapper extData) {
-        assert !extData.containsDuplicates() : "Duplicates are not allowed.";
-        diffUpdate(personData, extData.getPersons());
-        diffUpdate(groupData, extData.getGroups());
+        assert !extData.containsDuplicates() : "Duplicates are not allowed in an AddressBookWrapper";
+        boolean changed = false;
+        changed = diffUpdate(personData, extData.getPersons());
+        changed = changed || diffUpdate(groupData, extData.getGroups());
+        if (changed) {
+            EventManager.getInstance().post(new LocalModelChangedEvent(personData, groupData));
+        }
     }
 
     /**
      * Performs a diff-update (minimal change) on target using newData.
+     * Arguments newData and target should contain no duplicates.
+     *
+     * Does NOT trigger any events.
+     *
      * Specification:
      *   _________________________________________________
      *  | in newData | in target | Result                |
@@ -198,36 +207,47 @@ public class ModelManager {
      *  --------------------------------------------------
      * Any form of data element ordering in newData will not be enforced on target.
      *
-     * @param newData
-     * @param target
-     * @param <E>
+     * @param target collection of data items to be updated
+     * @param newData target will be updated to match newData's state
+     * @return true if there were changes from the update.
      */
-    private static <E extends DataType> void diffUpdate(Collection<E> target, Collection<E> newData) {
-        final Map<E, E> unconsidered = new HashMap<>();
-        newData.forEach((item) -> unconsidered.put(item, item));
+    private synchronized <E extends DataType> boolean diffUpdate(Collection<E> target, Collection<E> newData) {
+        assert DataConstraints.itemsAreUnique(target) : "target of diffUpdate should not have duplicates";
+        assert DataConstraints.itemsAreUnique(newData) : "newData for diffUpdate should not have duplicates";
 
-        final Iterator<E> targetIter = target.iterator();
-        while (targetIter.hasNext()) {
-            final E oldItem = targetIter.next();
-            final E newItem = unconsidered.remove(oldItem);
+        final Map<E, E> remaining = new HashMap<>(); // has to be map; sets do not allow specific retrieval
+        newData.forEach((item) -> remaining.put(item, item));
+
+        final Set<E> toBeRemoved = new HashSet<>();
+        final AtomicBoolean changed = new AtomicBoolean(false);
+        target.forEach(oldItem -> {
+            final E newItem = remaining.remove(oldItem); // find matching item in unconsidered new data
             if (newItem == null) { // not in newData
-                targetIter.remove();
-            } else { // in newData
-                updateDataItem(oldItem, newItem);
+                toBeRemoved.add(oldItem);
+            } else { // exists in both new and old, update.
+                updateDataItem(oldItem, newItem); // updates the items in target (reference points back to target)
+                changed.set(true);
             }
-        }
-        // not in target
-        unconsidered.keySet().forEach((item) -> target.add(item));
+        });
+        final Set<E> toBeAdded = remaining.keySet();
+
+        // .removeAll time complexity: O(n * complexity of argument's .contains call). Use a Set for O(n) time.
+        target.removeAll(toBeRemoved);
+        target.addAll(toBeAdded);
+
+        return changed.get() || toBeAdded.size() > 0 || toBeRemoved.size() > 0;
     }
 
     /**
      * Allows generic DataType .update() calling without having to know which class it is.
      * Because java does not allow self-referential generic type parameters.
      *
+     * Does not trigger any events.
+     *
      * @param target to be updated
      * @param newData data used for update
      */
-    public static <E extends DataType> void updateDataItem(E target, E newData) {
+    private <E extends DataType> void updateDataItem(E target, E newData) {
         if (target instanceof Person && newData instanceof Person) {
             ((Person) target).update((Person) newData);
             return;
@@ -240,7 +260,7 @@ public class ModelManager {
     }
 
     /**
-     * Clears existing model and replaces with the provided new data.
+     * Clears existing model and replaces with the provided new data. Selection is lost.
      * @param newPeople
      */
     public synchronized void resetData(List<Person> newPeople, List<ContactGroup> newGroups) {
