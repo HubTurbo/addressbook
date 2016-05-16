@@ -22,7 +22,7 @@ public class GroupCardController {
     @FXML
     private Label groupName;
 
-    ContactGroup group;
+    private ContactGroup group;
     private MainController mainController;
     private ModelManager modelManager;
 

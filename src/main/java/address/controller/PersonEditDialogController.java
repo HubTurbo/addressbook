@@ -204,7 +204,7 @@ public class PersonEditDialogController extends EditDialogController {
 
         try {
             URL url = new URL(webPageField.getText());
-        } catch(MalformedURLException e){
+        } catch (MalformedURLException e) {
             errorMessage += "Invalid web page link.\n";
         }
 
