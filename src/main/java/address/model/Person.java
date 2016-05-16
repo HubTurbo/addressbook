@@ -2,9 +2,12 @@ package address.model;
 
 import address.util.LocalDateAdapter;
 import address.util.LocalDateTimeAdapter;
-import javafx.beans.property.*;
 
+import javafx.beans.property.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,7 +26,8 @@ public class Person extends DataType {
     private final IntegerProperty postalCode;
     private final StringProperty city;
     private final ObjectProperty<LocalDate> birthday;
-    private final ObjectProperty<LocalDateTime> updatedAt;
+    private URL webPageUrl;
+    private ObjectProperty<LocalDateTime> updatedAt;
     private final List<ContactGroup> contactGroups;
 
     /**
@@ -51,6 +55,12 @@ public class Person extends DataType {
         this.contactGroups = new ArrayList<>();
         contactGroups.add(new ContactGroup("friends"));
         this.updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
+        try {
+            this.webPageUrl = new URL("https://www.github.com");
+        } catch (MalformedURLException e) {
+            assert false : "Error parsing a parsable URL");
+        }
+
     }
 
     /**
@@ -67,6 +77,7 @@ public class Person extends DataType {
         this.birthday = new SimpleObjectProperty<>(person.getBirthday());
         this.contactGroups = new ArrayList<>(person.getContactGroupsCopy());
         this.updatedAt = new SimpleObjectProperty<>(person.getUpdatedAt());
+        this.webPageUrl = person.getWebPageUrl();
     }
 
     /**
@@ -164,6 +175,15 @@ public class Person extends DataType {
         return updatedAt.get();
     }
 
+    public URL getWebPageUrl() {
+        return webPageUrl;
+    }
+
+    public void setWebPageUrl(URL webPageUrl) {
+        this.webPageUrl = webPageUrl;
+        updatedAt.set(LocalDateTime.now());
+    }
+
     public ObjectProperty<LocalDate> birthdayProperty() {
         return birthday;
     }
@@ -183,6 +203,7 @@ public class Person extends DataType {
         setCity(updated.getCity());
         setBirthday(updated.getBirthday());
         setContactGroups(updated.getContactGroupsCopy());
+        setWebPageUrl(updated.getWebPageUrl());
         updatedAt.set(LocalDateTime.now());
         return this;
     }

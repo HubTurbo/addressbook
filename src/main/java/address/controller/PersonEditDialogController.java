@@ -13,6 +13,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -39,6 +41,8 @@ public class PersonEditDialogController extends EditDialogController {
     private TextField groupSearch;
     @FXML
     private ScrollPane groupResults;
+    @FXML
+    private TextField webPageField;
 
     private PersonEditDialogGroupsModel model;
     private Person finalPerson;
@@ -107,6 +111,7 @@ public class PersonEditDialogController extends EditDialogController {
         cityField.setText(person.getCity());
         birthdayField.setText(DateUtil.format(person.getBirthday()));
         birthdayField.setPromptText("dd.mm.yyyy");
+        webPageField.setText(person.getWebPageUrl().toExternalForm());
     }
 
     public void setGroupsModel(List<ContactGroup> contactGroups, List<ContactGroup> assignedGroups) {
@@ -130,13 +135,22 @@ public class PersonEditDialogController extends EditDialogController {
         finalPerson.setCity(cityField.getText());
         finalPerson.setBirthday(DateUtil.parse(birthdayField.getText()));
         finalPerson.setContactGroups(model.getAssignedGroups());
-
+        try {
+            finalPerson.setWebPageUrl(new URL(webPageField.getText()));
+        } catch (MalformedURLException e) {
+            throw new Error("Error parsing an parsed parsable URL");
+        }
         isOkClicked = true;
         dialogStage.close();
     }
 
     public Person getFinalInput() {
         return finalPerson;
+    }
+
+    @FXML
+    private void handleInput(String newInput) {
+        model.setFilter(newInput);
     }
 
     /**
@@ -186,6 +200,12 @@ public class PersonEditDialogController extends EditDialogController {
             if (!DateUtil.validDate(birthdayField.getText())) {
                 errorMessage += "No valid birthday. Use the format dd.mm.yyyy!\n";
             }
+        }
+
+        try {
+            URL url = new URL(webPageField.getText());
+        } catch(MalformedURLException e){
+            errorMessage += "Invalid web page link.\n";
         }
 
         if (errorMessage.length() == 0) {
