@@ -67,6 +67,10 @@ public class MainController {
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
+            primaryStage.setMinHeight(200);
+            primaryStage.setMinWidth(340);
+            primaryStage.setHeight(600);
+            primaryStage.setWidth(340);
             primaryStage.setScene(scene);
 
             // Give the rootController access to the main controller and modelManager
