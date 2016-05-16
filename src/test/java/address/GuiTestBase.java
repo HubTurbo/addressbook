@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.loadui.testfx.GuiTest;
 import org.testfx.api.FxToolkit;
+import org.testfx.service.query.NodeQuery;
 
 import java.util.concurrent.TimeoutException;
 
@@ -34,5 +35,9 @@ public class GuiTestBase extends GuiTest {
         }
 
         stage = FxToolkit.toolkitContext().getRegisteredStage();
+    }
+
+    protected NodeQuery getWindowNode(String windowTitleRegex) {
+        return from(rootNode(window(windowTitleRegex)));
     }
 }
