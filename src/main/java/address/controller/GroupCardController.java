@@ -1,17 +1,20 @@
 package address.controller;
 
+import address.exceptions.DuplicateGroupException;
 import address.model.ContactGroup;
 import address.model.ModelManager;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Side;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class GroupCardController {
     @FXML
@@ -19,9 +22,9 @@ public class GroupCardController {
     @FXML
     private Label groupName;
 
-    MainController mainController;
-    ModelManager modelManager;
-    ContactGroup group;
+    private ContactGroup group;
+    private MainController mainController;
+    private ModelManager modelManager;
 
     public GroupCardController(ContactGroup group, MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
@@ -41,40 +44,73 @@ public class GroupCardController {
     @FXML
     public void initialize() {
         groupName.setText(group.getName());
-        setListener();
+        setListeners();
     }
 
     private ContextMenu getContextMenu() {
         ContextMenu contextMenu = new ContextMenu();
 
-        MenuItem newGroup = new MenuItem("New");
-        newGroup.setOnAction(e -> {
-                ContactGroup tempGroup = new ContactGroup();
-                boolean okClicked = mainController.showGroupEditDialog(tempGroup);
-                if (okClicked) {
-                    modelManager.addGroup(tempGroup);
+        MenuItem newGroupItem = new MenuItem("New");
+        newGroupItem.setOnAction(event -> {
+            Optional<ContactGroup> newGroup = Optional.of(new ContactGroup());
+            while (true) { // keep re-asking until user provides valid input or cancels operation.
+                newGroup = mainController.getGroupDataInput(newGroup.get());
+                if (newGroup.isPresent()) { // user provided input
+                    try {
+                        modelManager.addGroup(newGroup.get());
+                    } catch (DuplicateGroupException e) {
+                        mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
+                                "Cannot have duplicate groups", e.toString());
+                        continue;
+                    }
                 }
+                break;
+            }
             });
         MenuItem editGroup = new MenuItem("Edit");
-        editGroup.setOnAction(e -> mainController.showGroupEditDialog(group));
+        editGroup.setOnAction(event -> handleEditGroupAction());
         MenuItem removeGroup = new MenuItem("Remove");
         removeGroup.setOnAction(e -> modelManager.deleteGroup(group));
 
 
-        contextMenu.getItems().addAll(newGroup, editGroup, removeGroup);
+        contextMenu.getItems().addAll(newGroupItem, editGroup, removeGroup);
 
         return contextMenu;
     }
 
-    public void setListener() {
-        box.setOnMouseClicked(mouseEvent -> {
-                if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() == 2) {
-                    mainController.showGroupEditDialog(group);
+    public void setListeners() {
+        box.setOnMouseClicked(mouseEv -> {
+            switch (mouseEv.getButton()) {
+            case PRIMARY :
+                if (mouseEv.getClickCount() >= 2) {
+                    handleEditGroupAction();
                 }
-                if (mouseEvent.getButton().equals(MouseButton.SECONDARY) && mouseEvent.getClickCount() == 1) {
+                break;
+            case SECONDARY :
+                if (mouseEv.getClickCount() == 1) {
                     getContextMenu().show(groupName, Side.BOTTOM, 0, 0);
                 }
-            });
+                break;
+            }
+        });
+    }
+
+    private void handleEditGroupAction() {
+        Optional<ContactGroup> updated = Optional.of(new ContactGroup(group));
+        while (true) { // keep re-asking until user provides valid input or cancels operation.
+            updated = mainController.getGroupDataInput(updated.get());
+            if (updated.isPresent()) { // user provided input
+                try {
+                    modelManager.updateGroup(group, updated.get());
+                    break;
+                } catch (DuplicateGroupException e) {
+                    mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
+                            "Cannot have duplicate group", e.toString());
+                    continue;
+                }
+            }
+            break;
+        }
     }
 
     public VBox getLayout() {

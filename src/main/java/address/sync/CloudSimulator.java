@@ -76,7 +76,6 @@ public class CloudSimulator {
             throws JAXBException {
         if (file == null) return;
         List<Person> persons = people.stream().map(Person::new).collect(Collectors.toList());
-        persons.forEach((p) -> p.setUpdatedAt(LocalDateTime.now()));
         XmlHelper.saveToFile(file, people, groups);
         try {
             TimeUnit.SECONDS.sleep(delay);
@@ -100,6 +99,13 @@ public class CloudSimulator {
         return newData;
     }
 
+    /**
+     * WARNING: MUTATES data ARGUMENT
+     * TODO: currently only modifies Persons
+     *
+     * @param data
+     * @return the (possibly) modified argument addressbookwrapper
+     */
     private AddressBookWrapper simulateDataModification(AddressBookWrapper data) {
         List<Person> modifiedData = new ArrayList<>();
 
@@ -110,7 +116,6 @@ public class CloudSimulator {
                 person.setCity(java.util.UUID.randomUUID().toString());
                 person.setStreet(java.util.UUID.randomUUID().toString());
                 person.setPostalCode(RANDOM_GENERATOR.nextInt(999999));
-                person.setUpdatedAt(LocalDateTime.now());
             }
             modifiedData.add(person);
         }

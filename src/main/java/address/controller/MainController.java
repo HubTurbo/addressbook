@@ -10,12 +10,14 @@ import address.model.ModelManager;
 import address.model.Person;
 import address.preferences.PreferencesManager;
 import address.util.Config;
+
 import com.google.common.eventbus.Subscribe;
 import com.teamdev.jxbrowser.chromium.Browser;
 import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -26,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The controller that creates the other controllers
@@ -124,18 +127,30 @@ public class MainController {
     }
 
     /**
-     * Opens a dialog to edit details for the specified person. If the user
-     * clicks OK, the changes are saved into the provided person object and true
-     * is returned.
+     * Get user input for defining Person objects.
      *
-     * @param person the person object to be edited
-     * @return true if the user clicked OK, false otherwise.
+     * @param defaultData default data shown for user input
+     * @return a defensively copied optional containing the input data from user, or an empty optional if the
+     *          operation is to be cancelled.
      */
-    public boolean showPersonEditDialog(Person person) {
+    public Optional<Person> getPersonDataInput(Person defaultData) {
+        return showPersonEditDialog(defaultData);
+    }
+
+    /**
+     * Opens a dialog to edit details for Person objects. If the user
+     * clicks OK, the input data is recorded in a new Person object and returned.
+     *
+     * @param initialData the person object determining the initial data in the input fields
+     * @return an optional containing the new data, or an empty optional if there was an error
+     *         creating the dialog or the user clicked cancel
+     */
+    private Optional<Person> showPersonEditDialog(Person initialData) {
+        final String fxmlResourcePath = "/view/PersonEditDialog.fxml";
         try {
             // Load the fxml file and create a new stage for the popup dialog.
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("/view/PersonEditDialog.fxml"));
+            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
             AnchorPane page = (AnchorPane) loader.load();
 
             // Create the dialog Stage.
@@ -147,38 +162,41 @@ public class MainController {
             dialogStage.setScene(scene);
             dialogStage.getIcons().add(getImage("/images/edit.png"));
 
-            // Set the person into the controller.
-            PersonEditDialogController personEditDialogController = loader.getController();
-            personEditDialogController.setDialogStage(dialogStage);
-            personEditDialogController.setModelManager(modelManager);
-            personEditDialogController.setPerson(person);
-            personEditDialogController.setModel(modelManager.getGroupData(), person.getContactGroups());
+            // Pass relevant data into the controller.
+            PersonEditDialogController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            controller.setInitialPersonData(initialData);
+            controller.setGroupsModel(modelManager.getGroupData(), initialData.getContactGroupsCopy());
 
-            // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
-
-            return personEditDialogController.isOkClicked();
-
+            if (controller.isOkClicked()) {
+                return Optional.of(controller.getFinalInput());
+            } else {
+                return Optional.empty();
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for edit person dialog.",
+                    "IOException when trying to load " + fxmlResourcePath);
+            return Optional.empty();
         }
     }
 
     /**
      * Opens a dialog to edit details for the specified group. If the user
-     * clicks OK, the changes are saved into the provided group object and true
-     * is returned.
+     * clicks OK, the changes are recorded in a new ContactGroup and returned.
      *
-     * @param group the group object to be edited
-     * @return true if the user clicked OK, false otherwise.
+     * @param group the group object determining the initial data in the input fields
+     * @return an optional containing the new data, or an empty optional if there was an error
+     *         creating the dialog or the user clicked cancel
      */
-    public boolean showGroupEditDialog(ContactGroup group) {
+    public Optional<ContactGroup> getGroupDataInput(ContactGroup group) {
+        final String fxmlResourcePath = "/view/GroupEditDialog.fxml";
         try {
             // Load the fxml file and create a new stage for the popup dialog.
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("/view/GroupEditDialog.fxml"));
-            AnchorPane page = (AnchorPane) loader.load();
+            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            AnchorPane page = loader.load();
 
             // Create the dialog Stage.
             Stage dialogStage = new Stage();
@@ -189,21 +207,22 @@ public class MainController {
             dialogStage.setScene(scene);
             dialogStage.getIcons().add(getImage("/images/edit.png"));
 
-            // Set the group into the controller.
-            GroupEditDialogController groupEditDialogController = loader.getController();
-            groupEditDialogController.setDialogStage(dialogStage);
-            groupEditDialogController.setModelManager(modelManager);
-            groupEditDialogController.setGroup(group);
-            groupEditDialogController.setGroups(modelManager.getGroupData());
+            // Pass relevant data to the controller.
+            GroupEditDialogController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            controller.setInitialGroupData(group);
 
-            // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
-
-            return groupEditDialogController.isOkClicked();
-
+            if (controller.isOkClicked()) {
+                return Optional.of(controller.getFinalInput());
+            } else {
+                return Optional.empty();
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for edit group dialog.",
+                    "IOException when trying to load " + fxmlResourcePath);
+            return Optional.empty();
         }
     }
 
@@ -257,7 +276,7 @@ public class MainController {
 
             // Set the persons into the controller.
             BirthdayStatisticsController controller = loader.getController();
-            controller.setPersonData(modelManager.getPersonData());
+            controller.setPersonData(modelManager.getFilteredPersons());
 
             dialogStage.show();
 
@@ -290,41 +309,40 @@ public class MainController {
 
     @Subscribe
     private void handleFileOpeningExceptionEvent(FileOpeningExceptionEvent foee){
-        showFileOpeningExceptionMessage(foee.exception, foee.file);
+        showFileOperationAlertAndWait("Could not load data", "Could not load data from file", foee.file, foee.exception);
     }
 
     @Subscribe
     private void handleFileSavingExceptionEvent(FileSavingExceptionEvent fsee){
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText("Could not save data");
-        alert.setContentText("Could not save data to file:\n" + fsee.file.getPath());
+        showFileOperationAlertAndWait("Could not save data", "Could not save data to file", fsee.file, fsee.exception);
+    }
 
-        alert.showAndWait();
+    private void showFileOperationAlertAndWait(String description, String details, File file, Throwable cause) {
+        final StringBuilder content = new StringBuilder();
+        content.append(details)
+            .append(":\n")
+            .append(file == null ? "none" : file.getPath())
+            .append("\n\nDetails:\n======\n")
+            .append(cause.toString());
+
+        showAlertDialogAndWait(AlertType.ERROR, "File Op Error", description, content.toString());
     }
 
     private Image getImage(String imagePath) {
         return new Image(MainApp.class.getResourceAsStream(imagePath));
     }
 
-    private void showFileOpeningExceptionMessage(Exception exception, File file) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.initOwner(primaryStage);
-        alert.setTitle("Error");
-        alert.setHeaderText("Could not load data");
-        alert.setContentText("Could not load data from file:\n" + (file == null ? "none" : file.getPath()));
-
-        alert.showAndWait();
+    public void showAlertDialogAndWait(AlertType type, String title, String headerText, String contentText) {
+        showAlertDialogAndWait(primaryStage, type, title, headerText, contentText);
     }
 
-    public void showWarningDialogAndWait(String title, String headerText, String contentText){
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.initOwner(primaryStage);
+    public static void showAlertDialogAndWait(Stage owner, AlertType type, String title, String headerText, String contentText) {
+        final Alert alert = new Alert(type);
+        alert.initOwner(owner);
         alert.setTitle(title);
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
 
         alert.showAndWait();
     }
-
 }

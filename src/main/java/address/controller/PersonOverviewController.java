@@ -2,6 +2,7 @@ package address.controller;
 
 import address.events.EventManager;
 import address.events.FilterCommittedEvent;
+import address.exceptions.DuplicatePersonException;
 import address.model.ModelManager;
 import address.model.Person;
 import address.parser.ParseException;
@@ -11,13 +12,17 @@ import address.parser.expr.PredExpr;
 import address.ui.PersonListViewCell;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 
-public class PersonOverviewController{
+import java.util.Optional;
+
+public class PersonOverviewController {
 
     @FXML
     private ListView<Person> personList;
@@ -46,14 +51,10 @@ public class PersonOverviewController{
         this.modelManager = modelManager;
 
         // Add observable list data to the list
-        personList.setItems(modelManager.getPersonData());
+        personList.setItems(modelManager.getFilteredPersons());
         personList.setCellFactory(listView -> new PersonListViewCell());
-        personList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Person>() {
-
-            @Override
-            public void changed(ObservableValue<? extends Person> observable, Person oldValue, Person newValue) {
-                mainController.loadBrowserUrl(newValue.getWebPageUrl());
-            }
+        personList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            mainController.loadBrowserUrl(newValue.getWebPageUrl());
         });
     }
 
@@ -68,8 +69,8 @@ public class PersonOverviewController{
             modelManager.deletePerson(personList.getItems().get(selectedIndex));
         } else {
             // Nothing selected.
-            mainController.showWarningDialogAndWait("No Selection",
-                    "No Person Selected", "Please select a person in the list.");
+            mainController.showAlertDialogAndWait(AlertType.WARNING,
+                    "No Selection", "No Person Selected", "Please select a person in the list.");
         }
     }
 
@@ -79,10 +80,19 @@ public class PersonOverviewController{
      */
     @FXML
     private void handleNewPerson() {
-        Person tempPerson = new Person();
-        boolean okClicked = mainController.showPersonEditDialog(tempPerson);
-        if (okClicked) {
-            modelManager.addPerson(tempPerson);
+        Optional<Person> newPerson = Optional.of(new Person());
+        while (true) { // keep re-asking until user provides valid input or cancels operation.
+            newPerson = mainController.getPersonDataInput(newPerson.get());
+            if (newPerson.isPresent()) { // user provided input
+                try {
+                    modelManager.addPerson(newPerson.get());
+                } catch (DuplicatePersonException e) {
+                    mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
+                            "Cannot have duplicate person", e.toString());
+                    continue;
+                }
+            }
+            break;
         }
     }
 
@@ -92,13 +102,27 @@ public class PersonOverviewController{
      */
     @FXML
     private void handleEditPerson() {
-        Person selectedPerson = personList.getSelectionModel().getSelectedItem();
-        if (selectedPerson != null) {
-            boolean okClicked = mainController.showPersonEditDialog(selectedPerson);
-        } else {
-            // Nothing selected.
-            mainController.showWarningDialogAndWait("No Selection",
-                    "No Person Selected", "Please select a person in the list.");
+        Person selected = personList.getSelectionModel().getSelectedItem();
+        if (selected == null) { // no selection
+            mainController.showAlertDialogAndWait(AlertType.WARNING, "No Selection",
+                "No Person Selected", "Please select a person in the list.");
+            return;
+        }
+
+        Optional<Person> updated = Optional.of(new Person(selected));
+        while (true) { // keep re-asking until user provides valid input or cancels operation.
+            updated = mainController.getPersonDataInput(updated.get());
+            if (updated.isPresent()) { // user provided input
+                try {
+                    modelManager.updatePerson(selected, updated.get());
+                    break;
+                } catch (DuplicatePersonException e) {
+                    mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
+                            "Cannot have duplicate person", e.toString());
+                    continue;
+                }
+            }
+            break;
         }
     }
 

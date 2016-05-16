@@ -17,8 +17,7 @@ import java.util.List;
 public class XmlHelper {
 
     public static AddressBookWrapper getDataFromFile(File file) throws JAXBException {
-        JAXBContext context = JAXBContext
-                .newInstance(AddressBookWrapper.class);
+        JAXBContext context = JAXBContext.newInstance(AddressBookWrapper.class);
         Unmarshaller um = context.createUnmarshaller();
 
         // Reading XML from the file and unmarshalling.
