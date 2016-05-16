@@ -17,10 +17,6 @@ public class GroupEditDialogController extends EditDialogController {
     private ModelManager modelManager;
     private List<ContactGroup> groups;
 
-    public GroupEditDialogController() {
-        EventManager.getInstance().registerHandler(this);
-    }
-
     public void setGroup(ContactGroup group) {
         this.group = group;
         groupNameField.setText(group.getName());

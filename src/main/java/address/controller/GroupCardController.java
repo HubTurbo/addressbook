@@ -68,15 +68,11 @@ public class GroupCardController {
 
     public void setListener() {
         box.setOnMouseClicked(mouseEvent -> {
-                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                    if (mouseEvent.getClickCount() == 2) {
-                        mainController.showGroupEditDialog(group);
-                    }
+                if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() == 2) {
+                    mainController.showGroupEditDialog(group);
                 }
-                if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
-                    if (mouseEvent.getClickCount() == 1) {
-                        getContextMenu().show(groupName, Side.BOTTOM, 0, 0);
-                    }
+                if (mouseEvent.getButton().equals(MouseButton.SECONDARY) && mouseEvent.getClickCount() == 1) {
+                    getContextMenu().show(groupName, Side.BOTTOM, 0, 0);
                 }
             });
     }
