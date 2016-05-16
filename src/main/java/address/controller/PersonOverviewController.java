@@ -9,13 +9,15 @@ import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.ui.PersonListViewCell;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 
-public class PersonOverviewController {
+public class PersonOverviewController{
 
     @FXML
     private ListView<Person> personList;
@@ -46,6 +48,13 @@ public class PersonOverviewController {
         // Add observable list data to the list
         personList.setItems(modelManager.getPersonData());
         personList.setCellFactory(listView -> new PersonListViewCell());
+        personList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Person>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Person> observable, Person oldValue, Person newValue) {
+                mainController.loadBrowserUrl(newValue.getWebPageUrl());
+            }
+        });
     }
 
 
