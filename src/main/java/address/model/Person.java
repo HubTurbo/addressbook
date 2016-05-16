@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author Marco Jakob
  */
-public class Person implements DataType {
+public class Person extends DataType {
 
     private final StringProperty firstName;
     private final StringProperty lastName;
@@ -85,6 +85,7 @@ public class Person implements DataType {
     public void setContactGroups(List<ContactGroup> contactGroups) {
         this.contactGroups.clear();
         this.contactGroups.addAll(contactGroups);
+        updatedAt.set(LocalDateTime.now());
     }
 
     public String getFirstName() {
@@ -93,6 +94,7 @@ public class Person implements DataType {
 
     public void setFirstName(String firstName) {
         this.firstName.set(firstName);
+        updatedAt.set(LocalDateTime.now());
     }
 
     public String getLastName() {
@@ -101,6 +103,7 @@ public class Person implements DataType {
 
     public void setLastName(String lastName) {
         this.lastName.set(lastName);
+        updatedAt.set(LocalDateTime.now());
     }
 
     public String getFullName() {
@@ -113,6 +116,7 @@ public class Person implements DataType {
 
     public void setStreet(String street) {
         this.street.set(street);
+        updatedAt.set(LocalDateTime.now());
     }
 
     public StringProperty streetProperty() {
@@ -125,6 +129,7 @@ public class Person implements DataType {
 
     public void setPostalCode(int postalCode) {
         this.postalCode.set(postalCode);
+        updatedAt.set(LocalDateTime.now());
     }
 
     public IntegerProperty postalCodeProperty() {
@@ -137,6 +142,7 @@ public class Person implements DataType {
 
     public void setCity(String city) {
         this.city.set(city);
+        updatedAt.set(LocalDateTime.now());
     }
 
     public StringProperty cityProperty() {
@@ -150,6 +156,7 @@ public class Person implements DataType {
 
     public void setBirthday(LocalDate birthday) {
         this.birthday.set(birthday);
+        updatedAt.set(LocalDateTime.now());
     }
 
     @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
@@ -157,12 +164,27 @@ public class Person implements DataType {
         return updatedAt.get();
     }
 
-    public void setUpdatedAt(LocalDateTime birthday) {
-        this.updatedAt.set(birthday);
-    }
-
     public ObjectProperty<LocalDate> birthdayProperty() {
         return birthday;
+    }
+
+    /**
+     * Updates the attributes based on the values in the parameter.
+     * Mutable references are cloned.
+     *
+     * @param updated The object containing the new attributes.
+     * @return self
+     */
+    public Person update(Person updated) {
+        setFirstName(updated.getFirstName());
+        setLastName(updated.getLastName());
+        setStreet(updated.getStreet());
+        setPostalCode(updated.getPostalCode());
+        setCity(updated.getCity());
+        setBirthday(updated.getBirthday());
+        setContactGroups(updated.getContactGroupsCopy());
+        updatedAt.set(LocalDateTime.now());
+        return this;
     }
 
     @Override
@@ -186,30 +208,4 @@ public class Person implements DataType {
         return String.format("Person : %1$s %2$s", getFirstName(), getLastName());
     }
 
-    /**
-     * Updates the attributes based on the values in the parameter.
-     * Mutable references are cloned.
-     *
-     * @param updated The object containing the new attributes.
-     * @return self
-     */
-    public Person update(Person updated) {
-        setFirstName(updated.getFirstName());
-        setLastName(updated.getLastName());
-        setStreet(updated.getStreet());
-        setPostalCode(updated.getPostalCode());
-        setCity(updated.getCity());
-        setBirthday(updated.getBirthday());
-        setUpdatedAt(updated.getUpdatedAt());
-        setContactGroups(updated.getContactGroupsCopy());
-        return this;
-    }
-
-    /**
-     * @return a deep copy
-     */
-    @Override
-    public Person clone() {
-        return new Person(this);
-    }
 }
