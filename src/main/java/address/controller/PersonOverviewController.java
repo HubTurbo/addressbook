@@ -10,6 +10,8 @@ import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.ui.PersonListViewCell;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
@@ -51,6 +53,13 @@ public class PersonOverviewController {
         // Add observable list data to the list
         personList.setItems(modelManager.getFilteredPersons());
         personList.setCellFactory(listView -> new PersonListViewCell());
+        personList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Person>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Person> observable, Person oldValue, Person newValue) {
+                mainController.loadBrowserUrl(newValue.getWebPageUrl());
+            }
+        });
     }
 
 

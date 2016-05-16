@@ -12,6 +12,8 @@ import address.preferences.PreferencesManager;
 import address.util.Config;
 
 import com.google.common.eventbus.Subscribe;
+import com.teamdev.jxbrowser.chromium.Browser;
+import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -24,6 +26,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,11 +42,14 @@ public class MainController {
     private ModelManager modelManager;
     private MainApp mainApp;
 
+    Browser browser;
+
     public MainController(MainApp mainApp, ModelManager modelManager, Config config){
         EventManager.getInstance().registerHandler(this);
         this.modelManager = modelManager;
         this.config = config;
         this.mainApp = mainApp;
+        this.browser = new Browser();
     }
     
     public void start(Stage primaryStage) {
@@ -55,6 +61,11 @@ public class MainController {
 
         initRootLayout();
         showPersonOverview();
+        showPersonWebPage();
+    }
+
+    public void loadBrowserUrl(URL url){
+        browser.loadURL(url.toExternalForm());
     }
 
     /**
@@ -70,8 +81,8 @@ public class MainController {
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
-            primaryStage.setMinHeight(200);
-            primaryStage.setMinWidth(340);
+            primaryStage.setMinHeight(400);
+            primaryStage.setMinWidth(740);
             primaryStage.setHeight(600);
             primaryStage.setWidth(340);
             primaryStage.setScene(scene);
@@ -96,9 +107,9 @@ public class MainController {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("/view/PersonOverview.fxml"));
             AnchorPane personOverview = (AnchorPane) loader.load();
-
             // Set person overview into the center of root layout.
-            rootLayout.setCenter(personOverview);
+            personOverview.setMinWidth(340);
+            rootLayout.setLeft(personOverview);
 
             // Give the personOverviewController access to the main app and modelManager.
             PersonOverviewController personOverviewController = loader.getController();
@@ -107,6 +118,12 @@ public class MainController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void showPersonWebPage() {
+            BrowserView browserView = new BrowserView(browser);
+            browser.loadHTML("<html><body><h3>To view contact's web page, click on the contact on the left.</h3></body></html>");
+            rootLayout.setCenter(browserView);
     }
 
     /**

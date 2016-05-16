@@ -1,5 +1,10 @@
 package address;
 
+import com.teamdev.jxbrowser.chromium.Browser;
+import com.teamdev.jxbrowser.chromium.BrowserCore;
+import com.teamdev.jxbrowser.chromium.internal.Environment;
+import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
+
 import address.controller.MainController;
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
@@ -34,11 +39,19 @@ public class MainApp extends Application {
         return new Config();
     }
 
+    @Override
+    public void init() throws Exception {
+        super.init();
+        if (Environment.isMac()) {
+            BrowserCore.initialize();
+        }
+    }
 
     @Override
     public void start(Stage primaryStage) {
         setupComponents();
         mainController.start(primaryStage);
+
     }
 
     protected void setupComponents() {
