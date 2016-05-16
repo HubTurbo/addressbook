@@ -2,7 +2,7 @@ package address;
 
 import address.controller.MainController;
 import address.events.EventManager;
-import address.events.FileOpeningExceptionEvent;
+import address.events.LoadDataRequestEvent;
 import address.exceptions.FileContainsDuplicatesException;
 import address.model.AddressBookWrapper;
 import address.model.ModelManager;
@@ -11,6 +11,7 @@ import address.storage.StorageManager;
 import address.sync.SyncManager;
 import address.util.Config;
 import javafx.application.Application;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 
 import javax.xml.bind.JAXBException;
@@ -45,26 +46,12 @@ public class MainApp extends Application {
         config = getConfig();
         PreferencesManager.setAppTitle(config.appTitle);
 
-        //TODO: launch dialogue from MainApp instead of using events
-        final File initialFile = PreferencesManager.getInstance().getPersonFile();
-        AddressBookWrapper dataFromFile;
-        Exception fileLoadException = null;
-        try {
-             dataFromFile = StorageManager.loadDataFromSaveFile(initialFile);
-        } catch (JAXBException | FileContainsDuplicatesException e) {
-            fileLoadException = e;
-            dataFromFile = new AddressBookWrapper();
-        }
-
-        modelManager = new ModelManager(dataFromFile);
+        modelManager = new ModelManager(new AddressBookWrapper());
         storageManager = new StorageManager(modelManager);
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
+        EventManager.getInstance().post(new LoadDataRequestEvent(PreferencesManager.getInstance().getPersonFile()));
         syncManager.startSyncingData(config.updateInterval, config.isSimulateRandomChanges);
-
-        if (fileLoadException != null) {
-            EventManager.getInstance().post(new FileOpeningExceptionEvent(fileLoadException, initialFile));
-        }
     }
 
     @Override

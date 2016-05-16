@@ -58,7 +58,7 @@ public class Person extends DataType {
         try {
             this.webPageUrl = new URL("https://www.github.com");
         } catch (MalformedURLException e) {
-            assert false : "Error parsing a parsable URL");
+            assert false : "Error parsing a parsable URL";
         }
 
     }

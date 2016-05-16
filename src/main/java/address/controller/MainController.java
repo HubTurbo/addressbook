@@ -315,14 +315,17 @@ public class MainController {
         return new Image(MainApp.class.getResourceAsStream(imagePath));
     }
 
-    public void showAlertDialogAndWait(AlertType type, String title, String headerText, String contentText){
+    public void showAlertDialogAndWait(AlertType type, String title, String headerText, String contentText) {
+        showAlertDialogAndWait(primaryStage, type, title, headerText, contentText);
+    }
+
+    public static void showAlertDialogAndWait(Stage owner, AlertType type, String title, String headerText, String contentText) {
         final Alert alert = new Alert(type);
-        alert.initOwner(primaryStage);
+        alert.initOwner(owner);
         alert.setTitle(title);
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
 
         alert.showAndWait();
     }
-    
 }
