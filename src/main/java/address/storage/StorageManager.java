@@ -44,7 +44,7 @@ public class StorageManager {
     }
 
     @Subscribe
-    private void handleLocalModelSyncedEvent(LocalModelSyncedEvent lmse){
+    private void handleLocalModelSyncedEvent(LocalModelSyncedFromCloudEvent lmse){
         final File targetFile = PreferencesManager.getInstance().getPersonFile();
         System.out.println("Local data synced, saving to primary data file");
         saveDataToFile(targetFile, lmse.personData, lmse.groupData);

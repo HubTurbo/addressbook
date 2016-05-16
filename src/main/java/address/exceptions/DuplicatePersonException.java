@@ -1,18 +1,20 @@
 package address.exceptions;
 
+import address.model.Person;
+
 /**
  * Signifies an attempt to add a duplicate Person
  */
 public class DuplicatePersonException extends Exception {
 
-    public final String identifier;
+    public final Person offender;
 
-    public DuplicatePersonException(String identifier) {
-        this.identifier = identifier;
+    public DuplicatePersonException(Person offender) {
+        this.offender = offender;
     }
 
     @Override
     public String toString() {
-        return "Cannot add Person: " + identifier + " already exists!";
+        return offender + " already exists!";
     }
 }

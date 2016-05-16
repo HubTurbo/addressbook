@@ -113,7 +113,7 @@ public class MainController {
      * Get user input for defining Person objects.
      *
      * @param defaultData default data shown for user input
-     * @return an optional containing the input data from user, or an empty optional if the
+     * @return a defensively copied optional containing the input data from user, or an empty optional if the
      *          operation is to be cancelled.
      */
     public Optional<Person> getPersonDataInput(Person defaultData) {
@@ -122,12 +122,11 @@ public class MainController {
 
     /**
      * Opens a dialog to edit details for Person objects. If the user
-     * clicks OK, the changes are recorded in a new Person object and returned.
+     * clicks OK, the input data is recorded in a new Person object and returned.
      *
      * @param initialData the person object determining the initial data in the dialog fields
      * @return an optional containing the new data, or an empty optional if there was an error
      *         creating the dialog or the user clicked cancel
-     *
      */
     private Optional<Person> showPersonEditDialog(Person initialData) {
         final String fxmlResourcePath = "/view/PersonEditDialog.fxml";
@@ -166,8 +165,6 @@ public class MainController {
         }
     }
 
-//    public
-
     /**
      * Opens a dialog to edit details for the specified group. If the user
      * clicks OK, the changes are saved into the provided group object and true
@@ -183,7 +180,7 @@ public class MainController {
             // Load the fxml file and create a new stage for the popup dialog.
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("/view/GroupEditDialog.fxml"));
-            AnchorPane page = (AnchorPane) loader.load();
+            AnchorPane page = loader.load();
 
             // Create the dialog Stage.
             Stage dialogStage = new Stage();
@@ -326,5 +323,5 @@ public class MainController {
 
         alert.showAndWait();
     }
-
+    
 }

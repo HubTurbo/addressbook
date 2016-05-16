@@ -2,7 +2,7 @@ package address.model;
 
 import javafx.beans.property.SimpleStringProperty;
 
-public class ContactGroup implements DataType {
+public class ContactGroup extends DataType {
 
     private final SimpleStringProperty name;
 
@@ -48,8 +48,4 @@ public class ContactGroup implements DataType {
         return "Group : " + getName();
     }
 
-    @Override
-    public ContactGroup clone() {
-        return new ContactGroup(getName());
-    }
 }
