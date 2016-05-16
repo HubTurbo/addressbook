@@ -22,13 +22,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.loadui.testfx.GuiTest.find;
 
-public class PersonEditDialogUnit extends ApplicationTest {
-    private TextField firstNameField;
-    private TextField lastNameField;
-    private TextField streetField;
-    private TextField postalCodeField;
-    private TextField cityField;
-    private TextField birthdayField;
+public class PersonEditDialogUnitTest extends ApplicationTest {
     private ScrollPane groupList;
     private TextField groupSearch;
     private ScrollPane groupResults;
@@ -41,17 +35,19 @@ public class PersonEditDialogUnit extends ApplicationTest {
 
             PersonEditDialogController controller = loader.getController();
 
-            ContactGroup group1 = new ContactGroup("enemies");
-            ContactGroup group2 = new ContactGroup("friends");
-            ContactGroup group3 = new ContactGroup("relatives");
-            List<ContactGroup> groups = new ArrayList<>();
-            groups.add(group1);
-            List<ContactGroup> groups2 = new ArrayList<>();
-            groups2.add(group1);
-            groups2.add(group2);
-            groups2.add(group3);
+            ContactGroup contactGroup1 = new ContactGroup("enemies");
+            ContactGroup contactGroup2 = new ContactGroup("friends");
+            ContactGroup contactGroup3 = new ContactGroup("relatives");
 
-            controller.setModel(groups2, groups);
+            List<ContactGroup> assignedGroups = new ArrayList<>();
+            assignedGroups.add(contactGroup1);
+
+            List<ContactGroup> allContactGroups = new ArrayList<>();
+            allContactGroups.add(contactGroup1);
+            allContactGroups.add(contactGroup2);
+            allContactGroups.add(contactGroup3);
+
+            controller.setModel(allContactGroups, assignedGroups);
 
             primaryStage.setScene(new Scene(baseNode));
             primaryStage.show();
@@ -62,12 +58,6 @@ public class PersonEditDialogUnit extends ApplicationTest {
 
     @Before
     public void setup() {
-        firstNameField = find("#firstNameField");
-        lastNameField = find("#lastNameField");
-        streetField = find("#streetField");
-        postalCodeField = find("#postalCodeField");
-        cityField = find("#cityField");
-        birthdayField = find("#birthdayField");
         groupList = find("#groupList");
         groupSearch = find("#groupSearch");
         groupResults = find("#groupResults");
@@ -103,9 +93,5 @@ public class PersonEditDialogUnit extends ApplicationTest {
 
         assertEquals(1, ((VBox) groupResults.getContent()).getChildren().size());
         assertEquals(2, ((VBox) groupList.getContent()).getChildren().size());
-    }
-
-    @After
-    public void close() {
     }
 }

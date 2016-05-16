@@ -1,6 +1,5 @@
 package address.guitests;
 
-import address.GuiTestBase;
 import org.junit.Test;
 
 public class ManageGroupTest extends GuiTestBase {

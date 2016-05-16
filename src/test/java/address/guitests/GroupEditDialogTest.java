@@ -1,6 +1,5 @@
 package address.guitests;
 
-import address.GuiTestBase;
 import javafx.scene.control.TextField;
 import org.junit.Test;
 

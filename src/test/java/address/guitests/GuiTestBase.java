@@ -1,5 +1,7 @@
-package address;
+package address.guitests;
 
+import address.MainApp;
+import address.TestApp;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
