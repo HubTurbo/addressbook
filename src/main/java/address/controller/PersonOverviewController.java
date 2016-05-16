@@ -1,5 +1,6 @@
 package address.controller;
 
+import address.events.DeleteRequestEvent;
 import address.events.EventManager;
 import address.events.FilterCommittedEvent;
 import address.model.ModelManager;
@@ -9,6 +10,7 @@ import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.ui.PersonListViewCell;
+import com.google.common.eventbus.Subscribe;
 import javafx.fxml.FXML;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
@@ -120,5 +122,10 @@ public class PersonOverviewController {
         deleteMenuItem.setOnAction(e -> handleDeletePerson());
         contextMenu.getItems().addAll(editMenuItem, deleteMenuItem);
         return contextMenu;
+    }
+
+    @Subscribe
+    private void HandleDeleteRequestEvent(DeleteRequestEvent event){
+        handleDeletePerson();
     }
 }

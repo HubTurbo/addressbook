@@ -1,9 +1,11 @@
 package address;
 
 import address.controller.MainController;
+import address.events.EventManager;
 import address.model.AddressBookWrapper;
 import address.model.ModelManager;
 import address.preferences.PreferencesManager;
+import address.shortcuts.ShortcutsManager;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
 import address.util.Config;
@@ -20,6 +22,7 @@ public class MainApp extends Application {
     protected ModelManager modelManager;
     protected SyncManager syncManager;
     private MainController mainController;
+    private ShortcutsManager shortcutsManager;
 
     public MainApp() {}
 
@@ -44,6 +47,9 @@ public class MainApp extends Application {
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
         syncManager.startSyncingData(config.updateInterval, config.isSimulateRandomChanges);
+
+        shortcutsManager = new ShortcutsManager();
+        EventManager.getInstance().registerHandler(shortcutsManager);
     }
 
     @Override
