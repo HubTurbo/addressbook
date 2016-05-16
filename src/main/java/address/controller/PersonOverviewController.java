@@ -10,7 +10,9 @@ import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.ui.PersonListViewCell;
 import javafx.fxml.FXML;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 
 public class PersonOverviewController {
@@ -34,6 +36,7 @@ public class PersonOverviewController {
      */
     @FXML
     private void initialize() {
+        personList.setContextMenu(createContextMenu());
     }
 
     public void setConnections(MainController mainController, ModelManager modelManager) {
@@ -106,5 +109,16 @@ public class PersonOverviewController {
             filterField.getStyleClass().add("error");
         }
         EventManager.getInstance().post(new FilterCommittedEvent(filterExpression));
+    }
+
+    private ContextMenu createContextMenu(){
+        final ContextMenu contextMenu = new ContextMenu();
+
+        MenuItem editMenuItem = new MenuItem("Edit");
+        editMenuItem.setOnAction(e -> handleEditPerson());
+        MenuItem deleteMenuItem = new MenuItem("Delete");
+        deleteMenuItem.setOnAction(e -> handleDeletePerson());
+        contextMenu.getItems().addAll(editMenuItem, deleteMenuItem);
+        return contextMenu;
     }
 }
