@@ -12,6 +12,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import address.util.DateUtil;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -38,6 +40,8 @@ public class PersonEditDialogController extends EditDialogController {
     private TextField groupSearch;
     @FXML
     private ScrollPane groupResults;
+    @FXML
+    private TextField webPageField;
 
     private PersonEditDialogModel model;
     private Person person;
@@ -115,6 +119,7 @@ public class PersonEditDialogController extends EditDialogController {
         cityField.setText(person.getCity());
         birthdayField.setText(DateUtil.format(person.getBirthday()));
         birthdayField.setPromptText("dd.mm.yyyy");
+        webPageField.setText(person.getWebPageUrl().toExternalForm());
     }
 
     public void setModel(List<ContactGroup> contactGroups, List<ContactGroup> assignedGroups) {
@@ -153,6 +158,11 @@ public class PersonEditDialogController extends EditDialogController {
             updated.setCity(cityField.getText());
             updated.setBirthday(DateUtil.parse(birthdayField.getText()));
             updated.setContactGroups(model.getAssignedGroups());
+            try {
+                updated.setWebPageUrl(new URL(webPageField.getText()));
+            } catch (MalformedURLException e) {
+                throw new RuntimeException("Error parsing an parsed parsable URL");
+            }
             modelManager.updatePerson(person, updated);
 
             isOkClicked = true;
@@ -214,6 +224,12 @@ public class PersonEditDialogController extends EditDialogController {
             }
         }
 
+        try {
+            URL url = new URL(webPageField.getText());
+        } catch(MalformedURLException e){
+            errorMessage += "Invalid web page link.\n";
+        }
+        
         if (errorMessage.length() == 0) {
             return true;
         } else {
