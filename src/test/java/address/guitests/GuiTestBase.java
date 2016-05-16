@@ -29,7 +29,7 @@ public class GuiTestBase extends GuiTest {
 
     public GuiTestBase() {
         try {
-            FXMLLoader.setDefaultClassLoader(MainApp.class.getClassLoader()); // workaround to fxml loading problems
+            FXMLLoader.setDefaultClassLoader(TestApp.class.getClassLoader()); // workaround to fxml loading problems
             FxToolkit.registerPrimaryStage();
             FxToolkit.setupApplication(TestApp.class);
         } catch (TimeoutException e) {

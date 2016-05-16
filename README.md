@@ -9,6 +9,8 @@ It tries to simulate various situations we have in HT, but at a smaller scale.
 It is an address book application. Data are stored in an XML file.
 It periodically syncs data in the primary XML file with another mirror file.
 
-
 # Acknowledgements
 Some parts of the code has been adapted from http://code.makery.ch
+
+Information
+- [Testing](docs/Testing.md)

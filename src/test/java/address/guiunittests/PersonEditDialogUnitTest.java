@@ -1,6 +1,7 @@
-package address.unittests;
+package address.guiunittests;
 
 import address.MainApp;
+import address.TestApp;
 import address.controller.PersonEditDialogController;
 import address.model.ContactGroup;
 import javafx.fxml.FXMLLoader;
@@ -30,7 +31,7 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
     @Override
     public void start(Stage primaryStage) {
         try {
-            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/view/PersonEditDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(TestApp.class.getResource("/view/PersonEditDialog.fxml"));
             AnchorPane baseNode = loader.load();
 
             PersonEditDialogController controller = loader.getController();
