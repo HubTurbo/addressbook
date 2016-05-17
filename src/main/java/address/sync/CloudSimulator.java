@@ -1,13 +1,12 @@
 package address.sync;
 
-import address.model.AddressBookWrapper;
+import address.model.AddressBook;
 import address.model.ContactGroup;
 import address.model.Person;
 import address.util.XmlHelper;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -37,11 +36,11 @@ public class CloudSimulator {
      * The data is possibly modified in each call to this method and is persisted onto the same file.
      * When failure condition occurs, this returns an empty data set.
      */
-    public AddressBookWrapper getSimulatedCloudData(File cloudFile) {
+    public AddressBook getSimulatedCloudData(File cloudFile) {
         System.out.println("Simulating cloud data retrieval...");
-        AddressBookWrapper modifiedData = new AddressBookWrapper();
+        AddressBook modifiedData = new AddressBook();
         try {
-            AddressBookWrapper data = XmlHelper.getDataFromFile(cloudFile);
+            AddressBook data = XmlHelper.getDataFromFile(cloudFile);
             if (!this.isSimulateRandomChanges) {
                 return data;
             }
@@ -49,7 +48,7 @@ public class CloudSimulator {
             // no data could be retrieved
             if (RANDOM_GENERATOR.nextDouble() <= FAILURE_PROBABILITY) {
                 System.out.println("Cloud simulator: failure occurred! Could not retrieve data");
-                AddressBookWrapper wrapper = new AddressBookWrapper();
+                AddressBook wrapper = new AddressBook();
                 wrapper.setPersons(new ArrayList<>());
                 wrapper.setGroups(new ArrayList<>());
                 return wrapper;
@@ -75,8 +74,9 @@ public class CloudSimulator {
     public void requestChangesToCloud(File file, List<Person> people, List<ContactGroup> groups, int delay)
             throws JAXBException {
         if (file == null) return;
-        List<Person> persons = people.stream().map(Person::new).collect(Collectors.toList());
-        XmlHelper.saveToFile(file, people, groups);
+        List<Person> newPeople = people.stream().map(Person::new).collect(Collectors.toList());
+        List<ContactGroup> newGroups = groups.stream().map(ContactGroup::new).collect(Collectors.toList());
+        XmlHelper.saveToFile(file, newPeople, newGroups);
         try {
             TimeUnit.SECONDS.sleep(delay);
         } catch (InterruptedException e) {
@@ -106,7 +106,7 @@ public class CloudSimulator {
      * @param data
      * @return the (possibly) modified argument addressbookwrapper
      */
-    private AddressBookWrapper simulateDataModification(AddressBookWrapper data) {
+    private AddressBook simulateDataModification(AddressBook data) {
         List<Person> modifiedData = new ArrayList<>();
 
         // currently only modifies persons

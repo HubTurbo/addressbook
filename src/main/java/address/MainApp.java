@@ -1,14 +1,12 @@
 package address;
 
-import com.teamdev.jxbrowser.chromium.Browser;
+import address.model.AddressBook;
 import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
-import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 
 import address.controller.MainController;
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
-import address.model.AddressBookWrapper;
 import address.model.ModelManager;
 import address.preferences.PreferencesManager;
 import address.storage.StorageManager;
@@ -56,7 +54,7 @@ public class MainApp extends Application {
         config = getConfig();
         PreferencesManager.setAppTitle(config.appTitle);
 
-        modelManager = new ModelManager(new AddressBookWrapper());
+        modelManager = new ModelManager(new AddressBook());
         storageManager = new StorageManager(modelManager);
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();

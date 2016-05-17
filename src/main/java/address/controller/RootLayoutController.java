@@ -157,16 +157,14 @@ public class RootLayoutController {
         Optional<ContactGroup> newGroup = Optional.of(new ContactGroup());
         while (true) { // keep re-asking until user provides valid input or cancels operation.
             newGroup = mainController.getGroupDataInput(newGroup.get());
-            if (newGroup.isPresent()) { // user provided input
-                try {
-                    modelManager.addGroup(newGroup.get());
-                } catch (DuplicateGroupException e) {
-                    mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                            "Cannot have duplicate groups", e.toString());
-                    continue;
-                }
+            if (!newGroup.isPresent()) break;
+            try {
+                modelManager.addGroup(newGroup.get());
+                break;
+            } catch (DuplicateGroupException e) {
+                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate groups",
+                                                      e.toString());
             }
-            break;
         }
     }
 

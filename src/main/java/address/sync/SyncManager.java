@@ -5,7 +5,7 @@ import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
 import address.events.NewMirrorDataEvent;
 import address.exceptions.FileContainsDuplicatesException;
-import address.model.AddressBookWrapper;
+import address.model.AddressBook;
 import address.preferences.PreferencesManager;
 import address.sync.task.CloudUpdateTask;
 import com.google.common.eventbus.Subscribe;
@@ -46,7 +46,7 @@ public class SyncManager {
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
             try {
-                AddressBookWrapper mirrorData = getMirrorData();
+                AddressBook mirrorData = getMirrorData();
                 EventManager.getInstance().post(new NewMirrorDataEvent(mirrorData));
             } catch (FileContainsDuplicatesException e) {
                 // do not sync changes from mirror if duplicates found in mirror
@@ -58,10 +58,10 @@ public class SyncManager {
         scheduler.scheduleAtFixedRate(task, initialDelay, interval, TimeUnit.SECONDS);
     }
 
-    private AddressBookWrapper getMirrorData() throws FileContainsDuplicatesException {
+    private AddressBook getMirrorData() throws FileContainsDuplicatesException {
         System.out.println("Updating data from cloud: " + System.nanoTime());
         final File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().toString() + "-mirror.xml");
-        final AddressBookWrapper data = cloudSimulator.getSimulatedCloudData(mirrorFile);
+        final AddressBook data = cloudSimulator.getSimulatedCloudData(mirrorFile);
         if (data.containsDuplicates()) throw new FileContainsDuplicatesException(mirrorFile);
         return data;
     }

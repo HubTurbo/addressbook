@@ -121,9 +121,10 @@ public class MainController {
     }
 
     public void showPersonWebPage() {
-            BrowserView browserView = new BrowserView(browser);
-            browser.loadHTML("<html><body><h3>To view contact's web page, click on the contact on the left.</h3></body></html>");
-            rootLayout.setCenter(browserView);
+        BrowserView browserView = new BrowserView(browser);
+        browser.loadHTML("<html><body><h3>To view contact's web page, click on the contact on the left." +
+                "</h3></body></html>");
+        rootLayout.setCenter(browserView);
     }
 
     /**
@@ -303,17 +304,18 @@ public class MainController {
      * Sets the title of the app UI based on the file location
      * @param file the data file used by the app, or null if no file chosen
      */
-    public void setTitle(String appTitle, File file){
+    public void setTitle(String appTitle, File file) {
         primaryStage.setTitle(appTitle + " - " + file.getName());
     }
 
     @Subscribe
-    private void handleFileOpeningExceptionEvent(FileOpeningExceptionEvent foee){
-        showFileOperationAlertAndWait("Could not load data", "Could not load data from file", foee.file, foee.exception);
+    private void handleFileOpeningExceptionEvent(FileOpeningExceptionEvent foee) {
+        showFileOperationAlertAndWait("Could not load data", "Could not load data from file", foee.file,
+                                      foee.exception);
     }
 
     @Subscribe
-    private void handleFileSavingExceptionEvent(FileSavingExceptionEvent fsee){
+    private void handleFileSavingExceptionEvent(FileSavingExceptionEvent fsee) {
         showFileOperationAlertAndWait("Could not save data", "Could not save data to file", fsee.file, fsee.exception);
     }
 
@@ -336,7 +338,8 @@ public class MainController {
         showAlertDialogAndWait(primaryStage, type, title, headerText, contentText);
     }
 
-    public static void showAlertDialogAndWait(Stage owner, AlertType type, String title, String headerText, String contentText) {
+    public static void showAlertDialogAndWait(Stage owner, AlertType type, String title, String headerText,
+                                              String contentText) {
         final Alert alert = new Alert(type);
         alert.initOwner(owner);
         alert.setTitle(title);

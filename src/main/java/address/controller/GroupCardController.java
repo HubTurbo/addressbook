@@ -52,20 +52,18 @@ public class GroupCardController {
 
         MenuItem newGroupItem = new MenuItem("New");
         newGroupItem.setOnAction(event -> {
-            Optional<ContactGroup> newGroup = Optional.of(new ContactGroup());
-            while (true) { // keep re-asking until user provides valid input or cancels operation.
-                newGroup = mainController.getGroupDataInput(newGroup.get());
-                if (newGroup.isPresent()) { // user provided input
+                Optional<ContactGroup> newGroup = Optional.of(new ContactGroup());
+                while (true) { // keep re-asking until user provides valid input or cancels operation.
+                    newGroup = mainController.getGroupDataInput(newGroup.get());
+                    if (!newGroup.isPresent()) break;
                     try {
                         modelManager.addGroup(newGroup.get());
+                        break;
                     } catch (DuplicateGroupException e) {
                         mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                                "Cannot have duplicate groups", e.toString());
-                        continue;
+                                                              "Cannot have duplicate groups", e.toString());
                     }
                 }
-                break;
-            }
             });
         MenuItem editGroup = new MenuItem("Edit");
         editGroup.setOnAction(event -> handleEditGroupAction());
@@ -80,36 +78,35 @@ public class GroupCardController {
 
     public void setListeners() {
         box.setOnMouseClicked(mouseEv -> {
-            switch (mouseEv.getButton()) {
-            case PRIMARY :
-                if (mouseEv.getClickCount() >= 2) {
-                    handleEditGroupAction();
+                switch (mouseEv.getButton()) {
+                case PRIMARY :
+                    if (mouseEv.getClickCount() >= 2) {
+                        handleEditGroupAction();
+                    }
+                    break;
+                case SECONDARY :
+                    if (mouseEv.getClickCount() == 1) {
+                        getContextMenu().show(groupName, Side.BOTTOM, 0, 0);
+                    }
+                    break;
                 }
-                break;
-            case SECONDARY :
-                if (mouseEv.getClickCount() == 1) {
-                    getContextMenu().show(groupName, Side.BOTTOM, 0, 0);
-                }
-                break;
-            }
-        });
+            });
     }
 
     private void handleEditGroupAction() {
         Optional<ContactGroup> updated = Optional.of(new ContactGroup(group));
         while (true) { // keep re-asking until user provides valid input or cancels operation.
             updated = mainController.getGroupDataInput(updated.get());
-            if (updated.isPresent()) { // user provided input
-                try {
-                    modelManager.updateGroup(group, updated.get());
-                    break;
-                } catch (DuplicateGroupException e) {
-                    mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                            "Cannot have duplicate group", e.toString());
-                    continue;
-                }
+
+            if (!updated.isPresent()) break;
+
+            try {
+                modelManager.updateGroup(group, updated.get());
+                break;
+            } catch (DuplicateGroupException e) {
+                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate group",
+                                                      e.toString());
             }
-            break;
         }
     }
 

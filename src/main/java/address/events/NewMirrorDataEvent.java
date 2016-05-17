@@ -1,13 +1,13 @@
 package address.events;
 
-import address.model.AddressBookWrapper;
+import address.model.AddressBook;
 
 /** Indicates some new data is available from the mirror*/
 public class NewMirrorDataEvent {
 
-    public AddressBookWrapper data;
+    public AddressBook data;
 
-    public NewMirrorDataEvent(AddressBookWrapper data){
+    public NewMirrorDataEvent(AddressBook data){
         this.data = data;
     }
 

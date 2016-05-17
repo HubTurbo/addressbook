@@ -54,8 +54,8 @@ public class PersonOverviewController {
         personList.setItems(modelManager.getFilteredPersons());
         personList.setCellFactory(listView -> new PersonListViewCell());
         personList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            mainController.loadBrowserUrl(newValue.getWebPageUrl());
-        });
+                mainController.loadBrowserUrl(newValue.getWebPageUrl());
+            });
     }
 
 
@@ -83,16 +83,15 @@ public class PersonOverviewController {
         Optional<Person> newPerson = Optional.of(new Person());
         while (true) { // keep re-asking until user provides valid input or cancels operation.
             newPerson = mainController.getPersonDataInput(newPerson.get());
-            if (newPerson.isPresent()) { // user provided input
-                try {
-                    modelManager.addPerson(newPerson.get());
-                } catch (DuplicatePersonException e) {
-                    mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                            "Cannot have duplicate person", e.toString());
-                    continue;
-                }
+
+            if (!newPerson.isPresent()) break;
+            try {
+                modelManager.addPerson(newPerson.get());
+                break;
+            } catch (DuplicatePersonException e) {
+                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
+                        "Cannot have duplicate person", e.toString());
             }
-            break;
         }
     }
 
@@ -112,17 +111,14 @@ public class PersonOverviewController {
         Optional<Person> updated = Optional.of(new Person(selected));
         while (true) { // keep re-asking until user provides valid input or cancels operation.
             updated = mainController.getPersonDataInput(updated.get());
-            if (updated.isPresent()) { // user provided input
-                try {
-                    modelManager.updatePerson(selected, updated.get());
-                    break;
-                } catch (DuplicatePersonException e) {
-                    mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                            "Cannot have duplicate person", e.toString());
-                    continue;
-                }
+            if (!updated.isPresent()) break;
+            try {
+                modelManager.updatePerson(selected, updated.get());
+                break;
+            } catch (DuplicatePersonException e) {
+                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate person",
+                                                      e.toString());
             }
-            break;
         }
     }
 
