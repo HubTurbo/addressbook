@@ -4,6 +4,7 @@ package address.sync;
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
 import address.events.NewMirrorDataEvent;
+import address.events.SaveRequestEvent;
 import address.exceptions.FileContainsDuplicatesException;
 import address.model.AddressBook;
 import address.preferences.PreferencesManager;
@@ -70,5 +71,10 @@ public class SyncManager {
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
         requestExecutor.execute(new CloudUpdateTask(this.cloudSimulator, lmce.personData, lmce.groupData));
+    }
+
+    @Subscribe
+    public void handleSaveRequestEvent(SaveRequestEvent sre) {
+        requestExecutor.execute(new CloudUpdateTask(this.cloudSimulator, sre.personData, sre.groupData));
     }
 }
