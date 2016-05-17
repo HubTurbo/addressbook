@@ -15,6 +15,7 @@ import address.sync.SyncManager;
 import address.util.Config;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 
 /**
@@ -49,7 +50,7 @@ public class MainApp extends Application {
         mainController.start(primaryStage);
 
         EventManager.getInstance().post(new LoadDataRequestEvent(PreferencesManager.getInstance().getPersonFile()));
-        syncManager.startSyncingData(config.updateInterval, config.updateTimeUnit, config.simulateUnreliableNetwork);
+        syncManager.startSyncingData(config.updateInterval, config.simulateUnreliableNetwork);
     }
 
     protected void setupComponents() {
@@ -68,6 +69,9 @@ public class MainApp extends Application {
 
     @Override
     public void stop() {
+        mainController.getPrimaryStage().hide();
+        mainController.browser.dispose();
+        Platform.exit();
         System.exit(0);
     }
 

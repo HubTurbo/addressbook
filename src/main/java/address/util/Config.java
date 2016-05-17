@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 public class Config {
     public String appTitle = "Address App";
     public long updateInterval = 3000;
-    public TimeUnit updateTimeUnit = TimeUnit.MILLISECONDS;
     public boolean simulateUnreliableNetwork = false;
 
 }

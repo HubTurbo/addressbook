@@ -48,7 +48,7 @@ public class MainController {
     private ModelManager modelManager;
     private MainApp mainApp;
 
-    Browser browser;
+    public Browser browser;
 
     public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
         EventManager.getInstance().registerHandler(this);
