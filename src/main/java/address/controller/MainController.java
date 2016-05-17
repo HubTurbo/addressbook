@@ -10,6 +10,16 @@ import address.util.Config;
 
 import com.google.common.eventbus.Subscribe;
 import com.teamdev.jxbrowser.chromium.Browser;
+import com.teamdev.jxbrowser.chromium.EditorCommand;
+import com.teamdev.jxbrowser.chromium.dom.By;
+import com.teamdev.jxbrowser.chromium.dom.DOMElement;
+import com.teamdev.jxbrowser.chromium.dom.events.DOMEvent;
+import com.teamdev.jxbrowser.chromium.dom.events.DOMEventListener;
+import com.teamdev.jxbrowser.chromium.dom.events.DOMEventType;
+import com.teamdev.jxbrowser.chromium.events.FailLoadingEvent;
+import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
+import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
+import com.teamdev.jxbrowser.chromium.events.StartLoadingEvent;
 import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -48,7 +58,7 @@ public class MainController {
     private ModelManager modelManager;
     private MainApp mainApp;
 
-    public Browser browser;
+    private Browser browser;
 
     public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
         EventManager.getInstance().registerHandler(this);
@@ -56,6 +66,26 @@ public class MainController {
         this.config = config;
         this.mainApp = mainApp;
         this.browser = new Browser();
+        this.browser.addLoadListener(new LoadAdapter() {
+            @Override
+            public void onFinishLoadingFrame(FinishLoadingEvent finishLoadingEvent) {
+                super.onFinishLoadingFrame(finishLoadingEvent);
+                DOMElement container = browser.getDocument().findElement(By.id("js-pjax-container"));
+                DOMElement link = browser.getDocument().findElement(By.className("octicon octicon-repo"));
+                if(link != null) {
+                    container.addEventListener(DOMEventType.OnLoad, e ->
+                            browser.executeCommand(EditorCommand.SCROLL_TO_END_OF_DOCUMENT)
+                    , true);
+                    link.click();
+                }
+            }
+
+            @Override
+            public void onFailLoadingFrame(FailLoadingEvent failLoadingEvent) {
+                super.onFailLoadingFrame(failLoadingEvent);
+                browser.loadURL(failLoadingEvent.getValidatedURL());
+            }
+        });
     }
     
     public void start(Stage primaryStage) {
@@ -68,6 +98,13 @@ public class MainController {
         initRootLayout();
         showPersonOverview();
         showPersonWebPage();
+    }
+
+    /**
+     * Frees resources allocated to the browser.
+     */
+    public void freeBrowserResources(){
+        browser.dispose();
     }
 
     public void loadBrowserUrl(URL url){
