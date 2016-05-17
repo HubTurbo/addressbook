@@ -9,14 +9,14 @@ import address.events.EventManager;
 import address.events.GroupSearchResultsChangedEvent;
 import address.events.GroupsChangedEvent;
 
-public class PersonEditDialogModel {
+public class PersonEditDialogGroupsModel {
     List<SelectableContactGroup> groups = new ArrayList<>();
     List<SelectableContactGroup> filteredGroups = new ArrayList<>();
     Optional<Integer> selectedGroupIndex = Optional.empty();
 
     List<SelectableContactGroup> assignedGroups = new ArrayList<>();
 
-    public PersonEditDialogModel(List<ContactGroup> groups, List<ContactGroup> assignedGroups) {
+    public PersonEditDialogGroupsModel(List<ContactGroup> groups, List<ContactGroup> assignedGroups) {
         List<SelectableContactGroup> selectableContactGroups = groups.stream()
                                                                 .map(SelectableContactGroup::new)
                                                                 .collect(Collectors.toList());

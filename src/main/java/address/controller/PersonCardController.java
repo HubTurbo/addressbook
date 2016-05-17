@@ -51,7 +51,7 @@ public class PersonCardController {
         postalCode.setText(Integer.toString(person.getPostalCode()));
         city.setText(person.getCity());
         birthday.setText(person.getBirthday().format(DateTimeFormatter.ISO_LOCAL_DATE));
-        contactGroups.setText(getContactGroupsString(person.getContactGroups()));
+        contactGroups.setText(getContactGroupsString(person.getContactGroupsCopy()));
     }
 
     private String getContactGroupsString(List<ContactGroup> contactGroups) {

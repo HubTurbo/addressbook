@@ -51,7 +51,6 @@ allprojects {
         compile "org.controlsfx:controlsfx:$controlsfxVersion"
         compile "com.google.code.gson:gson:$gsonVersion"
         compile "com.google.guava:guava:$guavaVersion"
-        testCompile 'org.testng:testng:6.9.10'
         testCompile "junit:junit:$junitVersion"
     		testCompile "org.testfx:testfx-core:4.0.+"
         testCompile "org.testfx:testfx-junit:4.0.+"
@@ -73,6 +72,7 @@ allprojects {
     assemble.dependsOn shadowJar
 }
 
+
 task wrapper(type: Wrapper) {
     gradleVersion = '2.12'
 }
@@ -84,4 +84,16 @@ tasks.withType(FindBugs) {
     }
 }
 
-defaultTasks 'check', 'clean', 'test'
+test {
+    forkEvery = 1
+}
+
+task headless(type: Test) {
+    systemProperty 'testfx.robot', 'glass'
+    systemProperty 'testfx.headless', 'true'
+    systemProperty 'prism.order', 'sw'
+    systemProperty 'prism.text', 't2k'
+    forkEvery = 1
+}
+
+defaultTasks 'checkstyleMain', 'checkstyleTest', 'findbugsMain', 'findbugsTest', 'pmdMain', 'pmdTest', 'headless', 'clean'

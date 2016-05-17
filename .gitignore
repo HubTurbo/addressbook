@@ -1,5 +1,7 @@
-.idea/
 build/
 .gradle/
+.idea/tasks.xml
+.idea/workspace.xml
+lib/
 *.iml
 /*.xml

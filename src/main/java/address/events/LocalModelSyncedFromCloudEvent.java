@@ -6,13 +6,13 @@ import address.model.Person;
 import java.util.List;
 
 /** Indicates person data in the model was synced with data on the cloud */
-public class LocalModelSyncedEvent {
+public class LocalModelSyncedFromCloudEvent {
 
     public List<Person> personData;
 
     public List<ContactGroup> groupData;
 
-    public LocalModelSyncedEvent(List<Person> personData, List<ContactGroup> groupData) {
+    public LocalModelSyncedFromCloudEvent(List<Person> personData, List<ContactGroup> groupData) {
         this.personData = personData;
         this.groupData = groupData;
     }

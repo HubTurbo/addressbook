@@ -2,9 +2,10 @@ package address.model;
 
 import address.util.LocalDateAdapter;
 import address.util.LocalDateTimeAdapter;
-import javafx.beans.property.*;
 
+import javafx.beans.property.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
@@ -17,7 +18,7 @@ import java.util.List;
  *
  * @author Marco Jakob
  */
-public class Person {
+public class Person extends DataType {
 
     private final StringProperty firstName;
     private final StringProperty lastName;
@@ -33,7 +34,7 @@ public class Person {
      * Default constructor.
      */
     public Person() {
-        this(null, null);
+        this("", "");
     }
 
     /**
@@ -42,7 +43,7 @@ public class Person {
      * @param firstName
      * @param lastName
      */
-    public Person(String firstName, String lastName){
+    public Person(String firstName, String lastName) {
         this.firstName = new SimpleStringProperty(firstName);
         this.lastName = new SimpleStringProperty(lastName);
 
@@ -57,13 +58,13 @@ public class Person {
         try {
             this.webPageUrl = new URL("https://www.github.com");
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Error parsing a parsable URL");
+            assert false : "Error parsing a parsable URL";
         }
 
     }
 
     /**
-     * Copy constructor
+     * Deep copy constructor
      * @param person
      */
     public Person(Person person) {
@@ -74,18 +75,28 @@ public class Person {
         this.postalCode = new SimpleIntegerProperty(person.getPostalCode());
         this.city = new SimpleStringProperty(person.getCity());
         this.birthday = new SimpleObjectProperty<>(person.getBirthday());
-        this.contactGroups = new ArrayList<>(person.getContactGroups());
+        this.contactGroups = new ArrayList<>(person.getContactGroupsCopy());
         this.updatedAt = new SimpleObjectProperty<>(person.getUpdatedAt());
         this.webPageUrl = person.getWebPageUrl();
     }
 
-    public List<ContactGroup> getContactGroups() {
-        return contactGroups;
+    /**
+     * @return a deep copy of the contactGroups
+     */
+    public List<ContactGroup> getContactGroupsCopy() {
+        final List<ContactGroup> copy = new ArrayList<>();
+        contactGroups.forEach((cg)->copy.add(cg));
+        return copy;
     }
 
+    /**
+     * Note: references point back to argument list (no defensive copying)
+     * @param contactGroups
+     */
     public void setContactGroups(List<ContactGroup> contactGroups) {
         this.contactGroups.clear();
         this.contactGroups.addAll(contactGroups);
+        updatedAt.set(LocalDateTime.now());
     }
 
     public String getFirstName() {
@@ -94,10 +105,7 @@ public class Person {
 
     public void setFirstName(String firstName) {
         this.firstName.set(firstName);
-    }
-
-    public StringProperty firstNameProperty() {
-        return firstName;
+        updatedAt.set(LocalDateTime.now());
     }
 
     public String getLastName() {
@@ -106,10 +114,11 @@ public class Person {
 
     public void setLastName(String lastName) {
         this.lastName.set(lastName);
+        updatedAt.set(LocalDateTime.now());
     }
 
-    public StringProperty lastNameProperty() {
-        return lastName;
+    public String getFullName() {
+        return getFirstName() + ' ' + getLastName();
     }
 
     public String getStreet() {
@@ -118,6 +127,7 @@ public class Person {
 
     public void setStreet(String street) {
         this.street.set(street);
+        updatedAt.set(LocalDateTime.now());
     }
 
     public StringProperty streetProperty() {
@@ -130,6 +140,7 @@ public class Person {
 
     public void setPostalCode(int postalCode) {
         this.postalCode.set(postalCode);
+        updatedAt.set(LocalDateTime.now());
     }
 
     public IntegerProperty postalCodeProperty() {
@@ -142,6 +153,7 @@ public class Person {
 
     public void setCity(String city) {
         this.city.set(city);
+        updatedAt.set(LocalDateTime.now());
     }
 
     public StringProperty cityProperty() {
@@ -155,6 +167,7 @@ public class Person {
 
     public void setBirthday(LocalDate birthday) {
         this.birthday.set(birthday);
+        updatedAt.set(LocalDateTime.now());
     }
 
     @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
@@ -162,61 +175,58 @@ public class Person {
         return updatedAt.get();
     }
 
-    public void setUpdatedAt(LocalDateTime birthday) {
-        this.updatedAt.set(birthday);
-    }
-
     public URL getWebPageUrl() {
-        return webPageUrl;
-    }
-
-    public URL webPageUrlProperty() {
         return webPageUrl;
     }
 
     public void setWebPageUrl(URL webPageUrl) {
         this.webPageUrl = webPageUrl;
+        updatedAt.set(LocalDateTime.now());
     }
 
     public ObjectProperty<LocalDate> birthdayProperty() {
         return birthday;
     }
 
-    @Override
-    public boolean equals(Object otherPerson){
-        if (otherPerson == null) return false;
-        if (!Person.class.isAssignableFrom(otherPerson.getClass())) return false;
-
-        final Person other = (Person) otherPerson;
-        if (this.getFirstName() == other.getFirstName()) return true;
-        return this.getFirstName().equals(other.getFirstName());
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 53 * hash + (this.getFirstName() != null ? this.getFirstName().hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public String toString(){
-        return "Person : " + getFirstName();
-    }
-
     /**
      * Updates the attributes based on the values in the parameter.
+     * Mutable references are cloned.
+     *
      * @param updated The object containing the new attributes.
+     * @return self
      */
-    public void update(Person updated) {
+    public Person update(Person updated) {
         setFirstName(updated.getFirstName());
         setLastName(updated.getLastName());
         setStreet(updated.getStreet());
         setPostalCode(updated.getPostalCode());
         setCity(updated.getCity());
         setBirthday(updated.getBirthday());
-        setUpdatedAt(updated.getUpdatedAt());
+        setContactGroups(updated.getContactGroupsCopy());
         setWebPageUrl(updated.getWebPageUrl());
-        setContactGroups(updated.getContactGroups());
+        updatedAt.set(LocalDateTime.now());
+        return this;
     }
+
+    @Override
+    public boolean equals(Object otherPerson){
+        if (otherPerson == this) return true;
+        if (otherPerson == null) return false;
+        if (!Person.class.isAssignableFrom(otherPerson.getClass())) return false;
+
+        final Person other = (Person) otherPerson;
+        if (this.getFirstName() == other.getFirstName() && this.getLastName() == other.getLastName()) return true;
+        return this.getFirstName().equals(other.getFirstName()) && this.getLastName().equals(other.getLastName());
+    }
+
+    @Override
+    public int hashCode() {
+        return (getFirstName()+getLastName()).hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Person: " + getFullName();
+    }
+
 }

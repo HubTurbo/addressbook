@@ -8,30 +8,20 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 
 import java.util.List;
+import java.util.Optional;
 
 public class GroupEditDialogController extends EditDialogController {
     @FXML
     private TextField groupNameField;
 
-    private ContactGroup group;
-    private ModelManager modelManager;
-    private List<ContactGroup> groups;
+    private ContactGroup finalGroup;
 
     public GroupEditDialogController() {
         EventManager.getInstance().registerHandler(this);
     }
 
-    public void setGroup(ContactGroup group) {
-        this.group = group;
+    public void setInitialGroupData(ContactGroup group) {
         groupNameField.setText(group.getName());
-    }
-
-    public void setGroups(List<ContactGroup> groups) {
-        this.groups = groups;
-    }
-
-    public void setModelManager(ModelManager modelManager) {
-        this.modelManager = modelManager;
     }
 
     private void showErrorAlert(String headerText, String contentText) {
@@ -48,28 +38,23 @@ public class GroupEditDialogController extends EditDialogController {
             showErrorAlert("Invalid name", "Name cannot be empty");
             return false;
         }
-
-        if (isExistingName()) {
-            showErrorAlert("Invalid name", "Group name already exists!");
-            return false;
-        }
         return true;
-    }
-
-    private boolean isExistingName() {
-        return groups.contains(new ContactGroup(groupNameField.getText()));
     }
 
     private boolean isEmptyName() {
         return groupNameField.getText().isEmpty();
     }
 
+    public ContactGroup getFinalInput() {
+        return finalGroup;
+    }
+
     @FXML
     protected void handleOk() {
         if (!isInputValid()) return;
-        ContactGroup updatedGroup = new ContactGroup();
-        updatedGroup.setName(groupNameField.getText());
-        modelManager.updateGroup(group, updatedGroup);
+        finalGroup = new ContactGroup();
+        finalGroup.setName(groupNameField.getText());
+
         isOkClicked = true;
         dialogStage.close();
     }
