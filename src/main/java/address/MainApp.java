@@ -1,14 +1,12 @@
 package address;
 
-import com.teamdev.jxbrowser.chromium.Browser;
+import address.model.AddressBook;
 import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
-import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 
 import address.controller.MainController;
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
-import address.model.AddressBookWrapper;
 import address.model.ModelManager;
 import address.preferences.PreferencesManager;
 import address.shortcuts.ShortcutsManager;
@@ -51,18 +49,18 @@ public class MainApp extends Application {
         mainController.start(primaryStage);
 
         EventManager.getInstance().post(new LoadDataRequestEvent(PreferencesManager.getInstance().getPersonFile()));
-        syncManager.startSyncingData(config.updateInterval, config.isSimulateRandomChanges);
+        syncManager.startSyncingData(config.updateInterval, config.updateTimeUnit, config.simulateUnreliableNetwork);
     }
 
     protected void setupComponents() {
         config = getConfig();
         PreferencesManager.setAppTitle(config.appTitle);
 
-        modelManager = new ModelManager(new AddressBookWrapper());
+        modelManager = new ModelManager(new AddressBook());
         storageManager = new StorageManager(modelManager);
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
-        syncManager.startSyncingData(config.updateInterval, config.isSimulateRandomChanges);
+        syncManager.startSyncingData(config.updateInterval, config.updateTimeUnit, config.simulateUnreliableNetwork);
 
         shortcutsManager = new ShortcutsManager();
         EventManager.getInstance().registerHandler(shortcutsManager);

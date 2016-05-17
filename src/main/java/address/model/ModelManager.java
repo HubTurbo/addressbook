@@ -36,15 +36,11 @@ public class ModelManager {
      * @param initialGroups Initial groups to populate the model.
      */
     public ModelManager(List<Person> initialPersons, List<ContactGroup> initialGroups) {
-        if (initialPersons == null || initialGroups == null) {
-            appendSampleData();
-        } else {
-            System.out.println("Data found.");
-            System.out.println("Persons found : " + initialPersons.size());
-            personData.addAll(initialPersons);
-            System.out.println("Groups found : " + initialGroups.size());
-            groupData.addAll(initialGroups);
-        }
+        System.out.println("Data found.");
+        System.out.println("Persons found : " + initialPersons.size());
+        personData.addAll(initialPersons);
+        System.out.println("Groups found : " + initialGroups.size());
+        groupData.addAll(initialGroups);
 
         //Listen to any changed to person data and raise an event
         //Note: this will not catch edits to Person objects
@@ -62,12 +58,12 @@ public class ModelManager {
         EventManager.getInstance().registerHandler(this);
     }
 
-    public ModelManager(AddressBookWrapper addressBook) {
-        this(addressBook == null ? null : addressBook.getPersons(),
-            addressBook == null ? null : addressBook.getGroups());
+    public ModelManager(AddressBook addressBook) {
+        this(addressBook == null ? new ArrayList<>() : addressBook.getPersons(),
+            addressBook == null ? new ArrayList<>() : addressBook.getGroups());
     }
 
-    public synchronized void appendSampleData() {
+    public synchronized void updateWithSampleData() throws DuplicateDataException {
         final Person[] samplePersonData = {
             new Person("Hans", "Muster"),
             new Person("Ruth", "Mueller"),
@@ -83,9 +79,8 @@ public class ModelManager {
             new ContactGroup("relatives"),
             new ContactGroup("friends")
         };
-
-        personData.addAll(samplePersonData);
-        groupData.addAll(sampleGroupData);
+        addGroups(Arrays.asList(sampleGroupData));
+        addPersons(Arrays.asList(samplePersonData));
     }
 
     /**
@@ -97,7 +92,7 @@ public class ModelManager {
         groupData.setAll(newGroups);
     }
 
-    public void resetData(AddressBookWrapper newData) {
+    public void resetData(AddressBook newData) {
         resetData(newData.getPersons(), newData.getGroups());
     }
 
@@ -277,12 +272,9 @@ public class ModelManager {
      * Diffs extData with the current model and updates the current model with minimal change.
      * @param extData data from an external canonical source
      */
-    public synchronized void updateUsingExternalData(AddressBookWrapper extData) {
-        assert !extData.containsDuplicates() : "Duplicates are not allowed in an AddressBookWrapper";
-        boolean changed = false;
-        changed = diffUpdate(personData, extData.getPersons());
-        changed = changed || diffUpdate(groupData, extData.getGroups());
-        if (changed) {
+    public synchronized void updateUsingExternalData(AddressBook extData) {
+        assert !extData.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
+        if (diffUpdate(personData, extData.getPersons()) || diffUpdate(groupData, extData.getGroups())) {
             EventManager.getInstance().post(new LocalModelChangedEvent(personData, groupData));
         }
     }
@@ -318,14 +310,14 @@ public class ModelManager {
         final Set<E> toBeRemoved = new HashSet<>();
         final AtomicBoolean changed = new AtomicBoolean(false);
         target.forEach(oldItem -> {
-            final E newItem = remaining.remove(oldItem); // find matching item in unconsidered new data
-            if (newItem == null) { // not in newData
-                toBeRemoved.add(oldItem);
-            } else { // exists in both new and old, update.
-                updateDataItem(oldItem, newItem); // updates the items in target (reference points back to target)
-                changed.set(true);
-            }
-        });
+                final E newItem = remaining.remove(oldItem); // find matching item in unconsidered new data
+                if (newItem == null) { // not in newData
+                    toBeRemoved.add(oldItem);
+                } else { // exists in both new and old, update.
+                    updateDataItem(oldItem, newItem); // updates the items in target (reference points back to target)
+                    changed.set(true);
+                }
+            });
         final Set<E> toBeAdded = remaining.keySet();
 
         // .removeAll time complexity: O(n * complexity of argument's .contains call). Use a HashSet for O(n) time.
@@ -355,5 +347,4 @@ public class ModelManager {
         }
         assert false : "need to add logic for any new DataType classes";
     }
-
 }

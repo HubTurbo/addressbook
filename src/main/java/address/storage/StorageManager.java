@@ -2,7 +2,7 @@ package address.storage;
 
 import address.events.*;
 import address.exceptions.FileContainsDuplicatesException;
-import address.model.AddressBookWrapper;
+import address.model.AddressBook;
 import address.model.ContactGroup;
 import address.model.ModelManager;
 import address.model.Person;
@@ -27,7 +27,7 @@ public class StorageManager {
     @Subscribe
     private void handleLoadDataRequestEvent(LoadDataRequestEvent ofe) {
         try {
-            AddressBookWrapper data = loadDataFromSaveFile(ofe.file);
+            AddressBook data = loadDataFromSaveFile(ofe.file);
             PreferencesManager.getInstance().setPersonFilePath(ofe.file);
             modelManager.updateUsingExternalData(data);
         } catch (JAXBException | FileContainsDuplicatesException e) {
@@ -74,9 +74,9 @@ public class StorageManager {
      * @param file File containing the data
      * @return address book in the file or an empty address book
      */
-    public static AddressBookWrapper loadDataFromSaveFile(File file) throws JAXBException, FileContainsDuplicatesException {
+    public static AddressBook loadDataFromSaveFile(File file) throws JAXBException, FileContainsDuplicatesException {
         assert file != null;
-        AddressBookWrapper data = XmlHelper.getDataFromFile(file);
+        AddressBook data = XmlHelper.getDataFromFile(file);
         if (data.containsDuplicates()) throw new FileContainsDuplicatesException(file);
         return data;
     }

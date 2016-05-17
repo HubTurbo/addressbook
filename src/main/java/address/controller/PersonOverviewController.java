@@ -12,8 +12,6 @@ import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.ui.PersonListViewCell;
 import com.google.common.eventbus.Subscribe;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
@@ -22,6 +20,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Optional;
 
 public class PersonOverviewController {
@@ -56,7 +56,11 @@ public class PersonOverviewController {
         personList.setItems(modelManager.getFilteredPersons());
         personList.setCellFactory(listView -> new PersonListViewCell());
         personList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            mainController.loadBrowserUrl(newValue.getWebPageUrl());
+            try {
+                mainController.loadBrowserUrl(new URL("https://www.github.com/" + newValue.getGithubUserName()));
+            } catch(MalformedURLException e){
+                assert false : "Error parsing a parsable URL";
+            }
         });
     }
 
@@ -85,16 +89,15 @@ public class PersonOverviewController {
         Optional<Person> newPerson = Optional.of(new Person());
         while (true) { // keep re-asking until user provides valid input or cancels operation.
             newPerson = mainController.getPersonDataInput(newPerson.get());
-            if (newPerson.isPresent()) { // user provided input
-                try {
-                    modelManager.addPerson(newPerson.get());
-                } catch (DuplicatePersonException e) {
-                    mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                            "Cannot have duplicate person", e.toString());
-                    continue;
-                }
+
+            if (!newPerson.isPresent()) break;
+            try {
+                modelManager.addPerson(newPerson.get());
+                break;
+            } catch (DuplicatePersonException e) {
+                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
+                        "Cannot have duplicate person", e.toString());
             }
-            break;
         }
     }
 
@@ -114,17 +117,14 @@ public class PersonOverviewController {
         Optional<Person> updated = Optional.of(new Person(selected));
         while (true) { // keep re-asking until user provides valid input or cancels operation.
             updated = mainController.getPersonDataInput(updated.get());
-            if (updated.isPresent()) { // user provided input
-                try {
-                    modelManager.updatePerson(selected, updated.get());
-                    break;
-                } catch (DuplicatePersonException e) {
-                    mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                            "Cannot have duplicate person", e.toString());
-                    continue;
-                }
+            if (!updated.isPresent()) break;
+            try {
+                modelManager.updatePerson(selected, updated.get());
+                break;
+            } catch (DuplicatePersonException e) {
+                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate person",
+                                                      e.toString());
             }
-            break;
         }
     }
 

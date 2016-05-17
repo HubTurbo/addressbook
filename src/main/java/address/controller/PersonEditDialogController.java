@@ -42,7 +42,7 @@ public class PersonEditDialogController extends EditDialogController {
     @FXML
     private ScrollPane groupResults;
     @FXML
-    private TextField webPageField;
+    private TextField githubUserNameField;
 
     private PersonEditDialogGroupsModel model;
     private Person finalPerson;
@@ -111,7 +111,7 @@ public class PersonEditDialogController extends EditDialogController {
         cityField.setText(person.getCity());
         birthdayField.setText(DateUtil.format(person.getBirthday()));
         birthdayField.setPromptText("dd.mm.yyyy");
-        webPageField.setText(person.getWebPageUrl().toExternalForm());
+        githubUserNameField.setText(person.getGithubUserName());
     }
 
     public void setGroupsModel(List<ContactGroup> contactGroups, List<ContactGroup> assignedGroups) {
@@ -135,11 +135,7 @@ public class PersonEditDialogController extends EditDialogController {
         finalPerson.setCity(cityField.getText());
         finalPerson.setBirthday(DateUtil.parse(birthdayField.getText()));
         finalPerson.setContactGroups(model.getAssignedGroups());
-        try {
-            finalPerson.setWebPageUrl(new URL(webPageField.getText()));
-        } catch (MalformedURLException e) {
-            throw new Error("Error parsing an parsed parsable URL");
-        }
+        finalPerson.setGithubUserName(githubUserNameField.getText());
         isOkClicked = true;
         dialogStage.close();
     }
@@ -203,9 +199,9 @@ public class PersonEditDialogController extends EditDialogController {
         }
 
         try {
-            URL url = new URL(webPageField.getText());
+            URL url = new URL("https://www.github.com/" + githubUserNameField.getText());
         } catch (MalformedURLException e) {
-            errorMessage += "Invalid web page link.\n";
+            errorMessage += "Invalid github username.\n";
         }
 
         if (errorMessage.length() == 0) {
@@ -238,13 +234,13 @@ public class PersonEditDialogController extends EditDialogController {
         VBox content = new VBox();
         contactGroupList.stream()
                 .forEach(contactGroup -> {
-                    Label newLabel = new Label(contactGroup.getName());
-                    if (isSelectable && contactGroup.isSelected()) {
-                        newLabel.setStyle("-fx-background-color: blue;");
-                    }
-                    newLabel.setPrefWidth(261);
-                    content.getChildren().add(newLabel);
-                });
+                        Label newLabel = new Label(contactGroup.getName());
+                        if (isSelectable && contactGroup.isSelected()) {
+                            newLabel.setStyle("-fx-background-color: blue;");
+                        }
+                        newLabel.setPrefWidth(261);
+                        content.getChildren().add(newLabel);
+                    });
 
         return content;
     }

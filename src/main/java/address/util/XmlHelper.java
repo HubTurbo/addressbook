@@ -1,8 +1,8 @@
 package address.util;
 
+import address.model.AddressBook;
 import address.model.ContactGroup;
 import address.model.Person;
-import address.model.AddressBookWrapper;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -16,22 +16,22 @@ import java.util.List;
  */
 public class XmlHelper {
 
-    public static AddressBookWrapper getDataFromFile(File file) throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(AddressBookWrapper.class);
+    public static AddressBook getDataFromFile(File file) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(AddressBook.class);
         Unmarshaller um = context.createUnmarshaller();
 
         // Reading XML from the file and unmarshalling.
-        return ((AddressBookWrapper) um.unmarshal(file));
+        return ((AddressBook) um.unmarshal(file));
     }
 
     public static void saveToFile(File file, List<Person> personData, List<ContactGroup> groupData)
             throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(AddressBookWrapper.class);
+        JAXBContext context = JAXBContext.newInstance(AddressBook.class);
         Marshaller m = context.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         // Wrapping our person data.
-        AddressBookWrapper wrapper = new AddressBookWrapper();
+        AddressBook wrapper = new AddressBook();
         wrapper.setPersons(personData);
         wrapper.setGroups(groupData);
 

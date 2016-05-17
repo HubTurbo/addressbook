@@ -5,7 +5,7 @@ import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
 import address.events.NewMirrorDataEvent;
 import address.exceptions.FileContainsDuplicatesException;
-import address.model.AddressBookWrapper;
+import address.model.AddressBook;
 import address.preferences.PreferencesManager;
 import address.sync.task.CloudUpdateTask;
 import com.google.common.eventbus.Subscribe;
@@ -31,22 +31,23 @@ public class SyncManager {
         EventManager.getInstance().registerHandler(this);
     }
 
-    public void startSyncingData(long interval, boolean isSimulateRandomChanges) {
+    public void startSyncingData(long interval, TimeUnit unit, boolean simulateUnreliableNetwork) {
         if (interval <= 0) return;
-        this.cloudSimulator = new CloudSimulator(isSimulateRandomChanges);
-        updatePeriodically(interval);
+        this.cloudSimulator = new CloudSimulator(simulateUnreliableNetwork);
+        updatePeriodically(interval, unit);
     }
 
     /**
      * Runs periodically and adds any entries in the mirror file that is missing
      * in the primary data file. The mirror file should be at the same location
      * as primary file and the name should be '{primary file name}-mirror.xml'.
-     * @param interval The period between updates
+     * @param interval number of units to wait
+     * @param unit interval order of magnitude
      */
-    public void updatePeriodically(long interval) {
+    public void updatePeriodically(long interval, TimeUnit unit) {
         Runnable task = () -> {
             try {
-                AddressBookWrapper mirrorData = getMirrorData();
+                AddressBook mirrorData = getMirrorData();
                 EventManager.getInstance().post(new NewMirrorDataEvent(mirrorData));
             } catch (FileContainsDuplicatesException e) {
                 // do not sync changes from mirror if duplicates found in mirror
@@ -54,14 +55,14 @@ public class SyncManager {
             }
         };
 
-        int initialDelay = 0;
-        scheduler.scheduleAtFixedRate(task, initialDelay, interval, TimeUnit.SECONDS);
+        long initialDelay = interval < 10 ? 1 : interval / 10; //
+        scheduler.scheduleWithFixedDelay(task, 0, interval, unit);
     }
 
-    private AddressBookWrapper getMirrorData() throws FileContainsDuplicatesException {
+    private AddressBook getMirrorData() throws FileContainsDuplicatesException {
         System.out.println("Updating data from cloud: " + System.nanoTime());
         final File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().toString() + "-mirror.xml");
-        final AddressBookWrapper data = cloudSimulator.getSimulatedCloudData(mirrorFile);
+        final AddressBook data = cloudSimulator.getSimulatedCloudData(mirrorFile);
         if (data.containsDuplicates()) throw new FileContainsDuplicatesException(mirrorFile);
         return data;
     }
