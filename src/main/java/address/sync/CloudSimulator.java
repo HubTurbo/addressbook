@@ -13,6 +13,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+// TODO implement full range of possible unreliable network effects: fail, corruption, etc
 public class CloudSimulator {
     private static final double FAILURE_PROBABILITY = 0.1;
 
@@ -23,11 +24,11 @@ public class CloudSimulator {
     private static final double ADD_PERSON_PROBABILITY = 0.05;
     private static final int MAX_NUM_PERSONS_TO_ADD = 2;
 
-    private boolean isSimulateRandomChanges = false;
+    private boolean simulateUnreliableNetwork = false;
     private static final Random RANDOM_GENERATOR = new Random();
 
-    public CloudSimulator(boolean isSimulateRandomChanges) {
-        this.isSimulateRandomChanges = isSimulateRandomChanges;
+    public CloudSimulator(boolean shouldSimulateUnreliableNetwork) {
+        this.simulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
     }
 
     /**
@@ -41,7 +42,7 @@ public class CloudSimulator {
         AddressBook modifiedData = new AddressBook();
         try {
             AddressBook data = XmlHelper.getDataFromFile(cloudFile);
-            if (!this.isSimulateRandomChanges) {
+            if (!this.simulateUnreliableNetwork) {
                 return data;
             }
 
@@ -59,6 +60,7 @@ public class CloudSimulator {
             XmlHelper.saveToFile(cloudFile, modifiedData.getPersons(), modifiedData.getGroups());
             TimeUnit.SECONDS.sleep(RANDOM_GENERATOR.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC);
         } catch (JAXBException e) {
+            e.printStackTrace();
             System.out.println("File not found or is not in valid xml format : " + cloudFile);
         } catch (InterruptedException e) {
             e.printStackTrace();
