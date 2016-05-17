@@ -109,6 +109,11 @@ public class PersonOverviewController {
         while (true) { // keep re-asking until user provides valid input or cancels operation.
             updated = mainController.getPersonDataInput(updated.get());
             if (!updated.isPresent()) break;
+
+            if (!selected.getGithubUserName().equals(updated.get().getGithubUserName())){
+                mainController.loadGithubProfilePage(updated.get().getGithubUserName());
+            }
+
             try {
                 modelManager.updatePerson(selected, updated.get());
                 break;
