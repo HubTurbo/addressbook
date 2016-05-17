@@ -36,7 +36,7 @@ public class RootLayoutController {
     }
 
     /**
-     * Creates an new empty address book at the default filepath
+     * Creates a new empty address book at the default filepath
      */
     @FXML
     private void handleNew() {
@@ -49,14 +49,10 @@ public class RootLayoutController {
      */
     @FXML
     private void handleOpen() {
-        FileChooser fileChooser = getFileChooser();
-
-        // Show save file dialog
-        File file = fileChooser.showOpenDialog(mainController.getPrimaryStage());
-
-        if (file != null) {
-            EventManager.getInstance().post(new LoadDataRequestEvent(file));
-        }
+        // Show open file dialog
+        File file = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
+        if (file == null) return;
+        EventManager.getInstance().post(new LoadDataRequestEvent(file));
     }
 
     /**
@@ -75,20 +71,18 @@ public class RootLayoutController {
      */
     @FXML
     private void handleSaveAs() {
-        FileChooser fileChooser = getFileChooser();
-
         // Show save file dialog
-        File file = fileChooser.showSaveDialog(mainController.getPrimaryStage());
+        File file = getXmlFileChooser().showSaveDialog(mainController.getPrimaryStage());
 
-        if (file != null) {
-            // Make sure it has the correct extension
-            if (!file.getPath().endsWith(".xml")) {
-                file = new File(file.getPath() + ".xml");
-            }
-            PreferencesManager.getInstance().setPersonFilePath(file);
-            EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersons(),
-                                                                 modelManager.getGroupData()));
+        if (file == null) return;
+
+        // Make sure it has the correct extension
+        if (!file.getPath().endsWith(".xml")) {
+            file = new File(file.getPath() + ".xml");
         }
+        PreferencesManager.getInstance().setPersonFilePath(file);
+        EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersons(),
+                                        modelManager.getGroupData()));
     }
 
     /**
@@ -100,7 +94,8 @@ public class RootLayoutController {
             modelManager.updateWithSampleData();
         } catch (DuplicateDataException e) {
             mainController.showAlertDialogAndWait(AlertType.INFORMATION, "Will cause duplicates",
-                    "Adding sample data clashes with existing data", "Some existing data already matches those in the sample data");
+                    "Adding sample data clashes with existing data",
+                    "Some existing data already matches those in the sample data");
         }
     }
 
@@ -109,11 +104,9 @@ public class RootLayoutController {
      * @return a file chooser for choosing xml files. The initial folder is set to the same folder that the
      *     current data file is located (if any).
      */
-    private FileChooser getFileChooser() {
-
+    private FileChooser getXmlFileChooser() {
         // Set extension filter
-        final FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
-                "XML files (*.xml)", "*.xml");
+        final FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
         final FileChooser fileChooser = new FileChooser();
 
         fileChooser.getExtensionFilters().add(extFilter);

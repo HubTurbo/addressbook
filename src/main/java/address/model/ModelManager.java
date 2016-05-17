@@ -36,19 +36,11 @@ public class ModelManager {
      * @param initialGroups Initial groups to populate the model.
      */
     public ModelManager(List<Person> initialPersons, List<ContactGroup> initialGroups) {
-        if (initialPersons == null || initialGroups == null) {
-            try {
-                updateWithSampleData();
-            } catch (DuplicateDataException e) {
-                // do nothing
-            }
-        } else {
-            System.out.println("Data found.");
-            System.out.println("Persons found : " + initialPersons.size());
-            personData.addAll(initialPersons);
-            System.out.println("Groups found : " + initialGroups.size());
-            groupData.addAll(initialGroups);
-        }
+        System.out.println("Data found.");
+        System.out.println("Persons found : " + initialPersons.size());
+        personData.addAll(initialPersons);
+        System.out.println("Groups found : " + initialGroups.size());
+        groupData.addAll(initialGroups);
 
         //Listen to any changed to person data and raise an event
         //Note: this will not catch edits to Person objects
@@ -67,8 +59,8 @@ public class ModelManager {
     }
 
     public ModelManager(AddressBook addressBook) {
-        this(addressBook == null ? null : addressBook.getPersons(),
-            addressBook == null ? null : addressBook.getGroups());
+        this(addressBook == null ? new ArrayList<>() : addressBook.getPersons(),
+            addressBook == null ? new ArrayList<>() : addressBook.getGroups());
     }
 
     public synchronized void updateWithSampleData() throws DuplicateDataException {
