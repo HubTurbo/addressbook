@@ -8,6 +8,7 @@ import address.MainApp;
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
 import address.events.SaveRequestEvent;
+import address.exceptions.DuplicateDataException;
 import address.exceptions.DuplicateGroupException;
 import address.model.ContactGroup;
 import address.model.ModelManager;
@@ -95,7 +96,12 @@ public class RootLayoutController {
      */
     @FXML
     private void handleAppendSampleData() {
-        modelManager.appendSampleData();
+        try {
+            modelManager.updateWithSampleData();
+        } catch (DuplicateDataException e) {
+            mainController.showAlertDialogAndWait(AlertType.INFORMATION, "Will cause duplicates",
+                    "Adding sample data clashes with existing data", "Some existing data already matches those in the sample data");
+        }
     }
 
 

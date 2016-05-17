@@ -37,7 +37,11 @@ public class ModelManager {
      */
     public ModelManager(List<Person> initialPersons, List<ContactGroup> initialGroups) {
         if (initialPersons == null || initialGroups == null) {
-            appendSampleData();
+            try {
+                updateWithSampleData();
+            } catch (DuplicateDataException e) {
+                // do nothing
+            }
         } else {
             System.out.println("Data found.");
             System.out.println("Persons found : " + initialPersons.size());
@@ -67,7 +71,7 @@ public class ModelManager {
             addressBook == null ? null : addressBook.getGroups());
     }
 
-    public synchronized void appendSampleData() {
+    public synchronized void updateWithSampleData() throws DuplicateDataException {
         final Person[] samplePersonData = {
             new Person("Hans", "Muster"),
             new Person("Ruth", "Mueller"),
@@ -83,9 +87,8 @@ public class ModelManager {
             new ContactGroup("relatives"),
             new ContactGroup("friends")
         };
-
-        personData.addAll(samplePersonData);
-        groupData.addAll(sampleGroupData);
+        addGroups(Arrays.asList(sampleGroupData));
+        addPersons(Arrays.asList(samplePersonData));
     }
 
     /**
