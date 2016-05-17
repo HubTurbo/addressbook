@@ -18,8 +18,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Optional;
 
 public class PersonOverviewController {
@@ -53,13 +51,8 @@ public class PersonOverviewController {
         // Add observable list data to the list
         personList.setItems(modelManager.getFilteredPersons());
         personList.setCellFactory(listView -> new PersonListViewCell());
-        personList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                mainController.loadBrowserUrl(new URL("https://www.github.com/" + newValue.getGithubUserName()));
-            } catch(MalformedURLException e){
-                assert false : "Error parsing a parsable URL";
-            }
-        });
+        personList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue)
+                        -> mainController.loadGithubProfilePage(newValue.getGithubUserName()));
     }
 
 
