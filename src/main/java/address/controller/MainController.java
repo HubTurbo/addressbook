@@ -1,5 +1,6 @@
 package address.controller;
 
+import address.EmbeddedBrowser.BrowserManager;
 import address.MainApp;
 import address.events.EventManager;
 import address.events.FileNameChangedEvent;
@@ -12,13 +13,6 @@ import address.preferences.PreferencesManager;
 import address.util.Config;
 
 import com.google.common.eventbus.Subscribe;
-import com.teamdev.jxbrowser.chromium.Browser;
-import com.teamdev.jxbrowser.chromium.EditorCommand;
-import com.teamdev.jxbrowser.chromium.dom.By;
-import com.teamdev.jxbrowser.chromium.dom.DOMElement;
-import com.teamdev.jxbrowser.chromium.dom.events.DOMEventType;
-import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
-import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
 import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -33,7 +27,6 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Optional;
 
 /**
@@ -55,37 +48,15 @@ public class MainController {
     private BorderPane rootLayout;
 
     private ModelManager modelManager;
+    private BrowserManager browserManager;
     private MainApp mainApp;
-
-    private Browser browser;
 
     public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
         EventManager.getInstance().registerHandler(this);
         this.modelManager = modelManager;
         this.config = config;
         this.mainApp = mainApp;
-        this.browser = new Browser();
-        this.browser.addLoadListener(generateLoadAdapter(this::automateClickingAndScrolling));
-    }
-
-    private LoadAdapter generateLoadAdapter(Runnable toRun) {
-        return new LoadAdapter() {
-            @Override
-            public void onFinishLoadingFrame(FinishLoadingEvent finishLoadingEvent) {
-                toRun.run();
-            }
-        };
-    }
-
-    private void automateClickingAndScrolling() {
-        DOMElement container = browser.getDocument().findElement(By.id("js-pjax-container"));
-        DOMElement link = browser.getDocument().findElement(By.className("octicon octicon-repo"));
-        if(link != null) {
-            container.addEventListener(DOMEventType.OnLoad, e ->
-                            browser.executeCommand(EditorCommand.SCROLL_TO_END_OF_DOCUMENT)
-                    , true);
-            link.click();
-        }
+        this.browserManager = new BrowserManager();
     }
 
     public void start(Stage primaryStage) {
@@ -98,17 +69,6 @@ public class MainController {
         initRootLayout();
         showPersonOverview();
         showPersonWebPage();
-    }
-
-    /**
-     * Frees resources allocated to the browser.
-     */
-    public void freeBrowserResources(){
-        browser.dispose();
-    }
-
-    public void loadBrowserUrl(URL url){
-        browser.loadURL(url.toExternalForm());
     }
 
     /**
@@ -166,13 +126,6 @@ public class MainController {
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for person overview.",
                                    "IOException when trying to load " + fxmlResourcePath);
         }
-    }
-
-    public void showPersonWebPage() {
-        BrowserView browserView = new BrowserView(browser);
-        browser.loadHTML("<html><body><h3>To view contact's web page, click on the contact on the left." +
-                "</h3></body></html>");
-        rootLayout.setCenter(browserView);
     }
 
     /**
@@ -394,5 +347,23 @@ public class MainController {
         alert.setContentText(contentText);
 
         alert.showAndWait();
+    }
+
+    /**
+     *  Releases resources to ensure successful application termination.
+     */
+    public void releaseResourcesForAppTermination(){
+        browserManager.freeBrowserResources();
+    }
+
+    public void loadGithubProfilePage(String githubUserName){
+        browserManager.getBrowser().loadURL("https://www.github.com/" + githubUserName);
+    }
+
+    public void showPersonWebPage() {
+        BrowserView browserView = new BrowserView(browserManager.getBrowser());
+        browserManager.getBrowser().loadHTML("<html><body><h3>To view contact's web page, click on the contact on the left." +
+                "</h3></body></html>");
+        rootLayout.setCenter(browserView);
     }
 }
