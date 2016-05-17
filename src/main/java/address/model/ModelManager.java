@@ -62,7 +62,7 @@ public class ModelManager {
         EventManager.getInstance().registerHandler(this);
     }
 
-    public ModelManager(AddressBookWrapper addressBook) {
+    public ModelManager(AddressBook addressBook) {
         this(addressBook == null ? null : addressBook.getPersons(),
             addressBook == null ? null : addressBook.getGroups());
     }
@@ -97,7 +97,7 @@ public class ModelManager {
         groupData.setAll(newGroups);
     }
 
-    public void resetData(AddressBookWrapper newData) {
+    public void resetData(AddressBook newData) {
         resetData(newData.getPersons(), newData.getGroups());
     }
 
@@ -277,8 +277,8 @@ public class ModelManager {
      * Diffs extData with the current model and updates the current model with minimal change.
      * @param extData data from an external canonical source
      */
-    public synchronized void updateUsingExternalData(AddressBookWrapper extData) {
-        assert !extData.containsDuplicates() : "Duplicates are not allowed in an AddressBookWrapper";
+    public synchronized void updateUsingExternalData(AddressBook extData) {
+        assert !extData.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
         boolean changed = false;
         changed = diffUpdate(personData, extData.getPersons());
         changed = changed || diffUpdate(groupData, extData.getGroups());
@@ -355,5 +355,4 @@ public class ModelManager {
         }
         assert false : "need to add logic for any new DataType classes";
     }
-
 }

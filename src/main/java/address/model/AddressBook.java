@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Adapted and modified from Marco Jakob
  */
 @XmlRootElement(name = "addressbook")
-public class AddressBookWrapper {
+public class AddressBook {
 
     private List<Person> persons = new ArrayList<>(); // so empty lists from file will not make this null
     private List<ContactGroup> groups = new ArrayList<>(); // ditto
