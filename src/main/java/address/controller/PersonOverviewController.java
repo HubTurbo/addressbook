@@ -10,8 +10,6 @@ import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.ui.PersonListViewCell;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
@@ -20,6 +18,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Optional;
 
 public class PersonOverviewController {
@@ -54,8 +54,12 @@ public class PersonOverviewController {
         personList.setItems(modelManager.getFilteredPersons());
         personList.setCellFactory(listView -> new PersonListViewCell());
         personList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                mainController.loadBrowserUrl(newValue.getWebPageUrl());
-            });
+            try {
+                mainController.loadBrowserUrl(new URL("https://www.github.com/" + newValue.getGithubUserName()));
+            } catch(MalformedURLException e){
+                assert false : "Error parsing a parsable URL";
+            }
+        });
     }
 
 
