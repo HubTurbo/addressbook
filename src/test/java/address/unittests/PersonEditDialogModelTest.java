@@ -3,7 +3,7 @@ package address.unittests;
 import address.events.EventManager;
 import address.events.GroupSearchResultsChangedEvent;
 import address.model.ContactGroup;
-import address.model.PersonEditDialogModel;
+import address.model.PersonEditDialogGroupsModel;
 import com.google.common.eventbus.Subscribe;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class PersonEditDialogModelTest {
     public void filterGroups() {
         List<ContactGroup> allGroups = getList("friends", "relatives", "colleagues");
         List<ContactGroup> assignedGroups = getList("friends");
-        PersonEditDialogModel model = new PersonEditDialogModel(allGroups, assignedGroups);
+        PersonEditDialogGroupsModel model = new PersonEditDialogGroupsModel(allGroups, assignedGroups);
         model.setFilter("ela");
 
         assertEquals(2, eventCounter);

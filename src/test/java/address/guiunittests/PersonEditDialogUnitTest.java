@@ -48,7 +48,7 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
             allContactGroups.add(contactGroup2);
             allContactGroups.add(contactGroup3);
 
-            controller.setModel(allContactGroups, assignedGroups);
+            controller.setGroupsModel(allContactGroups, assignedGroups);
 
             primaryStage.setScene(new Scene(baseNode));
             primaryStage.show();
