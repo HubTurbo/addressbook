@@ -48,7 +48,7 @@ public class MainApp extends Application {
         mainController.start(primaryStage);
 
         EventManager.getInstance().post(new LoadDataRequestEvent(PreferencesManager.getInstance().getPersonFile()));
-        syncManager.startSyncingData(config.updateInterval, config.updateTimeUnit, config.simulateUnreliableNetwork);
+        syncManager.startSyncingData(config.updateInterval, config.simulateUnreliableNetwork);
     }
 
     protected void setupComponents() {

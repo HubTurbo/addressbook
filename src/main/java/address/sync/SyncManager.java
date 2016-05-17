@@ -31,10 +31,10 @@ public class SyncManager {
         EventManager.getInstance().registerHandler(this);
     }
 
-    public void startSyncingData(long interval, TimeUnit unit, boolean simulateUnreliableNetwork) {
+    public void startSyncingData(long interval, boolean simulateUnreliableNetwork) {
         if (interval <= 0) return;
         this.cloudSimulator = new CloudSimulator(simulateUnreliableNetwork);
-        updatePeriodically(interval, unit);
+        updatePeriodically(interval);
     }
 
     /**
@@ -44,7 +44,7 @@ public class SyncManager {
      * @param interval number of units to wait
      * @param unit interval order of magnitude
      */
-    public void updatePeriodically(long interval, TimeUnit unit) {
+    public void updatePeriodically(long interval) {
         Runnable task = () -> {
             try {
                 AddressBook mirrorData = getMirrorData();
@@ -55,8 +55,8 @@ public class SyncManager {
             }
         };
 
-        long initialDelay = interval < 10 ? 1 : interval / 10; //
-        scheduler.scheduleWithFixedDelay(task, 0, interval, unit);
+        long initialDelay = 300; // temp fix for issue #66
+        scheduler.scheduleWithFixedDelay(task, initialDelay, interval, TimeUnit.MILLISECONDS);
     }
 
     private AddressBook getMirrorData() throws FileContainsDuplicatesException {
