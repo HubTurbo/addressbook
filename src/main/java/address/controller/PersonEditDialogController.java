@@ -238,13 +238,13 @@ public class PersonEditDialogController extends EditDialogController {
         VBox content = new VBox();
         contactGroupList.stream()
                 .forEach(contactGroup -> {
-                    Label newLabel = new Label(contactGroup.getName());
-                    if (isSelectable && contactGroup.isSelected()) {
-                        newLabel.setStyle("-fx-background-color: blue;");
-                    }
-                    newLabel.setPrefWidth(261);
-                    content.getChildren().add(newLabel);
-                });
+                        Label newLabel = new Label(contactGroup.getName());
+                        if (isSelectable && contactGroup.isSelected()) {
+                            newLabel.setStyle("-fx-background-color: blue;");
+                        }
+                        newLabel.setPrefWidth(261);
+                        content.getChildren().add(newLabel);
+                    });
 
         return content;
     }

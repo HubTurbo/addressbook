@@ -204,7 +204,7 @@ public class Person extends DataType {
         setBirthday(updated.getBirthday());
         setContactGroups(updated.getContactGroupsCopy());
         setWebPageUrl(updated.getWebPageUrl());
-        updatedAt.set(LocalDateTime.now());
+        updatedAt.set(updated.getUpdatedAt());
         return this;
     }
 
@@ -221,7 +221,7 @@ public class Person extends DataType {
 
     @Override
     public int hashCode() {
-        return (getFirstName()+getLastName()).hashCode();
+        return (getFirstName() + getLastName()).hashCode();
     }
 
     @Override

@@ -279,10 +279,7 @@ public class ModelManager {
      */
     public synchronized void updateUsingExternalData(AddressBook extData) {
         assert !extData.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
-        boolean changed = false;
-        changed = diffUpdate(personData, extData.getPersons());
-        changed = changed || diffUpdate(groupData, extData.getGroups());
-        if (changed) {
+        if (diffUpdate(personData, extData.getPersons()) || diffUpdate(groupData, extData.getGroups())) {
             EventManager.getInstance().post(new LocalModelChangedEvent(personData, groupData));
         }
     }
@@ -318,14 +315,14 @@ public class ModelManager {
         final Set<E> toBeRemoved = new HashSet<>();
         final AtomicBoolean changed = new AtomicBoolean(false);
         target.forEach(oldItem -> {
-            final E newItem = remaining.remove(oldItem); // find matching item in unconsidered new data
-            if (newItem == null) { // not in newData
-                toBeRemoved.add(oldItem);
-            } else { // exists in both new and old, update.
-                updateDataItem(oldItem, newItem); // updates the items in target (reference points back to target)
-                changed.set(true);
-            }
-        });
+                final E newItem = remaining.remove(oldItem); // find matching item in unconsidered new data
+                if (newItem == null) { // not in newData
+                    toBeRemoved.add(oldItem);
+                } else { // exists in both new and old, update.
+                    updateDataItem(oldItem, newItem); // updates the items in target (reference points back to target)
+                    changed.set(true);
+                }
+            });
         final Set<E> toBeAdded = remaining.keySet();
 
         // .removeAll time complexity: O(n * complexity of argument's .contains call). Use a HashSet for O(n) time.
