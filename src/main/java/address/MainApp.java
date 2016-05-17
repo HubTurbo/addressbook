@@ -60,6 +60,7 @@ public class MainApp extends Application {
         modelManager = new ModelManager(new AddressBook());
         storageManager = new StorageManager(modelManager);
         mainController = new MainController(this, modelManager, config);
+        syncManager = new SyncManager();
 
         shortcutsManager = new ShortcutsManager();
         EventManager.getInstance().registerHandler(shortcutsManager);
