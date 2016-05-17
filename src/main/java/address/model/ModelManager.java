@@ -6,6 +6,7 @@ import address.events.LocalModelSyncedFromCloudEvent;
 import address.events.NewMirrorDataEvent;
 import address.events.*;
 
+import address.exceptions.DuplicateDataException;
 import address.exceptions.DuplicateGroupException;
 import address.exceptions.DuplicatePersonException;
 import address.util.DataConstraints;
@@ -82,9 +83,79 @@ public class ModelManager {
             new ContactGroup("relatives"),
             new ContactGroup("friends")
         };
+
         personData.addAll(samplePersonData);
         groupData.addAll(sampleGroupData);
     }
+
+    /**
+     * Clears existing model and replaces with the provided new data. Selection is lost.
+     * @param newPeople
+     */
+    public synchronized void resetData(List<Person> newPeople, List<ContactGroup> newGroups) {
+        personData.setAll(newPeople);
+        groupData.setAll(newGroups);
+    }
+
+    public void resetData(AddressBookWrapper newData) {
+        resetData(newData.getPersons(), newData.getGroups());
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // CREATE
+    ///////////////////////////////////////////////////////////////////////
+
+    /**
+     * Adds a person to the model
+     * @param personToAdd
+     * @throws DuplicatePersonException when this operation would cause duplicates
+     */
+    public synchronized void addPerson(Person personToAdd) throws DuplicatePersonException {
+        if (personData.contains(personToAdd)) {
+            throw new DuplicatePersonException(personToAdd);
+        }
+        personData.add(personToAdd);
+    }
+
+    /**
+     * Adds multiple persons to the model as an atomic action (triggers only 1 ModelChangedEvent)
+     * @param toAdd
+     * @throws DuplicateDataException when this operation would cause duplicates
+     */
+    public synchronized void addPersons(Collection<Person> toAdd) throws DuplicateDataException {
+        if (!DataConstraints.canCombineWithoutDuplicates(personData, toAdd)) {
+            throw new DuplicateDataException("Adding these " + toAdd.size() + " new people");
+        }
+        personData.addAll(toAdd);
+    }
+
+    /**
+     * Adds a group to the model
+     * @param groupToAdd
+     * @throws DuplicateGroupException when this operation would cause duplicates
+     */
+    public synchronized void addGroup(ContactGroup groupToAdd) throws DuplicateGroupException {
+        if (groupData.contains(groupToAdd)) {
+            throw new DuplicateGroupException(groupToAdd);
+        }
+        groupData.add(groupToAdd);
+    }
+
+    /**
+     * Adds multiple groups to the model as an atomic action (triggers only 1 ModelChangedEvent)
+     * @param toAdd
+     * @throws DuplicateDataException when this operation would cause duplicates
+     */
+    public synchronized void addGroups(Collection<ContactGroup> toAdd) throws DuplicateDataException {
+        if (!DataConstraints.canCombineWithoutDuplicates(groupData, toAdd)) {
+            throw new DuplicateDataException("Adding these " + toAdd.size() + " new contact groups");
+        }
+        groupData.addAll(toAdd);
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // READ
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * @return observablelist of persons in model
@@ -107,21 +178,14 @@ public class ModelManager {
         return groupData;
     }
 
-    /**
-     * Adds a person to the model
-     * @param personToAdd
-     */
-    public synchronized void addPerson(Person personToAdd) throws DuplicatePersonException {
-        if (personData.contains(personToAdd)) {
-            throw new DuplicatePersonException(personToAdd);
-        }
-        personData.add(personToAdd);
-    }
+    ///////////////////////////////////////////////////////////////////////
+    // UPDATE
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * Updates the details of a Person object. Updates to Person objects should be
      * done through this method to ensure the proper events are raised to indicate
-     * a change to the model.
+     * a change to the model. TODO listen on Person properties and not manually raise events here.
      * @param original The Person object to be changed.
      * @param updated The temporary Person object containing new values.
      */
@@ -134,28 +198,10 @@ public class ModelManager {
     }
 
     /**
-     * Deletes the person from the model.
-     * @param personToDelete
-     */
-    public synchronized void deletePerson(Person personToDelete){
-        personData.remove(personToDelete);
-    }
-
-    /**
-     * Adds a group to the model
-     * @param groupToAdd
-     */
-    public synchronized void addGroup(ContactGroup groupToAdd) throws DuplicateGroupException {
-        if (groupData.contains(groupToAdd)) {
-            throw new DuplicateGroupException(groupToAdd);
-        }
-        groupData.add(groupToAdd);
-    }
-
-    /**
      * Updates the details of a ContactGroup object. Updates to ContactGroup objects should be
      * done through this method to ensure the proper events are raised to indicate
-     * a change to the model.
+     * a change to the model. TODO listen on ContactGroup properties and not manually raise events here.
+     *
      * @param original The ContactGroup object to be changed.
      * @param updated The temporary ContactGroup object containing new values.
      */
@@ -167,13 +213,49 @@ public class ModelManager {
         EventManager.getInstance().post(new LocalModelChangedEvent(personData, groupData));
     }
 
+    ///////////////////////////////////////////////////////////////////////
+    // DELETE
+    ///////////////////////////////////////////////////////////////////////
+
+    /**
+     * Deletes the person from the model.
+     * @param personToDelete
+     * @return true if there was a successful removal
+     */
+    public synchronized boolean deletePerson(Person personToDelete){
+        return personData.remove(personToDelete);
+    }
+
+    /**
+     * Deletes multiple persons from the model as an atomic action (triggers only 1 ModelChangedEvent)
+     * @param toDelete
+     * @return true if there was at least one successful removal
+     */
+    public synchronized boolean deletePersons(Collection<Person> toDelete) {
+        return personData.removeAll(new HashSet<>(toDelete)); // O(1) .contains boosts performance
+    }
+
     /**
      * Deletes the group from the model.
      * @param groupToDelete
+     * @return true if there was a successful removal
      */
-    public synchronized void deleteGroup(ContactGroup groupToDelete){
-        groupData.remove(groupToDelete);
+    public synchronized boolean deleteGroup(ContactGroup groupToDelete){
+        return groupData.remove(groupToDelete);
     }
+
+    /**
+     * Deletes multiple persons from the model as an atomic action (triggers only 1 ModelChangedEvent)
+     * @param toDelete
+     * @return true if there was at least one successful removal
+     */
+    public synchronized boolean deleteGroups(Collection<ContactGroup> toDelete) {
+        return groupData.removeAll(new HashSet<>(toDelete)); // O(1) .contains boosts performance
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // EVENT HANDLERS
+    ///////////////////////////////////////////////////////////////////////
 
     @Subscribe
     private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
@@ -186,6 +268,10 @@ public class ModelManager {
         PlatformEx.runLaterAndWait(() -> updateUsingExternalData(nde.data));
         EventManager.getInstance().post(new LocalModelSyncedFromCloudEvent(personData, groupData));
     }
+
+    ///////////////////////////////////////////////////////////////////////
+    // DIFFERENTIAL UPDATE ENGINE
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * Diffs extData with the current model and updates the current model with minimal change.
@@ -242,7 +328,7 @@ public class ModelManager {
         });
         final Set<E> toBeAdded = remaining.keySet();
 
-        // .removeAll time complexity: O(n * complexity of argument's .contains call). Use a Set for O(n) time.
+        // .removeAll time complexity: O(n * complexity of argument's .contains call). Use a HashSet for O(n) time.
         target.removeAll(toBeRemoved);
         target.addAll(toBeAdded);
 
@@ -270,16 +356,4 @@ public class ModelManager {
         assert false : "need to add logic for any new DataType classes";
     }
 
-    /**
-     * Clears existing model and replaces with the provided new data. Selection is lost.
-     * @param newPeople
-     */
-    public synchronized void resetData(List<Person> newPeople, List<ContactGroup> newGroups) {
-        personData.setAll(newPeople);
-        groupData.setAll(newGroups);
-    }
-
-    public void resetData(AddressBookWrapper newData) {
-        resetData(newData.getPersons(), newData.getGroups());
-    }
 }
