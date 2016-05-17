@@ -51,7 +51,7 @@ public class MainController {
     private ModelManager modelManager;
     private MainApp mainApp;
 
-    public Browser browser;
+    private Browser browser;
 
     public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
         EventManager.getInstance().registerHandler(this);
@@ -71,6 +71,13 @@ public class MainController {
         initRootLayout();
         showPersonOverview();
         showPersonWebPage();
+    }
+
+    /**
+     * Frees resources allocated to the browser.
+     */
+    public void freeBrowserResources(){
+        browser.dispose();
     }
 
     public void loadBrowserUrl(URL url){

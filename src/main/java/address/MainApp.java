@@ -64,7 +64,7 @@ public class MainApp extends Application {
     @Override
     public void stop() {
         mainController.getPrimaryStage().hide();
-        mainController.browser.dispose();
+        mainController.freeBrowserResources();
         Platform.exit();
         System.exit(0);
     }
