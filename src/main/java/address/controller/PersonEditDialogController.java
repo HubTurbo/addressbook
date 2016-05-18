@@ -107,9 +107,9 @@ public class PersonEditDialogController extends EditDialogController {
         firstNameField.setText(person.getFirstName());
         lastNameField.setText(person.getLastName());
         streetField.setText(person.getStreet());
-        postalCodeField.setText(Integer.toString(person.getPostalCode()));
+        postalCodeField.setText(person.getPostalCodeString());
         cityField.setText(person.getCity());
-        birthdayField.setText(DateUtil.format(person.getBirthday()));
+        birthdayField.setText(person.getBirthdayString());
         birthdayField.setPromptText("dd.mm.yyyy");
         githubUserNameField.setText(person.getGithubUserName());
     }
@@ -124,14 +124,12 @@ public class PersonEditDialogController extends EditDialogController {
      */
     @FXML
     protected void handleOk() {
-        if (!isInputValid()) {
-            return;
-        }
+        if (!isInputValid()) return;
         finalPerson = new Person();
         finalPerson.setFirstName(firstNameField.getText());
         finalPerson.setLastName(lastNameField.getText());
         finalPerson.setStreet(streetField.getText());
-        finalPerson.setPostalCode(Integer.parseInt(postalCodeField.getText()));
+        finalPerson.setPostalCode(isFilled(postalCodeField) ? Integer.parseInt(postalCodeField.getText()) : null);
         finalPerson.setCity(cityField.getText());
         finalPerson.setBirthday(DateUtil.parse(birthdayField.getText()));
         finalPerson.setContactGroups(model.getAssignedGroups());
@@ -165,43 +163,33 @@ public class PersonEditDialogController extends EditDialogController {
     private boolean isInputValid() {
         String errorMessage = "";
 
-        if (firstNameField.getText() == null || firstNameField.getText().length() == 0) {
-            errorMessage += "No valid first name!\n"; 
+        if (!isFilled(firstNameField)) {
+            errorMessage += "First name must be filled!\n";
         }
-        if (lastNameField.getText() == null || lastNameField.getText().length() == 0) {
-            errorMessage += "No valid last name!\n"; 
+        if (!isFilled(lastNameField)) {
+            errorMessage += "Last name must be filled!\n";
         }
-        if (streetField.getText() == null || streetField.getText().length() == 0) {
-            errorMessage += "No valid street!\n"; 
-        }
-
-        if (postalCodeField.getText() == null || postalCodeField.getText().length() == 0) {
-            errorMessage += "No valid postal code!\n"; 
-        } else {
-            // try to parse the postal code into an int.
+        // try to parse the postal code into an int.
+        if (isFilled(postalCodeField)) {
             try {
                 Integer.parseInt(postalCodeField.getText());
             } catch (NumberFormatException e) {
-                errorMessage += "No valid postal code (must be an integer)!\n"; 
+                errorMessage += "Not a valid postal code (must be an integer)!\n";
             }
         }
 
-        if (cityField.getText() == null || cityField.getText().length() == 0) {
-            errorMessage += "No valid city!\n"; 
-        }
-
-        if (birthdayField.getText() == null || birthdayField.getText().length() == 0) {
-            errorMessage += "No valid birthday!\n";
-        } else {
-            if (!DateUtil.validDate(birthdayField.getText())) {
+        if (isFilled(birthdayField)) {
+            if (birthdayField.getText().length() != 0 && !DateUtil.validDate(birthdayField.getText())) {
                 errorMessage += "No valid birthday. Use the format dd.mm.yyyy!\n";
             }
         }
 
-        try {
-            URL url = new URL("https://www.github.com/" + githubUserNameField.getText());
-        } catch (MalformedURLException e) {
-            errorMessage += "Invalid github username.\n";
+        if (isFilled(githubUserNameField)) {
+            try {
+                URL url = new URL("https://www.github.com/" + githubUserNameField.getText());
+            } catch (MalformedURLException e) {
+                errorMessage += "Invalid github username.\n";
+            }
         }
 
         if (errorMessage.length() == 0) {
@@ -218,6 +206,10 @@ public class PersonEditDialogController extends EditDialogController {
             
             return false;
         }
+    }
+
+    private boolean isFilled(TextField textField) {
+        return textField.getText() != null && textField.getText().length() != 0;
     }
 
     @Subscribe

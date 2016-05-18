@@ -1,5 +1,6 @@
 package address.model;
 
+import address.util.DateUtil;
 import address.util.LocalDateAdapter;
 import address.util.LocalDateTimeAdapter;
 
@@ -36,7 +37,8 @@ public class Person extends DataType {
     }
 
     /**
-     * Constructor with some initial data.
+     * Constructor with firstName and lastName parameters
+     * Other parameters are set to "", or null if not a String
      * 
      * @param firstName
      * @param lastName
@@ -45,13 +47,11 @@ public class Person extends DataType {
         this.firstName = new SimpleStringProperty(firstName);
         this.lastName = new SimpleStringProperty(lastName);
 
-        // Some initial dummy data, just for convenient testing.
-        this.street = new SimpleStringProperty("some street");
-        this.postalCode = new SimpleIntegerProperty(1234);
-        this.city = new SimpleStringProperty("some city");
-        this.birthday = new SimpleObjectProperty<>(LocalDate.of(1999, 2, 21));
+        this.street = new SimpleStringProperty("");
+        this.postalCode = new SimpleIntegerProperty();
+        this.city = new SimpleStringProperty();
+        this.birthday = new SimpleObjectProperty<>();
         this.contactGroups = new ArrayList<>();
-        contactGroups.add(new ContactGroup("friends"));
         this.updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
         this.githubUserName = new SimpleStringProperty("");
     }
@@ -78,7 +78,7 @@ public class Person extends DataType {
      */
     public List<ContactGroup> getContactGroupsCopy() {
         final List<ContactGroup> copy = new ArrayList<>();
-        contactGroups.forEach((cg)->copy.add(cg));
+        contactGroups.forEach((cg) -> copy.add(cg));
         return copy;
     }
 
@@ -127,12 +127,16 @@ public class Person extends DataType {
         return street;
     }
 
-    public int getPostalCode() {
+    public Integer getPostalCode() {
         return postalCode.get();
     }
 
-    public void setPostalCode(int postalCode) {
-        this.postalCode.set(postalCode);
+    public String getPostalCodeString() {
+        return postalCode.getValue() == 0.0 ? "" : Integer.toString(postalCode.get());
+    }
+
+    public void setPostalCode(Integer postalCode) {
+        this.postalCode.setValue(postalCode);
         updatedAt.set(LocalDateTime.now());
     }
 
@@ -156,6 +160,11 @@ public class Person extends DataType {
     @XmlJavaTypeAdapter(LocalDateAdapter.class)
     public LocalDate getBirthday() {
         return birthday.get();
+    }
+
+    public String getBirthdayString() {
+        if (birthday.getValue() == null) return "";
+        return DateUtil.format(birthday.getValue());
     }
 
     public void setBirthday(LocalDate birthday) {
