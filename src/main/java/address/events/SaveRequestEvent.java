@@ -1,6 +1,8 @@
 package address.events;
 
 import address.model.ContactGroup;
+import address.model.ModelContactGroup;
+import address.model.ModelPerson;
 import address.model.Person;
 
 import java.io.File;
@@ -15,10 +17,10 @@ public class SaveRequestEvent {
     public File file;
 
     /** The data to be saved*/
-    public List<Person> personData;
-    public List<ContactGroup> groupData;
+    public List<ModelPerson> personData;
+    public List<ModelContactGroup> groupData;
 
-    public SaveRequestEvent(File file, List<Person> personData, List<ContactGroup> groupData){
+    public SaveRequestEvent(File file, List<ModelPerson> personData, List<ModelContactGroup> groupData){
         this.file = file;
         this.personData = personData;
         this.groupData = groupData;

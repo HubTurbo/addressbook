@@ -1,8 +1,6 @@
 package address.util;
 
-import address.model.AddressBook;
-import address.model.ContactGroup;
-import address.model.Person;
+import address.model.*;
 import address.updater.model.UpdateData;
 
 import javax.xml.bind.JAXBContext;
@@ -25,7 +23,22 @@ public class XmlHelper {
         return ((AddressBook) um.unmarshal(file));
     }
 
-    public static void saveToFile(File file, List<Person> personData, List<ContactGroup> groupData)
+    public static void saveModelToFile(File file, List<ModelPerson> personData, List<ModelContactGroup> groupData)
+            throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(AddressBook.class);
+        Marshaller m = context.createMarshaller();
+        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        // Wrapping our person data.
+        ModelAddressBook wrapper = new ModelAddressBook(false);
+        wrapper.setModelPersons(personData);
+        wrapper.setModelGroups(groupData);
+
+        // Marshalling and saving XML to the file.
+        m.marshal(wrapper, file);
+    }
+
+    public static void saveDataToFile(File file, List<Person> personData, List<ContactGroup> groupData)
             throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(AddressBook.class);
         Marshaller m = context.createMarshaller();

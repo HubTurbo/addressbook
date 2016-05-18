@@ -2,10 +2,7 @@ package address.storage;
 
 import address.events.*;
 import address.exceptions.FileContainsDuplicatesException;
-import address.model.AddressBook;
-import address.model.ContactGroup;
-import address.model.ModelManager;
-import address.model.Person;
+import address.model.*;
 import address.preferences.PreferencesManager;
 import address.util.XmlHelper;
 import com.google.common.eventbus.Subscribe;
@@ -60,9 +57,9 @@ public class StorageManager {
      *
      * @param file
      */
-    public static void saveDataToFile(File file, List<Person> personData, List<ContactGroup> groupData) {
+    public static void saveDataToFile(File file, List<ModelPerson> personData, List<ModelContactGroup> groupData) {
         try {
-            XmlHelper.saveToFile(file, personData, groupData);
+            XmlHelper.saveModelToFile(file, personData, groupData);
         } catch (Exception e) {
             EventManager.getInstance().post(new FileSavingExceptionEvent(e, file));
         }

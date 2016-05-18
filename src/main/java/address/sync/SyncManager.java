@@ -7,6 +7,7 @@ import address.events.NewMirrorDataEvent;
 import address.events.SaveRequestEvent;
 import address.exceptions.FileContainsDuplicatesException;
 import address.model.AddressBook;
+import address.model.ModelManager;
 import address.preferences.PreferencesManager;
 import address.sync.task.CloudUpdateTask;
 import com.google.common.eventbus.Subscribe;
@@ -43,7 +44,6 @@ public class SyncManager {
      * in the primary data file. The mirror file should be at the same location
      * as primary file and the name should be '{primary file name}-mirror.xml'.
      * @param interval number of units to wait
-     * @param unit interval order of magnitude
      */
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
@@ -70,7 +70,9 @@ public class SyncManager {
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
-        requestExecutor.execute(new CloudUpdateTask(this.cloudSimulator, lmce.personData, lmce.groupData));
+        requestExecutor.execute(new CloudUpdateTask(this.cloudSimulator,
+                                                    ModelManager.convertToPersons(lmce.personData),
+                                                    ModelManager.convertToGroups(lmce.groupData)));
     }
 
     @Subscribe

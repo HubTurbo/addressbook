@@ -7,6 +7,7 @@ import address.events.FileNameChangedEvent;
 import address.events.FileOpeningExceptionEvent;
 import address.events.FileSavingExceptionEvent;
 import address.model.ContactGroup;
+import address.model.ModelContactGroup;
 import address.model.ModelManager;
 import address.model.Person;
 import address.preferences.PreferencesManager;
@@ -173,7 +174,7 @@ public class MainController {
             PersonEditDialogController controller = loader.getController();
             controller.setDialogStage(dialogStage);
             controller.setInitialPersonData(initialData);
-            controller.setGroupsModel(modelManager.getGroupData(), initialData.getContactGroupsCopy());
+            controller.setGroupsModel(modelManager.getGroups(), initialData.getContactGroupsCopy());
 
             dialogStage.showAndWait();
             if (controller.isOkClicked()) {
@@ -233,7 +234,7 @@ public class MainController {
         }
     }
 
-    public void showGroupList(ObservableList<ContactGroup> groups) {
+    public void showGroupList(ObservableList<ModelContactGroup> groups) {
         final String fxmlResourcePath = FXML_GROUP_LIST;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
