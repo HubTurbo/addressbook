@@ -1,6 +1,6 @@
 package address.controller;
 
-import address.EmbeddedBrowser.BrowserManager;
+import address.Browser.BrowserManager;
 import address.MainApp;
 import address.events.EventManager;
 import address.events.FileNameChangedEvent;
