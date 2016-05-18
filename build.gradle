@@ -72,12 +72,34 @@ allprojects {
 
     jar {
         manifest {
-            attributes 'Main-Class': 'address.MainApp'
+            attributes 'Main-Class': 'address.MainApp',
+                    'Class-Path': configurations.runtime.files.collect { "lib/${it.name}" }.join(" ")
         }
         archiveName = 'addressbook.jar'
     }
 
     assemble.dependsOn shadowJar
+}
+
+task createARelease {
+    group = "Compiling and Release"
+
+    doFirst {
+        println "A guide to create a release (to be automated)"
+        println "============================================="
+        println "1. Run compileJarUpdater - under compiling and release"
+        println "2. Run jar - under build"
+        println "3. Run copyDep - under compiling and release"
+        println "4. Release includes addressbook.jar and the lib folder in build/libs"
+        println "(temp) to enable update, put UpdateData.xml into build/libs/update"
+    }
+}
+
+task copyDep(type: Copy) {
+    group = "Compiling and Release"
+
+    from configurations.compile
+    into 'build/libs/lib'
 }
 
 task compileJarUpdater(type: Jar) {
