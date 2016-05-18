@@ -34,7 +34,7 @@
             <Label text="City" GridPane.rowIndex="3" />
             <Label text="Postal Code" GridPane.rowIndex="4" />
             <Label text="Birthday" GridPane.rowIndex="5" />
-             <Label text="Github Username" GridPane.rowIndex="6" />
+             <Label text="GitHub Username" GridPane.rowIndex="6" />
             <Label text="Contact Group" GridPane.rowIndex="7" />
             <Label text="Search" GridPane.rowIndex="8" />
             <Label text="Search Results" GridPane.rowIndex="9" />

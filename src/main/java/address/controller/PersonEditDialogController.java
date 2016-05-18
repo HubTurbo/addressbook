@@ -111,7 +111,7 @@ public class PersonEditDialogController extends EditDialogController {
         cityField.setText(person.getCity());
         birthdayField.setText(person.getBirthdayString());
         birthdayField.setPromptText("dd.mm.yyyy");
-        githubUserNameField.setText(person.getGithubUserName());
+        githubUserNameField.setText(person.getGitHubUserName());
     }
 
     public void setGroupsModel(List<ContactGroup> contactGroups, List<ContactGroup> assignedGroups) {
@@ -133,7 +133,7 @@ public class PersonEditDialogController extends EditDialogController {
         finalPerson.setCity(cityField.getText());
         finalPerson.setBirthday(DateUtil.parse(birthdayField.getText()));
         finalPerson.setContactGroups(model.getAssignedGroups());
-        finalPerson.setGithubUserName(githubUserNameField.getText());
+        finalPerson.setGitHubUserName(githubUserNameField.getText());
         isOkClicked = true;
         dialogStage.close();
     }

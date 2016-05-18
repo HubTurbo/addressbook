@@ -56,7 +56,7 @@ public class MainController {
         this.modelManager = modelManager;
         this.config = config;
         this.mainApp = mainApp;
-        this.browserManager = new BrowserManager();
+        this.browserManager = new BrowserManager(modelManager);
     }
 
     public void start(Stage primaryStage) {
@@ -124,7 +124,6 @@ public class MainController {
             SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
             pane.setResizableWithParent(personOverview, false);
             pane.getItems().add(personOverview);
-
             // Give the personOverviewController access to the main app and modelManager.
             PersonOverviewController personOverviewController = loader.getController();
             personOverviewController.setConnections(this, modelManager);
@@ -351,15 +350,13 @@ public class MainController {
         browserManager.freeBrowserResources();
     }
 
-    public void loadGithubProfilePage(String githubUserName){
-        browserManager.getBrowser().loadURL("https://www.github.com/" + githubUserName);
+    public void loadGitHubProfilePage(Person person){
+        browserManager.loadGitHubProfilePage(person);
     }
 
     public void showPersonWebPage() {
-        BrowserView browserView = new BrowserView(browserManager.getBrowser());
-        browserManager.getBrowser().loadHTML("<html><body><h3>" +
-                "To view contact's web page, click on the contact on the left.</h3></body></html>");
+        browserManager.initBrowser();
         SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-        pane.getItems().add(browserView);
+        pane.getItems().add(browserManager.getTabBrowser());
     }
 }
