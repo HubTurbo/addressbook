@@ -1,6 +1,5 @@
 package address.controller;
 
-import address.browser.BrowserManager;
 import address.MainApp;
 import address.events.*;
 import address.model.ContactGroup;
@@ -9,9 +8,11 @@ import address.model.ModelManager;
 import address.model.Person;
 import address.preferences.PrefsManager;
 import address.util.Config;
+import address.browser.BrowserManager;
 
 import com.google.common.eventbus.Subscribe;
 import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
+
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -303,7 +304,7 @@ public class MainController {
     }
 
     @Subscribe
-    public void handleFileNameChangedEvent(FileNameChangedEvent fnce){
+    public void handleSaveFileChangedEvent(SaveFileChangedEvent fnce){
         setTitle(config.appTitle, fnce.file != null ? fnce.file : new File(PrefsManager.DEFAULT_TEMP_FILE_PATH));
     }
 

@@ -61,8 +61,9 @@ public class RootLayoutController {
      */
     @FXML
     private void handleNew() {
-        PrefsManager.getInstance().setSaveFile(null);
-        modelManager.resetData(Collections.emptyList(), Collections.emptyList());
+        PrefsManager.getInstance().clearSaveFilePath();
+        PrefsManager.getInstance().clearMirrorFilePath();
+        modelManager.clearModel();
     }
 
     /**

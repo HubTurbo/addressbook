@@ -1,7 +1,7 @@
 package address.preferences;
 
 import address.events.EventManager;
-import address.events.FileNameChangedEvent;
+import address.events.SaveFileChangedEvent;
 
 import java.util.prefs.Preferences;
 import java.io.File;
@@ -47,7 +47,7 @@ public class PrefsManager {
     public void setSaveFile(File save) {
         assert save != null;
         Preferences.userNodeForPackage(PrefsManager.class).put(PREF_NODE_NAME_SAVE_FILE, save.getPath());
-        EventManager.getInstance().post(new FileNameChangedEvent(save));
+        EventManager.getInstance().post(new SaveFileChangedEvent(save));
     }
 
     /**
@@ -55,7 +55,7 @@ public class PrefsManager {
      */
     public void clearSaveFilePath() {
         Preferences.userNodeForPackage(PrefsManager.class).remove(PREF_NODE_NAME_SAVE_FILE);
-        EventManager.getInstance().post(new FileNameChangedEvent(null));
+        EventManager.getInstance().post(new SaveFileChangedEvent(null));
     }
 
 
