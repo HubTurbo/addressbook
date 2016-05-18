@@ -14,7 +14,7 @@ public class PrefsManager {
     public static final String PREF_NODE_NAME_SAVE_FILE = "save-file";
     public static final String PREF_NODE_NAME_MIRROR_FILE = "mirror-file";
 
-    public static final String DEFAULT_TEMP_FILE_PATH = ".temp-address-book";
+    public static final String DEFAULT_TEMP_FILE_PATH = ".$TEMP_ADDRESS_BOOK";
 
     private static PrefsManager instance;
 
@@ -47,7 +47,7 @@ public class PrefsManager {
     public void setSaveFile(File save) {
         assert save != null;
         Preferences.userNodeForPackage(PrefsManager.class).put(PREF_NODE_NAME_SAVE_FILE, save.getPath());
-        EventManager.getInstance().post(new SaveFileChangedEvent(save));
+        EventManager.getInstance().post(new SaveFileChangedEvent(getSaveFile()));
     }
 
     /**
