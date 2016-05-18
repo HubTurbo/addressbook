@@ -7,7 +7,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDateTime;
 
-public class ContactGroup extends DataType {
+public class ContactGroup extends UniqueData {
 
     private final SimpleStringProperty name;
     private final SimpleObjectProperty<LocalDateTime> updatedAt;
