@@ -48,9 +48,9 @@ public class PersonCardController {
         firstName.setText(person.getFirstName());
         lastName.setText(person.getLastName());
         street.setText(person.getStreet());
-        postalCode.setText(Integer.toString(person.getPostalCode()));
+        postalCode.setText(person.getPostalCodeString());
         city.setText(person.getCity());
-        birthday.setText(person.getBirthday().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        birthday.setText(person.getBirthdayString());
         contactGroups.setText(getContactGroupsString(person.getContactGroupsCopy()));
     }
 
