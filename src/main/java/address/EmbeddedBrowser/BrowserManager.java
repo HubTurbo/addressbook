@@ -17,11 +17,16 @@ public class BrowserManager {
 
     public BrowserManager() {
         this.browser = new Browser();
-        initialiseListeners();
+        registerListeners();
     }
 
-    private void initialiseListeners() {
-        this.browser.addLoadListener(generateLoadAdapter(this::automateClickingAndScrolling));
+    private void registerListeners() {
+        this.browser.addLoadListener(new LoadAdapter() {
+            @Override
+            public void onFinishLoadingFrame(FinishLoadingEvent finishLoadingEvent) {
+                automateClickingAndScrolling();
+            }
+        });
     }
 
     /**
@@ -33,15 +38,6 @@ public class BrowserManager {
 
     public Browser getBrowser(){
         return browser;
-    }
-
-    private LoadAdapter generateLoadAdapter(Runnable toRun) {
-        return new LoadAdapter() {
-            @Override
-            public void onFinishLoadingFrame(FinishLoadingEvent finishLoadingEvent) {
-                toRun.run();
-            }
-        };
     }
 
     private void automateClickingAndScrolling() {
