@@ -19,9 +19,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -45,7 +46,7 @@ public class MainController {
 
     private Config config;
     private Stage primaryStage;
-    private BorderPane rootLayout;
+    private VBox rootLayout;
 
     private ModelManager modelManager;
     private BrowserManager browserManager;
@@ -82,6 +83,8 @@ public class MainController {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
             rootLayout = loader.load();
+            SplitPane pane = (SplitPane)rootLayout.lookup("#splitPane");
+            pane.setDividerPositions(0.3f);
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
@@ -113,9 +116,11 @@ public class MainController {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
             AnchorPane personOverview = loader.load();
-            // Set person overview into the center of root layout.
             personOverview.setMinWidth(340);
-            rootLayout.setLeft(personOverview);
+            personOverview.setPrefWidth(340);
+            SplitPane pane = (SplitPane)rootLayout.lookup("#splitPane");
+            pane.setResizableWithParent(personOverview, false);
+            pane.getItems().add(personOverview);
 
             // Give the personOverviewController access to the main app and modelManager.
             PersonOverviewController personOverviewController = loader.getController();
@@ -362,8 +367,9 @@ public class MainController {
 
     public void showPersonWebPage() {
         BrowserView browserView = new BrowserView(browserManager.getBrowser());
-        browserManager.getBrowser().loadHTML("<html><body><h3>" +
-                "To view contact's web page, click on the contact on the left.</h3></body></html>");
-        rootLayout.setCenter(browserView);
+        browserManager.getBrowser().loadHTML("<html><body><h3>To view contact's web page, click on the contact on the left." +
+                "</h3></body></html>");
+        SplitPane pane = (SplitPane)rootLayout.lookup("#splitPane");
+        pane.getItems().add(browserView);
     }
 }

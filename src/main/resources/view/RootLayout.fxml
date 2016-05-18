@@ -1,44 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.net.URL?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.BorderPane?>
-<BorderPane xmlns="http://javafx.com/javafx/8.0.40"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.controller.RootLayoutController">
-  <stylesheets>
-    <URL value="@DarkTheme.css" />
-    <URL value="@Extensions.css" />
-  </stylesheets>
-  <top>
-    <MenuBar BorderPane.alignment="CENTER">
-      <menus>
-        <Menu mnemonicParsing="false" text="File">
-          <items>
-            <MenuItem mnemonicParsing="false" onAction="#handleNew" text="New" accelerator="Ctrl+N" />
-            <MenuItem mnemonicParsing="false" onAction="#handleOpen" text="Open..." accelerator="Ctrl+O" />
-            <MenuItem mnemonicParsing="false" onAction="#handleSave" text="Save" accelerator="Ctrl+S" />
-            <MenuItem mnemonicParsing="false" onAction="#handleSaveAs" text="Save As..." accelerator="Ctrl+Alt+S" />
-            <MenuItem mnemonicParsing="false" onAction="#handleAppendSampleData" text="Append Sample Data" />
-            <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
-          </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Groups">
-          <items>
-            <MenuItem mnemonicParsing="false" onAction="#handleNewGroup" text="New Group" />
-            <MenuItem mnemonicParsing="false" onAction="#handleShowGroups" text="Manage Groups" />
-          </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Statistics">
-          <items>
-            <MenuItem mnemonicParsing="false" onAction="#handleShowBirthdayStatistics" text="Show Statistics" />
-          </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Help">
-          <items>
-            <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="About" />
-          </items>
-        </Menu>
-      </menus>
-    </MenuBar>
-  </top>
-</BorderPane>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.controller.RootLayoutController">
+   <children>
+      <MenuBar>
+         <menus>
+            <Menu mnemonicParsing="false" text="File">
+               <items>
+                  <MenuItem accelerator="Ctrl+N" mnemonicParsing="false" onAction="#handleNew" text="New" />
+                  <MenuItem accelerator="Ctrl+O" mnemonicParsing="false" onAction="#handleOpen" text="Open..." />
+                  <MenuItem accelerator="Ctrl+S" mnemonicParsing="false" onAction="#handleSave" text="Save" />
+                  <MenuItem accelerator="Ctrl+Alt+S" mnemonicParsing="false" onAction="#handleSaveAs" text="Save As..." />
+                  <MenuItem mnemonicParsing="false" onAction="#handleAppendSampleData" text="Append Sample Data" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Groups">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#handleNewGroup" text="New Group" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleShowGroups" text="Manage Groups" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Statistics">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#handleShowBirthdayStatistics" text="Show Statistics" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="About" />
+               </items>
+            </Menu>
+         </menus>
+      </MenuBar>
+      <SplitPane id="splitPane" fx:id="splitPane" VBox.vgrow="ALWAYS" />
+   </children>
+</VBox>
