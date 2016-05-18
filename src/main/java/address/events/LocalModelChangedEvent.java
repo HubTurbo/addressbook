@@ -1,17 +1,17 @@
 package address.events;
 
-import address.model.ContactGroup;
-import address.model.Person;
+import address.model.ModelContactGroup;
+import address.model.ModelPerson;
 
 import java.util.List;
 
 /** Indicates data in the model has changed*/
 public class LocalModelChangedEvent {
 
-    public List<Person> personData;
-    public List<ContactGroup> groupData;
+    public List<ModelPerson> personData;
+    public List<ModelContactGroup> groupData;
 
-    public LocalModelChangedEvent(List<Person> personData, List<ContactGroup> groupData){
+    public LocalModelChangedEvent(List<ModelPerson> personData, List<ModelContactGroup> groupData){
         this.personData = personData;
         this.groupData = groupData;
     }

@@ -1,6 +1,8 @@
 package address.events;
 
 import address.model.ContactGroup;
+import address.model.ModelContactGroup;
+import address.model.ModelPerson;
 import address.model.Person;
 
 import java.util.List;
@@ -8,11 +10,11 @@ import java.util.List;
 /** Indicates person data in the model was synced with data on the cloud */
 public class LocalModelSyncedFromCloudEvent {
 
-    public List<Person> personData;
+    public List<ModelPerson> personData;
 
-    public List<ContactGroup> groupData;
+    public List<ModelContactGroup> groupData;
 
-    public LocalModelSyncedFromCloudEvent(List<Person> personData, List<ContactGroup> groupData) {
+    public LocalModelSyncedFromCloudEvent(List<ModelPerson> personData, List<ModelContactGroup> groupData) {
         this.personData = personData;
         this.groupData = groupData;
     }

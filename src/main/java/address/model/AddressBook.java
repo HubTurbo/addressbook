@@ -1,6 +1,7 @@
 package address.model;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -14,20 +15,25 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Adapted and modified from Marco Jakob
  */
+
 @XmlRootElement(name = "addressbook")
 public class AddressBook {
 
-    private List<Person> persons = new ArrayList<>(); // so empty lists from file will not make this null
-    private List<ContactGroup> groups = new ArrayList<>(); // ditto
+    private List<Person> persons = new ArrayList<>();
+    private List<ContactGroup> groups = new ArrayList<>();
 
     @XmlElement(name = "persons")
     public List<Person> getPersons() {
-        return persons;
+        return persons.stream()
+                .map(Person::new)
+                .collect(Collectors.toList());
     }
 
     @XmlElement(name = "groups")
     public List<ContactGroup> getGroups() {
-        return groups;
+        return groups.stream()
+                .map(ContactGroup::new)
+                .collect(Collectors.toList());
     }
 
     public void setPersons(List<Person> persons) {
