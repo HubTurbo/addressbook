@@ -14,37 +14,56 @@ import java.util.*;
  */
 public class ShortcutsManager {
 
-    public static final KeyCombination SHORTCUT_FILE_NEW = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
-    public static final KeyCombination SHORTCUT_FILE_OPEN = new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN);
-    public static final KeyCombination SHORTCUT_FILE_SAVE = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
-    public static final KeyCombination SHORTCUT_FILE_SAVE_AS = new KeyCodeCombination(KeyCode.S,
-                                                                            KeyCombination.CONTROL_DOWN,
-                                                                            KeyCombination.ALT_DOWN);
-    public static final KeyCombination SHORTCUT_PERSON_EDIT = new KeyCodeCombination(KeyCode.T);
-    public static final KeyCombination SHORTCUT_JUMP_TO_LIST = new KeyCodeCombination(KeyCode.DOWN, KeyCombination.CONTROL_DOWN);
+    private static List<Shortcut> shortcuts = new ArrayList<>();
 
-    private List<Shortcut> shortcuts = new ArrayList<>();
+    /* shortcuts in alphabetical order of names */
+    public static final KeyCombination SHORTCUT_FILE_NEW;
+    public static final KeyCombination SHORTCUT_FILE_OPEN;
+    public static final KeyCombination SHORTCUT_FILE_SAVE;
+    public static final KeyCombination SHORTCUT_FILE_SAVE_AS;
+    public static final KeyCombination SHORTCUT_LIST_ENTER;
+    public static final KeyCombination SHORTCUT_PERSON_DELETE;
+    public static final KeyCombination SHORTCUT_PERSON_EDIT;
 
-    public ShortcutsManager(){
-        initShortcuts();
-    }
+    static {
 
-    private void initShortcuts(){
-        addShortcut(KeyCode.D,
-                ()-> EventManager.getInstance().post(new DeleteRequestEvent()));
-        addShortcut(KeyCode.E,
-                ()-> EventManager.getInstance().post(new EditRequestEvent()));
-        addShortcut(KeyCode.DOWN, KeyCombination.CONTROL_DOWN,
+        /*====== A-Z keys (in alphabetical order of main key =====================*/
+
+        SHORTCUT_PERSON_DELETE = setShortcut(KeyCode.D);
+
+        SHORTCUT_PERSON_EDIT = setShortcut(KeyCode.E);
+
+        SHORTCUT_FILE_NEW = setShortcut(KeyCode.N, KeyCombination.CONTROL_DOWN);
+
+
+        SHORTCUT_FILE_OPEN = setShortcut(KeyCode.O, KeyCombination.CONTROL_DOWN);
+
+        SHORTCUT_FILE_SAVE = setShortcut(KeyCode.S, KeyCombination.CONTROL_DOWN);
+
+        SHORTCUT_FILE_SAVE_AS = setShortcut(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN);
+
+        /*====== other keys ======================================================*/
+
+        SHORTCUT_LIST_ENTER = setShortcut(KeyCode.DOWN, KeyCombination.CONTROL_DOWN,
                 ()-> EventManager.getInstance().post(new JumpToListRequestEvent()));
-
     }
 
-    private void addShortcut(KeyCode mainKey, KeyCombination.Modifier modifierKey, Runnable action) {
-        shortcuts.add(new Shortcut(new KeyCodeCombination(mainKey, modifierKey),action));
+    private static KeyCombination setShortcut(KeyCode mainKey, KeyCombination.Modifier... modifierKey){
+        KeyCodeCombination keyCodeCombination = new KeyCodeCombination(mainKey,modifierKey);
+        shortcuts.add(new Shortcut(keyCodeCombination, ()->{}));
+        return keyCodeCombination;
     }
 
-    private void addShortcut(KeyCode mainKey, Runnable action) {
-        shortcuts.add(new Shortcut(new KeyCodeCombination(mainKey),action));
+    private static KeyCodeCombination setShortcut(KeyCode mainKey, KeyCombination.Modifier modifierKey, Runnable action) {
+        KeyCodeCombination keyCombination = new KeyCodeCombination(mainKey, modifierKey);
+        shortcuts.add(new Shortcut(keyCombination,action));
+        return keyCombination;
+    }
+
+    private static KeyCodeCombination setShortcut(KeyCode mainKey, Runnable action) {
+        KeyCodeCombination keyCombination = new KeyCodeCombination(mainKey);
+        shortcuts.add(new Shortcut(keyCombination,action));
+        return keyCombination;
     }
 
     private Optional<Runnable> getAction(KeyEvent keyEvent){
@@ -64,16 +83,6 @@ public class ShortcutsManager {
             action.get().run();
         } else {
             System.out.println("No action for shortcut " + potentialKeyboardShortcutEvent.keyEvent);
-        }
-    }
-
-    private class Shortcut{
-        KeyCombination keyCombination;
-        Runnable action;
-
-        Shortcut(KeyCombination keyCombination, Runnable action){
-            this.keyCombination = keyCombination;
-            this.action = action;
         }
     }
 
