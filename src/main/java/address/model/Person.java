@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author Marco Jakob
  */
-public class Person extends DataType {
+public class Person extends UniqueData {
 
     private final StringProperty firstName;
     private final StringProperty lastName;

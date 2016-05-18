@@ -9,7 +9,6 @@ import address.events.*;
 import address.exceptions.DuplicateDataException;
 import address.exceptions.DuplicateGroupException;
 import address.exceptions.DuplicatePersonException;
-import address.util.DataConstraints;
 import address.util.PlatformEx;
 import com.google.common.eventbus.Subscribe;
 
@@ -118,7 +117,7 @@ public class ModelManager {
      * @throws DuplicateDataException when this operation would cause duplicates
      */
     public synchronized void addPersons(Collection<Person> toAdd) throws DuplicateDataException {
-        if (!DataConstraints.canCombineWithoutDuplicates(personData, toAdd)) {
+        if (!UniqueData.canCombineWithoutDuplicates(personData, toAdd)) {
             throw new DuplicateDataException("Adding these " + toAdd.size() + " new people");
         }
         personData.addAll(toAdd);
@@ -142,7 +141,7 @@ public class ModelManager {
      * @throws DuplicateDataException when this operation would cause duplicates
      */
     public synchronized void addGroups(Collection<ContactGroup> toAdd) throws DuplicateDataException {
-        if (!DataConstraints.canCombineWithoutDuplicates(groupData, toAdd)) {
+        if (!UniqueData.canCombineWithoutDuplicates(groupData, toAdd)) {
             throw new DuplicateDataException("Adding these " + toAdd.size() + " new contact groups");
         }
         groupData.addAll(toAdd);
@@ -300,9 +299,9 @@ public class ModelManager {
      * @param newData target will be updated to match newData's state
      * @return true if there were changes from the update.
      */
-    private synchronized <E extends DataType> boolean diffUpdate(Collection<E> target, Collection<E> newData) {
-        assert DataConstraints.itemsAreUnique(target) : "target of diffUpdate should not have duplicates";
-        assert DataConstraints.itemsAreUnique(newData) : "newData for diffUpdate should not have duplicates";
+    private synchronized <E extends UniqueData> boolean diffUpdate(Collection<E> target, Collection<E> newData) {
+        assert UniqueData.itemsAreUnique(target) : "target of diffUpdate should not have duplicates";
+        assert UniqueData.itemsAreUnique(newData) : "newData for diffUpdate should not have duplicates";
 
         final Map<E, E> remaining = new HashMap<>(); // has to be map; sets do not allow specific retrieval
         newData.forEach((item) -> remaining.put(item, item));
@@ -328,7 +327,7 @@ public class ModelManager {
     }
 
     /**
-     * Allows generic DataType .update() calling without having to know which class it is.
+     * Allows generic UniqueData .update() calling without having to know which class it is.
      * Because java does not allow self-referential generic type parameters.
      *
      * Does not trigger any events.
@@ -336,7 +335,7 @@ public class ModelManager {
      * @param target to be updated
      * @param newData data used for update
      */
-    private <E extends DataType> void updateDataItem(E target, E newData) {
+    private <E extends UniqueData> void updateDataItem(E target, E newData) {
         if (target instanceof Person && newData instanceof Person) {
             ((Person) target).update((Person) newData);
             return;
@@ -345,6 +344,6 @@ public class ModelManager {
             ((ContactGroup) target).update((ContactGroup) newData);
             return;
         }
-        assert false : "need to add logic for any new DataType classes";
+        assert false : "need to add logic for any new UniqueData classes";
     }
 }

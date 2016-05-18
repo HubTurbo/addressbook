@@ -1,15 +1,13 @@
-package address.util;
-
-import address.model.DataType;
+package address.model;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Utility methods for enforcing data constraints
+ * Indicates data container classes
  */
-public class DataConstraints {
+public abstract class UniqueData {
 
     /**
      * Checks that the argument collection fulfills the set property.
@@ -17,7 +15,7 @@ public class DataConstraints {
      * @param items group of items to be tested
      * @return true if no duplicates found in items
      */
-    public static <D extends DataType> boolean itemsAreUnique(Collection<D> items) {
+    public static <D extends UniqueData> boolean itemsAreUnique(Collection<D> items) {
         final Set<D> test = new HashSet<>();
         for (D item : items) {
             if (!test.add(item)) return false;
@@ -25,7 +23,7 @@ public class DataConstraints {
         return true;
     }
 
-    public static <D extends DataType> boolean canCombineWithoutDuplicates(Collection<D>... itemCollections) {
+    public static <D extends UniqueData> boolean canCombineWithoutDuplicates(Collection<D>... itemCollections) {
         return areUniqueAndDisjoint(itemCollections);
     }
 
@@ -35,7 +33,7 @@ public class DataConstraints {
      * @param itemCollections
      * @return true if every collection in itemCollections contains no duplicates and are disjoint
      */
-    public static <D extends DataType> boolean areUniqueAndDisjoint(Collection<D>... itemCollections) {
+    public static <D extends UniqueData> boolean areUniqueAndDisjoint(Collection<D>... itemCollections) {
         final Set<D> test = new HashSet<>();
         for (Collection<D> items : itemCollections) {
             for (D item : items) {
@@ -44,4 +42,14 @@ public class DataConstraints {
         }
         return true;
     }
+
+    // force implementation of custom equals and hashcode
+    @Override
+    public abstract boolean equals(Object other);
+    @Override
+    public abstract int hashCode();
+
+    // force custom toString
+    @Override
+    public abstract String toString();
 }
