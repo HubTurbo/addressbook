@@ -3,6 +3,7 @@ package address.util;
 import address.model.AddressBook;
 import address.model.ContactGroup;
 import address.model.Person;
+import address.updater.model.UpdateData;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -37,5 +38,24 @@ public class XmlHelper {
 
         // Marshalling and saving XML to the file.
         m.marshal(wrapper, file);
+    }
+
+    public static UpdateData getUpdateDataFromFile(File file) throws JAXBException {
+        JAXBContext context = JAXBContext
+                .newInstance(UpdateData.class);
+        Unmarshaller um = context.createUnmarshaller();
+
+        // Reading XML from the file and unmarshalling.
+        return ((UpdateData) um.unmarshal(file));
+    }
+
+    public static void saveUpdateDataToFile(File file, UpdateData updateData)
+            throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(UpdateData.class);
+        Marshaller m = context.createMarshaller();
+        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        // Marshalling and saving XML to the file.
+        m.marshal(updateData, file);
     }
 }

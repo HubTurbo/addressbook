@@ -11,6 +11,7 @@ import address.model.ModelManager;
 import address.preferences.PreferencesManager;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
+import address.updater.UpdateManager;
 import address.util.Config;
 
 import javafx.application.Application;
@@ -26,6 +27,7 @@ public class MainApp extends Application {
     protected StorageManager storageManager;
     protected ModelManager modelManager;
     protected SyncManager syncManager;
+    protected UpdateManager updateManager;
     private MainController mainController;
 
     public MainApp() {}
@@ -59,12 +61,15 @@ public class MainApp extends Application {
         storageManager = new StorageManager(modelManager);
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
+        updateManager = new UpdateManager();
+        updateManager.run();
     }
 
     @Override
     public void stop() {
         mainController.getPrimaryStage().hide();
         mainController.releaseResourcesForAppTermination();
+        updateManager.applyUpdate();
         Platform.exit();
         System.exit(0);
     }

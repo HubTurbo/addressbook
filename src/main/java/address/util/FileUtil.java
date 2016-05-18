@@ -9,8 +9,14 @@ import java.util.List;
 /**
  * Writes and reads file
  */
-public class FileHelper {
+public class FileUtil {
     private static final String CHARSET = "UTF-8";
+
+    public static boolean isFileExists(String filepath) {
+        File file = new File(filepath);
+
+        return file.exists() && file.isFile();
+    }
 
     /**
      * Creates a file and its parent directories if it does not exists
@@ -63,7 +69,7 @@ public class FileHelper {
      * @return List of filenames failed to be moved
      */
     public static List<String> moveContentOfADirectoryToAnother(String sourceDir, String targetDir) {
-        List<File> sourceFiles = FileHelper.listFilesInDir(Paths.get(sourceDir));
+        List<File> sourceFiles = FileUtil.listFilesInDir(Paths.get(sourceDir));
         List<String> failedToMoveFiles = new ArrayList<>();
 
         for (File sourceFile : sourceFiles) {
@@ -71,7 +77,7 @@ public class FileHelper {
             Path targetFilePath = Paths.get(targetDir + File.separator + sourceFile.getName());
 
             try {
-                FileHelper.moveFile(sourceFilePath, targetFilePath, true);
+                FileUtil.moveFile(sourceFilePath, targetFilePath, true);
             } catch (IOException e) {
                 e.printStackTrace();
                 failedToMoveFiles.add(sourceFile.getPath());
