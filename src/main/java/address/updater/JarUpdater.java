@@ -124,6 +124,10 @@ public class JarUpdater extends Application {
     private void applyUpdate(Path source, Path dest) throws IOException {
         log("Applying update for " + dest.toString());
 
+        if (!FileUtil.isFileExists(dest.toString())) {
+            FileUtil.createParentDirsOfFile(dest.toFile());
+        }
+
         for (int i = 0; i < MAX_RETRY; i++) {
             try {
                 FileUtil.moveFile(source, dest, true);

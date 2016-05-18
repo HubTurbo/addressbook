@@ -28,11 +28,7 @@ public class FileUtil {
             return false;
         }
 
-        File parentDir = file.getParentFile();
-
-        if (parentDir != null && !parentDir.exists() && parentDir.mkdirs()) {
-            throw new IOException("Failed to make parent directories of file");
-        }
+        createParentDirsOfFile(file);
 
         return file.createNewFile();
     }
@@ -57,6 +53,18 @@ public class FileUtil {
         return filepaths;
     }
 
+    public static void createParentDirsOfFile(File file) throws IOException {
+        File parentDir = file.getParentFile();
+
+        if (parentDir != null && !parentDir.exists() && !parentDir.mkdirs()) {
+            throw new IOException("Failed to make parent directories of file");
+        }
+    }
+
+    /**
+     * Move file from source to dest
+     * @param isOverwrite set true to overwrite source
+     */
     public static void moveFile(Path source, Path dest, boolean isOverwrite) throws IOException {
         if (isOverwrite) {
             Files.move(source, dest, StandardCopyOption.REPLACE_EXISTING);
