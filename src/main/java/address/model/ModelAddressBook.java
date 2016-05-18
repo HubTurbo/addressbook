@@ -1,6 +1,9 @@
 package address.model;
 
 
+import address.events.CloudChangeResultReturnedEvent;
+import com.google.common.eventbus.Subscribe;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -15,31 +18,29 @@ public class ModelAddressBook extends AddressBook implements IModelData {
     private List<ModelPerson> persons = new ArrayList<>();
     private List<ModelContactGroup> groups = new ArrayList<>();
 
+    public ModelAddressBook() {
+    }
+
     public ModelAddressBook(boolean isPending) {
         this.isPending = isPending;
     }
 
-    /*public ModelAddressBook(AddressBook addressBook, boolean isPending) {
-        super(addressBook);
-        this.isPending = isPending;
-    }*/
-
-
-    @Override
-    @XmlElement(name = "persons")
-    public List<Person> getPersons() {
-        return super.getPersons().stream()
-                .map(Person::new)
-                .collect(Collectors.toList());
+    public void setModelPersons(List<ModelPerson> persons) {
+        this.persons = persons;
     }
 
+    public void setModelGroups(List<ModelContactGroup> groups) {
+        this.groups = groups;
+    }
 
-    @Override
+    @XmlElement(name = "persons")
+    public List<ModelPerson> getModelPersons() {
+        return this.persons;
+    }
+
     @XmlElement(name = "groups")
-    public List<ContactGroup> getGroups() {
-        return groups.stream()
-                .map(ContactGroup::new)
-                .collect(Collectors.toList());
+    public List<ModelContactGroup> getModelGroups() {
+        return this.groups;
     }
 
     @Override
@@ -51,14 +52,6 @@ public class ModelAddressBook extends AddressBook implements IModelData {
     @Override
     public void setPending(boolean isPending) {
         this.isPending = isPending;
-    }
-
-    public void setModelPersons(List<ModelPerson> persons) {
-        this.persons = persons;
-    }
-
-    public void setModelGroups(List<ModelContactGroup> groups) {
-        this.groups = groups;
     }
 
     @Override

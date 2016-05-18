@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Helps with reading from and writing to the XML file.
+ * Helps with reading from and writing to XML files.
  */
 public class XmlHelper {
 
@@ -25,7 +25,7 @@ public class XmlHelper {
 
     public static void saveModelToFile(File file, List<ModelPerson> personData, List<ModelContactGroup> groupData)
             throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(AddressBook.class);
+        JAXBContext context = JAXBContext.newInstance(ModelAddressBook.class);
         Marshaller m = context.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 

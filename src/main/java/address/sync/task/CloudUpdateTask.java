@@ -8,6 +8,7 @@ import address.sync.CloudSimulator;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CloudUpdateTask implements Runnable {
@@ -26,15 +27,19 @@ public class CloudUpdateTask implements Runnable {
     public void run() {
         System.out.println("Requesting changes to the cloud: " + System.nanoTime());
         File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().toString() + "-mirror.xml");
+
+        List<UniqueData> allData = new ArrayList<>();
+        allData.addAll(personsData);
+        allData.addAll(groupsData);
         try {
             simulator.requestChangesToCloud(mirrorFile, ModelManager.convertToPersons(this.personsData),
                                             ModelManager.convertToGroups(this.groupsData), 3);
             EventManager.getInstance().post(new CloudChangeResultReturnedEvent(
-                    CloudChangeResultReturnedEvent.Result.EDIT, this.personsData, true));
+                    CloudChangeResultReturnedEvent.Result.EDIT, allData, true));
         } catch (JAXBException e) {
             System.out.println("Error requesting changes to the cloud");
             EventManager.getInstance().post(new CloudChangeResultReturnedEvent(
-                    CloudChangeResultReturnedEvent.Result.EDIT, this.personsData, false));
+                    CloudChangeResultReturnedEvent.Result.EDIT, allData, false));
         }
     }
 }

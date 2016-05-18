@@ -1,7 +1,6 @@
 package address.events;
 
-import address.model.IModelData;
-import address.model.ModelPerson;
+import address.model.UniqueData;
 
 import java.util.List;
 
@@ -10,11 +9,11 @@ public class CloudChangeResultReturnedEvent {
         ADD, DELETE, EDIT
     }
 
-    public List<ModelPerson> affectedData;
+    public List<UniqueData> affectedData;
     public boolean isSuccessful;
     public Result operationType;
 
-    public CloudChangeResultReturnedEvent(Result operationType, List<ModelPerson> affectedData, boolean isSuccessful) {
+    public CloudChangeResultReturnedEvent(Result operationType, List<UniqueData> affectedData, boolean isSuccessful) {
         this.affectedData = affectedData;
         this.isSuccessful = isSuccessful;
         this.operationType = operationType;
