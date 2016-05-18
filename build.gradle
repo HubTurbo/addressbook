@@ -50,6 +50,7 @@ allprojects {
     dependencies {
         compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+        compile 'commons-io:commons-io:2.4'
         compile "org.controlsfx:controlsfx:$controlsfxVersion"
         compile "com.google.code.gson:gson:$gsonVersion"
         compile "com.google.guava:guava:$guavaVersion"
@@ -58,14 +59,14 @@ allprojects {
         compile "com.teamdev.jxbrowser:jxbrowser-linux32:$jxBrowserVersion"
         compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
         testCompile "junit:junit:$junitVersion"
-    		testCompile "org.testfx:testfx-core:4.0.+"
+        testCompile "org.testfx:testfx-core:4.0.+"
         testCompile "org.testfx:testfx-junit:4.0.+"
-    		testCompile "org.testfx:testfx-legacy:4.0.+", {
-            	exclude group: "junit", module: "junit"
+        testCompile "org.testfx:testfx-legacy:4.0.+", {
+            exclude group: "junit", module: "junit"
         }
         testCompile "org.mockito:mockito-core:$mockitoVersion"
         testCompile group: "org.mock-server", name: "mockserver-netty", version: "$mockServerVersion"
- 		    testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
+        testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
         compile fileTree(dir: 'lib', include: 'license.jar')
     }
 
@@ -73,9 +74,30 @@ allprojects {
         manifest {
             attributes 'Main-Class': 'address.MainApp'
         }
+        archiveName = 'addressbook.jar'
     }
 
     assemble.dependsOn shadowJar
+}
+
+task compileJarUpdater(type: Jar) {
+    group = "Compiling and Release"
+
+    manifest{
+        attributes 'Implementation-Title': 'Jar Updater',
+                'Implementation-Version': '1.0',
+                'Main-Class': 'address.updater.JarUpdater',
+                'Class-Path': configurations.runtime.files.collect { "../lib/${it.name}" }.join(" ")
+    }
+    archiveName = 'jarUpdater'
+    destinationDir = file('src/main/resources/updater')
+
+    with jar
+
+    from sourceSets.main.output
+    include('address/updater/JarUpdater.class')
+    include('address/util/FileUtil.class')
+    include('address/updater/LocalUpdateSpecificationHelper.class')
 }
 
 task wrapper(type: Wrapper) {
