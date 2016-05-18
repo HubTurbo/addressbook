@@ -70,9 +70,7 @@ public class SyncManager {
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
-        requestExecutor.execute(new CloudUpdateTask(this.cloudSimulator,
-                                                    ModelManager.convertToPersons(lmce.personData),
-                                                    ModelManager.convertToGroups(lmce.groupData)));
+        requestExecutor.execute(new CloudUpdateTask(this.cloudSimulator, lmce.personData, lmce.groupData));
     }
 
     @Subscribe

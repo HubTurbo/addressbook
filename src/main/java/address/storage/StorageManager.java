@@ -34,7 +34,7 @@ public class StorageManager {
     }
 
     @Subscribe
-    private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce){
+    private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
         final File targetFile = PreferencesManager.getInstance().getPersonFile();
         System.out.println("Local data changed, saving to primary data file");
         saveDataToFile(targetFile, lmce.personData, lmce.groupData);

@@ -1,7 +1,8 @@
 package address.sync.task;
 
-import address.model.ContactGroup;
-import address.model.Person;
+import address.events.CloudChangeResultReturnedEvent;
+import address.events.EventManager;
+import address.model.*;
 import address.preferences.PreferencesManager;
 import address.sync.CloudSimulator;
 
@@ -11,10 +12,11 @@ import java.util.List;
 
 public class CloudUpdateTask implements Runnable {
     private final CloudSimulator simulator;
-    private final List<Person> personsData;
-    private final List<ContactGroup> groupsData;
+    private final List<ModelPerson> personsData;
+    private final List<ModelContactGroup> groupsData;
 
-    public CloudUpdateTask(CloudSimulator simulator, List<Person> personsData, List<ContactGroup> groupsData) {
+    public CloudUpdateTask(CloudSimulator simulator, List<ModelPerson> personsData,
+                           List<ModelContactGroup> groupsData) {
         this.simulator = simulator;
         this.personsData = personsData;
         this.groupsData = groupsData;
@@ -25,9 +27,14 @@ public class CloudUpdateTask implements Runnable {
         System.out.println("Requesting changes to the cloud: " + System.nanoTime());
         File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().toString() + "-mirror.xml");
         try {
-            simulator.requestChangesToCloud(mirrorFile, this.personsData, this.groupsData, 3);
+            simulator.requestChangesToCloud(mirrorFile, ModelManager.convertToPersons(this.personsData),
+                                            ModelManager.convertToGroups(this.groupsData), 3);
+            EventManager.getInstance().post(new CloudChangeResultReturnedEvent(
+                    CloudChangeResultReturnedEvent.Result.EDIT, this.personsData, true));
         } catch (JAXBException e) {
             System.out.println("Error requesting changes to the cloud");
+            EventManager.getInstance().post(new CloudChangeResultReturnedEvent(
+                    CloudChangeResultReturnedEvent.Result.EDIT, this.personsData, false));
         }
     }
 }
