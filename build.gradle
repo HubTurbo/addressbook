@@ -32,6 +32,7 @@ allprojects {
         mavenCentral()
         maven { url "https://repo.eclipse.org/content/repositories/egit-releases/" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "http://maven.teamdev.com/repository/products" }
     }
 
     project.ext {
@@ -43,35 +44,83 @@ allprojects {
         testFxVersion = '3.1.0'
         mockitoVersion = '1+'
         mockServerVersion = '3.10.1'
+        jxBrowserVersion = '6.4'
     }
 
     dependencies {
         compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+        compile 'commons-io:commons-io:2.4'
         compile "org.controlsfx:controlsfx:$controlsfxVersion"
         compile "com.google.code.gson:gson:$gsonVersion"
         compile "com.google.guava:guava:$guavaVersion"
+        compile "com.teamdev.jxbrowser:jxbrowser-win:$jxBrowserVersion"
+        compile "com.teamdev.jxbrowser:jxbrowser-mac:$jxBrowserVersion"
+        compile "com.teamdev.jxbrowser:jxbrowser-linux32:$jxBrowserVersion"
+        compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
         testCompile "junit:junit:$junitVersion"
-    		testCompile "org.testfx:testfx-core:4.0.+"
+        testCompile "org.testfx:testfx-core:4.0.+"
         testCompile "org.testfx:testfx-junit:4.0.+"
-    		testCompile "org.testfx:testfx-legacy:4.0.+", {
-            	exclude group: "junit", module: "junit"
+        testCompile "org.testfx:testfx-legacy:4.0.+", {
+            exclude group: "junit", module: "junit"
         }
         testCompile "org.mockito:mockito-core:$mockitoVersion"
         testCompile group: "org.mock-server", name: "mockserver-netty", version: "$mockServerVersion"
- 		    testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
-        compile fileTree(dir: 'lib', include: '*.jar')
+        testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
+        compile fileTree(dir: 'lib', include: 'license.jar')
     }
 
     jar {
         manifest {
-            attributes 'Main-Class': 'address.MainApp'
+            attributes 'Main-Class': 'address.MainApp',
+                    'Class-Path': configurations.runtime.files.collect { "lib/${it.name}" }.join(" ")
         }
+        archiveName = 'addressbook.jar'
     }
 
     assemble.dependsOn shadowJar
 }
 
+task createARelease {
+    group = "Compiling and Release"
+
+    doFirst {
+        println "A guide to create a release (to be automated)"
+        println "============================================="
+        println "1. Run compileJarUpdater - under compiling and release"
+        println "2. Run jar - under build"
+        println "3. Run copyDep - under compiling and release"
+        println "4. Release includes addressbook.jar and the lib folder in build/libs"
+        println "(temp) to enable update, put UpdateData.xml into build/libs/update"
+    }
+}
+
+task copyDep(type: Copy) {
+    group = "Compiling and Release"
+
+    from configurations.compile
+    into 'build/libs/lib'
+}
+
+task compileJarUpdater(type: Jar) {
+    group = "Compiling and Release"
+
+    manifest{
+        attributes 'Implementation-Title': 'Jar Updater',
+                'Implementation-Version': '1.0',
+                'Main-Class': 'address.updater.JarUpdater',
+                'Class-Path': configurations.runtime.files.collect { "../lib/${it.name}" }.join(" ")
+    }
+    archiveName = 'jarUpdater'
+    destinationDir = file('src/main/resources/updater')
+
+    with jar
+
+    from sourceSets.main.output
+    include('address/updater/JarUpdater.class')
+    include('address/util/FileUtil.class')
+    include('address/updater/LocalUpdateSpecificationHelper.class')
+}
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.12'

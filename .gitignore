@@ -1,7 +1,9 @@
 build/
 .gradle/
 .idea/
-lib/
+lib/*
+!lib/license.jar
 *.iml
 *.log
 /*.xml
+update/

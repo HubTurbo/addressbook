@@ -1,7 +1,5 @@
 package address.util;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Config values used by the app
  */

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<updatedata>
+    <versions>
+        <versiondescriptor>
+            <versionNumber>0</versionNumber>
+            <filestobeupdated>
+                <fileupdatedescriptor>
+                    <filePath>addressbook.jar</filePath>
+                    <downloadLink>https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/addressbook-3.27.0.jar</downloadLink>
+                </fileupdatedescriptor>
+            </filestobeupdated>
+        </versiondescriptor>
+        <versiondescriptor>
+            <versionNumber>2</versionNumber>
+            <filestobeupdated>
+                <fileupdatedescriptor>
+                    <filePath>lib/jxbrowser-mac-6.4.jar</filePath>
+                    <downloadLink>https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/jxbrowser-mac-6.4.jar</downloadLink>
+                </fileupdatedescriptor>
+            </filestobeupdated>
+        </versiondescriptor>
+        <versiondescriptor>
+            <versionNumber>3</versionNumber>
+            <filestobeupdated>
+                <fileupdatedescriptor>
+                    <filePath>lib/log4j-api-2.3.jar</filePath>
+                    <downloadLink>https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/log4j-api-2.3.jar</downloadLink>
+                </fileupdatedescriptor>
+            </filestobeupdated>
+        </versiondescriptor>
+    </versions>
+</updatedata>
