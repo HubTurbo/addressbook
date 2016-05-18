@@ -32,6 +32,7 @@ allprojects {
         mavenCentral()
         maven { url "https://repo.eclipse.org/content/repositories/egit-releases/" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "http://maven.teamdev.com/repository/products" }
     }
 
     project.ext {
@@ -43,6 +44,7 @@ allprojects {
         testFxVersion = '3.1.0'
         mockitoVersion = '1+'
         mockServerVersion = '3.10.1'
+        jxBrowserVersion = '6.4'
     }
 
     dependencies {
@@ -51,6 +53,10 @@ allprojects {
         compile "org.controlsfx:controlsfx:$controlsfxVersion"
         compile "com.google.code.gson:gson:$gsonVersion"
         compile "com.google.guava:guava:$guavaVersion"
+        compile group: "com.teamdev.jxbrowser", name: "jxbrowser-win", version: "$jxBrowserVersion"
+        compile group: "com.teamdev.jxbrowser", name: "jxbrowser-mac", version: "$jxBrowserVersion"
+        compile group: "com.teamdev.jxbrowser", name: "jxbrowser-linux32", version: "$jxBrowserVersion"
+        compile group: "com.teamdev.jxbrowser", name: "jxbrowser-linux64", version: "$jxBrowserVersion"
         testCompile "junit:junit:$junitVersion"
     		testCompile "org.testfx:testfx-core:4.0.+"
         testCompile "org.testfx:testfx-junit:4.0.+"
@@ -60,7 +66,6 @@ allprojects {
         testCompile "org.mockito:mockito-core:$mockitoVersion"
         testCompile group: "org.mock-server", name: "mockserver-netty", version: "$mockServerVersion"
  		    testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
-        compile fileTree(dir: 'lib', include: '*.jar')
     }
 
     jar {
