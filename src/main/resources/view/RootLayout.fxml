@@ -14,10 +14,10 @@
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
-            <MenuItem mnemonicParsing="false" onAction="#handleNew" text="New" accelerator="Ctrl+N" />
-            <MenuItem mnemonicParsing="false" onAction="#handleOpen" text="Open..." accelerator="Ctrl+O" />
-            <MenuItem mnemonicParsing="false" onAction="#handleSave" text="Save" accelerator="Ctrl+S" />
-            <MenuItem mnemonicParsing="false" onAction="#handleSaveAs" text="Save As..." accelerator="Ctrl+Alt+S" />
+            <MenuItem fx:id="menuFileNew" mnemonicParsing="false" onAction="#handleNew" text="New" />
+            <MenuItem fx:id="menuFileOpen" mnemonicParsing="false" onAction="#handleOpen" text="Open..." />
+            <MenuItem fx:id="menuFileSave" mnemonicParsing="false" onAction="#handleSave" text="Save" />
+            <MenuItem fx:id="menuFileSaveAs" mnemonicParsing="false" onAction="#handleSaveAs" text="Save As..." />
             <MenuItem mnemonicParsing="false" onAction="#handleAppendSampleData" text="Append Sample Data" />
             <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
           </items>

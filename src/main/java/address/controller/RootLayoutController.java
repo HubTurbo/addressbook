@@ -13,9 +13,11 @@ import address.exceptions.DuplicateGroupException;
 import address.model.ContactGroup;
 import address.model.ModelManager;
 import address.preferences.PreferencesManager;
+import address.shortcuts.ShortcutsManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 
 /**
@@ -29,10 +31,29 @@ public class RootLayoutController {
     private ModelManager modelManager;
     private MainApp mainApp;
 
+    @FXML
+    private MenuItem menuFileNew;
+
+    @FXML
+    private MenuItem menuFileOpen;
+
+    @FXML
+    private MenuItem menuFileSave;
+
+    @FXML
+    private MenuItem menuFileSaveAs;
+
     public void setConnections(MainApp mainApp, MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
         this.modelManager = modelManager;
         this.mainApp = mainApp;
+    }
+
+    public void setShortcuts(){
+        menuFileNew.setAccelerator(ShortcutsManager.SHORTCUT_FILE_NEW);
+        menuFileOpen.setAccelerator(ShortcutsManager.SHORTCUT_FILE_OPEN);
+        menuFileSave.setAccelerator(ShortcutsManager.SHORTCUT_FILE_SAVE);
+        menuFileSaveAs.setAccelerator(ShortcutsManager.SHORTCUT_FILE_SAVE_AS);
     }
 
     /**
