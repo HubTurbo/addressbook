@@ -9,6 +9,7 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -35,24 +36,23 @@ public class CloudSimulator {
      * Gets the updated data subjected to simulated random behaviors such as random changes,
      * random delays and random failures. The data is originally obtained from a given file.
      * The data is possibly modified in each call to this method and is persisted onto the same file.
-     * When failure condition occurs, this returns an empty data set.
+     * When failure condition occurs, this returns an empty optional
+     *
+     * @return optional wrapping the (possibly corrupted) data, or empty if retrieving failed.
      */
-    public AddressBook getSimulatedCloudData(File cloudFile) {
+    public Optional<AddressBook> getSimulatedCloudData(File cloudFile) {
         System.out.println("Simulating cloud data retrieval...");
-        AddressBook modifiedData = new AddressBook();
         try {
+            AddressBook modifiedData;
             AddressBook data = XmlFileHelper.getDataFromFile(cloudFile);
             if (!this.simulateUnreliableNetwork) {
-                return data;
+                return Optional.of(data);
             }
 
             // no data could be retrieved
             if (RANDOM_GENERATOR.nextDouble() <= FAILURE_PROBABILITY) {
                 System.out.println("Cloud simulator: failure occurred! Could not retrieve data");
-                AddressBook wrapper = new AddressBook();
-                wrapper.setPersons(new ArrayList<>());
-                wrapper.setGroups(new ArrayList<>());
-                return wrapper;
+                return Optional.empty();
             }
 
             modifiedData = simulateDataModification(data);
@@ -60,13 +60,17 @@ public class CloudSimulator {
 
             XmlFileHelper.saveDataToFile(cloudFile, modifiedData.getPersons(), modifiedData.getGroups());
             TimeUnit.SECONDS.sleep(RANDOM_GENERATOR.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC);
+
+            return Optional.of(modifiedData);
+
         } catch (JAXBException e) {
             e.printStackTrace();
             System.out.println("File not found or is not in valid xml format : " + cloudFile);
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return modifiedData;
+        return Optional.empty();
     }
 
     /**
