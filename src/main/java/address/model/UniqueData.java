@@ -5,7 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Indicates data container classes
+ * Indicates datatypes that require some form of uniqueness enforcement.
+ * Includes utility methods for checking uniqueness of collections of data.
  */
 public abstract class UniqueData {
 
