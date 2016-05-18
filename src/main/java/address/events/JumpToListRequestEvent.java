@@ -5,9 +5,14 @@ package address.events;
  */
 public class JumpToListRequestEvent {
 
+    public int targetIndex;
+
+    public JumpToListRequestEvent(int targetIndex) {
+        this.targetIndex = targetIndex;
+    }
 
     @Override
-    public String toString(){
+    public String toString() {
         return this.getClass().getSimpleName();
     }
 }

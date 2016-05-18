@@ -159,20 +159,33 @@ public class PersonOverviewController {
     }
 
     @Subscribe
-    private void HandleDeleteRequestEvent(DeleteRequestEvent event){
+    private void HandleDeleteRequestEvent(DeleteRequestEvent event) {
         handleDeletePerson();
     }
 
     @Subscribe
-    private void HandleEditRequestEvent(EditRequestEvent event){ handleEditPerson(); }
+    private void HandleEditRequestEvent(EditRequestEvent event) {
+        handleEditPerson();
+    }
 
     @Subscribe
-    private void HandleJumpToListRequestEvent(JumpToListRequestEvent event){ jumpToList(); }
+    private void HandleJumpToListRequestEvent(JumpToListRequestEvent event) {
+        jumpToList(event.targetIndex);
+    }
 
-    private void jumpToList() {
+    /**
+     * Jumps the Nth item of the list if it exists. No action if the Nth item does not exist.
+     *
+     * @param targetIndex starts from 1. To jump to 1st item, targetIndex should be 1.
+     */
+    private void jumpToList(int targetIndex) {
         Platform.runLater(() -> {
-            personList.getSelectionModel().select(0);
-            personList.getFocusModel().focus(0);
+            if (personList.getItems().size() < targetIndex) {
+                return;
+            }
+            int indexOfItem = targetIndex - 1 ;//to account for list indexes starting from 0
+            personList.getSelectionModel().select(indexOfItem);
+            personList.getFocusModel().focus(indexOfItem);
             personList.requestFocus();
         });
     }
