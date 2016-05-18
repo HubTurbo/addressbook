@@ -1,8 +1,6 @@
 package address.controller;
 
-import address.events.DeleteRequestEvent;
-import address.events.EventManager;
-import address.events.FilterCommittedEvent;
+import address.events.*;
 import address.exceptions.DuplicatePersonException;
 import address.model.ModelManager;
 import address.model.Person;
@@ -10,9 +8,11 @@ import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
+import address.shortcuts.ShortcutsManager;
 import address.ui.PersonListViewCell;
 import com.google.common.eventbus.Subscribe;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
@@ -148,6 +148,7 @@ public class PersonOverviewController {
         final ContextMenu contextMenu = new ContextMenu();
 
         MenuItem editMenuItem = new MenuItem("Edit");
+        editMenuItem.setAccelerator(ShortcutsManager.SHORTCUT_PERSON_EDIT);
         editMenuItem.setOnAction(e -> handleEditPerson());
         MenuItem deleteMenuItem = new MenuItem("Delete");
         deleteMenuItem.setOnAction(e -> handleDeletePerson());
@@ -158,5 +159,19 @@ public class PersonOverviewController {
     @Subscribe
     private void HandleDeleteRequestEvent(DeleteRequestEvent event){
         handleDeletePerson();
+    }
+
+    @Subscribe
+    private void HandleEditRequestEvent(EditRequestEvent event){ handleEditPerson(); }
+
+    @Subscribe
+    private void HandleJumpToListRequestEvent(JumpToListRequestEvent event){ jumpToList(); }
+
+    private void jumpToList() {
+        Platform.runLater(() -> {
+            personList.getSelectionModel().select(0);
+            personList.getFocusModel().focus(0);
+            personList.requestFocus();
+        });
     }
 }
