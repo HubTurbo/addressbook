@@ -57,7 +57,7 @@ public class CloudSimulator {
 
             modifiedData = simulateDataModification(data);
             modifiedData.getPersons().addAll(simulateDataAddition());
-            XmlHelper.saveToFile(cloudFile, modifiedData.getPersons(), modifiedData.getGroups());
+            XmlHelper.saveDataToFile(cloudFile, modifiedData.getPersons(), modifiedData.getGroups());
             TimeUnit.SECONDS.sleep(RANDOM_GENERATOR.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC);
         } catch (JAXBException e) {
             e.printStackTrace();
@@ -78,7 +78,7 @@ public class CloudSimulator {
         if (file == null) return;
         List<Person> newPeople = people.stream().map(Person::new).collect(Collectors.toList());
         List<ContactGroup> newGroups = groups.stream().map(ContactGroup::new).collect(Collectors.toList());
-        XmlHelper.saveToFile(file, newPeople, newGroups);
+        XmlHelper.saveDataToFile(file, newPeople, newGroups);
         try {
             TimeUnit.SECONDS.sleep(delay);
         } catch (InterruptedException e) {

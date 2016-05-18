@@ -3,6 +3,7 @@ package address.controller;
 import address.events.*;
 import address.exceptions.DuplicatePersonException;
 import address.model.ModelManager;
+import address.model.ModelPerson;
 import address.model.Person;
 import address.parser.ParseException;
 import address.parser.Parser;
@@ -25,7 +26,7 @@ import java.util.Optional;
 public class PersonOverviewController {
 
     @FXML
-    private ListView<Person> personList;
+    private ListView<ModelPerson> personList;
 
     @FXML
     private TextField filterField;
@@ -51,7 +52,7 @@ public class PersonOverviewController {
         this.modelManager = modelManager;
 
         // Add observable list data to the list
-        personList.setItems(modelManager.getFilteredPersons());
+        personList.setItems(modelManager.getFilteredPersonsModel());
         personList.setCellFactory(listView -> new PersonListViewCell());
         personList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue)
                         -> mainController.loadGithubProfilePage(newValue.getGithubUserName()));

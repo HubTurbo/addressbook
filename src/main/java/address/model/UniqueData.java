@@ -13,7 +13,7 @@ public abstract class UniqueData {
     /**
      * Checks that the argument collection fulfills the set property.
      *
-     * @param items group of items to be tested
+     * @param items collection of items to be tested
      * @return true if no duplicates found in items
      */
     public static <D extends UniqueData> boolean itemsAreUnique(Collection<D> items) {
@@ -24,19 +24,22 @@ public abstract class UniqueData {
         return true;
     }
 
-    public static <D extends UniqueData> boolean canCombineWithoutDuplicates(Collection<D>... itemCollections) {
-        return areUniqueAndDisjoint(itemCollections);
+    public static <D extends UniqueData> boolean canCombineWithoutDuplicates(Collection<D> first, Collection<D>... rest) {
+        return areUniqueAndDisjoint(first, rest);
     }
 
     /**
-     * Checks that the argument collections fulfill the Set property and are disjoint relative to each other.
+     * Checks that the argument collections fulfill the Set property and are disjoint.
      *
-     * @param itemCollections
-     * @return true if every collection in itemCollections contains no duplicates and are disjoint
+     * @return true if every collection in the arguments contains no duplicates and are disjoint
      */
-    public static <D extends UniqueData> boolean areUniqueAndDisjoint(Collection<D>... itemCollections) {
+    @SafeVarargs
+    public static <D extends UniqueData> boolean areUniqueAndDisjoint(Collection<D> head, Collection<D>... tail) {
         final Set<D> test = new HashSet<>();
-        for (Collection<D> items : itemCollections) {
+        for (D item : head) {
+            if (!test.add(item)) return false;
+        }
+        for (Collection<D> items : tail) {
             for (D item : items) {
                 if (!test.add(item)) return false;
             }

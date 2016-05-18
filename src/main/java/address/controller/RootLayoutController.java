@@ -83,8 +83,8 @@ public class RootLayoutController {
     @FXML
     private void handleSave() {
         final File saveFile = PreferencesManager.getInstance().getPersonFile();
-        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getPersons(),
-                                                             modelManager.getGroupData()));
+        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getPersonsModel(),
+                                                             modelManager.getGroupModel()));
     }
 
     /**
@@ -102,8 +102,8 @@ public class RootLayoutController {
             file = new File(file.getPath() + ".xml");
         }
         PreferencesManager.getInstance().setPersonFilePath(file);
-        EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersons(),
-                                        modelManager.getGroupData()));
+        EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonsModel(),
+                                        modelManager.getGroupModel()));
     }
 
     /**
@@ -184,6 +184,6 @@ public class RootLayoutController {
 
     @FXML
     private void handleShowGroups() {
-        mainController.showGroupList(modelManager.getGroupData());
+        mainController.showGroupList(modelManager.getGroupModel());
     }
 }
