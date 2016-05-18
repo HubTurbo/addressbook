@@ -3,7 +3,7 @@ package address.sync;
 import address.model.AddressBook;
 import address.model.ContactGroup;
 import address.model.Person;
-import address.util.XmlHelper;
+import address.util.XmlFileHelper;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -41,7 +41,7 @@ public class CloudSimulator {
         System.out.println("Simulating cloud data retrieval...");
         AddressBook modifiedData = new AddressBook();
         try {
-            AddressBook data = XmlHelper.getDataFromFile(cloudFile);
+            AddressBook data = XmlFileHelper.getDataFromFile(cloudFile);
             if (!this.simulateUnreliableNetwork) {
                 return data;
             }
@@ -57,7 +57,8 @@ public class CloudSimulator {
 
             modifiedData = simulateDataModification(data);
             modifiedData.getPersons().addAll(simulateDataAddition());
-            XmlHelper.saveDataToFile(cloudFile, modifiedData.getPersons(), modifiedData.getGroups());
+
+            XmlFileHelper.saveDataToFile(cloudFile, modifiedData.getPersons(), modifiedData.getGroups());
             TimeUnit.SECONDS.sleep(RANDOM_GENERATOR.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC);
         } catch (JAXBException e) {
             e.printStackTrace();
@@ -78,7 +79,7 @@ public class CloudSimulator {
         if (file == null) return;
         List<Person> newPeople = people.stream().map(Person::new).collect(Collectors.toList());
         List<ContactGroup> newGroups = groups.stream().map(ContactGroup::new).collect(Collectors.toList());
-        XmlHelper.saveDataToFile(file, newPeople, newGroups);
+        XmlFileHelper.saveDataToFile(file, newPeople, newGroups);
         try {
             TimeUnit.SECONDS.sleep(delay);
         } catch (InterruptedException e) {

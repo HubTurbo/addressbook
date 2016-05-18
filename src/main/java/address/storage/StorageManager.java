@@ -2,9 +2,12 @@ package address.storage;
 
 import address.events.*;
 import address.exceptions.FileContainsDuplicatesException;
-import address.model.*;
-import address.preferences.PreferencesManager;
-import address.util.XmlHelper;
+import address.model.AddressBook;
+import address.model.ModelContactGroup;
+import address.model.ModelManager;
+import address.model.ModelPerson;
+import address.preferences.PrefsManager;
+import address.util.XmlFileHelper;
 import com.google.common.eventbus.Subscribe;
 
 import javax.xml.bind.JAXBException;
@@ -25,7 +28,7 @@ public class StorageManager {
     private void handleLoadDataRequestEvent(LoadDataRequestEvent ofe) {
         try {
             AddressBook data = loadDataFromSaveFile(ofe.file);
-            PreferencesManager.getInstance().setPersonFilePath(ofe.file);
+            PrefsManager.getInstance().setSaveFile(ofe.file);
             modelManager.updateUsingExternalData(data);
         } catch (JAXBException | FileContainsDuplicatesException e) {
             System.out.println(e);
@@ -35,14 +38,14 @@ public class StorageManager {
 
     @Subscribe
     private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
-        final File targetFile = PreferencesManager.getInstance().getPersonFile();
+        final File targetFile = PrefsManager.getInstance().getSaveFile();
         System.out.println("Local data changed, saving to primary data file");
         saveDataToFile(targetFile, lmce.personData, lmce.groupData);
     }
 
     @Subscribe
     private void handleLocalModelSyncedEvent(LocalModelSyncedFromCloudEvent lmse) {
-        final File targetFile = PreferencesManager.getInstance().getPersonFile();
+        final File targetFile = PrefsManager.getInstance().getSaveFile();
         System.out.println("Local data synced, saving to primary data file");
         saveDataToFile(targetFile, lmse.personData, lmse.groupData);
     }
@@ -59,7 +62,7 @@ public class StorageManager {
      */
     public static void saveDataToFile(File file, List<ModelPerson> personData, List<ModelContactGroup> groupData) {
         try {
-            XmlHelper.saveModelToFile(file, personData, groupData);
+            XmlFileHelper.saveModelToFile(file, personData, groupData);
         } catch (Exception e) {
             EventManager.getInstance().post(new FileSavingExceptionEvent(e, file));
         }
@@ -73,7 +76,7 @@ public class StorageManager {
      */
     public static AddressBook loadDataFromSaveFile(File file) throws JAXBException, FileContainsDuplicatesException {
         assert file != null;
-        AddressBook data = XmlHelper.getDataFromFile(file);
+        AddressBook data = XmlFileHelper.getDataFromFile(file);
         if (data.containsDuplicates()) throw new FileContainsDuplicatesException(file);
         return data;
     }

@@ -9,8 +9,8 @@ import address.controller.MainController;
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
 import address.model.ModelManager;
-import address.preferences.PreferencesManager;
 import address.shortcuts.ShortcutsManager;
+import address.preferences.PrefsManager;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
 import address.updater.UpdateManager;
@@ -55,15 +55,14 @@ public class MainApp extends Application {
         setupComponents();
         mainController.start(primaryStage);
 
-        EventManager.getInstance().post(new LoadDataRequestEvent(PreferencesManager.getInstance().getPersonFile()));
+        // initial load (requires mainController to be started.
+        EventManager.getInstance().post(new LoadDataRequestEvent(PrefsManager.getInstance().getSaveFile()));
         syncManager.startSyncingData(config.updateInterval, config.simulateUnreliableNetwork);
     }
 
     protected void setupComponents() {
         config = getConfig();
-        PreferencesManager.setAppTitle(config.appTitle);
-
-        modelManager = new ModelManager(new AddressBook());
+        modelManager = new ModelManager(new AddressBook()); // empty model first
         storageManager = new StorageManager(modelManager);
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();

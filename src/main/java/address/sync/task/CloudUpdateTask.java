@@ -3,7 +3,7 @@ package address.sync.task;
 import address.events.CloudChangeResultReturnedEvent;
 import address.events.EventManager;
 import address.model.*;
-import address.preferences.PreferencesManager;
+import address.preferences.PrefsManager;
 import address.sync.CloudSimulator;
 
 import javax.xml.bind.JAXBException;
@@ -26,11 +26,13 @@ public class CloudUpdateTask implements Runnable {
     @Override
     public void run() {
         System.out.println("Requesting changes to the cloud: " + System.nanoTime());
-        File mirrorFile = new File(PreferencesManager.getInstance().getPersonFile().toString() + "-mirror.xml");
 
         List<UniqueData> allData = new ArrayList<>();
         allData.addAll(personsData);
         allData.addAll(groupsData);
+
+        File mirrorFile = PrefsManager.getInstance().getMirrorFile();
+
         try {
             simulator.requestChangesToCloud(mirrorFile, ModelManager.convertToPersons(this.personsData),
                                             ModelManager.convertToGroups(this.groupsData), 3);

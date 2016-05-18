@@ -7,7 +7,7 @@ import address.model.ContactGroup;
 import address.model.ModelContactGroup;
 import address.model.ModelManager;
 import address.model.Person;
-import address.preferences.PreferencesManager;
+import address.preferences.PrefsManager;
 import address.util.Config;
 
 import com.google.common.eventbus.Subscribe;
@@ -60,7 +60,7 @@ public class MainController {
 
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        setTitle(config.appTitle, PreferencesManager.getInstance().getPersonFile());
+        setTitle(config.appTitle, PrefsManager.getInstance().getSaveFile());
 
         // Set the application icon.
         this.primaryStage.getIcons().add(getImage(ICON_APPLICATION));
@@ -304,7 +304,7 @@ public class MainController {
 
     @Subscribe
     public void handleFileNameChangedEvent(FileNameChangedEvent fnce){
-        setTitle(config.appTitle, fnce.file != null ? fnce.file : new File(PreferencesManager.DEFAULT_FILE_PATH));
+        setTitle(config.appTitle, fnce.file != null ? fnce.file : new File(PrefsManager.DEFAULT_TEMP_FILE_PATH));
     }
 
     /**

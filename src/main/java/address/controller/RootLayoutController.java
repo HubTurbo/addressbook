@@ -12,8 +12,8 @@ import address.exceptions.DuplicateDataException;
 import address.exceptions.DuplicateGroupException;
 import address.model.ContactGroup;
 import address.model.ModelManager;
-import address.preferences.PreferencesManager;
 import address.shortcuts.ShortcutsManager;
+import address.preferences.PrefsManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -61,7 +61,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleNew() {
-        PreferencesManager.getInstance().setPersonFilePath(null);
+        PrefsManager.getInstance().setSaveFile(null);
         modelManager.resetData(Collections.emptyList(), Collections.emptyList());
     }
 
@@ -82,7 +82,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleSave() {
-        final File saveFile = PreferencesManager.getInstance().getPersonFile();
+        final File saveFile = PrefsManager.getInstance().getSaveFile();
         EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getPersonsModel(),
                                                              modelManager.getGroupModel()));
     }
@@ -101,7 +101,8 @@ public class RootLayoutController {
         if (!file.getPath().endsWith(".xml")) {
             file = new File(file.getPath() + ".xml");
         }
-        PreferencesManager.getInstance().setPersonFilePath(file);
+
+        PrefsManager.getInstance().setSaveFile(file);
         EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonsModel(),
                                         modelManager.getGroupModel()));
     }
@@ -131,7 +132,7 @@ public class RootLayoutController {
         final FileChooser fileChooser = new FileChooser();
 
         fileChooser.getExtensionFilters().add(extFilter);
-        final File currentFile = PreferencesManager.getInstance().getPersonFile();
+        final File currentFile = PrefsManager.getInstance().getSaveFile();
         fileChooser.setInitialDirectory(currentFile.getParentFile());
         return fileChooser;
     }
