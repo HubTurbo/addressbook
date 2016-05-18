@@ -178,10 +178,9 @@ public class PersonEditDialogController extends EditDialogController {
             }
         }
 
-        if (isFilled(birthdayField)) {
-            if (birthdayField.getText().length() != 0 && !DateUtil.validDate(birthdayField.getText())) {
-                errorMessage += "No valid birthday. Use the format dd.mm.yyyy!\n";
-            }
+        if (isFilled(birthdayField) && birthdayField.getText().length() != 0
+                && !DateUtil.validDate(birthdayField.getText())) {
+            errorMessage += "No valid birthday. Use the format dd.mm.yyyy!\n";
         }
 
         if (isFilled(githubUserNameField)) {

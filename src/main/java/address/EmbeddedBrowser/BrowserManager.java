@@ -43,7 +43,7 @@ public class BrowserManager {
     private void automateClickingAndScrolling() {
         DOMElement container = browser.getDocument().findElement(By.id("js-pjax-container"));
         DOMElement link = browser.getDocument().findElement(By.className("octicon octicon-repo"));
-        if(link != null) {
+        if (link != null) {
             container.addEventListener(DOMEventType.OnLoad, e ->
                             browser.executeCommand(EditorCommand.SCROLL_TO_END_OF_DOCUMENT)
                     , true);

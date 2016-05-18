@@ -362,8 +362,8 @@ public class MainController {
 
     public void showPersonWebPage() {
         BrowserView browserView = new BrowserView(browserManager.getBrowser());
-        browserManager.getBrowser().loadHTML("<html><body><h3>To view contact's web page, click on the contact on the left." +
-                "</h3></body></html>");
+        browserManager.getBrowser().loadHTML("<html><body><h3>" +
+                "To view contact's web page, click on the contact on the left.</h3></body></html>");
         rootLayout.setCenter(browserView);
     }
 }

@@ -45,7 +45,7 @@ public class FileHelper {
                     filepaths.add(path.toFile());
                 }
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return filepaths;

@@ -32,6 +32,7 @@ allprojects {
         mavenCentral()
         maven { url "https://repo.eclipse.org/content/repositories/egit-releases/" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "http://maven.teamdev.com/repository/products" }
     }
 
     project.ext {
@@ -43,6 +44,7 @@ allprojects {
         testFxVersion = '3.1.0'
         mockitoVersion = '1+'
         mockServerVersion = '3.10.1'
+        jxBrowserVersion = '6.4'
     }
 
     dependencies {
@@ -51,6 +53,10 @@ allprojects {
         compile "org.controlsfx:controlsfx:$controlsfxVersion"
         compile "com.google.code.gson:gson:$gsonVersion"
         compile "com.google.guava:guava:$guavaVersion"
+        compile "com.teamdev.jxbrowser:jxbrowser-win:$jxBrowserVersion"
+        compile "com.teamdev.jxbrowser:jxbrowser-mac:$jxBrowserVersion"
+        compile "com.teamdev.jxbrowser:jxbrowser-linux32:$jxBrowserVersion"
+        compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
         testCompile "junit:junit:$junitVersion"
     		testCompile "org.testfx:testfx-core:4.0.+"
         testCompile "org.testfx:testfx-junit:4.0.+"
@@ -60,7 +66,7 @@ allprojects {
         testCompile "org.mockito:mockito-core:$mockitoVersion"
         testCompile group: "org.mock-server", name: "mockserver-netty", version: "$mockServerVersion"
  		    testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
-        compile fileTree(dir: 'lib', include: '*.jar')
+        compile fileTree(dir: 'lib', include: 'license.jar')
     }
 
     jar {
@@ -71,7 +77,6 @@ allprojects {
 
     assemble.dependsOn shadowJar
 }
-
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.12'
