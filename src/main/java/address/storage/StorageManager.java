@@ -6,7 +6,7 @@ import address.model.AddressBook;
 import address.model.ModelContactGroup;
 import address.model.ModelManager;
 import address.model.ModelPerson;
-import address.preferences.PrefsManager;
+import address.prefs.PrefsManager;
 import address.util.XmlFileHelper;
 import com.google.common.eventbus.Subscribe;
 

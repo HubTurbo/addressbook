@@ -6,7 +6,7 @@ import address.model.ContactGroup;
 import address.model.ModelContactGroup;
 import address.model.ModelManager;
 import address.model.Person;
-import address.preferences.PrefsManager;
+import address.prefs.PrefsManager;
 import address.util.Config;
 import address.browser.BrowserManager;
 

@@ -7,8 +7,7 @@ import address.events.NewMirrorDataEvent;
 import address.events.SaveRequestEvent;
 import address.exceptions.FileContainsDuplicatesException;
 import address.model.AddressBook;
-import address.model.ModelManager;
-import address.preferences.PrefsManager;
+import address.prefs.PrefsManager;
 import address.sync.task.CloudUpdateTask;
 import com.google.common.eventbus.Subscribe;
 

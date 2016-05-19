@@ -3,7 +3,7 @@ package address.sync.task;
 import address.events.CloudChangeResultReturnedEvent;
 import address.events.EventManager;
 import address.model.*;
-import address.preferences.PrefsManager;
+import address.prefs.PrefsManager;
 import address.sync.CloudSimulator;
 
 import javax.xml.bind.JAXBException;

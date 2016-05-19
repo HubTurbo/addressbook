@@ -1,7 +1,6 @@
 package address.controller;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.Optional;
 
 import address.MainApp;
@@ -13,7 +12,8 @@ import address.exceptions.DuplicateGroupException;
 import address.model.ContactGroup;
 import address.model.ModelManager;
 import address.shortcuts.ShortcutsManager;
-import address.preferences.PrefsManager;
+import address.prefs.PrefsManager;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;

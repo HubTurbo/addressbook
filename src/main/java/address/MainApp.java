@@ -10,7 +10,7 @@ import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
 import address.model.ModelManager;
 import address.shortcuts.ShortcutsManager;
-import address.preferences.PrefsManager;
+import address.prefs.PrefsManager;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
 import address.updater.UpdateManager;

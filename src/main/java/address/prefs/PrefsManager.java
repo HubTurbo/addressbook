@@ -1,4 +1,4 @@
-package address.preferences;
+package address.prefs;
 
 import address.events.EventManager;
 import address.events.SaveFileChangedEvent;
