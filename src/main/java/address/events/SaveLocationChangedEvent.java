@@ -8,14 +8,14 @@ import java.io.File;
 public class SaveLocationChangedEvent extends BaseEvent {
 
     /** The new file */
-    public File save;
+    public final File saveFile;
 
     public SaveLocationChangedEvent(File file){
-        this.save = file;
+        this.saveFile = file;
     }
 
     @Override
     public String toString(){
-        return save == null ? "Save file location cleared." : "New save file location is: " + save;
+        return saveFile == null ? "Save file location cleared." : "New save file location is: " + saveFile;
     }
 }

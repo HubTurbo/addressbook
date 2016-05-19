@@ -28,7 +28,6 @@ public class StorageManager {
     private void handleLoadDataRequestEvent(LoadDataRequestEvent ofe) {
         try {
             AddressBook data = loadDataFromSaveFile(ofe.file);
-            PrefsManager.getInstance().setSaveLocation(ofe.file);
             modelManager.updateUsingExternalData(data);
         } catch (JAXBException | FileContainsDuplicatesException e) {
             System.out.println(e);

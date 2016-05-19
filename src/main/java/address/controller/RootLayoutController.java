@@ -14,9 +14,11 @@ import address.model.ModelManager;
 import address.shortcuts.ShortcutsManager;
 import address.prefs.PrefsManager;
 
+import com.google.common.eventbus.Subscribe;
+
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.text.Text;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 
@@ -26,6 +28,10 @@ import javafx.stage.FileChooser;
  * elements can be placed.
  */
 public class RootLayoutController {
+
+    public static final String SAVE_LOC_TEXT_PREFIX = "Save File: ";
+    public static final String MIRROR_LOC_TEXT_PREFIX = "Mirror File: ";
+    public static final String LOC_TEXT_NOT_SET = "[NOT SET]";
 
     private MainController mainController;
     private ModelManager modelManager;
@@ -43,6 +49,22 @@ public class RootLayoutController {
     @FXML
     private MenuItem menuFileSaveAs;
 
+    @FXML
+    private Text saveLocText;
+    @FXML
+    private Text mirrorLocText;
+
+    public RootLayoutController() {
+        EventManager.getInstance().registerHandler(this);
+    }
+
+    @FXML
+    private void initialize() {
+        updateSaveLocDisplay();
+        updateMirrorLocDisplay();
+    }
+
+
     public void setConnections(MainApp mainApp, MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
         this.modelManager = modelManager;
@@ -55,6 +77,42 @@ public class RootLayoutController {
         menuFileSave.setAccelerator(ShortcutsManager.SHORTCUT_FILE_SAVE);
         menuFileSaveAs.setAccelerator(ShortcutsManager.SHORTCUT_FILE_SAVE_AS);
     }
+
+    @Subscribe
+    private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
+        updateSaveLocDisplay();
+    }
+
+    @Subscribe
+    private void handleMirrorLocationChangedEvent(MirrorLocationChangedEvent e) {
+        updateMirrorLocDisplay();
+    }
+
+    private void updateSaveLocDisplay() {
+        saveLocText.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
+                PrefsManager.getInstance().getSaveLocation() : LOC_TEXT_NOT_SET));
+    }
+
+    private void updateMirrorLocDisplay() {
+        mirrorLocText.setText(MIRROR_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isMirrorLocationSet() ?
+                PrefsManager.getInstance().getMirrorLocation() : LOC_TEXT_NOT_SET));
+    }
+
+    /**
+     * @return a file chooser for choosing xml files. The initial folder is set to the same folder that the
+     *     current data file is located (if any).
+     */
+    private FileChooser getXmlFileChooser() {
+        // Set extension filter
+        final FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
+        final FileChooser fileChooser = new FileChooser();
+
+        fileChooser.getExtensionFilters().add(extFilter);
+        final File currentFile = PrefsManager.getInstance().getSaveLocation();
+        fileChooser.setInitialDirectory(currentFile.getParentFile());
+        return fileChooser;
+    }
+
 
     /**
      * Creates a new empty address book at the default filepath
@@ -74,6 +132,7 @@ public class RootLayoutController {
         // Show open file dialog
         File file = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
         if (file == null) return;
+        PrefsManager.getInstance().setSaveLocation(file);
         EventManager.getInstance().post(new LoadDataRequestEvent(file));
     }
 
@@ -120,22 +179,6 @@ public class RootLayoutController {
                     "Adding sample data clashes with existing data",
                     "Some existing data already matches those in the sample data");
         }
-    }
-
-
-    /**
-     * @return a file chooser for choosing xml files. The initial folder is set to the same folder that the
-     *     current data file is located (if any).
-     */
-    private FileChooser getXmlFileChooser() {
-        // Set extension filter
-        final FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
-        final FileChooser fileChooser = new FileChooser();
-
-        fileChooser.getExtensionFilters().add(extFilter);
-        final File currentFile = PrefsManager.getInstance().getSaveLocation();
-        fileChooser.setInitialDirectory(currentFile.getParentFile());
-        return fileChooser;
     }
 
     /**

@@ -61,7 +61,7 @@ public class MainController {
 
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        setTitle(config.appTitle, PrefsManager.getInstance().getSaveLocation());
+        primaryStage.setTitle(config.appTitle);
 
         // Set the application icon.
         this.primaryStage.getIcons().add(getImage(ICON_APPLICATION));
@@ -301,19 +301,6 @@ public class MainController {
      */
     public Stage getPrimaryStage() {
         return primaryStage;
-    }
-
-    @Subscribe
-    public void handleSaveLocationChangedEvent(SaveLocationChangedEvent fnce){
-        setTitle(config.appTitle, fnce.save != null ? fnce.save : new File(PrefsManager.DEFAULT_TEMP_FILE_PATH));
-    }
-
-    /**
-     * Sets the title of the app UI based on the file location
-     * @param file the data file used by the app, or null if no file chosen
-     */
-    public void setTitle(String appTitle, File file) {
-        primaryStage.setTitle(appTitle + " - " + file.getName());
     }
 
     @Subscribe

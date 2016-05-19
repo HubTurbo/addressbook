@@ -8,14 +8,14 @@ import java.io.File;
 public class MirrorLocationChangedEvent {
 
     /** The new file */
-    public File mirror;
+    public final File mirrorFile;
 
     public MirrorLocationChangedEvent(File file){
-        this.mirror = file;
+        this.mirrorFile = file;
     }
 
     @Override
     public String toString(){
-        return mirror == null ? "Mirror file location cleared." : "New mirror file location is: " + mirror;
+        return mirrorFile == null ? "Mirror file location cleared." : "New mirror file location is: " + mirrorFile;
     }
 }

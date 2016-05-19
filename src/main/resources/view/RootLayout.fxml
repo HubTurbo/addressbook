@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
 
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.controller.RootLayoutController">
+<VBox maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="162.0" prefWidth="209.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.controller.RootLayoutController">
    <children>
-      <MenuBar>
+      <MenuBar VBox.vgrow="ALWAYS">
          <menus>
             <Menu mnemonicParsing="false" text="File">
                <items>
@@ -37,7 +39,16 @@
             </Menu>
          </menus>
       </MenuBar>
-      <SplitPane id="splitPane" fx:id="splitPane" VBox.vgrow="ALWAYS" />
+      <AnchorPane>
+         <children>
+            <Text fx:id="saveLocText" layoutX="14.0" layoutY="15.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" AnchorPane.leftAnchor="10.0" />
+            <Text fx:id="mirrorLocText" layoutX="176.0" layoutY="15.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" AnchorPane.rightAnchor="10.0" />
+         </children>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+      </AnchorPane>
+      <SplitPane id="splitPane" fx:id="splitPane" prefHeight="295.0" prefWidth="209.0" VBox.vgrow="ALWAYS" />
    </children>
 </VBox>
 
