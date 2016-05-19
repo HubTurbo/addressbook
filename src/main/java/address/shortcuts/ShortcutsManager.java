@@ -35,7 +35,6 @@ public class ShortcutsManager {
 
         SHORTCUT_FILE_NEW = setShortcut(KeyCode.N, KeyCombination.CONTROL_DOWN);
 
-
         SHORTCUT_FILE_OPEN = setShortcut(KeyCode.O, KeyCombination.CONTROL_DOWN);
 
         SHORTCUT_FILE_SAVE = setShortcut(KeyCode.S, KeyCombination.CONTROL_DOWN);
@@ -45,7 +44,7 @@ public class ShortcutsManager {
         /*====== other keys ======================================================*/
 
         SHORTCUT_LIST_ENTER = setShortcut(KeyCode.DOWN, KeyCombination.CONTROL_DOWN,
-                ()-> EventManager.getInstance().post(new JumpToListRequestEvent(1)));
+                () -> EventManager.getInstance().post(new JumpToListRequestEvent(1)));
 
         //shortcuts for jumping to Nth item in the list n=1..9
         setShortcut(KeyCode.DIGIT1, KeyCombination.CONTROL_DOWN,
@@ -80,9 +79,9 @@ public class ShortcutsManager {
      * @param modifierKey
      * @return corresponding key combination
      */
-    private static KeyCombination setShortcut(KeyCode mainKey, KeyCombination.Modifier... modifierKey){
-        KeyCodeCombination keyCodeCombination = new KeyCodeCombination(mainKey,modifierKey);
-        shortcuts.add(new Shortcut(keyCodeCombination, ()->{}));
+    private static KeyCombination setShortcut(KeyCode mainKey, KeyCombination.Modifier... modifierKey) {
+        KeyCodeCombination keyCodeCombination = new KeyCodeCombination(mainKey, modifierKey);
+        shortcuts.add(new Shortcut(keyCodeCombination, () -> {}));
         return keyCodeCombination;
     }
 
@@ -93,9 +92,10 @@ public class ShortcutsManager {
      * @param action
      * @return corresponding key combination
      */
-    private static KeyCodeCombination setShortcut(KeyCode mainKey, KeyCombination.Modifier modifierKey, Runnable action) {
+    private static KeyCodeCombination setShortcut(KeyCode mainKey, KeyCombination.Modifier modifierKey,
+                                                  Runnable action) {
         KeyCodeCombination keyCombination = new KeyCodeCombination(mainKey, modifierKey);
-        shortcuts.add(new Shortcut(keyCombination,action));
+        shortcuts.add(new Shortcut(keyCombination, action));
         return keyCombination;
     }
 
@@ -105,9 +105,10 @@ public class ShortcutsManager {
      * @param action
      * @return corresponding key combination
      */
-    private static KeyCodeCombination setShortcut(KeyCode mainKey, Runnable action) {
+    // temporarily set to public to suppress findbugs warning
+    public static KeyCodeCombination setShortcut(KeyCode mainKey, Runnable action) {
         KeyCodeCombination keyCombination = new KeyCodeCombination(mainKey);
-        shortcuts.add(new Shortcut(keyCombination,action));
+        shortcuts.add(new Shortcut(keyCombination, action));
         return keyCombination;
     }
 
@@ -115,13 +116,12 @@ public class ShortcutsManager {
      * @param keyEvent
      * @return the Shortcut that matches the keyEvent
      */
-    private Optional<Runnable> getAction(KeyEvent keyEvent){
-       Optional<Shortcut> matchingShortcut =
-               shortcuts
-                .stream()
-                .filter(shortcut -> shortcut.keyCombination.match(keyEvent))
-                .findFirst();
-        return Optional.ofNullable(matchingShortcut.isPresent()? matchingShortcut.get().action : null);
+    private Optional<Runnable> getAction(KeyEvent keyEvent) {
+        Optional<Shortcut> matchingShortcut =
+                shortcuts.stream()
+                        .filter(shortcut -> shortcut.keyCombination.match(keyEvent))
+                        .findFirst();
+        return Optional.ofNullable(matchingShortcut.isPresent() ? matchingShortcut.get().action : null);
     }
 
     @Subscribe

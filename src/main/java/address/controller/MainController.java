@@ -1,6 +1,6 @@
 package address.controller;
 
-import address.Browser.BrowserManager;
+import address.browser.BrowserManager;
 import address.MainApp;
 import address.events.*;
 import address.model.ContactGroup;
@@ -81,14 +81,14 @@ public class MainController {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
             rootLayout = loader.load();
-            SplitPane pane = (SplitPane)rootLayout.lookup("#splitPane");
+            SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
             pane.setDividerPositions(0.3f);
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
             scene.setOnKeyPressed(event -> {
-                EventManager.getInstance().post(new PotentialKeyboardShortcutEvent(event));
-            });
+                    EventManager.getInstance().post(new PotentialKeyboardShortcutEvent(event));
+                });
             primaryStage.setMinHeight(400);
             primaryStage.setMinWidth(740);
             primaryStage.setHeight(600);
@@ -120,7 +120,7 @@ public class MainController {
             AnchorPane personOverview = loader.load();
             personOverview.setMinWidth(340);
             personOverview.setPrefWidth(340);
-            SplitPane pane = (SplitPane)rootLayout.lookup("#splitPane");
+            SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
             pane.setResizableWithParent(personOverview, false);
             pane.getItems().add(personOverview);
 
@@ -369,9 +369,9 @@ public class MainController {
 
     public void showPersonWebPage() {
         BrowserView browserView = new BrowserView(browserManager.getBrowser());
-        browserManager.getBrowser().loadHTML("<html><body><h3>To view contact's web page, click on the contact on the left." +
-                "</h3></body></html>");
-        SplitPane pane = (SplitPane)rootLayout.lookup("#splitPane");
+        browserManager.getBrowser().loadHTML("<html><body><h3>" +
+                "To view contact's web page, click on the contact on the left.</h3></body></html>");
+        SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
         pane.getItems().add(browserView);
     }
 }

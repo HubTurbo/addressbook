@@ -147,7 +147,9 @@ public class UpdateManager {
 
     private void downloadFile(File targetFile, URL source) throws IOException {
         try (InputStream in = source.openStream()) {
-            FileUtil.createFile(targetFile);
+            if (!FileUtil.createFile(targetFile)) {
+                throw new IOException("Error creating new file.");
+            }
             Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             System.out.println(String.format("UpdateManager - Failed to download update for %s",

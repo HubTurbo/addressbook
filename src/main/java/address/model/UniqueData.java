@@ -24,7 +24,8 @@ public abstract class UniqueData {
         return true;
     }
 
-    public static <D extends UniqueData> boolean canCombineWithoutDuplicates(Collection<D> first, Collection<D>... rest) {
+    public static <D extends UniqueData> boolean canCombineWithoutDuplicates(Collection<D> first,
+                                                                             Collection<D>... rest) {
         return areUniqueAndDisjoint(first, rest);
     }
 

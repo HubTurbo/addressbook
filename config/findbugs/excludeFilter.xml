@@ -2,7 +2,6 @@
     <!-- EC_UNRELATED_TYPES: Call to equals() comparing different types -->
     <!-- Add exceptions for tests here-->
     <Match>
-        <Class name="address.MainApp"/>
         <Method name="stop" />
         <Bug pattern="DM_EXIT" />
     </Match>

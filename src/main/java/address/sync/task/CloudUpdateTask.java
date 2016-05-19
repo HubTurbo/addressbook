@@ -35,11 +35,11 @@ public class CloudUpdateTask implements Runnable {
             simulator.requestChangesToCloud(mirrorFile, ModelManager.convertToPersons(this.personsData),
                                             ModelManager.convertToGroups(this.groupsData), 3);
             EventManager.getInstance().post(new CloudChangeResultReturnedEvent(
-                    CloudChangeResultReturnedEvent.Result.EDIT, allData, true));
+                    CloudChangeResultReturnedEvent.Type.EDIT, allData, true));
         } catch (JAXBException e) {
             System.out.println("Error requesting changes to the cloud");
             EventManager.getInstance().post(new CloudChangeResultReturnedEvent(
-                    CloudChangeResultReturnedEvent.Result.EDIT, allData, false));
+                    CloudChangeResultReturnedEvent.Type.EDIT, allData, false));
         }
     }
 }

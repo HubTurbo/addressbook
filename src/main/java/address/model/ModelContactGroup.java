@@ -31,9 +31,19 @@ public class ModelContactGroup extends ContactGroup implements IModelData {
         this.isPending = isPending;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj) && this.isPending == ((ModelContactGroup) obj).isPending;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() + 42;
+    }
+
     @Subscribe
     public void handleCloudChangeResultReturnedEvent(CloudChangeResultReturnedEvent e) {
-        if (e.isSuccessful) {
+        if (e.isSuccessful && e.operationType == CloudChangeResultReturnedEvent.Type.EDIT) {
             System.out.println("Change for '" + this.getName() + "' successful on cloud. Pending status now false.");
             if (e.affectedData.contains(this)) this.setPending(false);
         }
