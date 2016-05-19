@@ -137,8 +137,7 @@ tasks.withType(FindBugs) {
     }
 }
 
-test {
-    forkEvery = 1
+task checkStyle {
 }
 
 task headless(type: Test) {
@@ -146,7 +145,14 @@ task headless(type: Test) {
     systemProperty 'testfx.headless', 'true'
     systemProperty 'prism.order', 'sw'
     systemProperty 'prism.text', 't2k'
-    forkEvery = 1
 }
 
-defaultTasks 'checkstyleMain', 'checkstyleTest', 'findbugsMain', 'findbugsTest', 'pmdMain', 'pmdTest', 'headless', 'clean'
+task headful(type: Test) {
+}
+
+headless.shouldRunAfter checkStyle
+headful.shouldRunAfter checkStyle
+checkStyle.shouldRunAfter clean
+checkStyle.dependsOn checkstyleMain, checkstyleTest, findbugsMain, findbugsTest, pmdMain, pmdTest
+
+defaultTasks 'clean', 'checkStyle', 'headless'
