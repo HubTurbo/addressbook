@@ -13,12 +13,12 @@ public class GroupEditDialogTest extends GuiTestBase {
         findStageByTitle("Edit Group");
         verifyThat("#groupNameField", (TextField t) -> t.getText().equals(""));
 
-        clickOn("Cancel").clickOn("Groups").clickOn("Manage Groups");
+        clickOn("Cancel").clickOn("Groups").clickOn("Manage Groups")
 
         // to be used after we can load from a custom data file from config
-        /*.doubleClickOn(getWindowNode("List of Contact Groups").lookup("friends").tryQuery().get());
+        .doubleClickOn(getWindowNode("List of Contact Groups").lookup("friends").tryQuery().get());
 
         findStageByTitle("Edit Group");
-        verifyThat("#groupNameField", (TextField t) -> t.getText().equals("friends"));*/
+        verifyThat("#groupNameField", (TextField t) -> t.getText().equals("friends"));
     }
 }
