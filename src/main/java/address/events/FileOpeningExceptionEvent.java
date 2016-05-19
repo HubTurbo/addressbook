@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * Indicates an exception during a file opening
  */
-public class FileOpeningExceptionEvent {
+public class FileOpeningExceptionEvent extends BaseEvent {
 
     public Exception exception;
     public File file;
@@ -17,7 +17,6 @@ public class FileOpeningExceptionEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : " + exception.toString()
-                + "while opening " + file.getName();
+        return exception + "while opening " + file.getName();
     }
 }

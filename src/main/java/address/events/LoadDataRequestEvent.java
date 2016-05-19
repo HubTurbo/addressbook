@@ -9,7 +9,7 @@ import java.io.File;
 /**
  * Indicates a request to load data from the file
  */
-public class LoadDataRequestEvent {
+public class LoadDataRequestEvent extends BaseEvent {
 
     /** The file from which the data to be loaded */
     public File file;
@@ -20,6 +20,6 @@ public class LoadDataRequestEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : from " + file;
+        return "from " + file;
     }
 }

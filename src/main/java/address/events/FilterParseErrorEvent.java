@@ -3,7 +3,7 @@ package address.events;
 /**
  * Indicates that there was a parse error in a filter.
  */
-public class FilterParseErrorEvent {
+public class FilterParseErrorEvent extends BaseEvent {
 
     public final String reason;
 
@@ -13,6 +13,6 @@ public class FilterParseErrorEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : " + reason;
+        return reason;
     }
 }

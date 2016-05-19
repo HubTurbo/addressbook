@@ -5,7 +5,7 @@ import address.parser.expr.Expr;
 /**
  * Indicates that a filter was committed by the user.
  */
-public class FilterCommittedEvent {
+public class FilterCommittedEvent extends BaseEvent {
 
     public final Expr filterExpression;
 
@@ -15,6 +15,6 @@ public class FilterCommittedEvent {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + " : " + filterExpression;
+        return "" + filterExpression;
     }
 }

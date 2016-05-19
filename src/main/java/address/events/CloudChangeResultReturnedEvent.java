@@ -4,7 +4,7 @@ import address.model.UniqueData;
 
 import java.util.List;
 
-public class CloudChangeResultReturnedEvent {
+public class CloudChangeResultReturnedEvent extends BaseEvent {
     public enum Result {
         ADD, DELETE, EDIT
     }
@@ -17,5 +17,10 @@ public class CloudChangeResultReturnedEvent {
         this.affectedData = affectedData;
         this.isSuccessful = isSuccessful;
         this.operationType = operationType;
+    }
+
+    @Override
+    public String toString() {
+        return "Cloud change request result: " + (isSuccessful ? "success!" : "failure.");
     }
 }

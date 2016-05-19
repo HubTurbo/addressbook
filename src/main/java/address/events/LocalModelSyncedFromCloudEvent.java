@@ -8,7 +8,7 @@ import address.model.Person;
 import java.util.List;
 
 /** Indicates person data in the model was synced with data on the cloud */
-public class LocalModelSyncedFromCloudEvent {
+public class LocalModelSyncedFromCloudEvent extends BaseEvent {
 
     public List<ModelPerson> personData;
 
@@ -21,6 +21,6 @@ public class LocalModelSyncedFromCloudEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName()  + " : number of persons " + personData.size();
+        return "number of persons: " + personData.size() + ", number of groups: " + groupData.size();
     }
 }

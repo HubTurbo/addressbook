@@ -5,7 +5,7 @@ import javafx.scene.input.KeyEvent;
 /**
  * Indicates a key event occurred that is potentially a keyboard shortcut
  */
-public class PotentialKeyboardShortcutEvent {
+public class PotentialKeyboardShortcutEvent extends BaseEvent{
 
     /** The key event */
     public KeyEvent keyEvent;

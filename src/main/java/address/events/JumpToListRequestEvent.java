@@ -3,7 +3,7 @@ package address.events;
 /**
  * Indicates a request to jump to the list of persons
  */
-public class JumpToListRequestEvent {
+public class JumpToListRequestEvent extends BaseEvent{
 
     public int targetIndex;
 

@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * Indicates the name of the data file has been changed
  */
-public class FileNameChangedEvent {
+public class FileNameChangedEvent extends BaseEvent {
 
     /** The new file */
     public File file;
@@ -16,11 +16,6 @@ public class FileNameChangedEvent {
 
     @Override
     public String toString(){
-        final String className = this.getClass().getSimpleName();
-        if (file == null) {
-            return className + " : File name cleared";
-        } else {
-            return className + " : New file name is " + file;
-        }
+        return file == null ? "File name cleared" : "New file name is " + file;
     }
 }

@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * Indicates an exception during a file saving
  */
-public class FileSavingExceptionEvent {
+public class FileSavingExceptionEvent extends BaseEvent {
 
     public Exception exception;
     public File file;
@@ -17,6 +17,6 @@ public class FileSavingExceptionEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : " + exception.toString();
+        return "" + exception;
     }
 }

@@ -6,7 +6,7 @@ import address.model.ModelPerson;
 import java.util.List;
 
 /** Indicates data in the model has changed*/
-public class LocalModelChangedEvent {
+public class LocalModelChangedEvent extends BaseEvent {
 
     public List<ModelPerson> personData;
     public List<ModelContactGroup> groupData;
@@ -18,7 +18,6 @@ public class LocalModelChangedEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : number of persons " + personData.size()
-                + ", number of groups " + groupData.size();
+        return "number of persons " + personData.size() + ", number of groups " + groupData.size();
     }
 }

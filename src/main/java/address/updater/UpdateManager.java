@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class UpdateManager {
     public static final String UPDATE_DIRECTORY = "update";
 
+    private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
     private static final String JAR_UPDATER_APP_PATH = UPDATE_DIRECTORY + File.separator + "jarUpdater.jar";
     private static final int VERSION = 1;
 
@@ -36,7 +37,7 @@ public class UpdateManager {
     }
 
     public void run() {
-        pool.execute(() -> checkForUpdate());
+        pool.execute(this::checkForUpdate);
     }
 
     private void checkForUpdate() {
@@ -115,11 +116,8 @@ public class UpdateManager {
             }
         }
 
-        List<FileUpdateDescriptor> fileUpdateDescriptors = filesToBeDownloaded.entrySet().stream()
-                .map(f -> new FileUpdateDescriptor(f.getKey(), f.getValue()))
+        return filesToBeDownloaded.entrySet().stream().map(f -> new FileUpdateDescriptor(f.getKey(), f.getValue()))
                 .collect(Collectors.toList());
-
-        return fileUpdateDescriptors;
     }
 
     /**
@@ -149,11 +147,7 @@ public class UpdateManager {
 
     private void downloadFile(File targetFile, URL source) throws IOException {
         try (InputStream in = source.openStream()) {
-            if (!targetFile.exists()) {
-                targetFile.mkdirs();
-                targetFile.createNewFile();
-            }
-
+            FileUtil.createFile(targetFile);
             Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             System.out.println(String.format("UpdateManager - Failed to download update for %s",
@@ -176,9 +170,10 @@ public class UpdateManager {
             throw new IOException("Failed to create Jar Updater empty file");
         }
 
-        try (InputStream in = UpdateManager.class.getClassLoader().getResourceAsStream("updater/jarUpdater")) {
+        try (InputStream in = UpdateManager.class.getClassLoader().getResourceAsStream(JAR_UPDATER_RESOURCE_PATH)) {
             Files.copy(in, jarUpdaterFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
+            System.out.println("UpdateManager - Failed to extract jar updater");
             throw e;
         }
     }
