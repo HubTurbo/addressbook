@@ -305,7 +305,7 @@ public class MainController {
 
     @Subscribe
     public void handleSaveLocationChangedEvent(SaveLocationChangedEvent fnce){
-        setTitle(config.appTitle, fnce.file != null ? fnce.file : new File(PrefsManager.DEFAULT_TEMP_FILE_PATH));
+        setTitle(config.appTitle, fnce.save != null ? fnce.save : new File(PrefsManager.DEFAULT_TEMP_FILE_PATH));
     }
 
     /**

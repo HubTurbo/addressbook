@@ -3,19 +3,19 @@ package address.events;
 import java.io.File;
 
 /**
- * Indicates the name of the data file has been changed
+ * Indicates the desired save location has changed
  */
 public class SaveLocationChangedEvent extends BaseEvent {
 
     /** The new file */
-    public File file;
+    public File save;
 
     public SaveLocationChangedEvent(File file){
-        this.file = file;
+        this.save = file;
     }
 
     @Override
     public String toString(){
-        return file == null ? "File name cleared" : "New file name is " + file;
+        return save == null ? "Save file location cleared." : "New save file location is: " + save;
     }
 }
