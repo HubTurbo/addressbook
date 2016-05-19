@@ -159,16 +159,6 @@ public class PersonOverviewController {
     }
 
     @Subscribe
-    private void HandleDeleteRequestEvent(DeleteRequestEvent event) {
-        handleDeletePerson();
-    }
-
-    @Subscribe
-    private void HandleEditRequestEvent(EditRequestEvent event) {
-        handleEditPerson();
-    }
-
-    @Subscribe
     private void HandleJumpToListRequestEvent(JumpToListRequestEvent event) {
         jumpToList(event.targetIndex);
     }
