@@ -1,4 +1,4 @@
-package address.Browser;
+package address.browser;
 
 import com.teamdev.jxbrowser.chromium.Browser;
 import com.teamdev.jxbrowser.chromium.EditorCommand;

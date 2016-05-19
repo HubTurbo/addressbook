@@ -5,15 +5,15 @@ import address.model.UniqueData;
 import java.util.List;
 
 public class CloudChangeResultReturnedEvent extends BaseEvent {
-    public enum Result {
+    public enum Type {
         ADD, DELETE, EDIT
     }
 
     public List<UniqueData> affectedData;
     public boolean isSuccessful;
-    public Result operationType;
+    public Type operationType;
 
-    public CloudChangeResultReturnedEvent(Result operationType, List<UniqueData> affectedData, boolean isSuccessful) {
+    public CloudChangeResultReturnedEvent(Type operationType, List<UniqueData> affectedData, boolean isSuccessful) {
         this.affectedData = affectedData;
         this.isSuccessful = isSuccessful;
         this.operationType = operationType;

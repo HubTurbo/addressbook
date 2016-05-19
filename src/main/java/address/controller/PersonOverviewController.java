@@ -159,7 +159,7 @@ public class PersonOverviewController {
     }
 
     @Subscribe
-    private void HandleJumpToListRequestEvent(JumpToListRequestEvent event) {
+    private void handleJumpToListRequestEvent(JumpToListRequestEvent event) {
         jumpToList(event.targetIndex);
     }
 
@@ -170,13 +170,13 @@ public class PersonOverviewController {
      */
     private void jumpToList(int targetIndex) {
         Platform.runLater(() -> {
-            if (personList.getItems().size() < targetIndex) {
-                return;
-            }
-            int indexOfItem = targetIndex - 1 ;//to account for list indexes starting from 0
-            personList.getSelectionModel().select(indexOfItem);
-            personList.getFocusModel().focus(indexOfItem);
-            personList.requestFocus();
-        });
+                if (personList.getItems().size() < targetIndex) {
+                    return;
+                }
+                int indexOfItem = targetIndex - 1; //to account for list indexes starting from 0
+                personList.getSelectionModel().select(indexOfItem);
+                personList.getFocusModel().focus(indexOfItem);
+                personList.requestFocus();
+            });
     }
 }

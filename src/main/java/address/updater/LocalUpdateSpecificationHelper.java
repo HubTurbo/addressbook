@@ -35,13 +35,13 @@ public class LocalUpdateSpecificationHelper {
     }
 
     public static void saveLocalUpdateSpecFile(List<String> affectedFiles) throws IOException {
-        String fileContent = "";
+        StringBuffer fileContent = new StringBuffer();
 
         for (String line : affectedFiles) {
-            fileContent += line + String.format("%n");
+            fileContent.append(line + String.format("%n"));
         }
 
-        FileUtil.writeToFile(new File(LOCAL_UPDATE_DATA_FILE), fileContent.trim());
+        FileUtil.writeToFile(new File(LOCAL_UPDATE_DATA_FILE), fileContent.toString().trim());
     }
 
     /**

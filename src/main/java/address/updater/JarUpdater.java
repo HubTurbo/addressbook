@@ -43,17 +43,17 @@ public class JarUpdater extends Application {
         initLogger();
         showWaitingWindow(stage);
         pool.execute(() -> {
-            try {
-                run();
-            } catch (IllegalArgumentException e) {
-                log(e.getMessage());
-            } catch (IOException e) {
-                log(e.getMessage());
-                showErrorOnUpdatingDialog();
-            }
+                try {
+                    run();
+                } catch (IllegalArgumentException e) {
+                    log(e.getMessage());
+                } catch (IOException e) {
+                    log(e.getMessage());
+                    showErrorOnUpdatingDialog();
+                }
 
-            quit();
-        });
+                stop();
+            });
     }
 
     private void showWaitingWindow(Stage stage) {
@@ -103,10 +103,11 @@ public class JarUpdater extends Application {
 
         applyUpdateToAllFiles(sourceDir, localUpdateData);
 
-        quit();
+        stop();
     }
 
-    public void quit() {
+    @Override
+    public void stop() {
         Platform.exit();
         System.exit(0);
     }
@@ -151,12 +152,12 @@ public class JarUpdater extends Application {
     private void showErrorOnUpdatingDialog() {
         String header = "Failed to update";
         Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText(header);
-            alert.setContentText(ERROR_ON_UPDATING_MESSAGE);
-            alert.showAndWait();
-            quit();
-        });
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText(header);
+                alert.setContentText(ERROR_ON_UPDATING_MESSAGE);
+                alert.showAndWait();
+                stop();
+            });
     }
 
     private void initLogger() {

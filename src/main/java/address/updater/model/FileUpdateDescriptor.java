@@ -9,7 +9,7 @@ import java.net.URL;
 /**
  * Download link for a file
  */
-@XmlRootElement(name="fileupdatedescriptor")
+@XmlRootElement(name = "fileupdatedescriptor")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FileUpdateDescriptor {
     private URI filePath;

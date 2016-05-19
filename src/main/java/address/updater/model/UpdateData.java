@@ -10,8 +10,8 @@ import java.util.ArrayList;
 @XmlSeeAlso({VersionDescriptor.class})
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UpdateData {
-    @XmlElementWrapper(name="versions")
-    @XmlElement(name="versiondescriptor")
+    @XmlElementWrapper(name = "versions")
+    @XmlElement(name = "versiondescriptor")
     private ArrayList<VersionDescriptor> versionFileChanges = new ArrayList<>();
 
     public void setVersionFileChanges(ArrayList<VersionDescriptor> versionFileChanges) {

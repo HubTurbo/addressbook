@@ -31,10 +31,23 @@ public class ModelPerson extends Person implements IModelData {
 
     @Subscribe
     public void handleCloudChangeResultReturnedEvent(CloudChangeResultReturnedEvent e) {
-        if (e.isSuccessful) {
+        if (e.isSuccessful && e.operationType == CloudChangeResultReturnedEvent.Type.EDIT) {
             System.out.println("Change for '" + this.getFirstName() + " " + this.getLastName() + "'" +
                     " successful on cloud. Pending status now false.");
             if (e.affectedData.contains(this)) this.setPending(false);
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (!(obj instanceof ModelPerson)) return false;
+        return super.equals(obj) && this.isPending == ((ModelPerson) obj).isPending;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() + 43;
     }
 }
