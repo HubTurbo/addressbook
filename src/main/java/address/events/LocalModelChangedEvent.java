@@ -18,7 +18,6 @@ public class LocalModelChangedEvent extends BaseEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : number of persons " + personData.size()
-                + ", number of groups " + groupData.size();
+        return "number of persons " + personData.size() + ", number of groups " + groupData.size();
     }
 }

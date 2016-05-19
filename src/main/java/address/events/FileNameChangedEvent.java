@@ -16,11 +16,6 @@ public class FileNameChangedEvent extends BaseEvent {
 
     @Override
     public String toString(){
-        final String className = this.getClass().getSimpleName();
-        if (file == null) {
-            return className + " : File name cleared";
-        } else {
-            return className + " : New file name is " + file;
-        }
+        return file == null ? "File name cleared" : "New file name is " + file;
     }
 }

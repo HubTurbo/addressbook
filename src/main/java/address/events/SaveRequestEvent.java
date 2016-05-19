@@ -28,6 +28,6 @@ public class SaveRequestEvent extends BaseEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : " + file;
+        return "" + file;
     }
 }

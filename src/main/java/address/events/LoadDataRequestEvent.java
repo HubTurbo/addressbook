@@ -20,6 +20,6 @@ public class LoadDataRequestEvent extends BaseEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : from " + file;
+        return "from " + file;
     }
 }

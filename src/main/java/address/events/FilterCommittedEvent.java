@@ -15,6 +15,6 @@ public class FilterCommittedEvent extends BaseEvent {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + " : " + filterExpression;
+        return "" + filterExpression;
     }
 }

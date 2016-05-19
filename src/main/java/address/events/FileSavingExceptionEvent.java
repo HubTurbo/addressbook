@@ -17,6 +17,6 @@ public class FileSavingExceptionEvent extends BaseEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : " + exception.toString();
+        return "" + exception;
     }
 }

@@ -26,7 +26,7 @@ public class EventManager {
     }
 
     public <E extends BaseEvent> EventManager post(E event) {
-        System.out.println(event);
+        System.out.println(event.getClass().getSimpleName() + ": " + event);
         eventBus.post(event);
         return this;
     }

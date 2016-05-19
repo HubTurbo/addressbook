@@ -17,7 +17,6 @@ public class FileOpeningExceptionEvent extends BaseEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : " + exception.toString()
-                + "while opening " + file.getName();
+        return exception + "while opening " + file.getName();
     }
 }

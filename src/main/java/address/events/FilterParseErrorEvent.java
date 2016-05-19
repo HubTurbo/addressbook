@@ -13,6 +13,6 @@ public class FilterParseErrorEvent extends BaseEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : " + reason;
+        return reason;
     }
 }

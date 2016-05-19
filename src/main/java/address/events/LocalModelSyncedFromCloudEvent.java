@@ -21,6 +21,6 @@ public class LocalModelSyncedFromCloudEvent extends BaseEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName()  + " : number of persons " + personData.size();
+        return "number of persons: " + personData.size() + ", number of groups: " + groupData.size();
     }
 }

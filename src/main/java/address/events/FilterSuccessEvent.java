@@ -8,6 +8,6 @@ public class FilterSuccessEvent extends BaseEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName();
+        return "Success!";
     }
 }

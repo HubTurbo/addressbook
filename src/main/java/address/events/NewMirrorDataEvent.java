@@ -13,7 +13,6 @@ public class NewMirrorDataEvent extends BaseEvent {
 
     @Override
     public String toString(){
-        return this.getClass().getSimpleName() + " : number of persons " + data.getPersons().size()
-                + ", number of groups " + data.getGroups().size();
+        return "number of persons " + data.getPersons().size()  + ", number of groups " + data.getGroups().size();
     }
 }
