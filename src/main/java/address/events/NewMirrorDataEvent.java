@@ -3,7 +3,7 @@ package address.events;
 import address.model.AddressBook;
 
 /** Indicates some new data is available from the mirror*/
-public class NewMirrorDataEvent {
+public class NewMirrorDataEvent extends BaseEvent {
 
     public AddressBook data;
 

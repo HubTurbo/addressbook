@@ -24,7 +24,7 @@ public class EventManager {
         eventBus.register(handler);
     }
 
-    public void post(Object event) {
+    public <E extends BaseEvent> void post(E  event) {
         System.out.println(event);
         eventBus.post(event);
     }

@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * Indicates the name of the data file has been changed
  */
-public class FileNameChangedEvent {
+public class FileNameChangedEvent extends BaseEvent {
 
     /** The new file */
     public File file;

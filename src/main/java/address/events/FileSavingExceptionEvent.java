@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * Indicates an exception during a file saving
  */
-public class FileSavingExceptionEvent {
+public class FileSavingExceptionEvent extends BaseEvent {
 
     public Exception exception;
     public File file;

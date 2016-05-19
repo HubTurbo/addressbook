@@ -6,7 +6,7 @@ import address.model.ModelPerson;
 import java.util.List;
 
 /** Indicates data in the model has changed*/
-public class LocalModelChangedEvent {
+public class LocalModelChangedEvent extends BaseEvent {
 
     public List<ModelPerson> personData;
     public List<ModelContactGroup> groupData;

@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Indicates a request for saving data has been raised
  */
-public class SaveRequestEvent {
+public class SaveRequestEvent extends BaseEvent {
 
     /** The file to which the data should be saved */
     public File file;

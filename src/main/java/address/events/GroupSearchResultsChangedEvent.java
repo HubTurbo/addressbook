@@ -4,7 +4,7 @@ import address.model.SelectableContactGroup;
 
 import java.util.List;
 
-public class GroupSearchResultsChangedEvent {
+public class GroupSearchResultsChangedEvent extends BaseEvent {
     List<SelectableContactGroup> selectableContactGroups;
 
     public GroupSearchResultsChangedEvent(List<SelectableContactGroup> selectableContactGroups) {
@@ -15,4 +15,8 @@ public class GroupSearchResultsChangedEvent {
         return this.selectableContactGroups;
     }
 
+    @Override
+    public String toString() {
+        return "Group search results have changed: now " + selectableContactGroups.size() + " items.";
+    }
 }

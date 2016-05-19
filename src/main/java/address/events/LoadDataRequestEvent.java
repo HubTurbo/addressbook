@@ -9,7 +9,7 @@ import java.io.File;
 /**
  * Indicates a request to load data from the file
  */
-public class LoadDataRequestEvent {
+public class LoadDataRequestEvent extends BaseEvent {
 
     /** The file from which the data to be loaded */
     public File file;

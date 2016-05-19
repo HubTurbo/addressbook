@@ -8,7 +8,7 @@ import address.model.Person;
 import java.util.List;
 
 /** Indicates person data in the model was synced with data on the cloud */
-public class LocalModelSyncedFromCloudEvent {
+public class LocalModelSyncedFromCloudEvent extends BaseEvent {
 
     public List<ModelPerson> personData;
 
