@@ -1,7 +1,7 @@
 package address.prefs;
 
 import address.events.EventManager;
-import address.events.SaveFileChangedEvent;
+import address.events.SaveLocationChangedEvent;
 
 import java.util.prefs.Preferences;
 import java.io.File;
@@ -11,8 +11,8 @@ import java.io.File;
   */
 public class PrefsManager {
 
-    public static final String PREF_NODE_NAME_SAVE_FILE = "save-file";
-    public static final String PREF_NODE_NAME_MIRROR_FILE = "mirror-file";
+    public static final String PREF_NODE_NAME_SAVE_LOC = "save-location";
+    public static final String PREF_NODE_NAME_MIRROR_LOC = "mirror-location";
 
     public static final String DEFAULT_TEMP_FILE_PATH = ".$TEMP_ADDRESS_BOOK";
 
@@ -30,8 +30,8 @@ public class PrefsManager {
     /**
      * @return the current save file preference or the default temp file if there is no recorded prederence.
      */
-    public File getSaveFile() {
-        final String filePath = Preferences.userNodeForPackage(PrefsManager.class).get(PREF_NODE_NAME_SAVE_FILE, null);
+    public File getSaveLocation() {
+        final String filePath = Preferences.userNodeForPackage(PrefsManager.class).get(PREF_NODE_NAME_SAVE_LOC, null);
         if (filePath == null) {
             return new File(DEFAULT_TEMP_FILE_PATH);
         } else {
@@ -44,26 +44,26 @@ public class PrefsManager {
      *
      * @param save the desired save file
      */
-    public void setSaveFile(File save) {
+    public void setSaveLocation(File save) {
         assert save != null;
-        Preferences.userNodeForPackage(PrefsManager.class).put(PREF_NODE_NAME_SAVE_FILE, save.getPath());
-        EventManager.getInstance().post(new SaveFileChangedEvent(getSaveFile()));
+        Preferences.userNodeForPackage(PrefsManager.class).put(PREF_NODE_NAME_SAVE_LOC, save.getPath());
+        EventManager.getInstance().post(new SaveLocationChangedEvent(getSaveLocation()));
     }
 
     /**
      * Clears the current preferred save file path.
      */
-    public void clearSaveFilePath() {
-        Preferences.userNodeForPackage(PrefsManager.class).remove(PREF_NODE_NAME_SAVE_FILE);
-        EventManager.getInstance().post(new SaveFileChangedEvent(null));
+    public void clearSaveLocation() {
+        Preferences.userNodeForPackage(PrefsManager.class).remove(PREF_NODE_NAME_SAVE_LOC);
+        EventManager.getInstance().post(new SaveLocationChangedEvent(null));
     }
 
 
     /**
      * @return the current mirror file preference or the default temp file if there is no recorded preference.
      */
-    public File getMirrorFile() {
-        final String filePath = Preferences.userNodeForPackage(PrefsManager.class).get(PREF_NODE_NAME_MIRROR_FILE, null);
+    public File getMirrorLocation() {
+        final String filePath = Preferences.userNodeForPackage(PrefsManager.class).get(PREF_NODE_NAME_MIRROR_LOC, null);
         if (filePath == null) {
             return new File(DEFAULT_TEMP_FILE_PATH);
         } else {
@@ -76,16 +76,16 @@ public class PrefsManager {
      *
      * @param mirror the desired mirror file
      */
-    public void setMirrorFile(File mirror) {
+    public void setMirrorLocation(File mirror) {
         assert mirror != null;
-        Preferences.userNodeForPackage(PrefsManager.class).put(PREF_NODE_NAME_SAVE_FILE, mirror.getPath());
+        Preferences.userNodeForPackage(PrefsManager.class).put(PREF_NODE_NAME_SAVE_LOC, mirror.getPath());
         // TODO some kind of new mirror file event
     }
 
     /**
      * Clears current preferred mirror file path.
      */
-    public void clearMirrorFilePath() {
-        Preferences.userNodeForPackage(PrefsManager.class).remove(PREF_NODE_NAME_MIRROR_FILE);
+    public void clearMirrorLocation() {
+        Preferences.userNodeForPackage(PrefsManager.class).remove(PREF_NODE_NAME_MIRROR_LOC);
     }
 }

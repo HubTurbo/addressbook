@@ -61,8 +61,8 @@ public class RootLayoutController {
      */
     @FXML
     private void handleNew() {
-        PrefsManager.getInstance().clearSaveFilePath();
-        PrefsManager.getInstance().clearMirrorFilePath();
+        PrefsManager.getInstance().clearSaveLocation();
+        PrefsManager.getInstance().clearMirrorLocation();
         modelManager.clearModel();
     }
 
@@ -83,7 +83,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleSave() {
-        final File saveFile = PrefsManager.getInstance().getSaveFile();
+        final File saveFile = PrefsManager.getInstance().getSaveLocation();
         EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getPersonsModel(),
                                                              modelManager.getGroupModel()));
     }
@@ -103,7 +103,7 @@ public class RootLayoutController {
             file = new File(file.getPath() + ".xml");
         }
 
-        PrefsManager.getInstance().setSaveFile(file);
+        PrefsManager.getInstance().setSaveLocation(file);
         EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonsModel(),
                                         modelManager.getGroupModel()));
     }
@@ -133,7 +133,7 @@ public class RootLayoutController {
         final FileChooser fileChooser = new FileChooser();
 
         fileChooser.getExtensionFilters().add(extFilter);
-        final File currentFile = PrefsManager.getInstance().getSaveFile();
+        final File currentFile = PrefsManager.getInstance().getSaveLocation();
         fileChooser.setInitialDirectory(currentFile.getParentFile());
         return fileChooser;
     }

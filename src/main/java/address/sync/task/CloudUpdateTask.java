@@ -31,7 +31,7 @@ public class CloudUpdateTask implements Runnable {
         allData.addAll(personsData);
         allData.addAll(groupsData);
 
-        File mirrorFile = PrefsManager.getInstance().getMirrorFile();
+        File mirrorFile = PrefsManager.getInstance().getMirrorLocation();
         try {
             simulator.requestChangesToCloud(mirrorFile, ModelManager.convertToPersons(this.personsData),
                                             ModelManager.convertToGroups(this.groupsData), 3);

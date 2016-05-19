@@ -24,6 +24,7 @@ public abstract class UniqueData {
         return true;
     }
 
+    @SafeVarargs
     public static <D extends UniqueData> boolean canCombineWithoutDuplicates(Collection<D> first,
                                                                              Collection<D>... rest) {
         return areUniqueAndDisjoint(first, rest);

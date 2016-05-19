@@ -65,7 +65,7 @@ public class SyncManager {
 
     private Optional<AddressBook> getMirrorData() throws FileContainsDuplicatesException {
         System.out.println("Updating data from cloud: " + System.nanoTime());
-        final File mirrorFile = PrefsManager.getInstance().getMirrorFile();
+        final File mirrorFile = PrefsManager.getInstance().getMirrorLocation();
         final Optional<AddressBook> data = cloudSimulator.getSimulatedCloudData(mirrorFile);
         if (data.isPresent()) {
             if (data.get().containsDuplicates()) throw new FileContainsDuplicatesException(mirrorFile);

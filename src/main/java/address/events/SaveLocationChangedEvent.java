@@ -5,12 +5,12 @@ import java.io.File;
 /**
  * Indicates the name of the data file has been changed
  */
-public class SaveFileChangedEvent extends BaseEvent {
+public class SaveLocationChangedEvent extends BaseEvent {
 
     /** The new file */
     public File file;
 
-    public SaveFileChangedEvent(File file){
+    public SaveLocationChangedEvent(File file){
         this.file = file;
     }
 
