@@ -20,13 +20,15 @@ public class EventManager {
         eventBus = new EventBus();
     }
 
-    public void registerHandler(Object handler){
+    public EventManager registerHandler(Object handler){
         eventBus.register(handler);
+        return this;
     }
 
-    public <E extends BaseEvent> void post(E  event) {
+    public <E extends BaseEvent> EventManager post(E event) {
         System.out.println(event);
         eventBus.post(event);
+        return this;
     }
 
 }
