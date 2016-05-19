@@ -14,3 +14,4 @@ Some parts of the code has been adapted from http://code.makery.ch
 
 Information
 - [Testing](docs/Testing.md)
+- [Keyboard Shortcuts](docs/KeyboardShortcuts.md)
