@@ -69,6 +69,10 @@ public class ShortcutsManager {
 
     }
 
+    public ShortcutsManager() {
+        EventManager.getInstance().registerHandler(this);
+    }
+
     /**
      * Adds the shortcut to the list of shortcuts.
      * No action will be taken for this shortcut (suitable for shortcuts already used as an accelerator).

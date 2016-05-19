@@ -65,7 +65,6 @@ public class MainApp extends Application {
         syncManager = new SyncManager();
 
         shortcutsManager = new ShortcutsManager();
-        EventManager.getInstance().registerHandler(shortcutsManager);
 
         updateManager = new UpdateManager();
         updateManager.run();
