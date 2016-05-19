@@ -1,7 +1,6 @@
 package address.controller;
 
-import address.events.EventManager;
-import address.events.FilterCommittedEvent;
+import address.events.*;
 import address.exceptions.DuplicatePersonException;
 import address.model.ModelManager;
 import address.model.ModelPerson;
@@ -10,8 +9,11 @@ import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
+import address.shortcuts.ShortcutsManager;
 import address.ui.PersonListViewCell;
+import com.google.common.eventbus.Subscribe;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
@@ -147,10 +149,34 @@ public class PersonOverviewController {
         final ContextMenu contextMenu = new ContextMenu();
 
         MenuItem editMenuItem = new MenuItem("Edit");
+        editMenuItem.setAccelerator(ShortcutsManager.SHORTCUT_PERSON_EDIT);
         editMenuItem.setOnAction(e -> handleEditPerson());
         MenuItem deleteMenuItem = new MenuItem("Delete");
+        deleteMenuItem.setAccelerator(ShortcutsManager.SHORTCUT_PERSON_DELETE);
         deleteMenuItem.setOnAction(e -> handleDeletePerson());
         contextMenu.getItems().addAll(editMenuItem, deleteMenuItem);
         return contextMenu;
+    }
+
+    @Subscribe
+    private void HandleJumpToListRequestEvent(JumpToListRequestEvent event) {
+        jumpToList(event.targetIndex);
+    }
+
+    /**
+     * Jumps the Nth item of the list if it exists. No action if the Nth item does not exist.
+     *
+     * @param targetIndex starts from 1. To jump to 1st item, targetIndex should be 1.
+     */
+    private void jumpToList(int targetIndex) {
+        Platform.runLater(() -> {
+            if (personList.getItems().size() < targetIndex) {
+                return;
+            }
+            int indexOfItem = targetIndex - 1 ;//to account for list indexes starting from 0
+            personList.getSelectionModel().select(indexOfItem);
+            personList.getFocusModel().focus(indexOfItem);
+            personList.requestFocus();
+        });
     }
 }

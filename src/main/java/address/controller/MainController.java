@@ -2,10 +2,7 @@ package address.controller;
 
 import address.Browser.BrowserManager;
 import address.MainApp;
-import address.events.EventManager;
-import address.events.FileNameChangedEvent;
-import address.events.FileOpeningExceptionEvent;
-import address.events.FileSavingExceptionEvent;
+import address.events.*;
 import address.model.ContactGroup;
 import address.model.ModelContactGroup;
 import address.model.ModelManager;
@@ -89,6 +86,9 @@ public class MainController {
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
+            scene.setOnKeyPressed(event -> {
+                EventManager.getInstance().post(new PotentialKeyboardShortcutEvent(event));
+            });
             primaryStage.setMinHeight(400);
             primaryStage.setMinWidth(740);
             primaryStage.setHeight(600);
@@ -98,6 +98,7 @@ public class MainController {
             // Give the rootController access to the main controller and modelManager
             RootLayoutController rootController = loader.getController();
             rootController.setConnections(mainApp, this, modelManager);
+            rootController.setShortcuts();
 
             primaryStage.show();
         } catch (IOException e) {

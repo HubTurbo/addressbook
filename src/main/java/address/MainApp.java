@@ -9,6 +9,7 @@ import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
 import address.model.ModelManager;
 import address.preferences.PreferencesManager;
+import address.shortcuts.ShortcutsManager;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
 import address.updater.UpdateManager;
@@ -29,6 +30,7 @@ public class MainApp extends Application {
     protected SyncManager syncManager;
     protected UpdateManager updateManager;
     private MainController mainController;
+    private ShortcutsManager shortcutsManager;
 
     public MainApp() {}
 
@@ -61,6 +63,9 @@ public class MainApp extends Application {
         storageManager = new StorageManager(modelManager);
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
+
+        shortcutsManager = new ShortcutsManager();
+
         updateManager = new UpdateManager();
         updateManager.run();
     }
