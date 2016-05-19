@@ -38,13 +38,15 @@ public class StorageManager {
     @Subscribe
     private void handleLocalModelChangedEvent(LocalModelChangedEvent e) {
         System.out.println("Local data changed, saving to primary data file");
-        EventManager.getInstance().post(new SaveRequestEvent(PrefsManager.getInstance().getSaveLocation(), e.personData, e.groupData));
+        EventManager.getInstance().post(new SaveRequestEvent(
+                PrefsManager.getInstance().getSaveLocation(), e.personData, e.groupData));
     }
 
     @Subscribe
     private void handleLocalModelSyncedEvent(LocalModelSyncedFromCloudEvent e) {
         System.out.println("Local data synced, saving to primary data file");
-        EventManager.getInstance().post(new SaveRequestEvent(PrefsManager.getInstance().getSaveLocation(), e.personData, e.groupData));
+        EventManager.getInstance().post(new SaveRequestEvent(
+                PrefsManager.getInstance().getSaveLocation(), e.personData, e.groupData));
     }
 
     @Subscribe

@@ -8,8 +8,9 @@ import java.util.prefs.Preferences;
 import java.io.File;
 
 /**
- * Manages saving/retrieving of preferences in the registry.
-  */
+ * Manages saving/retrieving of preferences in the registry. 
+ * Publicly accessible singleton class.
+ */
 public class PrefsManager {
 
     public static final String PREF_NODE_NAME_SAVE_LOC = "save-location";
@@ -59,7 +60,6 @@ public class PrefsManager {
         userPrefs.remove(PREF_NODE_NAME_SAVE_LOC);
         EventManager.getInstance().post(new SaveLocationChangedEvent(null));
     }
-
 
     /**
      * @return the current mirror file preference or the default temp file if there is no recorded preference.

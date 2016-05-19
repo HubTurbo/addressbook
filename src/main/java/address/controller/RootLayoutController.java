@@ -27,9 +27,9 @@ import javafx.stage.FileChooser;
  */
 public class RootLayoutController {
 
-    public static final String SAVE_LOC_TEXT_PREFIX = "Save File: ";
-    public static final String MIRROR_LOC_TEXT_PREFIX = "Mirror File: ";
-    public static final String LOC_TEXT_NOT_SET = "[NOT SET]";
+    private static final String SAVE_LOC_TEXT_PREFIX = "Save File: ";
+    private static final String MIRROR_LOC_TEXT_PREFIX = "Mirror File: ";
+    private static final String LOC_TEXT_NOT_SET = "[NOT SET]";
 
     private MainController mainController;
     private ModelManager modelManager;
@@ -112,7 +112,7 @@ public class RootLayoutController {
 
 
     /**
-     * Creates a new empty address book at the default filepath
+     * Creates a new empty address book not connected to any save or mirror file
      */
     @FXML
     private void handleNew() {
