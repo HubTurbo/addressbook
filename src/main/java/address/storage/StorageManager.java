@@ -37,16 +37,14 @@ public class StorageManager {
 
     @Subscribe
     private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
-        final File targetFile = PrefsManager.getInstance().getSaveLocation();
         System.out.println("Local data changed, saving to primary data file");
-        saveDataToFile(targetFile, lmce.personData, lmce.groupData);
+        saveDataToFile(PrefsManager.getInstance().getSaveLocation(), lmce.personData, lmce.groupData);
     }
 
     @Subscribe
     private void handleLocalModelSyncedEvent(LocalModelSyncedFromCloudEvent lmse) {
-        final File targetFile = PrefsManager.getInstance().getSaveLocation();
         System.out.println("Local data synced, saving to primary data file");
-        saveDataToFile(targetFile, lmse.personData, lmse.groupData);
+        saveDataToFile(PrefsManager.getInstance().getSaveLocation(), lmse.personData, lmse.groupData);
     }
 
     @Subscribe

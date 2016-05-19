@@ -13,10 +13,10 @@
          <menus>
             <Menu mnemonicParsing="false" text="File">
                <items>
-                  <MenuItem fx:id="menuFileNew" mnemonicParsing="false" onAction="#handleNew" text="New" />
-                  <MenuItem fx:id="menuFileOpen" mnemonicParsing="false" onAction="#handleOpen" text="Open..." />
-                  <MenuItem fx:id="menuFileSave" mnemonicParsing="false" onAction="#handleSave" text="Save" />
-                  <MenuItem fx:id="menuFileSaveAs" mnemonicParsing="false" onAction="#handleSaveAs" text="Save As..." />
+                  <MenuItem accelerator="Ctrl+N" mnemonicParsing="false" onAction="#handleNew" text="New Addressbook" />
+                  <MenuItem accelerator="Ctrl+O" mnemonicParsing="false" onAction="#handleOpen" text="Open File..." />
+                  <MenuItem accelerator="Ctrl+S" mnemonicParsing="false" onAction="#handleSave" text="[Local] Save" />
+                  <MenuItem accelerator="Ctrl+Alt+S" mnemonicParsing="false" onAction="#handleSaveAs" text="[Local] Save As..." />
                   <MenuItem mnemonicParsing="false" onAction="#handleAppendSampleData" text="Append Sample Data" />
                   <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
                </items>
@@ -51,4 +51,3 @@
       <SplitPane id="splitPane" fx:id="splitPane" prefHeight="295.0" prefWidth="209.0" VBox.vgrow="ALWAYS" />
    </children>
 </VBox>
-

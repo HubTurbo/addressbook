@@ -4,9 +4,7 @@ import java.io.File;
 import java.util.Optional;
 
 import address.MainApp;
-import address.events.EventManager;
-import address.events.LoadDataRequestEvent;
-import address.events.SaveRequestEvent;
+import address.events.*;
 import address.exceptions.DuplicateDataException;
 import address.exceptions.DuplicateGroupException;
 import address.model.ContactGroup;
@@ -186,12 +184,8 @@ public class RootLayoutController {
      */
     @FXML
     private void handleAbout() {
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("AddressApp");
-        alert.setHeaderText("About");
-        alert.setContentText("Some code adapted from http://code.makery.ch");
-
-        alert.showAndWait();
+        mainController.showAlertDialogAndWait(AlertType.INFORMATION, "AddressApp", "About",
+                "Some code adapted from http://code.makery.ch");
     }
 
     /**
