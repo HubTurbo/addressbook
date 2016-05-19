@@ -7,7 +7,6 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<?import java.net.URL?>
 <VBox maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.controller.RootLayoutController">
    <children>
       <MenuBar VBox.vgrow="ALWAYS">

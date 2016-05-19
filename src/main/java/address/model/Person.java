@@ -25,7 +25,7 @@ public class Person extends UniqueData {
     private final IntegerProperty postalCode;
     private final StringProperty city;
     private final ObjectProperty<LocalDate> birthday;
-    private final StringProperty gitHubUserName;
+    private final StringProperty githubUserName;
     private ObjectProperty<LocalDateTime> updatedAt;
     private final List<ContactGroup> contactGroups;
 
@@ -53,7 +53,7 @@ public class Person extends UniqueData {
         this.birthday = new SimpleObjectProperty<>();
         this.contactGroups = new ArrayList<>();
         this.updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
-        this.gitHubUserName = new SimpleStringProperty("");
+        this.githubUserName = new SimpleStringProperty("");
     }
 
     /**
@@ -70,7 +70,7 @@ public class Person extends UniqueData {
         this.birthday = new SimpleObjectProperty<>(person.getBirthday());
         this.contactGroups = new ArrayList<>(person.getContactGroupsCopy());
         this.updatedAt = new SimpleObjectProperty<>(person.getUpdatedAt());
-        this.gitHubUserName = new SimpleStringProperty(person.getGitHubUserName());
+        this.githubUserName = new SimpleStringProperty(person.getGithubUserName());
     }
 
     /**
@@ -177,21 +177,21 @@ public class Person extends UniqueData {
         return updatedAt.get();
     }
 
-    public String getGitHubUserName() {
-        return gitHubUserName.get();
+    public String getGithubUserName() {
+        return githubUserName.get();
     }
 
-    public StringProperty gitHubUserNameProperty() {
-        return gitHubUserName;
+    public StringProperty githubUserNameProperty() {
+        return githubUserName;
     }
 
     /**
      * Precond: GitHub username must be validated as a parsable url in the form of
-     * https://www.github.com/ + gitHubUserName
+     * https://www.github.com/ + githubUserName
      * @param githubUserName
      */
-    public void setGitHubUserName(String githubUserName) {
-        this.gitHubUserName.set(githubUserName);
+    public void setGithubUserName(String githubUserName) {
+        this.githubUserName.set(githubUserName);
         updatedAt.set(LocalDateTime.now());
     }
 
@@ -214,7 +214,7 @@ public class Person extends UniqueData {
         setCity(updated.getCity());
         setBirthday(updated.getBirthday());
         setContactGroups(updated.getContactGroupsCopy());
-        setGitHubUserName(updated.getGitHubUserName());
+        setGithubUserName(updated.getGithubUserName());
         updatedAt.set(updated.getUpdatedAt());
         return this;
     }
@@ -240,8 +240,8 @@ public class Person extends UniqueData {
         return "Person: " + getFullName();
     }
 
-    public String getPersonGitHubProfilePageUrl(){
-        return "https://www.github.com/" + gitHubUserName.get();
+    public String getProfilePageUrl(){
+        return "https://www.github.com/" + githubUserName.get();
     }
 
 }

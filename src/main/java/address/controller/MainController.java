@@ -56,7 +56,7 @@ public class MainController {
         this.modelManager = modelManager;
         this.config = config;
         this.mainApp = mainApp;
-        this.browserManager = new BrowserManager(modelManager);
+        this.browserManager = new BrowserManager(modelManager.getFilteredPersonsModel());
     }
 
     public void start(Stage primaryStage) {
@@ -350,13 +350,12 @@ public class MainController {
         browserManager.freeBrowserResources();
     }
 
-    public void loadGitHubProfilePage(Person person){
-        browserManager.loadGitHubProfilePage(person);
+    public void loadGithubProfilePage(Person person){
+        browserManager.loadProfilePage(person);
     }
 
     public void showPersonWebPage() {
-        browserManager.initBrowser();
         SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-        pane.getItems().add(browserManager.getTabBrowser());
+        pane.getItems().add(browserManager.getBrowserView());
     }
 }
