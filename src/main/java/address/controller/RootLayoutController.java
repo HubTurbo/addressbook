@@ -37,15 +37,14 @@ public class RootLayoutController {
 
     @FXML
     private MenuItem menuFileNew;
-
     @FXML
     private MenuItem menuFileOpen;
-
     @FXML
     private MenuItem menuFileSave;
-
     @FXML
     private MenuItem menuFileSaveAs;
+    @FXML
+    private MenuItem menuChooseMirror;
 
     @FXML
     private Text saveLocText;
@@ -88,12 +87,12 @@ public class RootLayoutController {
 
     private void updateSaveLocDisplay() {
         saveLocText.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
-                PrefsManager.getInstance().getSaveLocation() : LOC_TEXT_NOT_SET));
+                PrefsManager.getInstance().getSaveLocation().getName() : LOC_TEXT_NOT_SET));
     }
 
     private void updateMirrorLocDisplay() {
         mirrorLocText.setText(MIRROR_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isMirrorLocationSet() ?
-                PrefsManager.getInstance().getMirrorLocation() : LOC_TEXT_NOT_SET));
+                PrefsManager.getInstance().getMirrorLocation().getName() : LOC_TEXT_NOT_SET));
     }
 
     /**
@@ -128,10 +127,18 @@ public class RootLayoutController {
     @FXML
     private void handleOpen() {
         // Show open file dialog
-        File file = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
-        if (file == null) return;
-        PrefsManager.getInstance().setSaveLocation(file);
-        EventManager.getInstance().post(new LoadDataRequestEvent(file));
+        File toOpen = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
+        if (toOpen == null) return;
+        PrefsManager.getInstance().setSaveLocation(toOpen);
+        EventManager.getInstance().post(new LoadDataRequestEvent(toOpen));
+    }
+
+    @FXML
+    private void handleChooseMirror() {
+        // Show open file dialog
+        File toSyncWith = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
+        if (toSyncWith == null) return;
+        PrefsManager.getInstance().setMirrorLocation(toSyncWith);
     }
 
     /**

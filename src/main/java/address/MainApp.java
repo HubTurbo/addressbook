@@ -55,6 +55,7 @@ public class MainApp extends Application {
         setupComponents();
         mainController.start(primaryStage);
 
+
         // initial load (requires mainController to be started.
         EventManager.getInstance().post(new LoadDataRequestEvent(PrefsManager.getInstance().getSaveLocation()));
         syncManager.startSyncingData(config.updateInterval, config.simulateUnreliableNetwork);

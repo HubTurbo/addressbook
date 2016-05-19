@@ -1,6 +1,7 @@
 package address.prefs;
 
 import address.events.EventManager;
+import address.events.MirrorLocationChangedEvent;
 import address.events.SaveLocationChangedEvent;
 
 import java.util.prefs.Preferences;
@@ -79,8 +80,8 @@ public class PrefsManager {
      */
     public void setMirrorLocation(File mirror) {
         assert mirror != null;
-        userPrefs.put(PREF_NODE_NAME_SAVE_LOC, mirror.getPath());
-        // TODO some kind of new mirror file event
+        userPrefs.put(PREF_NODE_NAME_MIRROR_LOC, mirror.getPath());
+        EventManager.getInstance().post(new MirrorLocationChangedEvent(getMirrorLocation()));
     }
 
     /**
@@ -88,5 +89,6 @@ public class PrefsManager {
      */
     public void clearMirrorLocation() {
         userPrefs.remove(PREF_NODE_NAME_MIRROR_LOC);
+        EventManager.getInstance().post(new MirrorLocationChangedEvent(null));
     }
 }
