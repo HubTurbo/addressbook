@@ -38,6 +38,7 @@ public class ModelContactGroup extends ContactGroup implements IModelData {
 
     @Override
     public int hashCode() {
+        // hint that this class should not have been a subclass of ContactGroup
         return super.hashCode() + 42;
     }
 

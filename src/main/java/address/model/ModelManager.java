@@ -234,7 +234,8 @@ public class ModelManager {
      * @param updated The temporary Person object containing new values.
      */
     public synchronized void updatePerson(Person original, Person updated) throws DuplicatePersonException {
-        if (!original.equals(updated) && personModel.contains(updated)) {
+        if (!(new Person(original)).equals(updated)
+                && !personModel.stream().map(Person::new).noneMatch(updated::equals)) {
             throw new DuplicatePersonException(updated);
         }
         original.update(updated);
@@ -250,7 +251,8 @@ public class ModelManager {
      * @param updated The temporary ContactGroup object containing new values.
      */
     public synchronized void updateGroup(ContactGroup original, ContactGroup updated) throws DuplicateGroupException {
-        if (!original.equals(updated) && groupModel.contains(updated)) {
+        if (!(new ContactGroup(original)).equals(updated)
+                && !groupModel.stream().map(ContactGroup::new).noneMatch(updated::equals)) {
             throw new DuplicateGroupException(updated);
         }
         original.update(updated);
