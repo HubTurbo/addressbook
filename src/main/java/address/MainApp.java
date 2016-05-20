@@ -2,6 +2,7 @@ package address;
 
 import address.model.AddressBook;
 import com.teamdev.jxbrowser.chromium.BrowserCore;
+import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
 
 import address.controller.MainController;
@@ -18,6 +19,8 @@ import address.util.Config;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+
+import java.util.logging.Level;
 
 /**
  * The main entry point to the application.
@@ -48,6 +51,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        LoggerProvider.setLevel(Level.SEVERE);
         setupComponents();
         mainController.start(primaryStage);
 
