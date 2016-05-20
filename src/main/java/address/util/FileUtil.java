@@ -53,12 +53,19 @@ public class FileUtil {
         return filepaths;
     }
 
+    /**
+     * Creates the given directory along with its parent directories
+     */
+    public static void createDirs(File dir) throws IOException {
+        if (dir != null && !dir.exists() && !dir.mkdirs()) {
+            throw new IOException("Failed to make directories of " + dir.getName());
+        }
+    }
+
     public static void createParentDirsOfFile(File file) throws IOException {
         File parentDir = file.getParentFile();
 
-        if (parentDir != null && !parentDir.exists() && !parentDir.mkdirs()) {
-            throw new IOException("Failed to make parent directories of file");
-        }
+        createDirs(parentDir);
     }
 
     /**
@@ -96,8 +103,7 @@ public class FileUtil {
     }
 
     public static String readFromFile(File file) throws IOException {
-        String contents = new String(Files.readAllBytes(file.toPath()), CHARSET);
-        return contents;
+        return new String(Files.readAllBytes(file.toPath()), CHARSET);
     }
 
     public static void writeToFile(File file, String content) throws IOException {

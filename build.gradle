@@ -41,6 +41,10 @@ allprojects {
         mockitoVersion = '1+'
         mockServerVersion = '3.10.1'
         jxBrowserVersion = '6.4'
+
+        outputDir = 'build/libs'
+        mainAppArchiveName = 'addressbook.jar'
+        jarUpdaterArchiveName = 'jarUpdater.jar'
     }
 
     dependencies {
@@ -54,6 +58,8 @@ allprojects {
         compile "com.teamdev.jxbrowser:jxbrowser-mac:$jxBrowserVersion"
         compile "com.teamdev.jxbrowser:jxbrowser-linux32:$jxBrowserVersion"
         compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
+        compile fileTree(dir: 'lib', include: 'license.jar')
+
         testCompile "junit:junit:$junitVersion"
         testCompile "org.testfx:testfx-core:4.0.+"
         testCompile "org.testfx:testfx-junit:4.0.+"
@@ -63,60 +69,62 @@ allprojects {
         testCompile "org.mockito:mockito-core:$mockitoVersion"
         testCompile group: "org.mock-server", name: "mockserver-netty", version: "$mockServerVersion"
         testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
-        compile fileTree(dir: 'lib', include: 'license.jar')
     }
 
-    jar {
-        manifest {
-            attributes 'Main-Class': 'address.MainApp',
-                    'Class-Path': configurations.runtime.files.collect { "lib/${it.name}" }.join(" ")
-        }
-        archiveName = 'addressbook.jar'
-    }
-
-    task compileJarUpdater(type: Jar) {
-        group = "Compiling and Release"
+    task createJarUpdater(type: Jar) {
+        group = "Release"
 
         manifest {
             attributes 'Implementation-Title': 'Jar Updater',
                     'Implementation-Version': '1.0',
                     'Main-Class': 'address.updater.JarUpdater',
+                    // Add required JAR libraries into classpath
                     'Class-Path': configurations.runtime.files.collect { "../lib/${it.name}" }.join(" ")
         }
-        archiveName = 'jarUpdater.jar'
+
+        archiveName = project.ext.jarUpdaterArchiveName
         destinationDir = file('src/main/resources/updater')
 
+        // Specify classes needed for Jar Updater
         from sourceSets.main.output
         include('address/updater/JarUpdater.class')
         include('address/util/FileUtil.class')
         include('address/updater/LocalUpdateSpecificationHelper.class')
     }
 
-    task copyDependencyLibraries(type: Copy) {
-        group = "Compiling and Release"
+    task copyDependencyLibrariesToReleaseDir(type: Copy) {
+        group = "Release"
 
         from configurations.compile
-        into 'build/libs/lib'
+        into project.ext.outputDir + '/lib'
     }
 
-    processResources.outputs.upToDateWhen{ false }
-
-    task includeJarUpdaterInResources(type: Copy) {
-        group = "Compiling and Release"
+    task addJarUpdaterToMainApp(type: Copy) {
+        group = "Release"
         from(sourceSets.main.resources.srcDirs) {
             include 'updater/jarUpdater.jar'
         }
         into sourceSets.main.output.resourcesDir
     }
 
-    includeJarUpdaterInResources.dependsOn compileJarUpdater
+    addJarUpdaterToMainApp.dependsOn createJarUpdater
 
-    jar.dependsOn copyDependencyLibraries
-    jar.dependsOn includeJarUpdaterInResources
+    jar {
+        manifest {
+            attributes 'Main-Class': 'address.MainApp',
+                    // Add required JAR libraries into classpath
+                    'Class-Path': configurations.runtime.files.collect { "lib/${it.name}" }.join(" ")
+
+        }
+        archiveName = project.ext.mainAppArchiveName
+    }
+
+    jar.dependsOn copyDependencyLibrariesToReleaseDir
+    jar.dependsOn addJarUpdaterToMainApp
 
 
-    task createARelease(dependsOn: jar) {
-        group = "Compiling and Release"
+    task createMainAppExecutable(dependsOn: jar) {
+        group = "Release"
 
         doLast {
             println "A guide to create a release (after running this task)"
@@ -124,6 +132,38 @@ allprojects {
             println "(temp) to enable update, put UpdateData.xml into build/libs/update"
         }
     }
+
+    sourceSets {
+        installer {
+            java {
+                srcDir 'src/main/java/'
+                include('installer/**/*')
+                include('address/util/FileUtil.java')
+                include('address/util/OsDetector.java')
+            }
+            resources {
+                srcDir project.ext.outputDir
+                include(project.ext.mainAppArchiveName)
+                include('lib/*')
+            }
+        }
+    }
+
+    task createInstallerJar(type: Jar) {
+        group = "Release"
+
+        from sourceSets.installer.output
+
+        manifest {
+            attributes 'Implementation-Title': 'Addressbook',
+                    'Implementation-Version': '1.0',
+                    'Main-Class': 'installer.Installer'
+        }
+
+        archiveName = "addressbook.jar"
+    }
+
+    createInstallerJar.dependsOn createMainAppExecutable
 }
 
 task wrapper(type: Wrapper) {
