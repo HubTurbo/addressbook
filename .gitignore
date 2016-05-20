@@ -6,5 +6,6 @@ lib/*
 *.iml
 *.log
 /*.xml
+!/default-address-book.xml
 update/
 src/main/resources/updater/jarUpdater.jar
