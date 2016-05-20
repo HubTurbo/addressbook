@@ -59,6 +59,10 @@ public class ModelManager {
         this(addressBook.getPersons(), addressBook.getGroups());
     }
 
+    public ModelManager() {
+        this(new AddressBook());
+    }
+
     public synchronized void updateWithSampleData() throws DuplicateDataException {
         final Person[] samplePersonData = {
             new Person("Hans", "Muster"),

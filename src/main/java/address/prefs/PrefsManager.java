@@ -8,7 +8,7 @@ import java.util.prefs.Preferences;
 import java.io.File;
 
 /**
- * Manages saving/retrieving of preferences in the registry. 
+ * Manages saving/retrieving of preferences on the user level.
  * Publicly accessible singleton class.
  */
 public class PrefsManager {
@@ -31,7 +31,7 @@ public class PrefsManager {
     private PrefsManager() {}
 
     /**
-     * @return the current save file preference or the default temp file if there is no recorded prederence.
+     * @return the current save file preference or the default temp file if there is no recorded preference.
      */
     public File getSaveLocation() {
         final String filePath = userPrefs.get(PREF_NODE_NAME_SAVE_LOC, null);

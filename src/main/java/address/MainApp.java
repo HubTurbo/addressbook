@@ -55,15 +55,14 @@ public class MainApp extends Application {
         setupComponents();
         mainController.start(primaryStage);
 
-
-        // initial load (requires mainController to be started.
+        // initial load (precondition: mainController has been started.)
         EventManager.getInstance().post(new LoadDataRequestEvent(PrefsManager.getInstance().getSaveLocation()));
         syncManager.startSyncingData(config.updateInterval, config.simulateUnreliableNetwork);
     }
 
     protected void setupComponents() {
         config = getConfig();
-        modelManager = new ModelManager(new AddressBook()); // empty model first
+        modelManager = new ModelManager();
         storageManager = new StorageManager(modelManager);
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
