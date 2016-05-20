@@ -48,6 +48,7 @@ public class ModelPerson extends Person implements IModelData {
 
     @Override
     public int hashCode() {
+        // hint that this class should not have been a subclass of Person
         return super.hashCode() + 43;
     }
 }
