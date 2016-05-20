@@ -76,4 +76,9 @@ public class SyncManager {
         requestExecutor.execute(new CloudUpdateTask(this.cloudSimulator, lmce.personData, lmce.groupData));
     }
 
+    // To be removed after working out specification on saving and syncing behaviour
+    @Subscribe
+    public void handleSaveRequestEvent(SaveRequestEvent sre) {
+        requestExecutor.execute(new CloudUpdateTask(this.cloudSimulator, sre.personData, sre.groupData));
+    }
 }
