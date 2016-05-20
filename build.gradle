@@ -138,6 +138,7 @@ tasks.withType(FindBugs) {
 }
 
 test {
+    forkEvery = 1
 }
 
 task checkStyle {

@@ -1,8 +1,14 @@
 language: java
 jdk:
   - oraclejdk8
-script: ./gradlew headful --continue
+script: ./gradlew
+
+before_install:
+          - "export DISPLAY=:99.0"
+          - "sh -e /etc/init.d/xvfb start"
+
 addons:
   apt:
     packages:
       - oracle-java8-installer
+
