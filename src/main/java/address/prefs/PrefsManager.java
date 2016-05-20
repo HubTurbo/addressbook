@@ -13,8 +13,8 @@ import java.io.File;
  */
 public class PrefsManager {
 
-    public static final String PREF_NODE_NAME_SAVE_LOC = "save-location";
-    public static final String PREF_NODE_NAME_MIRROR_LOC = "mirror-location";
+    public static final String SAVE_LOC_PREF_KEY = "save-location";
+    public static final String MIRROR_LOC_PREF_KEY = "mirror-location";
 
     public static final String DEFAULT_TEMP_FILE_PATH = ".$TEMP_ADDRESS_BOOK";
 
@@ -34,12 +34,12 @@ public class PrefsManager {
      * @return the current save file preference or the default temp file if there is no recorded preference.
      */
     public File getSaveLocation() {
-        final String filePath = userPrefs.get(PREF_NODE_NAME_SAVE_LOC, null);
+        final String filePath = userPrefs.get(SAVE_LOC_PREF_KEY, null);
         return filePath == null ? new File(DEFAULT_TEMP_FILE_PATH) : new File(filePath);
     }
 
     public boolean isSaveLocationSet() {
-        return userPrefs.get(PREF_NODE_NAME_SAVE_LOC, null) != null;
+        return userPrefs.get(SAVE_LOC_PREF_KEY, null) != null;
     }
 
     /**
@@ -49,7 +49,7 @@ public class PrefsManager {
      */
     public void setSaveLocation(File save) {
         assert save != null;
-        userPrefs.put(PREF_NODE_NAME_SAVE_LOC, save.getPath());
+        userPrefs.put(SAVE_LOC_PREF_KEY, save.getPath());
         EventManager.getInstance().post(new SaveLocationChangedEvent(getSaveLocation()));
     }
 
@@ -57,7 +57,7 @@ public class PrefsManager {
      * Clears the current preferred save file path.
      */
     public void clearSaveLocation() {
-        userPrefs.remove(PREF_NODE_NAME_SAVE_LOC);
+        userPrefs.remove(SAVE_LOC_PREF_KEY);
         EventManager.getInstance().post(new SaveLocationChangedEvent(null));
     }
 
@@ -65,12 +65,12 @@ public class PrefsManager {
      * @return the current mirror file preference or the default temp file if there is no recorded preference.
      */
     public File getMirrorLocation() {
-        final String filePath = userPrefs.get(PREF_NODE_NAME_MIRROR_LOC, null);
+        final String filePath = userPrefs.get(MIRROR_LOC_PREF_KEY, null);
         return filePath == null ? new File(DEFAULT_TEMP_FILE_PATH) : new File(filePath);
     }
 
     public boolean isMirrorLocationSet() {
-        return userPrefs.get(PREF_NODE_NAME_MIRROR_LOC, null) != null;
+        return userPrefs.get(MIRROR_LOC_PREF_KEY, null) != null;
     }
 
     /**
@@ -80,7 +80,7 @@ public class PrefsManager {
      */
     public void setMirrorLocation(File mirror) {
         assert mirror != null;
-        userPrefs.put(PREF_NODE_NAME_MIRROR_LOC, mirror.getPath());
+        userPrefs.put(MIRROR_LOC_PREF_KEY, mirror.getPath());
         EventManager.getInstance().post(new MirrorLocationChangedEvent(getMirrorLocation()));
     }
 
@@ -88,7 +88,7 @@ public class PrefsManager {
      * Clears current preferred mirror file path.
      */
     public void clearMirrorLocation() {
-        userPrefs.remove(PREF_NODE_NAME_MIRROR_LOC);
+        userPrefs.remove(MIRROR_LOC_PREF_KEY);
         EventManager.getInstance().post(new MirrorLocationChangedEvent(null));
     }
 }

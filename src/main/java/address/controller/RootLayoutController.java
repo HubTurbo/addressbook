@@ -57,8 +57,8 @@ public class RootLayoutController {
 
     @FXML
     private void initialize() {
-        updateSaveLocDisplay();
-        updateMirrorLocDisplay();
+        updateSaveLocationDisplay();
+        updateMirrorLocationDisplay();
     }
 
 
@@ -77,20 +77,20 @@ public class RootLayoutController {
 
     @Subscribe
     private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
-        updateSaveLocDisplay();
+        updateSaveLocationDisplay();
     }
 
     @Subscribe
     private void handleMirrorLocationChangedEvent(MirrorLocationChangedEvent e) {
-        updateMirrorLocDisplay();
+        updateMirrorLocationDisplay();
     }
 
-    private void updateSaveLocDisplay() {
+    private void updateSaveLocationDisplay() {
         saveLocText.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
                 PrefsManager.getInstance().getSaveLocation().getName() : LOC_TEXT_NOT_SET));
     }
 
-    private void updateMirrorLocDisplay() {
+    private void updateMirrorLocationDisplay() {
         mirrorLocText.setText(MIRROR_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isMirrorLocationSet() ?
                 PrefsManager.getInstance().getMirrorLocation().getName() : LOC_TEXT_NOT_SET));
     }

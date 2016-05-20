@@ -43,7 +43,7 @@ public class StorageManager {
     }
 
     @Subscribe
-    private void handleLocalModelSyncedEvent(LocalModelSyncedFromCloudEvent e) {
+    private void handleLocalModelSyncedFromCloudEvent(LocalModelSyncedFromCloudEvent e) {
         System.out.println("Local data synced, saving to primary data file");
         EventManager.getInstance().post(new SaveRequestEvent(
                 PrefsManager.getInstance().getSaveLocation(), e.personData, e.groupData));
