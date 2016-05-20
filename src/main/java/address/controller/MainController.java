@@ -68,7 +68,7 @@ public class MainController {
 
         initRootLayout();
         showPersonOverview();
-        //showPersonWebPage();
+        showPersonWebPage();
     }
 
     /**

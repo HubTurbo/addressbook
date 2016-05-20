@@ -2,13 +2,11 @@
 <addressbook>
     <groups>
         <name>relatives</name>
-        <updatedAt>2016-05-20T22:06:40.100</updatedAt>
-        <pending>true</pending>
+        <updatedAt>2016-05-20T22:45:33.076</updatedAt>
     </groups>
     <groups>
         <name>friends</name>
-        <updatedAt>2016-05-20T22:06:40.100</updatedAt>
-        <pending>true</pending>
+        <updatedAt>2016-05-20T22:45:33.076</updatedAt>
     </groups>
     <persons>
         <firstName>Hans</firstName>
@@ -16,8 +14,7 @@
         <lastName>Muster</lastName>
         <postalCode>0</postalCode>
         <street></street>
-        <updatedAt>2016-05-20T22:06:40.100</updatedAt>
-        <pending>true</pending>
+        <updatedAt>2016-05-20T22:45:33.075</updatedAt>
     </persons>
     <persons>
         <firstName>Ruth</firstName>
@@ -25,8 +22,7 @@
         <lastName>Mueller</lastName>
         <postalCode>0</postalCode>
         <street></street>
-        <updatedAt>2016-05-20T22:06:40.100</updatedAt>
-        <pending>true</pending>
+        <updatedAt>2016-05-20T22:45:33.075</updatedAt>
     </persons>
     <persons>
         <firstName>Heinz</firstName>
@@ -34,8 +30,7 @@
         <lastName>Kurz</lastName>
         <postalCode>0</postalCode>
         <street></street>
-        <updatedAt>2016-05-20T22:06:40.100</updatedAt>
-        <pending>true</pending>
+        <updatedAt>2016-05-20T22:45:33.075</updatedAt>
     </persons>
     <persons>
         <firstName>Cornelia</firstName>
@@ -43,8 +38,7 @@
         <lastName>Meier</lastName>
         <postalCode>0</postalCode>
         <street></street>
-        <updatedAt>2016-05-20T22:06:40.100</updatedAt>
-        <pending>true</pending>
+        <updatedAt>2016-05-20T22:45:33.075</updatedAt>
     </persons>
     <persons>
         <firstName>Werner</firstName>
@@ -52,8 +46,7 @@
         <lastName>Meyer</lastName>
         <postalCode>0</postalCode>
         <street></street>
-        <updatedAt>2016-05-20T22:06:40.100</updatedAt>
-        <pending>true</pending>
+        <updatedAt>2016-05-20T22:45:33.075</updatedAt>
     </persons>
     <persons>
         <firstName>Lydia</firstName>
@@ -61,8 +54,7 @@
         <lastName>Kunz</lastName>
         <postalCode>0</postalCode>
         <street></street>
-        <updatedAt>2016-05-20T22:06:40.100</updatedAt>
-        <pending>true</pending>
+        <updatedAt>2016-05-20T22:45:33.075</updatedAt>
     </persons>
     <persons>
         <firstName>Anna</firstName>
@@ -70,8 +62,7 @@
         <lastName>Best</lastName>
         <postalCode>0</postalCode>
         <street></street>
-        <updatedAt>2016-05-20T22:06:40.100</updatedAt>
-        <pending>true</pending>
+        <updatedAt>2016-05-20T22:45:33.075</updatedAt>
     </persons>
     <persons>
         <firstName>Stefan</firstName>
@@ -79,8 +70,7 @@
         <lastName>Meier</lastName>
         <postalCode>0</postalCode>
         <street></street>
-        <updatedAt>2016-05-20T22:06:40.100</updatedAt>
-        <pending>true</pending>
+        <updatedAt>2016-05-20T22:45:33.075</updatedAt>
     </persons>
     <persons>
         <firstName>Martin</firstName>
@@ -88,8 +78,6 @@
         <lastName>Mueller</lastName>
         <postalCode>0</postalCode>
         <street></street>
-        <updatedAt>2016-05-20T22:06:40.100</updatedAt>
-        <pending>true</pending>
+        <updatedAt>2016-05-20T22:45:33.075</updatedAt>
     </persons>
-    <pending>false</pending>
 </addressbook>
