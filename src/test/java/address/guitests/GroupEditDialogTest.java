@@ -10,7 +10,7 @@ public class GroupEditDialogTest extends GuiTestBase {
     public void groupEditDialogLoadTest() {
         clickOn("Groups").clickOn("New Group");
 
-        findStageByTitle("Edit Group");
+        //findStageByTitle("Edit Group");
         verifyThat("#groupNameField", (TextField t) -> t.getText().equals(""));
 
         clickOn("Cancel").clickOn("Groups").clickOn("Manage Groups")
