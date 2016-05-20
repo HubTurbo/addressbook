@@ -1,17 +1,18 @@
 package address.controller;
 
-import address.browser.BrowserManager;
 import address.MainApp;
 import address.events.*;
 import address.model.ContactGroup;
 import address.model.ModelContactGroup;
 import address.model.ModelManager;
 import address.model.Person;
-import address.preferences.PreferencesManager;
+import address.prefs.PrefsManager;
 import address.util.Config;
+import address.browser.BrowserManager;
 
 import com.google.common.eventbus.Subscribe;
 import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
+
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -60,7 +61,7 @@ public class MainController {
 
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        setTitle(config.appTitle, PreferencesManager.getInstance().getPersonFile());
+        primaryStage.setTitle(config.appTitle);
 
         // Set the application icon.
         this.primaryStage.getIcons().add(getImage(ICON_APPLICATION));
@@ -300,19 +301,6 @@ public class MainController {
      */
     public Stage getPrimaryStage() {
         return primaryStage;
-    }
-
-    @Subscribe
-    public void handleFileNameChangedEvent(FileNameChangedEvent fnce){
-        setTitle(config.appTitle, fnce.file != null ? fnce.file : new File(PreferencesManager.DEFAULT_FILE_PATH));
-    }
-
-    /**
-     * Sets the title of the app UI based on the file location
-     * @param file the data file used by the app, or null if no file chosen
-     */
-    public void setTitle(String appTitle, File file) {
-        primaryStage.setTitle(appTitle + " - " + file.getName());
     }
 
     @Subscribe

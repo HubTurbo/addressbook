@@ -1,22 +1,22 @@
 package address.controller;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.Optional;
 
 import address.MainApp;
-import address.events.EventManager;
-import address.events.LoadDataRequestEvent;
-import address.events.SaveRequestEvent;
+import address.events.*;
 import address.exceptions.DuplicateDataException;
 import address.exceptions.DuplicateGroupException;
 import address.model.ContactGroup;
 import address.model.ModelManager;
-import address.preferences.PreferencesManager;
 import address.shortcuts.ShortcutsManager;
+import address.prefs.PrefsManager;
+
+import com.google.common.eventbus.Subscribe;
+
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.text.Text;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 
@@ -27,21 +27,40 @@ import javafx.stage.FileChooser;
  */
 public class RootLayoutController {
 
+    private static final String SAVE_LOC_TEXT_PREFIX = "Save File: ";
+    private static final String MIRROR_LOC_TEXT_PREFIX = "Mirror File: ";
+    private static final String LOC_TEXT_NOT_SET = "[NOT SET]";
+
     private MainController mainController;
     private ModelManager modelManager;
     private MainApp mainApp;
 
     @FXML
     private MenuItem menuFileNew;
-
     @FXML
     private MenuItem menuFileOpen;
-
     @FXML
     private MenuItem menuFileSave;
-
     @FXML
     private MenuItem menuFileSaveAs;
+    @FXML
+    private MenuItem menuChooseMirror;
+
+    @FXML
+    private Text saveLocText;
+    @FXML
+    private Text mirrorLocText;
+
+    public RootLayoutController() {
+        EventManager.getInstance().registerHandler(this);
+    }
+
+    @FXML
+    private void initialize() {
+        updateSaveLocationDisplay();
+        updateMirrorLocationDisplay();
+    }
+
 
     public void setConnections(MainApp mainApp, MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
@@ -56,13 +75,50 @@ public class RootLayoutController {
         menuFileSaveAs.setAccelerator(ShortcutsManager.SHORTCUT_FILE_SAVE_AS);
     }
 
+    @Subscribe
+    private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
+        updateSaveLocationDisplay();
+    }
+
+    @Subscribe
+    private void handleMirrorLocationChangedEvent(MirrorLocationChangedEvent e) {
+        updateMirrorLocationDisplay();
+    }
+
+    private void updateSaveLocationDisplay() {
+        saveLocText.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
+                PrefsManager.getInstance().getSaveLocation().getName() : LOC_TEXT_NOT_SET));
+    }
+
+    private void updateMirrorLocationDisplay() {
+        mirrorLocText.setText(MIRROR_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isMirrorLocationSet() ?
+                PrefsManager.getInstance().getMirrorLocation().getName() : LOC_TEXT_NOT_SET));
+    }
+
     /**
-     * Creates a new empty address book at the default filepath
+     * @return a file chooser for choosing xml files. The initial folder is set to the same folder that the
+     *     current data file is located (if any).
+     */
+    private FileChooser getXmlFileChooser() {
+        // Set extension filter
+        final FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
+        final FileChooser fileChooser = new FileChooser();
+
+        fileChooser.getExtensionFilters().add(extFilter);
+        final File currentFile = PrefsManager.getInstance().getSaveLocation();
+        fileChooser.setInitialDirectory(currentFile.getParentFile());
+        return fileChooser;
+    }
+
+
+    /**
+     * Creates a new empty address book not connected to any save or mirror file
      */
     @FXML
     private void handleNew() {
-        PreferencesManager.getInstance().setPersonFilePath(null);
-        modelManager.resetData(Collections.emptyList(), Collections.emptyList());
+        PrefsManager.getInstance().clearSaveLocation();
+        PrefsManager.getInstance().clearMirrorLocation();
+        modelManager.clearModel();
     }
 
     /**
@@ -71,9 +127,18 @@ public class RootLayoutController {
     @FXML
     private void handleOpen() {
         // Show open file dialog
-        File file = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
-        if (file == null) return;
-        EventManager.getInstance().post(new LoadDataRequestEvent(file));
+        File toOpen = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
+        if (toOpen == null) return;
+        PrefsManager.getInstance().setSaveLocation(toOpen);
+        EventManager.getInstance().post(new LoadDataRequestEvent(toOpen));
+    }
+
+    @FXML
+    private void handleChooseMirror() {
+        // Show open file dialog
+        File toSyncWith = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
+        if (toSyncWith == null) return;
+        PrefsManager.getInstance().setMirrorLocation(toSyncWith);
     }
 
     /**
@@ -82,7 +147,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleSave() {
-        final File saveFile = PreferencesManager.getInstance().getPersonFile();
+        final File saveFile = PrefsManager.getInstance().getSaveLocation();
         EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getPersonsModel(),
                                                              modelManager.getGroupModel()));
     }
@@ -101,7 +166,8 @@ public class RootLayoutController {
         if (!file.getPath().endsWith(".xml")) {
             file = new File(file.getPath() + ".xml");
         }
-        PreferencesManager.getInstance().setPersonFilePath(file);
+
+        PrefsManager.getInstance().setSaveLocation(file);
         EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonsModel(),
                                         modelManager.getGroupModel()));
     }
@@ -120,33 +186,13 @@ public class RootLayoutController {
         }
     }
 
-
-    /**
-     * @return a file chooser for choosing xml files. The initial folder is set to the same folder that the
-     *     current data file is located (if any).
-     */
-    private FileChooser getXmlFileChooser() {
-        // Set extension filter
-        final FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
-        final FileChooser fileChooser = new FileChooser();
-
-        fileChooser.getExtensionFilters().add(extFilter);
-        final File currentFile = PreferencesManager.getInstance().getPersonFile();
-        fileChooser.setInitialDirectory(currentFile.getParentFile());
-        return fileChooser;
-    }
-
     /**
      * Opens an about dialog.
      */
     @FXML
     private void handleAbout() {
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("AddressApp");
-        alert.setHeaderText("About");
-        alert.setContentText("Some code adapted from http://code.makery.ch");
-
-        alert.showAndWait();
+        mainController.showAlertDialogAndWait(AlertType.INFORMATION, "AddressApp", "About",
+                "Some code adapted from http://code.makery.ch");
     }
 
     /**

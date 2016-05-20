@@ -1,16 +1,14 @@
 package address;
 
-import address.model.AddressBook;
 import com.teamdev.jxbrowser.chromium.BrowserCore;
-import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
 
 import address.controller.MainController;
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
 import address.model.ModelManager;
-import address.preferences.PreferencesManager;
 import address.shortcuts.ShortcutsManager;
+import address.prefs.PrefsManager;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
 import address.updater.UpdateManager;
@@ -20,7 +18,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
-import java.util.logging.Level;
 
 /**
  * The main entry point to the application.
@@ -51,19 +48,17 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        LoggerProvider.setLevel(Level.SEVERE);
         setupComponents();
         mainController.start(primaryStage);
 
-        EventManager.getInstance().post(new LoadDataRequestEvent(PreferencesManager.getInstance().getPersonFile()));
+        // initial load (precondition: mainController has been started.)
+        EventManager.getInstance().post(new LoadDataRequestEvent(PrefsManager.getInstance().getSaveLocation()));
         syncManager.startSyncingData(config.updateInterval, config.simulateUnreliableNetwork);
     }
 
     protected void setupComponents() {
         config = getConfig();
-        PreferencesManager.setAppTitle(config.appTitle);
-
-        modelManager = new ModelManager(new AddressBook());
+        modelManager = new ModelManager();
         storageManager = new StorageManager(modelManager);
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();

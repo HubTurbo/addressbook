@@ -1,9 +1,5 @@
 package address.model;
 
-import address.events.EventManager;
-import address.events.FilterCommittedEvent;
-import address.events.LocalModelSyncedFromCloudEvent;
-import address.events.NewMirrorDataEvent;
 import address.events.*;
 
 import address.exceptions.DuplicateDataException;
@@ -60,8 +56,11 @@ public class ModelManager {
     }
 
     public ModelManager(AddressBook addressBook) {
-        this(addressBook == null ? new ArrayList<>() : addressBook.getPersons(),
-            addressBook == null ? new ArrayList<>() : addressBook.getGroups());
+        this(addressBook.getPersons(), addressBook.getGroups());
+    }
+
+    public ModelManager() {
+        this(new AddressBook());
     }
 
     public synchronized void updateWithSampleData() throws DuplicateDataException {
@@ -119,6 +118,10 @@ public class ModelManager {
 
     public void resetData(AddressBook newData) {
         resetData(newData.getPersons(), newData.getGroups());
+    }
+
+    public void clearModel() {
+        resetData(Collections.emptyList(), Collections.emptyList());
     }
 
     ///////////////////////////////////////////////////////////////////////

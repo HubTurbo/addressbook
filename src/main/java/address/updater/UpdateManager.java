@@ -3,8 +3,8 @@ package address.updater;
 import address.updater.model.FileUpdateDescriptor;
 import address.updater.model.UpdateData;
 import address.updater.model.VersionDescriptor;
+import address.util.XmlFileHelper;
 import address.util.FileUtil;
-import address.util.XmlHelper;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
@@ -93,7 +93,7 @@ public class UpdateManager {
         File file = new File("update/UpdateData.xml");
 
         try {
-            return Optional.of(XmlHelper.getUpdateDataFromFile(file));
+            return Optional.of(XmlFileHelper.getUpdateDataFromFile(file));
         } catch (JAXBException e) {
             System.out.println("UpdateManager - Failed to parse update data from xml file.");
         }

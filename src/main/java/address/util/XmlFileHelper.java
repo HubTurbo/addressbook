@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Helps with reading from and writing to XML files.
  */
-public class XmlHelper {
+public class XmlFileHelper {
 
     public static AddressBook getDataFromFile(File file) throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(AddressBook.class);
