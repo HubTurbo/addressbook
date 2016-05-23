@@ -22,11 +22,6 @@ public class GuiTestBase extends FxRobot {
     }
 
     @Before
-    public void setStage() throws TimeoutException {
-        FxToolkit.setupStage(this::handleSetupStage);
-    }
-
-    @Before
     public void setup() throws Exception {
         FxToolkit.setupApplication(TestApp.class);
     }
@@ -34,8 +29,5 @@ public class GuiTestBase extends FxRobot {
     @After
     public void cleanup() throws TimeoutException {
         FxToolkit.cleanupStages();
-    }
-
-    private void handleSetupStage(Stage stage) {
     }
 }

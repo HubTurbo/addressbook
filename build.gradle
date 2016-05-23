@@ -139,6 +139,7 @@ tasks.withType(FindBugs) {
 
 test {
     forkEvery = 1
+    systemProperty 'testfx.setup.timeout', '60000'
 }
 
 task checkStyle {
