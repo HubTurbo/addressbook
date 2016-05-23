@@ -4,20 +4,19 @@ import javafx.scene.control.TextField;
 import org.junit.Test;
 
 import static org.testfx.api.FxAssert.verifyThat;
+import static org.testfx.matcher.base.NodeMatchers.hasText;
 
 public class GroupEditDialogTest extends GuiTestBase {
     @Test
     public void groupEditDialogLoadTest() {
-        // this test currently assumes that the default data file exists
-        clickOn("File").clickOn("Append Sample Data")
-                .clickOn("Groups").clickOn("New Group");
+        clickOn("Groups").clickOn("New Group");
 
-        verifyThat("#groupNameField", (TextField t) -> t.getText().equals(""));
+        verifyThat("#groupNameField", hasText(""));
 
         clickOn("Cancel").clickOn("Groups").clickOn("Manage Groups")
                 .doubleClickOn(targetWindow("List of Contact Groups").lookup("friends").tryQuery().get());
 
         targetWindow("Edit Group");
-        verifyThat("#groupNameField", (TextField t) -> t.getText().equals("friends"));
+        verifyThat("#groupNameField", hasText("friends"));
     }
 }

@@ -24,6 +24,10 @@ public class GuiTestBase extends FxRobot {
     @Before
     public void setup() throws Exception {
         FxToolkit.setupApplication(TestApp.class);
+
+        // since we cannot handle custom test data files
+        // we assume that the default data file exists, and we append data to it
+        clickOn("File").clickOn("Append Sample Data");
     }
 
     @After
