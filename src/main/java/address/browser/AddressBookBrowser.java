@@ -1,5 +1,6 @@
 package address.browser;
 
+import address.model.ModelManager;
 import address.model.ModelPerson;
 import address.model.Person;
 
@@ -47,6 +48,10 @@ public class AddressBookBrowser{
     private void hideTabs() {
         addressBookBrowserView.setVisible(false);
         addressBookBrowserView.setTabMaxHeight(0);
+    }
+
+    public ArrayList<BrowserTab> getBrowserTabs(){
+        return browserTabs;
     }
 
     /**
@@ -101,12 +106,12 @@ public class AddressBookBrowser{
     /**
      * Loads the person's profile page to the browser.
      * It also performs caching of other person profile page.
-     * PreCondition: getListOfContactsDisplayed().size() >= 1
+     * PreCondition: filteredModelPersons().size() >= 1
      * @param person
      */
     public void loadProfilePage(Person person) {
 
-        List<Person> listOfContactsDisplayed = getListOfContactsDisplayed();
+        List<Person> listOfContactsDisplayed = ModelManager.convertToPersons(filteredModelPersons);
         int indexOfPersonInListOfContacts = listOfContactsDisplayed.indexOf(person);
 
         ArrayList<Person> listOfPersonsToBeLoaded = getListOfPersonsToBeLoaded(listOfContactsDisplayed,
