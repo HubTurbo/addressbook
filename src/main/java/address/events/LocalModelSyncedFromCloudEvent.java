@@ -1,9 +1,7 @@
 package address.events;
 
-import address.model.ContactGroup;
 import address.model.ModelContactGroup;
 import address.model.ModelPerson;
-import address.model.Person;
 
 import java.util.List;
 
