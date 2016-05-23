@@ -19,4 +19,12 @@ public class GroupEditDialogTest extends GuiTestBase {
         targetWindow("Edit Group");
         verifyThat("#groupNameField", hasText("friends"));
     }
+
+    //TODO: verify that group list has been updated, currently no way to refresh group list
+    @Test
+    public void updateGroupTest() {
+        clickOn("Groups").clickOn("Manage Groups")
+                .doubleClickOn(targetWindow("List of Contact Groups").lookup("friends").tryQuery().get())
+                .clickOn("#groupNameField").eraseText(7).write("changed group").clickOn("OK");
+    }
 }
