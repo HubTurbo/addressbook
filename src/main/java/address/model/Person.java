@@ -186,7 +186,7 @@ public class Person extends UniqueData {
     }
 
     /**
-     * Precond: github username must be validated as a parsable url in the form of
+     * Precond: GitHub username must be validated as a parsable url in the form of
      * https://www.github.com/ + githubUserName
      * @param githubUserName
      */
@@ -238,6 +238,10 @@ public class Person extends UniqueData {
     @Override
     public String toString() {
         return "Person: " + getFullName();
+    }
+
+    public String getProfilePageUrl(){
+        return "https://www.github.com/" + githubUserName.get();
     }
 
 }

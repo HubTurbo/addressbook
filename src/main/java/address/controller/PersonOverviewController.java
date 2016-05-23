@@ -55,7 +55,7 @@ public class PersonOverviewController {
         personList.setItems(modelManager.getFilteredPersonsModel());
         personList.setCellFactory(listView -> new PersonListViewCell());
         personList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue)
-                        -> mainController.loadGithubProfilePage(newValue.getGithubUserName()));
+                        -> mainController.loadGithubProfilePage(new Person(newValue)));
     }
 
 
@@ -114,7 +114,7 @@ public class PersonOverviewController {
             if (!updated.isPresent()) break;
 
             if (!selected.getGithubUserName().equals(updated.get().getGithubUserName())){
-                mainController.loadGithubProfilePage(updated.get().getGithubUserName());
+                mainController.loadGithubProfilePage(new Person(updated.get()));
             }
 
             try {

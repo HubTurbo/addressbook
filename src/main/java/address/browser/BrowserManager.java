@@ -1,53 +1,50 @@
 package address.browser;
 
-import com.teamdev.jxbrowser.chromium.Browser;
-import com.teamdev.jxbrowser.chromium.EditorCommand;
-import com.teamdev.jxbrowser.chromium.dom.By;
-import com.teamdev.jxbrowser.chromium.dom.DOMElement;
-import com.teamdev.jxbrowser.chromium.dom.events.DOMEventType;
-import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
-import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
+import address.model.ModelPerson;
+import address.model.Person;
+
+import javafx.collections.ObservableList;
+import javafx.scene.control.TabPane;
 
 /**
  * Manages the browser.
  */
 public class BrowserManager {
 
-    private Browser browser;
 
-    public BrowserManager() {
-        this.browser = new Browser();
-        registerListeners();
+    public static final int NUMBER_OF_PRELOADED_PAGE = 3;
+
+    private AddressBookBrowser browser;
+
+    private ObservableList<ModelPerson> filteredModelPersons;
+
+    public BrowserManager(ObservableList<ModelPerson> filteredModelPersons) {
+        this.filteredModelPersons = filteredModelPersons;
+        browser = new AddressBookBrowser(NUMBER_OF_PRELOADED_PAGE, this.filteredModelPersons);
+        browser.registerListeners();
     }
 
-    private void registerListeners() {
-        this.browser.addLoadListener(new LoadAdapter() {
-            @Override
-            public void onFinishLoadingFrame(FinishLoadingEvent finishLoadingEvent) {
-                automateClickingAndScrolling();
-            }
-        });
+    /**
+     * Loads the person's profile page to the browser.
+     * PreCondition: filteredModelPersons.size() >= 1
+     * @param person
+     */
+    public void loadProfilePage(Person person){
+        browser.loadProfilePage(person);
+    }
+
+    /**
+     * Returns the UI view of the browser.
+     * @return
+     */
+    public TabPane getBrowserView() {
+        return browser.getAddressBookBrowserView();
     }
 
     /**
      * Frees resources allocated to the browser.
      */
-    public void freeBrowserResources(){
+    public void freeBrowserResources() {
         browser.dispose();
-    }
-
-    public Browser getBrowser(){
-        return browser;
-    }
-
-    private void automateClickingAndScrolling() {
-        DOMElement container = browser.getDocument().findElement(By.id("js-pjax-container"));
-        DOMElement link = browser.getDocument().findElement(By.className("octicon octicon-repo"));
-        if (link != null) {
-            container.addEventListener(DOMEventType.OnLoad, e ->
-                            browser.executeCommand(EditorCommand.SCROLL_TO_END_OF_DOCUMENT)
-                    , true);
-            link.click();
-        }
     }
 }
