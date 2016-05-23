@@ -9,6 +9,7 @@ import static org.testfx.matcher.base.NodeMatchers.hasText;
 public class PersonEditDialogTest extends GuiTestBase {
 
     private Node getPersonListContextMenuEdit() {
+        sleep(1000);
         return lookup("#personListContextMenu").lookup("Edit").tryQuery().get();
     }
 
