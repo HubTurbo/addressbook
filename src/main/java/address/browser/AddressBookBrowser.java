@@ -196,12 +196,6 @@ public class AddressBookBrowser{
         return listOfPersonsToBeLoaded;
     }
 
-    private List<Person> getListOfContactsDisplayed() {
-        return filteredModelPersons.stream()
-                                   .map(Person::new)
-                                   .collect(Collectors.toList());
-    }
-
     /**
      * Automates clicking on the Repositories tab and scrolling to the bottom of the page.
      * @param browser
