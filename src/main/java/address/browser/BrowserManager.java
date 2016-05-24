@@ -6,6 +6,8 @@ import address.model.Person;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TabPane;
 
+import java.util.Optional;
+
 /**
  * Manages the browser.
  */
@@ -14,14 +16,20 @@ public class BrowserManager {
 
     public static final int NUMBER_OF_PRELOADED_PAGE = 3;
 
-    private AddressBookBrowser browser;
+    private Optional<AddressBookBrowser> browser;
 
     private ObservableList<ModelPerson> filteredModelPersons;
 
     public BrowserManager(ObservableList<ModelPerson> filteredModelPersons) {
         this.filteredModelPersons = filteredModelPersons;
-        browser = new AddressBookBrowser(NUMBER_OF_PRELOADED_PAGE, this.filteredModelPersons);
-        browser.registerListeners();
+
+        String headlessProperty = System.getProperty("testfx.headless");
+        if (headlessProperty != null && headlessProperty.equals("true")) {
+            browser = Optional.empty();
+            return;
+        }
+        browser = Optional.of(new AddressBookBrowser(NUMBER_OF_PRELOADED_PAGE, this.filteredModelPersons));
+        browser.get().registerListeners();
     }
 
     /**
@@ -30,21 +38,24 @@ public class BrowserManager {
      * @param person
      */
     public void loadProfilePage(Person person){
-        browser.loadProfilePage(person);
+        if (!browser.isPresent()) return;
+        browser.get().loadProfilePage(person);
     }
 
     /**
      * Returns the UI view of the browser.
      * @return
      */
-    public TabPane getBrowserView() {
-        return browser.getAddressBookBrowserView();
+    public Optional<TabPane> getBrowserView() {
+        if (!browser.isPresent()) return Optional.empty();
+        return Optional.ofNullable(browser.get().getAddressBookBrowserView());
     }
 
     /**
      * Frees resources allocated to the browser.
      */
     public void freeBrowserResources() {
-        browser.dispose();
+        if (!browser.isPresent()) return;
+        browser.get().dispose();
     }
 }

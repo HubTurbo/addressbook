@@ -18,6 +18,7 @@ allprojects {
     findbugs {
         excludeFilter = file("${projectDir}/config/findbugs/excludeFilter.xml")
     }
+    apply plugin: 'jacoco'
 
     version = '3.27.0'
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -177,22 +178,37 @@ tasks.withType(FindBugs) {
     }
 }
 
+task coverage {
+}
 task checkStyle {
 }
 
+test {
+    forkEvery = 1
+    systemProperty 'testfx.setup.timeout', '60000'
+}
+
 task headless(type: Test) {
+    systemProperty 'java.awt.robot', 'true'
     systemProperty 'testfx.robot', 'glass'
     systemProperty 'testfx.headless', 'true'
     systemProperty 'prism.order', 'sw'
     systemProperty 'prism.text', 't2k'
+    jacoco {
+        destinationFile = new File("${buildDir}/jacoco/test.exec")
+    }
 }
 
 task headful(type: Test) {
+    jacoco {
+        destinationFile = new File("${buildDir}/jacoco/test.exec")
+    }
 }
 
 headless.shouldRunAfter checkStyle
 headful.shouldRunAfter checkStyle
 checkStyle.shouldRunAfter clean
 checkStyle.dependsOn checkstyleMain, checkstyleTest, findbugsMain, findbugsTest, pmdMain, pmdTest
+coverage.dependsOn jacocoTestReport
 
-defaultTasks 'clean', 'checkStyle', 'headless'
+defaultTasks 'clean', 'headless'

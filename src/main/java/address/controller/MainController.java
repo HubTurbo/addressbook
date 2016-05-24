@@ -19,6 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
@@ -356,6 +357,8 @@ public class MainController {
 
     public void showPersonWebPage() {
         SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-        pane.getItems().add(browserManager.getBrowserView());
+        Optional<TabPane> browserView = browserManager.getBrowserView();
+        if (!browserView.isPresent()) return;
+        pane.getItems().add(browserView.get());
     }
 }

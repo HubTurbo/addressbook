@@ -155,6 +155,7 @@ public class PersonOverviewController {
         deleteMenuItem.setAccelerator(ShortcutsManager.SHORTCUT_PERSON_DELETE);
         deleteMenuItem.setOnAction(e -> handleDeletePerson());
         contextMenu.getItems().addAll(editMenuItem, deleteMenuItem);
+        contextMenu.setId("personListContextMenu");
         return contextMenu;
     }
 
