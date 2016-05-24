@@ -5,6 +5,9 @@ import address.util.LocalDateAdapter;
 import address.util.LocalDateTimeAdapter;
 
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import java.time.LocalDate;
@@ -27,7 +30,7 @@ public class Person extends UniqueData {
     private final ObjectProperty<LocalDate> birthday;
     private final StringProperty githubUserName;
     private ObjectProperty<LocalDateTime> updatedAt;
-    private final List<ContactGroup> contactGroups;
+    private final ObservableList<ContactGroup> contactGroups;
 
     /**
      * Default constructor.
@@ -51,7 +54,7 @@ public class Person extends UniqueData {
         this.postalCode = new SimpleIntegerProperty();
         this.city = new SimpleStringProperty();
         this.birthday = new SimpleObjectProperty<>();
-        this.contactGroups = new ArrayList<>();
+        this.contactGroups = FXCollections.observableArrayList();
         this.updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
         this.githubUserName = new SimpleStringProperty("");
     }
@@ -68,7 +71,7 @@ public class Person extends UniqueData {
         this.postalCode = new SimpleIntegerProperty(person.getPostalCode());
         this.city = new SimpleStringProperty(person.getCity());
         this.birthday = new SimpleObjectProperty<>(person.getBirthday());
-        this.contactGroups = new ArrayList<>(person.getContactGroupsCopy());
+        this.contactGroups = FXCollections.observableArrayList();
         this.updatedAt = new SimpleObjectProperty<>(person.getUpdatedAt());
         this.githubUserName = new SimpleStringProperty(person.getGithubUserName());
     }
@@ -92,6 +95,10 @@ public class Person extends UniqueData {
         updatedAt.set(LocalDateTime.now());
     }
 
+    public StringProperty firstNameProperty() {
+        return firstName;
+    }
+
     public String getFirstName() {
         return firstName.get();
     }
@@ -100,6 +107,20 @@ public class Person extends UniqueData {
         this.firstName.set(firstName);
         updatedAt.set(LocalDateTime.now());
     }
+
+    public StringProperty lastNameProperty() {
+        return lastName;
+    }
+
+    public ObjectProperty<LocalDateTime> updatedAtProperty() {
+        return updatedAt;
+    }
+
+    public ObservableList<ContactGroup> getContactGroups() {
+        return contactGroups;
+    }
+
+
 
     public String getLastName() {
         return lastName.get();
@@ -127,6 +148,7 @@ public class Person extends UniqueData {
         return street;
     }
 
+
     public Integer getPostalCode() {
         return postalCode.get();
     }
@@ -138,10 +160,6 @@ public class Person extends UniqueData {
     public void setPostalCode(Integer postalCode) {
         this.postalCode.setValue(postalCode);
         updatedAt.set(LocalDateTime.now());
-    }
-
-    public IntegerProperty postalCodeProperty() {
-        return postalCode;
     }
 
     public String getCity() {
@@ -195,8 +213,16 @@ public class Person extends UniqueData {
         updatedAt.set(LocalDateTime.now());
     }
 
+    public IntegerProperty postalCodeProperty() {
+        return postalCode;
+    }
+
     public ObjectProperty<LocalDate> birthdayProperty() {
         return birthday;
+    }
+
+    public void setPostalCode(int postalCode) {
+        this.postalCode.set(postalCode);
     }
 
     /**
@@ -218,6 +244,7 @@ public class Person extends UniqueData {
         updatedAt.set(updated.getUpdatedAt());
         return this;
     }
+
 
     @Override
     public boolean equals(Object otherPerson){

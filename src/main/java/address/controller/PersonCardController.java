@@ -1,11 +1,11 @@
 package address.controller;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import address.model.ContactGroup;
 import address.model.Person;
+import javafx.beans.binding.StringBinding;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -45,13 +45,43 @@ public class PersonCardController {
 
     @FXML
     public void initialize() {
-        firstName.setText(person.getFirstName());
-        lastName.setText(person.getLastName());
-        street.setText(person.getStreet());
-        postalCode.setText(person.getPostalCodeString());
-        city.setText(person.getCity());
-        birthday.setText(person.getBirthdayString());
-        contactGroups.setText(getContactGroupsString(person.getContactGroupsCopy()));
+        firstName.textProperty().bind(person.firstNameProperty());
+        lastName.textProperty().bind(person.lastNameProperty());
+        street.textProperty().bind(person.streetProperty());
+        postalCode.textProperty().bind(new StringBinding(){
+            {
+                bind(person.postalCodeProperty()); //Bind property at instance initializer
+            }
+
+            @Override
+            protected String computeValue() {
+                if(person.postalCodeProperty().get() == 0){
+                    return "";
+                }
+                return String.valueOf(person.postalCodeProperty().get());
+            }
+        });
+        city.textProperty().bind(person.cityProperty());
+        birthday.textProperty().bind(new StringBinding(){
+            {
+                bind(person.birthdayProperty()); //Bind property at instance initializer
+            }
+
+            @Override
+            protected String computeValue() {
+                return person.getBirthdayString();
+            }
+        });
+        contactGroups.textProperty().bind(new StringBinding(){
+            {
+                bind(person.getContactGroups()); //Bind property at instance initializer
+            }
+
+            @Override
+            protected String computeValue() {
+                return getContactGroupsString(person.getContactGroupsCopy());
+            }
+        });
     }
 
     private String getContactGroupsString(List<ContactGroup> contactGroups) {
