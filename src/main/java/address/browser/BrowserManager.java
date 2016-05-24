@@ -7,12 +7,18 @@ import address.model.ModelPerson;
 import address.model.Person;
 
 import com.google.common.eventbus.Subscribe;
+
+import com.teamdev.jxbrowser.chromium.BrowserCore;
+import com.teamdev.jxbrowser.chromium.LoggerProvider;
+import com.teamdev.jxbrowser.chromium.internal.Environment;
+
 import javafx.collections.ObservableList;
 import javafx.scene.control.TabPane;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Manages the browser.
@@ -66,10 +72,16 @@ public class BrowserManager {
         }
     }
 
+    public static void initializeBrowser() {
+        if (Environment.isMac()) {
+            BrowserCore.initialize();
+        }
+        LoggerProvider.setLevel(Level.SEVERE);
+    }
+
     /**
      * Loads the person's profile page to the browser.
      * PreCondition: filteredModelPersons.size() >= 1
-     * @param person
      */
     public void loadProfilePage(Person person){
         if (!browser.isPresent()) return;
@@ -78,7 +90,6 @@ public class BrowserManager {
 
     /**
      * Returns the UI view of the browser.
-     * @return
      */
     public Optional<TabPane> getBrowserView() {
         if (!browser.isPresent()) return Optional.empty();

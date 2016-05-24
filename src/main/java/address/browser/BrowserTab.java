@@ -23,7 +23,6 @@ public class BrowserTab extends Browser {
 
     /**
      * Checks if this browser tab is assigned to load a person's GitHub profile page
-     * @return
      */
     public boolean isAssigned(){
         return person != null;
@@ -31,7 +30,6 @@ public class BrowserTab extends Browser {
 
     /**
      * Loads the person's profile page to the browser tab.
-     * @param person
      */
     public synchronized void loadProfilePage(Person person) {
         this.person = person;

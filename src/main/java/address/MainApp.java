@@ -1,8 +1,6 @@
 package address;
 
-import com.teamdev.jxbrowser.chromium.BrowserCore;
-import com.teamdev.jxbrowser.chromium.internal.Environment;
-import com.teamdev.jxbrowser.chromium.LoggerProvider;
+import address.browser.BrowserManager;
 
 import address.controller.MainController;
 import address.events.EventManager;
@@ -18,8 +16,6 @@ import address.util.Config;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
-
-import java.util.logging.Level;
 
 /**
  * The main entry point to the application.
@@ -43,10 +39,7 @@ public class MainApp extends Application {
     @Override
     public void init() throws Exception {
         super.init();
-        if (Environment.isMac()) {
-            BrowserCore.initialize();
-        }
-        LoggerProvider.setLevel(Level.SEVERE);
+        BrowserManager.initializeBrowser();
     }
 
     @Override
