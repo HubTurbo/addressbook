@@ -35,7 +35,7 @@ public class AddressBookBrowser{
     public AddressBookBrowser(int noOfTabs, ObservableList<ModelPerson> filteredModelPersons) {
         addressBookBrowserView = new TabPane();
         this.filteredModelPersons = filteredModelPersons;
-        this.browserTabs = new ArrayList<BrowserTab>();
+        this.browserTabs = new ArrayList<>();
         for (int i = 0; i < noOfTabs; i++) {
             browserTabs.add(new BrowserTab());
             Tab tab = createBrowserTabView(browserTabs.get(i));
@@ -63,7 +63,6 @@ public class AddressBookBrowser{
 
     /**
      * Creates the UI view of the BrowserTab.
-     * @return
      */
     private Tab createBrowserTabView(BrowserTab page) {
         BrowserView browserView = new BrowserView(page);
@@ -76,8 +75,8 @@ public class AddressBookBrowser{
      * Registers listeners for automating clicking and scrolling.
      */
     public void registerListeners() {
-        for (int i = 0; i < browserTabs.size(); i++) {
-            browserTabs.get(i).addLoadListener(new LoadAdapter() {
+        for (BrowserTab browserTab : browserTabs) {
+            browserTab.addLoadListener(new LoadAdapter() {
                 @Override
                 public void onFinishLoadingFrame(FinishLoadingEvent finishLoadingEvent) {
                     if (finishLoadingEvent.isMainFrame()) {
@@ -90,7 +89,6 @@ public class AddressBookBrowser{
 
     /**
      * Returns the UI view of the AddressBookBrowser.
-     * @return
      */
     public TabPane getAddressBookBrowserView(){
         return addressBookBrowserView;
@@ -107,7 +105,6 @@ public class AddressBookBrowser{
      * Loads the person's profile page to the browser.
      * It also performs caching of other person profile page.
      * PreCondition: filteredModelPersons().size() >= 1
-     * @param person
      */
     public void loadProfilePage(Person person) {
 
@@ -149,14 +146,13 @@ public class AddressBookBrowser{
                 .stream()
                 .filter(browserTab -> !listOfPersonsToLoad.contains(browserTab.getPerson()))
                 .collect(Collectors.toList());
-        tabsToBeUnLoaded.stream().forEach(browserTab -> browserTab.unloadProfilePage());
+        tabsToBeUnLoaded.stream().forEach(BrowserTab::unloadProfilePage);
 
     }
 
 
     /**
      * Selects the tab that is used to load the profile page of the person.
-     * @param person
      */
     private void selectTabAssignedForPerson(Person person) {
         browserTabs.stream()
@@ -166,7 +162,6 @@ public class AddressBookBrowser{
 
     /**
      * Loads profile pages into the browser.
-     * @param listOfPersonsToBeLoaded
      */
     private void loadProfilePages(ArrayList<Person> listOfPersonsToBeLoaded) {
 
@@ -183,9 +178,6 @@ public class AddressBookBrowser{
 
      /**
      * Gets a list of person that are needed to be loaded to the browser.
-     * @param filteredPersons
-     * @param indexOfPerson
-     * @return
      */
     private ArrayList<Person> getListOfPersonsToBeLoaded(List<Person> filteredPersons, int indexOfPerson) {
         ArrayList<Person> listOfPersonsToBeLoaded = new ArrayList<>();
@@ -198,7 +190,6 @@ public class AddressBookBrowser{
 
     /**
      * Automates clicking on the Repositories tab and scrolling to the bottom of the page.
-     * @param browser
      */
     private void automateClickingAndScrolling(Browser browser) {
         DOMElement repoContainer = browser.getDocument().findElement(By.id("js-pjax-container"));
@@ -229,7 +220,6 @@ public class AddressBookBrowser{
 
     /**
      * Selects the tab of the browser.
-     * @param indexOfTab
      */
     private void selectTab(int indexOfTab){
         addressBookBrowserView.getSelectionModel().select(indexOfTab);
