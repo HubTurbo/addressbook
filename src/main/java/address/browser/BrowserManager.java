@@ -1,11 +1,17 @@
 package address.browser;
 
+import address.events.EventManager;
+import address.events.LocalModelChangedEvent;
+import address.model.ModelManager;
 import address.model.ModelPerson;
 import address.model.Person;
 
+import com.google.common.eventbus.Subscribe;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TabPane;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -15,6 +21,7 @@ public class BrowserManager {
 
 
     public static final int NUMBER_OF_PRELOADED_PAGE = 3;
+    public static final int PERSON_NOT_FOUND = -1;
 
     private Optional<AddressBookBrowser> browser;
 
@@ -30,6 +37,33 @@ public class BrowserManager {
         }
         browser = Optional.of(new AddressBookBrowser(NUMBER_OF_PRELOADED_PAGE, this.filteredModelPersons));
         browser.get().registerListeners();
+        EventManager.getInstance().registerHandler(this);
+    }
+
+    @Subscribe
+    public void handleLocalModelChangedEvent(LocalModelChangedEvent event){
+        ArrayList<BrowserTab> browserTabs = browser.get().getBrowserTabs();
+
+        for (BrowserTab browserTab: browserTabs){
+            List<Person> listOfContactsDisplayed = ModelManager.convertToPersons(filteredModelPersons);
+            Optional<Person> browserTabPerson = Optional.ofNullable(browserTab.getPerson());
+            if (!browserTabPerson.isPresent()){
+                continue;
+            }
+
+            int indexOfContact = listOfContactsDisplayed.indexOf(browserTabPerson.get());
+
+            if(indexOfContact == PERSON_NOT_FOUND){
+                browserTab.unloadProfilePage();
+                continue;
+            }
+
+            Person updatedPerson = listOfContactsDisplayed.get(indexOfContact);
+
+            if (!updatedPerson.getGithubUserName().equals(browserTabPerson.get().getGithubUserName())){
+                browserTab.loadProfilePage(updatedPerson);
+            }
+        }
     }
 
     /**

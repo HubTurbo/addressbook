@@ -113,10 +113,6 @@ public class PersonOverviewController {
             updated = mainController.getPersonDataInput(updated.get());
             if (!updated.isPresent()) break;
 
-            if (!selected.getGithubUserName().equals(updated.get().getGithubUserName())){
-                mainController.loadGithubProfilePage(new Person(updated.get()));
-            }
-
             try {
                 modelManager.updatePerson(selected, updated.get());
                 break;
