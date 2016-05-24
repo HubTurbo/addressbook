@@ -171,4 +171,4 @@ checkStyle.shouldRunAfter clean
 checkStyle.dependsOn checkstyleMain, checkstyleTest, findbugsMain, findbugsTest, pmdMain, pmdTest
 coverage.dependsOn jacocoTestReport
 
-defaultTasks 'clean', 'checkStyle', 'headless'
+defaultTasks 'clean', 'headless'

@@ -7,14 +7,20 @@ There are a few key gradle tasks defined that we can play around with:
 - `checkStyle` to run code style checks
 - `clean` to remove previously built files
 
+**Local Testing**  
 *Common commands used*  
-- `./gradlew` to run `clean`, `checkStyle`, `headless` tasks.  
-This is run on Travis CI by default. However, even though it is supposed to be headless, there will be interruptions during testing for Mac OSX users, since launching of JVM will cause a focus loss of other windows.  
+- `./gradlew` to run `clean`, `headless` tasks.  
 - `./gradlew checkStyle headful clean`
  - HT's way of doing testing  
 - `./gradlew headless` to run **headless testing** only.  
  - Running this or `headful` repeatedly will not re-run the tests unless the build files are `clean`ed
 - `./gradlew headful` to run **headful testing** only.
+
+**CI Testing**
+- `./gradlew` is run  
+At the moment, we do not check the code style. It is up to the contributor to verify his or her coding style locally by running `./gradlew checkStyle`.  
+- Automatically retries up to 3 times if a task fails
+
 
 # Types of Tests
 
@@ -32,6 +38,6 @@ We have grouped the tests into the following types.
 # Current issues
 
 **Headless Testing**
-  - Local Machine
-    - [Causes JVM to crash when using Mac OSX](https://github.com/HubTurbo/addressbook/issues/108)
-      - disabling JxBrowser (by not initializing/using `BrowserManager`) prevents this error
+  - Running headless tests on Mac OSX no longer causes the window to lose focus!
+  - [Causes JVM to crash when using Mac OSX](https://github.com/HubTurbo/addressbook/issues/108)
+      - Temporarily disabled initializing the browser in test mode. This should and will be changed to a mock instead in future PRs.
