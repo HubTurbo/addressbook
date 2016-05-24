@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -114,6 +116,26 @@ public class Installer extends Application {
         }
 
         // TODO download from jxBrowserDownloadLink
+        URL downloadLink;
+        try {
+            downloadLink = new URL(jxBrowserDownloadLink);
+        } catch (MalformedURLException e) {
+            System.out.println("JxBrowser download link is malformed");
+            e.printStackTrace();
+            return;
+        }
+
+        try {
+            String jxBrowserFilename = Paths.get(downloadLink.toString()).getFileName().toString();
+            File jxBrowserFile = Paths.get("lib", jxBrowserFilename).toFile();
+            if (!FileUtil.isFileExists(jxBrowserFile.toString())) {
+                downloadFile(jxBrowserFile, downloadLink);
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to download JxBrowser");
+            e.printStackTrace();
+            return;
+        }
 
         System.out.println("Has gotten Jx Browser");
     }
@@ -138,5 +160,18 @@ public class Installer extends Application {
         }
 
         System.out.println("Main application launched");
+    }
+
+    private void downloadFile(File targetFile, URL source) throws IOException {
+        try (InputStream in = source.openStream()) {
+            if (!FileUtil.createFile(targetFile)) {
+                throw new IOException("Error creating new file.");
+            }
+            Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            System.out.println(String.format("Installer - Failed to download update for %s",
+                    targetFile.toString()));
+            throw e;
+        }
     }
 }
