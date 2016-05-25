@@ -1,6 +1,7 @@
 package address.guitests;
 
 import address.TestApp;
+import address.events.EventManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -22,6 +23,7 @@ public class GuiTestBase extends FxRobot {
 
     @Before
     public void setup() throws Exception {
+        EventManager.clearSubscribers();
         FxToolkit.setupApplication(TestApp.class);
 
         // since we cannot handle custom test data files

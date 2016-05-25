@@ -16,6 +16,10 @@ public class EventManager {
         return instance;
     }
 
+    public static void clearSubscribers() {
+        instance = null;
+    }
+
     private EventManager() {
         eventBus = new EventBus();
     }
