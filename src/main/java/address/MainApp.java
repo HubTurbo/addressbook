@@ -46,6 +46,7 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         setupComponents();
         mainController.start(primaryStage);
+        updateManager.run();
 
         // initial load (precondition: mainController has been started.)
         EventManager.getInstance().post(new LoadDataRequestEvent(PrefsManager.getInstance().getSaveLocation()));
@@ -62,7 +63,6 @@ public class MainApp extends Application {
         shortcutsManager = new ShortcutsManager();
 
         updateManager = new UpdateManager();
-        updateManager.run();
     }
 
     @Override

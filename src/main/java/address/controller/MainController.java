@@ -6,28 +6,29 @@ import address.model.ContactGroup;
 import address.model.ModelContactGroup;
 import address.model.ModelManager;
 import address.model.Person;
-import address.prefs.PrefsManager;
+import address.ui.SyncStatusBar;
+import address.ui.UpdaterStatusBar;
 import address.util.Config;
 import address.browser.BrowserManager;
 
 import com.google.common.eventbus.Subscribe;
-import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -51,6 +52,8 @@ public class MainController {
     private ModelManager modelManager;
     private BrowserManager browserManager;
     private MainApp mainApp;
+    public static SyncStatusBar syncStatusBar;
+    public static UpdaterStatusBar updaterStatusBar;
 
     public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
         EventManager.getInstance().registerHandler(this);
@@ -70,6 +73,28 @@ public class MainController {
         initRootLayout();
         showPersonOverview();
         showPersonWebPage();
+        createFooterStatusBar();
+    }
+
+    private void createFooterStatusBar() {
+
+        AnchorPane syncStatusBarPane = (AnchorPane)rootLayout.lookup("#syncStatusBar");
+        AnchorPane updaterStatusBarPane = (AnchorPane)rootLayout.lookup("#updaterStatusBar");
+        this.syncStatusBar = new SyncStatusBar();
+        this.updaterStatusBar = new UpdaterStatusBar();
+
+        applyAnchorBoundsParameter(syncStatusBar, 0.0, 0.0, 0.0, 0.0);
+        applyAnchorBoundsParameter(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
+
+        syncStatusBarPane.getChildren().add(syncStatusBar);
+        updaterStatusBarPane.getChildren().add(updaterStatusBar);
+    }
+
+    private void applyAnchorBoundsParameter(Node node, double left, double right, double top, double bottom) {
+        AnchorPane.setBottomAnchor(node, bottom);
+        AnchorPane.setLeftAnchor(node, left);
+        AnchorPane.setRightAnchor(node, right);
+        AnchorPane.setTopAnchor(node, top);
     }
 
     /**

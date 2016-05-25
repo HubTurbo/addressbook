@@ -6,6 +6,6 @@ package address.util;
 public class Config {
     public String appTitle = "Address App";
     public long updateInterval = 3000;
-    public boolean simulateUnreliableNetwork = false;
+    public boolean simulateUnreliableNetwork = true;
 
 }

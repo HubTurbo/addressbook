@@ -1,10 +1,13 @@
 package address.updater;
 
+import address.controller.MainController;
 import address.updater.model.FileUpdateDescriptor;
 import address.updater.model.UpdateData;
 import address.updater.model.VersionDescriptor;
 import address.util.XmlFileHelper;
 import address.util.FileUtil;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
@@ -16,6 +19,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -41,49 +45,92 @@ public class UpdateManager {
     }
 
     private void checkForUpdate() {
+        MainController.updaterStatusBar.displayMessage("Updating AddressBook...");
+        DoubleProperty updateProgress = new SimpleDoubleProperty();
+        MainController.updaterStatusBar.progressProperty().bind(updateProgress);
+        updateProgress.set(0.1f);
+
         try {
+            MainController.updaterStatusBar.displayMessage("Clearing local update specification file");
+            simulateComputation();
+            updateProgress.set(0.2f);
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
+            MainController.updaterStatusBar.displayMessage("Failed to delete previous update spec file");
             System.out.println("UpdateManager - Failed to delete previous update spec file");
             return;
         }
 
+        MainController.updaterStatusBar.displayMessage("Getting update data from server");
+        simulateComputation();
+        updateProgress.set(0.3f);
         Optional<UpdateData> updateData = getUpdateDataFromServer();
 
         if (!updateData.isPresent()) {
+            MainController.updaterStatusBar.displayMessage("There is no update data to be processed.");
             System.out.println("UpdateManager - There is no update data to be processed.");
             return;
         }
 
+        MainController.updaterStatusBar.displayMessage("Collecting all downloaded update files");
+        simulateComputation();
+        updateProgress.set(0.4f);
         List<FileUpdateDescriptor> fileUpdateDescriptors = collectAllUpdateFilesToBeDownloaded(updateData.get());
 
         if (fileUpdateDescriptors.isEmpty()) {
+            MainController.updaterStatusBar.displayMessage("There is no update");
             System.out.println("UpdateManager - There is no update.");
             return;
         }
 
+        MainController.updaterStatusBar.displayMessage("Downloading all files that are to be updated");
+        simulateComputation();
+        updateProgress.set(0.6f);
+
         try {
             downloadAllFilesToBeUpdated(new File(UPDATE_DIRECTORY), fileUpdateDescriptors);
         } catch (IOException e) {
+            MainController.updaterStatusBar.displayMessage("Downloading update failed");
             System.out.println("UpdateManager - Downloading update failed.");
             return;
         }
 
+        MainController.updaterStatusBar.displayMessage("Creating update specification");
+        simulateComputation();
+        updateProgress.set(0.8f);
+
         try {
             createUpdateSpecification(fileUpdateDescriptors);
         } catch (IOException e) {
+            MainController.updaterStatusBar.displayMessage("Failed to create update specification");
             System.out.println("UpdateManager - Failed to create update specification");
             return;
         }
 
+        MainController.updaterStatusBar.displayMessage("Extracting Jar Updater");
+        simulateComputation();
+        updateProgress.set(0.9f);
+
         try {
             extractJarUpdater();
         } catch (IOException e) {
+            MainController.updaterStatusBar.displayMessage("Failed to extract JAR updater");
             System.out.println("UpdateManager - Failed to extract JAR updater");
             return;
         }
 
+        simulateComputation();
+        updateProgress.set(1.0f);
+
         this.isUpdateApplicable = true;
+    }
+
+    private void simulateComputation() {
+        try {
+            TimeUnit.SECONDS.sleep(new Random().nextInt(5));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
