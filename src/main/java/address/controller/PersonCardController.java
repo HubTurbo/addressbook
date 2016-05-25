@@ -55,10 +55,7 @@ public class PersonCardController {
 
             @Override
             protected String computeValue() {
-                if(person.postalCodeProperty().get() == 0){
-                    return "";
-                }
-                return String.valueOf(person.postalCodeProperty().get());
+                return person.postalCodeString();
             }
         });
         city.textProperty().bind(person.cityProperty());
@@ -69,7 +66,7 @@ public class PersonCardController {
 
             @Override
             protected String computeValue() {
-                return person.getBirthdayString();
+                return person.birthdayString();
             }
         });
         contactGroups.textProperty().bind(new StringBinding(){
@@ -79,20 +76,9 @@ public class PersonCardController {
 
             @Override
             protected String computeValue() {
-                return getContactGroupsString(person.getContactGroupsCopy());
+                return person.contactGroupsString();
             }
         });
-    }
-
-    private String getContactGroupsString(List<ContactGroup> contactGroups) {
-        StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < contactGroups.size(); i++) {
-            if (i > 0) {
-                buffer.append(", ");
-            }
-            buffer.append(contactGroups.get(i).getName());
-        }
-        return buffer.toString();
     }
 
     public GridPane getLayout() {

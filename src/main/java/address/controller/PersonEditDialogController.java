@@ -107,9 +107,9 @@ public class PersonEditDialogController extends EditDialogController {
         firstNameField.setText(person.getFirstName());
         lastNameField.setText(person.getLastName());
         streetField.setText(person.getStreet());
-        postalCodeField.setText(person.getPostalCodeString());
+        postalCodeField.setText(person.postalCodeString());
         cityField.setText(person.getCity());
-        birthdayField.setText(person.getBirthdayString());
+        birthdayField.setText(person.birthdayString());
         birthdayField.setPromptText("dd.mm.yyyy");
         githubUserNameField.setText(person.getGithubUserName());
     }

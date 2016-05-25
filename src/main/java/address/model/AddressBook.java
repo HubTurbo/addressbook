@@ -7,13 +7,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Helper class to wrap an address book. This is used for saving the
- * lists of persons and groups to XML.
+ * Wraps all data at the address-book level
  *
  * Duplicates are not allowed (by .equals comparison)
  * TODO: truly enforce set property through code (Sets, XML Schemas)
- * 
- * Adapted and modified from Marco Jakob
  */
 
 @XmlRootElement(name = "addressbook")
@@ -46,15 +43,6 @@ public class AddressBook {
 
     // Deprecated (to be removed when no-dupe property is properly enforced
     public boolean containsDuplicates() {
-        final Set<Person> personSet = new HashSet<>();
-        final Set<ContactGroup> groupSet = new HashSet<>();
-        for (Person p : persons) {
-            if (!personSet.add(p)) return true;
-        }
-        for (ContactGroup cg : groups) {
-            if (!groupSet.add(cg)) return true;
-        }
-        return false;
+        return UniqueData.itemsAreUnique(persons) && UniqueData.itemsAreUnique(groups);
     }
-
 }

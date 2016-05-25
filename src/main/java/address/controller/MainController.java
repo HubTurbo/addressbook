@@ -28,6 +28,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 
 /**
@@ -176,7 +177,7 @@ public class MainController {
             PersonEditDialogController controller = loader.getController();
             controller.setDialogStage(dialogStage);
             controller.setInitialPersonData(initialData);
-            controller.setGroupsModel(modelManager.getGroups(), initialData.getContactGroupsCopy());
+            controller.setGroupsModel(modelManager.getGroups(), new ArrayList<>(initialData.getContactGroups()));
 
             dialogStage.showAndWait();
             if (controller.isOkClicked()) {

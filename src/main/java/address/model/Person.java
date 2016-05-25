@@ -24,20 +24,35 @@ public class Person extends UniqueData {
 
     private final StringProperty firstName;
     private final StringProperty lastName;
+
     private final StringProperty street;
     private final IntegerProperty postalCode;
     private final StringProperty city;
-    private final ObjectProperty<LocalDate> birthday;
     private final StringProperty githubUserName;
-    private ObjectProperty<LocalDateTime> updatedAt;
+
+    private final ObjectProperty<LocalDate> birthday;
+    private final ObjectProperty<LocalDateTime> updatedAt;
     private final ObservableList<ContactGroup> contactGroups;
 
+    // defaults
+    {
+        firstName = new SimpleStringProperty("");
+        lastName = new SimpleStringProperty("");
+
+        street = new SimpleStringProperty("");
+        postalCode = new SimpleIntegerProperty();
+        city = new SimpleStringProperty("");
+        githubUserName = new SimpleStringProperty("");
+
+        birthday = new SimpleObjectProperty<>();
+        updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
+        contactGroups = FXCollections.observableArrayList();
+    }    
+    
     /**
      * Default constructor.
      */
-    public Person() {
-        this("", "");
-    }
+    public Person() {}
 
     /**
      * Constructor with firstName and lastName parameters
@@ -47,16 +62,8 @@ public class Person extends UniqueData {
      * @param lastName
      */
     public Person(String firstName, String lastName) {
-        this.firstName = new SimpleStringProperty(firstName);
-        this.lastName = new SimpleStringProperty(lastName);
-
-        this.street = new SimpleStringProperty("");
-        this.postalCode = new SimpleIntegerProperty();
-        this.city = new SimpleStringProperty();
-        this.birthday = new SimpleObjectProperty<>();
-        this.contactGroups = FXCollections.observableArrayList();
-        this.updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
-        this.githubUserName = new SimpleStringProperty("");
+        setFirstName(firstName);
+        setLastName(lastName);
     }
 
     /**
@@ -64,41 +71,32 @@ public class Person extends UniqueData {
      * @param person
      */
     public Person(Person person) {
-        this.firstName = new SimpleStringProperty(person.getFirstName());
-        this.lastName = new SimpleStringProperty(person.getLastName());
-
-        this.street = new SimpleStringProperty(person.getStreet());
-        this.postalCode = new SimpleIntegerProperty(person.getPostalCode());
-        this.city = new SimpleStringProperty(person.getCity());
-        this.birthday = new SimpleObjectProperty<>(person.getBirthday());
-        this.contactGroups = FXCollections.observableArrayList();
-        this.contactGroups.addAll(person.getContactGroups());
-        this.updatedAt = new SimpleObjectProperty<>(person.getUpdatedAt());
-        this.githubUserName = new SimpleStringProperty(person.getGithubUserName());
+        update(person);
     }
 
     /**
-     * @return a deep copy of the contactGroups
+     * Updates the attributes based on the values in the parameter.
+     * Mutable references are cloned.
+     *
+     * @param updated The object containing the new attributes.
+     * @return self
      */
-    public List<ContactGroup> getContactGroupsCopy() {
-        final List<ContactGroup> copy = new ArrayList<>();
-        contactGroups.forEach((cg) -> copy.add(cg));
-        return copy;
+    public Person update(Person updated) {
+        setFirstName(updated.getFirstName());
+        setLastName(updated.getLastName());
+
+        setStreet(updated.getStreet());
+        setPostalCode(updated.getPostalCode());
+        setCity(updated.getCity());
+        setGithubUserName(updated.getGithubUserName());
+
+        setBirthday(updated.getBirthday());
+        setUpdatedAt(updated.getUpdatedAt());
+        setContactGroups(updated.getContactGroups());
+        return this;
     }
 
-    /**
-     * Note: references point back to argument list (no defensive copying)
-     * @param contactGroups
-     */
-    public void setContactGroups(List<ContactGroup> contactGroups) {
-        this.contactGroups.clear();
-        this.contactGroups.addAll(contactGroups);
-        updatedAt.set(LocalDateTime.now());
-    }
-
-    public StringProperty firstNameProperty() {
-        return firstName;
-    }
+//// NAME
 
     public String getFirstName() {
         return firstName.get();
@@ -109,19 +107,9 @@ public class Person extends UniqueData {
         updatedAt.set(LocalDateTime.now());
     }
 
-    public StringProperty lastNameProperty() {
-        return lastName;
+    public StringProperty firstNameProperty() {
+        return firstName;
     }
-
-    public ObjectProperty<LocalDateTime> updatedAtProperty() {
-        return updatedAt;
-    }
-
-    public ObservableList<ContactGroup> getContactGroups() {
-        return contactGroups;
-    }
-
-
 
     public String getLastName() {
         return lastName.get();
@@ -132,9 +120,15 @@ public class Person extends UniqueData {
         updatedAt.set(LocalDateTime.now());
     }
 
-    public String getFullName() {
+    public StringProperty lastNameProperty() {
+        return lastName;
+    }
+
+    public String fullName() {
         return getFirstName() + ' ' + getLastName();
     }
+
+//// STREET
 
     public String getStreet() {
         return street.get();
@@ -149,19 +143,26 @@ public class Person extends UniqueData {
         return street;
     }
 
+//// POSTAL CODE
 
-    public Integer getPostalCode() {
+    public int getPostalCode() {
         return postalCode.get();
     }
 
-    public String getPostalCodeString() {
-        return postalCode.getValue() == 0.0 ? "" : Integer.toString(postalCode.get());
-    }
-
-    public void setPostalCode(Integer postalCode) {
-        this.postalCode.setValue(postalCode);
+    public void setPostalCode(int postalCode) {
+        this.postalCode.set(postalCode);
         updatedAt.set(LocalDateTime.now());
     }
+
+    public IntegerProperty postalCodeProperty() {
+        return postalCode;
+    }
+
+    public String postalCodeString() {
+        return postalCode.getValue() == 0 ? "" : Integer.toString(postalCode.get());
+    }
+
+//// CITY
 
     public String getCity() {
         return city.get();
@@ -176,14 +177,11 @@ public class Person extends UniqueData {
         return city;
     }
 
+//// BIRTHDAY
+
     @XmlJavaTypeAdapter(LocalDateAdapter.class)
     public LocalDate getBirthday() {
         return birthday.get();
-    }
-
-    public String getBirthdayString() {
-        if (birthday.getValue() == null) return "";
-        return DateUtil.format(birthday.getValue());
     }
 
     public void setBirthday(LocalDate birthday) {
@@ -191,22 +189,25 @@ public class Person extends UniqueData {
         updatedAt.set(LocalDateTime.now());
     }
 
-    @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt.get();
+    public ObjectProperty<LocalDate> birthdayProperty() {
+        return birthday;
     }
+
+    public String birthdayString() {
+        if (birthday.getValue() == null) return "";
+        return DateUtil.format(birthday.getValue());
+    }
+
+//// GITHUB USERNAME
 
     public String getGithubUserName() {
         return githubUserName.get();
     }
 
-    public StringProperty githubUserNameProperty() {
-        return githubUserName;
-    }
-
     /**
      * Precond: GitHub username must be validated as a parsable url in the form of
      * https://www.github.com/ + githubUserName
+     * TODO make a custom githubusername class that validates the string on creation so no checks needed
      * @param githubUserName
      */
     public void setGithubUserName(String githubUserName) {
@@ -214,38 +215,58 @@ public class Person extends UniqueData {
         updatedAt.set(LocalDateTime.now());
     }
 
-    public IntegerProperty postalCodeProperty() {
-        return postalCode;
+    public StringProperty githubUserNameProperty() {
+        return githubUserName;
     }
 
-    public ObjectProperty<LocalDate> birthdayProperty() {
-        return birthday;
+    public String profilePageUrl(){
+        return "https://www.github.com/" + githubUserName.get();
     }
 
-    public void setPostalCode(int postalCode) {
-        this.postalCode.set(postalCode);
+//// CONTACT GROUPS
+
+    public ObservableList<ContactGroup> getContactGroups() {
+        return contactGroups;
     }
 
     /**
-     * Updates the attributes based on the values in the parameter.
-     * Mutable references are cloned.
-     *
-     * @param updated The object containing the new attributes.
-     * @return self
+     * Note: references point back to argument list (no defensive copying)
+     * internal list is updated with elements in the argument list instead of being wholly replaced
+     * @param contactGroups
      */
-    public Person update(Person updated) {
-        setFirstName(updated.getFirstName());
-        setLastName(updated.getLastName());
-        setStreet(updated.getStreet());
-        setPostalCode(updated.getPostalCode());
-        setCity(updated.getCity());
-        setBirthday(updated.getBirthday());
-        setContactGroups(updated.getContactGroupsCopy());
-        setGithubUserName(updated.getGithubUserName());
-        updatedAt.set(updated.getUpdatedAt());
-        return this;
+    public void setContactGroups(List<ContactGroup> contactGroups) {
+        this.contactGroups.clear();
+        this.contactGroups.addAll(contactGroups);
+        updatedAt.set(LocalDateTime.now());
     }
 
+    public String contactGroupsString() {
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < contactGroups.size(); i++) {
+            if (i > 0) {
+                buffer.append(", ");
+            }
+            buffer.append(contactGroups.get(i).getName());
+        }
+        return buffer.toString();
+    }
+
+//// UPDATED AT
+
+    @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt.get();
+    }
+
+    public ObjectProperty<LocalDateTime> updatedAtProperty() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime lastUpdated) {
+        updatedAt.set(lastUpdated);
+    }
+
+//// OTHER LOGIC
 
     @Override
     public boolean equals(Object otherPerson){
@@ -265,11 +286,7 @@ public class Person extends UniqueData {
 
     @Override
     public String toString() {
-        return "Person: " + getFullName();
-    }
-
-    public String getProfilePageUrl(){
-        return "https://www.github.com/" + githubUserName.get();
+        return "Person: " + fullName();
     }
 
 }
