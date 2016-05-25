@@ -11,7 +11,6 @@ public class TestApp extends MainApp {
     protected Config getConfig() {
         Config testConfig = new Config();
         testConfig.appTitle = "Test App";
-        testConfig.updateInterval = 0;
         return testConfig;
     }
 

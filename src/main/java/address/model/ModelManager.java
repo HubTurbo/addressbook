@@ -62,7 +62,7 @@ public class ModelManager {
         this(new AddressBook());
     }
 
-    public synchronized void updateWithSampleData() throws DuplicateDataException {
+    public synchronized void resetWithSampleData() throws DuplicateDataException {
         final Person[] samplePersonData = {
             new Person("Hans", "Muster"),
             new Person("Ruth", "Mueller"),
@@ -78,8 +78,7 @@ public class ModelManager {
             new ContactGroup("relatives"),
             new ContactGroup("friends")
         };
-        addGroups(Arrays.asList(sampleGroupData));
-        addPersons(Arrays.asList(samplePersonData));
+        resetData(Arrays.asList(samplePersonData), Arrays.asList(sampleGroupData));
     }
 
     /**

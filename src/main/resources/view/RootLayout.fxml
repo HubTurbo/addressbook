@@ -18,7 +18,7 @@
                   <MenuItem fx:id="menuFileSave" mnemonicParsing="false" onAction="#handleSave" text="[Local] Save" />
                   <MenuItem fx:id="menuFileSaveAs" mnemonicParsing="false" onAction="#handleSaveAs" text="[Local] Save As..." />
                   <MenuItem fx:id="menuChooseMirror" mnemonicParsing="false" onAction="#handleChooseMirror" text="Choose Sync Mirror" />
-                  <MenuItem mnemonicParsing="false" onAction="#handleAppendSampleData" text="Append Sample Data" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleResetWithSampleData" text="Reset with Sample Data" />
                   <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
                </items>
             </Menu>
