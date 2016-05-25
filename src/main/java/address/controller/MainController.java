@@ -12,6 +12,7 @@ import com.google.common.eventbus.Subscribe;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -22,6 +23,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.controlsfx.control.StatusBar;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +34,7 @@ import java.util.Optional;
  * The controller that creates the other controllers
  */
 public class MainController {
+    private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_GROUP_EDIT_DIALOG = "/view/GroupEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
     private static final String FXML_PERSON_OVERVIEW = "/view/PersonOverview.fxml";
@@ -68,6 +71,7 @@ public class MainController {
         initRootLayout();
         showPersonOverview();
         showPersonWebPage();
+        showFooterStatusBar();
     }
 
     /**
@@ -131,6 +135,23 @@ public class MainController {
             e.printStackTrace();
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for person overview.",
                                    "IOException when trying to load " + fxmlResourcePath);
+        }
+    }
+
+    private void showFooterStatusBar() {
+        final String fxmlResourcePath = FXML_STATUS_BAR_FOOTER;
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            SplitPane sPane = loader.load();
+            StatusBarFooterController controller = loader.getController();
+            controller.initStatusBar();
+            rootLayout.getChildren().add(sPane);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for footer status bar.",
+                    "IOException when trying to load " + fxmlResourcePath);
         }
     }
 

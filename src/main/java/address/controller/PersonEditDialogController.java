@@ -4,7 +4,7 @@ import address.model.*;
 import address.events.EventManager;
 import address.events.GroupSearchResultsChangedEvent;
 import address.events.GroupsChangedEvent;
-import address.util.DateUtil;
+import address.util.DateTimeUtil;
 
 import com.google.common.eventbus.Subscribe;
 import javafx.fxml.FXML;
@@ -131,7 +131,7 @@ public class PersonEditDialogController extends EditDialogController {
         finalPerson.setStreet(streetField.getText());
         finalPerson.setPostalCode(isFilled(postalCodeField) ? Integer.parseInt(postalCodeField.getText()) : -1);
         finalPerson.setCity(cityField.getText());
-        finalPerson.setBirthday(DateUtil.parse(birthdayField.getText()));
+        finalPerson.setBirthday(DateTimeUtil.parse(birthdayField.getText()));
         finalPerson.setContactGroups(model.getAssignedGroups());
         finalPerson.setGithubUserName(githubUserNameField.getText());
         isOkClicked = true;
@@ -179,7 +179,7 @@ public class PersonEditDialogController extends EditDialogController {
         }
 
         if (isFilled(birthdayField) && birthdayField.getText().length() != 0
-                && !DateUtil.validDate(birthdayField.getText())) {
+                && !DateTimeUtil.validDate(birthdayField.getText())) {
             errorMessage += "No valid birthday. Use the format dd.mm.yyyy!\n";
         }
 
