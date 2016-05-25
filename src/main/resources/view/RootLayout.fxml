@@ -3,7 +3,6 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
-
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
@@ -49,6 +48,12 @@
             <Insets />
          </VBox.margin>
       </AnchorPane>
-      <SplitPane id="splitPane" fx:id="splitPane" prefHeight="295.0" prefWidth="209.0" VBox.vgrow="ALWAYS" />
+      <SplitPane id="splitPane" fx:id="splitPane" VBox.vgrow="ALWAYS" />
+      <SplitPane fx:id="statusBars" dividerPositions="0.5">
+        <items>
+          <AnchorPane id="syncStatusBar" minHeight="0.0" minWidth="0.0" />
+          <AnchorPane id="updaterStatusBar" minHeight="0.0" minWidth="0.0"  />
+        </items>
+      </SplitPane>
    </children>
 </VBox>

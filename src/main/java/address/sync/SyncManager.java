@@ -1,6 +1,7 @@
 package address.sync;
 
 
+import address.controller.MainController;
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
 import address.events.NewMirrorDataEvent;
@@ -10,6 +11,8 @@ import address.model.AddressBook;
 import address.prefs.PrefsManager;
 import address.sync.task.CloudUpdateTask;
 import com.google.common.eventbus.Subscribe;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 
 import java.io.File;
 import java.util.Optional;
@@ -47,15 +50,27 @@ public class SyncManager {
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
             try {
-                Optional<AddressBook> mirrorData = getMirrorData();
+                DoubleProperty progress = new SimpleDoubleProperty();
+                MainController.syncStatusBar.displayMessage("Sync Started");
+                MainController.syncStatusBar.progressProperty().bind(progress);
+                MainController.syncStatusBar.displayMessage("Sync in progress");
+                Optional<AddressBook> mirrorData = getMirrorData(progress);
                 if (!mirrorData.isPresent()) {
+                    MainController.syncStatusBar.displayErrorMessage(
+                            "Unable to retrieve data from mirror, cancelling sync...");
                     System.out.println("Unable to retrieve data from mirror, cancelling sync...");
                     return;
                 }
                 EventManager.getInstance().post(new NewMirrorDataEvent(mirrorData.get()));
+                MainController.syncStatusBar.displayMessage("Sync finished");
+                progress.setValue(0.0f);
             } catch (FileContainsDuplicatesException e) {
                 // do not sync changes from mirror if duplicates found in mirror
+                MainController.syncStatusBar.displayErrorMessage(
+                        "Duplicate data found in mirror, cancelling sync...");
                 System.out.println("Duplicate data found in mirror, cancelling sync...");
+            } finally {
+                MainController.syncStatusBar.progressProperty().unbind();
             }
         };
 
@@ -63,10 +78,10 @@ public class SyncManager {
         scheduler.scheduleWithFixedDelay(task, initialDelay, interval, TimeUnit.MILLISECONDS);
     }
 
-    private Optional<AddressBook> getMirrorData() throws FileContainsDuplicatesException {
+    private Optional<AddressBook> getMirrorData(DoubleProperty progress) throws FileContainsDuplicatesException {
         System.out.println("Updating data from cloud: " + System.nanoTime());
         final File mirrorFile = PrefsManager.getInstance().getMirrorLocation();
-        final Optional<AddressBook> data = cloudSimulator.getSimulatedCloudData(mirrorFile);
+        final Optional<AddressBook> data = cloudSimulator.getSimulatedCloudData(mirrorFile, progress);
         if (data.isPresent() && data.get().containsDuplicates()) throw new FileContainsDuplicatesException(mirrorFile);
         return data;
     }

@@ -4,6 +4,7 @@ import address.model.AddressBook;
 import address.model.ContactGroup;
 import address.model.Person;
 import address.util.XmlFileHelper;
+import javafx.beans.property.DoubleProperty;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -40,7 +41,7 @@ public class CloudSimulator {
      *
      * @return optional wrapping the (possibly corrupted) data, or empty if retrieving failed.
      */
-    public Optional<AddressBook> getSimulatedCloudData(File cloudFile) {
+    public Optional<AddressBook> getSimulatedCloudData(File cloudFile, DoubleProperty progress) {
         System.out.println("Simulating cloud data retrieval...");
         try {
             AddressBook modifiedData;
@@ -59,8 +60,12 @@ public class CloudSimulator {
             modifiedData.getPersons().addAll(simulateDataAddition());
 
             XmlFileHelper.saveDataToFile(cloudFile, modifiedData.getPersons(), modifiedData.getGroups());
-            TimeUnit.SECONDS.sleep(RANDOM_GENERATOR.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC);
 
+            int totalDelay = RANDOM_GENERATOR.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC;
+            for (int i=1; i <= totalDelay; i++){
+                progress.setValue((double) i/totalDelay);
+                TimeUnit.SECONDS.sleep(1);
+            }
             return Optional.of(modifiedData);
 
         } catch (JAXBException e) {
