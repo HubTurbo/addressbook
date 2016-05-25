@@ -3,15 +3,12 @@ package address.controller;
 import address.MainApp;
 import address.events.*;
 import address.model.ContactGroup;
-import address.model.ModelContactGroup;
 import address.model.ModelManager;
 import address.model.Person;
-import address.prefs.PrefsManager;
 import address.util.Config;
 import address.browser.BrowserManager;
 
 import com.google.common.eventbus.Subscribe;
-import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -28,6 +25,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 
 /**
@@ -176,7 +174,7 @@ public class MainController {
             PersonEditDialogController controller = loader.getController();
             controller.setDialogStage(dialogStage);
             controller.setInitialPersonData(initialData);
-            controller.setGroupsModel(modelManager.getGroups(), initialData.getContactGroupsCopy());
+            controller.setGroupsModel(modelManager.getGroups(), new ArrayList<>(initialData.getContactGroups()));
 
             dialogStage.showAndWait();
             if (controller.isOkClicked()) {
@@ -236,7 +234,7 @@ public class MainController {
         }
     }
 
-    public void showGroupList(ObservableList<ModelContactGroup> groups) {
+    public void showGroupList(ObservableList<ContactGroup> groups) {
         final String fxmlResourcePath = FXML_GROUP_LIST;
         try {
             // Load the fxml file and create a new stage for the popup dialog.

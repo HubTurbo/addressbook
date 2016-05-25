@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
  */
 public class ModelManager {
 
-    private final ObservableList<ModelPerson> personModel = FXCollections.observableArrayList();
-    private final FilteredList<ModelPerson> filteredPersonModel = new FilteredList<>(personModel);
-    private final ObservableList<ModelContactGroup> groupModel = FXCollections.observableArrayList();
+    private final ObservableList<Person> personModel = FXCollections.observableArrayList();
+    private final FilteredList<Person> filteredPersonModel = new FilteredList<>(personModel);
+    private final ObservableList<ContactGroup> groupModel = FXCollections.observableArrayList();
 
     /**
      * @param initialPersons Initial persons to populate the model.
@@ -36,8 +36,7 @@ public class ModelManager {
         System.out.println("Persons found : " + initialPersons.size());
         System.out.println("Groups found : " + initialGroups.size());
 
-        personModel.addAll(convertToModelPersons(initialPersons, false));
-        groupModel.addAll(convertToModelGroups(initialGroups, false));
+        resetData(initialPersons, initialGroups);
 
         //Listen to any changed to person data and raise an event
         //Note: this will not catch edits to Person objects
@@ -63,7 +62,7 @@ public class ModelManager {
         this(new AddressBook());
     }
 
-    public synchronized void updateWithSampleData() throws DuplicateDataException {
+    public synchronized void resetWithSampleData() throws DuplicateDataException {
         final Person[] samplePersonData = {
             new Person("Hans", "Muster"),
             new Person("Ruth", "Mueller"),
@@ -79,8 +78,7 @@ public class ModelManager {
             new ContactGroup("relatives"),
             new ContactGroup("friends")
         };
-        addGroups(Arrays.asList(sampleGroupData));
-        addPersons(Arrays.asList(samplePersonData));
+        resetData(Arrays.asList(samplePersonData), Arrays.asList(sampleGroupData));
     }
 
     /**
@@ -88,32 +86,8 @@ public class ModelManager {
      * @param newPeople
      */
     public synchronized void resetData(List<Person> newPeople, List<ContactGroup> newGroups) {
-        personModel.setAll(convertToModelPersons(newPeople, false));
-        groupModel.setAll(convertToModelGroups(newGroups, false));
-    }
-
-    public static List<ModelPerson> convertToModelPersons(List<Person> personList, boolean isPending) {
-        return personList.stream()
-                .map(initialPerson -> new ModelPerson(initialPerson, isPending))
-                .collect(Collectors.toList());
-    }
-
-    public static List<ModelContactGroup> convertToModelGroups(List<ContactGroup> groupList, boolean isPending) {
-        return groupList.stream()
-                .map(initialGroup -> new ModelContactGroup(initialGroup, isPending))
-                .collect(Collectors.toList());
-    }
-
-    public static List<Person> convertToPersons(List<ModelPerson> personList) {
-        return personList.stream()
-                .map(Person::new)
-                .collect(Collectors.toList());
-    }
-
-    public static List<ContactGroup> convertToGroups(List<ModelContactGroup> groupList) {
-        return groupList.stream()
-                .map(ContactGroup::new)
-                .collect(Collectors.toList());
+        personModel.setAll(newPeople);
+        groupModel.setAll(newGroups);
     }
 
     public void resetData(AddressBook newData) {
@@ -124,9 +98,9 @@ public class ModelManager {
         resetData(Collections.emptyList(), Collections.emptyList());
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    // CREATE
-    ///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// CREATE
+///////////////////////////////////////////////////////////////////////
 
     /**
      * Adds a person to the model
@@ -137,7 +111,7 @@ public class ModelManager {
         if (personModel.contains(personToAdd)) {
             throw new DuplicatePersonException(personToAdd);
         }
-        personModel.add(new ModelPerson(personToAdd, true));
+        personModel.add(personToAdd);
     }
 
     /**
@@ -146,13 +120,10 @@ public class ModelManager {
      * @throws DuplicateDataException when this operation would cause duplicates
      */
     public synchronized void addPersons(Collection<Person> toAdd) throws DuplicateDataException {
-        List<ModelPerson> modelPersonsToAdd = toAdd.stream()
-                                                .map(person -> new ModelPerson(person, true))
-                                                .collect(Collectors.toList());
-        if (!UniqueData.canCombineWithoutDuplicates(personModel, modelPersonsToAdd)) {
+        if (!UniqueData.canCombineWithoutDuplicates(personModel, toAdd)) {
             throw new DuplicateDataException("Adding these " + toAdd.size() + " new people");
         }
-        personModel.addAll(modelPersonsToAdd);
+        personModel.addAll(toAdd);
     }
 
     /**
@@ -164,7 +135,7 @@ public class ModelManager {
         if (groupModel.contains(groupToAdd)) {
             throw new DuplicateGroupException(groupToAdd);
         }
-        groupModel.add(new ModelContactGroup(groupToAdd, true));
+        groupModel.add(groupToAdd);
     }
 
     /**
@@ -173,37 +144,34 @@ public class ModelManager {
      * @throws DuplicateDataException when this operation would cause duplicates
      */
     public synchronized void addGroups(Collection<ContactGroup> toAdd) throws DuplicateDataException {
-        List<ModelContactGroup> modelGroupsToAdd = toAdd.stream()
-                .map(group -> new ModelContactGroup(group, true))
-                .collect(Collectors.toList());
-        if (!UniqueData.canCombineWithoutDuplicates(groupModel, modelGroupsToAdd)) {
+        if (!UniqueData.canCombineWithoutDuplicates(groupModel, toAdd)) {
             throw new DuplicateDataException("Adding these " + toAdd.size() + " new contact groups");
         }
-        groupModel.addAll(modelGroupsToAdd);
+        groupModel.addAll(toAdd);
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    // READ
-    ///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// READ
+///////////////////////////////////////////////////////////////////////
 
     /**
      * @return observablelist of persons in model
      */
-    public ObservableList<ModelPerson> getPersonsModel() {
+    public ObservableList<Person> getPersonsModel() {
         return personModel;
     }
 
     /**
      * @return data of persons in active filtered view
      */
-    public ObservableList<ModelPerson> getFilteredPersonsModel() {
+    public ObservableList<Person> getFilteredPersonsModel() {
         return filteredPersonModel;
     }
 
     /**
      * @return observablelist of groups in model
      */
-    public ObservableList<ModelContactGroup> getGroupModel() {
+    public ObservableList<ContactGroup> getGroupModel() {
         return groupModel;
     }
 
@@ -225,9 +193,9 @@ public class ModelManager {
                 .collect(Collectors.toList());
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    // UPDATE
-    ///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// UPDATE
+///////////////////////////////////////////////////////////////////////
 
     /**
      * Updates the details of a Person object. Updates to Person objects should be
@@ -302,9 +270,9 @@ public class ModelManager {
         return groupModel.removeAll(new HashSet<>(toDelete)); // O(1) .contains boosts performance
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    // EVENT HANDLERS
-    ///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// EVENT HANDLERS
+///////////////////////////////////////////////////////////////////////
 
     @Subscribe
     private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
@@ -318,9 +286,9 @@ public class ModelManager {
         EventManager.getInstance().post(new LocalModelSyncedFromCloudEvent(personModel, groupModel));
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    // DIFFERENTIAL UPDATE ENGINE
-    ///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// DIFFERENTIAL UPDATE ENGINE
+///////////////////////////////////////////////////////////////////////
 
     /**
      * Diffs extData with the current model and updates the current model with minimal change.
@@ -328,22 +296,9 @@ public class ModelManager {
      */
     public synchronized void updateUsingExternalData(AddressBook extData) {
         assert !extData.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
-        if (diffUpdate(castToPerson(personModel), extData.getPersons())
-                || diffUpdate(castToContactGroup(groupModel), extData.getGroups())) {
+        if (diffUpdate(personModel, extData.getPersons()) || diffUpdate(groupModel, extData.getGroups())) {
             EventManager.getInstance().post(new LocalModelChangedEvent(personModel, groupModel));
         }
-    }
-
-    private Collection<Person> castToPerson(ObservableList<ModelPerson> modelPersons) {
-        return modelPersons.stream()
-                .map(modelPerson -> (Person) modelPerson)
-                .collect(Collectors.toList());
-    }
-
-    private Collection<ContactGroup> castToContactGroup(ObservableList<ModelContactGroup> modelContactGroups) {
-        return modelContactGroups.stream()
-                .map(modelGroup -> (ContactGroup) modelGroup)
-                .collect(Collectors.toList());
     }
 
     /**

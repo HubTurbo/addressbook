@@ -176,9 +176,9 @@ public class RootLayoutController {
      * Appends dummy data to existing data
      */
     @FXML
-    private void handleAppendSampleData() {
+    private void handleResetWithSampleData() {
         try {
-            modelManager.updateWithSampleData();
+            modelManager.resetWithSampleData();
         } catch (DuplicateDataException e) {
             mainController.showAlertDialogAndWait(AlertType.INFORMATION, "Will cause duplicates",
                     "Adding sample data clashes with existing data",

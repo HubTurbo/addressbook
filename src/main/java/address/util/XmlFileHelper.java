@@ -23,16 +23,16 @@ public class XmlFileHelper {
         return ((AddressBook) um.unmarshal(file));
     }
 
-    public static void saveModelToFile(File file, List<ModelPerson> personData, List<ModelContactGroup> groupData)
+    public static void saveModelToFile(File file, List<Person> personData, List<ContactGroup> groupData)
             throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(ModelAddressBook.class);
+        JAXBContext context = JAXBContext.newInstance(AddressBook.class);
         Marshaller m = context.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         // Wrapping our person data.
-        ModelAddressBook wrapper = new ModelAddressBook(false);
-        wrapper.setModelPersons(personData);
-        wrapper.setModelGroups(groupData);
+        AddressBook wrapper = new AddressBook();
+        wrapper.setPersons(personData);
+        wrapper.setGroups(groupData);
 
         // Marshalling and saving XML to the file.
         m.marshal(wrapper, file);

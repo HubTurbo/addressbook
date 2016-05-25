@@ -2,9 +2,6 @@ package address.browser;
 
 import address.model.Person;
 import com.teamdev.jxbrowser.chromium.Browser;
-import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
-import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
-import com.teamdev.jxbrowser.chromium.events.LoadListener;
 
 /**
  * A browser tab of AddressBookBrowser.
@@ -33,7 +30,7 @@ public class BrowserTab extends Browser {
      */
     public synchronized void loadProfilePage(Person person) {
         this.person = person;
-        super.loadURL(person.getProfilePageUrl());
+        super.loadURL(person.profilePageUrl());
     }
 
     public synchronized void unloadProfilePage(){

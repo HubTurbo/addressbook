@@ -1,7 +1,6 @@
 package address.browser;
 
 import address.model.ModelManager;
-import address.model.ModelPerson;
 import address.model.Person;
 
 import com.teamdev.jxbrowser.chromium.Browser;
@@ -29,12 +28,12 @@ public class AddressBookBrowser{
             "<html><body><h3>To view contact's web page, click on the contact on the left.</h3></body></html>";
 
     private ArrayList<BrowserTab> browserTabs;
-    private ObservableList<ModelPerson> filteredModelPersons;
+    private ObservableList<Person> filteredPersons;
     private TabPane addressBookBrowserView;
 
-    public AddressBookBrowser(int noOfTabs, ObservableList<ModelPerson> filteredModelPersons) {
+    public AddressBookBrowser(int noOfTabs, ObservableList<Person> filteredPersons) {
         addressBookBrowserView = new TabPane();
-        this.filteredModelPersons = filteredModelPersons;
+        this.filteredPersons = filteredPersons;
         this.browserTabs = new ArrayList<>();
         for (int i = 0; i < noOfTabs; i++) {
             browserTabs.add(new BrowserTab());
@@ -108,10 +107,9 @@ public class AddressBookBrowser{
      */
     public void loadProfilePage(Person person) {
 
-        List<Person> listOfContactsDisplayed = ModelManager.convertToPersons(filteredModelPersons);
-        int indexOfPersonInListOfContacts = listOfContactsDisplayed.indexOf(person);
+        int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
-        ArrayList<Person> listOfPersonsToBeLoaded = getListOfPersonsToBeLoaded(listOfContactsDisplayed,
+        ArrayList<Person> listOfPersonsToBeLoaded = getListOfPersonsToBeLoaded(filteredPersons,
                                                                                indexOfPersonInListOfContacts);
         unloadProfilePages(listOfPersonsToBeLoaded);
         ArrayList<Person> listOfAlreadyLoadedPerson = getListOfAlreadyLoadedPerson(listOfPersonsToBeLoaded);
