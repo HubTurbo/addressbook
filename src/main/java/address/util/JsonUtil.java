@@ -1,10 +1,19 @@
 package address.util;
 
+import address.model.ModelPerson;
+import address.model.Person;
+import address.model.adapter.ModelPersonAdapter;
+import address.model.adapter.PersonAdapter;
 import com.google.gson.*;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 /**
  * Converts an object to its JSON string representation and vice versa
@@ -14,16 +23,17 @@ public class JsonUtil {
     private static Gson gson = new GsonBuilder()
         .setPrettyPrinting()
         .registerTypeAdapter(LocalDateTime.class,
-                (JsonSerializer<LocalDateTime>) (src, typeOfSrc, context) -> {
-                    Instant instant = src.atZone(ZoneId.systemDefault()).toInstant();
-                    long epochMilli = instant.toEpochMilli();
-                    return new JsonPrimitive(epochMilli);
+                (JsonSerializer<LocalDateTime>) (localDateTime, typeOfT, context) -> {
+                    Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+                    return new JsonPrimitive(instant.toEpochMilli());
                 })
         .registerTypeAdapter(LocalDateTime.class,
                 (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) -> {
                     Instant instant = Instant.ofEpochMilli(json.getAsJsonPrimitive().getAsLong());
                     return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
                 })
+        .registerTypeAdapter(Person.class, new PersonAdapter())
+        .registerTypeAdapter(ModelPerson.class, new PersonAdapter())
         .create();
 
     private JsonUtil() {}

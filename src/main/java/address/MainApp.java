@@ -5,7 +5,10 @@ import address.browser.BrowserManager;
 import address.controller.MainController;
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
+import address.model.AddressBook;
+import address.model.ContactGroup;
 import address.model.ModelManager;
+import address.model.Person;
 import address.shortcuts.ShortcutsManager;
 import address.prefs.PrefsManager;
 import address.storage.StorageManager;
@@ -13,9 +16,16 @@ import address.sync.SyncManager;
 import address.updater.UpdateManager;
 import address.util.Config;
 
+import address.util.FileUtil;
+import address.util.JsonUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The main entry point to the application.
@@ -63,6 +73,8 @@ public class MainApp extends Application {
 
         updateManager = new UpdateManager();
         updateManager.run();
+
+        tryJson();
     }
 
     @Override
@@ -76,5 +88,44 @@ public class MainApp extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private void tryJson() {
+        try {
+            // Dummy data
+            ContactGroup sampleContactGroup = new ContactGroup("Test group");
+            Person samplePerson = new Person("Hans", "Adrian");
+            samplePerson.setCity("Singapore");
+            List<ContactGroup> group = new ArrayList<>();
+            group.add(sampleContactGroup);
+            samplePerson.setContactGroups(group);
+
+            AddressBook wrapper = new AddressBook();
+            wrapper.setPersons(Arrays.asList(samplePerson));
+            wrapper.setGroups(Arrays.asList(sampleContactGroup));
+
+            // Write model manager to json file
+            String jsonString = JsonUtil.toJsonString(wrapper, AddressBook.class);
+            FileUtil.writeToFile(new File("test.json"), jsonString);
+            System.out.println("================= success writing");
+
+            // TODO try converting from file back to object, see if contact group of person is equal to
+            // contact group in modelManager
+
+            jsonString = "";
+            assert(jsonString.isEmpty());
+
+            jsonString = FileUtil.readFromFile(new File("test.json"));
+            AddressBook fromJson = JsonUtil.fromJsonString(jsonString, AddressBook.class);
+
+            Person getInsertedPeron = fromJson.getPersons().get(fromJson.getPersons().lastIndexOf(samplePerson));
+            assert(getInsertedPeron == samplePerson);
+            assert(getInsertedPeron.getContactGroups().get(0) == sampleContactGroup);
+            System.out.println("================= success reading");
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
