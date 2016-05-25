@@ -22,14 +22,14 @@ import java.util.List;
  */
 public class Person extends UniqueData {
 
-    private final StringProperty firstName;
-    private final StringProperty lastName;
-    private final StringProperty street;
-    private final IntegerProperty postalCode;
-    private final StringProperty city;
-    private final ObjectProperty<LocalDate> birthday;
-    private final StringProperty githubUserName;
-    private ObjectProperty<LocalDateTime> updatedAt;
+    private final SimpleStringProperty firstName;
+    private final SimpleStringProperty lastName;
+    private final SimpleStringProperty street;
+    private final SimpleIntegerProperty postalCode;
+    private final SimpleStringProperty city;
+    private final SimpleObjectProperty<LocalDate> birthday;
+    private final SimpleStringProperty githubUserName;
+    private SimpleObjectProperty<LocalDateTime> updatedAt;
     private final ObservableList<ContactGroup> contactGroups;
 
     /**
