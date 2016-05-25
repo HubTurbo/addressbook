@@ -76,16 +76,13 @@ public class CloudSimulator {
     /**
      * Requests the simulated cloud to update its data with the given data. This data should be
      * written to the provided mirror file
-     * @param delay Duration of delay in seconds to be simulated before the request is completed
      */
-    public void requestChangesToCloud(File file, List<Person> people, List<ContactGroup> groups, int delay)
+    public void requestChangesToCloud(File file, List<Person> people, List<ContactGroup> groups)
             throws JAXBException {
         if (file == null) return;
-        List<Person> newPeople = people.stream().map(Person::new).collect(Collectors.toList());
-        List<ContactGroup> newGroups = groups.stream().map(ContactGroup::new).collect(Collectors.toList());
-        XmlFileHelper.saveDataToFile(file, newPeople, newGroups);
+        XmlFileHelper.saveDataToFile(file, people, groups);
         try {
-            TimeUnit.SECONDS.sleep(delay);
+            TimeUnit.SECONDS.sleep(RANDOM_GENERATOR.nextInt(5) + MIN_DELAY_IN_SEC);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

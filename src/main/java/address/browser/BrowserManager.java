@@ -2,8 +2,6 @@ package address.browser;
 
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
-import address.model.ModelManager;
-import address.model.ModelPerson;
 import address.model.Person;
 
 import com.google.common.eventbus.Subscribe;
@@ -31,17 +29,17 @@ public class BrowserManager {
 
     private Optional<AddressBookBrowser> browser;
 
-    private ObservableList<ModelPerson> filteredModelPersons;
+    private ObservableList<Person> filteredPersons;
 
-    public BrowserManager(ObservableList<ModelPerson> filteredModelPersons) {
-        this.filteredModelPersons = filteredModelPersons;
+    public BrowserManager(ObservableList<Person> filteredPersons) {
+        this.filteredPersons = filteredPersons;
 
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
             browser = Optional.empty();
             return;
         }
-        browser = Optional.of(new AddressBookBrowser(NUMBER_OF_PRELOADED_PAGE, this.filteredModelPersons));
+        browser = Optional.of(new AddressBookBrowser(NUMBER_OF_PRELOADED_PAGE, this.filteredPersons));
         browser.get().registerListeners();
         EventManager.getInstance().registerHandler(this);
     }
@@ -51,20 +49,19 @@ public class BrowserManager {
         ArrayList<BrowserTab> browserTabs = browser.get().getBrowserTabs();
 
         for (BrowserTab browserTab: browserTabs){
-            List<Person> listOfContactsDisplayed = ModelManager.convertToPersons(filteredModelPersons);
             Optional<Person> browserTabPerson = Optional.ofNullable(browserTab.getPerson());
             if (!browserTabPerson.isPresent()){
                 continue;
             }
 
-            int indexOfContact = listOfContactsDisplayed.indexOf(browserTabPerson.get());
+            int indexOfContact = filteredPersons.indexOf(browserTabPerson.get());
 
             if(indexOfContact == PERSON_NOT_FOUND){
                 browserTab.unloadProfilePage();
                 continue;
             }
 
-            Person updatedPerson = listOfContactsDisplayed.get(indexOfContact);
+            Person updatedPerson = filteredPersons.get(indexOfContact);
 
             if (!updatedPerson.getGithubUserName().equals(browserTabPerson.get().getGithubUserName())){
                 browserTab.loadProfilePage(updatedPerson);

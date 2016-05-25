@@ -1,7 +1,5 @@
 package address.sync.task;
 
-import address.events.CloudChangeResultReturnedEvent;
-import address.events.EventManager;
 import address.model.*;
 import address.prefs.PrefsManager;
 import address.sync.CloudSimulator;
@@ -13,11 +11,10 @@ import java.util.List;
 
 public class CloudUpdateTask implements Runnable {
     private final CloudSimulator simulator;
-    private final List<ModelPerson> personsData;
-    private final List<ModelContactGroup> groupsData;
+    private final List<Person> personsData;
+    private final List<ContactGroup> groupsData;
 
-    public CloudUpdateTask(CloudSimulator simulator, List<ModelPerson> personsData,
-                           List<ModelContactGroup> groupsData) {
+    public CloudUpdateTask(CloudSimulator simulator, List<Person> personsData, List<ContactGroup> groupsData) {
         this.simulator = simulator;
         this.personsData = personsData;
         this.groupsData = groupsData;
@@ -33,14 +30,9 @@ public class CloudUpdateTask implements Runnable {
 
         File mirrorFile = PrefsManager.getInstance().getMirrorLocation();
         try {
-            simulator.requestChangesToCloud(mirrorFile, ModelManager.convertToPersons(this.personsData),
-                                            ModelManager.convertToGroups(this.groupsData), 3);
-            EventManager.getInstance().post(new CloudChangeResultReturnedEvent(
-                    CloudChangeResultReturnedEvent.Type.EDIT, allData, true));
+            simulator.requestChangesToCloud(mirrorFile, personsData, groupsData);
         } catch (JAXBException e) {
             System.out.println("Error requesting changes to the cloud");
-            EventManager.getInstance().post(new CloudChangeResultReturnedEvent(
-                    CloudChangeResultReturnedEvent.Type.EDIT, allData, false));
         }
     }
 }

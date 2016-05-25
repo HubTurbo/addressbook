@@ -1,7 +1,6 @@
 package address.model;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -21,16 +20,12 @@ public class AddressBook {
 
     @XmlElement(name = "persons")
     public List<Person> getPersons() {
-        return persons.stream()
-                .map(Person::new)
-                .collect(Collectors.toList());
+        return persons;
     }
 
     @XmlElement(name = "groups")
     public List<ContactGroup> getGroups() {
-        return groups.stream()
-                .map(ContactGroup::new)
-                .collect(Collectors.toList());
+        return groups;
     }
 
     public void setPersons(List<Person> persons) {
@@ -43,6 +38,6 @@ public class AddressBook {
 
     // Deprecated (to be removed when no-dupe property is properly enforced
     public boolean containsDuplicates() {
-        return UniqueData.itemsAreUnique(persons) && UniqueData.itemsAreUnique(groups);
+        return !UniqueData.itemsAreUnique(persons) || !UniqueData.itemsAreUnique(groups);
     }
 }

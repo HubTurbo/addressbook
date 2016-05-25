@@ -16,9 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Model class for a Person.
- *
- * @author Marco Jakob
+ * Data-type class representing a person
  */
 public class Person extends UniqueData {
 

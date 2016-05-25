@@ -3,15 +3,12 @@ package address.controller;
 import address.MainApp;
 import address.events.*;
 import address.model.ContactGroup;
-import address.model.ModelContactGroup;
 import address.model.ModelManager;
 import address.model.Person;
-import address.prefs.PrefsManager;
 import address.util.Config;
 import address.browser.BrowserManager;
 
 import com.google.common.eventbus.Subscribe;
-import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -237,7 +234,7 @@ public class MainController {
         }
     }
 
-    public void showGroupList(ObservableList<ModelContactGroup> groups) {
+    public void showGroupList(ObservableList<ContactGroup> groups) {
         final String fxmlResourcePath = FXML_GROUP_LIST;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
