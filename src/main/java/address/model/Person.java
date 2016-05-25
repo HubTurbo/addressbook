@@ -72,6 +72,7 @@ public class Person extends UniqueData {
         this.city = new SimpleStringProperty(person.getCity());
         this.birthday = new SimpleObjectProperty<>(person.getBirthday());
         this.contactGroups = FXCollections.observableArrayList();
+        this.contactGroups.addAll(person.getContactGroups());
         this.updatedAt = new SimpleObjectProperty<>(person.getUpdatedAt());
         this.githubUserName = new SimpleStringProperty(person.getGithubUserName());
     }
