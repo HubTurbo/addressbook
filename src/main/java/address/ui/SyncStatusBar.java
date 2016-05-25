@@ -20,10 +20,4 @@ public class SyncStatusBar extends StatusBar {
         Platform.runLater(() -> setText(message));
     }
 
-    public void displayErrorMessage(String message){
-        Platform.runLater(() -> setText(message));
-        this.setProgress(0.0f);
-        this.progressProperty().unbind();
-    }
-
 }

@@ -56,7 +56,7 @@ public class UpdateManager {
             updateProgress.set(0.2f);
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
-            MainController.updaterStatusBar.displayErrorMessage("Failed to delete previous update spec file");
+            MainController.updaterStatusBar.displayMessage("Failed to delete previous update spec file");
             System.out.println("UpdateManager - Failed to delete previous update spec file");
             return;
         }
@@ -67,7 +67,7 @@ public class UpdateManager {
         Optional<UpdateData> updateData = getUpdateDataFromServer();
 
         if (!updateData.isPresent()) {
-            MainController.updaterStatusBar.displayErrorMessage("There is no update data to be processed.");
+            MainController.updaterStatusBar.displayMessage("There is no update data to be processed.");
             System.out.println("UpdateManager - There is no update data to be processed.");
             return;
         }
@@ -78,7 +78,7 @@ public class UpdateManager {
         List<FileUpdateDescriptor> fileUpdateDescriptors = collectAllUpdateFilesToBeDownloaded(updateData.get());
 
         if (fileUpdateDescriptors.isEmpty()) {
-            MainController.updaterStatusBar.displayErrorMessage("There is no update");
+            MainController.updaterStatusBar.displayMessage("There is no update");
             System.out.println("UpdateManager - There is no update.");
             return;
         }
@@ -90,7 +90,7 @@ public class UpdateManager {
         try {
             downloadAllFilesToBeUpdated(new File(UPDATE_DIRECTORY), fileUpdateDescriptors);
         } catch (IOException e) {
-            MainController.updaterStatusBar.displayErrorMessage("Downloading update failed");
+            MainController.updaterStatusBar.displayMessage("Downloading update failed");
             System.out.println("UpdateManager - Downloading update failed.");
             return;
         }
@@ -102,7 +102,7 @@ public class UpdateManager {
         try {
             createUpdateSpecification(fileUpdateDescriptors);
         } catch (IOException e) {
-            MainController.updaterStatusBar.displayErrorMessage("Failed to create update specification");
+            MainController.updaterStatusBar.displayMessage("Failed to create update specification");
             System.out.println("UpdateManager - Failed to create update specification");
             return;
         }
@@ -114,7 +114,7 @@ public class UpdateManager {
         try {
             extractJarUpdater();
         } catch (IOException e) {
-            MainController.updaterStatusBar.displayErrorMessage("Failed to extract JAR updater");
+            MainController.updaterStatusBar.displayMessage("Failed to extract JAR updater");
             System.out.println("UpdateManager - Failed to extract JAR updater");
             return;
         }

@@ -20,10 +20,4 @@ public class UpdaterStatusBar extends StatusBar {
         Platform.runLater(() -> setText(message));
     }
 
-    public void displayErrorMessage(String message){
-        Platform.runLater(() -> setText(message));
-        this.progressProperty().unbind();
-        setProgress(0.0);
-    }
-
 }

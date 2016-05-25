@@ -56,21 +56,18 @@ public class SyncManager {
                 MainController.syncStatusBar.displayMessage("Sync in progress");
                 Optional<AddressBook> mirrorData = getMirrorData(progress);
                 if (!mirrorData.isPresent()) {
-                    MainController.syncStatusBar.displayErrorMessage(
+                    MainController.syncStatusBar.displayMessage(
                             "Unable to retrieve data from mirror, cancelling sync...");
                     System.out.println("Unable to retrieve data from mirror, cancelling sync...");
                     return;
                 }
                 EventManager.getInstance().post(new NewMirrorDataEvent(mirrorData.get()));
                 MainController.syncStatusBar.displayMessage("Sync finished");
-                progress.setValue(0.0f);
             } catch (FileContainsDuplicatesException e) {
                 // do not sync changes from mirror if duplicates found in mirror
-                MainController.syncStatusBar.displayErrorMessage(
+                MainController.syncStatusBar.displayMessage(
                         "Duplicate data found in mirror, cancelling sync...");
                 System.out.println("Duplicate data found in mirror, cancelling sync...");
-            } finally {
-                MainController.syncStatusBar.progressProperty().unbind();
             }
         };
 
