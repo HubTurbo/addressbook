@@ -1,6 +1,7 @@
 package address.model;
 
 import address.util.LocalDateTimeAdapter;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -38,7 +39,7 @@ public class ContactGroup extends UniqueData {
 
     public void setName(String name) {
         this.name.set(name);
-        updatedAt.set(LocalDateTime.now());
+        setUpdatedAt(LocalDateTime.now());
     }
 
     @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
@@ -46,9 +47,14 @@ public class ContactGroup extends UniqueData {
         return updatedAt.get();
     }
 
+    @JsonSetter("updatedAt")
+    private void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt.set(updatedAt);
+    }
+
     public ContactGroup update(ContactGroup group) {
         setName(group.getName());
-        updatedAt.set(group.getUpdatedAt());
+        setUpdatedAt(group.getUpdatedAt());
         return this;
     }
 

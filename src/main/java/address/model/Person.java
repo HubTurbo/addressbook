@@ -4,6 +4,7 @@ import address.util.DateTimeUtil;
 import address.util.LocalDateAdapter;
 import address.util.LocalDateTimeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -181,6 +182,7 @@ public class Person extends UniqueData {
         return birthday.get();
     }
 
+    @JsonSetter("birthday")
     public void setBirthday(LocalDate birthday) {
         this.birthday.set(birthday);
         updatedAt.set(LocalDateTime.now());
@@ -259,6 +261,7 @@ public class Person extends UniqueData {
         return updatedAt;
     }
 
+    @JsonSetter("updatedAt")
     public void setUpdatedAt(LocalDateTime lastUpdated) {
         updatedAt.set(lastUpdated);
     }
