@@ -1,13 +1,13 @@
-package address.events;
+package address.status;
 
 import address.model.Person;
 
 /**
  * An event triggered when an AddressBook's contact is deleted.
  */
-public class ContactDeletedEvent extends ContactBaseEvent{
+public class PersonDeletedStatus extends PersonBaseStatus {
 
-    public ContactDeletedEvent(Person person) {
+    public PersonDeletedStatus(Person person) {
         super(person);
     }
 

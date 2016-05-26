@@ -1,15 +1,15 @@
-package address.events;
+package address.status;
 
 import address.model.Person;
 
 /**
  * An event triggered when an AddressBook's contact is edited.
  */
-public class ContactEditedEvent extends ContactBaseEvent {
+public class PersonEditedStatus extends PersonBaseStatus {
 
     private Person uneditedPerson;
 
-    public ContactEditedEvent(Person uneditedPerson, Person person) {
+    public PersonEditedStatus(Person uneditedPerson, Person person) {
         super(person);
         this.uneditedPerson = uneditedPerson;
     }

@@ -1,10 +1,8 @@
 package address.controller;
 
-import address.events.ContactCreatedEvent;
-import address.events.ContactDeletedEvent;
-import address.events.ContactEditedEvent;
-import address.events.EventManager;
-import com.google.common.eventbus.Subscribe;
+import address.status.PersonCreatedStatus;
+import address.status.PersonDeletedStatus;
+import address.status.PersonEditedStatus;
 import javafx.application.Platform;
 import org.controlsfx.control.StatusBar;
 
@@ -13,26 +11,23 @@ public class StatusBarHeaderController {
     private StatusBar footerStatusBar;
 
     public StatusBarHeaderController() {
-        EventManager.getInstance().registerHandler(this);
         footerStatusBar = new StatusBar();
+        footerStatusBar.setText("");
     }
 
     public StatusBar getFooterStatusBarView() {
         return footerStatusBar;
     }
 
-    @Subscribe
-    public void handleContactEditedEvent(ContactEditedEvent e) {
+    public void postStatus(PersonEditedStatus e) {
         Platform.runLater(() -> footerStatusBar.setText(e.toString()));
     }
 
-    @Subscribe
-    public void handleContactDeletedEvent(ContactDeletedEvent e) {
+    public void postStatus(PersonDeletedStatus e) {
         Platform.runLater(() -> footerStatusBar.setText(e.toString()));
     }
 
-    @Subscribe
-    public void handleContactCreatedEvent(ContactCreatedEvent e) {
+    public void postStatus(PersonCreatedStatus e) {
         Platform.runLater(() -> footerStatusBar.setText(e.toString()));
     }
 }

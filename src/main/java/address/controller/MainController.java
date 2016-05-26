@@ -51,6 +51,8 @@ public class MainController {
     private BrowserManager browserManager;
     private MainApp mainApp;
 
+    private StatusBarHeaderController statusBarHeaderController;
+
     public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
         EventManager.getInstance().registerHandler(this);
         this.modelManager = modelManager;
@@ -137,10 +139,13 @@ public class MainController {
         }
     }
 
-    private void showHeaderStatusBar() {
+    public StatusBarHeaderController getStatusBarHeaderController() {
+        return statusBarHeaderController;
+    }
 
-        StatusBarHeaderController headerStatusBarController = new StatusBarHeaderController();
-        rootLayout.getChildren().add(2, headerStatusBarController.getFooterStatusBarView());
+    private void showHeaderStatusBar() {
+        statusBarHeaderController = new StatusBarHeaderController();
+        rootLayout.getChildren().add(2, statusBarHeaderController.getFooterStatusBarView());
     }
 
     private void showFooterStatusBar() {

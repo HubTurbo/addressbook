@@ -1,13 +1,13 @@
-package address.events;
+package address.status;
 
 import address.model.Person;
 
 /**
  * An event triggered when an AddressBook's contact is created.
  */
-public class ContactCreatedEvent extends ContactBaseEvent {
+public class PersonCreatedStatus extends PersonBaseStatus {
 
-    public ContactCreatedEvent(Person person) {
+    public PersonCreatedStatus(Person person) {
         super(person);
     }
 
