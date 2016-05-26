@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 // TODO implement full range of possible unreliable network effects: fail, corruption, etc
 public class CloudSimulator {
@@ -119,7 +118,7 @@ public class CloudSimulator {
                 System.out.println("Cloud simulator: modifying " + person);
                 person.setCity(java.util.UUID.randomUUID().toString());
                 person.setStreet(java.util.UUID.randomUUID().toString());
-                person.setPostalCode(RANDOM_GENERATOR.nextInt(999999));
+                person.setPostalCode(java.util.UUID.randomUUID().toString());
             }
             modifiedData.add(person);
         }

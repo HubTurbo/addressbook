@@ -107,7 +107,7 @@ public class PersonEditDialogController extends EditDialogController {
         firstNameField.setText(person.getFirstName());
         lastNameField.setText(person.getLastName());
         streetField.setText(person.getStreet());
-        postalCodeField.setText(person.postalCodeString());
+        postalCodeField.setText(person.getPostalCode());
         cityField.setText(person.getCity());
         birthdayField.setText(person.birthdayString());
         birthdayField.setPromptText("dd.mm.yyyy");
@@ -129,7 +129,7 @@ public class PersonEditDialogController extends EditDialogController {
         finalPerson.setFirstName(firstNameField.getText());
         finalPerson.setLastName(lastNameField.getText());
         finalPerson.setStreet(streetField.getText());
-        finalPerson.setPostalCode(isFilled(postalCodeField) ? Integer.parseInt(postalCodeField.getText()) : -1);
+        finalPerson.setPostalCode(postalCodeField.getText());
         finalPerson.setCity(cityField.getText());
         finalPerson.setBirthday(DateTimeUtil.parse(birthdayField.getText()));
         finalPerson.setContactGroups(model.getAssignedGroups());
@@ -168,14 +168,6 @@ public class PersonEditDialogController extends EditDialogController {
         }
         if (!isFilled(lastNameField)) {
             errorMessage += "Last name must be filled!\n";
-        }
-        // try to parse the postal code into an int.
-        if (isFilled(postalCodeField)) {
-            try {
-                Integer.parseInt(postalCodeField.getText());
-            } catch (NumberFormatException e) {
-                errorMessage += "Not a valid postal code (must be an integer)!\n";
-            }
         }
 
         if (isFilled(birthdayField) && birthdayField.getText().length() != 0

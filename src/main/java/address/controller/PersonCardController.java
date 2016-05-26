@@ -48,16 +48,7 @@ public class PersonCardController {
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
         street.textProperty().bind(person.streetProperty());
-        postalCode.textProperty().bind(new StringBinding(){
-            {
-                bind(person.postalCodeProperty()); //Bind property at instance initializer
-            }
-
-            @Override
-            protected String computeValue() {
-                return person.postalCodeString();
-            }
-        });
+        postalCode.textProperty().bind(person.postalCodeProperty());
         city.textProperty().bind(person.cityProperty());
         birthday.textProperty().bind(new StringBinding(){
             {

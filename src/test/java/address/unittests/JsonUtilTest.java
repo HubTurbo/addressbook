@@ -28,7 +28,7 @@ public class JsonUtilTest {
         ContactGroup sampleContactGroup = new ContactGroup("Group");
         Person samplePerson = new Person("First", "Last");
         samplePerson.setCity("Singapore");
-        samplePerson.setPostalCode(123456);
+        samplePerson.setPostalCode("123456");
         List<ContactGroup> group = new ArrayList<>();
         group.add(sampleContactGroup);
         samplePerson.setContactGroups(group);
@@ -49,7 +49,7 @@ public class JsonUtilTest {
                 "    \"firstName\" : \"First\",\n" +
                 "    \"lastName\" : \"Last\",\n" +
                 "    \"street\" : \"\",\n" +
-                "    \"postalCode\" : 123456,\n" +
+                "    \"postalCode\" : \"123456\",\n" +
                 "    \"city\" : \"Singapore\",\n" +
                 "    \"githubUserName\" : \"FirstLast\",\n" +
                 "    \"contactGroups\" : [ {\n" +
@@ -76,7 +76,7 @@ public class JsonUtilTest {
         assertEquals("First", person.getFirstName());
         assertEquals("Last", person.getLastName());
         assertEquals("Singapore", person.getCity());
-        assertEquals(123456, person.getPostalCode());
+        assertEquals("123456", person.getPostalCode());
         assertEquals(group, person.getContactGroups().get(0));
         assertEquals(LocalDate.of(1980, 3, 18), person.getBirthday());
         assertEquals("FirstLast", person.getGithubUserName());

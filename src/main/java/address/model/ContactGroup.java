@@ -65,7 +65,6 @@ public class ContactGroup extends UniqueData {
         if (!ContactGroup.class.isAssignableFrom(otherGroup.getClass())) return false;
 
         final ContactGroup other = (ContactGroup) otherGroup;
-        if (this.getName() == other.getName()) return true;
         return this.getName().equals(other.getName());
     }
 
