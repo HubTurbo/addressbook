@@ -8,15 +8,17 @@ import com.google.gson.Gson;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 // TODO implement full range of possible unreliable network effects: fail, corruption, etc
+
+/**
+ * Emulates the cloud & the local cloud service
+ */
 public class CloudSimulator implements ICloudSimulator {
     private static final double FAILURE_PROBABILITY = 0.1;
 
@@ -174,7 +176,7 @@ public class CloudSimulator implements ICloudSimulator {
     /**
      * Deducts apiUseCount from the remaining quota
      *
-     * apiUseCount should not be bigger than useQuota
+     * Assumptions: apiUseCount is not be bigger than quota
      *
      * @param apiUseCount
      */
@@ -192,23 +194,32 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     @Override
-    public Optional<CloudResponse<List<Person>>> getPersons(String addressBookName) {
+    public CloudResponse<List<Person>> getPersons(String addressBookName) {
+        CloudResponse<List<Person>> response = new CloudResponse<>();
+
         List<Person> dataRetrievedFromCloud = personsList;
         int noOfRequestsRequired = getNumberOfRequestsRequired(dataRetrievedFromCloud.size());
 
         if (!isWithinQuota(noOfRequestsRequired)) {
             useUpQuota();
-            return Optional.empty();
+            response.setResponseCode(HttpURLConnection.HTTP_FORBIDDEN);
+            addRateLimitStatusToResponse(response);
+            return response;
         }
         useQuota(noOfRequestsRequired);
 
-        CloudResponse<List<Person>> response = new CloudResponse<>();
-        response.setData(personsList);
+        response.setData(dataRetrievedFromCloud);
+        response.setResponseCode(HttpURLConnection.HTTP_OK);
+        addRateLimitStatusToResponse(response);
+
+        return response;
+    }
+
+    private CloudResponse<?> addRateLimitStatusToResponse(CloudResponse<?> response) {
         response.setQuotaLimit(quotaLimit);
         response.setQuotaRemaining(quotaRemaining);
         response.setQuotaReset(quotaReset);
-
-        return Optional.of(response);
+        return response;
     }
 
     private int getNumberOfRequestsRequired(int dataSize) {
@@ -216,76 +227,123 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     @Override
-    public Optional<CloudResponse<List<ContactGroup>>> getGroups(String addressBookName) {
+    public CloudResponse<List<ContactGroup>> getGroups(String addressBookName) {
+        CloudResponse<List<ContactGroup>> response = new CloudResponse<>();
+
         List<ContactGroup> dataRetrievedFromCloud = groupList;
         int noOfRequestsRequired = getNumberOfRequestsRequired(dataRetrievedFromCloud.size());
 
         if (!isWithinQuota(noOfRequestsRequired)) {
             useUpQuota();
-            return Optional.empty();
+            response.setResponseCode(HttpURLConnection.HTTP_FORBIDDEN);
+            addRateLimitStatusToResponse(response);
+            return response;
         }
         useQuota(noOfRequestsRequired);
 
-        CloudResponse<List<ContactGroup>> response = new CloudResponse<>();
-        response.setData(groupList);
-        response.setQuotaLimit(quotaLimit);
-        response.setQuotaRemaining(quotaRemaining);
-        response.setQuotaReset(quotaReset);
-        return Optional.of(response);
+        response.setData(dataRetrievedFromCloud);
+        response.setResponseCode(HttpURLConnection.HTTP_OK);
+        addRateLimitStatusToResponse(response);
+        return response;
+    }
+
+    private boolean isExisting(String firstName, String lastName) {
+        return personsList.stream()
+                .filter(person -> person.getFirstName().equals(firstName)
+                        && person.getLastName().equals(lastName))
+                .findAny()
+                .isPresent();
+    }
+
+    // cloud operation
+    private Person addPerson(String addressBookName, Person newPerson) {
+        String newPersonFirstName = newPerson.getFirstName();
+        String newPersonLastName = newPerson.getLastName();
+        if (newPersonFirstName == null || newPersonLastName == null) return null;
+        if (isExistingPerson(newPerson)) return null;
+
+        personsList.add(newPerson);
+
+        return newPerson;
+    }
+
+    private boolean isExistingPerson(Person person) {
+        String firstName = person.getFirstName();
+        String lastName = person.getLastName();
+        return isExisting(firstName, lastName);
     }
 
     @Override
-    public Optional<CloudResponse<Person>> createPerson(String addressBookName, Person person) {
+    public CloudResponse<Person> createPerson(String addressBookName, Person person) {
+        CloudResponse<Person> response = new CloudResponse<>();
+        int noOfRequestsRequired = 1;
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            useUpQuota();
+            response.setResponseCode(HttpURLConnection.HTTP_FORBIDDEN);
+            addRateLimitStatusToResponse(response);
+            return response;
+        }
+        useQuota(noOfRequestsRequired);
+
+        Person returnedPerson = addPerson(addressBookName, person);
+
+        if (returnedPerson == null) {
+            response.setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
+            addRateLimitStatusToResponse(response);
+            return response;
+        }
+        response.setData(person);
+        response.setResponseCode(HttpURLConnection.HTTP_OK);
+        addRateLimitStatusToResponse(response);
+
+        return response;
+    }
+
+    @Override
+    public CloudResponse<Person> updatePerson(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) {
         return null;
     }
 
     @Override
-    public Optional<CloudResponse<Person>> updatePerson(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) {
+    public CloudResponse<Boolean> deletePerson(String addressBookName, int personId) {
         return null;
     }
 
     @Override
-    public Optional<Boolean> deletePerson(String addressBookName, int personId) {
+    public CloudResponse<ContactGroup> createGroup(String addressBookName, ContactGroup group) {
         return null;
     }
 
     @Override
-    public Optional<CloudResponse> createGroup(String addressBookName, ContactGroup group) {
+    public CloudResponse<ContactGroup> editGroup(String addressBookName, String oldGroupName, ContactGroup newGroup) {
         return null;
     }
 
     @Override
-    public Optional<CloudResponse> editGroup(String addressBookName, String oldGroupName, ContactGroup newGroup) {
+    public CloudResponse<Boolean> deleteGroup(String addressBookName, String groupName) {
         return null;
     }
 
     @Override
-    public Optional<Boolean> deleteGroup(String addressBookName, String groupName) {
+    public CloudResponse<List<Person>> getUpdatedPersons(String addressBookName) {
         return null;
     }
 
     @Override
-    public Optional<CloudResponse> getUpdatedPersons(String addressBookName) {
+    public CloudResponse<List<ContactGroup>> getUpdatedGroups(String addressBookName) {
         return null;
     }
 
     @Override
-    public Optional<CloudResponse> getUpdatedGroups(String addressBookName) {
-        return null;
-    }
+    public CloudResponse<RateLimitStatus> getLimitStatus() {
+        CloudResponse<RateLimitStatus> response = new CloudResponse<>();
 
-    @Override
-    public int getQuotaLimit() {
-        return quotaLimit;
-    }
+        RateLimitStatus limitStatus = new RateLimitStatus();
+        limitStatus.setQuotaLimit(quotaLimit);
+        limitStatus.setQuotaRemaining(quotaRemaining);
+        limitStatus.setQuotaReset(quotaReset);
 
-    @Override
-    public int getQuotaRemaining() {
-        return quotaRemaining;
-    }
-
-    @Override
-    public long getQuotaReset() {
-        return quotaReset;
+        addRateLimitStatusToResponse(response);
+        return response;
     }
 }
