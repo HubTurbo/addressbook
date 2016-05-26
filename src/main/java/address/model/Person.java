@@ -24,7 +24,7 @@ public class Person extends UniqueData {
     private final StringProperty lastName;
 
     private final StringProperty street;
-    private final IntegerProperty postalCode;
+    private final StringProperty postalCode;
     private final StringProperty city;
     private final StringProperty githubUserName;
 
@@ -38,7 +38,7 @@ public class Person extends UniqueData {
         lastName = new SimpleStringProperty("");
 
         street = new SimpleStringProperty("");
-        postalCode = new SimpleIntegerProperty();
+        postalCode = new SimpleStringProperty();
         city = new SimpleStringProperty("");
         githubUserName = new SimpleStringProperty("");
 
@@ -143,21 +143,17 @@ public class Person extends UniqueData {
 
 //// POSTAL CODE
 
-    public int getPostalCode() {
+    public String getPostalCode() {
         return postalCode.get();
     }
 
-    public void setPostalCode(int postalCode) {
+    public void setPostalCode(String postalCode) {
         this.postalCode.set(postalCode);
         updatedAt.set(LocalDateTime.now());
     }
 
-    public IntegerProperty postalCodeProperty() {
+    public StringProperty postalCodeProperty() {
         return postalCode;
-    }
-
-    public String postalCodeString() {
-        return postalCode.getValue() == 0 ? "" : Integer.toString(postalCode.get());
     }
 
 //// CITY
@@ -275,7 +271,6 @@ public class Person extends UniqueData {
         if (!Person.class.isAssignableFrom(otherPerson.getClass())) return false;
 
         final Person other = (Person) otherPerson;
-        if (this.getFirstName() == other.getFirstName() && this.getLastName() == other.getLastName()) return true;
         return this.getFirstName().equals(other.getFirstName()) && this.getLastName().equals(other.getLastName());
     }
 
