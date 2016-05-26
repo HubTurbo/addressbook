@@ -1,6 +1,6 @@
 package address.model;
 
-import address.util.DateUtil;
+import address.util.DateTimeUtil;
 import address.util.LocalDateAdapter;
 import address.util.LocalDateTimeAdapter;
 
@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -193,7 +192,7 @@ public class Person extends UniqueData {
 
     public String birthdayString() {
         if (birthday.getValue() == null) return "";
-        return DateUtil.format(birthday.getValue());
+        return DateTimeUtil.format(birthday.getValue());
     }
 
 //// GITHUB USERNAME

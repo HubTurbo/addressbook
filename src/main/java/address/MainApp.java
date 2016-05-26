@@ -22,6 +22,10 @@ import javafx.stage.Stage;
  */
 public class MainApp extends Application {
 
+    public static final int VERSION_MAJOR = 1;
+    public static final int VERSION_MINOR = 0;
+    public static final int VERSION_PATCH = 0;
+
     protected Config config;
     protected StorageManager storageManager;
     protected ModelManager modelManager;
@@ -46,7 +50,7 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         setupComponents();
         mainController.start(primaryStage);
-
+        updateManager.run();
         // initial load (precondition: mainController has been started.)
         EventManager.getInstance().post(new LoadDataRequestEvent(PrefsManager.getInstance().getSaveLocation()));
         syncManager.startSyncingData(config.updateInterval, config.simulateUnreliableNetwork);
@@ -62,7 +66,7 @@ public class MainApp extends Application {
         shortcutsManager = new ShortcutsManager();
 
         updateManager = new UpdateManager();
-        updateManager.run();
+
     }
 
     @Override

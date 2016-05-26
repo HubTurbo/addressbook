@@ -56,7 +56,7 @@ public class BrowserManager {
 
             int indexOfContact = filteredPersons.indexOf(browserTabPerson.get());
 
-            if(indexOfContact == PERSON_NOT_FOUND){
+            if (indexOfContact == PERSON_NOT_FOUND){
                 browserTab.unloadProfilePage();
                 continue;
             }

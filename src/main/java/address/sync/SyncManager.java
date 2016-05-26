@@ -1,10 +1,7 @@
 package address.sync;
 
 
-import address.events.EventManager;
-import address.events.LocalModelChangedEvent;
-import address.events.NewMirrorDataEvent;
-import address.events.SaveRequestEvent;
+import address.events.*;
 import address.exceptions.FileContainsDuplicatesException;
 import address.model.AddressBook;
 import address.prefs.PrefsManager;
@@ -13,10 +10,7 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
 /**
@@ -47,6 +41,7 @@ public class SyncManager {
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
             try {
+                EventManager.getInstance().post(new SyncInProgressEvent());
                 Optional<AddressBook> mirrorData = getMirrorData();
                 if (!mirrorData.isPresent()) {
                     System.out.println("Unable to retrieve data from mirror, cancelling sync...");
@@ -56,6 +51,8 @@ public class SyncManager {
             } catch (FileContainsDuplicatesException e) {
                 // do not sync changes from mirror if duplicates found in mirror
                 System.out.println("Duplicate data found in mirror, cancelling sync...");
+            } finally {
+                EventManager.getInstance().post(new SyncCompletedEvent());
             }
         };
 
