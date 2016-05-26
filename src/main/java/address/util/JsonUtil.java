@@ -1,18 +1,22 @@
 package address.util;
 
+import address.model.ContactGroup;
 import address.model.ModelPerson;
 import address.model.Person;
-import address.model.adapter.ModelPersonAdapter;
 import address.model.adapter.PersonAdapter;
 import com.google.gson.*;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,9 +33,22 @@ public class JsonUtil {
                 })
         .registerTypeAdapter(LocalDateTime.class,
                 (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) -> {
+                    System.out.println("LocalDateTime adapter was called");
                     Instant instant = Instant.ofEpochMilli(json.getAsJsonPrimitive().getAsLong());
                     return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
                 })
+        .registerTypeAdapter(SimpleStringProperty.class,
+                (JsonSerializer<SimpleStringProperty>) (stringProp, typeOfT, context) ->
+                        new JsonPrimitive(stringProp.get()))
+        .registerTypeAdapter(SimpleStringProperty.class,
+                (JsonDeserializer<SimpleStringProperty>) (json, typeOfT, context) ->
+                        new SimpleStringProperty(json.getAsJsonPrimitive().getAsString()))
+        .registerTypeAdapter(SimpleIntegerProperty.class,
+                (JsonSerializer<SimpleIntegerProperty>) (intProp, typeOfT, context) ->
+                        new JsonPrimitive(intProp.get()))
+        .registerTypeAdapter(SimpleIntegerProperty.class,
+                (JsonDeserializer<SimpleIntegerProperty>) (json, typeOfT, context) ->
+                        new SimpleIntegerProperty(json.getAsJsonPrimitive().getAsInt()))
         .registerTypeAdapter(Person.class, new PersonAdapter())
         .registerTypeAdapter(ModelPerson.class, new PersonAdapter())
         .create();
