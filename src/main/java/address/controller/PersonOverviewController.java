@@ -9,6 +9,9 @@ import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.shortcuts.ShortcutsManager;
+import address.status.PersonCreatedStatus;
+import address.status.PersonDeletedStatus;
+import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
 import com.google.common.eventbus.Subscribe;
 
@@ -57,7 +60,6 @@ public class PersonOverviewController {
                 (observable, oldValue, newValue) -> mainController.loadGithubProfilePage(new Person(newValue)));
     }
 
-
     /**
      * Called when the user clicks on the delete button.
      */
@@ -65,6 +67,8 @@ public class PersonOverviewController {
     private void handleDeletePerson() {
         int selectedIndex = personList.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
+            mainController.getStatusBarHeaderController().postStatus(
+                                                    new PersonDeletedStatus(personList.getItems().get(selectedIndex)));
             modelManager.deletePerson(personList.getItems().get(selectedIndex));
         } else {
             // Nothing selected.
@@ -86,6 +90,7 @@ public class PersonOverviewController {
             if (!newPerson.isPresent()) break;
             try {
                 modelManager.addPerson(newPerson.get());
+                mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(newPerson.get()));
                 break;
             } catch (DuplicatePersonException e) {
                 mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
@@ -113,6 +118,8 @@ public class PersonOverviewController {
             if (!updated.isPresent()) break;
 
             try {
+                mainController.getStatusBarHeaderController().postStatus(new PersonEditedStatus(new Person(selected),
+                                                                                                 updated.get()));
                 modelManager.updatePerson(selected, updated.get());
                 break;
             } catch (DuplicatePersonException e) {
