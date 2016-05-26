@@ -4,11 +4,11 @@ import address.MainApp;
 import address.events.*;
 import address.util.Config;
 import address.util.DateTimeUtil;
+import address.util.FxViewUtil;
 import address.util.TickingTimer;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
@@ -57,18 +57,11 @@ public class StatusBarFooterController {
         this.syncStatusBar = new StatusBar();
         this.updaterStatusBar = new StatusBar();
 
-        applyAnchorBoundaryParameters(syncStatusBar, 0.0, 0.0, 0.0, 0.0);
-        applyAnchorBoundaryParameters(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
+        FxViewUtil.applyAnchorBoundaryParameters(syncStatusBar, 0.0, 0.0, 0.0, 0.0);
+        FxViewUtil.applyAnchorBoundaryParameters(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
 
         syncStatusBarPane.getChildren().add(syncStatusBar);
         updaterStatusBarPane.getChildren().add(updaterStatusBar);
-    }
-
-    private void applyAnchorBoundaryParameters(Node node, double left, double right, double top, double bottom) {
-        AnchorPane.setBottomAnchor(node, bottom);
-        AnchorPane.setLeftAnchor(node, left);
-        AnchorPane.setRightAnchor(node, right);
-        AnchorPane.setTopAnchor(node, top);
     }
 
     @Subscribe

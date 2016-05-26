@@ -12,7 +12,6 @@ import com.google.common.eventbus.Subscribe;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -23,7 +22,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.controlsfx.control.StatusBar;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,6 +70,7 @@ public class MainController {
         showPersonOverview();
         showPersonWebPage();
         showFooterStatusBar();
+        showHeaderStatusBar();
     }
 
     /**
@@ -136,6 +135,12 @@ public class MainController {
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for person overview.",
                                    "IOException when trying to load " + fxmlResourcePath);
         }
+    }
+
+    private void showHeaderStatusBar() {
+
+        StatusBarHeaderController headerStatusBarController = new StatusBarHeaderController();
+        rootLayout.getChildren().add(2, headerStatusBarController.getFooterStatusBarView());
     }
 
     private void showFooterStatusBar() {

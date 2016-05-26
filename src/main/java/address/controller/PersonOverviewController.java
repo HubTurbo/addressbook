@@ -57,7 +57,6 @@ public class PersonOverviewController {
                 (observable, oldValue, newValue) -> mainController.loadGithubProfilePage(new Person(newValue)));
     }
 
-
     /**
      * Called when the user clicks on the delete button.
      */
@@ -65,6 +64,7 @@ public class PersonOverviewController {
     private void handleDeletePerson() {
         int selectedIndex = personList.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
+            EventManager.getInstance().post(new ContactDeletedEvent(personList.getItems().get(selectedIndex)));
             modelManager.deletePerson(personList.getItems().get(selectedIndex));
         } else {
             // Nothing selected.
@@ -86,6 +86,7 @@ public class PersonOverviewController {
             if (!newPerson.isPresent()) break;
             try {
                 modelManager.addPerson(newPerson.get());
+                EventManager.getInstance().post(new ContactCreatedEvent(newPerson.get()));
                 break;
             } catch (DuplicatePersonException e) {
                 mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
@@ -113,6 +114,7 @@ public class PersonOverviewController {
             if (!updated.isPresent()) break;
 
             try {
+                EventManager.getInstance().post(new ContactEditedEvent(new Person(selected), updated.get()));
                 modelManager.updatePerson(selected, updated.get());
                 break;
             } catch (DuplicatePersonException e) {
