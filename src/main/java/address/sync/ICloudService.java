@@ -2,7 +2,6 @@ package address.sync;
 
 import address.model.ContactGroup;
 import address.model.Person;
-import address.sync.model.CloudPerson;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,7 +17,7 @@ public interface ICloudService {
 
     ExtractedCloudResponse<ContactGroup> createGroup(String addressBookName, ContactGroup group) throws IOException;
     ExtractedCloudResponse<ContactGroup> editGroup(String addressBookName, String oldGroupName, ContactGroup newGroup) throws IOException;
-    ExtractedCloudResponse<Void> deleteGroup(String addressBookName, String groupName);
+    ExtractedCloudResponse<Void> deleteGroup(String addressBookName, String groupName) throws IOException;
 
     // May consume API
     // Implementation to be figured out to confirm API usage
@@ -26,5 +25,5 @@ public interface ICloudService {
     ExtractedCloudResponse<List<ContactGroup>> getUpdatedGroups(String addressBookName);
 
     // Does not consume API
-    RateLimitStatus getLimitStatus();
+    ExtractedCloudResponse<RateLimitStatus> getLimitStatus() throws IOException;
 }

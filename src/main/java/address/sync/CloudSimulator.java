@@ -12,33 +12,37 @@ import com.google.gson.Gson;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
-public class CloudSimulator {
-    private List<CloudPerson> personsList;
-    private List<CloudGroup> groupList;
-    RateLimitStatus rateLimitStatus;
-    private boolean hasResetCurrentQuota;
-    private Gson gson;
+public class CloudSimulator implements ICloudSimulator {
     private static final int API_QUOTA_PER_HOUR = 5000;
 
-    private long getNextResetTime() {
-        LocalDateTime curTime = LocalDateTime.now();
-        LocalDateTime nearestHour = LocalDateTime.of(
-                curTime.getYear(), curTime.getMonth(), curTime.getDayOfMonth(), curTime.getHour() + 1,
-                0, curTime.getSecond(), curTime.getNano());
-        return nearestHour.toEpochSecond(ZoneOffset.of("GMT"));
-    }
+    private static final Random RANDOM_GENERATOR = new Random();
+    private static final double FAILURE_PROBABILITY = 0.1;
 
-    CloudSimulator() {
+    private static final int MIN_DELAY_IN_SEC = 1;
+    private static final int DELAY_RANGE = 5;
+
+    private static final double MODIFY_PERSON_PROBABILITY = 0.1;
+    private static final double ADD_PERSON_PROBABILITY = 0.05;
+    private static final int MAX_NUM_PERSONS_TO_ADD = 2;
+    RateLimitStatus rateLimitStatus;
+    private List<CloudPerson> personsList;
+    private List<CloudGroup> groupList;
+    private boolean hasResetCurrentQuota;
+    private boolean shouldSimulateUnreliableNetwork;
+    private Gson gson;
+
+    CloudSimulator(boolean shouldSimulateUnreliableNetwork) {
         personsList = new ArrayList<>();
         groupList = new ArrayList<>();
         rateLimitStatus = new RateLimitStatus(API_QUOTA_PER_HOUR, API_QUOTA_PER_HOUR, getNextResetTime());
         hasResetCurrentQuota = true;
+        this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
         gson = new Gson();
 
         File cloudFile = new File(".$TEMP_ADDRESS_BOOK_MIRROR");
@@ -50,6 +54,263 @@ public class CloudSimulator {
         } catch (JAXBException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Attempts to create a person if quota is available
+     * @param addressBookName
+     * @param newPerson
+     * @return a response wrapper, containing the added person if successful
+     */
+    public RawCloudResponse createPerson(String addressBookName, CloudPerson newPerson) {
+        if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
+        if (shouldSimulateSlowResponse()) delayRandomAmount();
+
+        int noOfRequestsRequired = 1;
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            rateLimitStatus.setQuotaRemaining(0);
+            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+        }
+        rateLimitStatus.setQuotaRemaining(0);
+
+        try {
+            CloudPerson returnedPerson = addPerson(addressBookName, newPerson);
+            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(returnedPerson), convertToInputStream(getStandardHeaders()));
+        } catch (IllegalArgumentException e) {
+            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+        }
+    }
+
+    /**
+     * Returns a response wrapper containing the list of persons if quota is available
+     * @param addressBookName
+     * @param resourcesPerPage
+     * @return
+     */
+    public RawCloudResponse getPersons(String addressBookName, int resourcesPerPage) {
+        if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
+        if (shouldSimulateSlowResponse()) delayRandomAmount();
+
+        int noOfRequestsRequired = getNumberOfRequestsRequired(personsList.size(), resourcesPerPage);
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            rateLimitStatus.setQuotaRemaining(0);
+            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+        }
+        rateLimitStatus.useQuota(noOfRequestsRequired);
+        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(personsList), convertToInputStream(getStandardHeaders()));
+    }
+
+    /**
+     * Returns a response wrapper containing the list of groups if quota is available
+     * @param addressBookName
+     * @param resourcesPerPage
+     * @return
+     */
+    public RawCloudResponse getGroups(String addressBookName, int resourcesPerPage) {
+        int noOfRequestsRequired = getNumberOfRequestsRequired(groupList.size(), resourcesPerPage);
+        if (shouldSimulateSlowResponse()) delayRandomAmount();
+
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            rateLimitStatus.setQuotaRemaining(0);
+            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+        }
+        rateLimitStatus.useQuota(noOfRequestsRequired);
+        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(groupList), convertToInputStream(getStandardHeaders()));
+    }
+
+    /**
+     * Gets the rate limit given, rate limit remaining, and the time the rate limit quota is reset
+     * @return
+     */
+    public RawCloudResponse getRateLimitStatus() {
+        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(rateLimitStatus), convertToInputStream(getStandardHeaders()));
+    }
+
+    /**
+     * Updates the details of the person with details of the updatedPerson if quota is available
+     *
+     * @param addressBookName
+     * @param oldFirstName
+     * @param oldLastName
+     * @param updatedPerson
+     * @return
+     */
+    public RawCloudResponse updatePerson(String addressBookName, String oldFirstName, String oldLastName, CloudPerson updatedPerson) {
+        if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
+        if (shouldSimulateSlowResponse()) delayRandomAmount();
+
+        int noOfRequestsRequired = 1;
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            rateLimitStatus.setQuotaRemaining(0);
+            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+        }
+        rateLimitStatus.useQuota(noOfRequestsRequired);
+        try {
+            CloudPerson resultingPerson = updatePersonDetails(addressBookName, oldFirstName, oldLastName, updatedPerson);
+            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(resultingPerson), convertToInputStream(getStandardHeaders()));
+        } catch (NoSuchElementException e) {
+            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+        }
+    }
+
+    /**
+     * Deletes the person uniquely identified by addressBookName, firstName and lastName, if quota is available
+     *
+     * @param addressBookName
+     * @param firstName
+     * @param lastName
+     * @return
+     */
+    public RawCloudResponse deletePerson(String addressBookName, String firstName, String lastName) {
+        if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
+        if (shouldSimulateSlowResponse()) delayRandomAmount();
+
+        int noOfRequestsRequired = 1;
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            rateLimitStatus.setQuotaRemaining(0);
+            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+        }
+        rateLimitStatus.useQuota(noOfRequestsRequired);
+        try {
+            deletePersonFromData(addressBookName, firstName, lastName);
+            return new RawCloudResponse(HttpURLConnection.HTTP_NO_CONTENT, null, convertToInputStream(getStandardHeaders()));
+        } catch (NoSuchElementException e) {
+            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+        }
+    }
+
+    /**
+     * Creates a new group, if quota is available
+     * @param addressBookName
+     * @param newGroup group name should not already be used
+     * @return
+     */
+    public RawCloudResponse createGroup(String addressBookName, CloudGroup newGroup) {
+        if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
+        if (shouldSimulateSlowResponse()) delayRandomAmount();
+
+        int noOfRequestsRequired = 1;
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            rateLimitStatus.setQuotaRemaining(0);
+            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+        }
+        rateLimitStatus.useQuota(noOfRequestsRequired);
+        try {
+            CloudGroup returnedGroup = addGroup(addressBookName, newGroup);
+            return new RawCloudResponse(HttpURLConnection.HTTP_CREATED, convertToInputStream(returnedGroup), convertToInputStream(getStandardHeaders()));
+        } catch (IllegalArgumentException e) {
+            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+        }
+    }
+
+    /**
+     * Updates details of a group to details of updatedGroup, if quota is available
+     * @param addressBookName
+     * @param oldGroupName
+     * @param updatedGroup
+     * @return
+     */
+    public RawCloudResponse editGroup(String addressBookName, String oldGroupName, CloudGroup updatedGroup) {
+        if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
+        if (shouldSimulateSlowResponse()) delayRandomAmount();
+
+        int noOfRequestsRequired = 1;
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            rateLimitStatus.setQuotaRemaining(0);
+            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+        }
+        rateLimitStatus.useQuota(noOfRequestsRequired);
+        try {
+            CloudGroup returnedGroup = updateGroupDetails(addressBookName, oldGroupName, updatedGroup);
+            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(returnedGroup), convertToInputStream(getStandardHeaders()));
+        } catch (NoSuchElementException e) {
+            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+        }
+    }
+
+    /**
+     * Deletes a group uniquely identified by its name, if quota is available
+     * @param addressBookName
+     * @param groupName
+     * @return
+     */
+    public RawCloudResponse deleteGroup(String addressBookName, String groupName) {
+        if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
+        if (shouldSimulateSlowResponse()) delayRandomAmount();
+
+        int noOfRequestsRequired = 1;
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            rateLimitStatus.setQuotaRemaining(0);
+            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+        }
+        rateLimitStatus.useQuota(noOfRequestsRequired);
+        try {
+            deleteGroupFromData(addressBookName, groupName);
+            return new RawCloudResponse(HttpURLConnection.HTTP_NO_CONTENT, null, convertToInputStream(getStandardHeaders()));
+        } catch (NoSuchElementException e) {
+            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+        }
+    }
+
+    private long getNextResetTime() {
+        LocalDateTime curTime = LocalDateTime.now();
+        LocalDateTime nearestHour = LocalDateTime.of(
+                curTime.getYear(), curTime.getMonth(), curTime.getDayOfMonth(), curTime.getHour() + 1,
+                0, curTime.getSecond(), curTime.getNano());
+        return nearestHour.toEpochSecond(ZoneOffset.of("GMT"));
+    }
+
+    private boolean shouldSimulateNetworkFailure() {
+        return shouldSimulateUnreliableNetwork && RANDOM_GENERATOR.nextDouble() <= FAILURE_PROBABILITY;
+    }
+
+    private boolean shouldSimulateSlowResponse() {
+        return shouldSimulateUnreliableNetwork && RANDOM_GENERATOR.nextDouble() <= FAILURE_PROBABILITY;
+    }
+
+    private RawCloudResponse getNetworkFailedResponse() {
+        System.out.println("Cloud simulator: failure occurred! Could not retrieve data");
+        return new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR, null, null);
+    }
+
+    private List<Person> simulateDataAddition() {
+        List<Person> newData = new ArrayList<>();
+
+        for (int i = 0; i < MAX_NUM_PERSONS_TO_ADD; i++) {
+            if (RANDOM_GENERATOR.nextDouble() <= ADD_PERSON_PROBABILITY) {
+                Person person = new Person(java.util.UUID.randomUUID().toString(),
+                        java.util.UUID.randomUUID().toString());
+                System.out.println("Cloud simulator: adding " + person);
+                newData.add(person);
+            }
+        }
+
+        return newData;
+    }
+
+    /**
+     * WARNING: MUTATES data ARGUMENT
+     * TODO: currently only modifies Persons
+     *
+     * @param data
+     * @return the (possibly) modified argument addressbookwrapper
+     */
+    private AddressBook simulateDataModification(AddressBook data) {
+        List<Person> modifiedData = new ArrayList<>();
+
+        // currently only modifies persons
+        for (Person person : data.getPersons()) {
+            if (RANDOM_GENERATOR.nextDouble() <= MODIFY_PERSON_PROBABILITY) {
+                System.out.println("Cloud simulator: modifying " + person);
+                person.setCity(java.util.UUID.randomUUID().toString());
+                person.setStreet(java.util.UUID.randomUUID().toString());
+                person.setPostalCode(RANDOM_GENERATOR.nextInt(999999));
+            }
+            modifiedData.add(person);
+        }
+
+        data.setPersons(modifiedData);
+        return data;
     }
 
     private boolean isWithinQuota(int quotaUsed) {
@@ -118,25 +379,12 @@ public class CloudSimulator {
         return personQueryResult.get();
     }
 
-    /**
-     * Attempts to create a person if quota is available
-     * @param addressBookName
-     * @param newPerson
-     * @return a response wrapper, containing the added person if successful
-     */
-    public RawCloudResponse createPerson(String addressBookName, CloudPerson newPerson) {
-        int noOfRequestsRequired = 1;
-        if (!isWithinQuota(noOfRequestsRequired)) {
-            rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
-        }
-        rateLimitStatus.setQuotaRemaining(0);
-
+    private void delayRandomAmount() {
+        long delayAmount = RANDOM_GENERATOR.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC;
         try {
-            CloudPerson returnedPerson = addPerson(addressBookName, newPerson);
-            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(returnedPerson), convertToInputStream(getStandardHeaders()));
-        } catch (IllegalArgumentException e) {
-            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+            TimeUnit.SECONDS.sleep(delayAmount);
+        } catch (InterruptedException e) {
+            System.out.println("Error occurred while adding cloud response delay.");
         }
     }
 
@@ -144,99 +392,13 @@ public class CloudSimulator {
         return new ByteArrayInputStream(gson.toJson(object).getBytes());
     }
 
-
-    /**
-     * Returns a response wrapper containing the list of persons if quota is available
-     * @param addressBookName
-     * @param resourcesPerPage
-     * @return
-     */
-    public RawCloudResponse getPersons(String addressBookName, int resourcesPerPage) {
-        int noOfRequestsRequired = getNumberOfRequestsRequired(personsList.size(), resourcesPerPage);
-
-        if (!isWithinQuota(noOfRequestsRequired)) {
-            rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
-        }
-        rateLimitStatus.useQuota(noOfRequestsRequired);
-        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(personsList), convertToInputStream(getStandardHeaders()));
-    }
-
-    /**
-     * Returns a response wrapper containing the list of groups if quota is available
-     * @param addressBookName
-     * @param resourcesPerPage
-     * @return
-     */
-    public RawCloudResponse getGroups(String addressBookName, int resourcesPerPage) {
-        int noOfRequestsRequired = getNumberOfRequestsRequired(groupList.size(), resourcesPerPage);
-
-        if (!isWithinQuota(noOfRequestsRequired)) {
-            rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
-        }
-        rateLimitStatus.useQuota(noOfRequestsRequired);
-        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(groupList), convertToInputStream(getStandardHeaders()));
-    }
-
-    public ExtractedCloudResponse<RateLimitStatus> getRateLimitStatus() {
-        return new ExtractedCloudResponse<>(HttpURLConnection.HTTP_OK, rateLimitStatus, rateLimitStatus);
-    }
-
     private int getNumberOfRequestsRequired(int dataSize, int resourcesPerPage) {
         return (int) Math.ceil((double)dataSize / resourcesPerPage);
-    }
-
-    /**
-     * Updates the details of the person with details of the updatedPerson if quota is available
-     *
-     * @param addressBookName
-     * @param oldFirstName
-     * @param oldLastName
-     * @param updatedPerson
-     * @return
-     */
-    public RawCloudResponse updatePerson(String addressBookName, String oldFirstName, String oldLastName, CloudPerson updatedPerson) {
-        int noOfRequestsRequired = 1;
-        if (!isWithinQuota(noOfRequestsRequired)) {
-            rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
-        }
-        rateLimitStatus.useQuota(noOfRequestsRequired);
-        try {
-            CloudPerson resultingPerson = updatePersonDetails(addressBookName, oldFirstName, oldLastName, updatedPerson);
-            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(resultingPerson), convertToInputStream(getStandardHeaders()));
-        } catch (NoSuchElementException e) {
-            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
-        }
     }
 
     private void deletePersonFromData(String addressBookName, String firstName, String lastName) throws NoSuchElementException {
         CloudPerson deletedPerson = getPersonIfExists(addressBookName, firstName, lastName);
         deletedPerson.setDeleted(true);
-    }
-
-    /**
-     * Deletes the person uniquely identified by addressBookName, firstName and lastName
-     *
-     * @param addressBookName
-     * @param firstName
-     * @param lastName
-     * @return
-     */
-    public RawCloudResponse deletePerson(String addressBookName, String firstName, String lastName) {
-        int noOfRequestsRequired = 1;
-        if (!isWithinQuota(noOfRequestsRequired)) {
-            rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
-        }
-        rateLimitStatus.useQuota(noOfRequestsRequired);
-        try {
-            deletePersonFromData(addressBookName, firstName, lastName);
-            return new RawCloudResponse(HttpURLConnection.HTTP_NO_CONTENT, null, convertToInputStream(getStandardHeaders()));
-        } catch (NoSuchElementException e) {
-            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
-        }
     }
 
     private CloudGroup addGroup(String addressBookName, CloudGroup newGroup) {
@@ -246,21 +408,6 @@ public class CloudSimulator {
         if (isExistingGroup(newGroup)) throw new IllegalArgumentException("Group already exists");
         groupList.add(newGroup);
         return newGroup;
-    }
-
-    public RawCloudResponse createGroup(String addressBookName, CloudGroup newGroup) {
-        int noOfRequestsRequired = 1;
-        if (!isWithinQuota(noOfRequestsRequired)) {
-            rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
-        }
-        rateLimitStatus.useQuota(noOfRequestsRequired);
-        try {
-            CloudGroup returnedGroup = addGroup(addressBookName, newGroup);
-            return new RawCloudResponse(HttpURLConnection.HTTP_CREATED, convertToInputStream(returnedGroup), convertToInputStream(getStandardHeaders()));
-        } catch (IllegalArgumentException e) {
-            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
-        }
     }
 
     private Optional<CloudGroup> getGroup(String addressBookName, String groupName) {
@@ -282,18 +429,9 @@ public class CloudSimulator {
         return oldGroup;
     }
 
-    public RawCloudResponse editGroup(String addressBookName, String oldGroupName, CloudGroup updatedGroup) {
-        int noOfRequestsRequired = 1;
-        if (!isWithinQuota(noOfRequestsRequired)) {
-            rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
-        }
-        rateLimitStatus.useQuota(noOfRequestsRequired);
-        try {
-            CloudGroup returnedGroup = updateGroupDetails(addressBookName, oldGroupName, updatedGroup);
-            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(returnedGroup), convertToInputStream(getStandardHeaders()));
-        } catch (NoSuchElementException e) {
-            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
-        }
+    private void deleteGroupFromData(String addressBookName, String groupName) throws NoSuchElementException {
+        CloudGroup group = getGroupIfExists(addressBookName, groupName);
+        // This may differ from how GitHub does it, but we won't know for sure
+        groupList.remove(group);
     }
 }
