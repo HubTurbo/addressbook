@@ -89,7 +89,7 @@ public class StatusBarFooterController {
     }
 
     @Subscribe
-    public void handleUpdaterCompletedEvent(UpdaterCompletedEvent e) {
+    public void handleUpdaterCompletedEvent(UpdaterFinishedEvent e) {
 
         try {
             TimeUnit.SECONDS.sleep(2);
