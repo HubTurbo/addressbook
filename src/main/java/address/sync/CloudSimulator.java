@@ -3,6 +3,9 @@ package address.sync;
 import address.model.AddressBook;
 import address.model.datatypes.ContactGroup;
 import address.model.datatypes.Person;
+import address.sync.model.CloudAddressBook;
+import address.sync.model.CloudGroup;
+import address.sync.model.CloudPerson;
 import address.util.XmlFileHelper;
 import com.google.gson.Gson;
 
@@ -16,8 +19,8 @@ import java.time.ZoneOffset;
 import java.util.*;
 
 public class CloudSimulator {
-    private List<Person> personsList;
-    private List<ContactGroup> groupList;
+    private List<CloudPerson> personsList;
+    private List<CloudGroup> groupList;
     RateLimitStatus rateLimitStatus;
     private boolean hasResetCurrentQuota;
     private Gson gson;
@@ -38,13 +41,12 @@ public class CloudSimulator {
         hasResetCurrentQuota = true;
         gson = new Gson();
 
-        File cloudFile = new File(".$TEMP_ADDRESS_BOOK");
+        File cloudFile = new File(".$TEMP_ADDRESS_BOOK_MIRROR");
         System.out.println("Reading from cloudFile: " + cloudFile.canRead());
         try {
-            AddressBook data = XmlFileHelper.getDataFromFile(cloudFile);
-            System.out.println("data.getPersons size: " + data.getPersons().size());
-            personsList.addAll(data.getPersons());
-            groupList.addAll(data.getGroups());
+            CloudAddressBook data = XmlFileHelper.getCloudDataFromFile(cloudFile);
+            personsList.addAll(data.getAllPersons());
+            groupList.addAll(data.getAllGroups());
         } catch (JAXBException e) {
             e.printStackTrace();
         }
@@ -54,18 +56,19 @@ public class CloudSimulator {
         return quotaUsed <= rateLimitStatus.getQuotaRemaining();
     }
 
-    private boolean isExisting(String firstName, String lastName) {
+    private boolean isExistingPerson(CloudPerson targetPerson) {
         return personsList.stream()
-                .filter(person -> person.getFirstName().equals(firstName)
-                        && person.getLastName().equals(lastName))
+                .filter(person -> person.getFirstName().equals(targetPerson.getFirstName())
+                        && person.getLastName().equals(targetPerson.getLastName()))
                 .findAny()
                 .isPresent();
     }
 
-    private boolean isExistingPerson(Person person) {
-        String firstName = person.getFirstName();
-        String lastName = person.getLastName();
-        return isExisting(firstName, lastName);
+    private boolean isExistingGroup(CloudGroup targetGroup) {
+        return groupList.stream()
+                .filter(group -> !targetGroup.getName().equals(targetGroup.getName()))
+                .findAny()
+                .isPresent();
     }
 
     private HashMap<String, String> getStandardHeaders() {
@@ -83,31 +86,36 @@ public class CloudSimulator {
      * @param newPerson
      * @return newPerson, if added, else null
      */
-    private Person addPerson(String addressBookName, Person newPerson) {
+    private CloudPerson addPerson(String addressBookName, CloudPerson newPerson) {
+        if (newPerson == null) throw new IllegalArgumentException("Person cannot be null");
         String newPersonFirstName = newPerson.getFirstName();
         String newPersonLastName = newPerson.getLastName();
-        if (newPersonFirstName == null || newPersonLastName == null) return null;
-        if (isExistingPerson(newPerson)) return null;
+        if (newPersonFirstName == null || newPersonLastName == null) throw new IllegalArgumentException("Fields cannot be null");
+        if (isExistingPerson(newPerson)) throw new IllegalArgumentException("Person already exists");
 
         personsList.add(newPerson);
 
         return newPerson;
     }
 
-    private Optional<Person> getPerson(String addressBookName, String firstName, String lastName) {
+    private Optional<CloudPerson> getPerson(String addressBookName, String firstName, String lastName) {
         return personsList.stream()
-                .filter(person -> person.getFirstName().equals(lastName)
+                .filter(person -> person.getFirstName().equals(firstName)
                         && person.getLastName().equals(lastName))
                 .findAny();
     }
 
-    private Person updatePersonDetails(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) {
-        Optional<Person> personQueryResult = getPerson(addressBookName, oldFirstName, oldLastName);
+    private CloudPerson updatePersonDetails(String addressBookName, String oldFirstName, String oldLastName, CloudPerson updatedPerson) throws NoSuchElementException {
+        CloudPerson oldPerson = getPersonIfExists(addressBookName, oldFirstName, oldLastName);
+        oldPerson.updatedBy(updatedPerson);
+        return oldPerson;
+    }
+
+    private CloudPerson getPersonIfExists(String addressBookName, String oldFirstName, String oldLastName) {
+        Optional<CloudPerson> personQueryResult = getPerson(addressBookName, oldFirstName, oldLastName);
         if (!personQueryResult.isPresent()) throw new NoSuchElementException("No such person found.");
 
-        Person oldPerson = personQueryResult.get();
-        oldPerson.update(updatedPerson);
-        return oldPerson;
+        return personQueryResult.get();
     }
 
     /**
@@ -116,7 +124,7 @@ public class CloudSimulator {
      * @param newPerson
      * @return a response wrapper, containing the added person if successful
      */
-    public RawCloudResponse createPerson(String addressBookName, Person newPerson) {
+    public RawCloudResponse createPerson(String addressBookName, CloudPerson newPerson) {
         int noOfRequestsRequired = 1;
         if (!isWithinQuota(noOfRequestsRequired)) {
             rateLimitStatus.setQuotaRemaining(0);
@@ -124,12 +132,12 @@ public class CloudSimulator {
         }
         rateLimitStatus.setQuotaRemaining(0);
 
-        Person returnedPerson = addPerson(addressBookName, newPerson);
-
-        if (returnedPerson == null) {
+        try {
+            CloudPerson returnedPerson = addPerson(addressBookName, newPerson);
+            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(returnedPerson), convertToInputStream(getStandardHeaders()));
+        } catch (IllegalArgumentException e) {
             return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
         }
-        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(returnedPerson), convertToInputStream(getStandardHeaders()));
     }
 
     private ByteArrayInputStream convertToInputStream(Object object) {
@@ -188,14 +196,104 @@ public class CloudSimulator {
      * @param updatedPerson
      * @return
      */
-    public RawCloudResponse updatePerson(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) {
+    public RawCloudResponse updatePerson(String addressBookName, String oldFirstName, String oldLastName, CloudPerson updatedPerson) {
         int noOfRequestsRequired = 1;
         if (!isWithinQuota(noOfRequestsRequired)) {
             rateLimitStatus.setQuotaRemaining(0);
             return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
-        Person resultingPerson = updatePersonDetails(addressBookName, oldFirstName, oldLastName, updatedPerson);
-        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(resultingPerson), convertToInputStream(getStandardHeaders()));
+        try {
+            CloudPerson resultingPerson = updatePersonDetails(addressBookName, oldFirstName, oldLastName, updatedPerson);
+            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(resultingPerson), convertToInputStream(getStandardHeaders()));
+        } catch (NoSuchElementException e) {
+            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+        }
+    }
+
+    private void deletePersonFromData(String addressBookName, String firstName, String lastName) throws NoSuchElementException {
+        CloudPerson deletedPerson = getPersonIfExists(addressBookName, firstName, lastName);
+        deletedPerson.setDeleted(true);
+    }
+
+    /**
+     * Deletes the person uniquely identified by addressBookName, firstName and lastName
+     *
+     * @param addressBookName
+     * @param firstName
+     * @param lastName
+     * @return
+     */
+    public RawCloudResponse deletePerson(String addressBookName, String firstName, String lastName) {
+        int noOfRequestsRequired = 1;
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            rateLimitStatus.setQuotaRemaining(0);
+            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+        }
+        rateLimitStatus.useQuota(noOfRequestsRequired);
+        try {
+            deletePersonFromData(addressBookName, firstName, lastName);
+            return new RawCloudResponse(HttpURLConnection.HTTP_NO_CONTENT, null, convertToInputStream(getStandardHeaders()));
+        } catch (NoSuchElementException e) {
+            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+        }
+    }
+
+    private CloudGroup addGroup(String addressBookName, CloudGroup newGroup) {
+        if (newGroup == null) throw new IllegalArgumentException("Group cannot be null");
+        String groupName = newGroup.getName();
+        if (groupName == null) throw new IllegalArgumentException("Fields cannot be null");
+        if (isExistingGroup(newGroup)) throw new IllegalArgumentException("Group already exists");
+        groupList.add(newGroup);
+        return newGroup;
+    }
+
+    public RawCloudResponse createGroup(String addressBookName, CloudGroup newGroup) {
+        int noOfRequestsRequired = 1;
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            rateLimitStatus.setQuotaRemaining(0);
+            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+        }
+        rateLimitStatus.useQuota(noOfRequestsRequired);
+        try {
+            CloudGroup returnedGroup = addGroup(addressBookName, newGroup);
+            return new RawCloudResponse(HttpURLConnection.HTTP_CREATED, convertToInputStream(returnedGroup), convertToInputStream(getStandardHeaders()));
+        } catch (IllegalArgumentException e) {
+            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+        }
+    }
+
+    private Optional<CloudGroup> getGroup(String addressBookName, String groupName) {
+        return groupList.stream()
+                .filter(group -> group.getName().equals(groupName))
+                .findAny();
+    }
+
+    private CloudGroup getGroupIfExists(String addressBookName, String groupName) {
+        Optional<CloudGroup> groupQueryResult = getGroup(addressBookName, groupName);
+        if (!groupQueryResult.isPresent()) throw new NoSuchElementException("No such group found.");
+
+        return groupQueryResult.get();
+    }
+
+    private CloudGroup updateGroupDetails(String addressBookName, String oldGroupName, CloudGroup updatedGroup) throws NoSuchElementException {
+        CloudGroup oldGroup = getGroupIfExists(addressBookName, oldGroupName);
+        oldGroup.updatedBy(updatedGroup);
+        return oldGroup;
+    }
+
+    public RawCloudResponse editGroup(String addressBookName, String oldGroupName, CloudGroup updatedGroup) {
+        int noOfRequestsRequired = 1;
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            rateLimitStatus.setQuotaRemaining(0);
+            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+        }
+        rateLimitStatus.useQuota(noOfRequestsRequired);
+        try {
+            CloudGroup returnedGroup = updateGroupDetails(addressBookName, oldGroupName, updatedGroup);
+            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(returnedGroup), convertToInputStream(getStandardHeaders()));
+        } catch (NoSuchElementException e) {
+            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+        }
     }
 }

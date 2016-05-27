@@ -3,6 +3,8 @@ package address.sync;
 import address.model.AddressBook;
 import address.model.ContactGroup;
 import address.model.Person;
+import address.sync.model.CloudGroup;
+import address.sync.model.CloudPerson;
 import address.util.XmlFileHelper;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
 
 // TODO implement full range of possible unreliable network effects: fail, corruption, etc
-
+// TODO check for bad response code
 /**
  * Emulates the cloud & the local cloud service
  */
@@ -259,6 +261,31 @@ public class CloudService implements ICloudService {
         }
     }
 
+    private Person convertToPerson(CloudPerson cloudPerson) {
+        Person person = new Person(cloudPerson.getFirstName(), cloudPerson.getLastName());
+        person.setStreet(cloudPerson.getStreet());
+        person.setCity(cloudPerson.getCity());
+        person.setPostalCode(Integer.valueOf(cloudPerson.getPostalCode()));
+        return person;
+    }
+
+    private CloudPerson convertToCloudPerson(Person person) {
+        CloudPerson cloudPerson = new CloudPerson(person.getFirstName(), person.getLastName());
+        cloudPerson.setStreet(person.getStreet());
+        cloudPerson.setCity(person.getCity());
+        cloudPerson.setPostalCode(person.getPostalCode().toString());
+        return cloudPerson;
+    }
+
+    private ContactGroup convertToGroup(CloudGroup cloudGroup) {
+        ContactGroup group = new ContactGroup(cloudGroup.getName());
+        return group;
+    }
+
+    private CloudGroup convertToCloudGroup(ContactGroup group) {
+        CloudGroup cloudGroup = new CloudGroup(group.getName());
+        return cloudGroup;
+    }
 
     /**
      * Adds a person to the cloud
@@ -272,9 +299,9 @@ public class CloudService implements ICloudService {
      */
     @Override
     public ExtractedCloudResponse<Person> createPerson(String addressBookName, Person newPerson) throws IOException {
-        RawCloudResponse response = cloud.createPerson(addressBookName, newPerson);
-        Person returnedPerson = getDataFromBody(response.getBody(), new TypeToken<Person>(){}.getType());
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedPerson);
+        RawCloudResponse response = cloud.createPerson(addressBookName, convertToCloudPerson(newPerson));
+        CloudPerson returnedPerson = getDataFromBody(response.getBody(), new TypeToken<CloudPerson>(){}.getType());
+        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), convertToPerson(returnedPerson));
     }
 
     /**
@@ -290,28 +317,65 @@ public class CloudService implements ICloudService {
      */
     @Override
     public ExtractedCloudResponse<Person> updatePerson(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) throws IOException {
-        RawCloudResponse response = cloud.updatePerson(addressBookName, oldFirstName, oldLastName, updatedPerson);
+        RawCloudResponse response = cloud.updatePerson(addressBookName, oldFirstName, oldLastName, convertToCloudPerson(updatedPerson));
         Person returnedPerson = getDataFromBody(response.getBody(), new TypeToken<Person>(){}.getType());
         return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedPerson);
     }
 
+    /**
+     * Deletes a person on the cloud
+     *
+     * Consumes 1 API usage
+     *
+     * @param addressBookName
+     * @param firstName
+     * @param lastName
+     * @return
+     * @throws IOException
+     */
     @Override
-    public ExtractedCloudResponse<Boolean> deletePerson(String addressBookName, int personId) {
-        return null;
+    public ExtractedCloudResponse<Void> deletePerson(String addressBookName, String firstName, String lastName) throws IOException {
+        RawCloudResponse response = cloud.deletePerson(addressBookName, firstName, lastName);
+        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), null);
+    }
+
+    /**
+     * Creates a group on the cloud
+     *
+     * Consumes 1 API usage
+     *
+     * @param addressBookName
+     * @param group
+     * @return
+     * @throws IOException
+     */
+    @Override
+    public ExtractedCloudResponse<ContactGroup> createGroup(String addressBookName, ContactGroup group) throws IOException {
+        RawCloudResponse response = cloud.createGroup(addressBookName, convertToCloudGroup(group));
+        ContactGroup returnedGroup = getDataFromBody(response.getBody(), new TypeToken<ContactGroup>(){}.getType());
+        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedGroup);
+    }
+
+    /**
+     * Updates group on the cloud
+     *
+     * Consumes 1 API usage
+     *
+     * @param addressBookName
+     * @param oldGroupName
+     * @param newGroup
+     * @return
+     * @throws IOException
+     */
+    @Override
+    public ExtractedCloudResponse<ContactGroup> editGroup(String addressBookName, String oldGroupName, ContactGroup newGroup) throws IOException {
+        RawCloudResponse response = cloud.editGroup(addressBookName, oldGroupName, convertToCloudGroup(newGroup));
+        ContactGroup returnedGroup = getDataFromBody(response.getBody(), new TypeToken<ContactGroup>(){}.getType());
+        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedGroup);
     }
 
     @Override
-    public ExtractedCloudResponse<ContactGroup> createGroup(String addressBookName, ContactGroup group) {
-        return null;
-    }
-
-    @Override
-    public ExtractedCloudResponse<ContactGroup> editGroup(String addressBookName, String oldGroupName, ContactGroup newGroup) {
-        return null;
-    }
-
-    @Override
-    public ExtractedCloudResponse<Boolean> deleteGroup(String addressBookName, String groupName) {
+    public ExtractedCloudResponse<Void> deleteGroup(String addressBookName, String groupName) {
         return null;
     }
 

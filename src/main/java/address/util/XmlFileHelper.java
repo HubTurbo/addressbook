@@ -3,6 +3,7 @@ package address.util;
 import address.model.*;
 import address.model.datatypes.ContactGroup;
 import address.model.datatypes.Person;
+import address.sync.model.CloudAddressBook;
 import address.updater.model.UpdateData;
 
 import javax.xml.bind.JAXBContext;
@@ -16,6 +17,23 @@ import java.util.List;
  * Helps with reading from and writing to XML files.
  */
 public class XmlFileHelper {
+
+    public static CloudAddressBook getCloudDataFromFile(File file) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(CloudAddressBook.class);
+        Unmarshaller um = context.createUnmarshaller();
+
+        // Reading XML from the file and unmarshalling.
+        return ((CloudAddressBook) um.unmarshal(file));
+    }
+
+    public static void saveCloudDataToFile(File file, CloudAddressBook cloudAddressBook) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(CloudAddressBook.class);
+        Marshaller m = context.createMarshaller();
+        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        // Marshalling and saving XML to the file.
+        m.marshal(cloudAddressBook, file);
+    }
 
     public static AddressBook getDataFromFile(File file) throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(AddressBook.class);

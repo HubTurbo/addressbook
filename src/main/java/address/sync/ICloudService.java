@@ -2,6 +2,7 @@ package address.sync;
 
 import address.model.ContactGroup;
 import address.model.Person;
+import address.sync.model.CloudPerson;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,11 +14,11 @@ public interface ICloudService {
 
     ExtractedCloudResponse<Person> createPerson(String addressBookName, Person person) throws IOException;
     ExtractedCloudResponse<Person> updatePerson(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) throws IOException;
-    ExtractedCloudResponse<Boolean> deletePerson(String addressBookName, int personId);
+    ExtractedCloudResponse<Void> deletePerson(String addressBookName, String firstName, String lastName) throws IOException;
 
-    ExtractedCloudResponse<ContactGroup> createGroup(String addressBookName, ContactGroup group);
-    ExtractedCloudResponse<ContactGroup> editGroup(String addressBookName, String oldGroupName, ContactGroup newGroup);
-    ExtractedCloudResponse<Boolean> deleteGroup(String addressBookName, String groupName);
+    ExtractedCloudResponse<ContactGroup> createGroup(String addressBookName, ContactGroup group) throws IOException;
+    ExtractedCloudResponse<ContactGroup> editGroup(String addressBookName, String oldGroupName, ContactGroup newGroup) throws IOException;
+    ExtractedCloudResponse<Void> deleteGroup(String addressBookName, String groupName);
 
     // May consume API
     // Implementation to be figured out to confirm API usage
