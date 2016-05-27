@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -46,13 +47,22 @@ public class CloudSimulator implements ICloudSimulator {
         gson = new Gson();
 
         File cloudFile = new File(".$TEMP_ADDRESS_BOOK_MIRROR");
-        System.out.println("Reading from cloudFile: " + cloudFile.canRead());
-        try {
-            CloudAddressBook data = XmlFileHelper.getCloudDataFromFile(cloudFile);
-            personsList.addAll(data.getAllPersons());
-            groupList.addAll(data.getAllGroups());
-        } catch (JAXBException e) {
-            e.printStackTrace();
+
+        if (cloudFile.exists()) {
+            System.out.println("Reading from cloudFile: " + cloudFile.canRead());
+            try {
+                CloudAddressBook data = XmlFileHelper.getCloudDataFromFile(cloudFile);
+                personsList.addAll(data.getAllPersons());
+                groupList.addAll(data.getAllGroups());
+            } catch (JAXBException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                cloudFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -257,7 +267,7 @@ public class CloudSimulator implements ICloudSimulator {
         LocalDateTime nearestHour = LocalDateTime.of(
                 curTime.getYear(), curTime.getMonth(), curTime.getDayOfMonth(), curTime.getHour() + 1,
                 0, curTime.getSecond(), curTime.getNano());
-        return nearestHour.toEpochSecond(ZoneOffset.of("GMT"));
+        return nearestHour.toEpochSecond(ZoneOffset.of("Z"));
     }
 
     private boolean shouldSimulateNetworkFailure() {

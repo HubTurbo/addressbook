@@ -3,6 +3,9 @@ package address.sync.model;
 public class CloudGroup {
     String name;
 
+    public CloudGroup() {
+    }
+
     public CloudGroup(String name) {
         this.name = name;
     }

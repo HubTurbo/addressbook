@@ -12,6 +12,9 @@ public class CloudPerson {
     List<CloudGroup> groups;
     boolean isDeleted;
 
+    public CloudPerson() {
+    }
+
     public CloudPerson(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;

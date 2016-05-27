@@ -4,11 +4,15 @@ package address.sync;
 import address.events.*;
 import address.exceptions.FileContainsDuplicatesException;
 import address.model.AddressBook;
+import address.model.ContactGroup;
+import address.model.Person;
 import address.prefs.PrefsManager;
 import address.sync.task.CloudUpdateTask;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
 
@@ -21,7 +25,7 @@ public class SyncManager {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ExecutorService requestExecutor = Executors.newCachedThreadPool();
 
-    private CloudService cloudSimulator = new CloudService(false);
+    private CloudService cloudService = new CloudService(false);
 
     public SyncManager() {
         EventManager.getInstance().registerHandler(this);
@@ -29,7 +33,7 @@ public class SyncManager {
 
     public void startSyncingData(long interval, boolean simulateUnreliableNetwork) {
         if (interval <= 0) return;
-        this.cloudSimulator = new CloudService(simulateUnreliableNetwork);
+        this.cloudService = new CloudService(simulateUnreliableNetwork);
         updatePeriodically(interval);
     }
 
@@ -60,22 +64,40 @@ public class SyncManager {
         scheduler.scheduleWithFixedDelay(task, initialDelay, interval, TimeUnit.MILLISECONDS);
     }
 
+    private AddressBook wrapWithAddressBook(List<Person> personList, List<ContactGroup> groupList) {
+        AddressBook wrapper = new AddressBook();
+        wrapper.setPersons(personList);
+        wrapper.setGroups(groupList);
+        return wrapper;
+    }
+
     private Optional<AddressBook> getMirrorData() throws FileContainsDuplicatesException {
         System.out.println("Updating data from cloud: " + System.nanoTime());
         final File mirrorFile = PrefsManager.getInstance().getMirrorLocation();
-        final Optional<AddressBook> data = cloudSimulator.getSimulatedCloudData(mirrorFile);
-        if (data.isPresent() && data.get().containsDuplicates()) throw new FileContainsDuplicatesException(mirrorFile);
-        return data;
+
+        try {
+            ExtractedCloudResponse<List<Person>> personsResponse = cloudService.getPersons("");
+            ExtractedCloudResponse<List<ContactGroup>> groupsResponse = cloudService.getGroups("");
+            List<Person>  personList = personsResponse.getData().get();
+            List<ContactGroup> groupList = groupsResponse.getData().get();
+            AddressBook data = wrapWithAddressBook(personList, groupList);
+            if (data.containsDuplicates()) throw new FileContainsDuplicatesException(mirrorFile);
+
+            return Optional.of(data);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
-        requestExecutor.execute(new CloudUpdateTask(this.cloudSimulator, lmce.personData, lmce.groupData));
+        requestExecutor.execute(new CloudUpdateTask(this.cloudService, lmce.personData, lmce.groupData));
     }
 
     // To be removed after working out specification on saving and syncing behaviour
     @Subscribe
     public void handleSaveRequestEvent(SaveRequestEvent sre) {
-        requestExecutor.execute(new CloudUpdateTask(this.cloudSimulator, sre.personData, sre.groupData));
+        requestExecutor.execute(new CloudUpdateTask(this.cloudService, sre.personData, sre.groupData));
     }
 }

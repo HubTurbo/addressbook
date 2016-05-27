@@ -9,6 +9,9 @@ public class CloudAddressBook {
     List<CloudPerson> personsList;
     List<CloudGroup> groupsList;
 
+    public CloudAddressBook() {
+    }
+
     CloudAddressBook(List<CloudPerson> personsList, List<CloudGroup> groupsList) {
         this.personsList = personsList;
         this.groupsList = groupsList;

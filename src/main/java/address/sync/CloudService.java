@@ -213,21 +213,21 @@ public class CloudService implements ICloudService {
     }
 
     private <T> T getDataFromBody(InputStream bodyStream, Type type) throws IOException {
-        return parseJson(bodyStream, type, null);
+        return parseJson(bodyStream, type, false);
     }
 
     private <T> T getDataListFromBody(InputStream bodyStream, Type listType) throws IOException {
-        return parseJson(bodyStream, null, listType);
+        return parseJson(bodyStream, listType, true);
     }
 
     private List<Person> getGroupsFromBody(InputStream bodyStream) throws IOException {
         Type dataType = new TypeToken<List<ContactGroup>>(){}.getType();
-        return parseJson(bodyStream, ContactGroup.class, dataType);
+        return parseJson(bodyStream, dataType, false);
     }
 
     private RateLimitStatus getRateLimitStatusFromHeader(InputStream headerStream) throws IOException {
         Type headerType = new TypeToken<HashMap<String, Double>>(){}.getType();
-        HashMap<String, Long> headers = parseJson(headerStream, headerType, null);
+        HashMap<String, Long> headers = parseJson(headerStream, headerType, false);
         return new RateLimitStatus(
                 headers.get("X-RateLimit-Limit").intValue(),
                 headers.get("X-RateLimit-Remaining").intValue(),
@@ -261,53 +261,37 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * TODO: refactor
      * Parse JSON to specified type
      *
      * @param <V>
      * @param stream
      * @param type
-     * @param listType
      * @return parsed type
      * @throws IOException
      */
-    protected <V> V parseJson(InputStream stream, Type type, Type listType)
+    protected <V> V parseJson(InputStream stream, Type type, boolean isList)
             throws IOException {
+
         BufferedReader reader = new BufferedReader(new InputStreamReader(
                 stream, "UTF-8"), 8192);
-        if (listType == null)
-            try {
+        JsonReader jsonReader = new JsonReader(reader);
+        try {
+            if (isList && jsonReader.peek() == BEGIN_ARRAY) {
+                return gson.fromJson(jsonReader, type);
+            } else {
                 return gson.fromJson(reader, type);
-            } catch (JsonParseException jpe) {
-                IOException ioe = new IOException(
-                        "Parse exception converting JSON to object"); //$NON-NLS-1$
-                ioe.initCause(jpe);
-                throw ioe;
-            } finally {
-                try {
-                    reader.close();
-                } catch (IOException ignored) {
-                    // Ignored
-                }
             }
-        else {
-            JsonReader jsonReader = new JsonReader(reader);
+        } catch (JsonParseException jpe) {
+            IOException ioe = new IOException(
+                    "Parse exception converting JSON to object"); //$NON-NLS-1$
+            ioe.initCause(jpe);
+            throw ioe;
+        } finally {
             try {
-                if (jsonReader.peek() == BEGIN_ARRAY)
-                    return gson.fromJson(jsonReader, listType);
-                else
-                    return gson.fromJson(jsonReader, type);
-            } catch (JsonParseException jpe) {
-                IOException ioe = new IOException(
-                        "Parse exception converting JSON to object"); //$NON-NLS-1$
-                ioe.initCause(jpe);
-                throw ioe;
-            } finally {
-                try {
-                    jsonReader.close();
-                } catch (IOException ignored) {
-                    // Ignored
-                }
+                reader.close();
+                jsonReader.close();
+            } catch (IOException ignored) {
+                // Ignored
             }
         }
     }
