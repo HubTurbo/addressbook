@@ -34,8 +34,9 @@ public class PersonEditedStatus extends PersonBaseStatus {
             sb.append(String.format(", from %s to %s", uneditedPerson.getCity(), person.getCity()));
         }
 
-        if (uneditedPerson.getPostalCode() != person.getPostalCode()) {
-            sb.append(String.format(", from %d to %d", uneditedPerson.getPostalCode(), person.getPostalCode()));
+        if (uneditedPerson.getPostalCode().length() != 0
+            && !uneditedPerson.getPostalCode().equals(person.getPostalCode())) {
+            sb.append(String.format(", from %s to %s", uneditedPerson.getPostalCode(), person.getPostalCode()));
         }
 
         if (uneditedPerson.getBirthday() != null && person.getBirthday() != null

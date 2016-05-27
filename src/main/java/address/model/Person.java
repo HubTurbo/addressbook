@@ -38,7 +38,7 @@ public class Person extends UniqueData {
         lastName = new SimpleStringProperty("");
 
         street = new SimpleStringProperty("");
-        postalCode = new SimpleStringProperty();
+        postalCode = new SimpleStringProperty("");
         city = new SimpleStringProperty("");
         githubUserName = new SimpleStringProperty("");
 
