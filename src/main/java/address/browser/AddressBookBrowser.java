@@ -181,7 +181,7 @@ public class AddressBookBrowser{
         ArrayList<Person> listOfPersonsToBeLoaded = new ArrayList<>();
 
         for (int i = 0; i < BrowserManager.NUMBER_OF_PRELOADED_PAGE && i < filteredPersons.size(); i++){
-            listOfPersonsToBeLoaded.add(filteredPersons.get((indexOfPerson + i) % filteredPersons.size()));
+            listOfPersonsToBeLoaded.add(new Person(filteredPersons.get((indexOfPerson + i) % filteredPersons.size())));
         }
         return listOfPersonsToBeLoaded;
     }
