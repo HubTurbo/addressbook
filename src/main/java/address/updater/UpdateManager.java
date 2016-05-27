@@ -1,7 +1,7 @@
 package address.updater;
 
 import address.events.EventManager;
-import address.events.UpdaterCompletedEvent;
+import address.events.UpdaterFinishedEvent;
 import address.events.UpdaterInProgressEvent;
 import address.updater.model.FileUpdateDescriptor;
 import address.updater.model.UpdateData;
@@ -27,6 +27,15 @@ import java.util.stream.Collectors;
 public class UpdateManager {
     public static final String UPDATE_DIRECTORY = "update";
 
+    // --- Messages
+    private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
+    private static final String MSG_FAIL_DOWNLOAD_UPDATE = "Downloading update failed";
+    private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
+    private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR updater";
+    private static final String MSG_NO_UPDATE_DATA = "There is no update data to be processed";
+    private static final String MSG_NO_UPDATE = "There is no update";
+    // --- End of Messages
+
     private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
     private static final String JAR_UPDATER_APP_PATH = UPDATE_DIRECTORY + File.separator + "jarUpdater.jar";
     private static final int VERSION = 1;
@@ -48,9 +57,8 @@ public class UpdateManager {
         try {
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
-            EventManager.getInstance().post(new UpdaterInProgressEvent(
-                                            "UpdateManager - Failed to delete previous update spec file", 0.0));
-            System.out.println("UpdateManager - Failed to delete previous update spec file");
+            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_DELETE_UPDATE_SPEC));
+            System.out.println("UpdateManager - " + MSG_FAIL_DELETE_UPDATE_SPEC);
             return;
         }
 
@@ -58,10 +66,8 @@ public class UpdateManager {
         Optional<UpdateData> updateData = getUpdateDataFromServer();
 
         if (!updateData.isPresent()) {
-            EventManager.getInstance().post(new UpdaterInProgressEvent(
-                    "UpdateManager - There is no update data to be processed.", 0.0));
-            EventManager.getInstance().post(new UpdaterCompletedEvent());
-            System.out.println("UpdateManager - There is no update data to be processed.");
+            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_UPDATE_DATA));
+            System.out.println("UpdateManager - " + MSG_NO_UPDATE_DATA);
             return;
         }
 
@@ -70,49 +76,39 @@ public class UpdateManager {
         List<FileUpdateDescriptor> fileUpdateDescriptors = collectAllUpdateFilesToBeDownloaded(updateData.get());
 
         if (fileUpdateDescriptors.isEmpty()) {
-            EventManager.getInstance().post(new UpdaterInProgressEvent(
-                    "UpdateManager - There is no update", 0.0));
-            System.out.println("UpdateManager - There is no update.");
-            EventManager.getInstance().post(new UpdaterCompletedEvent());
+            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_UPDATE));
+            System.out.println("UpdateManager - " + MSG_NO_UPDATE);
             return;
         }
 
-        EventManager.getInstance().post(new UpdaterInProgressEvent("Downloading all files that are to be updated",
-                                                                   0.5));
+        EventManager.getInstance().post(new UpdaterInProgressEvent("Downloading updates", 0.5));
         try {
             downloadAllFilesToBeUpdated(new File(UPDATE_DIRECTORY), fileUpdateDescriptors);
         } catch (IOException e) {
-            EventManager.getInstance().post(new UpdaterInProgressEvent(
-                    "UpdateManager - Downloading update failed", 0.0));
-            System.out.println("UpdateManager - Downloading update failed.");
-            EventManager.getInstance().post(new UpdaterCompletedEvent());
+            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
+            System.out.println("UpdateManager - " + MSG_FAIL_DOWNLOAD_UPDATE);
             return;
         }
-        EventManager.getInstance().post(new UpdaterInProgressEvent("Downloaded all files that are to be updated", 0.8));
-        EventManager.getInstance().post(new UpdaterInProgressEvent("Creating update specification", -1));
+
+        EventManager.getInstance().post(new UpdaterInProgressEvent("Finalizing updates", 0.85));
 
         try {
             createUpdateSpecification(fileUpdateDescriptors);
         } catch (IOException e) {
-            EventManager.getInstance().post(new UpdaterInProgressEvent(
-                    "UpdateManager - Failed to create update specification", 0.0));
-            System.out.println("UpdateManager - Failed to create update specification");
-            EventManager.getInstance().post(new UpdaterCompletedEvent());
+            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_CREATE_UPDATE_SPEC));
+            System.out.println("UpdateManager - " + MSG_FAIL_CREATE_UPDATE_SPEC);
             return;
         }
-
-        EventManager.getInstance().post(new UpdaterInProgressEvent("Extracting Jar Updater", -1));
 
         try {
             extractJarUpdater();
         } catch (IOException e) {
-            EventManager.getInstance().post(new UpdaterInProgressEvent(
-                    "UpdateManager - Failed to extract JAR updater", 0.0));
-            System.out.println("UpdateManager - Failed to extract JAR updater");
-            EventManager.getInstance().post(new UpdaterCompletedEvent());
+            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_EXTRACT_JAR_UPDATER));
+            System.out.println("UpdateManager - " + MSG_FAIL_EXTRACT_JAR_UPDATER);
             return;
         }
-        EventManager.getInstance().post(new UpdaterCompletedEvent());
+
+        EventManager.getInstance().post(new UpdaterFinishedEvent("Update will be applied on next launch"));
         this.isUpdateApplicable = true;
     }
 
