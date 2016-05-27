@@ -1,29 +1,24 @@
 package address.updater.model;
 
-import javax.xml.bind.annotation.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 
 /**
  * Associates file changes in a version
  */
-@XmlRootElement(name = "versiondescriptor")
-@XmlSeeAlso({FileUpdateDescriptor.class})
-@XmlAccessorType(XmlAccessType.FIELD)
 public class VersionDescriptor implements Comparable<VersionDescriptor> {
+    @JsonProperty("version")
     private int versionNumber;
 
-    @XmlElementWrapper(name = "filestobeupdated")
-    @XmlElement(name = "fileupdatedescriptor")
-    private ArrayList<FileUpdateDescriptor> fileList;
+    @JsonProperty("filesToBeUpdated")
+    private ArrayList<FileUpdateDescriptor> fileUpdateDescriptors;
 
-    /**
-     * Required for XML conversion
-     */
     public VersionDescriptor() {}
 
-    public VersionDescriptor(int versionNumber, ArrayList<FileUpdateDescriptor> fileList) {
+    public VersionDescriptor(int versionNumber, ArrayList<FileUpdateDescriptor> fileUpdateDescriptors) {
         this.versionNumber = versionNumber;
-        this.fileList = fileList;
+        this.fileUpdateDescriptors = fileUpdateDescriptors;
     }
 
     public int getVersionNumber() {
@@ -31,12 +26,12 @@ public class VersionDescriptor implements Comparable<VersionDescriptor> {
     }
 
     public ArrayList<FileUpdateDescriptor> getFileUpdateDescriptors() {
-        return (ArrayList<FileUpdateDescriptor>) fileList.clone();
+        return fileUpdateDescriptors;
     }
 
     @Override
     public int compareTo(VersionDescriptor other) {
-        return this.versionNumber != other.versionNumber ? this.versionNumber - other.versionNumber : 0;
+        return (this.versionNumber != other.versionNumber) ? (this.versionNumber - other.versionNumber) : 0;
     }
 
     @Override

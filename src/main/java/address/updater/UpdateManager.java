@@ -6,15 +6,13 @@ import address.events.UpdaterInProgressEvent;
 import address.updater.model.FileUpdateDescriptor;
 import address.updater.model.UpdateData;
 import address.updater.model.VersionDescriptor;
-import address.util.XmlFileHelper;
+import address.util.JsonUtil;
+import address.util.OsDetector;
 import address.util.FileUtil;
 
-import javax.xml.bind.JAXBException;
 import java.io.*;
-import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -38,7 +36,7 @@ public class UpdateManager {
 
     private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
     private static final String JAR_UPDATER_APP_PATH = UPDATE_DIRECTORY + File.separator + "jarUpdater.jar";
-    private static final int VERSION = 1;
+    private static final int VERSION = 0;
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
 
@@ -72,10 +70,10 @@ public class UpdateManager {
         }
 
         EventManager.getInstance().post(new UpdaterInProgressEvent(
-                                        "Collecting all update files that are to be downloaded", -1));
-        List<FileUpdateDescriptor> fileUpdateDescriptors = collectAllUpdateFilesToBeDownloaded(updateData.get());
+                "Collecting all update files that are to be downloaded", -1));
+        HashMap<String, URL> filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(updateData.get());
 
-        if (fileUpdateDescriptors.isEmpty()) {
+        if (filesToBeUpdated.isEmpty()) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_UPDATE));
             System.out.println("UpdateManager - " + MSG_NO_UPDATE);
             return;
@@ -83,7 +81,7 @@ public class UpdateManager {
 
         EventManager.getInstance().post(new UpdaterInProgressEvent("Downloading updates", 0.5));
         try {
-            downloadAllFilesToBeUpdated(new File(UPDATE_DIRECTORY), fileUpdateDescriptors);
+            downloadAllFilesToBeUpdated(new File(UPDATE_DIRECTORY), filesToBeUpdated);
         } catch (IOException e) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
             System.out.println("UpdateManager - " + MSG_FAIL_DOWNLOAD_UPDATE);
@@ -93,7 +91,7 @@ public class UpdateManager {
         EventManager.getInstance().post(new UpdaterInProgressEvent("Finalizing updates", 0.85));
 
         try {
-            createUpdateSpecification(fileUpdateDescriptors);
+            createUpdateSpecification(filesToBeUpdated);
         } catch (IOException e) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_CREATE_UPDATE_SPEC));
             System.out.println("UpdateManager - " + MSG_FAIL_CREATE_UPDATE_SPEC);
@@ -116,40 +114,57 @@ public class UpdateManager {
      * (Dummy download) Get update data from a local file
      */
     private Optional<UpdateData> getUpdateDataFromServer() {
-        File file = new File("update/UpdateData.xml");
+        File file = new File("update/UpdateData.json");
 
         try {
-            return Optional.of(XmlFileHelper.getUpdateDataFromFile(file));
-        } catch (JAXBException e) {
-            System.out.println("UpdateManager - Failed to parse update data from xml file.");
+            return Optional.of(JsonUtil.fromJsonString(FileUtil.readFromFile(file), UpdateData.class));
+        } catch (IOException e) {
+            System.out.println("UpdateManager - Failed to parse update data from json file.");
+            e.printStackTrace();
         }
 
         return Optional.empty();
     }
 
-    private List<FileUpdateDescriptor> collectAllUpdateFilesToBeDownloaded(UpdateData updateData) {
+    private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(UpdateData updateData) {
+        FileUpdateDescriptor.Os machineOs;
+
+        if (OsDetector.isOnWindows()) {
+            machineOs = FileUpdateDescriptor.Os.WINDOWS;
+        } else if (OsDetector.isOnMac()) {
+            machineOs = FileUpdateDescriptor.Os.MAC;
+        } else if (OsDetector.isOn32BitsLinux()) {
+            machineOs = FileUpdateDescriptor.Os.LINUX32;
+        } else if (OsDetector.isOn64BitsLinux()) {
+            machineOs = FileUpdateDescriptor.Os.LINUX64;
+        } else {
+            System.out.println("UpdateManager - OS not supported for updating");
+            return new HashMap<>();
+        }
+
         ArrayList<VersionDescriptor> versionFileChanges = updateData.getAllVersionFileChanges();
 
         List<VersionDescriptor> relevantVersionFileChanges = versionFileChanges.stream()
                 .filter(versionChangesDescriptor -> versionChangesDescriptor.getVersionNumber() > VERSION)
                 .sorted().collect(Collectors.toList());
 
-        HashMap<URI, URL> filesToBeDownloaded = new HashMap<>();
+        HashMap<String, URL> filesToBeDownloaded = new HashMap<>();
 
         for (VersionDescriptor versionDescriptor : relevantVersionFileChanges) {
-            for (FileUpdateDescriptor fileUpdateDescriptor : versionDescriptor.getFileUpdateDescriptors()) {
-                filesToBeDownloaded.put(fileUpdateDescriptor.getFilePath(), fileUpdateDescriptor.getDownloadLink());
-            }
+            versionDescriptor.getFileUpdateDescriptors().stream()
+                .filter(fileUpdateDescriptor -> fileUpdateDescriptor.getOs() == FileUpdateDescriptor.Os.ALL ||
+                        fileUpdateDescriptor.getOs() == machineOs)
+                .forEach(fileUpdateDescriptor -> filesToBeDownloaded.put(fileUpdateDescriptor.getDestinationFile(),
+                        fileUpdateDescriptor.getDownloadLink()));
         }
 
-        return filesToBeDownloaded.entrySet().stream().map(f -> new FileUpdateDescriptor(f.getKey(), f.getValue()))
-                .collect(Collectors.toList());
+        return filesToBeDownloaded;
     }
 
     /**
      * @param updateDir directory to store downloaded updates
      */
-    private void downloadAllFilesToBeUpdated(File updateDir, List<FileUpdateDescriptor> fileUpdateDescriptors)
+    private void downloadAllFilesToBeUpdated(File updateDir, HashMap<String, URL> filesToBeUpdated)
             throws IOException {
         if (!updateDir.exists() || !updateDir.isDirectory()) {
             try {
@@ -160,10 +175,9 @@ public class UpdateManager {
             }
         }
 
-        for (FileUpdateDescriptor fileUpdateDescriptor : fileUpdateDescriptors) {
+        for (String destFile : filesToBeUpdated.keySet()) {
             try {
-                downloadFile(Paths.get(updateDir.toString(), fileUpdateDescriptor.getFilePath().toString()).toFile(),
-                        fileUpdateDescriptor.getDownloadLink());
+                downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
             } catch (IOException e) {
                 System.out.println("Failed to download an update file, aborting update.");
                 throw e;
@@ -174,21 +188,21 @@ public class UpdateManager {
     private void downloadFile(File targetFile, URL source) throws IOException {
         try (InputStream in = source.openStream()) {
             if (!FileUtil.createFile(targetFile)) {
-                throw new IOException("Error creating new file.");
+                System.out.println("File already exists");
             }
             Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             System.out.println(String.format("UpdateManager - Failed to download update for %s",
                                              targetFile.toString()));
+            e.printStackTrace();
             throw e;
         }
     }
 
-    private void createUpdateSpecification(List<FileUpdateDescriptor> fileUpdateDescriptors) throws IOException {
+    private void createUpdateSpecification(HashMap<String, URL> filesToBeUpdated) throws IOException {
         LocalUpdateSpecificationHelper.saveLocalUpdateSpecFile(
-                fileUpdateDescriptors.stream()
-                        .map(f -> Paths.get(f.getFilePath().toString()).toString())
-                        .collect(Collectors.toList()));
+                filesToBeUpdated.keySet().stream().collect(Collectors.toList())
+        );
     }
 
     private void extractJarUpdater() throws IOException {

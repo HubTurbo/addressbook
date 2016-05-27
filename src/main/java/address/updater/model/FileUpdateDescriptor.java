@@ -1,35 +1,49 @@
 package address.updater.model;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.net.URI;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.io.File;
 import java.net.URL;
 
 /**
  * Download link for a file
  */
-@XmlRootElement(name = "fileupdatedescriptor")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class FileUpdateDescriptor {
-    private URI filePath;
-    private URL downloadLink;
-
-    /**
-     * Required for XML conversion
-     */
-    public FileUpdateDescriptor() {}
-
-    public FileUpdateDescriptor(URI filePath, URL downloadLink) {
-        this.filePath = filePath;
-        this.downloadLink = downloadLink;
+    public enum Os {
+        WINDOWS, MAC, LINUX32, LINUX64, ALL
     }
 
-    public URI getFilePath() {
-        return filePath;
+    private boolean isMainApp;
+    private URL downloadLink;
+    private Os os;
+
+    public FileUpdateDescriptor() {}
+
+    public FileUpdateDescriptor(URL downloadLink, Os os, boolean isMainApp) {
+        this.downloadLink = downloadLink;
+        this.os = os;
+        this.isMainApp = isMainApp;
+    }
+
+    /**
+     * Gets the file that this update applies to
+     */
+    public String getDestinationFile() {
+        if (isMainApp) {
+            return "addressbook.jar";
+        } else {
+            String urlString = downloadLink.getFile();
+            String filename = urlString.substring(urlString.lastIndexOf('/') + 1).split("\\?")[0].split("#")[0];
+
+            return "lib" + File.separator + filename;
+        }
     }
 
     public URL getDownloadLink() {
         return downloadLink;
+    }
+
+    public Os getOs() {
+        return os;
     }
 }
