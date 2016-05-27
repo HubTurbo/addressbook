@@ -21,7 +21,7 @@ public class SyncManager {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ExecutorService requestExecutor = Executors.newCachedThreadPool();
 
-    private CloudSimulator cloudSimulator = new CloudSimulator(false);
+    private CloudService cloudSimulator = new CloudService(false);
 
     public SyncManager() {
         EventManager.getInstance().registerHandler(this);
@@ -29,7 +29,7 @@ public class SyncManager {
 
     public void startSyncingData(long interval, boolean simulateUnreliableNetwork) {
         if (interval <= 0) return;
-        this.cloudSimulator = new CloudSimulator(simulateUnreliableNetwork);
+        this.cloudSimulator = new CloudService(simulateUnreliableNetwork);
         updatePeriodically(interval);
     }
 

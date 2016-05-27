@@ -5,6 +5,15 @@ public class RateLimitStatus {
     int quotaRemaining;
     long quotaReset;
 
+    RateLimitStatus(int quotaLimit, int quotaRemaining, long quotaReset) {
+        this.quotaLimit = quotaLimit;
+        this.quotaRemaining = quotaRemaining;
+        this.quotaReset = quotaReset;
+    }
+
+    RateLimitStatus() {
+    }
+
     public int getQuotaLimit() {
         return quotaLimit;
     }
@@ -25,7 +34,11 @@ public class RateLimitStatus {
         return quotaReset;
     }
 
-    public void setQuotaReset(long quotaReset) {
-        this.quotaReset = quotaReset;
+    public void setQuotaResetTime(long quotaResetTime) {
+        this.quotaReset = quotaResetTime;
+    }
+
+    public void useQuota(int amount) {
+        quotaRemaining -= amount;
     }
 }

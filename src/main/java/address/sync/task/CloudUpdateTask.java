@@ -4,7 +4,7 @@ import address.model.datatypes.ContactGroup;
 import address.model.datatypes.Person;
 import address.model.datatypes.UniqueData;
 import address.prefs.PrefsManager;
-import address.sync.CloudSimulator;
+import address.sync.CloudService;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -12,11 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CloudUpdateTask implements Runnable {
-    private final CloudSimulator simulator;
+    private final CloudService simulator;
     private final List<Person> personsData;
     private final List<ContactGroup> groupsData;
 
-    public CloudUpdateTask(CloudSimulator simulator, List<Person> personsData, List<ContactGroup> groupsData) {
+    public CloudUpdateTask(CloudService simulator, List<Person> personsData,
+                           List<ContactGroup> groupsData) {
         this.simulator = simulator;
         this.personsData = personsData;
         this.groupsData = groupsData;
@@ -31,10 +32,10 @@ public class CloudUpdateTask implements Runnable {
         allData.addAll(groupsData);
 
         File mirrorFile = PrefsManager.getInstance().getMirrorLocation();
-        try {
-            simulator.requestChangesToCloud(mirrorFile, personsData, groupsData);
-        } catch (JAXBException e) {
-            System.out.println("Error requesting changes to the cloud");
-        }
+//        try {
+//            simulator.requestChangesToCloud(mirrorFile, personsData, groupsData);
+//        } catch (JAXBException e) {
+//            System.out.println("Error requesting changes to the cloud");
+//        }
     }
 }
