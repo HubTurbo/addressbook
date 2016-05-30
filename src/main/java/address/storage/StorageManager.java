@@ -3,12 +3,12 @@ package address.storage;
 import address.events.*;
 import address.exceptions.FileContainsDuplicatesException;
 import address.model.AddressBook;
-import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Tag;
 import address.model.ModelManager;
 import address.model.datatypes.Person;
 import address.prefs.PrefsManager;
 import address.sync.model.CloudAddressBook;
-import address.sync.model.CloudGroup;
+import address.sync.model.CloudTag;
 import address.sync.model.CloudPerson;
 import address.util.XmlFileHelper;
 import com.google.common.eventbus.Subscribe;
@@ -42,19 +42,19 @@ public class StorageManager {
     private void handleLocalModelChangedEvent(LocalModelChangedEvent e) {
         System.out.println("Local data changed, saving to primary data file");
         EventManager.getInstance().post(new SaveRequestEvent(
-                PrefsManager.getInstance().getSaveLocation(), e.personData, e.groupData));
+                PrefsManager.getInstance().getSaveLocation(), e.personData, e.tagData));
     }
 
     @Subscribe
     private void handleLocalModelSyncedFromCloudEvent(LocalModelSyncedFromCloudEvent e) {
         System.out.println("Local data synced, saving to primary data file");
         EventManager.getInstance().post(new SaveRequestEvent(
-                PrefsManager.getInstance().getSaveLocation(), e.personData, e.groupData));
+                PrefsManager.getInstance().getSaveLocation(), e.personData, e.tagData));
     }
 
     @Subscribe
     private void handleSaveRequestEvent(SaveRequestEvent se) {
-        saveDataToFile(se.file, se.personData, se.groupData);
+        saveDataToFile(se.file, se.personData, se.tagData);
     }
 
     /**
@@ -62,9 +62,9 @@ public class StorageManager {
      *
      * @param file
      */
-    public static void saveDataToFile(File file, List<Person> personData, List<ContactGroup> groupData) {
+    public static void saveDataToFile(File file, List<Person> personData, List<Tag> tagData) {
         try {
-            XmlFileHelper.saveModelToFile(file, personData, groupData);
+            XmlFileHelper.saveModelToFile(file, personData, tagData);
         } catch (Exception e) {
             EventManager.getInstance().post(new FileSavingExceptionEvent(e, file));
         }
@@ -89,9 +89,9 @@ public class StorageManager {
      *
      * @param file
      */
-    public static void saveCloudDataToFile(File file, List<CloudPerson> personData, List<CloudGroup> groupData) {
+    public static void saveCloudDataToFile(File file, List<CloudPerson> personData, List<CloudTag> tagData) {
         try {
-            XmlFileHelper.saveCloudDataToFile(file, personData, groupData);
+            XmlFileHelper.saveCloudDataToFile(file, personData, tagData);
         } catch (Exception e) {
             EventManager.getInstance().post(new FileSavingExceptionEvent(e, file));
         }

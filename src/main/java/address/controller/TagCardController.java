@@ -1,7 +1,7 @@
 package address.controller;
 
-import address.exceptions.DuplicateGroupException;
-import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Tag;
+import address.exceptions.DuplicateTagException;
 import address.model.ModelManager;
 
 import javafx.fxml.FXML;
@@ -16,22 +16,22 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.util.Optional;
 
-public class GroupCardController {
+public class TagCardController {
     @FXML
     private VBox box;
     @FXML
-    private Label groupName;
+    private Label tagName;
 
-    private ContactGroup group;
+    private Tag tag;
     private MainController mainController;
     private ModelManager modelManager;
 
-    public GroupCardController(ContactGroup group, MainController mainController, ModelManager modelManager) {
+    public TagCardController(Tag tag, MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
         this.modelManager = modelManager;
-        this.group = group;
+        this.tag = tag;
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/GroupListCard.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/TagListCard.fxml"));
         loader.setController(this);
 
         try {
@@ -43,35 +43,35 @@ public class GroupCardController {
 
     @FXML
     public void initialize() {
-        groupName.setText(group.getName());
+        tagName.setText(tag.getName());
         setListeners();
     }
 
     private ContextMenu getContextMenu() {
         ContextMenu contextMenu = new ContextMenu();
 
-        MenuItem newGroupItem = new MenuItem("New");
-        newGroupItem.setOnAction(event -> {
-                Optional<ContactGroup> newGroup = Optional.of(new ContactGroup());
+        MenuItem newTagItem = new MenuItem("New");
+        newTagItem.setOnAction(event -> {
+                Optional<Tag> newTag = Optional.of(new Tag());
                 while (true) { // keep re-asking until user provides valid input or cancels operation.
-                    newGroup = mainController.getGroupDataInput(newGroup.get());
-                    if (!newGroup.isPresent()) break;
+                    newTag = mainController.getTagDataInput(newTag.get());
+                    if (!newTag.isPresent()) break;
                     try {
-                        modelManager.addGroup(newGroup.get());
+                        modelManager.addTag(newTag.get());
                         break;
-                    } catch (DuplicateGroupException e) {
+                    } catch (DuplicateTagException e) {
                         mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                                                              "Cannot have duplicate groups", e.toString());
+                                                              "Cannot have duplicate tags", e.toString());
                     }
                 }
             });
-        MenuItem editGroup = new MenuItem("Edit");
-        editGroup.setOnAction(event -> handleEditGroupAction());
-        MenuItem removeGroup = new MenuItem("Remove");
-        removeGroup.setOnAction(e -> modelManager.deleteGroup(group));
+        MenuItem editTag = new MenuItem("Edit");
+        editTag.setOnAction(event -> handleEditTagAction());
+        MenuItem removeTag = new MenuItem("Remove");
+        removeTag.setOnAction(e -> modelManager.deleteTag(tag));
 
 
-        contextMenu.getItems().addAll(newGroupItem, editGroup, removeGroup);
+        contextMenu.getItems().addAll(newTagItem, editTag, removeTag);
 
         return contextMenu;
     }
@@ -81,30 +81,30 @@ public class GroupCardController {
                 switch (mouseEv.getButton()) {
                 case PRIMARY :
                     if (mouseEv.getClickCount() >= 2) {
-                        handleEditGroupAction();
+                        handleEditTagAction();
                     }
                     break;
                 case SECONDARY :
                     if (mouseEv.getClickCount() == 1) {
-                        getContextMenu().show(groupName, Side.BOTTOM, 0, 0);
+                        getContextMenu().show(tagName, Side.BOTTOM, 0, 0);
                     }
                     break;
                 }
             });
     }
 
-    private void handleEditGroupAction() {
-        Optional<ContactGroup> updated = Optional.of(new ContactGroup(group));
+    private void handleEditTagAction() {
+        Optional<Tag> updated = Optional.of(new Tag(tag));
         while (true) { // keep re-asking until user provides valid input or cancels operation.
-            updated = mainController.getGroupDataInput(updated.get());
+            updated = mainController.getTagDataInput(updated.get());
 
             if (!updated.isPresent()) break;
 
             try {
-                modelManager.updateGroup(group, updated.get());
+                modelManager.updateTag(tag, updated.get());
                 break;
-            } catch (DuplicateGroupException e) {
-                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate group",
+            } catch (DuplicateTagException e) {
+                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag",
                                                       e.toString());
             }
         }

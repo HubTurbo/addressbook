@@ -4,7 +4,7 @@ import address.model.AddressBook;
 import address.model.datatypes.ContactGroup;
 import address.model.datatypes.Person;
 import address.sync.model.CloudAddressBook;
-import address.sync.model.CloudGroup;
+import address.sync.model.CloudTag;
 import address.sync.model.CloudPerson;
 import address.util.JsonUtil;
 import address.util.XmlFileHelper;
@@ -34,13 +34,13 @@ public class CloudSimulator implements ICloudSimulator {
     private static final int MAX_NUM_PERSONS_TO_ADD = 2;
     RateLimitStatus rateLimitStatus;
     private List<CloudPerson> personsList;
-    private List<CloudGroup> groupList;
+    private List<CloudTag> tagList;
     private boolean hasResetCurrentQuota;
     private boolean shouldSimulateUnreliableNetwork;
 
     CloudSimulator(boolean shouldSimulateUnreliableNetwork) {
         personsList = new ArrayList<>();
-        groupList = new ArrayList<>();
+        tagList = new ArrayList<>();
         rateLimitStatus = new RateLimitStatus(API_QUOTA_PER_HOUR, API_QUOTA_PER_HOUR, getNextResetTime());
         hasResetCurrentQuota = true;
         this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
@@ -52,7 +52,7 @@ public class CloudSimulator implements ICloudSimulator {
             try {
                 CloudAddressBook data = XmlFileHelper.getCloudDataFromFile(cloudFile);
                 personsList.addAll(data.getAllPersons());
-                groupList.addAll(data.getAllGroups());
+                tagList.addAll(data.getAllTags());
             } catch (JAXBException e) {
                 e.printStackTrace();
             }
@@ -113,13 +113,13 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     /**
-     * Returns a response wrapper containing the list of groups if quota is available
+     * Returns a response wrapper containing the list of tags if quota is available
      * @param addressBookName
      * @param resourcesPerPage
      * @return
      */
-    public RawCloudResponse getGroups(String addressBookName, int resourcesPerPage) {
-        int noOfRequestsRequired = getNumberOfRequestsRequired(groupList.size(), resourcesPerPage);
+    public RawCloudResponse getTags(String addressBookName, int resourcesPerPage) {
+        int noOfRequestsRequired = getNumberOfRequestsRequired(tagList.size(), resourcesPerPage);
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
         if (!isWithinQuota(noOfRequestsRequired)) {
@@ -127,7 +127,7 @@ public class CloudSimulator implements ICloudSimulator {
             return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
-        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(groupList), convertToInputStream(getStandardHeaders()));
+        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(tagList), convertToInputStream(getStandardHeaders()));
     }
 
     /**
@@ -192,12 +192,12 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     /**
-     * Creates a new group, if quota is available
+     * Creates a new tag, if quota is available
      * @param addressBookName
-     * @param newGroup group name should not already be used
+     * @param newTag tag name should not already be used
      * @return
      */
-    public RawCloudResponse createGroup(String addressBookName, CloudGroup newGroup) {
+    public RawCloudResponse createTag(String addressBookName, CloudTag newTag) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -208,21 +208,21 @@ public class CloudSimulator implements ICloudSimulator {
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
         try {
-            CloudGroup returnedGroup = addGroup(addressBookName, newGroup);
-            return new RawCloudResponse(HttpURLConnection.HTTP_CREATED, convertToInputStream(returnedGroup), convertToInputStream(getStandardHeaders()));
+            CloudTag returnedTag = addTag(addressBookName, newTag);
+            return new RawCloudResponse(HttpURLConnection.HTTP_CREATED, convertToInputStream(returnedTag), convertToInputStream(getStandardHeaders()));
         } catch (IllegalArgumentException e) {
             return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
         }
     }
 
     /**
-     * Updates details of a group to details of updatedGroup, if quota is available
+     * Updates details of a tag to details of updatedTag, if quota is available
      * @param addressBookName
-     * @param oldGroupName
-     * @param updatedGroup
+     * @param oldTagName
+     * @param updatedTag
      * @return
      */
-    public RawCloudResponse editGroup(String addressBookName, String oldGroupName, CloudGroup updatedGroup) {
+    public RawCloudResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -233,20 +233,20 @@ public class CloudSimulator implements ICloudSimulator {
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
         try {
-            CloudGroup returnedGroup = updateGroupDetails(addressBookName, oldGroupName, updatedGroup);
-            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(returnedGroup), convertToInputStream(getStandardHeaders()));
+            CloudTag returnedTag = updateTagDetails(addressBookName, oldTagName, updatedTag);
+            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(returnedTag), convertToInputStream(getStandardHeaders()));
         } catch (NoSuchElementException e) {
             return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
         }
     }
 
     /**
-     * Deletes a group uniquely identified by its name, if quota is available
+     * Deletes a tag uniquely identified by its name, if quota is available
      * @param addressBookName
-     * @param groupName
+     * @param tagName
      * @return
      */
-    public RawCloudResponse deleteGroup(String addressBookName, String groupName) {
+    public RawCloudResponse deleteTag(String addressBookName, String tagName) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -257,7 +257,7 @@ public class CloudSimulator implements ICloudSimulator {
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
         try {
-            deleteGroupFromData(addressBookName, groupName);
+            deleteTagFromData(addressBookName, tagName);
             return new RawCloudResponse(HttpURLConnection.HTTP_NO_CONTENT, null, convertToInputStream(getStandardHeaders()));
         } catch (NoSuchElementException e) {
             return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
@@ -337,9 +337,9 @@ public class CloudSimulator implements ICloudSimulator {
                 .isPresent();
     }
 
-    private boolean isExistingGroup(CloudGroup targetGroup) {
-        return groupList.stream()
-                .filter(group -> !targetGroup.getName().equals(targetGroup.getName()))
+    private boolean isExistingTag(CloudTag targetTag) {
+        return tagList.stream()
+                .filter(tag -> !targetTag.getName().equals(targetTag.getName()))
                 .findAny()
                 .isPresent();
     }
@@ -418,37 +418,37 @@ public class CloudSimulator implements ICloudSimulator {
         deletedPerson.setDeleted(true);
     }
 
-    private CloudGroup addGroup(String addressBookName, CloudGroup newGroup) {
-        if (newGroup == null) throw new IllegalArgumentException("Group cannot be null");
-        String groupName = newGroup.getName();
-        if (groupName == null) throw new IllegalArgumentException("Fields cannot be null");
-        if (isExistingGroup(newGroup)) throw new IllegalArgumentException("Group already exists");
-        groupList.add(newGroup);
-        return newGroup;
+    private CloudTag addTag(String addressBookName, CloudTag newTag) {
+        if (newTag == null) throw new IllegalArgumentException("Tag cannot be null");
+        String tagName = newTag.getName();
+        if (tagName == null) throw new IllegalArgumentException("Fields cannot be null");
+        if (isExistingTag(newTag)) throw new IllegalArgumentException("Tag already exists");
+        tagList.add(newTag);
+        return newTag;
     }
 
-    private Optional<CloudGroup> getGroup(String addressBookName, String groupName) {
-        return groupList.stream()
-                .filter(group -> group.getName().equals(groupName))
+    private Optional<CloudTag> getTag(String addressBookName, String tagName) {
+        return tagList.stream()
+                .filter(tag -> tag.getName().equals(tagName))
                 .findAny();
     }
 
-    private CloudGroup getGroupIfExists(String addressBookName, String groupName) {
-        Optional<CloudGroup> groupQueryResult = getGroup(addressBookName, groupName);
-        if (!groupQueryResult.isPresent()) throw new NoSuchElementException("No such group found.");
+    private CloudTag getTagIfExists(String addressBookName, String tagName) {
+        Optional<CloudTag> tagQueryResult = getTag(addressBookName, tagName);
+        if (!tagQueryResult.isPresent()) throw new NoSuchElementException("No such tag found.");
 
-        return groupQueryResult.get();
+        return tagQueryResult.get();
     }
 
-    private CloudGroup updateGroupDetails(String addressBookName, String oldGroupName, CloudGroup updatedGroup) throws NoSuchElementException {
-        CloudGroup oldGroup = getGroupIfExists(addressBookName, oldGroupName);
-        oldGroup.updatedBy(updatedGroup);
-        return oldGroup;
+    private CloudTag updateTagDetails(String addressBookName, String oldTagName, CloudTag updatedTag) throws NoSuchElementException {
+        CloudTag oldTag = getTagIfExists(addressBookName, oldTagName);
+        oldTag.updatedBy(updatedTag);
+        return oldTag;
     }
 
-    private void deleteGroupFromData(String addressBookName, String groupName) throws NoSuchElementException {
-        CloudGroup group = getGroupIfExists(addressBookName, groupName);
+    private void deleteTagFromData(String addressBookName, String tagName) throws NoSuchElementException {
+        CloudTag tag = getTagIfExists(addressBookName, tagName);
         // This may differ from how GitHub does it, but we won't know for sure
-        groupList.remove(group);
+        tagList.remove(tag);
     }
 }

@@ -1,23 +1,23 @@
 package address.controller;
 
 import address.events.EventManager;
-import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Tag;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 
-public class GroupEditDialogController extends EditDialogController {
+public class TagEditDialogController extends EditDialogController {
     @FXML
-    private TextField groupNameField;
+    private TextField tagNameField;
 
-    private ContactGroup finalGroup;
+    private Tag finalTag;
 
-    public GroupEditDialogController() {
+    public TagEditDialogController() {
         EventManager.getInstance().registerHandler(this);
     }
 
-    public void setInitialGroupData(ContactGroup group) {
-        groupNameField.setText(group.getName());
+    public void setInitialTagData(Tag tag) {
+        tagNameField.setText(tag.getName());
     }
 
     private void showErrorAlert(String headerText, String contentText) {
@@ -38,18 +38,18 @@ public class GroupEditDialogController extends EditDialogController {
     }
 
     private boolean isEmptyName() {
-        return groupNameField.getText().isEmpty();
+        return tagNameField.getText().isEmpty();
     }
 
-    public ContactGroup getFinalInput() {
-        return finalGroup;
+    public Tag getFinalInput() {
+        return finalTag;
     }
 
     @FXML
     protected void handleOk() {
         if (!isInputValid()) return;
-        finalGroup = new ContactGroup();
-        finalGroup.setName(groupNameField.getText());
+        finalTag = new Tag();
+        finalTag.setName(tagNameField.getText());
 
         isOkClicked = true;
         dialogStage.close();

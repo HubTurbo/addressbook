@@ -21,10 +21,10 @@
                   <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
                </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Groups">
+            <Menu mnemonicParsing="false" text="Tags">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#handleNewGroup" text="New Group" />
-                  <MenuItem mnemonicParsing="false" onAction="#handleShowGroups" text="Manage Groups" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleNewTag" text="New Tag" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleShowTags" text="Manage Tags" />
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Statistics">

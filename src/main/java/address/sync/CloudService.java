@@ -1,17 +1,14 @@
 package address.sync;
 
-import address.model.ContactGroup;
-import address.model.Person;
-import address.sync.model.CloudGroup;
+import address.model.datatypes.Tag;
+import address.model.datatypes.Person;
+import address.sync.model.CloudTag;
 import address.sync.model.CloudPerson;
 import address.util.JsonUtil;
 import address.util.XmlFileHelper;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.reflect.TypeToken;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -40,12 +37,12 @@ public class CloudService implements ICloudService {
      * written to the provided mirror file
      * @param delay Duration of delay in seconds to be simulated before the request is completed
      */
-    public void requestChangesToCloud(File file, List<Person> people, List<ContactGroup> groups, int delay)
+    public void requestChangesToCloud(File file, List<Person> people, List<Tag> tags, int delay)
             throws JAXBException {
         if (file == null) return;
         List<Person> newPeople = people.stream().map(Person::new).collect(Collectors.toList());
-        List<ContactGroup> newGroups = groups.stream().map(ContactGroup::new).collect(Collectors.toList());
-        XmlFileHelper.saveDataToFile(file, newPeople, newGroups);
+        List<Tag> newTags = tags.stream().map(Tag::new).collect(Collectors.toList());
+        XmlFileHelper.saveDataToFile(file, newPeople, newTags);
         try {
             TimeUnit.SECONDS.sleep(delay);
         } catch (InterruptedException e) {
@@ -72,20 +69,20 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Gets the list of contact groups for addressBookName
+     * Gets the list of tags for addressBookName
      *
-     * Consumes ceil(group size/RESOURCES_PER_PAGE) API usage
+     * Consumes ceil(tags size/RESOURCES_PER_PAGE) API usage
      * @param addressBookName
-     * @return wrapped response with list of contact groups
+     * @return wrapped response with list of tags
      * @throws IOException if there is a network error
      */
     @Override
-    public ExtractedCloudResponse<List<ContactGroup>> getGroups(String addressBookName) throws IOException {
-        RawCloudResponse cloudResponse = cloud.getGroups(addressBookName, RESOURCES_PER_PAGE);
+    public ExtractedCloudResponse<List<Tag>> getTags(String addressBookName) throws IOException {
+        RawCloudResponse cloudResponse = cloud.getTags(addressBookName, RESOURCES_PER_PAGE);
 
-        List<ContactGroup> groups = getDataListFromBody(cloudResponse.getBody(), ContactGroup.class);
+        List<Tag> tags = getDataListFromBody(cloudResponse.getBody(), Tag.class);
         RateLimitStatus rateLimitStatus = getRateLimitStatusFromHeader(cloudResponse.getHeaders());
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), rateLimitStatus, groups);
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), rateLimitStatus, tags);
     }
 
     /**
@@ -141,53 +138,53 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Creates a group on the cloud
+     * Creates a tag on the cloud
      *
      * Consumes 1 API usage
      *
      * @param addressBookName
-     * @param group
+     * @param tag
      * @return
      * @throws IOException
      */
     @Override
-    public ExtractedCloudResponse<ContactGroup> createGroup(String addressBookName, ContactGroup group) throws IOException {
-        RawCloudResponse response = cloud.createGroup(addressBookName, convertToCloudGroup(group));
-        ContactGroup returnedGroup = getDataFromBody(response.getBody(), ContactGroup.class);
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedGroup);
+    public ExtractedCloudResponse<Tag> createTag(String addressBookName, Tag tag) throws IOException {
+        RawCloudResponse response = cloud.createTag(addressBookName, convertToCloudTag(tag));
+        Tag returnedTag = getDataFromBody(response.getBody(), Tag.class);
+        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedTag);
     }
 
     /**
-     * Updates a group on the cloud
+     * Updates a tag on the cloud
      *
      * Consumes 1 API usage
      *
      * @param addressBookName
-     * @param oldGroupName
-     * @param newGroup
+     * @param oldTagName
+     * @param newTag
      * @return
      * @throws IOException
      */
     @Override
-    public ExtractedCloudResponse<ContactGroup> editGroup(String addressBookName, String oldGroupName, ContactGroup newGroup) throws IOException {
-        RawCloudResponse response = cloud.editGroup(addressBookName, oldGroupName, convertToCloudGroup(newGroup));
-        ContactGroup returnedGroup = getDataFromBody(response.getBody(), ContactGroup.class);
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedGroup);
+    public ExtractedCloudResponse<Tag> editTag(String addressBookName, String oldTagName, Tag newTag) throws IOException {
+        RawCloudResponse response = cloud.editTag(addressBookName, oldTagName, convertToCloudTag(newTag));
+        Tag returnedTag = getDataFromBody(response.getBody(), Tag.class);
+        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedTag);
     }
 
     /**
-     * Deletes a group on the cloud
+     * Deletes a tag on the cloud
      *
      * Consumes 1 API usage
      *
      * @param addressBookName
-     * @param groupName
+     * @param tagName
      * @return
      * @throws IOException
      */
     @Override
-    public ExtractedCloudResponse<Void> deleteGroup(String addressBookName, String groupName) throws IOException {
-        RawCloudResponse response = cloud.deleteGroup(addressBookName, groupName);
+    public ExtractedCloudResponse<Void> deleteTag(String addressBookName, String tagName) throws IOException {
+        RawCloudResponse response = cloud.deleteTag(addressBookName, tagName);
         return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), null);
     }
 
@@ -197,7 +194,7 @@ public class CloudService implements ICloudService {
     }
 
     @Override
-    public ExtractedCloudResponse<List<ContactGroup>> getUpdatedGroups(String addressBookName) {
+    public ExtractedCloudResponse<List<Tag>> getUpdatedTags(String addressBookName) {
         return null;
     }
 
@@ -253,13 +250,13 @@ public class CloudService implements ICloudService {
         return cloudPerson;
     }
 
-    private ContactGroup convertToGroup(CloudGroup cloudGroup) {
-        ContactGroup group = new ContactGroup(cloudGroup.getName());
-        return group;
+    private Tag convertToTag(CloudTag cloudTag) {
+        Tag tag = new Tag(cloudTag.getName());
+        return tag;
     }
 
-    private CloudGroup convertToCloudGroup(ContactGroup group) {
-        CloudGroup cloudGroup = new CloudGroup(group.getName());
-        return cloudGroup;
+    private CloudTag convertToCloudTag(Tag tag) {
+        CloudTag cloudTag = new CloudTag(tag.getName());
+        return cloudTag;
     }
 }

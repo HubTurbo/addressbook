@@ -35,7 +35,7 @@
             <Label text="Postal Code" GridPane.rowIndex="4" />
             <Label text="Birthday" GridPane.rowIndex="5" />
              <Label text="GitHub Username" GridPane.rowIndex="6" />
-            <Label text="Contact Group" GridPane.rowIndex="7" />
+            <Label text="Tag" GridPane.rowIndex="7" />
             <Label text="Search" GridPane.rowIndex="8" />
             <Label text="Search Results" GridPane.rowIndex="9" />
             <TextField fx:id="firstNameField" GridPane.columnIndex="1" />
@@ -45,9 +45,9 @@
             <TextField fx:id="postalCodeField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <TextField fx:id="birthdayField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <TextField fx:id="githubUserNameField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-            <ScrollPane fx:id="groupList" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-            <TextField fx:id="groupSearch" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
-            <ScrollPane fx:id="groupResults" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+            <ScrollPane fx:id="tagList" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <TextField fx:id="tagSearch" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+            <ScrollPane fx:id="tagResults" GridPane.columnIndex="1" GridPane.rowIndex="9" />
          </children>
       </GridPane>
       <ButtonBar layoutX="176.0" layoutY="233.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">

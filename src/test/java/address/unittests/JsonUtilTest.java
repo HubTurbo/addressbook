@@ -1,7 +1,7 @@
 package address.unittests;
 
 import address.model.AddressBook;
-import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Tag;
 import address.model.datatypes.Person;
 import address.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,19 +25,19 @@ public class JsonUtilTest {
      * Due to updatedAt field, we can check JSON string correct value. As such, we just confirm there is no exception
      */
     public void jsonUtil_getJsonStringObjectRepresentation_noExceptionThrown() throws JsonProcessingException {
-        ContactGroup sampleContactGroup = new ContactGroup("Group");
+        Tag sampleTag = new Tag("Group");
         Person samplePerson = new Person("First", "Last");
         samplePerson.setCity("Singapore");
         samplePerson.setPostalCode("123456");
-        List<ContactGroup> group = new ArrayList<>();
-        group.add(sampleContactGroup);
-        samplePerson.setContactGroups(group);
+        List<Tag> tag = new ArrayList<>();
+        tag.add(sampleTag);
+        samplePerson.setTags(tag);
         samplePerson.setBirthday(LocalDate.of(1980, 3, 18));
         samplePerson.setGithubUserName("FirstLast");
 
         AddressBook addressBook = new AddressBook();
         addressBook.setPersons(Arrays.asList(samplePerson));
-        addressBook.setGroups(Arrays.asList(sampleContactGroup));
+        addressBook.setTags(Arrays.asList(sampleTag));
 
         JsonUtil.toJsonString(addressBook);
     }
@@ -53,29 +53,29 @@ public class JsonUtilTest {
                 "    \"city\" : \"Singapore\",\n" +
                 "    \"githubUsername\" : \"FirstLast\",\n" +
                 "    \"birthday\" : \"1980-03-18\",\n" +
-                "    \"contactGroups\" : [ {\n" +
-                "      \"name\" : \"Group\"\n" +
+                "    \"tags\" : [ {\n" +
+                "      \"name\" : \"Tag\"\n" +
                 "    } ],\n" +
                 "    \"birthday\" : \"1980-03-18\"\n" +
                 "  } ],\n" +
-                "  \"groups\" : [ {\n" +
-                "    \"name\" : \"Group\"\n" +
+                "  \"tags\" : [ {\n" +
+                "    \"name\" : \"Tag\"\n" +
                 "  } ]\n" +
                 "}";
         AddressBook addressBook = JsonUtil.fromJsonString(jsonString, AddressBook.class);
         assertEquals(1, addressBook.getPersons().size());
-        assertEquals(1, addressBook.getGroups().size());
+        assertEquals(1, addressBook.getTags().size());
 
         Person person = addressBook.getPersons().get(0);
-        ContactGroup group = addressBook.getGroups().get(0);
+        Tag tag = addressBook.getTags().get(0);
 
-        assertEquals("Group", group.getName());
+        assertEquals("Tag", tag.getName());
 
         assertEquals("First", person.getFirstName());
         assertEquals("Last", person.getLastName());
         assertEquals("Singapore", person.getCity());
         assertEquals("123456", person.getPostalCode());
-        assertEquals(group, person.getContactGroups().get(0));
+        assertEquals(tag, person.getTags().get(0));
         assertEquals(LocalDate.of(1980, 3, 18), person.getBirthday());
         assertEquals("FirstLast", person.getGithubUserName());
     }

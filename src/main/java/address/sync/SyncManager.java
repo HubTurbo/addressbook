@@ -4,8 +4,8 @@ package address.sync;
 import address.events.*;
 import address.exceptions.FileContainsDuplicatesException;
 import address.model.AddressBook;
-import address.model.ContactGroup;
-import address.model.Person;
+import address.model.datatypes.Tag;
+import address.model.datatypes.Person;
 import address.prefs.PrefsManager;
 import address.sync.task.CloudUpdateTask;
 import com.google.common.eventbus.Subscribe;
@@ -64,10 +64,10 @@ public class SyncManager {
         scheduler.scheduleWithFixedDelay(task, initialDelay, interval, TimeUnit.MILLISECONDS);
     }
 
-    private AddressBook wrapWithAddressBook(List<Person> personList, List<ContactGroup> groupList) {
+    private AddressBook wrapWithAddressBook(List<Person> personList, List<Tag> tagList) {
         AddressBook wrapper = new AddressBook();
         wrapper.setPersons(personList);
-        wrapper.setGroups(groupList);
+        wrapper.setTags(tagList);
         return wrapper;
     }
 
@@ -77,10 +77,10 @@ public class SyncManager {
 
         try {
             ExtractedCloudResponse<List<Person>> personsResponse = cloudService.getPersons("");
-            ExtractedCloudResponse<List<ContactGroup>> groupsResponse = cloudService.getGroups("");
+            ExtractedCloudResponse<List<Tag>> tagsResponse = cloudService.getTags("");
             List<Person>  personList = personsResponse.getData().get();
-            List<ContactGroup> groupList = groupsResponse.getData().get();
-            AddressBook data = wrapWithAddressBook(personList, groupList);
+            List<Tag> tagList = tagsResponse.getData().get();
+            AddressBook data = wrapWithAddressBook(personList, tagList);
             if (data.containsDuplicates()) throw new FileContainsDuplicatesException(mirrorFile);
 
             return Optional.of(data);
@@ -92,12 +92,12 @@ public class SyncManager {
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
-        requestExecutor.execute(new CloudUpdateTask(this.cloudService, lmce.personData, lmce.groupData));
+        requestExecutor.execute(new CloudUpdateTask(this.cloudService, lmce.personData, lmce.tagData));
     }
 
     // To be removed after working out specification on saving and syncing behaviour
     @Subscribe
     public void handleSaveRequestEvent(SaveRequestEvent sre) {
-        requestExecutor.execute(new CloudUpdateTask(this.cloudService, sre.personData, sre.groupData));
+        requestExecutor.execute(new CloudUpdateTask(this.cloudService, sre.personData, sre.tagData));
     }
 }

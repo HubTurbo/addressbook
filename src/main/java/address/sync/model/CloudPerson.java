@@ -9,7 +9,7 @@ public class CloudPerson {
     String street;
     String city;
     String postalCode;
-    List<CloudGroup> groups;
+    List<CloudTag> tags;
     boolean isDeleted;
 
     public CloudPerson() {
@@ -68,12 +68,12 @@ public class CloudPerson {
         this.postalCode = postalCode;
     }
 
-    public List<CloudGroup> getGroups() {
-        return groups;
+    public List<CloudTag> getTags() {
+        return tags;
     }
 
-    public void setGroups(List<CloudGroup> groups) {
-        this.groups = groups;
+    public void setTags(List<CloudTag> tags) {
+        this.tags = tags;
     }
 
     public boolean isDeleted() {
@@ -90,7 +90,7 @@ public class CloudPerson {
         this.street = updatedPerson.street;
         this.city = updatedPerson.city;
         this.postalCode = updatedPerson.postalCode;
-        this.groups = updatedPerson.groups;
+        this.tags = updatedPerson.tags;
         this.isDeleted = updatedPerson.isDeleted;
     }
 }

@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <?import java.net.URL?>
-<AnchorPane prefHeight="354.0" prefWidth="439.0" styleClass="background" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.controller.GroupEditDialogController">
+<AnchorPane prefHeight="354.0" prefWidth="439.0" styleClass="background" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.controller.TagEditDialogController">
     <stylesheets>
         <URL value="@DarkTheme.css" />
         <URL value="@Extensions.css" />
@@ -19,8 +19,8 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label text="Group Name" />
-            <TextField fx:id="groupNameField" GridPane.columnIndex="1" />
+            <Label text="Tag Name" />
+            <TextField fx:id="tagNameField" GridPane.columnIndex="1" />
          </children>
       </GridPane>
       <ButtonBar layoutX="176.0" layoutY="233.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">

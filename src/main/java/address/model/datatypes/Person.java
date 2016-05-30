@@ -2,7 +2,6 @@ package address.model.datatypes;
 
 import address.util.DateTimeUtil;
 import address.util.LocalDateAdapter;
-import address.util.LocalDateTimeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,7 +13,6 @@ import javafx.collections.ObservableList;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +30,7 @@ public class Person extends BaseDataType {
     @JsonIgnore private final SimpleStringProperty githubUserName;
 
     @JsonIgnore private final SimpleObjectProperty<LocalDate> birthday;
-    @JsonIgnore private final ObservableList<ContactGroup> contactGroups;
+    @JsonIgnore private final ObservableList<Tag> tags;
 
     // defaults
     {
@@ -45,7 +43,7 @@ public class Person extends BaseDataType {
         githubUserName = new SimpleStringProperty("");
 
         birthday = new SimpleObjectProperty<>();
-        contactGroups = FXCollections.observableArrayList();
+        tags = FXCollections.observableArrayList();
     }    
     
     /**
@@ -90,7 +88,7 @@ public class Person extends BaseDataType {
         setGithubUserName(updated.getGithubUserName());
 
         setBirthday(updated.getBirthday());
-        setContactGroups(updated.getContactGroups());
+        setTags(updated.getTags());
         return this;
     }
 
@@ -226,28 +224,28 @@ public class Person extends BaseDataType {
     }
 
 //// CONTACT GROUPS
-    @JsonProperty("contactGroups")
-    public ObservableList<ContactGroup> getContactGroups() {
-        return contactGroups;
+    @JsonProperty("tags")
+    public ObservableList<Tag> getTags() {
+        return tags;
     }
 
     /**
      * Note: references point back to argument list (no defensive copying)
      * internal list is updated with elements in the argument list instead of being wholly replaced
-     * @param contactGroups
+     * @param tags
      */
-    public void setContactGroups(List<ContactGroup> contactGroups) {
-        this.contactGroups.clear();
-        this.contactGroups.addAll(contactGroups);
+    public void setTags(List<Tag> tags) {
+        this.tags.clear();
+        this.tags.addAll(tags);
     }
 
-    public String contactGroupsString() {
+    public String tagsString() {
         StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < contactGroups.size(); i++) {
+        for (int i = 0; i < tags.size(); i++) {
             if (i > 0) {
                 buffer.append(", ");
             }
-            buffer.append(contactGroups.get(i).getName());
+            buffer.append(tags.get(i).getName());
         }
         return buffer.toString();
     }

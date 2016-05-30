@@ -1,11 +1,11 @@
 package address.model.datatypes;
 
 // TODO CHANGE THIS TO WRAPPER CLASS
-public class SelectableContactGroup extends ContactGroup {
+public class SelectableTag extends Tag {
     private boolean isSelected = false;
 
-    public SelectableContactGroup(ContactGroup contactGroup) {
-        super(contactGroup.getName());
+    public SelectableTag(Tag tag) {
+        super(tag.getName());
     }
 
     public void setSelected(boolean isSelected) {
@@ -19,11 +19,11 @@ public class SelectableContactGroup extends ContactGroup {
     @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) return false;
-        if (!(obj instanceof SelectableContactGroup)) return false;
+        if (!(obj instanceof SelectableTag)) return false;
         if (obj == this) return true;
-        SelectableContactGroup otherGroup = (SelectableContactGroup) obj;
-        return this.getName().equals(otherGroup.getName())
-                && this.isSelected() == otherGroup.isSelected();
+        SelectableTag otherTag = (SelectableTag) obj;
+        return this.getName().equals(otherTag.getName())
+                && this.isSelected() == otherTag.isSelected();
     }
 
     @Override

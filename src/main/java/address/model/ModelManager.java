@@ -3,10 +3,10 @@ package address.model;
 import address.events.*;
 
 import address.exceptions.DuplicateDataException;
-import address.exceptions.DuplicateGroupException;
+import address.exceptions.DuplicateTagException;
 import address.exceptions.DuplicatePersonException;
-import address.model.datatypes.ContactGroup;
 import address.model.datatypes.Person;
+import address.model.datatypes.Tag;
 import address.model.datatypes.UniqueData;
 import address.util.PlatformEx;
 import com.google.common.eventbus.Subscribe;
@@ -28,37 +28,37 @@ public class ModelManager {
 
     private final ObservableList<Person> personModel = FXCollections.observableArrayList();
     private final FilteredList<Person> filteredPersonModel = new FilteredList<>(personModel);
-    private final ObservableList<ContactGroup> groupModel = FXCollections.observableArrayList();
+    private final ObservableList<Tag> tagModel = FXCollections.observableArrayList();
 
     /**
      * @param initialPersons Initial persons to populate the model.
-     * @param initialGroups Initial groups to populate the model.
+     * @param initialTags Initial tags to populate the model.
      */
-    public ModelManager(List<Person> initialPersons, List<ContactGroup> initialGroups) {
+    public ModelManager(List<Person> initialPersons, List<Tag> initialTags) {
         System.out.println("Data found.");
         System.out.println("Persons found : " + initialPersons.size());
-        System.out.println("Groups found : " + initialGroups.size());
+        System.out.println("Tags found : " + initialTags.size());
 
-        resetData(initialPersons, initialGroups);
+        resetData(initialPersons, initialTags);
 
         //Listen to any changed to person data and raise an event
         //Note: this will not catch edits to Person objects
         personModel.addListener(
                 (ListChangeListener<? super Person>) (change) ->
-                        EventManager.getInstance().post(new LocalModelChangedEvent(personModel, groupModel)));
+                        EventManager.getInstance().post(new LocalModelChangedEvent(personModel, tagModel)));
 
-        //Listen to any changed to group data and raise an event
-        //Note: this will not catch edits to ContactGroup objects
-        groupModel.addListener(
-                (ListChangeListener<? super ContactGroup>) (change) ->
-                        EventManager.getInstance().post(new LocalModelChangedEvent(personModel, groupModel)));
+        //Listen to any changed to tag data and raise an event
+        //Note: this will not catch edits to Tag objects
+        tagModel.addListener(
+                (ListChangeListener<? super Tag>) (change) ->
+                        EventManager.getInstance().post(new LocalModelChangedEvent(personModel, tagModel)));
 
         //Register for general events relevant to data manager
         EventManager.getInstance().registerHandler(this);
     }
 
     public ModelManager(AddressBook addressBook) {
-        this(addressBook.getPersons(), addressBook.getGroups());
+        this(addressBook.getPersons(), addressBook.getTags());
     }
 
     public ModelManager() {
@@ -77,24 +77,24 @@ public class ModelManager {
             new Person("Stefan", "Meier"),
             new Person("Martin", "Mueller")
         };
-        final ContactGroup[] sampleGroupData = {
-            new ContactGroup("relatives"),
-            new ContactGroup("friends")
+        final Tag[] sampleTagData = {
+            new Tag("relatives"),
+            new Tag("friends")
         };
-        resetData(Arrays.asList(samplePersonData), Arrays.asList(sampleGroupData));
+        resetData(Arrays.asList(samplePersonData), Arrays.asList(sampleTagData));
     }
 
     /**
      * Clears existing model and replaces with the provided new data. Selection is lost.
      * @param newPeople
      */
-    public synchronized void resetData(List<Person> newPeople, List<ContactGroup> newGroups) {
+    public synchronized void resetData(List<Person> newPeople, List<Tag> newTags) {
         personModel.setAll(newPeople);
-        groupModel.setAll(newGroups);
+        tagModel.setAll(newTags);
     }
 
     public void resetData(AddressBook newData) {
-        resetData(newData.getPersons(), newData.getGroups());
+        resetData(newData.getPersons(), newData.getTags());
     }
 
     public void clearModel() {
@@ -130,27 +130,27 @@ public class ModelManager {
     }
 
     /**
-     * Adds a group to the model
-     * @param groupToAdd
-     * @throws DuplicateGroupException when this operation would cause duplicates
+     * Adds a tag to the model
+     * @param tagToAdd
+     * @throws DuplicateTagException when this operation would cause duplicates
      */
-    public synchronized void addGroup(ContactGroup groupToAdd) throws DuplicateGroupException {
-        if (groupModel.contains(groupToAdd)) {
-            throw new DuplicateGroupException(groupToAdd);
+    public synchronized void addTag(Tag tagToAdd) throws DuplicateTagException {
+        if (tagModel.contains(tagToAdd)) {
+            throw new DuplicateTagException(tagToAdd);
         }
-        groupModel.add(groupToAdd);
+        tagModel.add(tagToAdd);
     }
 
     /**
-     * Adds multiple groups to the model as an atomic action (triggers only 1 ModelChangedEvent)
+     * Adds multiple tags to the model as an atomic action (triggers only 1 ModelChangedEvent)
      * @param toAdd
      * @throws DuplicateDataException when this operation would cause duplicates
      */
-    public synchronized void addGroups(Collection<ContactGroup> toAdd) throws DuplicateDataException {
-        if (!UniqueData.canCombineWithoutDuplicates(groupModel, toAdd)) {
-            throw new DuplicateDataException("Adding these " + toAdd.size() + " new contact groups");
+    public synchronized void addTag(Collection<Tag> toAdd) throws DuplicateDataException {
+        if (!UniqueData.canCombineWithoutDuplicates(tagModel, toAdd)) {
+            throw new DuplicateDataException("Adding these " + toAdd.size() + " new tags");
         }
-        groupModel.addAll(toAdd);
+        tagModel.addAll(toAdd);
     }
 
 ///////////////////////////////////////////////////////////////////////
@@ -174,13 +174,13 @@ public class ModelManager {
     /**
      * @return all groups in model
      */
-    public ObservableList<ContactGroup> getGroupModel() {
-        return groupModel;
+    public ObservableList<Tag> getTagModel() {
+        return tagModel;
     }
 
-    public List<ContactGroup> getGroups() {
-        return groupModel.stream()
-                .map(group -> (ContactGroup) group)
+    public List<Tag> getTags() {
+        return tagModel.stream()
+                .map(tag -> (Tag) tag)
                 .collect(Collectors.toList());
     }
 
@@ -207,24 +207,24 @@ public class ModelManager {
             throw new DuplicatePersonException(updated);
         }
         original.update(updated);
-        EventManager.getInstance().post(new LocalModelChangedEvent(personModel, groupModel));
+        EventManager.getInstance().post(new LocalModelChangedEvent(personModel, tagModel));
     }
 
     /**
-     * Updates the details of a ContactGroup object. Updates to ContactGroup objects should be
+     * Updates the details of a Tag object. Updates to Tag objects should be
      * done through this method to ensure the proper events are raised to indicate
-     * a change to the model. TODO listen on ContactGroup properties and not manually raise events here.
+     * a change to the model. TODO listen on Tag properties and not manually raise events here.
      *
-     * @param original The ContactGroup object to be changed.
-     * @param updated The temporary ContactGroup object containing new values.
+     * @param original The Tag object to be changed.
+     * @param updated The temporary Tag object containing new values.
      */
-    public synchronized void updateGroup(ContactGroup original, ContactGroup updated) throws DuplicateGroupException {
-        if (!(new ContactGroup(original)).equals(updated)
-                && !groupModel.stream().map(ContactGroup::new).noneMatch(updated::equals)) {
-            throw new DuplicateGroupException(updated);
+    public synchronized void updateTag(Tag original, Tag updated) throws DuplicateTagException {
+        if (!(new Tag(original)).equals(updated)
+                && !tagModel.stream().map(Tag::new).noneMatch(updated::equals)) {
+            throw new DuplicateTagException(updated);
         }
         original.update(updated);
-        EventManager.getInstance().post(new LocalModelChangedEvent(personModel, groupModel));
+        EventManager.getInstance().post(new LocalModelChangedEvent(personModel, tagModel));
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -250,12 +250,12 @@ public class ModelManager {
     }
 
     /**
-     * Deletes the group from the model.
-     * @param groupToDelete
+     * Deletes the tag from the model.
+     * @param tagToDelete
      * @return true if there was a successful removal
      */
-    public synchronized boolean deleteGroup(ContactGroup groupToDelete){
-        return groupModel.remove(groupToDelete);
+    public synchronized boolean deleteTag(Tag tagToDelete){
+        return tagModel.remove(tagToDelete);
     }
 
     /**
@@ -263,8 +263,8 @@ public class ModelManager {
      * @param toDelete
      * @return true if there was at least one successful removal
      */
-    public synchronized boolean deleteGroups(Collection<ContactGroup> toDelete) {
-        return groupModel.removeAll(new HashSet<>(toDelete)); // O(1) .contains boosts performance
+    public synchronized boolean deleteTags(Collection<Tag> toDelete) {
+        return tagModel.removeAll(new HashSet<>(toDelete)); // O(1) .contains boosts performance
     }
 
 ///////////////////////////////////////////////////////////////////////
@@ -280,7 +280,7 @@ public class ModelManager {
     private void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
         // NewMirrorDataEvent is created from outside FX Application thread
         PlatformEx.runLaterAndWait(() -> updateUsingExternalData(nde.data));
-        EventManager.getInstance().post(new LocalModelSyncedFromCloudEvent(personModel, groupModel));
+        EventManager.getInstance().post(new LocalModelSyncedFromCloudEvent(personModel, tagModel));
     }
 
 ///////////////////////////////////////////////////////////////////////
@@ -293,8 +293,8 @@ public class ModelManager {
      */
     public synchronized void updateUsingExternalData(AddressBook extData) {
         assert !extData.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
-        if (diffUpdate(personModel, extData.getPersons()) || diffUpdate(groupModel, extData.getGroups())) {
-            EventManager.getInstance().post(new LocalModelChangedEvent(personModel, groupModel));
+        if (diffUpdate(personModel, extData.getPersons()) || diffUpdate(tagModel, extData.getTags())) {
+            EventManager.getInstance().post(new LocalModelChangedEvent(personModel, tagModel));
         }
     }
 
@@ -360,8 +360,8 @@ public class ModelManager {
             ((Person) target).update((Person) newData);
             return;
         }
-        if (target instanceof ContactGroup && newData instanceof ContactGroup) {
-            ((ContactGroup) target).update((ContactGroup) newData);
+        if (target instanceof Tag && newData instanceof Tag) {
+            ((Tag) target).update((Tag) newData);
             return;
         }
         assert false : "need to add logic for any new UniqueData classes";

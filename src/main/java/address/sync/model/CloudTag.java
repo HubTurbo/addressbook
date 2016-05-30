@@ -1,12 +1,12 @@
 package address.sync.model;
 
-public class CloudGroup {
+public class CloudTag {
     String name;
 
-    public CloudGroup() {
+    public CloudTag() {
     }
 
-    public CloudGroup(String name) {
+    public CloudTag(String name) {
         this.name = name;
     }
 
@@ -18,7 +18,7 @@ public class CloudGroup {
         this.name = name;
     }
 
-    public void updatedBy(CloudGroup updatedGroup) {
-        this.name = updatedGroup.name;
+    public void updatedBy(CloudTag updatedTag) {
+        this.name = updatedTag.name;
     }
 }

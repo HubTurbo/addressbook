@@ -8,16 +8,16 @@ import java.util.List;
 @XmlRootElement(name = "cloudaddressbook")
 public class CloudAddressBook {
     List<CloudPerson> personsList;
-    List<CloudGroup> groupsList;
+    List<CloudTag> tagsList;
 
     public CloudAddressBook() {
         this.personsList = new ArrayList<>();
-        this.groupsList = new ArrayList<>();
+        this.tagsList = new ArrayList<>();
     }
 
-    public CloudAddressBook(List<CloudPerson> personsList, List<CloudGroup> groupsList) {
+    public CloudAddressBook(List<CloudPerson> personsList, List<CloudTag> tagsList) {
         this.personsList = personsList;
-        this.groupsList = groupsList;
+        this.tagsList = tagsList;
     }
 
     @XmlElement(name = "cloudpersons")
@@ -25,9 +25,9 @@ public class CloudAddressBook {
         return this.personsList;
     }
 
-    @XmlElement(name = "cloudgroups")
-    public List<CloudGroup> getAllGroups() {
-        return this.groupsList;
+    @XmlElement(name = "cloudtags")
+    public List<CloudTag> getAllTags() {
+        return this.tagsList;
     }
 
 }

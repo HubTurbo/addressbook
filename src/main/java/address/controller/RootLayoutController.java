@@ -6,8 +6,8 @@ import java.util.Optional;
 import address.MainApp;
 import address.events.*;
 import address.exceptions.DuplicateDataException;
-import address.exceptions.DuplicateGroupException;
-import address.model.datatypes.ContactGroup;
+import address.exceptions.DuplicateTagException;
+import address.model.datatypes.Tag;
 import address.model.ModelManager;
 import address.shortcuts.ShortcutsManager;
 import address.prefs.PrefsManager;
@@ -149,7 +149,7 @@ public class RootLayoutController {
     private void handleSave() {
         final File saveFile = PrefsManager.getInstance().getSaveLocation();
         EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getPersonsModel(),
-                                                             modelManager.getGroupModel()));
+                                                             modelManager.getTagModel()));
     }
 
     /**
@@ -169,7 +169,7 @@ public class RootLayoutController {
 
         PrefsManager.getInstance().setSaveLocation(file);
         EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonsModel(),
-                                        modelManager.getGroupModel()));
+                                        modelManager.getTagModel()));
     }
 
     /**
@@ -213,23 +213,23 @@ public class RootLayoutController {
 
 
     @FXML
-    private void handleNewGroup() {
-        Optional<ContactGroup> newGroup = Optional.of(new ContactGroup());
+    private void handleNewTag() {
+        Optional<Tag> newTag = Optional.of(new Tag());
         while (true) { // keep re-asking until user provides valid input or cancels operation.
-            newGroup = mainController.getGroupDataInput(newGroup.get());
-            if (!newGroup.isPresent()) break;
+            newTag = mainController.getTagDataInput(newTag.get());
+            if (!newTag.isPresent()) break;
             try {
-                modelManager.addGroup(newGroup.get());
+                modelManager.addTag(newTag.get());
                 break;
-            } catch (DuplicateGroupException e) {
-                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate groups",
+            } catch (DuplicateTagException e) {
+                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tags",
                                                       e.toString());
             }
         }
     }
 
     @FXML
-    private void handleShowGroups() {
-        mainController.showGroupList(modelManager.getGroupModel());
+    private void handleShowTags() {
+        mainController.showTagList(modelManager.getTagModel());
     }
 }
