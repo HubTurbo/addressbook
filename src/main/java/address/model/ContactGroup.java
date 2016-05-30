@@ -1,38 +1,34 @@
 package address.model;
 
-import address.util.LocalDateTimeAdapter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.time.LocalDateTime;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 public class ContactGroup extends UniqueData {
 
-    @JsonIgnore private final SimpleStringProperty name;
-    @JsonIgnore private final SimpleObjectProperty<LocalDateTime> updatedAt;
+    @JsonIgnore
+    private final StringProperty name;
+
+    {
+        name = new SimpleStringProperty("");
+    }
+
+    public ContactGroup() {}
 
     public ContactGroup(String name) {
-        this.name = new SimpleStringProperty(name);
-        this.updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
-    }
-
-    public ContactGroup(String name, LocalDateTime updatedAt) {
-        this.name = new SimpleStringProperty(name);
-        this.updatedAt = new SimpleObjectProperty<>(updatedAt);
-    }
-
-    public ContactGroup() {
-        this("");
+        setName(name);
     }
 
     // Copy constructor
     public ContactGroup(ContactGroup grp) {
-        name = new SimpleStringProperty(grp.getName());
-        updatedAt = new SimpleObjectProperty<>(grp.getUpdatedAt());
+        update(grp);
+    }
+
+    public ContactGroup update(ContactGroup group) {
+        setName(group.getName());
+        return this;
     }
 
     @JsonProperty("name")
@@ -42,24 +38,10 @@ public class ContactGroup extends UniqueData {
 
     public void setName(String name) {
         this.name.set(name);
-        setUpdatedAt(LocalDateTime.now());
     }
 
-    @JsonProperty("updatedAt")
-    @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt.get();
-    }
-
-    @JsonSetter("updatedAt")
-    private void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt.set(updatedAt);
-    }
-
-    public ContactGroup update(ContactGroup group) {
-        setName(group.getName());
-        setUpdatedAt(group.getUpdatedAt());
-        return this;
+    public StringProperty nameProperty() {
+        return name;
     }
 
     @Override
@@ -81,5 +63,4 @@ public class ContactGroup extends UniqueData {
     public String toString() {
         return "Group: " + getName();
     }
-
 }
