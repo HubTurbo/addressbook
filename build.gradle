@@ -134,9 +134,11 @@ allprojects {
         doLast {
             println "A guide to create a release (after running this task)"
             println "====================================================="
-            println "(temp) to enable update, put UpdateData.xml into build/libs/update"
+            println "(temp) to enable update, put UpdateData.json into update/ of the main executable"
         }
     }
+
+    createMainAppExecutable.dependsOn clean
 
     sourceSets {
         installer {
