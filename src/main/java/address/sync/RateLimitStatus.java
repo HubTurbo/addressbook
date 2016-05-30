@@ -1,9 +1,9 @@
 package address.sync;
 
 public class RateLimitStatus {
-    int quotaLimit;
-    int quotaRemaining;
-    long quotaReset;
+    private int quotaLimit;
+    private int quotaRemaining;
+    private long quotaReset;
 
     RateLimitStatus(int quotaLimit, int quotaRemaining, long quotaReset) {
         this.quotaLimit = quotaLimit;
@@ -18,7 +18,7 @@ public class RateLimitStatus {
         return quotaLimit;
     }
 
-    public void setQuotaLimit(int quotaLimit) {
+    void setQuotaLimit(int quotaLimit) {
         this.quotaLimit = quotaLimit;
     }
 
@@ -26,7 +26,7 @@ public class RateLimitStatus {
         return quotaRemaining;
     }
 
-    public void setQuotaRemaining(int quotaRemaining) {
+    void setQuotaRemaining(int quotaRemaining) {
         this.quotaRemaining = quotaRemaining;
     }
 
@@ -34,7 +34,7 @@ public class RateLimitStatus {
         return quotaReset;
     }
 
-    public void setQuotaResetTime(long quotaResetTime) {
+    void setQuotaResetTime(long quotaResetTime) {
         this.quotaReset = quotaResetTime;
     }
 

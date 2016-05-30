@@ -4,6 +4,7 @@ import address.model.datatypes.Tag;
 import address.model.datatypes.Person;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ICloudService {
@@ -21,8 +22,7 @@ public interface ICloudService {
 
     // May consume API
     // Implementation to be figured out to confirm API usage
-    ExtractedCloudResponse<List<Person>> getUpdatedPersons(String addressBookName);
-    ExtractedCloudResponse<List<Tag>> getUpdatedTags(String addressBookName);
+    ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time) throws IOException;
 
     // Does not consume API
     ExtractedCloudResponse<RateLimitStatus> getLimitStatus() throws IOException;

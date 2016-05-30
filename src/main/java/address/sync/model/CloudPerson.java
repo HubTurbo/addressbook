@@ -1,23 +1,27 @@
 package address.sync.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class CloudPerson {
-    int id;
-    String firstName;
-    String lastName;
-    String street;
-    String city;
-    String postalCode;
-    List<CloudTag> tags;
-    boolean isDeleted;
+    private int id;
+    private String firstName;
+    private String lastName;
+    private String street;
+    private String city;
+    private String postalCode;
+    private List<CloudTag> tags;
+    private boolean isDeleted;
+    private LocalDateTime lastUpdatedAt;
 
     public CloudPerson() {
+        setLastUpdatedAt(LocalDateTime.now());
     }
 
     public CloudPerson(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
+        setLastUpdatedAt(LocalDateTime.now());
     }
 
     public int getId() {
@@ -26,6 +30,7 @@ public class CloudPerson {
 
     public void setId(int id) {
         this.id = id;
+        setLastUpdatedAt(LocalDateTime.now());
     }
 
     public String getFirstName() {
@@ -34,6 +39,7 @@ public class CloudPerson {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+        setLastUpdatedAt(LocalDateTime.now());
     }
 
     public String getLastName() {
@@ -42,6 +48,7 @@ public class CloudPerson {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+        setLastUpdatedAt(LocalDateTime.now());
     }
 
     public String getStreet() {
@@ -50,6 +57,7 @@ public class CloudPerson {
 
     public void setStreet(String street) {
         this.street = street;
+        setLastUpdatedAt(LocalDateTime.now());
     }
 
     public String getCity() {
@@ -58,6 +66,7 @@ public class CloudPerson {
 
     public void setCity(String city) {
         this.city = city;
+        setLastUpdatedAt(LocalDateTime.now());
     }
 
     public String getPostalCode() {
@@ -66,6 +75,7 @@ public class CloudPerson {
 
     public void setPostalCode(String postalCode) {
         this.postalCode = postalCode;
+        setLastUpdatedAt(LocalDateTime.now());
     }
 
     public List<CloudTag> getTags() {
@@ -74,6 +84,7 @@ public class CloudPerson {
 
     public void setTags(List<CloudTag> tags) {
         this.tags = tags;
+        setLastUpdatedAt(LocalDateTime.now());
     }
 
     public boolean isDeleted() {
@@ -82,6 +93,11 @@ public class CloudPerson {
 
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
+        setLastUpdatedAt(LocalDateTime.now());
+    }
+
+    public LocalDateTime getLastUpdatedAt() {
+        return lastUpdatedAt;
     }
 
     public void updatedBy(CloudPerson updatedPerson) {
@@ -92,5 +108,10 @@ public class CloudPerson {
         this.postalCode = updatedPerson.postalCode;
         this.tags = updatedPerson.tags;
         this.isDeleted = updatedPerson.isDeleted;
+        this.lastUpdatedAt = updatedPerson.lastUpdatedAt;
+    }
+
+    private void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
+        this.lastUpdatedAt = lastUpdatedAt;
     }
 }

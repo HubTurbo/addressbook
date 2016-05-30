@@ -5,16 +5,13 @@ import address.model.datatypes.Person;
 import address.sync.model.CloudTag;
 import address.sync.model.CloudPerson;
 import address.util.JsonUtil;
-import address.util.XmlFileHelper;
-
-import javax.xml.bind.JAXBException;
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 // TODO implement full range of possible unreliable network effects: fail, corruption, etc
 // TODO check for bad response code
+// TODO proper conversion from cloud type to local type
 /**
  * Emulates the cloud & the local cloud service
  */
@@ -30,24 +27,6 @@ public class CloudService implements ICloudService {
 
     public static void main(String[] args) {
         CloudService test = new CloudService(false);
-    }
-
-    /**
-     * Requests the simulated cloud to update its data with the given data. This data should be
-     * written to the provided mirror file
-     * @param delay Duration of delay in seconds to be simulated before the request is completed
-     */
-    public void requestChangesToCloud(File file, List<Person> people, List<Tag> tags, int delay)
-            throws JAXBException {
-        if (file == null) return;
-        List<Person> newPeople = people.stream().map(Person::new).collect(Collectors.toList());
-        List<Tag> newTags = tags.stream().map(Tag::new).collect(Collectors.toList());
-        XmlFileHelper.saveDataToFile(file, newPeople, newTags);
-        try {
-            TimeUnit.SECONDS.sleep(delay);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -189,13 +168,9 @@ public class CloudService implements ICloudService {
     }
 
     @Override
-    public ExtractedCloudResponse<List<Person>> getUpdatedPersons(String addressBookName) {
-        return null;
-    }
-
-    @Override
-    public ExtractedCloudResponse<List<Tag>> getUpdatedTags(String addressBookName) {
-        return null;
+    public ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time) throws IOException {
+        RawCloudResponse response = cloud.getUpdatedPersons(addressBookName, time.toString());
+        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), getDataListFromBody(response.getBody(), Person.class));
     }
 
     @Override

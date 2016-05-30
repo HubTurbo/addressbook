@@ -5,6 +5,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is meant to wrap cloud persons and cloud tags in the cloud for easier storage
+ *
+ * This class should NOT be used by other components aside from CloudService
+ */
 @XmlRootElement(name = "cloudaddressbook")
 public class CloudAddressBook {
     List<CloudPerson> personsList;

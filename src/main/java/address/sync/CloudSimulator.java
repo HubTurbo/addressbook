@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class CloudSimulator implements ICloudSimulator {
     private static final int API_QUOTA_PER_HOUR = 5000;
@@ -264,6 +265,18 @@ public class CloudSimulator implements ICloudSimulator {
         }
     }
 
+    public RawCloudResponse getUpdatedPersons(String addressBookName, String timeString) {
+        LocalDateTime time = LocalDateTime.parse(timeString);
+        List<CloudPerson> resultList = filterPersonsByTime(personsList, time);
+        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(resultList), convertToInputStream(getStandardHeaders()));
+    }
+
+    private List<CloudPerson> filterPersonsByTime(List<CloudPerson> personList, LocalDateTime time) {
+        return personList.stream()
+                .filter(person -> !person.getLastUpdatedAt().isBefore(time))
+                .collect(Collectors.toList());
+    }
+
     private long getNextResetTime() {
         LocalDateTime curTime = LocalDateTime.now();
         LocalDateTime nearestHour = LocalDateTime.of(
@@ -285,6 +298,7 @@ public class CloudSimulator implements ICloudSimulator {
         return new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR, null, null);
     }
 
+    @Deprecated
     private List<Person> simulateDataAddition() {
         List<Person> newData = new ArrayList<>();
 
@@ -307,6 +321,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param data
      * @return the (possibly) modified argument addressbookwrapper
      */
+    @Deprecated
     private AddressBook simulateDataModification(AddressBook data) {
         List<Person> modifiedData = new ArrayList<>();
 
