@@ -1,6 +1,8 @@
 package address.model;
 
 import address.util.LocalDateTimeAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -10,8 +12,8 @@ import java.time.LocalDateTime;
 
 public class ContactGroup extends UniqueData {
 
-    private final SimpleStringProperty name;
-    private final SimpleObjectProperty<LocalDateTime> updatedAt;
+    @JsonIgnore private final SimpleStringProperty name;
+    @JsonIgnore private final SimpleObjectProperty<LocalDateTime> updatedAt;
 
     public ContactGroup(String name) {
         this.name = new SimpleStringProperty(name);
@@ -33,6 +35,7 @@ public class ContactGroup extends UniqueData {
         updatedAt = new SimpleObjectProperty<>(grp.getUpdatedAt());
     }
 
+    @JsonProperty("name")
     public String getName() {
         return name.get();
     }
@@ -42,6 +45,7 @@ public class ContactGroup extends UniqueData {
         setUpdatedAt(LocalDateTime.now());
     }
 
+    @JsonProperty("updatedAt")
     @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
     public LocalDateTime getUpdatedAt() {
         return updatedAt.get();

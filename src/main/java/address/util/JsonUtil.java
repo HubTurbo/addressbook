@@ -1,6 +1,7 @@
 package address.util;
 
-import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -12,7 +13,9 @@ import java.io.IOException;
  */
 public class JsonUtil {
     private static ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules()
-            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
+            .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
     /**
      * Converts a given string representation of a JSON data to instance of a class
