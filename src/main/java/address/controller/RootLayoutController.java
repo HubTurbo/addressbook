@@ -7,7 +7,7 @@ import address.MainApp;
 import address.events.*;
 import address.exceptions.DuplicateDataException;
 import address.exceptions.DuplicateGroupException;
-import address.model.ContactGroup;
+import address.model.datatypes.ContactGroup;
 import address.model.ModelManager;
 import address.shortcuts.ShortcutsManager;
 import address.prefs.PrefsManager;

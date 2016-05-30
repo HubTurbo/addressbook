@@ -1,7 +1,7 @@
 package address.events;
 
-import address.model.ContactGroup;
-import address.model.Person;
+import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Person;
 
 import java.util.List;
 

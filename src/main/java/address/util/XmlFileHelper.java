@@ -1,6 +1,8 @@
 package address.util;
 
 import address.model.*;
+import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Person;
 import address.updater.model.UpdateData;
 
 import javax.xml.bind.JAXBContext;

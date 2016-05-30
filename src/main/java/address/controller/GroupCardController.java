@@ -1,7 +1,7 @@
 package address.controller;
 
 import address.exceptions.DuplicateGroupException;
-import address.model.ContactGroup;
+import address.model.datatypes.ContactGroup;
 import address.model.ModelManager;
 
 import javafx.fxml.FXML;

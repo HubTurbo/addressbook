@@ -1,9 +1,8 @@
 package address.guiunittests;
 
-import address.MainApp;
 import address.TestApp;
 import address.controller.PersonEditDialogController;
-import address.model.ContactGroup;
+import address.model.datatypes.ContactGroup;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
@@ -11,7 +10,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;

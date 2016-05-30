@@ -11,7 +11,7 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.XYChart;
-import address.model.Person;
+import address.model.datatypes.Person;
 
 /**
  * The controller for the birthday statistics view.

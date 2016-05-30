@@ -1,4 +1,4 @@
-package address.model;
+package address.model.datatypes;
 
 import address.util.DateTimeUtil;
 import address.util.LocalDateAdapter;
@@ -32,7 +32,6 @@ public class Person extends BaseDataType {
     @JsonIgnore private final StringProperty githubUserName;
 
     @JsonIgnore private final ObjectProperty<LocalDate> birthday;
-    @JsonIgnore private final ObjectProperty<LocalDateTime> updatedAt;
     @JsonIgnore private final ObservableList<ContactGroup> contactGroups;
 
     // defaults
@@ -46,7 +45,6 @@ public class Person extends BaseDataType {
         githubUserName = new SimpleStringProperty("");
 
         birthday = new SimpleObjectProperty<>();
-        updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
         contactGroups = FXCollections.observableArrayList();
     }    
     
@@ -92,17 +90,20 @@ public class Person extends BaseDataType {
         setGithubUserName(updated.getGithubUserName());
 
         setBirthday(updated.getBirthday());
-        setUpdatedAt(updated.getUpdatedAt());
         setContactGroups(updated.getContactGroups());
         return this;
     }
 
     @Override
-    public List<Property> getProperties() {
+    public List<Property> getPropertiesInOrder() {
         final List<Property> props = new ArrayList<>();
         props.add(firstName);
         props.add(lastName);
-
+        props.add(street);
+        props.add(postalCode);
+        props.add(city);
+        props.add(githubUserName);
+        props.add(birthday);
         return props;
     }
 
@@ -114,7 +115,6 @@ public class Person extends BaseDataType {
 
     public void setFirstName(String firstName) {
         this.firstName.set(firstName);
-        updatedAt.set(LocalDateTime.now());
     }
 
     public StringProperty firstNameProperty() {
@@ -128,7 +128,6 @@ public class Person extends BaseDataType {
 
     public void setLastName(String lastName) {
         this.lastName.set(lastName);
-        updatedAt.set(LocalDateTime.now());
     }
 
     public StringProperty lastNameProperty() {
@@ -147,7 +146,6 @@ public class Person extends BaseDataType {
 
     public void setStreet(String street) {
         this.street.set(street);
-        updatedAt.set(LocalDateTime.now());
     }
 
     public StringProperty streetProperty() {
@@ -162,7 +160,6 @@ public class Person extends BaseDataType {
 
     public void setPostalCode(String postalCode) {
         this.postalCode.set(postalCode);
-        updatedAt.set(LocalDateTime.now());
     }
 
     public StringProperty postalCodeProperty() {
@@ -177,7 +174,6 @@ public class Person extends BaseDataType {
 
     public void setCity(String city) {
         this.city.set(city);
-        updatedAt.set(LocalDateTime.now());
     }
 
     public StringProperty cityProperty() {
@@ -194,7 +190,6 @@ public class Person extends BaseDataType {
     @JsonSetter("birthday")
     public void setBirthday(LocalDate birthday) {
         this.birthday.set(birthday);
-        updatedAt.set(LocalDateTime.now());
     }
 
     public ObjectProperty<LocalDate> birthdayProperty() {
@@ -220,7 +215,6 @@ public class Person extends BaseDataType {
      */
     public void setGithubUserName(String githubUserName) {
         this.githubUserName.set(githubUserName);
-        updatedAt.set(LocalDateTime.now());
     }
 
     public StringProperty githubUserNameProperty() {
@@ -245,7 +239,6 @@ public class Person extends BaseDataType {
     public void setContactGroups(List<ContactGroup> contactGroups) {
         this.contactGroups.clear();
         this.contactGroups.addAll(contactGroups);
-        updatedAt.set(LocalDateTime.now());
     }
 
     public String contactGroupsString() {
@@ -257,22 +250,6 @@ public class Person extends BaseDataType {
             buffer.append(contactGroups.get(i).getName());
         }
         return buffer.toString();
-    }
-
-//// UPDATED AT
-    @JsonProperty("updatedAt")
-    @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt.get();
-    }
-
-    public ObjectProperty<LocalDateTime> updatedAtProperty() {
-        return updatedAt;
-    }
-
-    @JsonSetter("updatedAt")
-    public void setUpdatedAt(LocalDateTime lastUpdated) {
-        updatedAt.set(lastUpdated);
     }
 
 //// OTHER LOGIC

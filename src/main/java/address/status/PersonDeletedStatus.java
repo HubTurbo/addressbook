@@ -1,6 +1,6 @@
 package address.status;
 
-import address.model.Person;
+import address.model.datatypes.Person;
 
 /**
  * An event triggered when an AddressBook's contact is deleted.

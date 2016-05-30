@@ -1,6 +1,6 @@
 package address.controller;
 
-import address.model.ContactGroup;
+import address.model.datatypes.ContactGroup;
 import address.model.ModelManager;
 import address.ui.GroupListViewCell;
 import javafx.collections.ObservableList;

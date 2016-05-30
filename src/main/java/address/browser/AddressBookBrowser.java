@@ -1,7 +1,6 @@
 package address.browser;
 
-import address.model.ModelManager;
-import address.model.Person;
+import address.model.datatypes.Person;
 
 import com.teamdev.jxbrowser.chromium.Browser;
 import com.teamdev.jxbrowser.chromium.EditorCommand;

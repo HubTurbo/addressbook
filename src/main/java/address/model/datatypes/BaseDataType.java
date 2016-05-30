@@ -1,4 +1,4 @@
-package address.model;
+package address.model.datatypes;
 
 /**
  * All domain data-type classes should extend this.

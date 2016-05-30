@@ -1,15 +1,18 @@
-package address.model;
+package address.model.datatypes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class ContactGroup extends UniqueData {
+import java.util.ArrayList;
+import java.util.List;
 
-    @JsonIgnore
-    private final StringProperty name;
+public class ContactGroup extends BaseDataType {
+
+    @JsonIgnore private final StringProperty name;
 
     {
         name = new SimpleStringProperty("");
@@ -29,6 +32,13 @@ public class ContactGroup extends UniqueData {
     public ContactGroup update(ContactGroup group) {
         setName(group.getName());
         return this;
+    }
+
+    @Override
+    public List<Property> getPropertiesInOrder() {
+        final List<Property> props = new ArrayList<>();
+        props.add(name);
+        return props;
     }
 
     @JsonProperty("name")

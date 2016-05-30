@@ -1,8 +1,8 @@
 package address.unittests;
 
 import address.model.AddressBook;
-import address.model.ContactGroup;
-import address.model.Person;
+import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Person;
 import address.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -53,15 +53,13 @@ public class JsonUtilTest {
                 "    \"city\" : \"Singapore\",\n" +
                 "    \"githubUsername\" : \"FirstLast\",\n" +
                 "    \"birthday\" : \"1980-03-18\",\n" +
-                "    \"updatedAt\" : \"2016-05-30T14:17:48.319\",\n" +
                 "    \"contactGroups\" : [ {\n" +
-                "      \"name\" : \"Group\",\n" +
-                "      \"updatedAt\" : \"2016-05-30T14:17:48.263\"\n" +
-                "    } ]\n" +
+                "      \"name\" : \"Group\"\n" +
+                "    } ],\n" +
+                "    \"birthday\" : \"1980-03-18\"\n" +
                 "  } ],\n" +
                 "  \"groups\" : [ {\n" +
-                "    \"name\" : \"Group\",\n" +
-                "    \"updatedAt\" : \"2016-05-30T14:17:48.263\"\n" +
+                "    \"name\" : \"Group\"\n" +
                 "  } ]\n" +
                 "}";
         AddressBook addressBook = JsonUtil.fromJsonString(jsonString, AddressBook.class);

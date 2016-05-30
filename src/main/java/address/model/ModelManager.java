@@ -5,6 +5,9 @@ import address.events.*;
 import address.exceptions.DuplicateDataException;
 import address.exceptions.DuplicateGroupException;
 import address.exceptions.DuplicatePersonException;
+import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Person;
+import address.model.datatypes.UniqueData;
 import address.util.PlatformEx;
 import com.google.common.eventbus.Subscribe;
 
@@ -155,21 +158,21 @@ public class ModelManager {
 ///////////////////////////////////////////////////////////////////////
 
     /**
-     * @return observablelist of persons in model
+     * @return all persons in model
      */
     public ObservableList<Person> getPersonsModel() {
         return personModel;
     }
 
     /**
-     * @return data of persons in active filtered view
+     * @return persons in active filtered view
      */
-    public ObservableList<Person> getFilteredPersonsModel() {
+    public ObservableList<Person> getFilteredPersons() {
         return filteredPersonModel;
     }
 
     /**
-     * @return observablelist of groups in model
+     * @return all groups in model
      */
     public ObservableList<ContactGroup> getGroupModel() {
         return groupModel;
@@ -183,12 +186,6 @@ public class ModelManager {
 
     public List<Person> getPersons() {
         return personModel.stream()
-                .map(person -> (Person) person)
-                .collect(Collectors.toList());
-    }
-
-    public List<Person> getFilteredPersons() {
-        return filteredPersonModel.stream()
                 .map(person -> (Person) person)
                 .collect(Collectors.toList());
     }

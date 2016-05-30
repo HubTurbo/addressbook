@@ -4,6 +4,9 @@ import address.model.*;
 import address.events.EventManager;
 import address.events.GroupSearchResultsChangedEvent;
 import address.events.GroupsChangedEvent;
+import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Person;
+import address.model.datatypes.SelectableContactGroup;
 import address.util.DateTimeUtil;
 
 import com.google.common.eventbus.Subscribe;

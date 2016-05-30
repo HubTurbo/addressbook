@@ -1,14 +1,10 @@
 package address.controller;
 
 import address.events.EventManager;
-import address.model.ContactGroup;
-import address.model.ModelManager;
+import address.model.datatypes.ContactGroup;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
-
-import java.util.List;
-import java.util.Optional;
 
 public class GroupEditDialogController extends EditDialogController {
     @FXML

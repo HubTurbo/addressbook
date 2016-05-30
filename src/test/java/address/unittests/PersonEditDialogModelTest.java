@@ -2,7 +2,7 @@ package address.unittests;
 
 import address.events.EventManager;
 import address.events.GroupSearchResultsChangedEvent;
-import address.model.ContactGroup;
+import address.model.datatypes.ContactGroup;
 import address.model.PersonEditDialogGroupsModel;
 import com.google.common.eventbus.Subscribe;
 import org.junit.Before;

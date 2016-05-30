@@ -1,8 +1,8 @@
 package address.sync;
 
 import address.model.AddressBook;
-import address.model.ContactGroup;
-import address.model.Person;
+import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Person;
 import address.util.XmlFileHelper;
 
 import javax.xml.bind.JAXBException;

@@ -1,6 +1,8 @@
 package address.sync.task;
 
-import address.model.*;
+import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Person;
+import address.model.datatypes.UniqueData;
 import address.prefs.PrefsManager;
 import address.sync.CloudSimulator;
 

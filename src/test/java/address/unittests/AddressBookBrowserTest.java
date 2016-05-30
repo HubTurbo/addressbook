@@ -2,18 +2,18 @@ package address.unittests;
 
 import address.browser.AddressBookBrowser;
 import address.browser.BrowserTab;
-import address.model.Person;
+import address.model.datatypes.Person;
 import address.util.JavafxThreadingRule;
 import address.util.TestUtil;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-
-import org.junit.Rule;
-import org.junit.Test;
 
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import org.junit.Rule;
+import org.junit.Test;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -2,9 +2,9 @@ package address.controller;
 
 import address.MainApp;
 import address.events.*;
-import address.model.ContactGroup;
+import address.model.datatypes.ContactGroup;
 import address.model.ModelManager;
-import address.model.Person;
+import address.model.datatypes.Person;
 import address.util.Config;
 import address.browser.BrowserManager;
 
@@ -58,7 +58,7 @@ public class MainController {
         this.modelManager = modelManager;
         this.config = config;
         this.mainApp = mainApp;
-        this.browserManager = new BrowserManager(modelManager.getFilteredPersonsModel());
+        this.browserManager = new BrowserManager(modelManager.getFilteredPersons());
     }
 
     public void start(Stage primaryStage) {

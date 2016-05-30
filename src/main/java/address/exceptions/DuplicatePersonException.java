@@ -1,6 +1,6 @@
 package address.exceptions;
 
-import address.model.Person;
+import address.model.datatypes.Person;
 
 public class DuplicatePersonException extends DuplicateDataException {
 

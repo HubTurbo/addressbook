@@ -2,7 +2,7 @@ package address.browser;
 
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
-import address.model.Person;
+import address.model.datatypes.Person;
 
 import com.google.common.eventbus.Subscribe;
 

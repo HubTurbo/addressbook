@@ -1,7 +1,7 @@
 package address.ui;
 
 import address.controller.PersonCardController;
-import address.model.Person;
+import address.model.datatypes.Person;
 import javafx.scene.control.ListCell;
 
 public class PersonListViewCell extends ListCell<Person> {

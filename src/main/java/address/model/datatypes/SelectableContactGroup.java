@@ -1,5 +1,6 @@
-package address.model;
+package address.model.datatypes;
 
+// TODO CHANGE THIS TO WRAPPER CLASS
 public class SelectableContactGroup extends ContactGroup {
     private boolean isSelected = false;
 

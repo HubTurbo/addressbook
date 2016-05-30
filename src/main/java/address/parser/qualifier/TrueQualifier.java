@@ -1,6 +1,6 @@
 package address.parser.qualifier;
 
-import address.model.Person;
+import address.model.datatypes.Person;
 
 public class TrueQualifier implements Qualifier {
 

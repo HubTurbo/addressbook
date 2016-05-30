@@ -1,6 +1,6 @@
 package address.events;
 
-import address.model.SelectableContactGroup;
+import address.model.datatypes.SelectableContactGroup;
 
 import java.util.List;
 

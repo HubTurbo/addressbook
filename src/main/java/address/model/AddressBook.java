@@ -1,5 +1,9 @@
 package address.model;
 
+import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Person;
+import address.model.datatypes.UniqueData;
+
 import java.util.*;
 
 import javax.xml.bind.annotation.XmlElement;

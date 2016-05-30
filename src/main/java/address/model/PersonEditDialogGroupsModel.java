@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import address.events.EventManager;
 import address.events.GroupSearchResultsChangedEvent;
 import address.events.GroupsChangedEvent;
+import address.model.datatypes.ContactGroup;
+import address.model.datatypes.SelectableContactGroup;
 
 public class PersonEditDialogGroupsModel {
     List<SelectableContactGroup> groups = new ArrayList<>();

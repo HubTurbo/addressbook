@@ -2,7 +2,7 @@ package address.ui;
 
 import address.controller.GroupCardController;
 import address.controller.MainController;
-import address.model.ContactGroup;
+import address.model.datatypes.ContactGroup;
 import address.model.ModelManager;
 import javafx.scene.control.ListCell;
 

@@ -1,10 +1,8 @@
 package address.controller;
 
 import java.io.IOException;
-import java.util.List;
 
-import address.model.ContactGroup;
-import address.model.Person;
+import address.model.datatypes.Person;
 import javafx.beans.binding.StringBinding;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,8 +27,8 @@ public class PersonCardController {
     @FXML
     private Label contactGroups;
 
+    private Person person;
 
-    Person person;
     public PersonCardController(Person person) {
         this.person = person;
 

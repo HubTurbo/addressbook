@@ -1,4 +1,4 @@
-package address.model;
+package address.model.datatypes;
 
 import java.util.Collection;
 import java.util.HashSet;

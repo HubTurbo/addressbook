@@ -1,6 +1,6 @@
 package address.exceptions;
 
-import address.model.ContactGroup;
+import address.model.datatypes.ContactGroup;
 
 public class DuplicateGroupException extends DuplicateDataException {
 

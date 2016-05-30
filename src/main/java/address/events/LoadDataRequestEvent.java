@@ -1,9 +1,5 @@
 package address.events;
 
-import address.model.ContactGroup;
-import address.model.Person;
-import javafx.collections.ObservableList;
-
 import java.io.File;
 
 /**

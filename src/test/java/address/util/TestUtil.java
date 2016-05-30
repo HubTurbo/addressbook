@@ -1,6 +1,6 @@
 package address.util;
 
-import address.model.Person;
+import address.model.datatypes.Person;
 
 import java.util.Arrays;
 import java.util.List;
