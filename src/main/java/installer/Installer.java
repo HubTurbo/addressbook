@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -112,8 +113,6 @@ public class Installer extends Application {
                 if (filename.endsWith(".jar") && jarEntry.getSize() != extractDest.toFile().length()) {
                     try (InputStream in = jar.getInputStream(jarEntry)) {
                         Files.copy(in, extractDest, StandardCopyOption.REPLACE_EXISTING);
-                    } catch (IOException e) {
-                        throw e;
                     }
                 }
             }
@@ -146,7 +145,6 @@ public class Installer extends Application {
             System.out.println("Unknown OS");
         }
 
-        // TODO download from jxBrowserDownloadLink
         URL downloadLink;
         try {
             downloadLink = new URL(jxBrowserDownloadLink);
@@ -156,12 +154,24 @@ public class Installer extends Application {
             return;
         }
 
+        String jxBrowserFilename = Paths.get(downloadLink.toString()).getFileName().toString();
+        File jxbrowserFile = Paths.get("lib", jxBrowserFilename).toFile();
+
         try {
-            String jxBrowserFilename = Paths.get(downloadLink.toString()).getFileName().toString();
-            File jxBrowserFile = Paths.get("lib", jxBrowserFilename).toFile();
-            if (!FileUtil.isFileExists(jxBrowserFile.toString())) {
-                downloadFile(jxBrowserFile, downloadLink);
+            URLConnection conn = downloadLink.openConnection();
+            int jxbrowserFileSize = conn.getContentLength();
+            if (jxbrowserFileSize != -1 && FileUtil.isFileExists(jxbrowserFile.toString()) &&
+                                           jxbrowserFile.length() == jxbrowserFileSize) {
+                System.out.println("JxBrowser already exists");
+                return;
             }
+        } catch (IOException e) {
+            System.out.println("Failed to get size of JxBrowser file; will proceed to downloading it");
+            e.printStackTrace();
+        }
+
+        try {
+            downloadFile(jxbrowserFile, downloadLink);
         } catch (IOException e) {
             System.out.println("Failed to download JxBrowser");
             e.printStackTrace();
@@ -196,12 +206,11 @@ public class Installer extends Application {
     private void downloadFile(File targetFile, URL source) throws IOException {
         try (InputStream in = source.openStream()) {
             if (!FileUtil.createFile(targetFile)) {
-                throw new IOException("Error creating new file.");
+                System.out.println("File already exists; file will be replaced");
             }
             Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            System.out.println(String.format("Installer - Failed to download update for %s",
-                    targetFile.toString()));
+            System.out.println(String.format("Installer - Failed to download %s", targetFile.toString()));
             throw e;
         }
     }
