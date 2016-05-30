@@ -4,6 +4,8 @@ import address.util.DateTimeUtil;
 import address.util.LocalDateAdapter;
 import address.util.LocalDateTimeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -20,17 +22,17 @@ import java.util.List;
  */
 public class Person extends UniqueData {
 
-    private final StringProperty firstName;
-    private final StringProperty lastName;
+    @JsonIgnore private final StringProperty firstName;
+    @JsonIgnore private final StringProperty lastName;
 
-    private final StringProperty street;
-    private final StringProperty postalCode;
-    private final StringProperty city;
-    private final StringProperty githubUserName;
+    @JsonIgnore private final StringProperty street;
+    @JsonIgnore private final StringProperty postalCode;
+    @JsonIgnore private final StringProperty city;
+    @JsonIgnore private final StringProperty githubUserName;
 
-    private final ObjectProperty<LocalDate> birthday;
-    private final ObjectProperty<LocalDateTime> updatedAt;
-    private final ObservableList<ContactGroup> contactGroups;
+    @JsonIgnore private final ObjectProperty<LocalDate> birthday;
+    @JsonIgnore private final ObjectProperty<LocalDateTime> updatedAt;
+    @JsonIgnore private final ObservableList<ContactGroup> contactGroups;
 
     // defaults
     {
@@ -95,7 +97,7 @@ public class Person extends UniqueData {
     }
 
 //// NAME
-
+    @JsonProperty("firstName")
     public String getFirstName() {
         return firstName.get();
     }
@@ -109,6 +111,7 @@ public class Person extends UniqueData {
         return firstName;
     }
 
+    @JsonProperty("lastName")
     public String getLastName() {
         return lastName.get();
     }
@@ -127,7 +130,7 @@ public class Person extends UniqueData {
     }
 
 //// STREET
-
+    @JsonProperty("street")
     public String getStreet() {
         return street.get();
     }
@@ -142,7 +145,7 @@ public class Person extends UniqueData {
     }
 
 //// POSTAL CODE
-
+    @JsonProperty("postalCode")
     public String getPostalCode() {
         return postalCode.get();
     }
@@ -157,7 +160,7 @@ public class Person extends UniqueData {
     }
 
 //// CITY
-
+    @JsonProperty("city")
     public String getCity() {
         return city.get();
     }
@@ -172,7 +175,7 @@ public class Person extends UniqueData {
     }
 
 //// BIRTHDAY
-
+    @JsonProperty("birthday")
     @XmlJavaTypeAdapter(LocalDateAdapter.class)
     public LocalDate getBirthday() {
         return birthday.get();
@@ -194,7 +197,7 @@ public class Person extends UniqueData {
     }
 
 //// GITHUB USERNAME
-
+    @JsonProperty("githubUsername")
     public String getGithubUserName() {
         return githubUserName.get();
     }
@@ -219,7 +222,7 @@ public class Person extends UniqueData {
     }
 
 //// CONTACT GROUPS
-
+    @JsonProperty("contactGroups")
     public ObservableList<ContactGroup> getContactGroups() {
         return contactGroups;
     }
@@ -247,7 +250,7 @@ public class Person extends UniqueData {
     }
 
 //// UPDATED AT
-
+    @JsonProperty("updatedAt")
     @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
     public LocalDateTime getUpdatedAt() {
         return updatedAt.get();

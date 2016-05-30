@@ -24,7 +24,7 @@ public class JsonUtilTest {
     /**
      * Due to updatedAt field, we can check JSON string correct value. As such, we just confirm there is no exception
      */
-    public void jsonUtil_getJsonStringObjectRepresentation_correctJsonObject() throws JsonProcessingException {
+    public void jsonUtil_getJsonStringObjectRepresentation_noExceptionThrown() throws JsonProcessingException {
         ContactGroup sampleContactGroup = new ContactGroup("Group");
         Person samplePerson = new Person("First", "Last");
         samplePerson.setCity("Singapore");
@@ -39,7 +39,7 @@ public class JsonUtilTest {
         addressBook.setPersons(Arrays.asList(samplePerson));
         addressBook.setGroups(Arrays.asList(sampleContactGroup));
 
-        JsonUtil.toJsonString(addressBook);
+        System.out.println(JsonUtil.toJsonString(addressBook));
     }
 
     @Test
@@ -51,17 +51,17 @@ public class JsonUtilTest {
                 "    \"street\" : \"\",\n" +
                 "    \"postalCode\" : \"123456\",\n" +
                 "    \"city\" : \"Singapore\",\n" +
-                "    \"githubUserName\" : \"FirstLast\",\n" +
+                "    \"githubUsername\" : \"FirstLast\",\n" +
+                "    \"birthday\" : \"1980-03-18\",\n" +
+                "    \"updatedAt\" : \"2016-05-30T14:17:48.319\",\n" +
                 "    \"contactGroups\" : [ {\n" +
                 "      \"name\" : \"Group\",\n" +
-                "      \"updatedAt\" : \"2016-05-26T16:40:09.157\"\n" +
-                "    } ],\n" +
-                "    \"birthday\" : \"1980-03-18\",\n" +
-                "    \"updatedAt\" : \"2016-05-26T16:40:09.244\"\n" +
+                "      \"updatedAt\" : \"2016-05-30T14:17:48.263\"\n" +
+                "    } ]\n" +
                 "  } ],\n" +
                 "  \"groups\" : [ {\n" +
                 "    \"name\" : \"Group\",\n" +
-                "    \"updatedAt\" : \"2016-05-26T16:40:09.157\"\n" +
+                "    \"updatedAt\" : \"2016-05-30T14:17:48.263\"\n" +
                 "  } ]\n" +
                 "}";
         AddressBook addressBook = JsonUtil.fromJsonString(jsonString, AddressBook.class);
