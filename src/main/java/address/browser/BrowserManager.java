@@ -99,8 +99,4 @@ public class BrowserManager {
         if (!browser.isPresent()) return;
         browser.get().dispose();
     }
-
-    public Optional<AddressBookBrowser> getBrowser() {
-        return browser;
-    }
 }

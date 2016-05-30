@@ -193,7 +193,7 @@ public class AddressBookBrowser{
     /**
      * Automates clicking on the Repositories tab and scrolling to the bottom of the page.
      */
-    private void automateClickingAndScrolling(Browser browser) {
+    private static void automateClickingAndScrolling(Browser browser) {
         DOMElement repoContainer = browser.getDocument().findElement(By.id("js-pjax-container"));
         DOMElement repoLink = browser.getDocument().findElement(By.className("octicon octicon-repo"));
 
@@ -212,11 +212,11 @@ public class AddressBookBrowser{
         }
     }
 
-    private boolean isRepoElementExist(DOMElement userRepoList, DOMElement organizationRepoList) {
+    private static boolean isRepoElementExist(DOMElement userRepoList, DOMElement organizationRepoList) {
         return userRepoList != null || organizationRepoList != null;
     }
 
-    private boolean isElementFoundToNavigateToRepoPage(DOMElement container, DOMElement link) {
+    private static boolean isElementFoundToNavigateToRepoPage(DOMElement container, DOMElement link) {
         return link != null && container != null;
     }
 
