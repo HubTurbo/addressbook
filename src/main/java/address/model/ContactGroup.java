@@ -1,36 +1,26 @@
 package address.model;
 
-import address.util.LocalDateTimeAdapter;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.time.LocalDateTime;
 
 public class ContactGroup extends UniqueData {
 
     private final SimpleStringProperty name;
-    private final SimpleObjectProperty<LocalDateTime> updatedAt;
+
+    {
+        name = new SimpleStringProperty("");
+    }
+
+    public ContactGroup() {}
 
     public ContactGroup(String name) {
-        this.name = new SimpleStringProperty(name);
-        this.updatedAt = new SimpleObjectProperty<>(LocalDateTime.now());
-    }
-
-    public ContactGroup(String name, LocalDateTime updatedAt) {
-        this.name = new SimpleStringProperty(name);
-        this.updatedAt = new SimpleObjectProperty<>(updatedAt);
-    }
-
-    public ContactGroup() {
-        this("");
+        this();
+        this.name.set(name);
     }
 
     // Copy constructor
     public ContactGroup(ContactGroup grp) {
-        name = new SimpleStringProperty(grp.getName());
-        updatedAt = new SimpleObjectProperty<>(grp.getUpdatedAt());
+        this();
+        update(grp);
     }
 
     public String getName() {
@@ -39,22 +29,10 @@ public class ContactGroup extends UniqueData {
 
     public void setName(String name) {
         this.name.set(name);
-        setUpdatedAt(LocalDateTime.now());
-    }
-
-    @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt.get();
-    }
-
-    @JsonSetter("updatedAt")
-    private void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt.set(updatedAt);
     }
 
     public ContactGroup update(ContactGroup group) {
         setName(group.getName());
-        setUpdatedAt(group.getUpdatedAt());
         return this;
     }
 

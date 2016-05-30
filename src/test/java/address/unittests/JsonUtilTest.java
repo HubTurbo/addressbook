@@ -53,15 +53,12 @@ public class JsonUtilTest {
                 "    \"city\" : \"Singapore\",\n" +
                 "    \"githubUserName\" : \"FirstLast\",\n" +
                 "    \"contactGroups\" : [ {\n" +
-                "      \"name\" : \"Group\",\n" +
-                "      \"updatedAt\" : \"2016-05-26T16:40:09.157\"\n" +
+                "      \"name\" : \"Group\"\n" +
                 "    } ],\n" +
-                "    \"birthday\" : \"1980-03-18\",\n" +
-                "    \"updatedAt\" : \"2016-05-26T16:40:09.244\"\n" +
+                "    \"birthday\" : \"1980-03-18\"\n" +
                 "  } ],\n" +
                 "  \"groups\" : [ {\n" +
-                "    \"name\" : \"Group\",\n" +
-                "    \"updatedAt\" : \"2016-05-26T16:40:09.157\"\n" +
+                "    \"name\" : \"Group\"\n" +
                 "  } ]\n" +
                 "}";
         AddressBook addressBook = JsonUtil.fromJsonString(jsonString, AddressBook.class);
