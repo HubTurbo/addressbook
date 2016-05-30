@@ -2,6 +2,7 @@ package address.browser;
 
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
+import address.model.AddressBook;
 import address.model.Person;
 
 import com.google.common.eventbus.Subscribe;
@@ -45,27 +46,25 @@ public class BrowserManager {
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent event){
-        ArrayList<BrowserTab> browserTabs = browser.get().getBrowserTabs();
 
-        for (BrowserTab browserTab: browserTabs){
-            Optional<Person> browserTabPerson = Optional.ofNullable(browserTab.getPerson());
-            if (!browserTabPerson.isPresent()){
-                continue;
-            }
-
-            int indexOfContact = filteredPersons.indexOf(browserTabPerson.get());
-
-            if (indexOfContact == PERSON_NOT_FOUND){
-                browserTab.unloadProfilePage();
-                continue;
-            }
-
-            Person updatedPerson = filteredPersons.get(indexOfContact);
-
-            if (!updatedPerson.getGithubUserName().equals(browserTabPerson.get().getGithubUserName())){
-                browserTab.loadProfilePage(updatedPerson);
-            }
+        if (!browser.isPresent()) {
+            return;
         }
+
+        List<Person> personsInBrowserCache = browser.get().getPersonsLoadedInCache();
+        personsInBrowserCache.stream().forEach(person -> {
+                if (filteredPersons.indexOf(person) == PERSON_NOT_FOUND){
+                    browser.get().unloadProfilePage(person);
+                } else {
+                    int indexOfContact = filteredPersons.indexOf(person);
+                    Person updatedPerson = filteredPersons.get(indexOfContact);
+
+                    if (!updatedPerson.getGithubUserName().equals(person.getGithubUserName())){
+                        browser.get().unloadProfilePage(person);
+                        browser.get().loadProfilePage(updatedPerson);
+                    }
+                }
+            });
     }
 
     public static void initializeBrowser() {
