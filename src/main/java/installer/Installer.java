@@ -4,6 +4,12 @@ import address.util.FileUtil;
 import address.util.OsDetector;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -16,6 +22,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -26,14 +34,37 @@ import java.util.jar.JarFile;
  * the main application JAR.
  */
 public class Installer extends Application {
-
+    private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private static final String LIB_DIR = "lib";
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // TODO display loading screen
-        run();
-        stop();
+        showWaitingWindow(primaryStage);
+        pool.execute(() -> {
+            run();
+            stop();
+        });
+    }
+
+    private void showWaitingWindow(Stage stage) {
+        stage.setTitle("Applying Updates");
+        VBox windowMainLayout = new VBox();
+        Group root = new Group();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        scene.setRoot(windowMainLayout);
+
+        Label loadingLabel = new Label("First time initialization. Downloading required components. Please wait.");
+
+        ProgressIndicator progressIndicator = new ProgressIndicator(-1.0);
+
+        final VBox vb = new VBox();
+        vb.setSpacing(30);
+        vb.getChildren().addAll(loadingLabel, progressIndicator);
+        vb.setPadding(new Insets(40));
+        windowMainLayout.getChildren().add(vb);
+
+        stage.show();
     }
 
     @Override
