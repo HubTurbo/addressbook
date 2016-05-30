@@ -53,7 +53,7 @@ public class AddressBookBrowser{
         addressBookBrowserView.setTabMaxHeight(0);
     }
 
-    private ArrayList<BrowserTab> getBrowserTabs(){
+    public ArrayList<BrowserTab> getBrowserTabs(){
         return browserTabs;
     }
 
