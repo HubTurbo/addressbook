@@ -63,4 +63,9 @@ public class ContactGroup extends UniqueData {
     public String toString() {
         return "Group: " + getName();
     }
+
+    @Override
+    public ContactGroup clone() {
+        return new ContactGroup(this);
+    }
 }

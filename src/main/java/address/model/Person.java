@@ -15,12 +15,13 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Data-type class representing a person
  */
-public class Person extends UniqueData {
+public class Person extends BaseDataType {
 
     @JsonIgnore private final StringProperty firstName;
     @JsonIgnore private final StringProperty lastName;
@@ -94,6 +95,15 @@ public class Person extends UniqueData {
         setUpdatedAt(updated.getUpdatedAt());
         setContactGroups(updated.getContactGroups());
         return this;
+    }
+
+    @Override
+    public List<Property> getProperties() {
+        final List<Property> props = new ArrayList<>();
+        props.add(firstName);
+        props.add(lastName);
+
+        return props;
     }
 
 //// NAME
@@ -287,4 +297,8 @@ public class Person extends UniqueData {
         return "Person: " + fullName();
     }
 
+    @Override
+    public Person clone() {
+        return new Person(this);
+    }
 }
