@@ -11,14 +11,13 @@ import java.util.*;
 
 // TODO implement full range of possible unreliable network effects: fail, corruption, etc
 // TODO check for bad response code
-// TODO proper conversion from cloud type to local type
 /**
  * Emulates the cloud & the local cloud service
  */
 public class CloudService implements ICloudService {
     private static final int RESOURCES_PER_PAGE = 100;
 
-    private CloudSimulator cloud;
+    private final CloudSimulator cloud;
 
 
     public CloudService(boolean shouldSimulateUnreliableNetwork) {
@@ -40,11 +39,9 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<List<Person>> getPersons(String addressBookName) throws IOException {
         RawCloudResponse cloudResponse = cloud.getPersons(addressBookName, RESOURCES_PER_PAGE);
-
-        System.out.println("Body: " + cloudResponse.getBody().toString());
-        List<Person> persons = getDataListFromBody(cloudResponse.getBody(), Person.class);
+        List<CloudPerson> cloudPersons = getDataListFromBody(cloudResponse.getBody(), CloudPerson.class);
         RateLimitStatus rateLimitStatus = getRateLimitStatusFromHeader(cloudResponse.getHeaders());
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), rateLimitStatus, persons);
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), rateLimitStatus, convertToPersonList(cloudPersons));
     }
 
     /**
@@ -58,10 +55,9 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<List<Tag>> getTags(String addressBookName) throws IOException {
         RawCloudResponse cloudResponse = cloud.getTags(addressBookName, RESOURCES_PER_PAGE);
-
-        List<Tag> tags = getDataListFromBody(cloudResponse.getBody(), Tag.class);
+        List<CloudTag> cloudTags = getDataListFromBody(cloudResponse.getBody(), CloudTag.class);
         RateLimitStatus rateLimitStatus = getRateLimitStatusFromHeader(cloudResponse.getHeaders());
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), rateLimitStatus, tags);
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), rateLimitStatus, convertToTagList(cloudTags));
     }
 
     /**
@@ -95,8 +91,8 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<Person> updatePerson(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) throws IOException {
         RawCloudResponse response = cloud.updatePerson(addressBookName, oldFirstName, oldLastName, convertToCloudPerson(updatedPerson));
-        Person returnedPerson = getDataFromBody(response.getBody(), Person.class);
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedPerson);
+        CloudPerson returnedPerson = getDataFromBody(response.getBody(), CloudPerson.class);
+        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), convertToPerson(returnedPerson));
     }
 
     /**
@@ -129,8 +125,8 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<Tag> createTag(String addressBookName, Tag tag) throws IOException {
         RawCloudResponse response = cloud.createTag(addressBookName, convertToCloudTag(tag));
-        Tag returnedTag = getDataFromBody(response.getBody(), Tag.class);
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedTag);
+        CloudTag returnedTag = getDataFromBody(response.getBody(), CloudTag.class);
+        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), convertToTag(returnedTag));
     }
 
     /**
@@ -147,8 +143,8 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<Tag> editTag(String addressBookName, String oldTagName, Tag newTag) throws IOException {
         RawCloudResponse response = cloud.editTag(addressBookName, oldTagName, convertToCloudTag(newTag));
-        Tag returnedTag = getDataFromBody(response.getBody(), Tag.class);
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedTag);
+        CloudTag returnedTag = getDataFromBody(response.getBody(), CloudTag.class);
+        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), convertToTag(returnedTag));
     }
 
     /**
@@ -170,7 +166,8 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time) throws IOException {
         RawCloudResponse response = cloud.getUpdatedPersons(addressBookName, time.toString());
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), getDataListFromBody(response.getBody(), Person.class));
+        List<CloudPerson> cloudPersons = getDataListFromBody(response.getBody(), CloudPerson.class);
+        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), convertToPersonList(cloudPersons));
     }
 
     @Override
@@ -185,7 +182,7 @@ public class CloudService implements ICloudService {
 
     private String convertToString(InputStream stream) throws IOException {
         BufferedReader reader = getReaderForStream(stream);
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         while (reader.ready()) {
             stringBuffer.append(reader.readLine());
         }
@@ -209,6 +206,22 @@ public class CloudService implements ICloudService {
                 headers.get("X-RateLimit-Reset"));
     }
 
+    private List<Person> convertToPersonList(List<CloudPerson> cloudPersonList) {
+        List<Person> convertedList = new ArrayList<>();
+        cloudPersonList.stream()
+                .forEach(cloudPerson -> convertedList.add(convertToPerson(cloudPerson)));
+
+        return convertedList;
+    }
+
+    private List<Tag> convertToTagList(List<CloudTag> cloudTagList) {
+        List<Tag> convertedList = new ArrayList<>();
+        cloudTagList.stream()
+                .forEach(cloudTag -> convertedList.add(convertToTag(cloudTag)));
+
+        return convertedList;
+    }
+
     private Person convertToPerson(CloudPerson cloudPerson) {
         Person person = new Person(cloudPerson.getFirstName(), cloudPerson.getLastName());
         person.setStreet(cloudPerson.getStreet());
@@ -221,17 +234,15 @@ public class CloudService implements ICloudService {
         CloudPerson cloudPerson = new CloudPerson(person.getFirstName(), person.getLastName());
         cloudPerson.setStreet(person.getStreet());
         cloudPerson.setCity(person.getCity());
-        cloudPerson.setPostalCode(person.getPostalCode().toString());
+        cloudPerson.setPostalCode(person.getPostalCode());
         return cloudPerson;
     }
 
     private Tag convertToTag(CloudTag cloudTag) {
-        Tag tag = new Tag(cloudTag.getName());
-        return tag;
+        return new Tag(cloudTag.getName());
     }
 
     private CloudTag convertToCloudTag(Tag tag) {
-        CloudTag cloudTag = new CloudTag(tag.getName());
-        return cloudTag;
+        return new CloudTag(tag.getName());
     }
 }
