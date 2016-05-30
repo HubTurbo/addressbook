@@ -31,7 +31,10 @@ public class AddressBookBrowser{
     private ObservableList<Person> filteredPersons;
     private TabPane addressBookBrowserView;
 
+    private int noOfTabs;
+
     public AddressBookBrowser(int noOfTabs, ObservableList<Person> filteredPersons) {
+        this.noOfTabs = noOfTabs;
         addressBookBrowserView = new TabPane();
         this.filteredPersons = filteredPersons;
         this.browserTabs = new ArrayList<>();
@@ -142,7 +145,8 @@ public class AddressBookBrowser{
 
         ArrayList<BrowserTab> tabsToBeUnLoaded = (ArrayList<BrowserTab>) browserTabs
                 .stream()
-                .filter(browserTab -> !listOfPersonsToLoad.contains(browserTab.getPerson()))
+                .filter(browserTab -> browserTab.getPerson()!= null &&
+                                      !listOfPersonsToLoad.contains(browserTab.getPerson()))
                 .collect(Collectors.toList());
         tabsToBeUnLoaded.stream().forEach(BrowserTab::unloadProfilePage);
 
@@ -180,7 +184,7 @@ public class AddressBookBrowser{
     private ArrayList<Person> getListOfPersonsToBeLoaded(List<Person> filteredPersons, int indexOfPerson) {
         ArrayList<Person> listOfPersonsToBeLoaded = new ArrayList<>();
 
-        for (int i = 0; i < BrowserManager.NUMBER_OF_PRELOADED_PAGE && i < filteredPersons.size(); i++){
+        for (int i = 0; i < noOfTabs && i < filteredPersons.size(); i++){
             listOfPersonsToBeLoaded.add(new Person(filteredPersons.get((indexOfPerson + i) % filteredPersons.size())));
         }
         return listOfPersonsToBeLoaded;
@@ -189,7 +193,7 @@ public class AddressBookBrowser{
     /**
      * Automates clicking on the Repositories tab and scrolling to the bottom of the page.
      */
-    private void automateClickingAndScrolling(Browser browser) {
+    private static void automateClickingAndScrolling(Browser browser) {
         DOMElement repoContainer = browser.getDocument().findElement(By.id("js-pjax-container"));
         DOMElement repoLink = browser.getDocument().findElement(By.className("octicon octicon-repo"));
 
@@ -208,11 +212,11 @@ public class AddressBookBrowser{
         }
     }
 
-    private boolean isRepoElementExist(DOMElement userRepoList, DOMElement organizationRepoList) {
+    private static boolean isRepoElementExist(DOMElement userRepoList, DOMElement organizationRepoList) {
         return userRepoList != null || organizationRepoList != null;
     }
 
-    private boolean isElementFoundToNavigateToRepoPage(DOMElement container, DOMElement link) {
+    private static boolean isElementFoundToNavigateToRepoPage(DOMElement container, DOMElement link) {
         return link != null && container != null;
     }
 

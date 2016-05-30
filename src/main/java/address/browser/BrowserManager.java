@@ -33,7 +33,6 @@ public class BrowserManager {
 
     public BrowserManager(ObservableList<Person> filteredPersons) {
         this.filteredPersons = filteredPersons;
-
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
             browser = Optional.empty();
