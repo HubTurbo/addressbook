@@ -2,7 +2,6 @@ package address.browser;
 
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
-import address.model.AddressBook;
 import address.model.Person;
 
 import com.google.common.eventbus.Subscribe;
@@ -14,7 +13,6 @@ import com.teamdev.jxbrowser.chromium.internal.Environment;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TabPane;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -51,6 +49,13 @@ public class BrowserManager {
             return;
         }
 
+        updateBrowserContent();
+    }
+
+    /**
+     * Updates the browser contents.
+     */
+    private void updateBrowserContent() {
         List<Person> personsInBrowserCache = browser.get().getPersonsLoadedInCache();
         personsInBrowserCache.stream().forEach(person -> {
                 if (filteredPersons.indexOf(person) == PERSON_NOT_FOUND){
