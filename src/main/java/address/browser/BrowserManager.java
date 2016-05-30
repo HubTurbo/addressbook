@@ -13,7 +13,6 @@ import com.teamdev.jxbrowser.chromium.internal.Environment;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TabPane;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -45,27 +44,32 @@ public class BrowserManager {
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent event){
-        ArrayList<BrowserTab> browserTabs = browser.get().getBrowserTabs();
 
-        for (BrowserTab browserTab: browserTabs){
-            Optional<Person> browserTabPerson = Optional.ofNullable(browserTab.getPerson());
-            if (!browserTabPerson.isPresent()){
-                continue;
-            }
-
-            int indexOfContact = filteredPersons.indexOf(browserTabPerson.get());
-
-            if (indexOfContact == PERSON_NOT_FOUND){
-                browserTab.unloadProfilePage();
-                continue;
-            }
-
-            Person updatedPerson = filteredPersons.get(indexOfContact);
-
-            if (!updatedPerson.getGithubUserName().equals(browserTabPerson.get().getGithubUserName())){
-                browserTab.loadProfilePage(updatedPerson);
-            }
+        if (!browser.isPresent()) {
+            return;
         }
+
+        updateBrowserContent();
+    }
+
+    /**
+     * Updates the browser contents.
+     */
+    private void updateBrowserContent() {
+        List<Person> personsInBrowserCache = browser.get().getPersonsLoadedInCache();
+        personsInBrowserCache.stream().forEach(person -> {
+                if (filteredPersons.indexOf(person) == PERSON_NOT_FOUND){
+                    browser.get().unloadProfilePage(person);
+                } else {
+                    int indexOfContact = filteredPersons.indexOf(person);
+                    Person updatedPerson = filteredPersons.get(indexOfContact);
+
+                    if (!updatedPerson.getGithubUserName().equals(person.getGithubUserName())){
+                        browser.get().unloadProfilePage(person);
+                        browser.get().loadProfilePage(updatedPerson);
+                    }
+                }
+            });
     }
 
     public static void initializeBrowser() {

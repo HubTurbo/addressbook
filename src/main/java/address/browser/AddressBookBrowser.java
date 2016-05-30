@@ -17,6 +17,7 @@ import javafx.scene.control.TabPane;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -138,20 +139,29 @@ public class AddressBookBrowser{
     }
 
     /**
-     * Unload profile pages that are unneeded from the cache of the browser.
-     * @param listOfPersonsToLoad A list of person to be loaded to the browser cache.
+     * Unloads profile pages that are unneeded from the cache of the browser.
+     * @param listOfPersonsToLoad A list of person that are to be <b>loaded</b> to the browser cache.
      */
     private void unloadProfilePages(List<Person> listOfPersonsToLoad) {
 
         ArrayList<BrowserTab> tabsToBeUnLoaded = (ArrayList<BrowserTab>) browserTabs
                 .stream()
-                .filter(browserTab -> browserTab.getPerson()!= null &&
+                .filter(browserTab -> browserTab.getPerson() != null &&
                                       !listOfPersonsToLoad.contains(browserTab.getPerson()))
                 .collect(Collectors.toList());
         tabsToBeUnLoaded.stream().forEach(BrowserTab::unloadProfilePage);
 
     }
 
+    /**
+     * Unloads profile page that are unneeded from the cache of the browser.
+     * @param person The person to be unloaded from the browser cache
+     */
+    public void unloadProfilePage(Person person) {
+        Optional<BrowserTab> tab = browserTabs.stream().filter(browserTab -> browserTab.getPerson() != null &&
+                                                               person.equals(browserTab.getPerson())).findAny();
+        tab.ifPresent(BrowserTab::unloadProfilePage);
+    }
 
     /**
      * Selects the tab that is used to load the profile page of the person.
@@ -225,6 +235,18 @@ public class AddressBookBrowser{
      */
     private void selectTab(int indexOfTab){
         addressBookBrowserView.getSelectionModel().select(indexOfTab);
+    }
+
+    /**
+     * Gets the current list of person that are displayed and stored in the browser.
+     * @return a current list of person that are displayed and stored in the browser.
+     */
+    public List<Person> getPersonsLoadedInCache(){
+        List<Person> list = new ArrayList<>();
+        List<BrowserTab> filteredBrowserTabs = browserTabs.stream().filter(browserTab ->
+                                                        browserTab.getPerson() != null).collect(Collectors.toList());
+        filteredBrowserTabs.stream().forEach(browserTab -> list.add(browserTab.getPerson()));
+        return list;
     }
 
 }
