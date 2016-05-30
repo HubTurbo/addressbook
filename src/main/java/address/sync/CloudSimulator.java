@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+// TODO implement full range of possible unreliable network effects: fail, corruption, etc
 public class CloudSimulator implements ICloudSimulator {
     private static final int API_QUOTA_PER_HOUR = 5000;
 
@@ -34,6 +35,7 @@ public class CloudSimulator implements ICloudSimulator {
     private static final double MODIFY_PERSON_PROBABILITY = 0.1;
     private static final double ADD_PERSON_PROBABILITY = 0.05;
     private static final int MAX_NUM_PERSONS_TO_ADD = 2;
+
     private RateLimitStatus rateLimitStatus;
     private List<CloudPerson> personsList;
     private List<CloudTag> tagList;
@@ -335,7 +337,7 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private ZoneOffset getSystemTimezone() {
-        return ZoneOffset.of(ZoneOffset.systemDefault().toString());
+        return ZoneOffset.of("+8");
     }
 
     private boolean shouldSimulateNetworkFailure() {

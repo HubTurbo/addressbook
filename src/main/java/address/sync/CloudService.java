@@ -9,8 +9,6 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-// TODO implement full range of possible unreliable network effects: fail, corruption, etc
-// TODO check for bad response code
 /**
  * Emulates the local cloud service
  *
@@ -34,33 +32,43 @@ public class CloudService implements ICloudService {
     /**
      * Gets the list of persons for addressBookName
      *
-     * Consumes 1 + ceil(persons size/RESOURCES_PER_PAGE) API usage
+     * Consumes 1 + floor(persons size/RESOURCES_PER_PAGE) API usage
      * @param addressBookName
      * @return wrapped response with list of persons
-     * @throws IOException if there is a network error
+     * @throws IOException if content cannot be interpreted
      */
     @Override
     public ExtractedCloudResponse<List<Person>> getPersons(String addressBookName) throws IOException {
         RawCloudResponse cloudResponse = cloud.getPersons(addressBookName, RESOURCES_PER_PAGE);
+        if (!isValid(cloudResponse)) {
+            return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                                                getRateLimitStatusFromHeader(cloudResponse.getHeaders()), null);
+        }
         List<CloudPerson> cloudPersons = getDataListFromBody(cloudResponse.getBody(), CloudPerson.class);
         RateLimitStatus rateLimitStatus = getRateLimitStatusFromHeader(cloudResponse.getHeaders());
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), rateLimitStatus, convertToPersonList(cloudPersons));
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), rateLimitStatus,
+                                            convertToPersonList(cloudPersons));
     }
 
     /**
      * Gets the list of tags for addressBookName
      *
-     * Consumes 1 + ceil(tags size/RESOURCES_PER_PAGE) API usage
+     * Consumes 1 + floor(tags size/RESOURCES_PER_PAGE) API usage
      * @param addressBookName
      * @return wrapped response with list of tags
-     * @throws IOException if there is a network error
+     * @throws IOException if content cannot be interpreted
      */
     @Override
     public ExtractedCloudResponse<List<Tag>> getTags(String addressBookName) throws IOException {
         RawCloudResponse cloudResponse = cloud.getTags(addressBookName, RESOURCES_PER_PAGE);
+        if (!isValid(cloudResponse)) {
+            return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                    getRateLimitStatusFromHeader(cloudResponse.getHeaders()), null);
+        }
         List<CloudTag> cloudTags = getDataListFromBody(cloudResponse.getBody(), CloudTag.class);
         RateLimitStatus rateLimitStatus = getRateLimitStatusFromHeader(cloudResponse.getHeaders());
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), rateLimitStatus, convertToTagList(cloudTags));
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), rateLimitStatus,
+                                            convertToTagList(cloudTags));
     }
 
     /**
@@ -71,13 +79,19 @@ public class CloudService implements ICloudService {
      * @param addressBookName
      * @param newPerson
      * @return
-     * @throws IOException
+     * @throws IOException if content cannot be interpreted
      */
     @Override
     public ExtractedCloudResponse<Person> createPerson(String addressBookName, Person newPerson) throws IOException {
-        RawCloudResponse response = cloud.createPerson(addressBookName, convertToCloudPerson(newPerson));
-        CloudPerson returnedPerson = getDataFromBody(response.getBody(), CloudPerson.class);
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), convertToPerson(returnedPerson));
+        RawCloudResponse cloudResponse = cloud.createPerson(addressBookName, convertToCloudPerson(newPerson));
+        if (!isValid(cloudResponse)) {
+            return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                    getRateLimitStatusFromHeader(cloudResponse.getHeaders()), null);
+        }
+        CloudPerson returnedPerson = getDataFromBody(cloudResponse.getBody(), CloudPerson.class);
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                                            getRateLimitStatusFromHeader(cloudResponse.getHeaders()),
+                                            convertToPerson(returnedPerson));
     }
 
     /**
@@ -90,12 +104,19 @@ public class CloudService implements ICloudService {
      * @param oldLastName
      * @param updatedPerson
      * @return
+     * @throws IOException if content cannot be interpreted
      */
     @Override
     public ExtractedCloudResponse<Person> updatePerson(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) throws IOException {
-        RawCloudResponse response = cloud.updatePerson(addressBookName, oldFirstName, oldLastName, convertToCloudPerson(updatedPerson));
-        CloudPerson returnedPerson = getDataFromBody(response.getBody(), CloudPerson.class);
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), convertToPerson(returnedPerson));
+        RawCloudResponse cloudResponse = cloud.updatePerson(addressBookName, oldFirstName, oldLastName, convertToCloudPerson(updatedPerson));
+        if (!isValid(cloudResponse)) {
+            return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                    getRateLimitStatusFromHeader(cloudResponse.getHeaders()), null);
+        }
+        CloudPerson returnedPerson = getDataFromBody(cloudResponse.getBody(), CloudPerson.class);
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                                            getRateLimitStatusFromHeader(cloudResponse.getHeaders()),
+                                            convertToPerson(returnedPerson));
     }
 
     /**
@@ -107,12 +128,19 @@ public class CloudService implements ICloudService {
      * @param firstName
      * @param lastName
      * @return
-     * @throws IOException
+     * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<Void> deletePerson(String addressBookName, String firstName, String lastName) throws IOException {
-        RawCloudResponse response = cloud.deletePerson(addressBookName, firstName, lastName);
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), null);
+    public ExtractedCloudResponse<Void> deletePerson(String addressBookName, String firstName, String lastName)
+            throws IOException {
+        RawCloudResponse cloudResponse = cloud.deletePerson(addressBookName, firstName, lastName);
+        if (!isValid(cloudResponse)) {
+            return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                    getRateLimitStatusFromHeader(cloudResponse.getHeaders()), null);
+        }
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                                            getRateLimitStatusFromHeader(cloudResponse.getHeaders()),
+                                            null);
     }
 
     /**
@@ -123,13 +151,19 @@ public class CloudService implements ICloudService {
      * @param addressBookName
      * @param tag
      * @return
-     * @throws IOException
+     * @throws IOException if content cannot be interpreted
      */
     @Override
     public ExtractedCloudResponse<Tag> createTag(String addressBookName, Tag tag) throws IOException {
-        RawCloudResponse response = cloud.createTag(addressBookName, convertToCloudTag(tag));
-        CloudTag returnedTag = getDataFromBody(response.getBody(), CloudTag.class);
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), convertToTag(returnedTag));
+        RawCloudResponse cloudResponse = cloud.createTag(addressBookName, convertToCloudTag(tag));
+        if (!isValid(cloudResponse)) {
+            return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                    getRateLimitStatusFromHeader(cloudResponse.getHeaders()), null);
+        }
+        CloudTag returnedTag = getDataFromBody(cloudResponse.getBody(), CloudTag.class);
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                                            getRateLimitStatusFromHeader(cloudResponse.getHeaders()),
+                                            convertToTag(returnedTag));
     }
 
     /**
@@ -141,13 +175,20 @@ public class CloudService implements ICloudService {
      * @param oldTagName
      * @param newTag
      * @return
-     * @throws IOException
+     * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<Tag> editTag(String addressBookName, String oldTagName, Tag newTag) throws IOException {
-        RawCloudResponse response = cloud.editTag(addressBookName, oldTagName, convertToCloudTag(newTag));
-        CloudTag returnedTag = getDataFromBody(response.getBody(), CloudTag.class);
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), convertToTag(returnedTag));
+    public ExtractedCloudResponse<Tag> editTag(String addressBookName, String oldTagName, Tag newTag)
+            throws IOException {
+        RawCloudResponse cloudResponse = cloud.editTag(addressBookName, oldTagName, convertToCloudTag(newTag));
+        if (!isValid(cloudResponse)) {
+            return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                    getRateLimitStatusFromHeader(cloudResponse.getHeaders()), null);
+        }
+        CloudTag returnedTag = getDataFromBody(cloudResponse.getBody(), CloudTag.class);
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                                            getRateLimitStatusFromHeader(cloudResponse.getHeaders()),
+                                            convertToTag(returnedTag));
     }
 
     /**
@@ -158,27 +199,39 @@ public class CloudService implements ICloudService {
      * @param addressBookName
      * @param tagName
      * @return
-     * @throws IOException
+     * @throws IOException if content cannot be interpreted
      */
     @Override
     public ExtractedCloudResponse<Void> deleteTag(String addressBookName, String tagName) throws IOException {
-        RawCloudResponse response = cloud.deleteTag(addressBookName, tagName);
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), null);
+        RawCloudResponse cloudResponse = cloud.deleteTag(addressBookName, tagName);
+        if (!isValid(cloudResponse)) {
+            return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                    getRateLimitStatusFromHeader(cloudResponse.getHeaders()), null);
+        }
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                                            getRateLimitStatusFromHeader(cloudResponse.getHeaders()), null);
     }
 
     /**
      * Gets the list of persons for addressBookName, which have been modified after a certain time
      *
-     * Consumes 1 + ceil(result size/RESOURCES_PER_PAGE) API usage
+     * Consumes 1 + floor(result size/RESOURCES_PER_PAGE) API usage
      * @param addressBookName
      * @return wrapped response with list of persons
-     * @throws IOException if there is a network error
+     * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time) throws IOException {
-        RawCloudResponse response = cloud.getUpdatedPersons(addressBookName, time.toString());
-        List<CloudPerson> cloudPersons = getDataListFromBody(response.getBody(), CloudPerson.class);
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), convertToPersonList(cloudPersons));
+    public ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time)
+            throws IOException {
+        RawCloudResponse cloudResponse = cloud.getUpdatedPersons(addressBookName, time.toString());
+        if (!isValid(cloudResponse)) {
+            return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                    getRateLimitStatusFromHeader(cloudResponse.getHeaders()), null);
+        }
+        List<CloudPerson> cloudPersons = getDataListFromBody(cloudResponse.getBody(), CloudPerson.class);
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                                            getRateLimitStatusFromHeader(cloudResponse.getHeaders()),
+                                            convertToPersonList(cloudPersons));
     }
 
     /**
@@ -187,12 +240,18 @@ public class CloudService implements ICloudService {
      * This does NOT consume API usage.
      *
      * @return
-     * @throws IOException
+     * @throws IOException if content cannot be interpreted
      */
     @Override
     public ExtractedCloudResponse<RateLimitStatus> getLimitStatus() throws IOException {
-        RawCloudResponse response = cloud.getRateLimitStatus();
-        return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), null);
+        RawCloudResponse cloudResponse = cloud.getRateLimitStatus();
+        if (!isValid(cloudResponse)) {
+            return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                    getRateLimitStatusFromHeader(cloudResponse.getHeaders()), null);
+        }
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(),
+                                            getRateLimitStatusFromHeader(cloudResponse.getHeaders()),
+                                            null);
     }
 
     private BufferedReader getReaderForStream(InputStream stream) {
@@ -243,7 +302,8 @@ public class CloudService implements ICloudService {
      * @throws IOException
      */
     private RateLimitStatus getRateLimitStatusFromHeader(InputStream headerStream) throws IOException {
-        HashMap<String, Long> headers = JsonUtil.fromJsonStringToHashMap(convertToString(headerStream), String.class, Long.class);
+        HashMap<String, Long> headers = JsonUtil.fromJsonStringToHashMap(
+                convertToString(headerStream), String.class, Long.class);
         return new RateLimitStatus(
                 headers.get("X-RateLimit-Limit").intValue(),
                 headers.get("X-RateLimit-Remaining").intValue(),
@@ -288,5 +348,18 @@ public class CloudService implements ICloudService {
 
     private CloudTag convertToCloudTag(Tag tag) {
         return new CloudTag(tag.getName());
+    }
+
+    public static boolean isValid(RawCloudResponse response) {
+        switch (response.getResponseCode()) {
+            case 200:
+            case 201:
+            case 202:
+            case 203:
+            case 204:
+                return true;
+            default:
+                return false;
+        }
     }
 }
