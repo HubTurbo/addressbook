@@ -20,8 +20,6 @@ public interface ICloudService {
     ExtractedCloudResponse<Tag> editTag(String addressBookName, String oldTagName, Tag newTag) throws IOException;
     ExtractedCloudResponse<Void> deleteTag(String addressBookName, String tagName) throws IOException;
 
-    // May consume API
-    // Implementation to be figured out to confirm API usage
     ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time) throws IOException;
 
     // Does not consume API

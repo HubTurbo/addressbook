@@ -18,23 +18,11 @@ public class RawCloudResponse {
         return responseCode;
     }
 
-    public void setResponseCode(int responseCode) {
-        this.responseCode = responseCode;
-    }
-
     public InputStream getBody() {
         return body;
     }
 
-    public void setBody(InputStream body) {
-        this.body = body;
-    }
-
     public InputStream getHeaders() {
         return headers;
-    }
-
-    public void setHeaders(InputStream headers) {
-        this.headers = headers;
     }
 }

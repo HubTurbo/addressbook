@@ -12,7 +12,10 @@ import java.util.*;
 // TODO implement full range of possible unreliable network effects: fail, corruption, etc
 // TODO check for bad response code
 /**
- * Emulates the cloud & the local cloud service
+ * Emulates the local cloud service
+ *
+ * This component is responsible for providing a high-level API for communication with the cloud,
+ * as well as the reformatting the cloud's response into a format understood by the local logic
  */
 public class CloudService implements ICloudService {
     private static final int RESOURCES_PER_PAGE = 100;
@@ -31,7 +34,7 @@ public class CloudService implements ICloudService {
     /**
      * Gets the list of persons for addressBookName
      *
-     * Consumes ceil(persons size/RESOURCES_PER_PAGE) API usage
+     * Consumes 1 + ceil(persons size/RESOURCES_PER_PAGE) API usage
      * @param addressBookName
      * @return wrapped response with list of persons
      * @throws IOException if there is a network error
@@ -47,7 +50,7 @@ public class CloudService implements ICloudService {
     /**
      * Gets the list of tags for addressBookName
      *
-     * Consumes ceil(tags size/RESOURCES_PER_PAGE) API usage
+     * Consumes 1 + ceil(tags size/RESOURCES_PER_PAGE) API usage
      * @param addressBookName
      * @return wrapped response with list of tags
      * @throws IOException if there is a network error
@@ -163,6 +166,14 @@ public class CloudService implements ICloudService {
         return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), null);
     }
 
+    /**
+     * Gets the list of persons for addressBookName, which have been modified after a certain time
+     *
+     * Consumes 1 + ceil(result size/RESOURCES_PER_PAGE) API usage
+     * @param addressBookName
+     * @return wrapped response with list of persons
+     * @throws IOException if there is a network error
+     */
     @Override
     public ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time) throws IOException {
         RawCloudResponse response = cloud.getUpdatedPersons(addressBookName, time.toString());
@@ -170,6 +181,14 @@ public class CloudService implements ICloudService {
         return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), convertToPersonList(cloudPersons));
     }
 
+    /**
+     * Returns the limit status information
+     *
+     * This does NOT consume API usage.
+     *
+     * @return
+     * @throws IOException
+     */
     @Override
     public ExtractedCloudResponse<RateLimitStatus> getLimitStatus() throws IOException {
         RawCloudResponse response = cloud.getRateLimitStatus();
@@ -190,14 +209,39 @@ public class CloudService implements ICloudService {
         return stringBuffer.toString();
     }
 
+    /**
+     * Parses the stream content and attempts to convert it into an object T
+     * @param bodyStream
+     * @param type
+     * @param <T>
+     * @return
+     * @throws IOException
+     */
     private <T> T getDataFromBody(InputStream bodyStream, Class<T> type) throws IOException {
         return JsonUtil.fromJsonString(convertToString(bodyStream), type);
     }
 
+    /**
+     * Parses the stream content and attempts to convert it into a List of object Ts
+     *
+     * @param bodyStream
+     * @param type
+     * @param <T>
+     * @return
+     * @throws IOException
+     */
     private <T> List<T> getDataListFromBody(InputStream bodyStream, Class<T> type) throws IOException {
         return JsonUtil.fromJsonStringToList(convertToString(bodyStream), type);
     }
 
+    /**
+     * Parses the stream and attempts to get the rate limit status
+     * The stream should contain a HashMap<String, Long> in JSON format
+     *
+     * @param headerStream
+     * @return
+     * @throws IOException
+     */
     private RateLimitStatus getRateLimitStatusFromHeader(InputStream headerStream) throws IOException {
         HashMap<String, Long> headers = JsonUtil.fromJsonStringToHashMap(convertToString(headerStream), String.class, Long.class);
         return new RateLimitStatus(

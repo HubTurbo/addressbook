@@ -25,7 +25,7 @@ public class SyncManager {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ExecutorService requestExecutor = Executors.newCachedThreadPool();
 
-    private CloudService cloudService = new CloudService(false);
+    private CloudService cloudService;
 
     public SyncManager() {
         EventManager.getInstance().registerHandler(this);

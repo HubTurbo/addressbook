@@ -7,6 +7,7 @@ import address.sync.model.CloudAddressBook;
 import address.sync.model.CloudTag;
 import address.sync.model.CloudPerson;
 import address.util.JsonUtil;
+import address.util.TickingTimer;
 import address.util.XmlFileHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -33,17 +34,17 @@ public class CloudSimulator implements ICloudSimulator {
     private static final double MODIFY_PERSON_PROBABILITY = 0.1;
     private static final double ADD_PERSON_PROBABILITY = 0.05;
     private static final int MAX_NUM_PERSONS_TO_ADD = 2;
-    RateLimitStatus rateLimitStatus;
+    private RateLimitStatus rateLimitStatus;
     private List<CloudPerson> personsList;
     private List<CloudTag> tagList;
-    private boolean hasResetCurrentQuota;
     private boolean shouldSimulateUnreliableNetwork;
+    private TickingTimer timer;
 
     CloudSimulator(boolean shouldSimulateUnreliableNetwork) {
         personsList = new ArrayList<>();
         tagList = new ArrayList<>();
         rateLimitStatus = new RateLimitStatus(API_QUOTA_PER_HOUR, API_QUOTA_PER_HOUR, getNextResetTime());
-        hasResetCurrentQuota = true;
+        resetQuotaAndRestartTimer();
         this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
 
         File cloudFile = new File(".$TEMP_ADDRESS_BOOK_MIRROR");
@@ -71,6 +72,9 @@ public class CloudSimulator implements ICloudSimulator {
 
     /**
      * Attempts to create a person if quota is available
+     *
+     * Consumes 1 API usage
+     *
      * @param addressBookName
      * @param newPerson
      * @return a response wrapper, containing the added person if successful
@@ -96,6 +100,9 @@ public class CloudSimulator implements ICloudSimulator {
 
     /**
      * Returns a response wrapper containing the list of persons if quota is available
+     *
+     * Consumes 1 + floor(persons size/resourcesPerPage) API usage
+     *
      * @param addressBookName
      * @param resourcesPerPage
      * @return
@@ -104,23 +111,26 @@ public class CloudSimulator implements ICloudSimulator {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
-        int noOfRequestsRequired = getNumberOfRequestsRequired(personsList.size(), resourcesPerPage);
+        int noOfRequestsRequired = 1 + getNumberOfRequestsRequired(personsList.size(), resourcesPerPage);
         if (!isWithinQuota(noOfRequestsRequired)) {
             rateLimitStatus.setQuotaRemaining(0);
             return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
-        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(personsList), convertToInputStream(getStandardHeaders()));
+        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(getIntactPersonsList(personsList)), convertToInputStream(getStandardHeaders()));
     }
 
     /**
      * Returns a response wrapper containing the list of tags if quota is available
+     *
+     * Consumes 1 + floor(tag list/resourcesPerPage) API usage
+     *
      * @param addressBookName
      * @param resourcesPerPage
      * @return
      */
     public RawCloudResponse getTags(String addressBookName, int resourcesPerPage) {
-        int noOfRequestsRequired = getNumberOfRequestsRequired(tagList.size(), resourcesPerPage);
+        int noOfRequestsRequired = 1 + getNumberOfRequestsRequired(tagList.size(), resourcesPerPage);
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
         if (!isWithinQuota(noOfRequestsRequired)) {
@@ -132,7 +142,10 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     /**
-     * Gets the rate limit given, rate limit remaining, and the time the rate limit quota is reset
+     * Gets the rate limit allocated, quota remaining, and the time the given quota is reset
+     *
+     * This does NOT cost any API usage
+     *
      * @return
      */
     public RawCloudResponse getRateLimitStatus() {
@@ -141,6 +154,8 @@ public class CloudSimulator implements ICloudSimulator {
 
     /**
      * Updates the details of the person with details of the updatedPerson if quota is available
+     *
+     * Consumes 1 API usage
      *
      * @param addressBookName
      * @param oldFirstName
@@ -169,6 +184,8 @@ public class CloudSimulator implements ICloudSimulator {
     /**
      * Deletes the person uniquely identified by addressBookName, firstName and lastName, if quota is available
      *
+     * Consumes 1 API usage
+     *
      * @param addressBookName
      * @param firstName
      * @param lastName
@@ -194,8 +211,11 @@ public class CloudSimulator implements ICloudSimulator {
 
     /**
      * Creates a new tag, if quota is available
+     *
+     * Consumes 1 API usage
+     *
      * @param addressBookName
-     * @param newTag tag name should not already be used
+     * @param newTag          tag name should not already be used
      * @return
      */
     public RawCloudResponse createTag(String addressBookName, CloudTag newTag) {
@@ -218,6 +238,9 @@ public class CloudSimulator implements ICloudSimulator {
 
     /**
      * Updates details of a tag to details of updatedTag, if quota is available
+     *
+     * Consumes 1 API usage
+     *
      * @param addressBookName
      * @param oldTagName
      * @param updatedTag
@@ -243,6 +266,9 @@ public class CloudSimulator implements ICloudSimulator {
 
     /**
      * Deletes a tag uniquely identified by its name, if quota is available
+     *
+     * Consumes 1 API usage
+     *
      * @param addressBookName
      * @param tagName
      * @return
@@ -271,6 +297,28 @@ public class CloudSimulator implements ICloudSimulator {
         return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(resultList), convertToInputStream(getStandardHeaders()));
     }
 
+    private void resetQuotaAndRestartTimer() {
+        long nextResetTime = getNextResetTime();
+        rateLimitStatus.setQuotaResetTime(nextResetTime);
+        rateLimitStatus.setQuotaRemaining(API_QUOTA_PER_HOUR);
+        if (timer != null) {
+            timer.stop();
+        }
+        int timeout = (int) (rateLimitStatus.getQuotaReset() - LocalDateTime.now().toEpochSecond(getSystemTimezone()));
+        timer = new TickingTimer("Cloud Quota Reset Time", timeout, this::printTimeLeft, this::resetQuotaAndRestartTimer, TimeUnit.SECONDS);
+        timer.start();
+    }
+
+    private void printTimeLeft(int timeLeft) {
+        System.out.println(timeLeft + " seconds remaining to quota reset.");
+    }
+
+    private List<CloudPerson> getIntactPersonsList(List<CloudPerson> personsList) {
+        return personsList.stream()
+                .filter(CloudPerson::isDeleted)
+                .collect(Collectors.toList());
+    }
+
     private List<CloudPerson> filterPersonsByTime(List<CloudPerson> personList, LocalDateTime time) {
         return personList.stream()
                 .filter(person -> !person.getLastUpdatedAt().isBefore(time))
@@ -281,8 +329,13 @@ public class CloudSimulator implements ICloudSimulator {
         LocalDateTime curTime = LocalDateTime.now();
         LocalDateTime nearestHour = LocalDateTime.of(
                 curTime.getYear(), curTime.getMonth(), curTime.getDayOfMonth(), curTime.getHour() + 1,
-                0, curTime.getSecond(), curTime.getNano());
-        return nearestHour.toEpochSecond(ZoneOffset.of("Z"));
+                0, 0, 0);
+
+        return nearestHour.toEpochSecond(getSystemTimezone());
+    }
+
+    private ZoneOffset getSystemTimezone() {
+        return ZoneOffset.of(ZoneOffset.systemDefault().toString());
     }
 
     private boolean shouldSimulateNetworkFailure() {
@@ -341,6 +394,7 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private boolean isWithinQuota(int quotaUsed) {
+        System.out.println("Current quota left: " + rateLimitStatus.getQuotaRemaining() + ", using " + quotaUsed);
         return quotaUsed <= rateLimitStatus.getQuotaRemaining();
     }
 
@@ -378,7 +432,8 @@ public class CloudSimulator implements ICloudSimulator {
         if (newPerson == null) throw new IllegalArgumentException("Person cannot be null");
         String newPersonFirstName = newPerson.getFirstName();
         String newPersonLastName = newPerson.getLastName();
-        if (newPersonFirstName == null || newPersonLastName == null) throw new IllegalArgumentException("Fields cannot be null");
+        if (newPersonFirstName == null || newPersonLastName == null)
+            throw new IllegalArgumentException("Fields cannot be null");
         if (isExistingPerson(newPerson)) throw new IllegalArgumentException("Person already exists");
 
         personsList.add(newPerson);
@@ -425,7 +480,7 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private int getNumberOfRequestsRequired(int dataSize, int resourcesPerPage) {
-        return (int) Math.ceil((double)dataSize / resourcesPerPage);
+        return (int) Math.ceil((double) dataSize / resourcesPerPage);
     }
 
     private void deletePersonFromData(String addressBookName, String firstName, String lastName) throws NoSuchElementException {
