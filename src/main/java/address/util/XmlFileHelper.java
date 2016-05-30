@@ -4,6 +4,8 @@ import address.model.*;
 import address.model.datatypes.ContactGroup;
 import address.model.datatypes.Person;
 import address.sync.model.CloudAddressBook;
+import address.sync.model.CloudGroup;
+import address.sync.model.CloudPerson;
 import address.updater.model.UpdateData;
 
 import javax.xml.bind.JAXBContext;
@@ -26,7 +28,10 @@ public class XmlFileHelper {
         return ((CloudAddressBook) um.unmarshal(file));
     }
 
-    public static void saveCloudDataToFile(File file, CloudAddressBook cloudAddressBook) throws JAXBException {
+    public static void saveCloudDataToFile(File file, List<CloudPerson> personData, List<CloudGroup> groupData) throws JAXBException {
+        // Wrapping our person data.
+        CloudAddressBook cloudAddressBook = new CloudAddressBook(personData, groupData);
+
         JAXBContext context = JAXBContext.newInstance(CloudAddressBook.class);
         Marshaller m = context.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

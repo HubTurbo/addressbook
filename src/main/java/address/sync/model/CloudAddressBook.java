@@ -2,6 +2,7 @@ package address.sync.model;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement(name = "cloudaddressbook")
@@ -10,9 +11,11 @@ public class CloudAddressBook {
     List<CloudGroup> groupsList;
 
     public CloudAddressBook() {
+        this.personsList = new ArrayList<>();
+        this.groupsList = new ArrayList<>();
     }
 
-    CloudAddressBook(List<CloudPerson> personsList, List<CloudGroup> groupsList) {
+    public CloudAddressBook(List<CloudPerson> personsList, List<CloudGroup> groupsList) {
         this.personsList = personsList;
         this.groupsList = groupsList;
     }

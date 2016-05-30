@@ -6,8 +6,9 @@ import address.model.datatypes.Person;
 import address.sync.model.CloudAddressBook;
 import address.sync.model.CloudGroup;
 import address.sync.model.CloudPerson;
+import address.util.JsonUtil;
 import address.util.XmlFileHelper;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
@@ -36,7 +37,6 @@ public class CloudSimulator implements ICloudSimulator {
     private List<CloudGroup> groupList;
     private boolean hasResetCurrentQuota;
     private boolean shouldSimulateUnreliableNetwork;
-    private Gson gson;
 
     CloudSimulator(boolean shouldSimulateUnreliableNetwork) {
         personsList = new ArrayList<>();
@@ -44,7 +44,6 @@ public class CloudSimulator implements ICloudSimulator {
         rateLimitStatus = new RateLimitStatus(API_QUOTA_PER_HOUR, API_QUOTA_PER_HOUR, getNextResetTime());
         hasResetCurrentQuota = true;
         this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
-        gson = new Gson();
 
         File cloudFile = new File(".$TEMP_ADDRESS_BOOK_MIRROR");
 
@@ -60,7 +59,10 @@ public class CloudSimulator implements ICloudSimulator {
         } else {
             try {
                 cloudFile.createNewFile();
+                XmlFileHelper.saveCloudDataToFile(cloudFile, new ArrayList<>(), new ArrayList<>());
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JAXBException e) {
                 e.printStackTrace();
             }
         }
@@ -314,7 +316,7 @@ public class CloudSimulator implements ICloudSimulator {
                 System.out.println("Cloud simulator: modifying " + person);
                 person.setCity(java.util.UUID.randomUUID().toString());
                 person.setStreet(java.util.UUID.randomUUID().toString());
-                person.setPostalCode(RANDOM_GENERATOR.nextInt(999999));
+                person.setPostalCode(String.valueOf(RANDOM_GENERATOR.nextInt(999999)));
             }
             modifiedData.add(person);
         }
@@ -399,7 +401,12 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private ByteArrayInputStream convertToInputStream(Object object) {
-        return new ByteArrayInputStream(gson.toJson(object).getBytes());
+        try {
+            return new ByteArrayInputStream(JsonUtil.toJsonString(object).getBytes());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private int getNumberOfRequestsRequired(int dataSize, int resourcesPerPage) {

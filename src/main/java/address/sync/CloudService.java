@@ -1,15 +1,13 @@
 package address.sync;
 
-import address.model.AddressBook;
 import address.model.ContactGroup;
 import address.model.Person;
 import address.sync.model.CloudGroup;
 import address.sync.model.CloudPerson;
+import address.util.JsonUtil;
 import address.util.XmlFileHelper;
-import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.reflect.TypeToken;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
@@ -17,8 +15,6 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
 
 // TODO implement full range of possible unreliable network effects: fail, corruption, etc
 // TODO check for bad response code
@@ -28,12 +24,10 @@ import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
 public class CloudService implements ICloudService {
     private static final int RESOURCES_PER_PAGE = 100;
 
-    private Gson gson;
     private CloudSimulator cloud;
 
 
     public CloudService(boolean shouldSimulateUnreliableNetwork) {
-        gson = new Gson();
         cloud = new CloudSimulator(shouldSimulateUnreliableNetwork);
     }
 
@@ -71,7 +65,8 @@ public class CloudService implements ICloudService {
     public ExtractedCloudResponse<List<Person>> getPersons(String addressBookName) throws IOException {
         RawCloudResponse cloudResponse = cloud.getPersons(addressBookName, RESOURCES_PER_PAGE);
 
-        List<Person> persons = getDataListFromBody(cloudResponse.getBody(), new TypeToken<List<ContactGroup>>(){}.getType());
+        System.out.println("Body: " + cloudResponse.getBody().toString());
+        List<Person> persons = getDataListFromBody(cloudResponse.getBody(), Person.class);
         RateLimitStatus rateLimitStatus = getRateLimitStatusFromHeader(cloudResponse.getHeaders());
         return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), rateLimitStatus, persons);
     }
@@ -88,7 +83,7 @@ public class CloudService implements ICloudService {
     public ExtractedCloudResponse<List<ContactGroup>> getGroups(String addressBookName) throws IOException {
         RawCloudResponse cloudResponse = cloud.getGroups(addressBookName, RESOURCES_PER_PAGE);
 
-        List<ContactGroup> groups = getDataListFromBody(cloudResponse.getBody(), new TypeToken<List<ContactGroup>>(){}.getType());
+        List<ContactGroup> groups = getDataListFromBody(cloudResponse.getBody(), ContactGroup.class);
         RateLimitStatus rateLimitStatus = getRateLimitStatusFromHeader(cloudResponse.getHeaders());
         return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), rateLimitStatus, groups);
     }
@@ -106,7 +101,7 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<Person> createPerson(String addressBookName, Person newPerson) throws IOException {
         RawCloudResponse response = cloud.createPerson(addressBookName, convertToCloudPerson(newPerson));
-        CloudPerson returnedPerson = getDataFromBody(response.getBody(), new TypeToken<CloudPerson>(){}.getType());
+        CloudPerson returnedPerson = getDataFromBody(response.getBody(), CloudPerson.class);
         return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), convertToPerson(returnedPerson));
     }
 
@@ -124,7 +119,7 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<Person> updatePerson(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) throws IOException {
         RawCloudResponse response = cloud.updatePerson(addressBookName, oldFirstName, oldLastName, convertToCloudPerson(updatedPerson));
-        Person returnedPerson = getDataFromBody(response.getBody(), new TypeToken<Person>(){}.getType());
+        Person returnedPerson = getDataFromBody(response.getBody(), Person.class);
         return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedPerson);
     }
 
@@ -158,7 +153,7 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<ContactGroup> createGroup(String addressBookName, ContactGroup group) throws IOException {
         RawCloudResponse response = cloud.createGroup(addressBookName, convertToCloudGroup(group));
-        ContactGroup returnedGroup = getDataFromBody(response.getBody(), new TypeToken<ContactGroup>(){}.getType());
+        ContactGroup returnedGroup = getDataFromBody(response.getBody(), ContactGroup.class);
         return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedGroup);
     }
 
@@ -176,7 +171,7 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<ContactGroup> editGroup(String addressBookName, String oldGroupName, ContactGroup newGroup) throws IOException {
         RawCloudResponse response = cloud.editGroup(addressBookName, oldGroupName, convertToCloudGroup(newGroup));
-        ContactGroup returnedGroup = getDataFromBody(response.getBody(), new TypeToken<ContactGroup>(){}.getType());
+        ContactGroup returnedGroup = getDataFromBody(response.getBody(), ContactGroup.class);
         return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), returnedGroup);
     }
 
@@ -212,22 +207,30 @@ public class CloudService implements ICloudService {
         return new ExtractedCloudResponse<>(response.getResponseCode(), getRateLimitStatusFromHeader(response.getHeaders()), null);
     }
 
-    private <T> T getDataFromBody(InputStream bodyStream, Type type) throws IOException {
-        return parseJson(bodyStream, type, false);
+    private BufferedReader getReaderForStream(InputStream stream) {
+        return new BufferedReader(new InputStreamReader(stream));
     }
 
-    private <T> T getDataListFromBody(InputStream bodyStream, Type listType) throws IOException {
-        return parseJson(bodyStream, listType, true);
+    private String convertToString(InputStream stream) throws IOException {
+        BufferedReader reader = getReaderForStream(stream);
+        StringBuffer stringBuffer = new StringBuffer();
+        while (reader.ready()) {
+            stringBuffer.append(reader.readLine());
+        }
+
+        return stringBuffer.toString();
     }
 
-    private List<Person> getGroupsFromBody(InputStream bodyStream) throws IOException {
-        Type dataType = new TypeToken<List<ContactGroup>>(){}.getType();
-        return parseJson(bodyStream, dataType, false);
+    private <T> T getDataFromBody(InputStream bodyStream, Class<T> type) throws IOException {
+        return JsonUtil.fromJsonString(convertToString(bodyStream), type);
+    }
+
+    private <T> List<T> getDataListFromBody(InputStream bodyStream, Class<T> type) throws IOException {
+        return JsonUtil.fromJsonStringToList(convertToString(bodyStream), type);
     }
 
     private RateLimitStatus getRateLimitStatusFromHeader(InputStream headerStream) throws IOException {
-        Type headerType = new TypeToken<HashMap<String, Double>>(){}.getType();
-        HashMap<String, Long> headers = parseJson(headerStream, headerType, false);
+        HashMap<String, Long> headers = JsonUtil.fromJsonStringToHashMap(convertToString(headerStream), String.class, Long.class);
         return new RateLimitStatus(
                 headers.get("X-RateLimit-Limit").intValue(),
                 headers.get("X-RateLimit-Remaining").intValue(),
@@ -238,7 +241,7 @@ public class CloudService implements ICloudService {
         Person person = new Person(cloudPerson.getFirstName(), cloudPerson.getLastName());
         person.setStreet(cloudPerson.getStreet());
         person.setCity(cloudPerson.getCity());
-        person.setPostalCode(Integer.valueOf(cloudPerson.getPostalCode()));
+        person.setPostalCode(cloudPerson.getPostalCode());
         return person;
     }
 
@@ -258,41 +261,5 @@ public class CloudService implements ICloudService {
     private CloudGroup convertToCloudGroup(ContactGroup group) {
         CloudGroup cloudGroup = new CloudGroup(group.getName());
         return cloudGroup;
-    }
-
-    /**
-     * Parse JSON to specified type
-     *
-     * @param <V>
-     * @param stream
-     * @param type
-     * @return parsed type
-     * @throws IOException
-     */
-    protected <V> V parseJson(InputStream stream, Type type, boolean isList)
-            throws IOException {
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(
-                stream, "UTF-8"), 8192);
-        JsonReader jsonReader = new JsonReader(reader);
-        try {
-            if (isList && jsonReader.peek() == BEGIN_ARRAY) {
-                return gson.fromJson(jsonReader, type);
-            } else {
-                return gson.fromJson(reader, type);
-            }
-        } catch (JsonParseException jpe) {
-            IOException ioe = new IOException(
-                    "Parse exception converting JSON to object"); //$NON-NLS-1$
-            ioe.initCause(jpe);
-            throw ioe;
-        } finally {
-            try {
-                reader.close();
-                jsonReader.close();
-            } catch (IOException ignored) {
-                // Ignored
-            }
-        }
     }
 }
