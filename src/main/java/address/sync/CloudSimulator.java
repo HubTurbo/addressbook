@@ -16,6 +16,7 @@ import java.io.File;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -420,7 +421,9 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private ZoneOffset getSystemTimezone() {
-        return ZoneOffset.of(ZoneOffset.systemDefault().getId());
+        LocalDateTime localDateTime = LocalDateTime.now();
+        ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneOffset.systemDefault());
+        return zonedDateTime.getOffset();
     }
 
     private boolean shouldSimulateNetworkFailure() {

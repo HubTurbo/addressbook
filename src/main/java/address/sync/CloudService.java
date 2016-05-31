@@ -20,7 +20,6 @@ public class CloudService implements ICloudService {
 
     private final CloudSimulator cloud;
 
-
     public CloudService(boolean shouldSimulateUnreliableNetwork) {
         cloud = new CloudSimulator(shouldSimulateUnreliableNetwork);
     }

@@ -76,8 +76,8 @@ public class SyncManager {
         final File mirrorFile = PrefsManager.getInstance().getMirrorLocation();
 
         try {
-            ExtractedCloudResponse<List<Person>> personsResponse = cloudService.getPersons("");
-            ExtractedCloudResponse<List<Tag>> tagsResponse = cloudService.getTags("");
+            ExtractedCloudResponse<List<Person>> personsResponse = cloudService.getPersons("default");
+            ExtractedCloudResponse<List<Tag>> tagsResponse = cloudService.getTags("default");
             List<Person>  personList = personsResponse.getData().get();
             List<Tag> tagList = tagsResponse.getData().get();
             AddressBook data = wrapWithAddressBook(personList, tagList);
