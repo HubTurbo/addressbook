@@ -24,4 +24,6 @@ public interface ICloudService {
 
     // Does not consume API
     ExtractedCloudResponse<RateLimitStatus> getLimitStatus() throws IOException;
+
+    ExtractedCloudResponse<Void> createAddressBook(String addressBookName) throws IOException;
 }

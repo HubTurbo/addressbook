@@ -6,6 +6,7 @@ import address.sync.model.CloudPerson;
 public interface ICloudSimulator {
     RawCloudResponse createPerson(String addressBookName, CloudPerson newPerson);
     RawCloudResponse getPersons(String addressBookName, int resourcesPerPage);
+    RawCloudResponse getUpdatedPersons(String addressBookName, String timeString, int resourcesPerPage);
     RawCloudResponse getTags(String addressBookName, int resourcesPerPage);
     RawCloudResponse getRateLimitStatus();
     RawCloudResponse updatePerson(String addressBookName, String oldFirstName, String oldLastName, CloudPerson updatedPerson);
@@ -13,4 +14,5 @@ public interface ICloudSimulator {
     RawCloudResponse createTag(String addressBookName, CloudTag newTag);
     RawCloudResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag);
     RawCloudResponse deleteTag(String addressBookName, String tagName);
+    RawCloudResponse initializeAddressBook(String addressBookName);
 }

@@ -76,6 +76,7 @@ public class SyncManager {
         final File mirrorFile = PrefsManager.getInstance().getMirrorLocation();
 
         try {
+            // TODO: default should be changed to the desired addressbook's name
             ExtractedCloudResponse<List<Person>> personsResponse = cloudService.getPersons("default");
             ExtractedCloudResponse<List<Tag>> tagsResponse = cloudService.getTags("default");
             List<Person>  personList = personsResponse.getData().get();

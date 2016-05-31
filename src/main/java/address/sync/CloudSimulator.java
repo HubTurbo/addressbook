@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -45,33 +46,6 @@ public class CloudSimulator implements ICloudSimulator {
         this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
     }
 
-    private CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws JAXBException {
-        File cloudFile = getCloudDataFilePath(addressBookName);
-        System.out.println("Reading from cloudFile: " + cloudFile.canRead());
-        try {
-            CloudAddressBook data = XmlFileHelper.getCloudDataFromFile(cloudFile);
-            return data;
-        } catch (JAXBException e) {
-            System.out.println("Error reading from cloud file.");
-            throw e;
-        }
-    }
-
-    private File getCloudDataFilePath(String addressBookName) {
-        return new File("/cloud/" + addressBookName);
-    }
-
-    private void writeCloudAddressBookToFile(String addressBookName, CloudAddressBook cloudAddressBook) throws JAXBException {
-        File cloudFile = getCloudDataFilePath(addressBookName);
-        System.out.println("Writing to cloudFile: " + cloudFile.canRead());
-        try {
-            XmlFileHelper.saveCloudDataToFile(cloudFile, cloudAddressBook);
-        } catch (JAXBException e) {
-            System.out.println("Error writing to cloud file.");
-            throw e;
-        }
-    }
-
     /**
      * Attempts to create a person if quota is available
      *
@@ -81,6 +55,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param newPerson
      * @return a response wrapper, containing the added person if successful
      */
+    @Override
     public RawCloudResponse createPerson(String addressBookName, CloudPerson newPerson) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
@@ -104,10 +79,6 @@ public class CloudSimulator implements ICloudSimulator {
         }
     }
 
-    private RawCloudResponse getEmptyResponse(int responseCode) {
-        return new RawCloudResponse(responseCode, null, convertToInputStream(getStandardHeaders()));
-    }
-
     /**
      * Returns a response wrapper containing the list of persons if quota is available
      *
@@ -117,6 +88,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param resourcesPerPage
      * @return
      */
+    @Override
     public RawCloudResponse getPersons(String addressBookName, int resourcesPerPage) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
@@ -147,6 +119,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param resourcesPerPage
      * @return
      */
+    @Override
     public RawCloudResponse getTags(String addressBookName, int resourcesPerPage) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
@@ -176,6 +149,7 @@ public class CloudSimulator implements ICloudSimulator {
      *
      * @return
      */
+    @Override
     public RawCloudResponse getRateLimitStatus() {
         return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(rateLimitStatus), convertToInputStream(getStandardHeaders()));
     }
@@ -191,6 +165,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param updatedPerson
      * @return
      */
+    @Override
     public RawCloudResponse updatePerson(String addressBookName, String oldFirstName, String oldLastName,
                                          CloudPerson updatedPerson) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
@@ -226,6 +201,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param lastName
      * @return
      */
+    @Override
     public RawCloudResponse deletePerson(String addressBookName, String firstName, String lastName) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
@@ -258,6 +234,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param newTag          tag name should not already be used
      * @return
      */
+    @Override
     public RawCloudResponse createTag(String addressBookName, CloudTag newTag) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
@@ -291,6 +268,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param updatedTag
      * @return
      */
+    @Override
     public RawCloudResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
@@ -323,6 +301,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param tagName
      * @return
      */
+    @Override
     public RawCloudResponse deleteTag(String addressBookName, String tagName) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
@@ -345,6 +324,18 @@ public class CloudSimulator implements ICloudSimulator {
         }
     }
 
+    @Override
+    public RawCloudResponse initializeAddressBook(String addressBookName) {
+        try {
+            createCloudAddressBookFile(addressBookName);
+            return getEmptyResponse(HttpURLConnection.HTTP_OK);
+        } catch (IOException e) {
+            return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        } catch (IllegalArgumentException e) {
+            return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
+        }
+    }
+
     /**
      * Gets the list of persons that have been updated after a certain time
      *
@@ -354,6 +345,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param timeString
      * @return
      */
+    @Override
     public RawCloudResponse getUpdatedPersons(String addressBookName, String timeString, int resourcesPerPage) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
@@ -380,6 +372,45 @@ public class CloudSimulator implements ICloudSimulator {
         } catch (NoSuchElementException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
         }
+    }
+
+    private CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws JAXBException {
+        File cloudFile = getCloudDataFilePath(addressBookName);
+        System.out.println("Reading from cloudFile: " + cloudFile.canRead());
+        try {
+            CloudAddressBook data = XmlFileHelper.getCloudDataFromFile(cloudFile);
+            return data;
+        } catch (JAXBException e) {
+            System.out.println("Error reading from cloud file.");
+            throw e;
+        }
+    }
+
+    private File getCloudDataFilePath(String addressBookName) {
+        return new File("/cloud/" + addressBookName);
+    }
+
+    private void writeCloudAddressBookToFile(String addressBookName, CloudAddressBook cloudAddressBook) throws JAXBException {
+        File cloudFile = getCloudDataFilePath(addressBookName);
+        System.out.println("Writing to cloudFile: " + cloudFile.canRead());
+        try {
+            XmlFileHelper.saveCloudDataToFile(cloudFile, cloudAddressBook);
+        } catch (JAXBException e) {
+            System.out.println("Error writing to cloud file.");
+            throw e;
+        }
+    }
+
+    private void createCloudAddressBookFile(String addressBookName) throws IOException {
+        File cloudFile = getCloudDataFilePath(addressBookName);
+        if (cloudFile.exists()) {
+            throw new IllegalArgumentException("AddressBook '" + addressBookName + "' already exists!");
+        }
+        cloudFile.createNewFile();
+    }
+
+    private RawCloudResponse getEmptyResponse(int responseCode) {
+        return new RawCloudResponse(responseCode, null, convertToInputStream(getStandardHeaders()));
     }
 
     private void resetQuotaAndRestartTimer() {

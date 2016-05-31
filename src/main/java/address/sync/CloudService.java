@@ -28,6 +28,19 @@ public class CloudService implements ICloudService {
         CloudService test = new CloudService(false);
     }
 
+    public static boolean isValid(RawCloudResponse response) {
+        switch (response.getResponseCode()) {
+            case 200:
+            case 201:
+            case 202:
+            case 203:
+            case 204:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Gets the list of persons for addressBookName
      *
@@ -48,13 +61,6 @@ public class CloudService implements ICloudService {
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap),
                                             convertToPersonList(cloudPersons));
-    }
-
-    private <V> ExtractedCloudResponse<V> getResponseWithNoData(RawCloudResponse cloudResponse,
-                                                                HashMap<String, Long> headerHashMap) {
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
-                                            getRateRemainingFromHeader(headerHashMap),
-                                            getRateResetFromHeader(headerHashMap), null);
     }
 
     /**
@@ -264,6 +270,25 @@ public class CloudService implements ICloudService {
                                             getRateResetFromHeader(headerHashMap), null);
     }
 
+    @Override
+    public ExtractedCloudResponse<Void> createAddressBook(String addressBookName) throws IOException {
+        RawCloudResponse cloudResponse = cloud.initializeAddressBook(addressBookName);
+        HashMap<String, Long> headerHashMap = getHashMapFromHeader(cloudResponse.getHeaders());
+        if (!isValid(cloudResponse)) {
+            return getResponseWithNoData(cloudResponse, headerHashMap);
+        }
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+                                            getRateRemainingFromHeader(headerHashMap),
+                                            getRateResetFromHeader(headerHashMap), null);
+    }
+
+    private <V> ExtractedCloudResponse<V> getResponseWithNoData(RawCloudResponse cloudResponse,
+                                                                HashMap<String, Long> headerHashMap) {
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+                                            getRateRemainingFromHeader(headerHashMap),
+                                            getRateResetFromHeader(headerHashMap), null);
+    }
+
     private BufferedReader getReaderForStream(InputStream stream) {
         return new BufferedReader(new InputStreamReader(stream));
     }
@@ -365,18 +390,5 @@ public class CloudService implements ICloudService {
 
     private CloudTag convertToCloudTag(Tag tag) {
         return new CloudTag(tag.getName());
-    }
-
-    public static boolean isValid(RawCloudResponse response) {
-        switch (response.getResponseCode()) {
-            case 200:
-            case 201:
-            case 202:
-            case 203:
-            case 204:
-                return true;
-            default:
-                return false;
-        }
     }
 }
