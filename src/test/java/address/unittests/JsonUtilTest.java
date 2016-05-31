@@ -39,7 +39,7 @@ public class JsonUtilTest {
         addressBook.setPersons(Arrays.asList(samplePerson));
         addressBook.setGroups(Arrays.asList(sampleContactGroup));
 
-        System.out.println(JsonUtil.toJsonString(addressBook));
+        JsonUtil.toJsonString(addressBook);
     }
 
     @Test
@@ -76,6 +76,44 @@ public class JsonUtilTest {
         assertEquals("Singapore", person.getCity());
         assertEquals("123456", person.getPostalCode());
         assertEquals(group, person.getContactGroups().get(0));
+        assertEquals(LocalDate.of(1980, 3, 18), person.getBirthday());
+        assertEquals("FirstLast", person.getGithubUserName());
+    }
+
+    @Test
+    public void jsonUtil_writeThenReadObjectToJson_correctObject() throws IOException {
+        // Write
+        ContactGroup sampleContactGroup = new ContactGroup("Group");
+        Person samplePerson = new Person("First", "Last");
+        samplePerson.setCity("Singapore");
+        samplePerson.setPostalCode("123456");
+        List<ContactGroup> group = new ArrayList<>();
+        group.add(sampleContactGroup);
+        samplePerson.setContactGroups(group);
+        samplePerson.setBirthday(LocalDate.of(1980, 3, 18));
+        samplePerson.setGithubUserName("FirstLast");
+
+        AddressBook addressBook = new AddressBook();
+        addressBook.setPersons(Arrays.asList(samplePerson));
+        addressBook.setGroups(Arrays.asList(sampleContactGroup));
+
+        String jsonString = JsonUtil.toJsonString(addressBook);
+
+        // Read
+        AddressBook addressBookRead = JsonUtil.fromJsonString(jsonString, AddressBook.class);
+        assertEquals(1, addressBookRead.getPersons().size());
+        assertEquals(1, addressBookRead.getGroups().size());
+
+        Person person = addressBookRead.getPersons().get(0);
+        ContactGroup groupRead = addressBookRead.getGroups().get(0);
+
+        assertEquals("Group", groupRead.getName());
+
+        assertEquals("First", person.getFirstName());
+        assertEquals("Last", person.getLastName());
+        assertEquals("Singapore", person.getCity());
+        assertEquals("123456", person.getPostalCode());
+        assertEquals(groupRead, person.getContactGroups().get(0));
         assertEquals(LocalDate.of(1980, 3, 18), person.getBirthday());
         assertEquals("FirstLast", person.getGithubUserName());
     }

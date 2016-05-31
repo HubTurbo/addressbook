@@ -23,15 +23,15 @@ import java.util.List;
  */
 public class Person extends BaseDataType {
 
-    @JsonIgnore private final StringProperty firstName;
-    @JsonIgnore private final StringProperty lastName;
+    @JsonIgnore private final SimpleStringProperty firstName;
+    @JsonIgnore private final SimpleStringProperty lastName;
 
-    @JsonIgnore private final StringProperty street;
-    @JsonIgnore private final StringProperty postalCode;
-    @JsonIgnore private final StringProperty city;
-    @JsonIgnore private final StringProperty githubUserName;
+    @JsonIgnore private final SimpleStringProperty street;
+    @JsonIgnore private final SimpleStringProperty postalCode;
+    @JsonIgnore private final SimpleStringProperty city;
+    @JsonIgnore private final SimpleStringProperty githubUserName;
 
-    @JsonIgnore private final ObjectProperty<LocalDate> birthday;
+    @JsonIgnore private final SimpleObjectProperty<LocalDate> birthday;
     @JsonIgnore private final ObservableList<ContactGroup> contactGroups;
 
     // defaults
