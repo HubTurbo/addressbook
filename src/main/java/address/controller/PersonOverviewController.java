@@ -24,6 +24,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 
 import java.util.Optional;
+import java.util.concurrent.*;
 
 public class PersonOverviewController {
 
@@ -35,6 +36,8 @@ public class PersonOverviewController {
 
     private MainController mainController;
     private ModelManager modelManager;
+
+    private final ScheduledExecutorService requestExecutor = Executors.newScheduledThreadPool(1);
 
     public PersonOverviewController() {
         EventManager.getInstance().registerHandler(this);
@@ -57,7 +60,11 @@ public class PersonOverviewController {
         personList.setItems(modelManager.getFilteredPersons());
         personList.setCellFactory(listView -> new PersonListViewCell());
         personList.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> mainController.loadGithubProfilePage(new Person(newValue)));
+                (observable, oldValue, newValue) -> {
+                    if(newValue != null){
+                        mainController.loadGithubProfilePage(new Person(newValue));
+                    }
+                });
     }
 
     /**
@@ -67,9 +74,15 @@ public class PersonOverviewController {
     private void handleDeletePerson() {
         int selectedIndex = personList.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
+            Person tmpPerson = personList.getItems().get(selectedIndex);
             mainController.getStatusBarHeaderController().postStatus(
-                                                    new PersonDeletedStatus(personList.getItems().get(selectedIndex)));
-            modelManager.deletePerson(personList.getItems().get(selectedIndex));
+                                                    new PersonDeletedStatus(tmpPerson));
+          personList.getItems().get(selectedIndex).setIsDeleted(true);
+            requestExecutor.schedule(()
+                    -> {
+                Platform.runLater(() -> modelManager.deletePerson(tmpPerson)); },
+                        3, TimeUnit.SECONDS);
+
         } else {
             // Nothing selected.
             mainController.showAlertDialogAndWait(AlertType.WARNING,

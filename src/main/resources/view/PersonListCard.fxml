@@ -5,7 +5,12 @@
 <?import javafx.scene.control.Label?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="80.0" prefWidth="300.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:id="gridPane">
+
+<GridPane maxHeight="80.0" maxWidth="-Infinity" minHeight="0.0" minWidth="-Infinity" prefHeight="80.0" prefWidth="300.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:id="gridPane">
+    <stylesheets>
+        <URL value="@DarkTheme.css" />
+        <URL value="@Extensions.css" />
+    </stylesheets>
     <padding>
         <Insets top="5" bottom="5" right="5" left="5"/>
     </padding>
