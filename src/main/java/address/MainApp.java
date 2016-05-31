@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -70,12 +71,30 @@ public class MainApp extends Application {
     }
 
     protected void checkDependencies() {
+        Optional<String> classPath = getClassPathAttributeFromManifest();
+
+        if (!classPath.isPresent()) {
+            System.out.println("Class-path undefined, not running dependency check");
+            return;
+        }
+
+        List<String> dependencies = new ArrayList<>(Arrays.asList(classPath.get().split("\\s+")));
+
+        processDependenciesException(dependencies);
+
+        alertMissingDependencies(dependencies);
+    }
+
+    /**
+     * @return the format is space delimited list, e.g. "lib/1.jar lib/2.jar lib/etc.jar"
+     */
+    private Optional<String> getClassPathAttributeFromManifest() {
         Class mainAppClass = MainApp.class;
         String className = mainAppClass.getSimpleName() + ".class";
         String resourcePath = mainAppClass.getResource(className).toString();
         if (!resourcePath.startsWith("jar")) {
             System.out.println("Not from JAR, not running dependency check");
-            return;
+            return Optional.empty();
         }
         String manifestPath = resourcePath.substring(0, resourcePath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
 
@@ -86,31 +105,11 @@ public class MainApp extends Application {
         } catch (IOException e) {
             System.out.println("Manifest can't be read, not running dependency check");
             e.printStackTrace();
-            return;
+            return Optional.empty();
         }
 
         Attributes attr = manifest.getMainAttributes();
-        String classPath = attr.getValue("Class-path");
-        List<String> dependencies = new ArrayList<>(Arrays.asList(classPath.split("\\s+")));
-
-        processDependenciesException(dependencies);
-
-        List<String> missingDependencies = dependencies.stream()
-                .filter(dependency -> !FileUtil.isFileExists(dependency)).collect(Collectors.toList());
-
-        if (missingDependencies.isEmpty()) {
-            System.out.println("All dependencies are present");
-        } else {
-            String message = "Missing dependencies:\n";
-            for (String missingDependency : missingDependencies) {
-                message += "- " + missingDependency + "\n";
-            }
-            System.out.println(message.trim());
-
-            mainController.showAlertDialogAndWait(Alert.AlertType.WARNING, "Missing Dependencies",
-                    "There are missing dependencies. App may not work properly.",
-                    message.trim());
-        }
+        return Optional.of(attr.getValue("Class-path"));
     }
 
     private void processDependenciesException(List<String> dependencies) {
@@ -139,6 +138,25 @@ public class MainApp extends Application {
             dependencies.removeAll(windowsDependencies);
             dependencies.removeAll(macDependencies);
             dependencies.removeAll(linux32Dependencies);
+        }
+    }
+
+    private void alertMissingDependencies(List<String> dependencies) {
+        List<String> missingDependencies = dependencies.stream()
+                .filter(dependency -> !FileUtil.isFileExists(dependency)).collect(Collectors.toList());
+
+        if (missingDependencies.isEmpty()) {
+            System.out.println("All dependencies are present");
+        } else {
+            String message = "Missing dependencies:\n";
+            for (String missingDependency : missingDependencies) {
+                message += "- " + missingDependency + "\n";
+            }
+            System.out.println(message.trim());
+
+            mainController.showAlertDialogAndWait(Alert.AlertType.WARNING, "Missing Dependencies",
+                    "There are missing dependencies. App may not work properly.",
+                    message.trim());
         }
     }
 
