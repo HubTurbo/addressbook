@@ -15,7 +15,6 @@ public class CloudPerson {
     private LocalDateTime lastUpdatedAt;
 
     public CloudPerson() {
-        setLastUpdatedAt(LocalDateTime.now());
     }
 
     public CloudPerson(String firstName, String lastName) {
@@ -113,5 +112,9 @@ public class CloudPerson {
 
     private void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
         this.lastUpdatedAt = lastUpdatedAt;
+    }
+
+    public boolean isValid() {
+        return this.firstName != null && this.lastName != null;
     }
 }

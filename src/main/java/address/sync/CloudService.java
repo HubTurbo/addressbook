@@ -20,7 +20,7 @@ public class CloudService implements ICloudService {
 
     private final CloudSimulator cloud;
 
-    public CloudService(boolean shouldSimulateUnreliableNetwork) {
+    CloudService(boolean shouldSimulateUnreliableNetwork) {
         cloud = new CloudSimulator(shouldSimulateUnreliableNetwork);
     }
 
@@ -42,7 +42,7 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Gets the list of persons for addressBookName
+     * Gets the list of persons for addressBookName, if quota is available
      *
      * Consumes 1 + floor(persons size/RESOURCES_PER_PAGE) API usage
      * @param addressBookName
@@ -64,7 +64,7 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Gets the list of tags for addressBookName
+     * Gets the list of tags for addressBookName, if quota is available
      *
      * Consumes 1 + floor(tags size/RESOURCES_PER_PAGE) API usage
      * @param addressBookName
@@ -85,7 +85,7 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Adds a person to the cloud
+     * Adds a person to the cloud, if quota is available
      *
      * Consumes 1 API usage
      *
@@ -108,7 +108,7 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Updates a person on the cloud
+     * Updates a person on the cloud, if quota is available
      *
      * Consumes 1 API usage
      *
@@ -134,7 +134,7 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Deletes a person on the cloud
+     * Deletes a person on the cloud, if quota is available
      *
      * Consumes 1 API usage
      *
@@ -158,7 +158,7 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Creates a tag on the cloud
+     * Creates a tag on the cloud, if quota is available
      *
      * Consumes 1 API usage
      *
@@ -207,7 +207,7 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Deletes a tag on the cloud
+     * Deletes a tag on the cloud, if quota is available
      *
      * Consumes 1 API usage
      *
@@ -229,9 +229,11 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Gets the list of persons for addressBookName, which have been modified after a certain time
+     * Gets the list of persons for addressBookName, which have been modified after a certain time,
+     * if quota is available
      *
      * Consumes 1 + floor(result size/RESOURCES_PER_PAGE) API usage
+     *
      * @param addressBookName
      * @return wrapped response with list of persons
      * @throws IOException if content cannot be interpreted
@@ -272,14 +274,11 @@ public class CloudService implements ICloudService {
 
     @Override
     public ExtractedCloudResponse<Void> createAddressBook(String addressBookName) throws IOException {
-        RawCloudResponse cloudResponse = cloud.initializeAddressBook(addressBookName);
+        RawCloudResponse cloudResponse = cloud.createAddressBook(addressBookName);
         HashMap<String, Long> headerHashMap = getHashMapFromHeader(cloudResponse.getHeaders());
-        if (!isValid(cloudResponse)) {
-            return getResponseWithNoData(cloudResponse, headerHashMap);
-        }
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
-                                            getRateRemainingFromHeader(headerHashMap),
-                                            getRateResetFromHeader(headerHashMap), null);
+
+        // empty response whether valid response code or not
+        return getResponseWithNoData(cloudResponse, headerHashMap);
     }
 
     private <V> ExtractedCloudResponse<V> getResponseWithNoData(RawCloudResponse cloudResponse,
@@ -349,7 +348,7 @@ public class CloudService implements ICloudService {
     }
 
     private long getRateResetFromHeader(HashMap<String, Long> header) {
-        return header.get("X-RateLimit-Limit");
+        return header.get("X-RateLimit-Reset");
     }
 
     private List<Person> convertToPersonList(List<CloudPerson> cloudPersonList) {

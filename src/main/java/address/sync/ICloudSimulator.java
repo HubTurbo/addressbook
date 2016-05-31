@@ -14,5 +14,5 @@ public interface ICloudSimulator {
     RawCloudResponse createTag(String addressBookName, CloudTag newTag);
     RawCloudResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag);
     RawCloudResponse deleteTag(String addressBookName, String tagName);
-    RawCloudResponse initializeAddressBook(String addressBookName);
+    RawCloudResponse createAddressBook(String addressBookName);
 }

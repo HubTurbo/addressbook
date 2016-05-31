@@ -31,10 +31,13 @@ public class CloudUpdateTask implements Runnable {
         allData.addAll(tagsData);
 
         File mirrorFile = PrefsManager.getInstance().getMirrorLocation();
-//        try {
-//            simulator.requestChangesToCloud(mirrorFile, personsData, tagsData);
-//        } catch (JAXBException e) {
-//            System.out.println("Error requesting changes to the cloud");
-//        }
+
+        // Temporarily disabled
+        // The way the local model should use the API to push its updates is not yet finalized
+        /*try {
+            simulator.requestChangesToCloud(mirrorFile, personsData, tagsData);
+        } catch (JAXBException e) {
+            System.out.println("Error requesting changes to the cloud");
+        }*/
     }
 }

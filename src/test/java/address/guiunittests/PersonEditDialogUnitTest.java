@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.loadui.testfx.GuiTest.find;
 
 public class PersonEditDialogUnitTest extends ApplicationTest {
-    private ScrollPane tag;
+    private ScrollPane tagList;
     private TextField tagSearch;
     private ScrollPane tagResults;
 
@@ -57,7 +57,7 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
 
     @Before
     public void setup() {
-        tag = find("#tag");
+        tagList = find("#tagList");
         tagSearch = find("#tagSearch");
         tagResults = find("#tagResults");
     }
@@ -67,7 +67,7 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
         clickOn(tagSearch).write("frien");
 
         assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
-        assertEquals(1, ((VBox) tag.getContent()).getChildren().size());
+        assertEquals(1, ((VBox) tagList.getContent()).getChildren().size());
     }
 
     @Test
@@ -75,7 +75,7 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
         clickOn(tagSearch).write("rela");
 
         assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
-        assertEquals(1, ((VBox) tag.getContent()).getChildren().size());
+        assertEquals(1, ((VBox) tagList.getContent()).getChildren().size());
     }
 
     @Test
@@ -83,7 +83,7 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
         clickOn(tagSearch).write("e");
 
         assertEquals(3, ((VBox) tagResults.getContent()).getChildren().size());
-        assertEquals(1, ((VBox) tag.getContent()).getChildren().size());
+        assertEquals(1, ((VBox) tagList.getContent()).getChildren().size());
     }
 
     @Test
@@ -91,6 +91,6 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
         clickOn(tagSearch).write("frie frie");
 
         assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
-        assertEquals(2, ((VBox) tag.getContent()).getChildren().size());
+        assertEquals(2, ((VBox) tagList.getContent()).getChildren().size());
     }
 }

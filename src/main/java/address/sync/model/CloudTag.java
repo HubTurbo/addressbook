@@ -36,4 +36,8 @@ public class CloudTag {
     private void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
         this.lastUpdatedAt = lastUpdatedAt;
     }
+
+    public boolean isValid() {
+        return name != null;
+    }
 }

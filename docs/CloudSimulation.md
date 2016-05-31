@@ -5,7 +5,7 @@ They are arranged as follows:
 
 # Key responsibilities
 ## CloudService
-- Provide a high-level API for the local model to communicate with the server without having to be involved in too many details
+- Provides a high-level API for the local model to communicate with the server without having to be involved in too many details
 - Responsible for converting API calls into the cloud calls
 - Responsible for converting cloud responses into localised responses
   - Parses the stream of the content returned from the cloud (which is originally in JSON format). This applies to both the header and the body content
@@ -26,15 +26,15 @@ They are arranged as follows:
 - If initialised with a `true` boolean, there will be chance of data modifications before the result is returned
   - For lists, there may be `additions` and `modifications`
   - For single objects, there may be `modifications`
-  - `additions` and `modifications` are considered under `mutations`
+  - `additions` and `modifications` are both considered `mutations`
 
 # Notes
 ## Response code
 - Behaves similarly to `GitHub`
   - `20x` if request is successful. `x` depends on the type of request
-  - `400` if the arguments given are invalid
-  - `403` if there is no more API quota left
-  - `500` if there is an error on the cloud. e.g. error reading from the cloud file
+  - `400 - Bad Request` if the arguments given are invalid
+  - `403 - Forbidden` if there is no more API quota left
+  - `500 - Internal Server Error` if there is an error on the cloud. e.g. error reading from the cloud file
 
 ## CloudPerson
 - Whenever its field are updated, `lastUpdatedAt` will also be set to the current time.
