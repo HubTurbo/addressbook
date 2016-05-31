@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ContactGroup extends BaseDataType {
 
-    @JsonIgnore private final StringProperty name;
+    @JsonIgnore private final SimpleStringProperty name;
 
     {
         name = new SimpleStringProperty("");
@@ -50,7 +50,7 @@ public class ContactGroup extends BaseDataType {
         this.name.set(name);
     }
 
-    public StringProperty nameProperty() {
+    public SimpleStringProperty nameProperty() {
         return name;
     }
 
