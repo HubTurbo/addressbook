@@ -1,6 +1,6 @@
 package address.sync;
 
-public class RateLimitStatus {
+class RateLimitStatus {
     private int quotaLimit;
     private int quotaRemaining;
     private long quotaReset;

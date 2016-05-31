@@ -337,7 +337,7 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private ZoneOffset getSystemTimezone() {
-        return ZoneOffset.of("+8");
+        return ZoneOffset.of(ZoneOffset.systemDefault().getId());
     }
 
     private boolean shouldSimulateNetworkFailure() {
