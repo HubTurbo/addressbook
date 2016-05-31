@@ -80,7 +80,7 @@ public class MainApp extends Application {
 
         List<String> dependencies = new ArrayList<>(Arrays.asList(classPath.get().split("\\s+")));
 
-        processDependenciesException(dependencies);
+        excludePlatformSpecificDependencies(dependencies);
 
         alertMissingDependencies(dependencies);
     }
@@ -112,7 +112,7 @@ public class MainApp extends Application {
         return Optional.of(attr.getValue("Class-path"));
     }
 
-    private void processDependenciesException(List<String> dependencies) {
+    private void excludePlatformSpecificDependencies(List<String> dependencies) {
         List<String> windowsDependencies = new ArrayList<>();
         windowsDependencies.add("lib/jxbrowser-win-6.4.jar");
         List<String> macDependencies = new ArrayList<>();
