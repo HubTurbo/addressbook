@@ -234,7 +234,7 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time)
             throws IOException {
-        RawCloudResponse cloudResponse = cloud.getUpdatedPersons(addressBookName, time.toString());
+        RawCloudResponse cloudResponse = cloud.getUpdatedPersons(addressBookName, time.toString(), RESOURCES_PER_PAGE);
         HashMap<String, Long> headerHashMap = getHashMapFromHeader(cloudResponse.getHeaders());
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);

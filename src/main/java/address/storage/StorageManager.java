@@ -7,9 +7,6 @@ import address.model.datatypes.Tag;
 import address.model.ModelManager;
 import address.model.datatypes.Person;
 import address.prefs.PrefsManager;
-import address.sync.model.CloudAddressBook;
-import address.sync.model.CloudTag;
-import address.sync.model.CloudPerson;
 import address.util.XmlFileHelper;
 import com.google.common.eventbus.Subscribe;
 
@@ -82,31 +79,4 @@ public class StorageManager {
         if (data.containsDuplicates()) throw new FileContainsDuplicatesException(file);
         return data;
     }
-
-
-    /**
-     * Saves the current person cloud data to the specified file.
-     *
-     * @param file
-     */
-    public static void saveCloudDataToFile(File file, List<CloudPerson> personData, List<CloudTag> tagData) {
-        try {
-            XmlFileHelper.saveCloudDataToFile(file, personData, tagData);
-        } catch (Exception e) {
-            EventManager.getInstance().post(new FileSavingExceptionEvent(e, file));
-        }
-    }
-
-    /**
-     * Raises a FileOpeningExceptionEvent if there was any problem in reading data from the file
-     *  or if the file is not in the correct format.
-     * @param file File containing the data
-     * @return address book in the file or an empty address book
-     */
-    public static CloudAddressBook loadCloudDataFromSaveFile(File file) throws JAXBException {
-        assert file != null;
-        CloudAddressBook data = XmlFileHelper.getCloudDataFromFile(file);
-        return data;
-    }
-
 }

@@ -1,7 +1,6 @@
 package address.sync;
 
 import address.model.AddressBook;
-import address.model.datatypes.ContactGroup;
 import address.model.datatypes.Person;
 import address.sync.model.CloudAddressBook;
 import address.sync.model.CloudTag;
@@ -14,7 +13,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -37,38 +35,39 @@ public class CloudSimulator implements ICloudSimulator {
     private static final int MAX_NUM_PERSONS_TO_ADD = 2;
 
     private RateLimitStatus rateLimitStatus;
-    private List<CloudPerson> personsList;
-    private List<CloudTag> tagList;
     private boolean shouldSimulateUnreliableNetwork;
     private TickingTimer timer;
 
     CloudSimulator(boolean shouldSimulateUnreliableNetwork) {
-        personsList = new ArrayList<>();
-        tagList = new ArrayList<>();
         rateLimitStatus = new RateLimitStatus(API_QUOTA_PER_HOUR, API_QUOTA_PER_HOUR, getNextResetTime());
         resetQuotaAndRestartTimer();
         this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
+    }
 
-        File cloudFile = new File(".$TEMP_ADDRESS_BOOK_MIRROR");
+    private CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws JAXBException {
+        File cloudFile = getCloudDataFilePath(addressBookName);
+        System.out.println("Reading from cloudFile: " + cloudFile.canRead());
+        try {
+            CloudAddressBook data = XmlFileHelper.getCloudDataFromFile(cloudFile);
+            return data;
+        } catch (JAXBException e) {
+            System.out.println("Error reading from cloud file.");
+            throw e;
+        }
+    }
 
-        if (cloudFile.exists()) {
-            System.out.println("Reading from cloudFile: " + cloudFile.canRead());
-            try {
-                CloudAddressBook data = XmlFileHelper.getCloudDataFromFile(cloudFile);
-                personsList.addAll(data.getAllPersons());
-                tagList.addAll(data.getAllTags());
-            } catch (JAXBException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                cloudFile.createNewFile();
-                XmlFileHelper.saveCloudDataToFile(cloudFile, new ArrayList<>(), new ArrayList<>());
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JAXBException e) {
-                e.printStackTrace();
-            }
+    private File getCloudDataFilePath(String addressBookName) {
+        return new File("/cloud/" + addressBookName);
+    }
+
+    private void writeCloudAddressBookToFile(String addressBookName, CloudAddressBook cloudAddressBook) throws JAXBException {
+        File cloudFile = getCloudDataFilePath(addressBookName);
+        System.out.println("Writing to cloudFile: " + cloudFile.canRead());
+        try {
+            XmlFileHelper.saveCloudDataToFile(cloudFile, cloudAddressBook);
+        } catch (JAXBException e) {
+            System.out.println("Error writing to cloud file.");
+            throw e;
         }
     }
 
@@ -88,16 +87,24 @@ public class CloudSimulator implements ICloudSimulator {
         int noOfRequestsRequired = 1;
         if (!isWithinQuota(noOfRequestsRequired)) {
             rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         }
-        rateLimitStatus.setQuotaRemaining(0);
+        rateLimitStatus.useQuota(noOfRequestsRequired);
 
         try {
-            CloudPerson returnedPerson = addPerson(addressBookName, newPerson);
+            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudPerson returnedPerson = addPerson(fileData.getAllPersons(), newPerson);
+            writeCloudAddressBookToFile(addressBookName, fileData);
             return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(returnedPerson), convertToInputStream(getStandardHeaders()));
         } catch (IllegalArgumentException e) {
-            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
+        } catch (JAXBException e) {
+            return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
+    }
+
+    private RawCloudResponse getEmptyResponse(int responseCode) {
+        return new RawCloudResponse(responseCode, null, convertToInputStream(getStandardHeaders()));
     }
 
     /**
@@ -113,13 +120,21 @@ public class CloudSimulator implements ICloudSimulator {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
-        int noOfRequestsRequired = 1 + getNumberOfRequestsRequired(personsList.size(), resourcesPerPage);
+        List<CloudPerson> personList;
+        try {
+            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            personList = fileData.getAllPersons();
+        } catch (JAXBException e) {
+            return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        }
+
+        int noOfRequestsRequired = 1 + getNumberOfRequestsRequired(personList.size(), resourcesPerPage);
         if (!isWithinQuota(noOfRequestsRequired)) {
             rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
-        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(getIntactPersonsList(personsList)), convertToInputStream(getStandardHeaders()));
+        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(getIntactPersonsList(personList)), convertToInputStream(getStandardHeaders()));
     }
 
     /**
@@ -132,12 +147,22 @@ public class CloudSimulator implements ICloudSimulator {
      * @return
      */
     public RawCloudResponse getTags(String addressBookName, int resourcesPerPage) {
-        int noOfRequestsRequired = 1 + getNumberOfRequestsRequired(tagList.size(), resourcesPerPage);
+        if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
+        List<CloudTag> tagList;
+
+        try {
+            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            tagList = fileData.getAllTags();
+        } catch (JAXBException e) {
+            return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        }
+
+        int noOfRequestsRequired = 1 + getNumberOfRequestsRequired(tagList.size(), resourcesPerPage);
         if (!isWithinQuota(noOfRequestsRequired)) {
             rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
         return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(tagList), convertToInputStream(getStandardHeaders()));
@@ -165,21 +190,28 @@ public class CloudSimulator implements ICloudSimulator {
      * @param updatedPerson
      * @return
      */
-    public RawCloudResponse updatePerson(String addressBookName, String oldFirstName, String oldLastName, CloudPerson updatedPerson) {
+    public RawCloudResponse updatePerson(String addressBookName, String oldFirstName, String oldLastName,
+                                         CloudPerson updatedPerson) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
         int noOfRequestsRequired = 1;
         if (!isWithinQuota(noOfRequestsRequired)) {
             rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
         try {
-            CloudPerson resultingPerson = updatePersonDetails(addressBookName, oldFirstName, oldLastName, updatedPerson);
-            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(resultingPerson), convertToInputStream(getStandardHeaders()));
+            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudPerson resultingPerson = updatePersonDetails(fileData.getAllPersons(), oldFirstName, oldLastName,
+                                                              updatedPerson);
+            writeCloudAddressBookToFile(addressBookName, fileData);
+            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(resultingPerson),
+                                        convertToInputStream(getStandardHeaders()));
         } catch (NoSuchElementException e) {
-            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
+        } catch (JAXBException e) {
+            return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
 
@@ -200,14 +232,19 @@ public class CloudSimulator implements ICloudSimulator {
         int noOfRequestsRequired = 1;
         if (!isWithinQuota(noOfRequestsRequired)) {
             rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
         try {
-            deletePersonFromData(addressBookName, firstName, lastName);
-            return new RawCloudResponse(HttpURLConnection.HTTP_NO_CONTENT, null, convertToInputStream(getStandardHeaders()));
+            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            deletePersonFromData(fileData.getAllPersons(), firstName, lastName);
+            writeCloudAddressBookToFile(addressBookName, fileData);
+            return new RawCloudResponse(HttpURLConnection.HTTP_NO_CONTENT, null,
+                                        convertToInputStream(getStandardHeaders()));
         } catch (NoSuchElementException e) {
-            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
+        } catch (JAXBException e) {
+            return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
 
@@ -227,14 +264,19 @@ public class CloudSimulator implements ICloudSimulator {
         int noOfRequestsRequired = 1;
         if (!isWithinQuota(noOfRequestsRequired)) {
             rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
         try {
-            CloudTag returnedTag = addTag(addressBookName, newTag);
-            return new RawCloudResponse(HttpURLConnection.HTTP_CREATED, convertToInputStream(returnedTag), convertToInputStream(getStandardHeaders()));
+            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudTag returnedTag = addTag(fileData.getAllTags(), newTag);
+            writeCloudAddressBookToFile(addressBookName, fileData);
+            return new RawCloudResponse(HttpURLConnection.HTTP_CREATED, convertToInputStream(returnedTag),
+                                        convertToInputStream(getStandardHeaders()));
         } catch (IllegalArgumentException e) {
-            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
+        } catch (JAXBException e) {
+            return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
 
@@ -255,14 +297,19 @@ public class CloudSimulator implements ICloudSimulator {
         int noOfRequestsRequired = 1;
         if (!isWithinQuota(noOfRequestsRequired)) {
             rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
         try {
-            CloudTag returnedTag = updateTagDetails(addressBookName, oldTagName, updatedTag);
-            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(returnedTag), convertToInputStream(getStandardHeaders()));
+            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudTag returnedTag = updateTagDetails(fileData.getAllTags(), oldTagName, updatedTag);
+            writeCloudAddressBookToFile(addressBookName, fileData);
+            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(returnedTag),
+                                        convertToInputStream(getStandardHeaders()));
         } catch (NoSuchElementException e) {
-            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
+        } catch (JAXBException e) {
+            return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
 
@@ -282,21 +329,56 @@ public class CloudSimulator implements ICloudSimulator {
         int noOfRequestsRequired = 1;
         if (!isWithinQuota(noOfRequestsRequired)) {
             rateLimitStatus.setQuotaRemaining(0);
-            return new RawCloudResponse(HttpURLConnection.HTTP_FORBIDDEN, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         }
         rateLimitStatus.useQuota(noOfRequestsRequired);
         try {
-            deleteTagFromData(addressBookName, tagName);
-            return new RawCloudResponse(HttpURLConnection.HTTP_NO_CONTENT, null, convertToInputStream(getStandardHeaders()));
+            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            deleteTagFromData(fileData.getAllTags(), tagName);
+            writeCloudAddressBookToFile(addressBookName, fileData);
+            return getEmptyResponse(HttpURLConnection.HTTP_NO_CONTENT);
         } catch (NoSuchElementException e) {
-            return new RawCloudResponse(HttpURLConnection.HTTP_BAD_REQUEST, null, convertToInputStream(getStandardHeaders()));
+            return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
+        } catch (JAXBException e) {
+            return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
 
-    public RawCloudResponse getUpdatedPersons(String addressBookName, String timeString) {
-        LocalDateTime time = LocalDateTime.parse(timeString);
-        List<CloudPerson> resultList = filterPersonsByTime(personsList, time);
-        return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(resultList), convertToInputStream(getStandardHeaders()));
+    /**
+     * Gets the list of persons that have been updated after a certain time
+     *
+     * Consumes 1 + floor(updated person list/resourcesPerPage) API usage
+     *
+     * @param addressBookName
+     * @param timeString
+     * @return
+     */
+    public RawCloudResponse getUpdatedPersons(String addressBookName, String timeString, int resourcesPerPage) {
+        if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
+        if (shouldSimulateSlowResponse()) delayRandomAmount();
+
+        List<CloudPerson> personList;
+        try {
+            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            personList = fileData.getAllPersons();
+        } catch (JAXBException e) {
+            return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        }
+
+        int noOfRequestsRequired = 1 + getNumberOfRequestsRequired(personList.size(), resourcesPerPage);;
+        if (!isWithinQuota(noOfRequestsRequired)) {
+            rateLimitStatus.setQuotaRemaining(0);
+            return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        rateLimitStatus.useQuota(noOfRequestsRequired);
+        try {
+            LocalDateTime time = LocalDateTime.parse(timeString);
+            List<CloudPerson> resultList = filterPersonsByTime(personList, time);
+            return new RawCloudResponse(HttpURLConnection.HTTP_OK, convertToInputStream(resultList),
+                                        convertToInputStream(getStandardHeaders()));
+        } catch (NoSuchElementException e) {
+            return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
+        }
     }
 
     private void resetQuotaAndRestartTimer() {
@@ -307,7 +389,8 @@ public class CloudSimulator implements ICloudSimulator {
             timer.stop();
         }
         int timeout = (int) (rateLimitStatus.getQuotaReset() - LocalDateTime.now().toEpochSecond(getSystemTimezone()));
-        timer = new TickingTimer("Cloud Quota Reset Time", timeout, this::printTimeLeft, this::resetQuotaAndRestartTimer, TimeUnit.SECONDS);
+        timer = new TickingTimer("Cloud Quota Reset Time", timeout, this::printTimeLeft,
+                                this::resetQuotaAndRestartTimer, TimeUnit.SECONDS);
         timer.start();
     }
 
@@ -400,15 +483,15 @@ public class CloudSimulator implements ICloudSimulator {
         return quotaUsed <= rateLimitStatus.getQuotaRemaining();
     }
 
-    private boolean isExistingPerson(CloudPerson targetPerson) {
-        return personsList.stream()
+    private boolean isExistingPerson(List<CloudPerson> personList, CloudPerson targetPerson) {
+        return personList.stream()
                 .filter(person -> person.getFirstName().equals(targetPerson.getFirstName())
                         && person.getLastName().equals(targetPerson.getLastName()))
                 .findAny()
                 .isPresent();
     }
 
-    private boolean isExistingTag(CloudTag targetTag) {
+    private boolean isExistingTag(List<CloudTag> tagList, CloudTag targetTag) {
         return tagList.stream()
                 .filter(tag -> !targetTag.getName().equals(targetTag.getName()))
                 .findAny()
@@ -426,38 +509,40 @@ public class CloudSimulator implements ICloudSimulator {
     /**
      * Verifies whether newPerson can be added, and adds it to the persons list
      *
-     * @param addressBookName
+     * @param personList
      * @param newPerson
      * @return newPerson, if added, else null
      */
-    private CloudPerson addPerson(String addressBookName, CloudPerson newPerson) {
+    private CloudPerson addPerson(List<CloudPerson> personList, CloudPerson newPerson) throws JAXBException {
         if (newPerson == null) throw new IllegalArgumentException("Person cannot be null");
         String newPersonFirstName = newPerson.getFirstName();
         String newPersonLastName = newPerson.getLastName();
-        if (newPersonFirstName == null || newPersonLastName == null)
+        if (newPersonFirstName == null || newPersonLastName == null) {
             throw new IllegalArgumentException("Fields cannot be null");
-        if (isExistingPerson(newPerson)) throw new IllegalArgumentException("Person already exists");
+        }
+        if (isExistingPerson(personList, newPerson)) throw new IllegalArgumentException("Person already exists");
 
-        personsList.add(newPerson);
+        personList.add(newPerson);
 
         return newPerson;
     }
 
-    private Optional<CloudPerson> getPerson(String addressBookName, String firstName, String lastName) {
-        return personsList.stream()
+    private Optional<CloudPerson> getPerson(List<CloudPerson> personList, String firstName, String lastName) {
+        return personList.stream()
                 .filter(person -> person.getFirstName().equals(firstName)
                         && person.getLastName().equals(lastName))
                 .findAny();
     }
 
-    private CloudPerson updatePersonDetails(String addressBookName, String oldFirstName, String oldLastName, CloudPerson updatedPerson) throws NoSuchElementException {
-        CloudPerson oldPerson = getPersonIfExists(addressBookName, oldFirstName, oldLastName);
+    private CloudPerson updatePersonDetails(List<CloudPerson> personList, String oldFirstName, String oldLastName,
+                                            CloudPerson updatedPerson) throws NoSuchElementException {
+        CloudPerson oldPerson = getPersonIfExists(personList, oldFirstName, oldLastName);
         oldPerson.updatedBy(updatedPerson);
         return oldPerson;
     }
 
-    private CloudPerson getPersonIfExists(String addressBookName, String oldFirstName, String oldLastName) {
-        Optional<CloudPerson> personQueryResult = getPerson(addressBookName, oldFirstName, oldLastName);
+    private CloudPerson getPersonIfExists(List<CloudPerson> personList, String oldFirstName, String oldLastName) {
+        Optional<CloudPerson> personQueryResult = getPerson(personList, oldFirstName, oldLastName);
         if (!personQueryResult.isPresent()) throw new NoSuchElementException("No such person found.");
 
         return personQueryResult.get();
@@ -485,41 +570,43 @@ public class CloudSimulator implements ICloudSimulator {
         return (int) Math.ceil((double) dataSize / resourcesPerPage);
     }
 
-    private void deletePersonFromData(String addressBookName, String firstName, String lastName) throws NoSuchElementException {
-        CloudPerson deletedPerson = getPersonIfExists(addressBookName, firstName, lastName);
+    private void deletePersonFromData(List<CloudPerson> personList, String firstName, String lastName)
+            throws NoSuchElementException {
+        CloudPerson deletedPerson = getPersonIfExists(personList, firstName, lastName);
         deletedPerson.setDeleted(true);
     }
 
-    private CloudTag addTag(String addressBookName, CloudTag newTag) {
+    private CloudTag addTag(List<CloudTag> tagList, CloudTag newTag) {
         if (newTag == null) throw new IllegalArgumentException("Tag cannot be null");
         String tagName = newTag.getName();
         if (tagName == null) throw new IllegalArgumentException("Fields cannot be null");
-        if (isExistingTag(newTag)) throw new IllegalArgumentException("Tag already exists");
+        if (isExistingTag(tagList, newTag)) throw new IllegalArgumentException("Tag already exists");
         tagList.add(newTag);
         return newTag;
     }
 
-    private Optional<CloudTag> getTag(String addressBookName, String tagName) {
+    private Optional<CloudTag> getTag(List<CloudTag> tagList, String tagName) {
         return tagList.stream()
                 .filter(tag -> tag.getName().equals(tagName))
                 .findAny();
     }
 
-    private CloudTag getTagIfExists(String addressBookName, String tagName) {
-        Optional<CloudTag> tagQueryResult = getTag(addressBookName, tagName);
+    private CloudTag getTagIfExists(List<CloudTag> tagList, String tagName) {
+        Optional<CloudTag> tagQueryResult = getTag(tagList, tagName);
         if (!tagQueryResult.isPresent()) throw new NoSuchElementException("No such tag found.");
 
         return tagQueryResult.get();
     }
 
-    private CloudTag updateTagDetails(String addressBookName, String oldTagName, CloudTag updatedTag) throws NoSuchElementException {
-        CloudTag oldTag = getTagIfExists(addressBookName, oldTagName);
+    private CloudTag updateTagDetails(List<CloudTag> tagList, String oldTagName, CloudTag updatedTag)
+            throws NoSuchElementException {
+        CloudTag oldTag = getTagIfExists(tagList, oldTagName);
         oldTag.updatedBy(updatedTag);
         return oldTag;
     }
 
-    private void deleteTagFromData(String addressBookName, String tagName) throws NoSuchElementException {
-        CloudTag tag = getTagIfExists(addressBookName, tagName);
+    private void deleteTagFromData(List<CloudTag> tagList, String tagName) throws NoSuchElementException {
+        CloudTag tag = getTagIfExists(tagList, tagName);
         // This may differ from how GitHub does it, but we won't know for sure
         tagList.remove(tag);
     }

@@ -12,17 +12,25 @@ import java.util.List;
  */
 @XmlRootElement(name = "cloudaddressbook")
 public class CloudAddressBook {
+    String name;
     List<CloudPerson> personsList;
     List<CloudTag> tagsList;
 
-    public CloudAddressBook() {
+    public CloudAddressBook(String name) {
+        this.name = name;
         this.personsList = new ArrayList<>();
         this.tagsList = new ArrayList<>();
     }
 
-    public CloudAddressBook(List<CloudPerson> personsList, List<CloudTag> tagsList) {
+    public CloudAddressBook(String name, List<CloudPerson> personsList, List<CloudTag> tagsList) {
+        this.name = name;
         this.personsList = personsList;
         this.tagsList = tagsList;
+    }
+
+    @XmlElement(name = "name")
+    public String getName() {
+        return this.name;
     }
 
     @XmlElement(name = "cloudpersons")

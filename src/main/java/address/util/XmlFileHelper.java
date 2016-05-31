@@ -28,10 +28,7 @@ public class XmlFileHelper {
         return ((CloudAddressBook) um.unmarshal(file));
     }
 
-    public static void saveCloudDataToFile(File file, List<CloudPerson> personData, List<CloudTag> tagData) throws JAXBException {
-        // Wrapping our person data.
-        CloudAddressBook cloudAddressBook = new CloudAddressBook(personData, tagData);
-
+    public static void saveCloudDataToFile(File file, CloudAddressBook cloudAddressBook) throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(CloudAddressBook.class);
         Marshaller m = context.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -79,8 +76,7 @@ public class XmlFileHelper {
     }
 
     public static UpdateData getUpdateDataFromFile(File file) throws JAXBException {
-        JAXBContext context = JAXBContext
-                .newInstance(UpdateData.class);
+        JAXBContext context = JAXBContext.newInstance(UpdateData.class);
         Unmarshaller um = context.createUnmarshaller();
 
         // Reading XML from the file and unmarshalling.

@@ -83,29 +83,29 @@ public class JsonUtilTest {
     @Test
     public void jsonUtil_writeThenReadObjectToJson_correctObject() throws IOException {
         // Write
-        ContactGroup sampleContactGroup = new ContactGroup("Group");
+        Tag sampleTag = new Tag("Tag");
         Person samplePerson = new Person("First", "Last");
         samplePerson.setCity("Singapore");
         samplePerson.setPostalCode("123456");
-        List<ContactGroup> group = new ArrayList<>();
-        group.add(sampleContactGroup);
-        samplePerson.setContactGroups(group);
+        List<Tag> group = new ArrayList<>();
+        group.add(sampleTag);
+        samplePerson.setTags(group);
         samplePerson.setBirthday(LocalDate.of(1980, 3, 18));
         samplePerson.setGithubUserName("FirstLast");
 
         AddressBook addressBook = new AddressBook();
         addressBook.setPersons(Arrays.asList(samplePerson));
-        addressBook.setGroups(Arrays.asList(sampleContactGroup));
+        addressBook.setTags(Arrays.asList(sampleTag));
 
         String jsonString = JsonUtil.toJsonString(addressBook);
 
         // Read
         AddressBook addressBookRead = JsonUtil.fromJsonString(jsonString, AddressBook.class);
         assertEquals(1, addressBookRead.getPersons().size());
-        assertEquals(1, addressBookRead.getGroups().size());
+        assertEquals(1, addressBookRead.getTags().size());
 
         Person person = addressBookRead.getPersons().get(0);
-        ContactGroup groupRead = addressBookRead.getGroups().get(0);
+        Tag groupRead = addressBookRead.getTags().get(0);
 
         assertEquals("Group", groupRead.getName());
 
@@ -113,7 +113,7 @@ public class JsonUtilTest {
         assertEquals("Last", person.getLastName());
         assertEquals("Singapore", person.getCity());
         assertEquals("123456", person.getPostalCode());
-        assertEquals(groupRead, person.getContactGroups().get(0));
+        assertEquals(groupRead, person.getTags().get(0));
         assertEquals(LocalDate.of(1980, 3, 18), person.getBirthday());
         assertEquals("FirstLast", person.getGithubUserName());
     }
