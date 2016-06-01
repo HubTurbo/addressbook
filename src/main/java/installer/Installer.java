@@ -40,11 +40,18 @@ public class Installer extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        showWaitingWindow(primaryStage);
+        if (isFirstRun()) {
+            showWaitingWindow(primaryStage);
+        }
+
         pool.execute(() -> {
             run();
             stop();
         });
+    }
+
+    private boolean isFirstRun() {
+        return !FileUtil.isDirExists(LIB_DIR);
     }
 
     private void showWaitingWindow(Stage stage) {

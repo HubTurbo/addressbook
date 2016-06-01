@@ -18,6 +18,12 @@ public class FileUtil {
         return file.exists() && file.isFile();
     }
 
+    public static boolean isDirExists(String dirpath) {
+        File dir = new File(dirpath);
+
+        return dir.exists() && dir.isDirectory();
+    }
+
     /**
      * Creates a file and its parent directories if it does not exists
      *
@@ -55,9 +61,11 @@ public class FileUtil {
 
     /**
      * Creates the given directory along with its parent directories
+     * @param dir the directory to be created; assumed not null
+     * @throws IOException if the directory or a parent directory cannot be created
      */
     public static void createDirs(File dir) throws IOException {
-        if (dir != null && !dir.exists() && !dir.mkdirs()) {
+        if (!dir.exists() && !dir.mkdirs()) {
             throw new IOException("Failed to make directories of " + dir.getName());
         }
     }
