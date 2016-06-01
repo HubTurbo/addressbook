@@ -49,10 +49,6 @@
             <Insets />
          </VBox.margin>
       </AnchorPane>
-      <AnchorPane styleClass="anchor-pane" fx:id="headerStatusBarPlaceHolder">
-      </AnchorPane>
       <SplitPane id="splitPane" fx:id="splitPane" prefHeight="295.0" prefWidth="209.0" VBox.vgrow="ALWAYS" />
-      <AnchorPane styleClass="anchor-pane" fx:id="footerStatusBarPlaceHolder">
-      </AnchorPane>
    </children>
 </VBox>
