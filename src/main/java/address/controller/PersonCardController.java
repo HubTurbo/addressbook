@@ -46,12 +46,10 @@ public class PersonCardController {
     @FXML
     private Label tags;
 
+    private Person person;
 
-    Person person;
-    PersonListViewCell cell;
-    public PersonCardController(Person person, PersonListViewCell cell) {
+    public PersonCardController(Person person) {
         this.person = person;
-        this.cell = cell;
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/view/PersonListCard.fxml"));
         fxmlLoader.setController(this);
@@ -113,18 +111,6 @@ public class PersonCardController {
             ft.setToValue(0.1);
             ft.setCycleCount(1);
             ft.play();
-            ft.setOnFinished(e -> {
-                gridPane.setMinHeight(0.0f);
-                gridPane.setMaxHeight(0.0f);
-                gridPane.setPrefHeight(0.0f);
-                cell.setGraphic(null);
-                cell.setText(null);
-                cell.setMinHeight(0.0f);
-                cell.setMaxHeight(0.0f);
-                cell.setPrefHeight(0.0f);
-
-            });
-
         });
     }
 

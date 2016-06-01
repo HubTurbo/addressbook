@@ -25,38 +25,14 @@ public class PersonListViewCell extends ListCell<Person> {
     public void updateItem(Person person, boolean empty) {
         super.updateItem(person, empty);
 
-        if (getHeight() == 0.0){
-            this.setMaxHeight(80.0);
-            this.setMinHeight(80.0);
-            this.setPrefHeight(80.0);
-        }
-
         if (empty || person == null) {
-/*
-            FadeTransition ft = new FadeTransition(Duration.millis(3000), this);
-            ft.setFromValue(1.0);
-            ft.setToValue(0.1);
-            ft.setCycleCount(1);
-            ft.play();
-            ft.setOnFinished(value -> {
-                setGraphic(null);
-                setText(null);
-            });
-*/
-
-            //setEffect(new BoxBlur(10,10,3));
             setGraphic(null);
             setText(null);
 
         }
         else
         {
-            //this.setMaxHeight(80.0);
-            //this.setMinHeight(80.0);
-           // this.setPrefHeight(80.0);
-            setGraphic(new PersonCardController(person, this).getLayout());
-            //setText(null);
-            //animate();
+            setGraphic(new PersonCardController(person).getLayout());
         }
     }
 
