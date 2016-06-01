@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <AnchorPane xmlns="http://javafx.com/javafx/8"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.controller.PersonOverviewController">
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.controller.PersonOverviewController" >
     <stylesheets>
         <URL value="@DarkTheme.css" />
         <URL value="@Extensions.css" />
@@ -15,7 +15,7 @@
         <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <TextField fx:id="filterField" onAction="#handleFilterChanged"/>
-                <ListView fx:id="personList" VBox.vgrow="ALWAYS"/>
+                <ListView fx:id="personList" VBox.vgrow="ALWAYS" />
                 <HBox>
                     <children>
                         <Button styleClass="button" mnemonicParsing="false" onAction="#handleDeletePerson" prefHeight="33.0" maxWidth="Infinity" HBox.hgrow="ALWAYS" text="Delete" />
