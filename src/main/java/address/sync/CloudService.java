@@ -51,7 +51,7 @@ public class CloudService implements ICloudService {
      */
     @Override
     public ExtractedCloudResponse<List<Person>> getPersons(String addressBookName) throws IOException {
-        RawCloudResponse cloudResponse = cloud.getPersons(addressBookName, RESOURCES_PER_PAGE);
+        RawCloudResponse cloudResponse = cloud.getPersons(addressBookName, RESOURCES_PER_PAGE, null);
         HashMap<String, Long> headerHashMap = getHashMapFromHeader(cloudResponse.getHeaders());
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
@@ -73,7 +73,7 @@ public class CloudService implements ICloudService {
      */
     @Override
     public ExtractedCloudResponse<List<Tag>> getTags(String addressBookName) throws IOException {
-        RawCloudResponse cloudResponse = cloud.getTags(addressBookName, RESOURCES_PER_PAGE);
+        RawCloudResponse cloudResponse = cloud.getTags(addressBookName, RESOURCES_PER_PAGE, null);
         HashMap<String, Long> headerHashMap = getHashMapFromHeader(cloudResponse.getHeaders());
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
@@ -96,7 +96,7 @@ public class CloudService implements ICloudService {
      */
     @Override
     public ExtractedCloudResponse<Person> createPerson(String addressBookName, Person newPerson) throws IOException {
-        RawCloudResponse cloudResponse = cloud.createPerson(addressBookName, convertToCloudPerson(newPerson));
+        RawCloudResponse cloudResponse = cloud.createPerson(addressBookName, convertToCloudPerson(newPerson), null);
         HashMap<String, Long> headerHashMap = getHashMapFromHeader(cloudResponse.getHeaders());
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
@@ -121,7 +121,7 @@ public class CloudService implements ICloudService {
      */
     @Override
     public ExtractedCloudResponse<Person> updatePerson(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) throws IOException {
-        RawCloudResponse cloudResponse = cloud.updatePerson(addressBookName, oldFirstName, oldLastName, convertToCloudPerson(updatedPerson));
+        RawCloudResponse cloudResponse = cloud.updatePerson(addressBookName, oldFirstName, oldLastName, convertToCloudPerson(updatedPerson), null);
         HashMap<String, Long> headerHashMap = getHashMapFromHeader(cloudResponse.getHeaders());
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
@@ -169,7 +169,7 @@ public class CloudService implements ICloudService {
      */
     @Override
     public ExtractedCloudResponse<Tag> createTag(String addressBookName, Tag tag) throws IOException {
-        RawCloudResponse cloudResponse = cloud.createTag(addressBookName, convertToCloudTag(tag));
+        RawCloudResponse cloudResponse = cloud.createTag(addressBookName, convertToCloudTag(tag), null);
         HashMap<String, Long> headerHashMap = getHashMapFromHeader(cloudResponse.getHeaders());
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
@@ -194,7 +194,7 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<Tag> editTag(String addressBookName, String oldTagName, Tag newTag)
             throws IOException {
-        RawCloudResponse cloudResponse = cloud.editTag(addressBookName, oldTagName, convertToCloudTag(newTag));
+        RawCloudResponse cloudResponse = cloud.editTag(addressBookName, oldTagName, convertToCloudTag(newTag), null);
         HashMap<String, Long> headerHashMap = getHashMapFromHeader(cloudResponse.getHeaders());
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
@@ -241,7 +241,7 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time)
             throws IOException {
-        RawCloudResponse cloudResponse = cloud.getUpdatedPersons(addressBookName, time.toString(), RESOURCES_PER_PAGE);
+        RawCloudResponse cloudResponse = cloud.getUpdatedPersons(addressBookName, time.toString(), RESOURCES_PER_PAGE, null);
         HashMap<String, Long> headerHashMap = getHashMapFromHeader(cloudResponse.getHeaders());
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
@@ -262,7 +262,7 @@ public class CloudService implements ICloudService {
      */
     @Override
     public ExtractedCloudResponse<RateLimitStatus> getLimitStatus() throws IOException {
-        RawCloudResponse cloudResponse = cloud.getRateLimitStatus();
+        RawCloudResponse cloudResponse = cloud.getRateLimitStatus(null);
         HashMap<String, Long> headerHashMap = getHashMapFromHeader(cloudResponse.getHeaders());
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
