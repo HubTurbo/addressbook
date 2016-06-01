@@ -13,10 +13,13 @@ import address.util.FileUtil;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +40,7 @@ public class UpdateManager {
     private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
     private static final String JAR_UPDATER_APP_PATH = UPDATE_DIRECTORY + File.separator + "jarUpdater.jar";
     private static final int VERSION = 0;
+    private static final String BACKUP_SUFFIX = "_V";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
 
@@ -225,6 +229,10 @@ public class UpdateManager {
             return;
         }
 
+        if (!backupMainApp()) {
+            return;
+        }
+
         String restarterAppPath = JAR_UPDATER_APP_PATH;
         String localUpdateSpecFilepath = System.getProperty("user.dir") + File.separator +
                                          LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
@@ -238,5 +246,44 @@ public class UpdateManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * @return true if backup is successfully made or if app is run from backup jar hence no backup need to be made
+     */
+    private boolean backupMainApp() {
+        File mainAppJar = FileUtil.getJarFileOfClass(this.getClass());
+
+        if (isRunFromBackupJar(mainAppJar.getName())) {
+            System.out.println("Run from a backup; not creating backup");
+            return true;
+        }
+
+        String backupFilename = getBackupFilename(mainAppJar.getName());
+
+        try {
+            FileUtil.copyFile(mainAppJar.toPath(), Paths.get(backupFilename), true);
+        } catch (IOException e) {
+            System.out.println("Failed to create backup");
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isRunFromBackupJar(String jarName) {
+        return jarName.contains(BACKUP_SUFFIX);
+    }
+
+    private String getBackupFilename(String jarName) {
+        Pattern jarFilenamePattern = Pattern.compile("^(.*)\\.jar$", Pattern.CASE_INSENSITIVE);
+        Matcher jarFilenameMatcher = jarFilenamePattern.matcher(jarName);
+
+        if (!jarFilenameMatcher.find()) {
+            return jarName + BACKUP_SUFFIX + VERSION;
+        }
+
+        return jarFilenameMatcher.group(1) + BACKUP_SUFFIX + VERSION + ".jar";
     }
 }

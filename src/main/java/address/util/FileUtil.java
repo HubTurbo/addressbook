@@ -89,6 +89,21 @@ public class FileUtil {
     }
 
     /**
+     *
+     * @param source
+     * @param dest
+     * @param isOverwrite
+     * @throws IOException
+     */
+    public static void copyFile(Path source, Path dest, boolean isOverwrite) throws IOException {
+        if (isOverwrite) {
+            Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+        } else {
+            Files.copy(source, dest);
+        }
+    }
+
+    /**
      * @return List of filenames failed to be moved
      */
     public static List<String> moveContentOfADirectoryToAnother(String sourceDir, String targetDir) {
@@ -116,5 +131,9 @@ public class FileUtil {
 
     public static void writeToFile(File file, String content) throws IOException {
         Files.write(file.toPath(), content.getBytes(CHARSET));
+    }
+
+    public static File getJarFileOfClass(Class givenClass) {
+        return new File(givenClass.getProtectionDomain().getCodeSource().getLocation().getPath());
     }
 }
