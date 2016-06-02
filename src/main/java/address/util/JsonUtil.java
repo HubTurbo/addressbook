@@ -5,8 +5,11 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Converts a Java object instance to JSON and vice versa
@@ -34,5 +37,16 @@ public class JsonUtil {
      */
     public static <T> String toJsonString(T instance) throws JsonProcessingException {
         return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(instance);
+    }
+
+    public static <V> List<V> fromJsonStringToList(String json, Class<V> referenceClass) throws IOException {
+        TypeFactory typeFactory = objectMapper.getTypeFactory();
+        return objectMapper.readValue(json, typeFactory.constructCollectionType(List.class, referenceClass));
+    }
+
+    public static <K, V> HashMap<K, V> fromJsonStringToHashMap(String json, Class<K> keyClass, Class<V> valueClass)
+            throws IOException {
+        TypeFactory typeFactory = objectMapper.getTypeFactory();
+        return objectMapper.readValue(json, typeFactory.constructMapType(HashMap.class, keyClass, valueClass));
     }
 }
