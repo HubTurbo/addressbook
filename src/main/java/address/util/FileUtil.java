@@ -12,10 +12,12 @@ import java.util.List;
 public class FileUtil {
     private static final String CHARSET = "UTF-8";
 
-    public static boolean isFileExists(String filepath) {
-        File file = new File(filepath);
-
+    public static boolean isFileExists(File file) {
         return file.exists() && file.isFile();
+    }
+
+    public static boolean isFileExists(String filepath) {
+        return isFileExists(new File(filepath));
     }
 
     public static boolean isDirExists(String dirpath) {
@@ -37,6 +39,14 @@ public class FileUtil {
         createParentDirsOfFile(file);
 
         return file.createNewFile();
+    }
+
+    public static void deleteFile(String filepath) throws IOException {
+        deleteFile(new File(filepath));
+    }
+
+    public static void deleteFile(File file) throws IOException {
+        Files.delete(file.toPath());
     }
 
     /**

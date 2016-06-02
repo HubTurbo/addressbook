@@ -20,12 +20,11 @@ import java.util.stream.Collectors;
  */
 public class DependencyTracker {
     private static final File DEPENDENCY_HISTORY_FILE = new File("lib/dependency_history");
-    private HashMap<Integer, List<String>> dependenciesPerKnownVersions = new HashMap<>();
+
+    private HashMap<Integer, List<String>> dependenciesForVersionsInUse = new HashMap<>();
 
     public DependencyTracker() {
-        if (DEPENDENCY_HISTORY_FILE.exists()) {
-            readVersionDependency();
-        }
+        readVersionDependency();
 
         Optional<String> classPath = getClassPathAttributeFromManifest();
 
@@ -38,7 +37,25 @@ public class DependencyTracker {
     }
 
     public void updateVersionDependency(int version, List<String> verDependencies) {
-        dependenciesPerKnownVersions.put(version, verDependencies);
+        dependenciesForVersionsInUse.put(version, verDependencies);
+        writeVersionDependency();
+    }
+
+    public HashMap<Integer, List<String>> getAllVersionDependency() {
+        return dependenciesForVersionsInUse;
+    }
+
+    public void cleanUpUnusedDependencyVersions(List<Integer> dependenciesOfUnusedVersions) {
+        Iterator<Map.Entry<Integer, List<String>>> it = dependenciesForVersionsInUse.entrySet().iterator();
+
+        while (it.hasNext()) {
+            Map.Entry<Integer, List<String>> entry = it.next();
+            if (dependenciesOfUnusedVersions.contains(entry.getKey())) {
+                System.out.println("removing " + entry.getKey());
+                it.remove();
+            }
+        }
+
         writeVersionDependency();
     }
 
@@ -53,7 +70,7 @@ public class DependencyTracker {
         }
 
         try {
-            FileUtil.writeToFile(DEPENDENCY_HISTORY_FILE, JsonUtil.toJsonString(dependenciesPerKnownVersions));
+            FileUtil.writeToFile(DEPENDENCY_HISTORY_FILE, JsonUtil.toJsonString(dependenciesForVersionsInUse));
         } catch (JsonProcessingException e) {
             System.out.println("Failed to convert dependencies to JSON");
             e.printStackTrace();
@@ -64,9 +81,14 @@ public class DependencyTracker {
     }
 
     private void readVersionDependency() {
+        if (!DEPENDENCY_HISTORY_FILE.exists()) {
+            System.out.println("Dependencies file does not exist yet");
+            return;
+        }
+
         try {
             String json = FileUtil.readFromFile(DEPENDENCY_HISTORY_FILE);
-            dependenciesPerKnownVersions = JsonUtil.fromJsonStringToGivenType(json,
+            dependenciesForVersionsInUse = JsonUtil.fromJsonStringToGivenType(json,
                     new TypeReference<HashMap<Integer, List<String>>>() {
                     });
         } catch (IOException e) {
@@ -135,16 +157,20 @@ public class DependencyTracker {
      * @return empty array list if current version is not in dependency list (indicating not run from JAR)
      */
     public List<String> getMissingDependencies() {
-        if (dependenciesPerKnownVersions.get(UpdateManager.VERSION) == null) {
+        if (getCurrentVersionDependencies() == null) {
             return new ArrayList<>();
         }
 
-        List<String> dependencies = dependenciesPerKnownVersions.get(UpdateManager.VERSION).stream()
-                .map(String::new).collect(Collectors.toList());
+        List<String> dependencies = getCurrentVersionDependencies().stream()
+                                                                   .map(String::new).collect(Collectors.toList());
 
         excludePlatformSpecificDependencies(dependencies);
 
         return dependencies.stream()
                 .filter(dependency -> !FileUtil.isFileExists(dependency)).collect(Collectors.toList());
+    }
+
+    public List<String> getCurrentVersionDependencies() {
+        return dependenciesForVersionsInUse.get(UpdateManager.VERSION);
     }
 }

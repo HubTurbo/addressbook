@@ -10,7 +10,6 @@ import address.shortcuts.ShortcutsManager;
 import address.prefs.PrefsManager;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
-import address.updater.DependencyTracker;
 import address.updater.UpdateManager;
 import address.util.Config;
 
@@ -19,14 +18,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
-import java.io.*;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 /**
  * The main entry point to the application.
@@ -44,7 +36,6 @@ public class MainApp extends Application {
     protected UpdateManager updateManager;
     private MainController mainController;
     private ShortcutsManager shortcutsManager;
-    private DependencyTracker dependencyTracker;
 
     public MainApp() {}
 
