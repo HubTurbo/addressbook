@@ -1,4 +1,4 @@
-<img src="https://travis-ci.org/HubTurbo/addressbook.svg?branch=master"/>[![Coverage Status](https://coveralls.io/repos/github/HubTurbo/addressbook/badge.svg?branch=master)](https://coveralls.io/github/HubTurbo/addressbook?branch=master)
+<img src="https://travis-ci.org/HubTurbo/addressbook.svg?branch=master"/> [![Coverage Status](https://coveralls.io/repos/github/HubTurbo/addressbook/badge.svg?branch=master)](https://coveralls.io/github/HubTurbo/addressbook?branch=master)
 
 # WHY do we have this?
 This is a sample app that is used for training and experimentation of HubTurbo developers.
