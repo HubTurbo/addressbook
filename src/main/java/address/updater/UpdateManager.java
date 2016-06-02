@@ -43,11 +43,17 @@ public class UpdateManager {
     private static final String BACKUP_SUFFIX = "_V";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
+    private final DependencyTracker dependencyTracker;
 
     private boolean isUpdateApplicable;
 
     public UpdateManager() {
         this.isUpdateApplicable = false;
+        dependencyTracker = new DependencyTracker();
+    }
+
+    public List<String> getMissingDependencies() {
+        return dependencyTracker.getMissingDependencies();
     }
 
     public void run() {

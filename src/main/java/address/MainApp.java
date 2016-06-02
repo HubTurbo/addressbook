@@ -78,53 +78,11 @@ public class MainApp extends Application {
         shortcutsManager = new ShortcutsManager();
 
         updateManager = new UpdateManager();
-
-        setupDependencyTracker();
-    }
-
-    protected void setupDependencyTracker() {
-        Optional<String> classPath = getClassPathAttributeFromManifest();
-
-        if (!classPath.isPresent()) {
-            System.out.println("Class-path undefined, not running dependency check");
-            dependencyTracker = new DependencyTracker();
-            return;
-        }
-
-        List<String> dependencies = new ArrayList<>(Arrays.asList(classPath.get().split("\\s+")));
-        dependencyTracker = new DependencyTracker(dependencies);
         alertMissingDependencies();
     }
 
-    /**
-     * @return the format is space delimited list, e.g. "lib/1.jar lib/2.jar lib/etc.jar"
-     */
-    private Optional<String> getClassPathAttributeFromManifest() {
-        Class mainAppClass = MainApp.class;
-        String className = mainAppClass.getSimpleName() + ".class";
-        String resourcePath = mainAppClass.getResource(className).toString();
-        if (!resourcePath.startsWith("jar")) {
-            System.out.println("Not run from JAR");
-            return Optional.empty();
-        }
-        String manifestPath = resourcePath.substring(0, resourcePath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
-
-        Manifest manifest;
-
-        try {
-            manifest = new Manifest(new URL(manifestPath).openStream());
-        } catch (IOException e) {
-            System.out.println("Manifest can't be read, not running dependency check");
-            e.printStackTrace();
-            return Optional.empty();
-        }
-
-        Attributes attr = manifest.getMainAttributes();
-        return Optional.of(attr.getValue("Class-path"));
-    }
-
     private void alertMissingDependencies() {
-        List<String> missingDependencies = dependencyTracker.getMissingDependencies();
+        List<String> missingDependencies = updateManager.getMissingDependencies();
 
         if (missingDependencies.isEmpty()) {
             System.out.println("All dependencies are present");

@@ -1,5 +1,6 @@
 package address.updater;
 
+import address.MainApp;
 import address.util.FileUtil;
 import address.util.JsonUtil;
 import address.util.OsDetector;
@@ -8,33 +9,32 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.net.URL;
+import java.util.*;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 /**
  * Tracks which dependencies are missing and which are no longer needed (including by backup versions)
  */
 public class DependencyTracker {
-    private static final File DEPENDENCY_HISTORY_FILE = new File("lib/history");
+    private static final File DEPENDENCY_HISTORY_FILE = new File("lib/dependency_history");
     private HashMap<Integer, List<String>> dependenciesPerKnownVersions = new HashMap<>();
 
     public DependencyTracker() {
         if (DEPENDENCY_HISTORY_FILE.exists()) {
             readVersionDependency();
-        } else {
-            try {
-                FileUtil.createFile(DEPENDENCY_HISTORY_FILE);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
-    }
 
-    public DependencyTracker(List<String> currVerDependencies) {
-        this();
-        updateVersionDependency(UpdateManager.VERSION, currVerDependencies);
+        Optional<String> classPath = getClassPathAttributeFromManifest();
+
+        if (!classPath.isPresent()) {
+            System.out.println("Class-path undefined");
+        } else {
+            updateVersionDependency(UpdateManager.VERSION,
+                    new ArrayList<>(Arrays.asList(classPath.get().split("\\s+"))));
+        }
     }
 
     public void updateVersionDependency(int version, List<String> verDependencies) {
@@ -43,6 +43,15 @@ public class DependencyTracker {
     }
 
     private void writeVersionDependency() {
+        if (!DEPENDENCY_HISTORY_FILE.exists()) {
+            try {
+                FileUtil.createFile(DEPENDENCY_HISTORY_FILE);
+            } catch (IOException e) {
+                System.out.println("Failed to create dependency file");
+                e.printStackTrace();
+            }
+        }
+
         try {
             FileUtil.writeToFile(DEPENDENCY_HISTORY_FILE, JsonUtil.toJsonString(dependenciesPerKnownVersions));
         } catch (JsonProcessingException e) {
@@ -64,6 +73,33 @@ public class DependencyTracker {
             System.out.println("Failed to read dependencies from file");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * @return the format is space delimited list, e.g. "lib/1.jar lib/2.jar lib/etc.jar"
+     */
+    private Optional<String> getClassPathAttributeFromManifest() {
+        Class mainAppClass = MainApp.class;
+        String className = mainAppClass.getSimpleName() + ".class";
+        String resourcePath = mainAppClass.getResource(className).toString();
+        if (!resourcePath.startsWith("jar")) {
+            System.out.println("Not run from JAR");
+            return Optional.empty();
+        }
+        String manifestPath = resourcePath.substring(0, resourcePath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
+
+        Manifest manifest;
+
+        try {
+            manifest = new Manifest(new URL(manifestPath).openStream());
+        } catch (IOException e) {
+            System.out.println("Manifest can't be read, not running dependency check");
+            e.printStackTrace();
+            return Optional.empty();
+        }
+
+        Attributes attr = manifest.getMainAttributes();
+        return Optional.of(attr.getValue("Class-path"));
     }
 
     private void excludePlatformSpecificDependencies(List<String> dependencies) {
@@ -95,7 +131,14 @@ public class DependencyTracker {
         }
     }
 
+    /**
+     * @return empty array list if current version is not in dependency list (indicating not run from JAR)
+     */
     public List<String> getMissingDependencies() {
+        if (dependenciesPerKnownVersions.get(UpdateManager.VERSION) == null) {
+            return new ArrayList<>();
+        }
+
         List<String> dependencies = dependenciesPerKnownVersions.get(UpdateManager.VERSION).stream()
                 .map(String::new).collect(Collectors.toList());
 
