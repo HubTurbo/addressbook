@@ -125,10 +125,16 @@ public class FileUtil {
         return failedToMoveFiles;
     }
 
+    /**
+     * Assumes file exists
+     */
     public static String readFromFile(File file) throws IOException {
         return new String(Files.readAllBytes(file.toPath()), CHARSET);
     }
 
+    /**
+     * Assumes file exists
+     */
     public static void writeToFile(File file, String content) throws IOException {
         Files.write(file.toPath(), content.getBytes(CHARSET));
     }

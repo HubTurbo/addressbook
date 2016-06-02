@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
  */
 public class UpdateManager {
     public static final String UPDATE_DIRECTORY = "update";
+    public static final int VERSION = 0; // TODO remove once version system is decided
 
     // --- Messages
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
@@ -39,7 +40,6 @@ public class UpdateManager {
 
     private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
     private static final String JAR_UPDATER_APP_PATH = UPDATE_DIRECTORY + File.separator + "jarUpdater.jar";
-    private static final int VERSION = 0;
     private static final String BACKUP_SUFFIX = "_V";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
