@@ -12,6 +12,8 @@ public class StatusBarHeaderController {
 
     public StatusBarHeaderController() {
         footerStatusBar = new StatusBar();
+        footerStatusBar.getStyleClass().removeAll();
+        footerStatusBar.getStyleClass().add("status-bar-with-border");
         footerStatusBar.setText("");
     }
 

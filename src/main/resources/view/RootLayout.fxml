@@ -39,7 +39,7 @@
             </Menu>
          </menus>
       </MenuBar>
-      <AnchorPane styleClass="anchor-pane">
+      <AnchorPane styleClass="anchor-pane-with-border">
          <children>
             <Text fx:id="saveLocText" fill="WHITE" layoutX="14.0" layoutY="15.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" AnchorPane.leftAnchor="10.0" />
             <Text fx:id="mirrorLocText" fill="WHITE" layoutX="176.0" layoutY="15.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" AnchorPane.rightAnchor="10.0" />

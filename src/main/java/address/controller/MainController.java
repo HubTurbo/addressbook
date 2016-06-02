@@ -153,6 +153,7 @@ public class MainController {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
             GridPane gPane = loader.load();
+            gPane.getStyleClass().add("grid-pane");
             StatusBarFooterController controller = loader.getController();
             controller.initStatusBar();
             rootLayout.getChildren().add(gPane);
@@ -364,6 +365,7 @@ public class MainController {
     public static void showAlertDialogAndWait(Stage owner, AlertType type, String title, String headerText,
                                               String contentText) {
         final Alert alert = new Alert(type);
+        alert.getDialogPane().getStylesheets().add("view/DarkTheme.css");
         alert.initOwner(owner);
         alert.setTitle(title);
         alert.setHeaderText(headerText);

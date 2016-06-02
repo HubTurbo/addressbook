@@ -2,6 +2,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="address.controller.GroupListController">
+<AnchorPane stylesheets="@DarkTheme.css" xmlns:fx="http://javafx.com/fxml" fx:controller="address.controller.GroupListController">
   <ListView fx:id="groups"/>
 </AnchorPane>
