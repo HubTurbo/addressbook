@@ -5,6 +5,10 @@
  * user guide available at http://gradle.org/docs/2.2.1/userguide/tutorial_java_projects.html
  */
 
+plugins {
+    id "com.github.kt3k.coveralls" version "2.4.0"
+}
+
 allprojects {
 
     apply plugin: 'idea'
@@ -50,6 +54,14 @@ allprojects {
         jarUpdaterArchiveName = 'jarUpdater.jar'
     }
 
+    jacocoTestReport {
+        reports {
+            xml.enabled false
+            csv.enabled false
+            html.destination "${buildDir}/jacocoHtml"
+        }
+    }
+
     dependencies {
         compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
@@ -74,6 +86,14 @@ allprojects {
         testCompile "org.mockito:mockito-core:$mockitoVersion"
         testCompile group: "org.mock-server", name: "mockserver-netty", version: "$mockServerVersion"
         testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
+    }
+
+    test {
+        forkEvery = 1
+
+        exclude 'address/guitests'
+        exclude 'address/guiunittests'
+        systemProperty 'testfx.setup.timeout', '60000'
     }
 
     task createJarUpdater(type: Jar) {
@@ -103,6 +123,7 @@ allprojects {
         from configurations.compile
         into project.ext.outputDir + '/lib'
     }
+
 
     task addJarUpdaterToMainApp(type: Copy) {
         group = "Release"
@@ -171,7 +192,40 @@ allprojects {
         archiveName = "addressbook.jar"
     }
 
+    jacoco {
+        toolVersion = "0.7.5.201505241946"
+    }
+
     createInstallerJar.dependsOn createMainAppExecutable
+}
+
+task jacocoRootReport(type: JacocoReport) {
+    dependsOn = allprojects.test
+    sourceDirectories = files(allprojects.sourceSets.main.allSource.srcDirs)
+    classDirectories =  files(allprojects.sourceSets.main.output)
+    executionData = files(allprojects.jacocoTestReport.executionData)
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: ['github/**', 'backend/github/**', '**/*.jar'])
+        })
+    }
+    reports {
+        html.enabled = true
+        xml.enabled = true
+    }
+}
+
+coveralls {
+    sourceDirs = allprojects.sourceSets.main.allSource.srcDirs.flatten()
+    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+}
+
+tasks.coveralls {
+    group = 'Coverage reports'
+    description = 'Uploads the aggregated coverage report to Coveralls'
+
+    dependsOn jacocoRootReport
+    onlyIf { System.env.'CI' }
 }
 
 task wrapper(type: Wrapper) {
@@ -190,10 +244,6 @@ task coverage {
 task checkStyle {
 }
 
-test {
-    forkEvery = 1
-    systemProperty 'testfx.setup.timeout', '60000'
-}
 
 task headless(type: Test) {
     systemProperty 'java.awt.robot', 'true'
@@ -205,6 +255,7 @@ task headless(type: Test) {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
 }
+
 
 task headful(type: Test) {
     jacoco {
@@ -218,4 +269,4 @@ checkStyle.shouldRunAfter clean
 checkStyle.dependsOn checkstyleMain, checkstyleTest, findbugsMain, findbugsTest, pmdMain, pmdTest
 coverage.dependsOn jacocoTestReport
 
-defaultTasks 'clean', 'headless'
+defaultTasks 'clean', 'headless', 'jacocoRootReport'
