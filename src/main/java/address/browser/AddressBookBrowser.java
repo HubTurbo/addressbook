@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class AddressBookBrowser{
 
     private static final String INSTRUCTION_PAGE_HTML_CODE =
-            "<html><body><h3>To view contact's web page, click on the contact on the left.</h3></body></html>";
+            "<h3><center><font color=\"grey\">To view contact's web page, click on the contact on the left.</font></center></h3></body></html>";
 
     private ArrayList<BrowserTab> browserTabs;
     private ObservableList<Person> filteredPersons;

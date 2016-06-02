@@ -3,11 +3,10 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
-
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.controller.RootLayoutController">
+<VBox maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity" stylesheets="@DarkTheme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.controller.RootLayoutController">
    <children>
       <MenuBar VBox.vgrow="ALWAYS">
          <menus>
@@ -40,10 +39,10 @@
             </Menu>
          </menus>
       </MenuBar>
-      <AnchorPane>
+      <AnchorPane styleClass="anchor-pane-with-border">
          <children>
-            <Text fx:id="saveLocText" layoutX="14.0" layoutY="15.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" AnchorPane.leftAnchor="10.0" />
-            <Text fx:id="mirrorLocText" layoutX="176.0" layoutY="15.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" AnchorPane.rightAnchor="10.0" />
+            <Text fx:id="saveLocText" fill="WHITE" layoutX="14.0" layoutY="15.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" AnchorPane.leftAnchor="10.0" />
+            <Text fx:id="mirrorLocText" fill="WHITE" layoutX="176.0" layoutY="15.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" AnchorPane.rightAnchor="10.0" />
          </children>
          <VBox.margin>
             <Insets />

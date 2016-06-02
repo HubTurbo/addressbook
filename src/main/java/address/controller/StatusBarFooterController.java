@@ -23,9 +23,6 @@ public class StatusBarFooterController {
     private AnchorPane updaterStatusBarPane;
 
     @FXML
-    private SplitPane statusBarFooter;
-
-    @FXML
     private AnchorPane syncStatusBarPane;
 
     public static StatusBar syncStatusBar;

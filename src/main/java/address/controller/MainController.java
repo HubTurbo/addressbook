@@ -18,8 +18,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -153,10 +152,11 @@ public class MainController {
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
-            SplitPane sPane = loader.load();
+            GridPane gPane = loader.load();
+            gPane.getStyleClass().add("grid-pane");
             StatusBarFooterController controller = loader.getController();
             controller.initStatusBar();
-            rootLayout.getChildren().add(sPane);
+            rootLayout.getChildren().add(gPane);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -365,6 +365,7 @@ public class MainController {
     public static void showAlertDialogAndWait(Stage owner, AlertType type, String title, String headerText,
                                               String contentText) {
         final Alert alert = new Alert(type);
+        alert.getDialogPane().getStylesheets().add("view/DarkTheme.css");
         alert.initOwner(owner);
         alert.setTitle(title);
         alert.setHeaderText(headerText);
