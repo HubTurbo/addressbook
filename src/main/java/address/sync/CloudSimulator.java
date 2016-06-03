@@ -350,7 +350,7 @@ public class CloudSimulator implements ICloudSimulator {
         if (!hasSufficientQuota(API_COUNT_EDIT_TAG)) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         try {
             CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
-            CloudTag returnedTag = updateTagDetails(fileData.getAllTags(), oldTagName, updatedTag);
+            CloudTag returnedTag = updateTagDetails(fileData.getAllPersons(), fileData.getAllTags(), oldTagName, updatedTag);
             writeCloudAddressBookToFile(addressBookName, fileData);
 
             modifyCloudTagBasedOnChance(returnedTag);
@@ -384,7 +384,7 @@ public class CloudSimulator implements ICloudSimulator {
         if (!isWithinQuota(API_COUNT_DELETE_TAG)) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         try {
             CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
-            deleteTagFromData(fileData.getAllTags(), tagName);
+            deleteTagFromData(fileData.getAllPersons(), fileData.getAllTags(), tagName);
             writeCloudAddressBookToFile(addressBookName, fileData);
 
             rateLimitStatus.useQuota(API_COUNT_DELETE_TAG);
@@ -740,18 +740,31 @@ public class CloudSimulator implements ICloudSimulator {
         return tagQueryResult.get();
     }
 
-    private CloudTag updateTagDetails(List<CloudTag> tagList, String oldTagName, CloudTag updatedTag)
+    private CloudTag updateTagDetails(List<CloudPerson> personList, List<CloudTag> tagList, String oldTagName, CloudTag updatedTag)
             throws NoSuchElementException {
-        // TODO: Update tag of persons who have this tag
         CloudTag oldTag = getTagIfExists(tagList, oldTagName);
         oldTag.updatedBy(updatedTag);
+        personList.stream()
+                .forEach(person -> {
+                    List<CloudTag> personTags = person.getTags();
+                    personTags.stream()
+                            .filter(personTag -> personTag.getName().equals(oldTagName))
+                            .forEach(personTag -> personTag.updatedBy(updatedTag));
+                });
         return oldTag;
     }
 
-    private void deleteTagFromData(List<CloudTag> tagList, String tagName) throws NoSuchElementException {
-        // TODO: Delete tag from persons who have this tag
+    private void deleteTagFromData(List<CloudPerson> personList, List<CloudTag> tagList, String tagName) throws NoSuchElementException {
         CloudTag tag = getTagIfExists(tagList, tagName);
         // This may differ from how GitHub does it, but we won't know for sure
         tagList.remove(tag);
+        personList.stream()
+                .forEach(person -> {
+                    List<CloudTag> personTags = person.getTags();
+                    personTags = personTags.stream()
+                            .filter(personTag -> !personTag.getName().equals(tagName))
+                            .collect(Collectors.toList());
+                    person.setTags(personTags);
+                });
     }
 }
