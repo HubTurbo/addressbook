@@ -10,7 +10,7 @@ public class TagEditDialogController extends EditDialogController {
     @FXML
     private TextField tagNameField;
 
-    private Tag finalTag;
+    private Tag editedTag;
 
     public TagEditDialogController() {
         EventManager.getInstance().registerHandler(this);
@@ -42,14 +42,14 @@ public class TagEditDialogController extends EditDialogController {
     }
 
     public Tag getFinalInput() {
-        return finalTag;
+        return editedTag;
     }
 
     @FXML
     protected void handleOk() {
         if (!isInputValid()) return;
-        finalTag = new Tag();
-        finalTag.setName(tagNameField.getText());
+        editedTag = new Tag();
+        editedTag.setName(tagNameField.getText());
 
         isOkClicked = true;
         dialogStage.close();

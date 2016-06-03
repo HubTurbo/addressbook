@@ -20,8 +20,8 @@ public class PersonEditDialogTagsModel {
 
     public PersonEditDialogTagsModel(List<Tag> tags, List<Tag> assignedTags) {
         List<SelectableTag> selectableTargets = tags.stream()
-                                                                .map(SelectableTag::new)
-                                                                .collect(Collectors.toList());
+                                                    .map(SelectableTag::new)
+                                                    .collect(Collectors.toList());
         this.tags.addAll(selectableTargets);
 
         assignedTags.stream()
