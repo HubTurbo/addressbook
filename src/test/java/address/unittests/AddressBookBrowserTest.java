@@ -6,7 +6,6 @@ import address.model.datatypes.Person;
 import address.util.JavafxThreadingRule;
 import address.util.TestUtil;
 
-import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Rule;
@@ -83,8 +82,8 @@ public class AddressBookBrowserTest {
         // Loads index 0 of list only.
         browser.loadProfilePage(list.get(0));
         assertTrue(list.get(0).equals(browserTabs.get(0).getPerson()));
-        assertNull(browserTabs.get(1).getPerson());
-        assertNull(browserTabs.get(2).getPerson());
+        assertTrue(browserTabs.get(1).getPerson() == null);
+        assertTrue(browserTabs.get(2).getPerson() == null);
     }
 
     @Test
@@ -128,6 +127,7 @@ public class AddressBookBrowserTest {
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
+    @SuppressWarnings("unchecked")//If casting fails, test fail. Thus, It is ok not to check the casting.
     private ArrayList<BrowserTab> getBrowserTabs(AddressBookBrowser browser) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Method getBrowserTabsMethod = browser.getClass().getDeclaredMethod("getBrowserTabs");
         getBrowserTabsMethod.setAccessible(true);
