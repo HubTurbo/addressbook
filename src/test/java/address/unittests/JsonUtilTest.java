@@ -25,7 +25,7 @@ public class JsonUtilTest {
      * Due to updatedAt field, we can check JSON string correct value. As such, we just confirm there is no exception
      */
     public void jsonUtil_getJsonStringObjectRepresentation_noExceptionThrown() throws JsonProcessingException {
-        Tag sampleTag = new Tag("Group");
+        Tag sampleTag = new Tag("Tag");
         Person samplePerson = new Person("First", "Last");
         samplePerson.setCity("Singapore");
         samplePerson.setPostalCode("123456");
@@ -87,9 +87,9 @@ public class JsonUtilTest {
         Person samplePerson = new Person("First", "Last");
         samplePerson.setCity("Singapore");
         samplePerson.setPostalCode("123456");
-        List<Tag> group = new ArrayList<>();
-        group.add(sampleTag);
-        samplePerson.setTags(group);
+        List<Tag> tag = new ArrayList<>();
+        tag.add(sampleTag);
+        samplePerson.setTags(tag);
         samplePerson.setBirthday(LocalDate.of(1980, 3, 18));
         samplePerson.setGithubUserName("FirstLast");
 
@@ -105,15 +105,15 @@ public class JsonUtilTest {
         assertEquals(1, addressBookRead.getTags().size());
 
         Person person = addressBookRead.getPersons().get(0);
-        Tag groupRead = addressBookRead.getTags().get(0);
+        Tag tagRead = addressBookRead.getTags().get(0);
 
-        assertEquals("Group", groupRead.getName());
+        assertEquals("Tag", tagRead.getName());
 
         assertEquals("First", person.getFirstName());
         assertEquals("Last", person.getLastName());
         assertEquals("Singapore", person.getCity());
         assertEquals("123456", person.getPostalCode());
-        assertEquals(groupRead, person.getTags().get(0));
+        assertEquals(tagRead, person.getTags().get(0));
         assertEquals(LocalDate.of(1980, 3, 18), person.getBirthday());
         assertEquals("FirstLast", person.getGithubUserName());
     }
