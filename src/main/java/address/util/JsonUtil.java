@@ -3,6 +3,7 @@ package address.util;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -48,5 +49,9 @@ public class JsonUtil {
             throws IOException {
         TypeFactory typeFactory = objectMapper.getTypeFactory();
         return objectMapper.readValue(json, typeFactory.constructMapType(HashMap.class, keyClass, valueClass));
+    }
+
+    public static <T> T fromJsonStringToGivenType(String json, TypeReference<T> typeReference) throws IOException {
+        return objectMapper.readValue(json, typeReference);
     }
 }

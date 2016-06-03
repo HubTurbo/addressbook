@@ -132,7 +132,7 @@ public class Installer extends Application {
     }
 
     private String getSelfJarFilename() {
-        return new File(Installer.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getName();
+        return FileUtil.getJarFileOfClass(this.getClass()).getName();
     }
 
     private void downloadPlatformSpecificJxBrowser() {

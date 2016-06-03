@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
  */
 public class UpdateManager {
     public static final String UPDATE_DIRECTORY = "update";
+    public static final int VERSION = 0; // TODO remove once version system is decided
 
     // --- Messages
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
@@ -36,17 +37,25 @@ public class UpdateManager {
 
     private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
     private static final String JAR_UPDATER_APP_PATH = UPDATE_DIRECTORY + File.separator + "jarUpdater.jar";
-    private static final int VERSION = 0;
 
-    private final ExecutorService pool = Executors.newSingleThreadExecutor();
+    private final ExecutorService pool = Executors.newCachedThreadPool();
+    private final DependencyTracker dependencyTracker;
+    private final BackupManager backupManager;
 
     private boolean isUpdateApplicable;
 
     public UpdateManager() {
         this.isUpdateApplicable = false;
+        dependencyTracker = new DependencyTracker();
+        backupManager = new BackupManager(dependencyTracker);
+    }
+
+    public List<String> getMissingDependencies() {
+        return dependencyTracker.getMissingDependencies();
     }
 
     public void run() {
+        pool.execute(() -> backupManager.cleanupBackups());
         pool.execute(this::checkForUpdate);
     }
 
@@ -115,6 +124,10 @@ public class UpdateManager {
      */
     private Optional<UpdateData> getUpdateDataFromServer() {
         File file = new File("update/UpdateData.json");
+
+        if (!FileUtil.isFileExists(file)) {
+            return Optional.empty();
+        }
 
         try {
             return Optional.of(JsonUtil.fromJsonString(FileUtil.readFromFile(file), UpdateData.class));
@@ -225,11 +238,15 @@ public class UpdateManager {
             return;
         }
 
+        if (!backupManager.createBackupOfCurrentApp()) {
+            return;
+        }
+
         String restarterAppPath = JAR_UPDATER_APP_PATH;
         String localUpdateSpecFilepath = System.getProperty("user.dir") + File.separator +
                                          LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
         String cmdArg = String.format("--update-specification=%s --source-dir=%s",
-                                      localUpdateSpecFilepath, UPDATE_DIRECTORY);
+                localUpdateSpecFilepath, UPDATE_DIRECTORY);
 
         String command = String.format("java -jar %1$s %2$s", restarterAppPath, cmdArg);
 

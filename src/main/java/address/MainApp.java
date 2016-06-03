@@ -13,22 +13,12 @@ import address.sync.SyncManager;
 import address.updater.UpdateManager;
 import address.util.Config;
 
-import address.util.FileUtil;
-import address.util.OsDetector;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
-import java.io.*;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 
 /**
  * The main entry point to the application.
@@ -62,7 +52,6 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         setupComponents();
-        checkDependencies();
         mainController.start(primaryStage);
         updateManager.run();
         // initial load (precondition: mainController has been started.)
@@ -70,80 +59,21 @@ public class MainApp extends Application {
         syncManager.startSyncingData(config.updateInterval, config.simulateUnreliableNetwork);
     }
 
-    protected void checkDependencies() {
-        Optional<String> classPath = getClassPathAttributeFromManifest();
+    protected void setupComponents() {
+        config = getConfig();
+        modelManager = new ModelManager();
+        storageManager = new StorageManager(modelManager);
+        mainController = new MainController(this, modelManager, config);
+        syncManager = new SyncManager();
 
-        if (!classPath.isPresent()) {
-            System.out.println("Class-path undefined, not running dependency check");
-            return;
-        }
+        shortcutsManager = new ShortcutsManager();
 
-        List<String> dependencies = new ArrayList<>(Arrays.asList(classPath.get().split("\\s+")));
-
-        excludePlatformSpecificDependencies(dependencies);
-
-        alertMissingDependencies(dependencies);
+        updateManager = new UpdateManager();
+        alertMissingDependencies();
     }
 
-    /**
-     * @return the format is space delimited list, e.g. "lib/1.jar lib/2.jar lib/etc.jar"
-     */
-    private Optional<String> getClassPathAttributeFromManifest() {
-        Class mainAppClass = MainApp.class;
-        String className = mainAppClass.getSimpleName() + ".class";
-        String resourcePath = mainAppClass.getResource(className).toString();
-        if (!resourcePath.startsWith("jar")) {
-            System.out.println("Not from JAR, not running dependency check");
-            return Optional.empty();
-        }
-        String manifestPath = resourcePath.substring(0, resourcePath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
-
-        Manifest manifest;
-
-        try {
-            manifest = new Manifest(new URL(manifestPath).openStream());
-        } catch (IOException e) {
-            System.out.println("Manifest can't be read, not running dependency check");
-            e.printStackTrace();
-            return Optional.empty();
-        }
-
-        Attributes attr = manifest.getMainAttributes();
-        return Optional.of(attr.getValue("Class-path"));
-    }
-
-    private void excludePlatformSpecificDependencies(List<String> dependencies) {
-        List<String> windowsDependencies = new ArrayList<>();
-        windowsDependencies.add("lib/jxbrowser-win-6.4.jar");
-        List<String> macDependencies = new ArrayList<>();
-        macDependencies.add("lib/jxbrowser-mac-6.4.jar");
-        List<String> linux32Dependencies = new ArrayList<>();
-        linux32Dependencies.add("lib/jxbrowser-linux32-6.4.jar");
-        List<String> linux64Dependencies = new ArrayList<>();
-        linux64Dependencies.add("lib/jxbrowser-linux64-6.4.jar");
-
-        if (OsDetector.isOnWindows()) {
-            dependencies.removeAll(macDependencies);
-            dependencies.removeAll(linux32Dependencies);
-            dependencies.removeAll(linux64Dependencies);
-        } else if (OsDetector.isOnMac()) {
-            dependencies.removeAll(windowsDependencies);
-            dependencies.removeAll(linux32Dependencies);
-            dependencies.removeAll(linux64Dependencies);
-        } else if (OsDetector.isOn32BitsLinux()) {
-            dependencies.removeAll(windowsDependencies);
-            dependencies.removeAll(macDependencies);
-            dependencies.removeAll(linux64Dependencies);
-        } else if (OsDetector.isOn64BitsLinux()) {
-            dependencies.removeAll(windowsDependencies);
-            dependencies.removeAll(macDependencies);
-            dependencies.removeAll(linux32Dependencies);
-        }
-    }
-
-    private void alertMissingDependencies(List<String> dependencies) {
-        List<String> missingDependencies = dependencies.stream()
-                .filter(dependency -> !FileUtil.isFileExists(dependency)).collect(Collectors.toList());
+    private void alertMissingDependencies() {
+        List<String> missingDependencies = updateManager.getMissingDependencies();
 
         if (missingDependencies.isEmpty()) {
             System.out.println("All dependencies are present");
@@ -158,19 +88,6 @@ public class MainApp extends Application {
                     "There are missing dependencies. App may not work properly.",
                     message.trim());
         }
-    }
-
-    protected void setupComponents() {
-        config = getConfig();
-        modelManager = new ModelManager();
-        storageManager = new StorageManager(modelManager);
-        mainController = new MainController(this, modelManager, config);
-        syncManager = new SyncManager();
-
-        shortcutsManager = new ShortcutsManager();
-
-        updateManager = new UpdateManager();
-
     }
 
     @Override

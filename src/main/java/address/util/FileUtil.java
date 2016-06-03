@@ -12,10 +12,12 @@ import java.util.List;
 public class FileUtil {
     private static final String CHARSET = "UTF-8";
 
-    public static boolean isFileExists(String filepath) {
-        File file = new File(filepath);
-
+    public static boolean isFileExists(File file) {
         return file.exists() && file.isFile();
+    }
+
+    public static boolean isFileExists(String filepath) {
+        return isFileExists(new File(filepath));
     }
 
     public static boolean isDirExists(String dirpath) {
@@ -37,6 +39,14 @@ public class FileUtil {
         createParentDirsOfFile(file);
 
         return file.createNewFile();
+    }
+
+    public static void deleteFile(String filepath) throws IOException {
+        deleteFile(new File(filepath));
+    }
+
+    public static void deleteFile(File file) throws IOException {
+        Files.delete(file.toPath());
     }
 
     /**
@@ -89,6 +99,21 @@ public class FileUtil {
     }
 
     /**
+     *
+     * @param source
+     * @param dest
+     * @param isOverwrite
+     * @throws IOException
+     */
+    public static void copyFile(Path source, Path dest, boolean isOverwrite) throws IOException {
+        if (isOverwrite) {
+            Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+        } else {
+            Files.copy(source, dest);
+        }
+    }
+
+    /**
      * @return List of filenames failed to be moved
      */
     public static List<String> moveContentOfADirectoryToAnother(String sourceDir, String targetDir) {
@@ -110,11 +135,21 @@ public class FileUtil {
         return failedToMoveFiles;
     }
 
+    /**
+     * Assumes file exists
+     */
     public static String readFromFile(File file) throws IOException {
         return new String(Files.readAllBytes(file.toPath()), CHARSET);
     }
 
+    /**
+     * Assumes file exists
+     */
     public static void writeToFile(File file, String content) throws IOException {
         Files.write(file.toPath(), content.getBytes(CHARSET));
+    }
+
+    public static File getJarFileOfClass(Class givenClass) {
+        return new File(givenClass.getProtectionDomain().getCodeSource().getLocation().getPath());
     }
 }
