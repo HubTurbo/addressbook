@@ -38,8 +38,8 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     @JsonIgnore private final SimpleObjectProperty<LocalDate> birthday;
     @JsonIgnore private final ObservableList<Tag> tags;
 
-    private final BooleanProperty isDeleted;
-    private final BooleanProperty isEdited;
+    @JsonIgnore private final BooleanProperty isDeleted;
+    @JsonIgnore private final BooleanProperty isEdited;
     // defaults
     {
         firstName = new SimpleStringProperty("");
@@ -277,6 +277,7 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     }
 
 //// OTHER LOGIC
+    @JsonProperty("isDeleted")
     public boolean getIsDeleted() {
         return isDeleted.get();
     }
@@ -289,6 +290,7 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         this.isDeleted.set(isDeleted);
     }
 
+    @JsonProperty("isEdited")
     public boolean getIsEdited() {
         return isEdited.get();
     }
