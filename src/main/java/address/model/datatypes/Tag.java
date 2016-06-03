@@ -10,7 +10,7 @@ import javafx.beans.property.StringProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContactGroup extends BaseDataType {
+public class Tag extends BaseDataType {
 
     @JsonIgnore private final SimpleStringProperty name;
 
@@ -18,18 +18,18 @@ public class ContactGroup extends BaseDataType {
         name = new SimpleStringProperty("");
     }
 
-    public ContactGroup() {}
+    public Tag() {}
 
-    public ContactGroup(String name) {
+    public Tag(String name) {
         setName(name);
     }
 
     // Copy constructor
-    public ContactGroup(ContactGroup grp) {
+    public Tag(Tag grp) {
         update(grp);
     }
 
-    public ContactGroup update(ContactGroup group) {
+    public Tag update(Tag group) {
         setName(group.getName());
         return this;
     }
@@ -58,9 +58,9 @@ public class ContactGroup extends BaseDataType {
     public boolean equals(Object otherGroup){
         if (otherGroup == this) return true;
         if (otherGroup == null) return false;
-        if (!ContactGroup.class.isAssignableFrom(otherGroup.getClass())) return false;
+        if (!Tag.class.isAssignableFrom(otherGroup.getClass())) return false;
 
-        final ContactGroup other = (ContactGroup) otherGroup;
+        final Tag other = (Tag) otherGroup;
         return this.getName().equals(other.getName());
     }
 
@@ -75,7 +75,7 @@ public class ContactGroup extends BaseDataType {
     }
 
     @Override
-    public ContactGroup clone() {
-        return new ContactGroup(this);
+    public Tag clone() {
+        return new Tag(this);
     }
 }

@@ -25,7 +25,7 @@ public class PersonCardController {
     @FXML
     private Label birthday;
     @FXML
-    private Label contactGroups;
+    private Label tags;
 
     private Person person;
 
@@ -58,14 +58,14 @@ public class PersonCardController {
                 return person.birthdayString();
             }
         });
-        contactGroups.textProperty().bind(new StringBinding(){
+        tags.textProperty().bind(new StringBinding(){
             {
-                bind(person.getContactGroups()); //Bind property at instance initializer
+                bind(person.getTags()); //Bind property at instance initializer
             }
 
             @Override
             protected String computeValue() {
-                return person.contactGroupsString();
+                return person.tagsString();
             }
         });
     }

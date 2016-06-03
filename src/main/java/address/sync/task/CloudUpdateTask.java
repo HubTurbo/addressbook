@@ -1,25 +1,25 @@
 package address.sync.task;
 
-import address.model.datatypes.ContactGroup;
 import address.model.datatypes.Person;
+import address.model.datatypes.Tag;
 import address.model.datatypes.UniqueData;
 import address.prefs.PrefsManager;
-import address.sync.CloudSimulator;
+import address.sync.CloudService;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CloudUpdateTask implements Runnable {
-    private final CloudSimulator simulator;
+    private final CloudService simulator;
     private final List<Person> personsData;
-    private final List<ContactGroup> groupsData;
+    private final List<Tag> tagsData;
 
-    public CloudUpdateTask(CloudSimulator simulator, List<Person> personsData, List<ContactGroup> groupsData) {
+    public CloudUpdateTask(CloudService simulator, List<Person> personsData,
+                           List<Tag> tagsData) {
         this.simulator = simulator;
         this.personsData = personsData;
-        this.groupsData = groupsData;
+        this.tagsData = tagsData;
     }
 
     @Override
@@ -28,13 +28,16 @@ public class CloudUpdateTask implements Runnable {
 
         List<UniqueData> allData = new ArrayList<>();
         allData.addAll(personsData);
-        allData.addAll(groupsData);
+        allData.addAll(tagsData);
 
         File mirrorFile = PrefsManager.getInstance().getMirrorLocation();
-        try {
-            simulator.requestChangesToCloud(mirrorFile, personsData, groupsData);
+
+        // Temporarily disabled
+        // The way the local model should use the API to push its updates is not yet finalized
+        /*try {
+            simulator.requestChangesToCloud(mirrorFile, personsData, tagsData);
         } catch (JAXBException e) {
             System.out.println("Error requesting changes to the cloud");
-        }
+        }*/
     }
 }

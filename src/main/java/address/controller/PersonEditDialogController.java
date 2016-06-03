@@ -2,11 +2,11 @@ package address.controller;
 
 import address.model.*;
 import address.events.EventManager;
-import address.events.GroupSearchResultsChangedEvent;
-import address.events.GroupsChangedEvent;
-import address.model.datatypes.ContactGroup;
+import address.events.TagSearchResultsChangedEvent;
+import address.events.TagsChangedEvent;
 import address.model.datatypes.Person;
-import address.model.datatypes.SelectableContactGroup;
+import address.model.datatypes.SelectableTag;
+import address.model.datatypes.Tag;
 import address.util.DateTimeUtil;
 
 import com.google.common.eventbus.Subscribe;
@@ -39,15 +39,15 @@ public class PersonEditDialogController extends EditDialogController {
     private TextField birthdayField;
 
     @FXML
-    private ScrollPane groupList;
+    private ScrollPane tagList;
     @FXML
-    private TextField groupSearch;
+    private TextField tagSearch;
     @FXML
-    private ScrollPane groupResults;
+    private ScrollPane tagResults;
     @FXML
     private TextField githubUserNameField;
 
-    private PersonEditDialogGroupsModel model;
+    private PersonEditDialogTagsModel model;
     private Person finalPerson;
 
     public PersonEditDialogController() {
@@ -64,21 +64,21 @@ public class PersonEditDialogController extends EditDialogController {
     }
 
     private void addListeners() {
-        groupSearch.textProperty().addListener((observableValue, oldValue, newValue) -> {
-                handleGroupInput(newValue);
+        tagSearch.textProperty().addListener((observableValue, oldValue, newValue) -> {
+                handleTagInput(newValue);
             });
-        groupSearch.setOnKeyTyped(e -> {
+        tagSearch.setOnKeyTyped(e -> {
                 switch (e.getCharacter()) {
                 case " ":
                     e.consume();
                     model.toggleSelection();
-                    groupSearch.clear();
+                    tagSearch.clear();
                     break;
                 default:
                     break;
                 }
             });
-        groupSearch.setOnKeyPressed(e -> {
+        tagSearch.setOnKeyPressed(e -> {
                 switch (e.getCode()) {
                 case DOWN:
                     e.consume();
@@ -117,8 +117,8 @@ public class PersonEditDialogController extends EditDialogController {
         githubUserNameField.setText(person.getGithubUserName());
     }
 
-    public void setGroupsModel(List<ContactGroup> contactGroups, List<ContactGroup> assignedGroups) {
-        model = new PersonEditDialogGroupsModel(contactGroups, assignedGroups);
+    public void setTagsModel(List<Tag> tags, List<Tag> assignedTags) {
+        model = new PersonEditDialogTagsModel(tags, assignedTags);
     }
 
     /**
@@ -135,7 +135,7 @@ public class PersonEditDialogController extends EditDialogController {
         finalPerson.setPostalCode(postalCodeField.getText());
         finalPerson.setCity(cityField.getText());
         finalPerson.setBirthday(DateTimeUtil.parse(birthdayField.getText()));
-        finalPerson.setContactGroups(model.getAssignedGroups());
+        finalPerson.setTags(model.getAssignedTagss());
         finalPerson.setGithubUserName(githubUserNameField.getText());
         isOkClicked = true;
         dialogStage.close();
@@ -207,21 +207,21 @@ public class PersonEditDialogController extends EditDialogController {
     }
 
     @Subscribe
-    public void handleGroupSearchResultsChangedEvent(GroupSearchResultsChangedEvent e) {
-        groupResults.setContent(getContactGroupsVBox(e.getSelectableContactGroups(), true));
+    public void handleTagSearchResultsChangedEvent(TagSearchResultsChangedEvent e) {
+        tagResults.setContent(getTagsVBox(e.getSelectableTags(), true));
     }
 
     @Subscribe
-    public void handleGroupsChangedEvent(GroupsChangedEvent e) {
-        groupList.setContent(getContactGroupsVBox(e.getResultGroup(), false));
+    public void handleTagsChangedEvent(TagsChangedEvent e) {
+        tagList.setContent(getTagsVBox(e.getResultTag(), false));
     }
 
-    private VBox getContactGroupsVBox(List<SelectableContactGroup> contactGroupList, boolean isSelectable) {
+    private VBox getTagsVBox(List<SelectableTag> contactTagList, boolean isSelectable) {
         VBox content = new VBox();
-        contactGroupList.stream()
-                .forEach(contactGroup -> {
-                        Label newLabel = new Label(contactGroup.getName());
-                        if (isSelectable && contactGroup.isSelected()) {
+        contactTagList.stream()
+                .forEach(contactTag -> {
+                        Label newLabel = new Label(contactTag.getName());
+                        if (isSelectable && contactTag.isSelected()) {
                             newLabel.setStyle("-fx-background-color: blue;");
                         }
                         newLabel.setPrefWidth(261);
@@ -232,8 +232,8 @@ public class PersonEditDialogController extends EditDialogController {
     }
 
     @FXML
-    protected void handleGroupInput(String newGroups) {
-        model.setFilter(newGroups);
+    protected void handleTagInput(String newTags) {
+        model.setFilter(newTags);
     }
 
 

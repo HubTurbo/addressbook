@@ -2,7 +2,7 @@ package address.controller;
 
 import address.MainApp;
 import address.events.*;
-import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Tag;
 import address.model.ModelManager;
 import address.model.datatypes.Person;
 import address.util.Config;
@@ -32,10 +32,10 @@ import java.util.Optional;
  */
 public class MainController {
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
-    private static final String FXML_GROUP_EDIT_DIALOG = "/view/GroupEditDialog.fxml";
+    private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
     private static final String FXML_PERSON_OVERVIEW = "/view/PersonOverview.fxml";
-    private static final String FXML_GROUP_LIST = "/view/GroupList.fxml";
+    private static final String FXML_TAG_LIST = "/view/TagList.fxml";
     private static final String FXML_BIRTHDAY_STATISTICS = "/view/BirthdayStatistics.fxml";
     private static final String FXML_ROOT_LAYOUT = "/view/RootLayout.fxml";
     private static final String ICON_APPLICATION = "/images/address_book_32.png";
@@ -205,7 +205,7 @@ public class MainController {
             PersonEditDialogController controller = loader.getController();
             controller.setDialogStage(dialogStage);
             controller.setInitialPersonData(initialData);
-            controller.setGroupsModel(modelManager.getGroups(), new ArrayList<>(initialData.getContactGroups()));
+            controller.setTagsModel(modelManager.getTags(), new ArrayList<>(initialData.getTags()));
 
             dialogStage.showAndWait();
             if (controller.isOkClicked()) {
@@ -222,15 +222,15 @@ public class MainController {
     }
 
     /**
-     * Opens a dialog to edit details for the specified group. If the user
-     * clicks OK, the changes are recorded in a new ContactGroup and returned.
+     * Opens a dialog to edit details for the specified tag. If the user
+     * clicks OK, the changes are recorded in a new Tag and returned.
      *
-     * @param group the group object determining the initial data in the input fields
+     * @param tag the tag object determining the initial data in the input fields
      * @return an optional containing the new data, or an empty optional if there was an error
      *         creating the dialog or the user clicked cancel
      */
-    public Optional<ContactGroup> getGroupDataInput(ContactGroup group) {
-        final String fxmlResourcePath = FXML_GROUP_EDIT_DIALOG;
+    public Optional<Tag> getTagDataInput(Tag tag) {
+        final String fxmlResourcePath = FXML_TAG_EDIT_DIALOG;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
             FXMLLoader loader = new FXMLLoader();
@@ -239,7 +239,7 @@ public class MainController {
 
             // Create the dialog Stage.
             Stage dialogStage = new Stage();
-            dialogStage.setTitle("Edit Group");
+            dialogStage.setTitle("Edit Tag");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(primaryStage);
             Scene scene = new Scene(page);
@@ -247,9 +247,9 @@ public class MainController {
             dialogStage.getIcons().add(getImage(ICON_EDIT));
 
             // Pass relevant data to the controller.
-            GroupEditDialogController controller = loader.getController();
+            TagEditDialogController controller = loader.getController();
             controller.setDialogStage(dialogStage);
-            controller.setInitialGroupData(group);
+            controller.setInitialTagData(tag);
 
             dialogStage.showAndWait();
             if (controller.isOkClicked()) {
@@ -259,14 +259,14 @@ public class MainController {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for edit group dialog.",
+            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for edit tag dialog.",
                                    "IOException when trying to load " + fxmlResourcePath);
             return Optional.empty();
         }
     }
 
-    public void showGroupList(ObservableList<ContactGroup> groups) {
-        final String fxmlResourcePath = FXML_GROUP_LIST;
+    public void showTagList(ObservableList<Tag> tags) {
+        final String fxmlResourcePath = FXML_TAG_LIST;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
             FXMLLoader loader = new FXMLLoader();
@@ -275,21 +275,21 @@ public class MainController {
 
             // Create the dialog Stage.
             Stage dialogStage = new Stage();
-            dialogStage.setTitle("List of Contact Groups");
+            dialogStage.setTitle("List of Tags");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(primaryStage);
             Scene scene = new Scene(page);
             dialogStage.setScene(scene);
 
-            // Set the group into the controller.
-            GroupListController groupListController = loader.getController();
-            groupListController.setGroups(groups, this, modelManager);
+            // Set the tag into the controller.
+            TagListController tagListController = loader.getController();
+            tagListController.setTags(tags, this, modelManager);
 
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
-            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for group list.",
+            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for tag list.",
                                    "IOException when trying to load " + fxmlResourcePath);
         }
     }

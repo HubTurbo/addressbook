@@ -104,7 +104,7 @@ public class TickingTimer {
             assert !started : "Attempt to start TickingTimer that has already been started";
             started = true;
         }
-        executor.scheduleWithFixedDelay(() -> {
+        executor.scheduleAtFixedRate(() -> {
             boolean restarted = false;
             int currentTime;
             synchronized (this) {
@@ -126,7 +126,7 @@ public class TickingTimer {
                 latches.forEach(CountDownLatch::countDown);
                 latches.clear();
             }
-        }, 0, TICK_PERIOD, timeUnit);
+        }, TICK_PERIOD, TICK_PERIOD, timeUnit);
         System.out.println("Started TickingTimer " + name);
     }
 

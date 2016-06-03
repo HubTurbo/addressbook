@@ -7,6 +7,6 @@
         <URL value="@Extensions.css" />
     </stylesheets>
     <children>
-        <Label fx:id="groupName"/>
+        <Label fx:id="tagName"/>
     </children>
 </VBox>

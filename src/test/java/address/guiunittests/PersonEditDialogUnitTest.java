@@ -2,7 +2,7 @@ package address.guiunittests;
 
 import address.TestApp;
 import address.controller.PersonEditDialogController;
-import address.model.datatypes.ContactGroup;
+import address.model.datatypes.Tag;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
@@ -22,9 +22,9 @@ import static org.junit.Assert.assertEquals;
 import static org.loadui.testfx.GuiTest.find;
 
 public class PersonEditDialogUnitTest extends ApplicationTest {
-    private ScrollPane groupList;
-    private TextField groupSearch;
-    private ScrollPane groupResults;
+    private ScrollPane tagList;
+    private TextField tagSearch;
+    private ScrollPane tagResults;
 
     @Override
     public void start(Stage primaryStage) {
@@ -34,19 +34,19 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
 
             PersonEditDialogController controller = loader.getController();
 
-            ContactGroup contactGroup1 = new ContactGroup("enemies");
-            ContactGroup contactGroup2 = new ContactGroup("friends");
-            ContactGroup contactGroup3 = new ContactGroup("relatives");
+            Tag tag1 = new Tag("enemies");
+            Tag tag2 = new Tag("friends");
+            Tag tag3 = new Tag("relatives");
 
-            List<ContactGroup> assignedGroups = new ArrayList<>();
-            assignedGroups.add(contactGroup1);
+            List<Tag> assignedTags = new ArrayList<>();
+            assignedTags.add(tag1);
 
-            List<ContactGroup> allContactGroups = new ArrayList<>();
-            allContactGroups.add(contactGroup1);
-            allContactGroups.add(contactGroup2);
-            allContactGroups.add(contactGroup3);
+            List<Tag> allTags = new ArrayList<>();
+            allTags.add(tag1);
+            allTags.add(tag2);
+            allTags.add(tag3);
 
-            controller.setGroupsModel(allContactGroups, assignedGroups);
+            controller.setTagsModel(allTags, assignedTags);
 
             primaryStage.setScene(new Scene(baseNode));
             primaryStage.show();
@@ -57,40 +57,40 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
 
     @Before
     public void setup() {
-        groupList = find("#groupList");
-        groupSearch = find("#groupSearch");
-        groupResults = find("#groupResults");
+        tagList = find("#tagList");
+        tagSearch = find("#tagSearch");
+        tagResults = find("#tagResults");
     }
 
     @Test
-    public void testGroupSearch() {
-        clickOn(groupSearch).write("frien");
+    public void testTagSearch() {
+        clickOn(tagSearch).write("frien");
 
-        assertEquals(1, ((VBox) groupResults.getContent()).getChildren().size());
-        assertEquals(1, ((VBox) groupList.getContent()).getChildren().size());
+        assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
+        assertEquals(1, ((VBox) tagList.getContent()).getChildren().size());
     }
 
     @Test
-    public void testGroupSearch2() {
-        clickOn(groupSearch).write("rela");
+    public void testTagSearch2() {
+        clickOn(tagSearch).write("rela");
 
-        assertEquals(1, ((VBox) groupResults.getContent()).getChildren().size());
-        assertEquals(1, ((VBox) groupList.getContent()).getChildren().size());
+        assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
+        assertEquals(1, ((VBox) tagList.getContent()).getChildren().size());
     }
 
     @Test
-    public void testGroupSearch3() {
-        clickOn(groupSearch).write("e");
+    public void testTagSearch3() {
+        clickOn(tagSearch).write("e");
 
-        assertEquals(3, ((VBox) groupResults.getContent()).getChildren().size());
-        assertEquals(1, ((VBox) groupList.getContent()).getChildren().size());
+        assertEquals(3, ((VBox) tagResults.getContent()).getChildren().size());
+        assertEquals(1, ((VBox) tagList.getContent()).getChildren().size());
     }
 
     @Test
-    public void testGroupSearch4() {
-        clickOn(groupSearch).write("frie frie");
+    public void testTagSearch4() {
+        clickOn(tagSearch).write("frie frie");
 
-        assertEquals(1, ((VBox) groupResults.getContent()).getChildren().size());
-        assertEquals(2, ((VBox) groupList.getContent()).getChildren().size());
+        assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
+        assertEquals(2, ((VBox) tagList.getContent()).getChildren().size());
     }
 }

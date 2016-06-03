@@ -1,9 +1,9 @@
 package address.unittests;
 
 import address.events.EventManager;
-import address.events.GroupSearchResultsChangedEvent;
-import address.model.datatypes.ContactGroup;
-import address.model.PersonEditDialogGroupsModel;
+import address.events.TagSearchResultsChangedEvent;
+import address.model.datatypes.Tag;
+import address.model.PersonEditDialogTagsModel;
 import com.google.common.eventbus.Subscribe;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,23 +14,23 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class PersonEditDialogModelTest {
-    private static List<ContactGroup> getList(String... groups) {
-        List<ContactGroup> groupList = new ArrayList<>();
-        for (String group : groups) {
-            groupList.add(new ContactGroup(group));
+    private static List<Tag> getList(String... tags) {
+        List<Tag> tagList = new ArrayList<>();
+        for (String tag : tags) {
+            tagList.add(new Tag(tag));
         }
 
-        return groupList;
+        return tagList;
     }
 
     int eventCounter;
-    ArrayList<ContactGroup> eventData;
+    ArrayList<Tag> eventData;
 
     @Subscribe
-    public void handleGroupSearchResultsChangedEvent(GroupSearchResultsChangedEvent e) {
+    public void handleTagSearchResultsChangedEvent(TagSearchResultsChangedEvent e) {
         eventCounter++;
         eventData.clear();
-        eventData.addAll(e.getSelectableContactGroups());
+        eventData.addAll(e.getSelectableTags());
     }
 
     @Before
@@ -41,14 +41,14 @@ public class PersonEditDialogModelTest {
     }
 
     @Test
-    public void filterGroups() {
-        List<ContactGroup> allGroups = getList("friends", "relatives", "colleagues");
-        List<ContactGroup> assignedGroups = getList("friends");
-        PersonEditDialogGroupsModel model = new PersonEditDialogGroupsModel(allGroups, assignedGroups);
+    public void filterTags() {
+        List<Tag> allTags = getList("friends", "relatives", "colleagues");
+        List<Tag> assignedTags = getList("friends");
+        PersonEditDialogTagsModel model = new PersonEditDialogTagsModel(allTags, assignedTags);
         model.setFilter("ela");
 
         assertEquals(2, eventCounter);
         assertEquals(1, eventData.size());
-        assertEquals(allGroups.get(1), eventData.get(0));
+        assertEquals(allTags.get(1), eventData.get(0));
     }
 }
