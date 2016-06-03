@@ -88,14 +88,6 @@ allprojects {
         testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
     }
 
-    test {
-        forkEvery = 1
-
-        exclude 'address/guitests'
-        exclude 'address/guiunittests'
-        systemProperty 'testfx.setup.timeout', '60000'
-    }
-
     task createJarUpdater(type: Jar) {
         group = "Release"
 
@@ -199,14 +191,18 @@ allprojects {
     createInstallerJar.dependsOn createMainAppExecutable
 }
 
+test {
+    forkEvery = 1
+    systemProperty 'testfx.setup.timeout', '60000'
+}
+
 task jacocoRootReport(type: JacocoReport) {
-    dependsOn = allprojects.test
     sourceDirectories = files(allprojects.sourceSets.main.allSource.srcDirs)
     classDirectories =  files(allprojects.sourceSets.main.output)
     executionData = files(allprojects.jacocoTestReport.executionData)
     afterEvaluate {
         classDirectories = files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: ['github/**', 'backend/github/**', '**/*.jar'])
+            fileTree(dir: it, exclude: ['**/*.jar'])
         })
     }
     reports {
