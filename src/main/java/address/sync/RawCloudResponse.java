@@ -14,6 +14,42 @@ public class RawCloudResponse {
     int responseCode;
     InputStream body;
     InputStream headers;
+    int nextPageNo = -1;
+    int previousPageNo = -1;
+    int firstPageNo = -1;
+    int lastPageNo = -1;
+
+    public int getNextPageNo() {
+        return nextPageNo;
+    }
+
+    public void setNextPageNo(int nextPageNo) {
+        this.nextPageNo = nextPageNo;
+    }
+
+    public int getPreviousPageNo() {
+        return previousPageNo;
+    }
+
+    public void setPreviousPageNo(int previousPageNo) {
+        this.previousPageNo = previousPageNo;
+    }
+
+    public int getFirstPageNo() {
+        return firstPageNo;
+    }
+
+    public void setFirstPageNo(int firstPageNo) {
+        this.firstPageNo = firstPageNo;
+    }
+
+    public int getLastPageNo() {
+        return lastPageNo;
+    }
+
+    public void setLastPageNo(int lastPageNo) {
+        this.lastPageNo = lastPageNo;
+    }
 
     RawCloudResponse(int responseCode, InputStream body, HashMap<String, String> headers) {
         this.responseCode = responseCode;

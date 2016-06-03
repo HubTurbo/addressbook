@@ -110,28 +110,66 @@ public class CloudSimulator implements ICloudSimulator {
      * @return
      */
     @Override
-    public RawCloudResponse getPersons(String addressBookName, int resourcesPerPage, String previousETag) {
+    public RawCloudResponse getPersons(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
-        List<CloudPerson> personList;
+        List<CloudPerson> fullPersonList = new ArrayList<>();
         try {
             CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
-            personList = fileData.getAllPersons();
+            fullPersonList.addAll(fileData.getAllPersons());
         } catch (JAXBException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
-        int noOfRequestsRequired = API_COUNT_BASE_GET_PERSONS + getNumberOfRequestsRequired(personList.size(), resourcesPerPage);
-        if (!isWithinQuota(noOfRequestsRequired)) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
+        if (!isWithinQuota(1)) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
 
-        mutateCloudPersonList(personList);
-        InputStream bodyStream = convertToInputStream(personList);
+        List<CloudPerson> queryResults = getQueryResults(pageNumber, resourcesPerPage, fullPersonList);
+
+        mutateCloudPersonList(queryResults);
+        InputStream bodyStream = convertToInputStream(queryResults);
         String ETag = RawCloudResponse.getETag(bodyStream, false);
         if (ETag.equals(previousETag)) return getNotModifiedResponse(ETag);
 
-        rateLimitStatus.useQuota(noOfRequestsRequired);
-        return new RawCloudResponse(HttpURLConnection.HTTP_OK, bodyStream,
-                                    getHeaders(ETag, rateLimitStatus));
+        rateLimitStatus.useQuota(1);
+
+        RawCloudResponse contentResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, bodyStream,
+                                                                getHeaders(ETag, rateLimitStatus));
+        if (isValidPageNumber(fullPersonList.size(), pageNumber, resourcesPerPage)) {
+            fillInPageNumbers(pageNumber, resourcesPerPage, fullPersonList, contentResponse);
+        }
+        return contentResponse;
+    }
+
+    private <V> void fillInPageNumbers(int pageNumber, int resourcesPerPage, List<V> fullResourceList, RawCloudResponse contentResponse) {
+        int firstPageNumber = 1;
+        int lastPageNumber = getLastPageNumber(fullResourceList.size(), resourcesPerPage);
+        contentResponse.setFirstPageNo(firstPageNumber);
+        contentResponse.setLastPageNo(lastPageNumber);
+        if (pageNumber > firstPageNumber) {
+            contentResponse.setPreviousPageNo(pageNumber - 1);
+        }
+
+        if (pageNumber < lastPageNumber) {
+            contentResponse.setNextPageNo(pageNumber + 1);
+        }
+    }
+
+    private <V> List<V> getQueryResults(int pageNumber, int resourcesPerPage, List<V> fullResourceList) {
+        int startIndex = (pageNumber - 1) * resourcesPerPage + 1;
+        int endIndex = startIndex + resourcesPerPage;
+        return getResultList(fullResourceList, startIndex, endIndex);
+    }
+
+    private <V> List<V> getResultList(List<V> fullResourceList, int startingIndex, int endingIndex) {
+        int totalResources = fullResourceList.size();
+        if (startingIndex >= totalResources) return new ArrayList<>();
+        if (endingIndex <= 0) return new ArrayList<>();
+
+        if (endingIndex > totalResources) {
+            endingIndex = totalResources;
+        }
+
+        return fullResourceList.subList(startingIndex, endingIndex);
     }
 
     /**
@@ -144,29 +182,36 @@ public class CloudSimulator implements ICloudSimulator {
      * @return
      */
     @Override
-    public RawCloudResponse getTags(String addressBookName, int resourcesPerPage, String previousETag) {
+    public RawCloudResponse getTags(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
-        List<CloudTag> tagList;
+        List<CloudTag> fullTagList = new ArrayList<>();
 
         try {
             CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
-            tagList = fileData.getAllTags();
+            fullTagList.addAll(fileData.getAllTags());
         } catch (JAXBException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
 
-        int noOfRequestsRequired = API_COUNT_BASE_GET_TAGS + getNumberOfRequestsRequired(tagList.size(), resourcesPerPage);
-        if (!isWithinQuota(noOfRequestsRequired)) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
+        int noOfRequestsRequired = API_COUNT_BASE_GET_TAGS;
+        if (!isWithinQuota(1)) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
 
-        modifyCloudTagListBasedOnChance(tagList);
-        InputStream bodyStream = convertToInputStream(tagList);
+        List<CloudTag> queryResults = getQueryResults(pageNumber, resourcesPerPage, fullTagList);
+
+        modifyCloudTagListBasedOnChance(queryResults);
+        InputStream bodyStream = convertToInputStream(queryResults);
         String ETag = RawCloudResponse.getETag(bodyStream, false);
         if (ETag.equals(previousETag)) return getNotModifiedResponse(ETag);
 
         rateLimitStatus.useQuota(noOfRequestsRequired);
-        return new RawCloudResponse(HttpURLConnection.HTTP_OK, bodyStream, getHeaders(ETag, rateLimitStatus));
+
+        RawCloudResponse contentResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, bodyStream, getHeaders(ETag, rateLimitStatus));
+        if (isValidPageNumber(fullTagList.size(), pageNumber, resourcesPerPage)) {
+            fillInPageNumbers(pageNumber, resourcesPerPage, fullTagList, contentResponse);
+        }
+        return contentResponse;
     }
 
     /**
@@ -389,35 +434,37 @@ public class CloudSimulator implements ICloudSimulator {
      * @return
      */
     @Override
-    public RawCloudResponse getUpdatedPersons(String addressBookName, String timeString, int resourcesPerPage, String previousETag) {
+    public RawCloudResponse getUpdatedPersons(String addressBookName, String timeString,int pageNumber, int resourcesPerPage, String previousETag) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
-        List<CloudPerson> personList;
+        List<CloudPerson> fullPersonList = new ArrayList<>();
         try {
             CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
-            personList = fileData.getAllPersons();
+            fullPersonList.addAll(fileData.getAllPersons());
         } catch (JAXBException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
 
-        int noOfRequestsRequired = API_COUNT_BASE_GET_UPDATED_PERSONS + getNumberOfRequestsRequired(personList.size(), resourcesPerPage);;
-        if (!isWithinQuota(noOfRequestsRequired)) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
+        if (!isWithinQuota(1)) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
 
-        try {
-            LocalDateTime time = LocalDateTime.parse(timeString);
-            List<CloudPerson> resultList = filterPersonsByTime(personList, time);
+        LocalDateTime time = LocalDateTime.parse(timeString);
+        List<CloudPerson> filteredList = filterPersonsByTime(fullPersonList, time);
 
-            mutateCloudPersonList(resultList);
-            InputStream bodyStream = convertToInputStream(resultList);
-            String ETag = RawCloudResponse.getETag(bodyStream, false);
-            if (ETag.equals(previousETag)) return getNotModifiedResponse(ETag);
+        List<CloudPerson> queryResults = getQueryResults(pageNumber, resourcesPerPage, filteredList);
 
-            rateLimitStatus.useQuota(noOfRequestsRequired);
-            return new RawCloudResponse(HttpURLConnection.HTTP_OK, bodyStream, getHeaders(ETag, rateLimitStatus));
-        } catch (NoSuchElementException e) {
-            return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
+        mutateCloudPersonList(queryResults);
+        InputStream bodyStream = convertToInputStream(queryResults);
+        String ETag = RawCloudResponse.getETag(bodyStream, false);
+        if (ETag.equals(previousETag)) return getNotModifiedResponse(ETag);
+
+        rateLimitStatus.useQuota(1);
+
+        RawCloudResponse contentResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, bodyStream, getHeaders(ETag, rateLimitStatus));
+        if (isValidPageNumber(filteredList.size(), pageNumber, resourcesPerPage)) {
+            fillInPageNumbers(pageNumber, resourcesPerPage, filteredList, contentResponse);
         }
+        return contentResponse;
     }
 
     private boolean hasSufficientQuota(int noOfRequestsRequired) {
@@ -658,8 +705,12 @@ public class CloudSimulator implements ICloudSimulator {
         }
     }
 
-    private int getNumberOfRequestsRequired(int dataSize, int resourcesPerPage) {
-        return (int) Math.ceil((double) dataSize / resourcesPerPage);
+    private boolean isValidPageNumber(int dataSize, int pageNumber, int resourcesPerPage) {
+        return pageNumber == 1 || getLastPageNumber(dataSize, resourcesPerPage) >= pageNumber;
+    }
+
+    private int getLastPageNumber(int dataSize, int resourcesPerPage) {
+        return (int) Math.ceil(dataSize/resourcesPerPage);
     }
 
     private void deletePersonFromData(List<CloudPerson> personList, String firstName, String lastName)
@@ -691,12 +742,14 @@ public class CloudSimulator implements ICloudSimulator {
 
     private CloudTag updateTagDetails(List<CloudTag> tagList, String oldTagName, CloudTag updatedTag)
             throws NoSuchElementException {
+        // TODO: Update tag of persons who have this tag
         CloudTag oldTag = getTagIfExists(tagList, oldTagName);
         oldTag.updatedBy(updatedTag);
         return oldTag;
     }
 
     private void deleteTagFromData(List<CloudTag> tagList, String tagName) throws NoSuchElementException {
+        // TODO: Delete tag from persons who have this tag
         CloudTag tag = getTagIfExists(tagList, tagName);
         // This may differ from how GitHub does it, but we won't know for sure
         tagList.remove(tag);
