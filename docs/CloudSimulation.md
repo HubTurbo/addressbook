@@ -20,7 +20,8 @@ They are arranged as follows:
   - Similar to GitHub (authenticated), it has an API limit of 5000 by default, and resets at every hour's mark
   - The reset is based on a `TickingTimer` running in the background i.e. the reset is run after a given time delay
 - Responses are returned as `RawCloudResponse`
-  - ALWAYS contains the rate limit information. e.g. rate limit remaining and its next reset time
+  - ALWAYS (almost) contains the rate limit information. e.g. rate limit remaining and its next reset time
+    - The only time it doesn't is if there is an `internal server error` (500)
   - ALWAYS contains the response code that indicates the status of the request. This response code is similar to its respective HTTP status code
   - May contain content such as a `CloudPerson` object in JSON form, depending on the query and its success status
 - If initialised with a `true` boolean, there will be chance of data modifications before the result is returned
@@ -46,18 +47,17 @@ They are arranged as follows:
 - Does not have a `lastUpdatedAt` field
 
 # Other notes related to HT
--  `Last-Modified` and `If-Modified-Since` headers does not seem to be useful
+-  `Last-Modified` and `If-Modified-Since` headers do not seem to be useful
 
 `Last-Modified` (response) and `If-Modified-Since` (request) headers seem to only apply to single-objects that have the `updatedAt` field (`issues` and `milestones`). The `Last-Modified` header field will also have the same value as `updatedAt`. This means that these do not provide us more information than we already have.
 
-- We can check updates for `labels` and `assignees` without incurring API usage
+- We can check updates for `labels` and `collaborators` without incurring API usage
 
-We need to simply save the `ETag` of the request and use it in further calls. If the response is that they are `304 Not Modified`, then it will not incur API usage. =
+We need to simply save the `ETag` of the request and use it in further calls. If the response is that they are `304 Not Modified`, then it will not incur API usage.
 
 - We are able to reduce the number of API calls for getting updated issues
-For `issues`, `milestones` and `issue comments`, we can do something similar to `labels` and `assignees` (see above). But we cannot make the full request, as we will end up downloading the whole list when the content is modified, which will slow the application/network etc down (not scalable).
+For `issues`, `milestones` and `issue comments`, we can try to do something similar to `labels` and `collaborators` (see above). However, since the requests are paged, we have increased workload if we were to use `ETag`s to check for updates. For example, having 1000 issues will require up to 10 requests using the old `ETag`s, to ensure that none of the pages have changed. Results will also have to in descending order, since new issues will change all pages' `ETag`s if in ascending order)
 
-We can instead just request for the header with our previously recorded ETag. The response would then contain the response code as well as the new ETag, which we can use to infer if the content has changed, without having to download the full content. If the content has changed, we can make a new `updated-since` request based on the date of the last ETag. In other words, any updates will result in **1 (initial header request) + >=1 (number of updated issues/issues per page)** API usage, and no API usage will be consumed when there are no updates.
+We can instead just make a new `updated-since` request based on the date saved together with the last ETag. Any update requests will result in **>=1 (number of updated issues/issues per page)** API usage. Even if there are no updates, 1 API quota will be used.
 
-- Issue comments have to be specially handled
-Since the returned list of issue comments do not have an `issue_id`, it seems like that the best that we can do it to parse an url field, to determine which issue it belongs to based on id.
+Note: HT has not implemented retrieval of `issue comments` yet. The indicator we have now is simply a count, which is included in the issue's information.

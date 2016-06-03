@@ -20,10 +20,11 @@ public interface ICloudService {
     ExtractedCloudResponse<Tag> editTag(String addressBookName, String oldTagName, Tag newTag) throws IOException;
     ExtractedCloudResponse<Void> deleteTag(String addressBookName, String tagName) throws IOException;
 
+    ExtractedCloudResponse<Void> createAddressBook(String addressBookName) throws IOException;
+
     ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time) throws IOException;
 
     // Does not consume API
     ExtractedCloudResponse<RateLimitStatus> getLimitStatus() throws IOException;
 
-    ExtractedCloudResponse<Void> createAddressBook(String addressBookName) throws IOException;
 }

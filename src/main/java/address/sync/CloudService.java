@@ -13,7 +13,10 @@ import java.util.*;
  * Emulates the local cloud service
  *
  * This component is responsible for providing a high-level API for communication with the cloud,
- * as well as the reformatting the cloud's response into a format understood by the local logic
+ * as well as the reformatting the cloud's response into a format understood by the local logic.
+ *
+ * Most of the responses returned should include the rate limit status if the respective cloud response(s)
+ * contain(s) them
  */
 public class CloudService implements ICloudService {
     private static final int RESOURCES_PER_PAGE = 100;
@@ -24,10 +27,15 @@ public class CloudService implements ICloudService {
         cloud = new CloudSimulator(shouldSimulateUnreliableNetwork);
     }
 
-    public static void main(String[] args) {
-        CloudService test = new CloudService(false);
-    }
-
+    /**
+     * Checks whether a response from the cloud is valid
+     *
+     * A response is considered valid if the request has successfully executed
+     * This does not include the case 304 where it has the same return result as before
+     *
+     * @param response
+     * @return
+     */
     public static boolean isValid(RawCloudResponse response) {
         switch (response.getResponseCode()) {
             case 200:
@@ -83,7 +91,6 @@ public class CloudService implements ICloudService {
     @Override
     public ExtractedCloudResponse<List<Tag>> getTags(String addressBookName) throws IOException {
         int curPageNumber = 1;
-
         RawCloudResponse cloudResponse;
         List<CloudTag> cloudTags = new ArrayList<>();
         do {
@@ -110,7 +117,7 @@ public class CloudService implements ICloudService {
      *
      * @param addressBookName
      * @param newPerson
-     * @return
+     * @return wrapped response of the returned resulting person
      * @throws IOException if content cannot be interpreted
      */
     @Override
@@ -135,7 +142,7 @@ public class CloudService implements ICloudService {
      * @param oldFirstName
      * @param oldLastName
      * @param updatedPerson
-     * @return
+     * @return wrapped response of the returned resulting person
      * @throws IOException if content cannot be interpreted
      */
     @Override
@@ -160,7 +167,7 @@ public class CloudService implements ICloudService {
      * @param addressBookName
      * @param firstName
      * @param lastName
-     * @return
+     * @return wrapped response with no additional data
      * @throws IOException if content cannot be interpreted
      */
     @Override
@@ -183,7 +190,7 @@ public class CloudService implements ICloudService {
      *
      * @param addressBookName
      * @param tag
-     * @return
+     * @return wrapped response of the returned resulting tag
      * @throws IOException if content cannot be interpreted
      */
     @Override
@@ -207,7 +214,7 @@ public class CloudService implements ICloudService {
      * @param addressBookName
      * @param oldTagName
      * @param newTag
-     * @return
+     * @return wrapped response of the returned resulting tag
      * @throws IOException if content cannot be interpreted
      */
     @Override
@@ -232,7 +239,7 @@ public class CloudService implements ICloudService {
      *
      * @param addressBookName
      * @param tagName
-     * @return
+     * @return wrapped response with no additional data
      * @throws IOException if content cannot be interpreted
      */
     @Override
@@ -254,7 +261,7 @@ public class CloudService implements ICloudService {
      * Consumes 1 + floor(result size/RESOURCES_PER_PAGE) API usage
      *
      * @param addressBookName
-     * @return wrapped response with list of persons
+     * @return wrapped response with the resulting list of persons
      * @throws IOException if content cannot be interpreted
      */
     @Override
@@ -284,7 +291,7 @@ public class CloudService implements ICloudService {
      *
      * This does NOT consume API usage.
      *
-     * @return
+     * @return wrapped response without additional data
      * @throws IOException if content cannot be interpreted
      */
     @Override
@@ -299,6 +306,15 @@ public class CloudService implements ICloudService {
                                             getRateResetFromHeader(headerHashMap), null);
     }
 
+    /**
+     * Creates a new addressbook in the cloud with name addressBookName
+     *
+     * Consumes 1 API usage
+     *
+     * @param addressBookName
+     * @return
+     * @throws IOException
+     */
     @Override
     public ExtractedCloudResponse<Void> createAddressBook(String addressBookName) throws IOException {
         RawCloudResponse cloudResponse = cloud.createAddressBook(addressBookName);
@@ -394,11 +410,21 @@ public class CloudService implements ICloudService {
         return convertedList;
     }
 
+    private List<CloudTag> convertToCloudTagList(List<Tag> tagList) {
+        List<CloudTag> convertedList = new ArrayList<>();
+        tagList.stream()
+                .forEach(tag -> convertedList.add(convertToCloudTag(tag)));
+
+        return convertedList;
+    }
+
     private Person convertToPerson(CloudPerson cloudPerson) {
         Person person = new Person(cloudPerson.getFirstName(), cloudPerson.getLastName());
         person.setStreet(cloudPerson.getStreet());
         person.setCity(cloudPerson.getCity());
         person.setPostalCode(cloudPerson.getPostalCode());
+        person.setTags(convertToTagList(cloudPerson.getTags()));
+        person.setBirthday(cloudPerson.getBirthday());
         return person;
     }
 
@@ -407,6 +433,8 @@ public class CloudService implements ICloudService {
         cloudPerson.setStreet(person.getStreet());
         cloudPerson.setCity(person.getCity());
         cloudPerson.setPostalCode(person.getPostalCode());
+        cloudPerson.setTags(convertToCloudTagList(person.getTags()));
+        cloudPerson.setBirthday(person.getBirthday());
         return cloudPerson;
     }
 

@@ -1,5 +1,6 @@
 package address.sync.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class CloudPerson {
     private List<CloudTag> tags;
     private boolean isDeleted;
     private LocalDateTime lastUpdatedAt;
+    private LocalDate birthday;
 
     public CloudPerson() {
     }
@@ -99,6 +101,18 @@ public class CloudPerson {
         return lastUpdatedAt;
     }
 
+    private void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
+        this.lastUpdatedAt = lastUpdatedAt;
+    }
+
+    public LocalDate getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(LocalDate birthday) {
+        this.birthday = birthday;
+    }
+
     public void updatedBy(CloudPerson updatedPerson) {
         this.firstName = updatedPerson.firstName;
         this.lastName = updatedPerson.lastName;
@@ -108,10 +122,6 @@ public class CloudPerson {
         this.tags = updatedPerson.tags;
         this.isDeleted = updatedPerson.isDeleted;
         this.lastUpdatedAt = updatedPerson.lastUpdatedAt;
-    }
-
-    private void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
-        this.lastUpdatedAt = lastUpdatedAt;
     }
 
     public boolean isValid() {
