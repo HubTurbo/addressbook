@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data-type class representing a person
+ * Data-model class representing a person
  */
 public class Person extends BaseDataType {
 
@@ -210,7 +210,7 @@ public class Person extends BaseDataType {
         return "https://www.github.com/" + githubUserName.get();
     }
 
-//// CONTACT GROUPS
+//// TAGS
     @JsonProperty("tags")
     public ObservableList<Tag> getTags() {
         return tags;
@@ -227,14 +227,10 @@ public class Person extends BaseDataType {
     }
 
     public String tagsString() {
-        StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < tags.size(); i++) {
-            if (i > 0) {
-                buffer.append(", ");
-            }
-            buffer.append(tags.get(i).getName());
-        }
-        return buffer.toString();
+        final StringBuffer buffer = new StringBuffer();
+        final String separator = ", ";
+        tags.forEach(tag -> buffer.append(tag).append(separator));
+        return buffer.substring(0, buffer.length() - separator.length());
     }
 
 //// OTHER LOGIC
