@@ -64,6 +64,9 @@ public class CloudService implements ICloudService {
         List<CloudPerson> cloudPersons = new ArrayList<>();
         do {
             cloudResponse = cloud.getPersons(addressBookName, curPageNumber, RESOURCES_PER_PAGE, null);
+            if (!isValid(cloudResponse)) {
+                return getResponseWithNoData(cloudResponse, getHashMapFromHeader(cloudResponse.getHeaders()));
+            }
             cloudPersons.addAll(getDataListFromBody(cloudResponse.getBody(), CloudPerson.class));
             curPageNumber++;
         } while (cloudResponse.getNextPageNo() != -1);
@@ -95,6 +98,9 @@ public class CloudService implements ICloudService {
         List<CloudTag> cloudTags = new ArrayList<>();
         do {
             cloudResponse = cloud.getTags(addressBookName, curPageNumber, RESOURCES_PER_PAGE, null);
+            if (!isValid(cloudResponse)) {
+                return getResponseWithNoData(cloudResponse, getHashMapFromHeader(cloudResponse.getHeaders()));
+            }
             cloudTags.addAll(getDataListFromBody(cloudResponse.getBody(), CloudTag.class));
             curPageNumber++;
         } while (cloudResponse.getNextPageNo() != -1);
@@ -271,8 +277,12 @@ public class CloudService implements ICloudService {
         RawCloudResponse cloudResponse;
         List<CloudPerson> cloudPersons = new ArrayList<>();
         do {
-            cloudResponse = cloud.getUpdatedPersons(addressBookName, time.toString(), curPageNumber, RESOURCES_PER_PAGE, null);;
+            cloudResponse = cloud.getUpdatedPersons(addressBookName, time.toString(), curPageNumber, RESOURCES_PER_PAGE, null);
+            if (!isValid(cloudResponse)) {
+                return getResponseWithNoData(cloudResponse, getHashMapFromHeader(cloudResponse.getHeaders()));
+            }
             cloudPersons.addAll(getDataListFromBody(cloudResponse.getBody(), CloudPerson.class));
+            curPageNumber++;
         } while (cloudResponse.getNextPageNo() != -1);
 
         // Use the header of the last request, which contains the latest API rate limit
