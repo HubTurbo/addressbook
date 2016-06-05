@@ -7,6 +7,8 @@ import java.util.Set;
 /**
  * Indicates datatypes that require some form of uniqueness enforcement.
  * Includes utility methods for checking uniqueness of collections of data.
+ *
+ * This is an abstract class to force implementations of the core methods below.
  */
 public abstract class UniqueData {
 

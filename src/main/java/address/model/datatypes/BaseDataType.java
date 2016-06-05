@@ -1,8 +1,9 @@
 package address.model.datatypes;
 
 /**
- * All domain data-type classes should extend this.
- * Future interfaces for all data types should be added here.
+ * Common ancestor to all domain model data classes.
+ * Covers the contract that every datatype class should follow.
  */
 public abstract class BaseDataType extends UniqueData {
+
 }

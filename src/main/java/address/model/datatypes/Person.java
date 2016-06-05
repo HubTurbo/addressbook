@@ -6,20 +6,26 @@ import address.util.LocalDateAdapter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 /**
- * Data-model class representing a person
+ * Data-model implementation class representing the "Person" domain object.
+ *
+ * As far as possible, avoid working directly with this class.
+ * Instead, use and declare the minimum required superclass/interface.
+ *
+ * Eg. A GUI element controller that only needs access to the Person's properties should declare the received Person
+ * as an ObservablePerson -- since it does not need the functionality in the other superclasses/interfaces.
  */
-public class Person extends BaseDataType {
+public class Person extends BaseDataType implements ReadablePerson, WritablePerson, ObservablePerson {
 
     @JsonIgnore private final SimpleStringProperty firstName;
     @JsonIgnore private final SimpleStringProperty lastName;
@@ -47,16 +53,19 @@ public class Person extends BaseDataType {
     }    
     
     /**
-     * Default constructor.
+     * Create with default values.
+     * All primitive based properties are set to language defaults.
+     * All string based properties are set to the empty string.
+     * All object based properties are set to null.
+     * All collections are set to an empty chosen collection implementation.
      */
     public Person() {}
 
     /**
-     * Constructor with firstName and lastName parameters
-     * Other parameters are set to "", or null if not a String
-     * 
-     * @param firstName
-     * @param lastName
+     * Constructor with firstName and lastName parameters.
+     * Other parameters are set to defaults.
+     *
+     * @see Person#Person()
      */
     public Person(String firstName, String lastName) {
         setFirstName(firstName);
@@ -64,173 +73,201 @@ public class Person extends BaseDataType {
     }
 
     /**
-     * Deep copy constructor
-     * @param person
+     * Deep copy constructor.
+     *
+     * @see Person#update(ReadablePerson)
      */
-    public Person(Person person) {
-        update(person);
+    public Person(ReadablePerson toBeCopied) {
+        update(toBeCopied);
     }
 
     /**
-     * Updates the attributes based on the values in the parameter.
-     * Mutable references are cloned.
+     * {@inheritDoc}
      *
-     * @param updated The object containing the new attributes.
-     * @return self
+     * @see WritablePerson#update(ReadablePerson)
+     * @return self (calling this from a Person returns a Person instead of just a WritablePerson)
      */
-    public Person update(Person updated) {
-        setFirstName(updated.getFirstName());
-        setLastName(updated.getLastName());
+    @Override
+    public Person update(ReadablePerson newDataSource) {
+        setFirstName(newDataSource.getFirstName());
+        setLastName(newDataSource.getLastName());
 
-        setStreet(updated.getStreet());
-        setPostalCode(updated.getPostalCode());
-        setCity(updated.getCity());
-        setGithubUserName(updated.getGithubUserName());
+        setStreet(newDataSource.getStreet());
+        setPostalCode(newDataSource.getPostalCode());
+        setCity(newDataSource.getCity());
+        setGithubUserName(newDataSource.getGithubUserName());
 
-        setBirthday(updated.getBirthday());
-        setTags(updated.getTags());
+        setBirthday(newDataSource.getBirthday());
+        setTags(newDataSource.getTags());
         return this;
     }
 
 //// NAME
+
     @JsonProperty("firstName")
+    @Override
     public String getFirstName() {
         return firstName.get();
     }
 
+    @Override
     public void setFirstName(String firstName) {
         this.firstName.set(firstName);
     }
 
+    @Override
     public StringProperty firstNameProperty() {
         return firstName;
     }
 
     @JsonProperty("lastName")
+    @Override
     public String getLastName() {
         return lastName.get();
     }
 
+    @Override
     public void setLastName(String lastName) {
         this.lastName.set(lastName);
     }
 
+    @Override
     public StringProperty lastNameProperty() {
         return lastName;
     }
 
+    @Override
     public String fullName() {
         return getFirstName() + ' ' + getLastName();
     }
 
+//// GITHUB USERNAME
+
+    @JsonProperty("githubUsername")
+    @Override
+    public String getGithubUserName() {
+        return githubUserName.get();
+    }
+
+    @Override
+    public void setGithubUserName(String githubUserName) {
+        this.githubUserName.set(githubUserName);
+    }
+
+    @Override
+    public StringProperty githubUserNameProperty() {
+        return githubUserName;
+    }
+
+    @Override
+    public String profilePageUrl(){
+        return "https://www.github.com/" + githubUserName.get();
+    }
+
 //// STREET
+
     @JsonProperty("street")
+    @Override
     public String getStreet() {
         return street.get();
     }
 
+    @Override
     public void setStreet(String street) {
         this.street.set(street);
     }
 
+    @Override
     public StringProperty streetProperty() {
         return street;
     }
 
 //// POSTAL CODE
+
     @JsonProperty("postalCode")
+    @Override
     public String getPostalCode() {
         return postalCode.get();
     }
 
+    @Override
     public void setPostalCode(String postalCode) {
         this.postalCode.set(postalCode);
     }
 
+    @Override
     public StringProperty postalCodeProperty() {
         return postalCode;
     }
 
 //// CITY
+
     @JsonProperty("city")
+    @Override
     public String getCity() {
         return city.get();
     }
 
+    @Override
     public void setCity(String city) {
         this.city.set(city);
     }
 
+    @Override
     public StringProperty cityProperty() {
         return city;
     }
 
 //// BIRTHDAY
+
     @JsonProperty("birthday")
     @XmlJavaTypeAdapter(LocalDateAdapter.class)
+    @Override
     public LocalDate getBirthday() {
         return birthday.get();
     }
 
     @JsonSetter("birthday")
+    @Override
     public void setBirthday(LocalDate birthday) {
         this.birthday.set(birthday);
     }
 
+    @Override
     public ObjectProperty<LocalDate> birthdayProperty() {
         return birthday;
     }
 
+    @Override
     public String birthdayString() {
         if (birthday.getValue() == null) return "";
         return DateTimeUtil.format(birthday.getValue());
     }
 
-//// GITHUB USERNAME
-    @JsonProperty("githubUsername")
-    public String getGithubUserName() {
-        return githubUserName.get();
-    }
-
-    /**
-     * Precond: GitHub username must be validated as a parsable url in the form of
-     * https://www.github.com/ + githubUserName
-     * TODO make a custom githubusername class that validates the string on creation so no checks needed
-     * @param githubUserName
-     */
-    public void setGithubUserName(String githubUserName) {
-        this.githubUserName.set(githubUserName);
-    }
-
-    public StringProperty githubUserNameProperty() {
-        return githubUserName;
-    }
-
-    public String profilePageUrl(){
-        return "https://www.github.com/" + githubUserName.get();
-    }
-
 //// TAGS
+
     @JsonProperty("tags")
+    @Override
     public ObservableList<Tag> getTags() {
         return tags;
     }
 
-    /**
-     * Note: references point back to argument list (no defensive copying)
-     * internal list is updated with elements in the argument list instead of being wholly replaced
-     * @param tags
-     */
-    public void setTags(List<Tag> tags) {
+    @Override
+    public void setTags(Collection<Tag> tags) {
         this.tags.clear();
         this.tags.addAll(tags);
     }
 
+    @Override
     public String tagsString() {
         final StringBuffer buffer = new StringBuffer();
         final String separator = ", ";
         tags.forEach(tag -> buffer.append(tag).append(separator));
-        return buffer.substring(0, buffer.length() - separator.length());
+        if (buffer.length() == 0) {
+            return "";
+        } else {
+            return buffer.substring(0, buffer.length() - separator.length());
+        }
     }
 
 //// OTHER LOGIC
@@ -255,8 +292,4 @@ public class Person extends BaseDataType {
         return "Person: " + fullName();
     }
 
-    @Override
-    public Person clone() {
-        return new Person(this);
-    }
 }

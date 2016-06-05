@@ -3,12 +3,7 @@ package address.model.datatypes;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Tag extends BaseDataType {
 
@@ -67,8 +62,4 @@ public class Tag extends BaseDataType {
         return "Group: " + getName();
     }
 
-    @Override
-    public Tag clone() {
-        return new Tag(this);
-    }
 }
