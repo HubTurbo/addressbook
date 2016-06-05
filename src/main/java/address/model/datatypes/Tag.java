@@ -34,13 +34,6 @@ public class Tag extends BaseDataType {
         return this;
     }
 
-    @Override
-    public List<Property> getPropertiesInOrder() {
-        final List<Property> props = new ArrayList<>();
-        props.add(name);
-        return props;
-    }
-
     @JsonProperty("name")
     public String getName() {
         return name.get();

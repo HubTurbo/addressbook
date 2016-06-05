@@ -92,19 +92,6 @@ public class Person extends BaseDataType {
         return this;
     }
 
-    @Override
-    public List<Property> getPropertiesInOrder() {
-        final List<Property> props = new ArrayList<>();
-        props.add(firstName);
-        props.add(lastName);
-        props.add(street);
-        props.add(postalCode);
-        props.add(city);
-        props.add(githubUserName);
-        props.add(birthday);
-        return props;
-    }
-
 //// NAME
     @JsonProperty("firstName")
     public String getFirstName() {

@@ -55,7 +55,9 @@ public abstract class UniqueData {
     @Override
     public abstract int hashCode();
 
-    // force custom toString
+    /**
+     * Override with meaningful string representation of object
+     */
     @Override
     public abstract String toString();
 }

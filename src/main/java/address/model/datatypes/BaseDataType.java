@@ -2,11 +2,7 @@ package address.model.datatypes;
 
 /**
  * All domain data-type classes should extend this.
+ * Future interfaces for all data types should be added here.
  */
-public abstract class BaseDataType extends UniqueData implements PropertyLister, Cloneable {
-    /**
-     * Subclasses should override clone's return value to return their own types
-     * @return deep copy of self
-     */
-    public abstract BaseDataType clone();
+public abstract class BaseDataType extends UniqueData {
 }
