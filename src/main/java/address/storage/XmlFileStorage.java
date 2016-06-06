@@ -14,7 +14,6 @@ public class XmlFileStorage {
      * Saves the given addressbook data to the specified file.
      */
     public static void saveDataToFile(File file, AddressBook addressBook) throws JAXBException {
-        assert file != null;
         XmlUtil.saveDataToFile(file, addressBook);
     }
 
@@ -22,7 +21,6 @@ public class XmlFileStorage {
      * Returns address book in the file or an empty address book
      */
     public static AddressBook loadDataFromSaveFile(File file) throws JAXBException {
-        assert file != null;
         return XmlUtil.getDataFromFile(file, AddressBook.class);
     }
 

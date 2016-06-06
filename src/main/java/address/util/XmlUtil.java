@@ -15,6 +15,7 @@ public class XmlUtil {
      * Returns the xml data in the file as an object of the specified type
      */
     public static <T> T getDataFromFile(File file, Class<T> classToConvert) throws JAXBException {
+        assert file != null;
         JAXBContext context = JAXBContext.newInstance(classToConvert);
         Unmarshaller um = context.createUnmarshaller();
 
@@ -25,6 +26,7 @@ public class XmlUtil {
      * Saves the data in the file in xml format
      */
     public static <T> void saveDataToFile(File file, T data) throws JAXBException {
+        assert file != null;
         JAXBContext context = JAXBContext.newInstance(data.getClass());
         Marshaller m = context.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
