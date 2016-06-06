@@ -103,6 +103,8 @@ public class JarUpdater extends Application {
 
         applyUpdateToAllFiles(sourceDir, localUpdateData);
 
+        log("Update successful");
+
         stop();
     }
 

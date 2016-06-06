@@ -13,6 +13,7 @@ import address.util.Version;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -41,6 +42,9 @@ public class UpdateManager {
     private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
     private static final String JAR_UPDATER_APP_PATH = UPDATE_DIR + File.separator + "jarUpdater.jar";
     private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
+    private static final String UPDATE_DATA_ON_SERVER =
+            "https://raw.githubusercontent.com/HubTurbo/addressbook/master/UpdateData.json";
+    private static final File UPDATE_DATA_FILE = new File(UPDATE_DIR + File.separator + "UpdateData.json");
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final DependencyTracker dependencyTracker;
@@ -145,14 +149,28 @@ public class UpdateManager {
      * (Dummy download) Get update data from a local file
      */
     private Optional<UpdateData> getUpdateDataFromServer() {
-        File file = new File("update/UpdateData.json");
-
-        if (!FileUtil.isFileExists(file)) {
+        try {
+            FileUtil.createFile(UPDATE_DATA_FILE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("UpdateManager - Failed to create update data file");
             return Optional.empty();
         }
 
         try {
-            return Optional.of(JsonUtil.fromJsonString(FileUtil.readFromFile(file), UpdateData.class));
+            downloadFile(UPDATE_DATA_FILE, new URL(UPDATE_DATA_ON_SERVER));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            System.out.println("UpdateManager - update data URL is invalid");
+            return Optional.empty();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("UpdateManager - Failed to download update data");
+            return Optional.empty();
+        }
+
+        try {
+            return Optional.of(JsonUtil.fromJsonString(FileUtil.readFromFile(UPDATE_DATA_FILE), UpdateData.class));
         } catch (IOException e) {
             System.out.println("UpdateManager - Failed to parse update data from json file.");
             e.printStackTrace();
