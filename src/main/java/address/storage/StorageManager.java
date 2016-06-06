@@ -14,69 +14,94 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.util.List;
 
-
+/**
+ * Manages storage of addressbook data in local disk.
+ * Handles storage related events.
+ */
 public class StorageManager {
 
     private ModelManager modelManager;
+    private EventManager eventManager;
+    private PrefsManager prefsManager;
 
-    public StorageManager(ModelManager modelManager){
+    public StorageManager(ModelManager modelManager,
+                          PrefsManager prefsManager,
+                          EventManager eventManager){
+
         this.modelManager = modelManager;
-        EventManager.getInstance().registerHandler(this);
-    }
+        this.prefsManager = prefsManager;
+        this.eventManager = eventManager;
 
-    @Subscribe
-    private void handleLoadDataRequestEvent(LoadDataRequestEvent ofe) {
-        try {
-            AddressBook data = loadDataFromSaveFile(ofe.file);
-            modelManager.updateUsingExternalData(data);
-        } catch (JAXBException | FileContainsDuplicatesException e) {
-            System.out.println(e);
-            EventManager.getInstance().post(new FileOpeningExceptionEvent(e, ofe.file));
-        }
-    }
-
-    @Subscribe
-    private void handleLocalModelChangedEvent(LocalModelChangedEvent e) {
-        System.out.println("Local data changed, saving to primary data file");
-        EventManager.getInstance().post(new SaveRequestEvent(
-                PrefsManager.getInstance().getSaveLocation(), e.personData, e.tagData));
-    }
-
-    @Subscribe
-    private void handleLocalModelSyncedFromCloudEvent(LocalModelSyncedFromCloudEvent e) {
-        System.out.println("Local data synced, saving to primary data file");
-        EventManager.getInstance().post(new SaveRequestEvent(
-                PrefsManager.getInstance().getSaveLocation(), e.personData, e.tagData));
-    }
-
-    @Subscribe
-    private void handleSaveRequestEvent(SaveRequestEvent se) {
-        saveDataToFile(se.file, se.personData, se.tagData);
+        eventManager.registerHandler(this);
     }
 
     /**
-     * Saves the current person data to the specified file.
-     *
-     * @param file
-     */
-    public static void saveDataToFile(File file, List<Person> personData, List<Tag> tagData) {
-        try {
-            XmlFileHelper.saveModelToFile(file, personData, tagData);
-        } catch (Exception e) {
-            EventManager.getInstance().post(new FileSavingExceptionEvent(e, file));
-        }
-    }
-
-    /**
-     * Raises a FileOpeningExceptionEvent if there was any problem in reading data from the file
+     *  Raises a FileOpeningExceptionEvent if there was any problem in reading data from the file
      *  or if the file is not in the correct format.
-     * @param file File containing the data
-     * @return address book in the file or an empty address book
+     * @param ldre
      */
-    public static AddressBook loadDataFromSaveFile(File file) throws JAXBException, FileContainsDuplicatesException {
-        assert file != null;
-        AddressBook data = XmlFileHelper.getDataFromFile(file);
-        if (data.containsDuplicates()) throw new FileContainsDuplicatesException(file);
-        return data;
+    @Subscribe
+    private void handleLoadDataRequestEvent(LoadDataRequestEvent ldre) {
+        AddressBook data;
+
+        try {
+            data = XmlFileStorage.loadDataFromSaveFile(ldre.file);
+        } catch (JAXBException e) {
+            System.out.println(e);
+            eventManager.post(new FileOpeningExceptionEvent(e, ldre.file));
+            return;
+        }
+
+        if (data.containsDuplicates()) {
+            eventManager.post(new FileOpeningExceptionEvent(new FileContainsDuplicatesException(ldre.file), ldre.file));
+            return;
+        }
+        //TODO: move duplication detection out of this class
+
+        modelManager.updateUsingExternalData(data);
     }
+
+    /**
+     * Raises FileSavingExceptionEvent
+     * @param lmce
+     */
+    @Subscribe
+    private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
+        System.out.println("Local data changed, saving to primary data file");
+        saveDataToFile(prefsManager.getSaveLocation(), lmce.personData, lmce.tagData);
+    }
+
+    /**
+     * Raises FileSavingExceptionEvent
+     * @param msfce
+     */
+    @Subscribe
+    private void handleLocalModelSyncedFromCloudEvent(LocalModelSyncedFromCloudEvent msfce) {
+        System.out.println("Local data synced, saving to primary data file");
+        saveDataToFile(prefsManager.getSaveLocation(), msfce.personData, msfce.tagData);
+    }
+
+    /**
+     * Raises FileSavingExceptionEvent
+     * @param sre
+     */
+    @Subscribe
+    private void handleSaveRequestEvent(SaveRequestEvent sre) {
+        saveDataToFile(sre.file, sre.personData, sre.tagData);
+    }
+
+    /**
+     * Raises FileSavingExceptionEvent
+     * @param file
+     * @param personData
+     * @param tagData
+     */
+    private void saveDataToFile(File file, List<Person> personData, List<Tag> tagData){
+        try {
+            XmlFileStorage.saveDataToFile(file, new AddressBook(personData, tagData));
+        } catch (JAXBException e) {
+            eventManager.post(new FileSavingExceptionEvent(e, file));
+        }
+    }
+
 }

@@ -468,7 +468,7 @@ public class CloudSimulator implements ICloudSimulator {
         File cloudFile = getCloudDataFilePath(addressBookName);
         System.out.println("Reading from cloudFile: " + cloudFile.canRead());
         try {
-            CloudAddressBook cloudAddressBook = XmlFileHelper.getCloudDataFromFile(cloudFile);
+            CloudAddressBook cloudAddressBook = XmlFileHelper.getDataFromFile(cloudFile, CloudAddressBook.class);
             return cloudAddressBook;
         } catch (JAXBException e) {
             System.out.println("Error reading from cloud file.");
@@ -484,7 +484,7 @@ public class CloudSimulator implements ICloudSimulator {
         File cloudFile = getCloudDataFilePath(addressBookName);
         System.out.println("Writing to cloudFile: " + cloudFile.canRead());
         try {
-            XmlFileHelper.saveCloudDataToFile(cloudFile, cloudAddressBook);
+            XmlFileHelper.saveDataToFile(cloudFile, cloudAddressBook);
         } catch (JAXBException e) {
             System.out.println("Error writing to cloud file.");
             throw e;

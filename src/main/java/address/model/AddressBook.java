@@ -22,6 +22,15 @@ public class AddressBook {
     private List<Person> persons = new ArrayList<>();
     private List<Tag> tags = new ArrayList<>();
 
+    //TODO: remove this empty constructor
+    public AddressBook (){
+    }
+
+    public AddressBook (List<Person> persons, List<Tag> tags){
+        this.persons = persons;
+        this.tags = tags;
+    }
+
     @XmlElement(name = "persons")
     public List<Person> getPersons() {
         return persons;

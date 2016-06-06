@@ -62,7 +62,7 @@ public class MainApp extends Application {
     protected void setupComponents() {
         config = getConfig();
         modelManager = new ModelManager();
-        storageManager = new StorageManager(modelManager);
+        storageManager = new StorageManager(modelManager, PrefsManager.getInstance(), EventManager.getInstance());
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
 
