@@ -58,15 +58,6 @@
     -fx-border-insets: 0 10 1 0;
 }
 
-.list-view {
-    -fx-base: #1d1d1d;
-    -fx-control-inner-background: #1d1d1d;
-    -fx-background-color: #1d1d1d;
-    -fx-table-cell-border-color: transparent;
-    -fx-table-header-border-color: transparent;
-    -fx-padding: 5;
-}
-
 .table-view .column-header .label {
     -fx-font-size: 20pt;
     -fx-font-family: "Segoe UI Light";
@@ -79,17 +70,22 @@
     -fx-background-color: -fx-focus-color;
 }
 
+.list-view {
+    -fx-base: #d6d6d6;
+    -fx-control-inner-background: #d6d6d6;
+    -fx-background-color: #d6d6d6;
+
+}
+
 .list-cell {
-    -fx-base: #1d1d1d;
-    -fx-control-inner-background: #1d1d1d;
-    -fx-background-color: #1d1d1d;
-    -fx-table-cell-border-color: transparent;
-    -fx-table-header-border-color: transparent;
-    -fx-padding: 5;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d6d6d6;
+    -fx-border-width: 1 1 1 8;
+
 }
 
 .list-cell .label {
-    -fx-text-fill: white;
+    -fx-text-fill: #010504;
 }
 
 .list-cell:focused {
