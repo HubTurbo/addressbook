@@ -179,15 +179,11 @@ public class ModelManager {
     }
 
     public List<Tag> getTags() {
-        return tagModel.stream()
-                .map(tag -> (Tag) tag)
-                .collect(Collectors.toList());
+        return tagModel;
     }
 
     public List<Person> getPersons() {
-        return personModel.stream()
-                .map(person -> (Person) person)
-                .collect(Collectors.toList());
+        return personModel;
     }
 
 ///////////////////////////////////////////////////////////////////////
