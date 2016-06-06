@@ -1,5 +1,7 @@
 package address.model.datatypes;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 
@@ -16,6 +18,16 @@ public abstract class Viewable<D extends BaseDataType> {
     protected final D visible;
     protected D backing;
     protected boolean isSyncingWithBackingObject;
+
+    /**
+     * Negative when nothing is pending, else equal to seconds left before pending period ends.
+     * Anyone who wants to be updated on the countdown at the second level needs only to observe this property.
+     */
+    protected final IntegerProperty secondsLeftInPendingState;
+
+    {
+        secondsLeftInPendingState = new SimpleIntegerProperty(-1);
+    }
 
     /**
      * Create a new Viewable based on a backing object.
@@ -59,6 +71,19 @@ public abstract class Viewable<D extends BaseDataType> {
         });
     }
 
+// APPLICATION STATE ACCESSORS
+
+
+    public IntegerProperty secondsLeftInPendingStateProperty() {
+        return secondsLeftInPendingState;
+    }
+
+    public int getSecondsLeftInPendingState() {
+        return secondsLeftInPendingState.get();
+    }
+
+
+// VISIBLE--BACKING binding controls
 
     /**
      * @return true if changes to the backing object AFTER this method call will propagate to the visible object.
