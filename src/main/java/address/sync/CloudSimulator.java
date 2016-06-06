@@ -5,11 +5,12 @@ import address.sync.model.CloudTag;
 import address.sync.model.CloudPerson;
 import address.util.JsonUtil;
 import address.util.TickingTimer;
-import address.util.XmlUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import address.exceptions.DataConversionException;
 import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -33,11 +34,21 @@ public class CloudSimulator implements ICloudSimulator {
     private RateLimitStatus rateLimitStatus;
     private boolean shouldSimulateUnreliableNetwork;
     private TickingTimer timer;
+    private CloudFileHandler fileHandler;
+
+    CloudSimulator(CloudFileHandler fileHandler, RateLimitStatus rateLimitStatus,
+                   boolean shouldSimulateUnreliableNetwork) {
+        this.fileHandler = fileHandler;
+        this.rateLimitStatus = rateLimitStatus;
+        this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
+        resetQuotaAndRestartTimer();
+    }
 
     CloudSimulator(boolean shouldSimulateUnreliableNetwork) {
+        fileHandler = new CloudFileHandler();
         rateLimitStatus = new RateLimitStatus(API_QUOTA_PER_HOUR, API_QUOTA_PER_HOUR, getNextResetTime());
-        resetQuotaAndRestartTimer();
         this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
+        resetQuotaAndRestartTimer();
     }
 
     public static ByteArrayInputStream convertToInputStream(Object object) {
@@ -66,9 +77,9 @@ public class CloudSimulator implements ICloudSimulator {
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
 
         try {
-            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
             CloudPerson returnedPerson = addPerson(fileData.getAllPersons(), newPerson);
-            writeCloudAddressBookToFile(addressBookName, fileData);
+            fileHandler.writeCloudAddressBookToFile(fileData);
 
             modifyCloudPersonBasedOnChance(returnedPerson);
             InputStream bodyStream = convertToInputStream(returnedPerson);
@@ -101,7 +112,7 @@ public class CloudSimulator implements ICloudSimulator {
 
         List<CloudPerson> fullPersonList = new ArrayList<>();
         try {
-            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
             fullPersonList.addAll(fileData.getAllPersons());
         } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -142,7 +153,7 @@ public class CloudSimulator implements ICloudSimulator {
         List<CloudTag> fullTagList = new ArrayList<>();
 
         try {
-            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
             fullTagList.addAll(fileData.getAllTags());
         } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -200,10 +211,10 @@ public class CloudSimulator implements ICloudSimulator {
 
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         try {
-            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
             CloudPerson resultingPerson = updatePersonDetails(fileData.getAllPersons(), oldFirstName, oldLastName,
                                                               updatedPerson);
-            writeCloudAddressBookToFile(addressBookName, fileData);
+            fileHandler.writeCloudAddressBookToFile(fileData);
 
             modifyCloudPersonBasedOnChance(resultingPerson);
 
@@ -237,9 +248,9 @@ public class CloudSimulator implements ICloudSimulator {
 
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         try {
-            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
             deletePersonFromData(fileData.getAllPersons(), firstName, lastName);
-            writeCloudAddressBookToFile(addressBookName, fileData);
+            fileHandler.writeCloudAddressBookToFile(fileData);
 
             rateLimitStatus.useQuota(1);
             return getEmptyResponse(HttpURLConnection.HTTP_NO_CONTENT);
@@ -266,9 +277,9 @@ public class CloudSimulator implements ICloudSimulator {
 
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         try {
-            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
             CloudTag returnedTag = addTag(fileData.getAllTags(), newTag);
-            writeCloudAddressBookToFile(addressBookName, fileData);
+            fileHandler.writeCloudAddressBookToFile(fileData);
 
             modifyCloudTagBasedOnChance(returnedTag);
             InputStream bodyStream = convertToInputStream(returnedTag);
@@ -301,9 +312,9 @@ public class CloudSimulator implements ICloudSimulator {
 
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         try {
-            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
             CloudTag returnedTag = updateTagDetails(fileData.getAllPersons(), fileData.getAllTags(), oldTagName, updatedTag);
-            writeCloudAddressBookToFile(addressBookName, fileData);
+            fileHandler.writeCloudAddressBookToFile(fileData);
 
             modifyCloudTagBasedOnChance(returnedTag);
             InputStream bodyStream = convertToInputStream(returnedTag);
@@ -336,9 +347,9 @@ public class CloudSimulator implements ICloudSimulator {
 
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         try {
-            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
             deleteTagFromData(fileData.getAllPersons(), fileData.getAllTags(), tagName);
-            writeCloudAddressBookToFile(addressBookName, fileData);
+            fileHandler.writeCloudAddressBookToFile(fileData);
 
             rateLimitStatus.useQuota(1);
             return getEmptyResponse(HttpURLConnection.HTTP_NO_CONTENT);
@@ -365,12 +376,12 @@ public class CloudSimulator implements ICloudSimulator {
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
 
         try {
-            createCloudAddressBookFile(addressBookName);
+            fileHandler.createCloudAddressBookFile(addressBookName);
 
             rateLimitStatus.useQuota(1);
             //TODO: Wrap a simplified version of an empty addressbook (e.g. only important fields such as name)
             return getEmptyResponse(HttpURLConnection.HTTP_OK);
-        } catch (IOException e) {
+        } catch (DataConversionException | IOException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         } catch (IllegalArgumentException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
@@ -393,7 +404,7 @@ public class CloudSimulator implements ICloudSimulator {
 
         List<CloudPerson> fullPersonList = new ArrayList<>();
         try {
-            CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
             fullPersonList.addAll(fileData.getAllPersons());
         } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -459,42 +470,6 @@ public class CloudSimulator implements ICloudSimulator {
         }
 
         return fullResourceList.subList(startingIndex, endingIndex);
-    }
-
-    private CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws DataConversionException, FileNotFoundException {
-        File cloudFile = getCloudDataFilePath(addressBookName);
-        System.out.println("Reading from cloudFile: " + cloudFile.canRead());
-        try {
-            CloudAddressBook cloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
-            return cloudAddressBook;
-        } catch (FileNotFoundException | DataConversionException e) {
-            System.out.println("Error reading from cloud file.");
-            throw e;
-        }
-    }
-
-    private File getCloudDataFilePath(String addressBookName) {
-        return new File("/cloud/" + addressBookName);
-    }
-
-    private void writeCloudAddressBookToFile(String addressBookName, CloudAddressBook cloudAddressBook)
-            throws DataConversionException, FileNotFoundException {
-        File cloudFile = getCloudDataFilePath(addressBookName);
-        System.out.println("Writing to cloudFile: " + cloudFile.canRead());
-        try {
-            XmlUtil.saveDataToFile(cloudFile, cloudAddressBook);
-        } catch (FileNotFoundException | DataConversionException e) {
-            System.out.println("Error writing to cloud file.");
-            throw e;
-        }
-    }
-
-    private void createCloudAddressBookFile(String addressBookName) throws IOException {
-        File cloudFile = getCloudDataFilePath(addressBookName);
-        if (cloudFile.exists()) {
-            throw new IllegalArgumentException("AddressBook '" + addressBookName + "' already exists!");
-        }
-        cloudFile.createNewFile();
     }
 
     private RawCloudResponse getNotModifiedResponse(String eTag) {

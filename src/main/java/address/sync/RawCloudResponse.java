@@ -81,6 +81,16 @@ public class RawCloudResponse {
         return headers;
     }
 
+    /**
+     * Calculates the hash of the input stream if it has content
+     *
+     * The input stream will be digested. Caller should clone or
+     * clduplicate the stream before calling this method.
+     *
+     * @param bodyStream
+     * @param isEmptyBody
+     * @return
+     */
     static String getETag(InputStream bodyStream, boolean isEmptyBody) {
         if (isEmptyBody) return null;
         try {
