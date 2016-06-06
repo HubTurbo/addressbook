@@ -2,6 +2,7 @@ package address.storage;
 
 import address.events.*;
 import address.exceptions.FileContainsDuplicatesException;
+import address.main.ComponentManager;
 import address.model.AddressBook;
 import address.model.datatypes.Tag;
 import address.model.ModelManager;
@@ -17,21 +18,18 @@ import java.util.List;
  * Manages storage of addressbook data in local disk.
  * Handles storage related events.
  */
-public class StorageManager {
+public class StorageManager extends ComponentManager{
 
     private ModelManager modelManager;
-    private EventManager eventManager;
     private PrefsManager prefsManager;
 
     public StorageManager(ModelManager modelManager,
                           PrefsManager prefsManager,
                           EventManager eventManager){
 
+        super(eventManager);
         this.modelManager = modelManager;
         this.prefsManager = prefsManager;
-        this.eventManager = eventManager;
-
-        eventManager.registerHandler(this);
     }
 
     /**
@@ -47,12 +45,12 @@ public class StorageManager {
             data = XmlFileStorage.loadDataFromSaveFile(ldre.file);
         } catch (JAXBException e) {
             e.printStackTrace();
-            eventManager.post(new FileOpeningExceptionEvent(e, ldre.file));
+            raise(new FileOpeningExceptionEvent(e, ldre.file));
             return;
         }
 
         if (data.containsDuplicates()) {
-            eventManager.post(new FileOpeningExceptionEvent(new FileContainsDuplicatesException(ldre.file), ldre.file));
+            raise(new FileOpeningExceptionEvent(new FileContainsDuplicatesException(ldre.file), ldre.file));
             return;
         }
         //TODO: move duplication detection out of this class
@@ -99,7 +97,7 @@ public class StorageManager {
         try {
             XmlFileStorage.saveDataToFile(file, new AddressBook(personData, tagData));
         } catch (JAXBException e) {
-            eventManager.post(new FileSavingExceptionEvent(e, file));
+            raise(new FileSavingExceptionEvent(e, file));
         }
     }
 
