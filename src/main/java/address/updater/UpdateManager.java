@@ -9,6 +9,7 @@ import address.updater.model.VersionDescriptor;
 import address.util.JsonUtil;
 import address.util.OsDetector;
 import address.util.FileUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.*;
 import java.net.URL;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
  * Checks for update to application
  */
 public class UpdateManager {
-    public static final String UPDATE_DIRECTORY = "update";
+    public static final String UPDATE_DIR = "update";
     public static final int VERSION = 0; // TODO remove once version system is decided
 
     // --- Messages
@@ -33,14 +34,18 @@ public class UpdateManager {
     private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR updater";
     private static final String MSG_NO_UPDATE_DATA = "There is no update data to be processed";
     private static final String MSG_NO_UPDATE = "There is no update";
+    private static final String MSG_NO_VERSION_AVAILABLE = "No version to be downloaded";
+    private static final String MSG_NO_NEWER_VERSION = "Version have been downloaded before; will not download again";
     // --- End of Messages
 
     private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
-    private static final String JAR_UPDATER_APP_PATH = UPDATE_DIRECTORY + File.separator + "jarUpdater.jar";
+    private static final String JAR_UPDATER_APP_PATH = UPDATE_DIR + File.separator + "jarUpdater.jar";
+    private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final DependencyTracker dependencyTracker;
     private final BackupManager backupManager;
+    private final List<Integer> downloadedVersions;
 
     private boolean isUpdateApplicable;
 
@@ -48,6 +53,7 @@ public class UpdateManager {
         this.isUpdateApplicable = false;
         dependencyTracker = new DependencyTracker();
         backupManager = new BackupManager(dependencyTracker);
+        downloadedVersions = readDownloadedVersionsFromFile();
     }
 
     public List<String> getMissingDependencies() {
@@ -78,6 +84,20 @@ public class UpdateManager {
             return;
         }
 
+        Optional<Integer> latestVersion = getLatestVersion(updateData.get());
+
+        if (!latestVersion.isPresent()) {
+            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_VERSION_AVAILABLE));
+            System.out.println("UpdateManager - " + MSG_NO_VERSION_AVAILABLE);
+            return;
+        }
+
+        if (downloadedVersions.contains(latestVersion.get())) {
+            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
+            System.out.println("UpdateManager - " + MSG_NO_NEWER_VERSION);
+            return;
+        }
+
         EventManager.getInstance().post(new UpdaterInProgressEvent(
                 "Collecting all update files that are to be downloaded", -1));
         HashMap<String, URL> filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(updateData.get());
@@ -90,7 +110,7 @@ public class UpdateManager {
 
         EventManager.getInstance().post(new UpdaterInProgressEvent("Downloading updates", 0.5));
         try {
-            downloadAllFilesToBeUpdated(new File(UPDATE_DIRECTORY), filesToBeUpdated);
+            downloadAllFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
         } catch (IOException e) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
             System.out.println("UpdateManager - " + MSG_FAIL_DOWNLOAD_UPDATE);
@@ -117,6 +137,8 @@ public class UpdateManager {
 
         EventManager.getInstance().post(new UpdaterFinishedEvent("Update will be applied on next launch"));
         this.isUpdateApplicable = true;
+
+        updateDownloadedVersionsData(latestVersion.get());
     }
 
     /**
@@ -137,6 +159,14 @@ public class UpdateManager {
         }
 
         return Optional.empty();
+    }
+
+    private Optional<Integer> getLatestVersion(UpdateData updateData) {
+        ArrayList<VersionDescriptor> versionFileChanges = updateData.getAllVersionFileChanges();
+
+        return versionFileChanges.stream()
+                .map(versionChangesDescriptor -> versionChangesDescriptor.getVersionNumber())
+                .max((a, b) -> Integer.compare(a, b));
     }
 
     private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(UpdateData updateData) {
@@ -165,10 +195,10 @@ public class UpdateManager {
 
         for (VersionDescriptor versionDescriptor : relevantVersionFileChanges) {
             versionDescriptor.getFileUpdateDescriptors().stream()
-                .filter(fileUpdateDescriptor -> fileUpdateDescriptor.getOs() == FileUpdateDescriptor.Os.ALL ||
-                        fileUpdateDescriptor.getOs() == machineOs)
-                .forEach(fileUpdateDescriptor -> filesToBeDownloaded.put(fileUpdateDescriptor.getDestinationFile(),
-                        fileUpdateDescriptor.getDownloadLink()));
+                    .filter(fileUpdateDescriptor -> fileUpdateDescriptor.getOs() == FileUpdateDescriptor.Os.ALL ||
+                            fileUpdateDescriptor.getOs() == machineOs)
+                    .forEach(fileUpdateDescriptor -> filesToBeDownloaded.put(fileUpdateDescriptor.getDestinationFile(),
+                            fileUpdateDescriptor.getDownloadLink()));
         }
 
         return filesToBeDownloaded;
@@ -206,7 +236,7 @@ public class UpdateManager {
             Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             System.out.println(String.format("UpdateManager - Failed to download update for %s",
-                                             targetFile.toString()));
+                    targetFile.toString()));
             e.printStackTrace();
             throw e;
         }
@@ -233,6 +263,34 @@ public class UpdateManager {
         }
     }
 
+    private void updateDownloadedVersionsData(int latestVersionDownloaded) {
+        downloadedVersions.add(latestVersionDownloaded);
+        writeDownloadedVersionsToFile();
+    }
+
+    private void writeDownloadedVersionsToFile() {
+        try {
+            FileUtil.writeToFile(DOWNLOADED_VERSIONS_FILE, JsonUtil.toJsonString(downloadedVersions));
+        } catch (JsonProcessingException e) {
+            System.out.println("Failed to convert downloaded version to JSON");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Failed to write downloaded version to file");
+            e.printStackTrace();
+        }
+    }
+
+    private List<Integer> readDownloadedVersionsFromFile() {
+        try {
+            return JsonUtil.fromJsonStringToList(FileUtil.readFromFile(DOWNLOADED_VERSIONS_FILE), Integer.class);
+        } catch (IOException e) {
+            System.out.println("Failed to read downloaded version from file");
+            e.printStackTrace();
+        }
+
+        return new ArrayList<>();
+    }
+
     public void applyUpdate() {
         if (!this.isUpdateApplicable) {
             return;
@@ -244,9 +302,9 @@ public class UpdateManager {
 
         String restarterAppPath = JAR_UPDATER_APP_PATH;
         String localUpdateSpecFilepath = System.getProperty("user.dir") + File.separator +
-                                         LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
+                LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
         String cmdArg = String.format("--update-specification=%s --source-dir=%s",
-                localUpdateSpecFilepath, UPDATE_DIRECTORY);
+                localUpdateSpecFilepath, UPDATE_DIR);
 
         String command = String.format("java -jar %1$s %2$s", restarterAppPath, cmdArg);
 
