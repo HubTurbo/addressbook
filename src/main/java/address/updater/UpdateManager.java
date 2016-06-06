@@ -61,7 +61,7 @@ public class UpdateManager {
     }
 
     public void run() {
-        pool.execute(() -> backupManager.cleanupBackups());
+        pool.execute(backupManager::cleanupBackups);
         pool.execute(this::checkForUpdate);
     }
 
@@ -164,8 +164,7 @@ public class UpdateManager {
     private Optional<Version> getLatestVersion(UpdateData updateData) {
         ArrayList<VersionDescriptor> versionFileChanges = updateData.getAllVersionFileChanges();
 
-        return versionFileChanges.stream()
-                .map(versionChangesDescriptor -> versionChangesDescriptor.getVersion()).max((a, b) -> a.compareTo(b));
+        return versionFileChanges.stream().map(VersionDescriptor::getVersion).max(Version::compareTo);
     }
 
     private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(UpdateData updateData) {

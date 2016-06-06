@@ -11,6 +11,8 @@ plugins {
 
 allprojects {
 
+    version = 'V0.0.0'
+
     apply plugin: 'idea'
     apply plugin: 'java'
     apply plugin: 'checkstyle'
@@ -24,7 +26,6 @@ allprojects {
     }
     apply plugin: 'jacoco'
 
-    version = '3.27.0'
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 
@@ -50,7 +51,7 @@ allprojects {
         controlsFxVersion = '8.40.10'
 
         outputDir = 'build/libs'
-        mainAppArchiveName = 'addressbook.jar'
+        mainAppArchiveName = 'resource-' + project.version + '.jar'
         jarUpdaterArchiveName = 'jarUpdater.jar'
     }
 
@@ -165,7 +166,7 @@ allprojects {
                 srcDir project.ext.outputDir
                 include(project.ext.mainAppArchiveName)
                 include('lib/*')
-                exclude('lib/jxbrowser?*-6.4.jar')
+                exclude('lib/jxbrowser-*-*.jar') // platform specific jxbrowser
             }
         }
     }

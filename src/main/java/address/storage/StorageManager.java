@@ -7,7 +7,6 @@ import address.model.datatypes.Tag;
 import address.model.ModelManager;
 import address.model.datatypes.Person;
 import address.prefs.PrefsManager;
-import address.util.XmlFileHelper;
 import com.google.common.eventbus.Subscribe;
 
 import javax.xml.bind.JAXBException;
@@ -47,7 +46,7 @@ public class StorageManager {
         try {
             data = XmlFileStorage.loadDataFromSaveFile(ldre.file);
         } catch (JAXBException e) {
-            System.out.println(e);
+            e.printStackTrace();
             eventManager.post(new FileOpeningExceptionEvent(e, ldre.file));
             return;
         }

@@ -40,7 +40,7 @@ public class BackupManager {
             return true;
         }
 
-        String backupFilename = getBackupFilename(mainAppJar.getName());
+        String backupFilename = getMainAppBackupFilename();
 
         try {
             FileUtil.copyFile(mainAppJar.toPath(), Paths.get(backupFilename), true);
@@ -57,15 +57,8 @@ public class BackupManager {
         return jarName.contains(BACKUP_MARKER);
     }
 
-    private String getBackupFilename(String jarName) {
-        Pattern jarFilenamePattern = Pattern.compile("^(.*)\\.jar$", Pattern.CASE_INSENSITIVE);
-        Matcher jarFilenameMatcher = jarFilenamePattern.matcher(jarName);
-
-        if (!jarFilenameMatcher.find()) {
-            return jarName + BACKUP_MARKER + Version.getCurrentVersion().toString();
-        }
-
-        return jarFilenameMatcher.group(1) + BACKUP_MARKER + Version.getCurrentVersion().toString() + ".jar";
+    private String getMainAppBackupFilename() {
+        return "addressbook" + BACKUP_MARKER + Version.getCurrentVersion().toString() + ".jar";
     }
 
     /**
