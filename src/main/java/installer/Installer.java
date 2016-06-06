@@ -2,13 +2,14 @@ package installer;
 
 import address.util.FileUtil;
 import address.util.OsDetector;
+import address.util.ProgressAwareInputStream;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -37,6 +38,7 @@ import java.util.jar.JarFile;
 public class Installer extends Application {
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private static final String LIB_DIR = "lib";
+    private ProgressBar progressBar;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -64,11 +66,12 @@ public class Installer extends Application {
 
         Label loadingLabel = new Label("First time initialization. Downloading required components. Please wait.");
 
-        ProgressIndicator progressIndicator = new ProgressIndicator(-1.0);
+        progressBar = new ProgressBar(-1.0);
+        progressBar.setPrefWidth(400);
 
         final VBox vb = new VBox();
         vb.setSpacing(30);
-        vb.getChildren().addAll(loadingLabel, progressIndicator);
+        vb.getChildren().addAll(loadingLabel, progressBar);
         vb.setPadding(new Insets(40));
         windowMainLayout.getChildren().add(vb);
 
@@ -168,7 +171,7 @@ public class Installer extends Application {
             URLConnection conn = downloadLink.openConnection();
             int jxbrowserFileSize = conn.getContentLength();
             if (jxbrowserFileSize != -1 && FileUtil.isFileExists(jxbrowserFile.toString()) &&
-                                           jxbrowserFile.length() == jxbrowserFileSize) {
+                    jxbrowserFile.length() == jxbrowserFileSize) {
                 System.out.println("JxBrowser already exists");
                 return;
             }
@@ -215,7 +218,12 @@ public class Installer extends Application {
             if (!FileUtil.createFile(targetFile)) {
                 System.out.println("File already exists; file will be replaced");
             }
-            Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+            URLConnection conn = source.openConnection();
+            ProgressAwareInputStream inWithProgress = new ProgressAwareInputStream(in, conn.getContentLength());
+            inWithProgress.setOnProgressListener(prog -> Platform.runLater(() -> progressBar.setProgress(prog)));
+
+            Files.copy(inWithProgress, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             System.out.println(String.format("Installer - Failed to download %s", targetFile.toString()));
             throw e;
