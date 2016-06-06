@@ -1,7 +1,7 @@
 package address.storage;
 
 import address.model.AddressBook;
-import address.util.XmlFileHelper;
+import address.util.XmlUtil;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -15,7 +15,7 @@ public class XmlFileStorage {
      */
     public static void saveDataToFile(File file, AddressBook addressBook) throws JAXBException {
         assert file != null;
-        XmlFileHelper.saveDataToFile(file, addressBook);
+        XmlUtil.saveDataToFile(file, addressBook);
     }
 
     /**
@@ -23,7 +23,7 @@ public class XmlFileStorage {
      */
     public static AddressBook loadDataFromSaveFile(File file) throws JAXBException {
         assert file != null;
-        return XmlFileHelper.getDataFromFile(file, AddressBook.class);
+        return XmlUtil.getDataFromFile(file, AddressBook.class);
     }
 
 }

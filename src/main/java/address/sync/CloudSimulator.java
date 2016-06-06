@@ -5,7 +5,7 @@ import address.sync.model.CloudTag;
 import address.sync.model.CloudPerson;
 import address.util.JsonUtil;
 import address.util.TickingTimer;
-import address.util.XmlFileHelper;
+import address.util.XmlUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import javax.xml.bind.JAXBException;
@@ -468,7 +468,7 @@ public class CloudSimulator implements ICloudSimulator {
         File cloudFile = getCloudDataFilePath(addressBookName);
         System.out.println("Reading from cloudFile: " + cloudFile.canRead());
         try {
-            CloudAddressBook cloudAddressBook = XmlFileHelper.getDataFromFile(cloudFile, CloudAddressBook.class);
+            CloudAddressBook cloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
             return cloudAddressBook;
         } catch (JAXBException e) {
             System.out.println("Error reading from cloud file.");
@@ -484,7 +484,7 @@ public class CloudSimulator implements ICloudSimulator {
         File cloudFile = getCloudDataFilePath(addressBookName);
         System.out.println("Writing to cloudFile: " + cloudFile.canRead());
         try {
-            XmlFileHelper.saveDataToFile(cloudFile, cloudAddressBook);
+            XmlUtil.saveDataToFile(cloudFile, cloudAddressBook);
         } catch (JAXBException e) {
             System.out.println("Error writing to cloud file.");
             throw e;
