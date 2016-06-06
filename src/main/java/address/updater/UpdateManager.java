@@ -9,6 +9,7 @@ import address.updater.model.VersionDescriptor;
 import address.util.JsonUtil;
 import address.util.OsDetector;
 import address.util.FileUtil;
+import address.util.Version;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.*;
@@ -25,7 +26,6 @@ import java.util.stream.Collectors;
  */
 public class UpdateManager {
     public static final String UPDATE_DIR = "update";
-    public static final int VERSION = 0; // TODO remove once version system is decided
 
     // --- Messages
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
@@ -45,7 +45,7 @@ public class UpdateManager {
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final DependencyTracker dependencyTracker;
     private final BackupManager backupManager;
-    private final List<Integer> downloadedVersions;
+    private final List<Version> downloadedVersions;
 
     private boolean isUpdateApplicable;
 
@@ -84,7 +84,7 @@ public class UpdateManager {
             return;
         }
 
-        Optional<Integer> latestVersion = getLatestVersion(updateData.get());
+        Optional<Version> latestVersion = getLatestVersion(updateData.get());
 
         if (!latestVersion.isPresent()) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_VERSION_AVAILABLE));
@@ -161,12 +161,11 @@ public class UpdateManager {
         return Optional.empty();
     }
 
-    private Optional<Integer> getLatestVersion(UpdateData updateData) {
+    private Optional<Version> getLatestVersion(UpdateData updateData) {
         ArrayList<VersionDescriptor> versionFileChanges = updateData.getAllVersionFileChanges();
 
         return versionFileChanges.stream()
-                .map(versionChangesDescriptor -> versionChangesDescriptor.getVersionNumber())
-                .max((a, b) -> Integer.compare(a, b));
+                .map(versionChangesDescriptor -> versionChangesDescriptor.getVersion()).max((a, b) -> a.compareTo(b));
     }
 
     private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(UpdateData updateData) {
@@ -188,7 +187,8 @@ public class UpdateManager {
         ArrayList<VersionDescriptor> versionFileChanges = updateData.getAllVersionFileChanges();
 
         List<VersionDescriptor> relevantVersionFileChanges = versionFileChanges.stream()
-                .filter(versionChangesDescriptor -> versionChangesDescriptor.getVersionNumber() > VERSION)
+                .filter(versionChangesDescriptor ->
+                        versionChangesDescriptor.getVersion().compareTo(Version.getCurrentVersion()) > 0)
                 .sorted().collect(Collectors.toList());
 
         HashMap<String, URL> filesToBeDownloaded = new HashMap<>();
@@ -263,13 +263,17 @@ public class UpdateManager {
         }
     }
 
-    private void updateDownloadedVersionsData(int latestVersionDownloaded) {
+    private void updateDownloadedVersionsData(Version latestVersionDownloaded) {
         downloadedVersions.add(latestVersionDownloaded);
         writeDownloadedVersionsToFile();
     }
 
     private void writeDownloadedVersionsToFile() {
         try {
+            if (FileUtil.isFileExists(DOWNLOADED_VERSIONS_FILE.toString())) {
+                FileUtil.createFile(DOWNLOADED_VERSIONS_FILE);
+            }
+
             FileUtil.writeToFile(DOWNLOADED_VERSIONS_FILE, JsonUtil.toJsonString(downloadedVersions));
         } catch (JsonProcessingException e) {
             System.out.println("Failed to convert downloaded version to JSON");
@@ -280,9 +284,9 @@ public class UpdateManager {
         }
     }
 
-    private List<Integer> readDownloadedVersionsFromFile() {
+    private List<Version> readDownloadedVersionsFromFile() {
         try {
-            return JsonUtil.fromJsonStringToList(FileUtil.readFromFile(DOWNLOADED_VERSIONS_FILE), Integer.class);
+            return JsonUtil.fromJsonStringToList(FileUtil.readFromFile(DOWNLOADED_VERSIONS_FILE), Version.class);
         } catch (IOException e) {
             System.out.println("Failed to read downloaded version from file");
             e.printStackTrace();

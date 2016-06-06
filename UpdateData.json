@@ -1,6 +1,6 @@
 {
   "updateData" : [ {
-    "version" : 1,
+    "version" : "V1.0.0",
     "filesToBeUpdated" : [ {
       "isMainApp" : true,
       "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/addressbook/addressbook.v1.jar",
@@ -11,7 +11,7 @@
       "os" : "WINDOWS"
     } ]
   }, {
-    "version" : 2,
+    "version" : "V2.0.0",
     "filesToBeUpdated" : [ {
       "isMainApp" : false,
       "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/jxbrowser-mac-6.4.jar",
@@ -38,7 +38,7 @@
       "os" : "ALL"
     } ]
   }, {
-    "version" : 3,
+    "version" : "V3.0.0",
     "filesToBeUpdated" : [ {
       "isMainApp" : false,
       "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/jxbrowser-lin64-6.4.jar",
