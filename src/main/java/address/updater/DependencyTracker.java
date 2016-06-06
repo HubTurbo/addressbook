@@ -4,6 +4,7 @@ import address.MainApp;
 import address.util.FileUtil;
 import address.util.JsonUtil;
 import address.util.OsDetector;
+import address.util.Version;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 public class DependencyTracker {
     private static final File DEPENDENCY_HISTORY_FILE = new File("lib/dependency_history");
 
-    private HashMap<Integer, List<String>> dependenciesForVersionsInUse = new HashMap<>();
+    private HashMap<Version, List<String>> dependenciesForVersionsInUse = new HashMap<>();
 
     public DependencyTracker() {
         readVersionDependency();
@@ -31,25 +32,25 @@ public class DependencyTracker {
         if (!classPath.isPresent()) {
             System.out.println("Class-path undefined");
         } else {
-            updateVersionDependency(UpdateManager.VERSION,
+            updateVersionDependency(Version.getCurrentVersion(),
                     new ArrayList<>(Arrays.asList(classPath.get().split("\\s+"))));
         }
     }
 
-    public void updateVersionDependency(int version, List<String> verDependencies) {
+    public void updateVersionDependency(Version version, List<String> verDependencies) {
         dependenciesForVersionsInUse.put(version, verDependencies);
         writeVersionDependency();
     }
 
-    public HashMap<Integer, List<String>> getAllVersionDependency() {
+    public HashMap<Version, List<String>> getAllVersionDependency() {
         return dependenciesForVersionsInUse;
     }
 
-    public void cleanUpUnusedDependencyVersions(List<Integer> dependenciesOfUnusedVersions) {
-        Iterator<Map.Entry<Integer, List<String>>> it = dependenciesForVersionsInUse.entrySet().iterator();
+    public void cleanUpUnusedDependencyVersions(List<Version> dependenciesOfUnusedVersions) {
+        Iterator<Map.Entry<Version, List<String>>> it = dependenciesForVersionsInUse.entrySet().iterator();
 
         while (it.hasNext()) {
-            Map.Entry<Integer, List<String>> entry = it.next();
+            Map.Entry<Version, List<String>> entry = it.next();
             if (dependenciesOfUnusedVersions.contains(entry.getKey())) {
                 System.out.println("removing " + entry.getKey());
                 it.remove();
@@ -89,8 +90,7 @@ public class DependencyTracker {
         try {
             String json = FileUtil.readFromFile(DEPENDENCY_HISTORY_FILE);
             dependenciesForVersionsInUse = JsonUtil.fromJsonStringToGivenType(json,
-                    new TypeReference<HashMap<Integer, List<String>>>() {
-                    });
+                    new TypeReference<HashMap<Version, List<String>>>() {});
         } catch (IOException e) {
             System.out.println("Failed to read dependencies from file");
             e.printStackTrace();
@@ -171,6 +171,6 @@ public class DependencyTracker {
     }
 
     public List<String> getCurrentVersionDependencies() {
-        return dependenciesForVersionsInUse.get(UpdateManager.VERSION);
+        return dependenciesForVersionsInUse.get(Version.getCurrentVersion());
     }
 }
