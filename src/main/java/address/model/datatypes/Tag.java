@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 
-public class Tag extends BaseDataType {
+public class Tag extends BaseDataType implements ExtractableObservables {
 
     @JsonIgnore private final SimpleStringProperty name;
 
@@ -30,17 +30,11 @@ public class Tag extends BaseDataType {
         return this;
     }
 
-    public static Observable[] extractObservablesFrom(Tag tag) {
-        return new Observable[] {
-                tag.name
-        };
-    }
-
-    /**
-     * Same as calling {@link #extractObservablesFrom(Tag)} with {@code this} as the argument.
-     */
+    @Override
     public Observable[] extractObservables() {
-        return extractObservablesFrom(this);
+        return new Observable[] {
+                name
+        };
     }
 
     @JsonProperty("name")

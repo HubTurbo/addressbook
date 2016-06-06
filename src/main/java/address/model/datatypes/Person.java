@@ -49,7 +49,7 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         githubUserName = new SimpleStringProperty("");
 
         birthday = new SimpleObjectProperty<>();
-        tags = FXCollections.observableArrayList(Tag::extractObservablesFrom);
+        tags = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
     }    
     
     /**

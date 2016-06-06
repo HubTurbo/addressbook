@@ -1,5 +1,6 @@
 package address.model.datatypes;
 
+import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
@@ -12,7 +13,7 @@ import java.util.function.BiConsumer;
  * Allows access to the Person domain object's data as javafx properties and collections for easy binding and listening.
  * Also includes useful methods for working with fields from two ObservabblePersons together.
  */
-public interface ObservablePerson extends ReadablePerson {
+public interface ObservablePerson extends ReadablePerson, ExtractableObservables {
 
     StringProperty firstNameProperty();
     StringProperty lastNameProperty();
@@ -29,6 +30,22 @@ public interface ObservablePerson extends ReadablePerson {
      * @return a javafx ObservableList view of this Person's tags
      */
     ObservableList<Tag> getTags();
+
+    @Override
+    default Observable[] extractObservables() {
+        return new Observable[] {
+                firstNameProperty(),
+                lastNameProperty(),
+                githubUserNameProperty(),
+
+                streetProperty(),
+                postalCodeProperty(),
+                cityProperty(),
+
+                birthdayProperty(),
+                getTags()
+        };
+    }
 
     // TODO: consider using reflection to access all isassignablefrom(Property) returning methods for maintainability
     /**
