@@ -13,6 +13,7 @@ import com.google.common.eventbus.Subscribe;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.*;
 
@@ -87,6 +88,9 @@ public class SyncManager {
             return Optional.of(data);
         } catch (IOException e) {
             e.printStackTrace();
+            return Optional.empty();
+        } catch (NoSuchElementException e) {
+            System.out.println("Empty response from cloud!");
             return Optional.empty();
         }
     }
