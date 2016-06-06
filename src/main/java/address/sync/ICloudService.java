@@ -25,6 +25,6 @@ public interface ICloudService {
     ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time) throws IOException;
 
     // Does not consume API
-    ExtractedCloudResponse<RateLimitStatus> getLimitStatus() throws IOException;
+    ExtractedCloudResponse<CloudRateLimitStatus> getLimitStatus() throws IOException;
 
 }

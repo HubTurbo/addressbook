@@ -305,7 +305,7 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<RateLimitStatus> getLimitStatus() throws IOException {
+    public ExtractedCloudResponse<CloudRateLimitStatus> getLimitStatus() throws IOException {
         RawCloudResponse cloudResponse = cloud.getRateLimitStatus(null);
         HashMap<String, Long> headerHashMap = getHashMapFromHeader(cloudResponse.getHeaders());
         if (!isValid(cloudResponse)) {
