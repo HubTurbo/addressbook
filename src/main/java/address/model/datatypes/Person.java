@@ -277,7 +277,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     }
 
 //// OTHER LOGIC
-    @JsonProperty("isDeleted")
     public boolean getIsDeleted() {
         return isDeleted.get();
     }
@@ -290,7 +289,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         this.isDeleted.set(isDeleted);
     }
 
-    @JsonProperty("isEdited")
     public boolean getIsEdited() {
         return isEdited.get();
     }

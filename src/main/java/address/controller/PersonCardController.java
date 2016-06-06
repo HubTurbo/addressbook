@@ -12,6 +12,7 @@ import address.events.SyncCompletedEvent;
 
 import address.status.PersonDeletedStatus;
 import address.ui.PersonListViewCell;
+import address.util.FxViewUtil;
 import com.google.common.eventbus.Subscribe;
 import javafx.animation.FadeTransition;
 import javafx.animation.Timeline;
@@ -25,22 +26,29 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.effect.BoxBlur;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
 public class PersonCardController {
     @FXML
     private GridPane gridPane;
     @FXML
+    private HBox hBox;
+    @FXML
+    private AnchorPane cardPane;
+    @FXML
+    private ImageView profileImage;
+    @FXML
     private Label firstName;
     @FXML
     private Label lastName;
     @FXML
-    private Label street;
-    @FXML
-    private Label postalCode;
-    @FXML
-    private Label city;
+    private Label address;
     @FXML
     private Label birthday;
     @FXML
@@ -65,9 +73,27 @@ public class PersonCardController {
     public void initialize() {
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
-        street.textProperty().bind(person.streetProperty());
-        postalCode.textProperty().bind(person.postalCodeProperty());
-        city.textProperty().bind(person.cityProperty());
+        address.textProperty().bind(new StringBinding(){
+            {
+                bind(person.streetProperty());
+                bind(person.postalCodeProperty());
+                bind(person.cityProperty());
+            }
+            @Override
+            protected String computeValue() {
+                StringBuilder sb = new StringBuilder();
+                if (person.getStreet().length() > 0){
+                    sb.append(person.getStreet() + "\n");
+                }
+                if(person.getCity().length() > 0){
+                    sb.append(person.getCity() + "\n");
+                }
+                if (person.getPostalCode().length() > 0){
+                    sb.append(person.getPostalCode());
+                }
+                return sb.toString();
+            }
+        });
         birthday.textProperty().bind(new StringBinding(){
             {
                 bind(person.birthdayProperty()); //Bind property at instance initializer
@@ -75,7 +101,10 @@ public class PersonCardController {
 
             @Override
             protected String computeValue() {
-                return person.birthdayString();
+                if (person.birthdayString().length() > 0){
+                    return "DOB: " + person.birthdayString();
+                }
+                return "";
             }
         });
         tags.textProperty().bind(new StringBinding(){
@@ -96,11 +125,14 @@ public class PersonCardController {
                 }
             }
         });
-
         if (person.getIsDeleted()){
             Platform.runLater(() -> gridPane.setOpacity(0.1f));
 
         }
+        double xyPositionAndRadius = profileImage.getFitHeight()/2.0;
+        Circle circle = new Circle(xyPositionAndRadius,xyPositionAndRadius,xyPositionAndRadius);
+        profileImage.setClip(circle);
+        FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
     }
 
     public void handleDeletedPerson(){
@@ -114,8 +146,8 @@ public class PersonCardController {
         });
     }
 
-    public GridPane getLayout() {
-        return gridPane;
+    public AnchorPane getLayout() {
+        return cardPane;
     }
 
     @Subscribe

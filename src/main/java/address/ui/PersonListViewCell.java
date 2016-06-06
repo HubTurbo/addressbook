@@ -12,6 +12,8 @@ import javafx.application.Platform;
 
 import javafx.scene.control.ListCell;
 import javafx.scene.effect.BoxBlur;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.util.concurrent.TimeUnit;
@@ -28,11 +30,14 @@ public class PersonListViewCell extends ListCell<Person> {
         if (empty || person == null) {
             setGraphic(null);
             setText(null);
-
+            this.setVisible(false);
         }
         else
         {
-            setGraphic(new PersonCardController(person).getLayout());
+            AnchorPane pane = new PersonCardController(person).getLayout();
+            setGraphic(pane);
+           pane.prefHeightProperty().bind(this.prefHeightProperty());
+            pane.prefWidthProperty().bind(this.widthProperty());
         }
     }
 

@@ -15,8 +15,10 @@ import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
 import com.google.common.eventbus.Subscribe;
 
+import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
@@ -62,6 +64,9 @@ public class PersonOverviewController {
         personList.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if(newValue != null){
+                        VirtualFlow flow = (VirtualFlow) personList.lookup( ".virtual-flow");
+                        PersonListViewCell cell = (PersonListViewCell) flow.getCell(personList.getSelectionModel().getSelectedIndex());
+                        Node profilePicImageView = cell.getGraphic().lookup("#profileImage");
                         mainController.loadGithubProfilePage(new Person(newValue));
                     }
                 });
