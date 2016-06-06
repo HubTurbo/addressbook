@@ -121,10 +121,31 @@ public class CloudPerson {
         this.postalCode = updatedPerson.postalCode;
         this.tags = updatedPerson.tags;
         this.isDeleted = updatedPerson.isDeleted;
-        this.lastUpdatedAt = updatedPerson.lastUpdatedAt;
+        this.lastUpdatedAt = LocalDateTime.now();
     }
 
     public boolean isValid() {
         return this.firstName != null && this.lastName != null;
+    }
+
+    public boolean equals(Object o) {
+        if (!(o instanceof CloudPerson)) return false;
+
+        if ((firstName == null && ((CloudPerson) o).firstName != null)
+                || (firstName != null && !firstName.equals(((CloudPerson) o).firstName))) return false;
+
+        if ((lastName == null && ((CloudPerson) o).lastName != null)
+                || (lastName != null && !lastName.equals(((CloudPerson) o).lastName))) return false;
+
+        if ((street == null && ((CloudPerson) o).street != null)
+                || (street != null && !street.equals(((CloudPerson) o).street))) return false;
+
+        if ((postalCode == null && ((CloudPerson) o).postalCode != null)
+                || (postalCode != null && !postalCode.equals(((CloudPerson) o).postalCode))) return false;
+
+        if ((tags == null && ((CloudPerson) o).tags != null)
+                || (tags != null && !tags.equals(((CloudPerson) o).tags))) return false;
+
+        return isDeleted == ((CloudPerson) o).isDeleted;
     }
 }

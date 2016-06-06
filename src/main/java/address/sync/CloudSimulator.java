@@ -209,8 +209,8 @@ public class CloudSimulator implements ICloudSimulator {
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         try {
             CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
-            CloudPerson resultingPerson = updatePersonDetails(fileData.getAllPersons(), oldFirstName, oldLastName,
-                    updatedPerson);
+            CloudPerson resultingPerson = updatePersonDetails(fileData.getAllPersons(), fileData.getAllTags(), oldFirstName, oldLastName,
+                                                              updatedPerson);
             fileHandler.writeCloudAddressBookToFile(fileData);
 
             modifyCloudPersonBasedOnChance(resultingPerson);
@@ -550,10 +550,17 @@ public class CloudSimulator implements ICloudSimulator {
                 .findAny();
     }
 
-    private CloudPerson updatePersonDetails(List<CloudPerson> personList, String oldFirstName, String oldLastName,
-                                            CloudPerson updatedPerson) throws NoSuchElementException {
+    private CloudPerson updatePersonDetails(List<CloudPerson> personList, List<CloudTag> tagList, String oldFirstName,
+                                            String oldLastName, CloudPerson updatedPerson)
+            throws NoSuchElementException {
         CloudPerson oldPerson = getPersonIfExists(personList, oldFirstName, oldLastName);
         oldPerson.updatedBy(updatedPerson);
+
+        List<CloudTag> newTags = updatedPerson.getTags().stream()
+                                    .filter(tag -> !tagList.contains(tag))
+                                    .collect(Collectors.toCollection(ArrayList::new));
+        tagList.addAll(newTags);
+
         return oldPerson;
     }
 

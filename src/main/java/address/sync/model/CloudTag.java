@@ -40,4 +40,15 @@ public class CloudTag {
     public boolean isValid() {
         return name != null;
     }
+
+    public boolean equals(Object o) {
+        if (!(o instanceof CloudTag)) return false;
+        if (o == null) return false;
+
+        return name.equals(((CloudTag) o).getName());
+    }
+
+    public int hashCode() {
+        return 42 + name.hashCode();
+    }
 }
