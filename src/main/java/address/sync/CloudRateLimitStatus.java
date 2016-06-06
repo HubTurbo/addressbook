@@ -35,7 +35,7 @@ public class CloudRateLimitStatus {
     }
 
     private void printTimeLeft(int timeLeft) {
-         System.out.println(timeLeft + " seconds remaining to quota reset.");
+        if (timeLeft % 60 == 0) System.out.println(timeLeft + " seconds remaining to quota reset.");
     }
 
     private ZoneOffset getSystemTimezone() {

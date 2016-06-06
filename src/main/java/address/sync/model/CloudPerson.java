@@ -1,7 +1,11 @@
 package address.sync.model;
 
+import address.util.LocalDateAdapter;
+
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CloudPerson {
@@ -13,7 +17,11 @@ public class CloudPerson {
     private String postalCode;
     private List<CloudTag> tags;
     private boolean isDeleted;
+
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     private LocalDateTime lastUpdatedAt;
+
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     private LocalDate birthday;
 
     public CloudPerson() {
@@ -22,6 +30,7 @@ public class CloudPerson {
     public CloudPerson(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.tags = new ArrayList<>();
         setLastUpdatedAt(LocalDateTime.now());
     }
 
@@ -125,7 +134,7 @@ public class CloudPerson {
     }
 
     public boolean isValid() {
-        return this.firstName != null && this.lastName != null;
+        return this.firstName != null && this.lastName != null && tags != null;
     }
 
     public boolean equals(Object o) {

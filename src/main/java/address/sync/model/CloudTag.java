@@ -41,13 +41,14 @@ public class CloudTag {
         return name != null;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof CloudTag)) return false;
-        if (o == null) return false;
 
         return name.equals(((CloudTag) o).getName());
     }
 
+    @Override
     public int hashCode() {
         return 42 + name.hashCode();
     }

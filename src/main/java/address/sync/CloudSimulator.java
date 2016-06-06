@@ -4,7 +4,6 @@ import address.sync.model.CloudAddressBook;
 import address.sync.model.CloudTag;
 import address.sync.model.CloudPerson;
 import address.util.JsonUtil;
-import address.util.TickingTimer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import address.exceptions.DataConversionException;
 import java.io.*;
@@ -80,7 +79,8 @@ public class CloudSimulator implements ICloudSimulator {
 
             modifyCloudPersonBasedOnChance(returnedPerson);
             InputStream bodyStream = convertToInputStream(returnedPerson);
-            String eTag = RawCloudResponse.getETag(bodyStream, false);
+            InputStream bodyStreamForDigest = convertToInputStream(returnedPerson);
+            String eTag = RawCloudResponse.getETag(bodyStreamForDigest, false);
 
             if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
 
@@ -120,7 +120,8 @@ public class CloudSimulator implements ICloudSimulator {
 
         mutateCloudPersonList(queryResults);
         InputStream bodyStream = convertToInputStream(queryResults);
-        String eTag = RawCloudResponse.getETag(bodyStream, false);
+        InputStream bodyStreamForDigest = convertToInputStream(queryResults);
+        String eTag = RawCloudResponse.getETag(bodyStreamForDigest, false);
         if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
 
         cloudRateLimitStatus.useQuota(1);
@@ -157,12 +158,13 @@ public class CloudSimulator implements ICloudSimulator {
         }
 
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
-
         List<CloudTag> queryResults = getQueryResults(pageNumber, resourcesPerPage, fullTagList);
-
         modifyCloudTagListBasedOnChance(queryResults);
+
         InputStream bodyStream = convertToInputStream(queryResults);
-        String eTag = RawCloudResponse.getETag(bodyStream, false);
+        InputStream bodyStreamForDigest = convertToInputStream(queryResults);
+        String eTag = RawCloudResponse.getETag(bodyStreamForDigest, false);
+
         if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
 
         cloudRateLimitStatus.useQuota(1);
@@ -184,7 +186,8 @@ public class CloudSimulator implements ICloudSimulator {
     @Override
     public RawCloudResponse getRateLimitStatus(String previousETag) {
         InputStream bodyStream = convertToInputStream(cloudRateLimitStatus);
-        String eTag = RawCloudResponse.getETag(bodyStream, false);
+        InputStream bodyStreamForDigest = convertToInputStream(cloudRateLimitStatus);
+        String eTag = RawCloudResponse.getETag(bodyStreamForDigest, false);
         if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
         return new RawCloudResponse(HttpURLConnection.HTTP_OK, bodyStream, getHeaders(eTag, cloudRateLimitStatus));
     }
@@ -216,7 +219,8 @@ public class CloudSimulator implements ICloudSimulator {
             modifyCloudPersonBasedOnChance(resultingPerson);
 
             InputStream bodyStream = convertToInputStream(resultingPerson);
-            String eTag = RawCloudResponse.getETag(bodyStream, false);
+            InputStream bodyStreamForDigest = convertToInputStream(resultingPerson);
+            String eTag = RawCloudResponse.getETag(bodyStreamForDigest, false);
             if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
 
             cloudRateLimitStatus.useQuota(1);
@@ -226,6 +230,16 @@ public class CloudSimulator implements ICloudSimulator {
         } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
+    }
+
+    private String convertToString(InputStream stream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        StringBuilder stringBuffer = new StringBuilder();
+        while (reader.ready()) {
+            stringBuffer.append(reader.readLine());
+        }
+
+        return stringBuffer.toString();
     }
 
     /**
@@ -280,7 +294,8 @@ public class CloudSimulator implements ICloudSimulator {
 
             modifyCloudTagBasedOnChance(returnedTag);
             InputStream bodyStream = convertToInputStream(returnedTag);
-            String eTag = RawCloudResponse.getETag(bodyStream, false);
+            InputStream bodyStreamForDigest = convertToInputStream(returnedTag);
+            String eTag = RawCloudResponse.getETag(bodyStreamForDigest, false);
             if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
 
             cloudRateLimitStatus.useQuota(1);
@@ -315,7 +330,8 @@ public class CloudSimulator implements ICloudSimulator {
 
             modifyCloudTagBasedOnChance(returnedTag);
             InputStream bodyStream = convertToInputStream(returnedTag);
-            String eTag = RawCloudResponse.getETag(bodyStream, false);
+            InputStream bodyStreamForDigest = convertToInputStream(returnedTag);
+            String eTag = RawCloudResponse.getETag(bodyStreamForDigest, false);
             if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
 
             cloudRateLimitStatus.useQuota(1);
@@ -416,7 +432,8 @@ public class CloudSimulator implements ICloudSimulator {
 
         mutateCloudPersonList(queryResults);
         InputStream bodyStream = convertToInputStream(queryResults);
-        String eTag = RawCloudResponse.getETag(bodyStream, false);
+        InputStream bodyStreamForDigest = convertToInputStream(queryResults);
+        String eTag = RawCloudResponse.getETag(bodyStreamForDigest, false);
         if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
 
         cloudRateLimitStatus.useQuota(1);

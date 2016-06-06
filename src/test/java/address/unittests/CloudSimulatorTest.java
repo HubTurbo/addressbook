@@ -7,16 +7,21 @@ import address.sync.RawCloudResponse;
 import address.sync.model.CloudAddressBook;
 import address.sync.model.CloudPerson;
 import address.sync.model.CloudTag;
+import address.util.JsonUtil;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBException;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class CloudSimulatorTest {
@@ -44,14 +49,39 @@ public class CloudSimulatorTest {
         cloudSimulator = new CloudSimulator(cloudFileHandler, cloudRateLimitStatus, false);
 
         CloudAddressBook cloudAddressBook = getDummyAddressBook();
-        stub(cloudFileHandler.readCloudAddressBookFromFile(("Test"))).toReturn(cloudAddressBook);
+        stub(cloudFileHandler.readCloudAddressBookFromFile("Test")).toReturn(cloudAddressBook);
 
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+    }
+
+    private String convertToString(InputStream stream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        StringBuilder stringBuffer = new StringBuilder();
+        while (reader.ready()) {
+            stringBuffer.append(reader.readLine());
+        }
+
+        return stringBuffer.toString();
     }
 
     private CloudAddressBook getDummyAddressBook() {
         CloudAddressBook cloudAddressBook = new CloudAddressBook("Test");
         cloudAddressBook.getAllPersons().add(new CloudPerson("firstName", "lastName"));
+        cloudAddressBook.getAllTags().add(new CloudTag("Tag one"));
+        return cloudAddressBook;
+    }
+
+    private CloudAddressBook getBigDummyAddressBook() {
+        int personsToGenerate = 2000;
+        int tagsToGenerate = 1000;
+        CloudAddressBook cloudAddressBook = new CloudAddressBook("Big Test");
+        for (int i = 0; i < personsToGenerate; i++) {
+            cloudAddressBook.getAllPersons().add(new CloudPerson("firstName" + i, "lastName" + i));
+        }
+
+        for (int i = 0; i < tagsToGenerate; i++) {
+            cloudAddressBook.getAllTags().add(new CloudTag("Tag" + i));
+        }
         return cloudAddressBook;
     }
 
@@ -139,6 +169,7 @@ public class CloudSimulatorTest {
         List<CloudPerson> updatedPersonList = new ArrayList<>();
         updatedPersonList.add(updatedPerson);
         List<CloudTag> updatedTagList = new ArrayList<>();
+        updatedTagList.add(new CloudTag("Tag one"));
         updatedTagList.add(newTag);
         CloudAddressBook updatedAddressBook = new CloudAddressBook("Test", updatedPersonList, updatedTagList);
 
@@ -147,6 +178,74 @@ public class CloudSimulatorTest {
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedAddressBook);
         assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
         assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+    }
+
+    @Test
+    public void addTag() throws JAXBException {
+        final int apiUsage = 1;
+
+        CloudTag newTag = new CloudTag("New Tag");
+
+        CloudAddressBook updatedCloudAddressBook = getDummyAddressBook();
+        updatedCloudAddressBook.getAllTags().add(newTag);
+
+        RawCloudResponse cloudResponse = cloudSimulator.createTag("Test", newTag, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedCloudAddressBook);
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_CREATED, cloudResponse.getResponseCode());
+    }
+
+    @Test
+    public void editTag() throws JAXBException {
+        final int apiUsage = 1;
+
+        CloudTag updatedTag = new CloudTag("Updated tag");
+
+        CloudAddressBook updatedCloudAddressBook = getDummyAddressBook();
+        updatedCloudAddressBook.getAllTags().remove(new CloudTag("Tag one"));
+        updatedCloudAddressBook.getAllTags().add(updatedTag);
+
+        RawCloudResponse cloudResponse = cloudSimulator.editTag("Test", "Tag one", updatedTag, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedCloudAddressBook);
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+    }
+
+    @Test
+    public void deleteTag() throws JAXBException {
+        final int apiUsage = 1;
+
+        CloudAddressBook resultingAddressBook = getDummyAddressBook();
+        resultingAddressBook.getAllTags().remove(new CloudTag("Tag one"));
+
+        RawCloudResponse cloudResponse = cloudSimulator.deleteTag("Test", "Tag one");
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(resultingAddressBook);
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, cloudResponse.getResponseCode());
+    }
+
+    @Test
+    public void getTags() throws JAXBException, IOException {
+        final int apiUsage = 1;
+
+        CloudAddressBook bigCloudAddressBook = getBigDummyAddressBook();
+        stub(cloudFileHandler.readCloudAddressBookFromFile("Big Test")).toReturn(bigCloudAddressBook);
+
+        RawCloudResponse cloudResponse = cloudSimulator.getTags("Big Test", 11, 20, null);
+
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Big Test");
+        verify(cloudFileHandler, never()).writeCloudAddressBookToFile(bigCloudAddressBook);
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+
+        List<CloudTag> tagList = JsonUtil.fromJsonStringToList(convertToString(cloudResponse.getBody()), CloudTag.class);
+        assertEquals(20, tagList.size());
+        for (int i = 10 * 20 + 1; i <= 11 * 20; i++) {
+            assertTrue(tagList.contains(new CloudTag("Tag" + i)));
+        }
     }
 
     private CloudPerson prepareUpdatedPerson() {
