@@ -17,14 +17,12 @@ public class CloudRateLimitStatus {
         this.quotaLimit = quotaGiven;
         this.quotaRemaining = quotaGiven;
         this.quotaReset = getNextResetTime();
-        restartQuotaTimer();
     }
 
     public CloudRateLimitStatus(int quotaLimit, int quotaRemaining, long quotaReset) {
         this.quotaLimit = quotaLimit;
         this.quotaRemaining = quotaRemaining;
         this.quotaReset = quotaReset;
-        restartQuotaTimer();
     }
 
     public CloudRateLimitStatus(int quotaGiven, long quotaReset) {
@@ -60,7 +58,7 @@ public class CloudRateLimitStatus {
         restartQuotaTimer();
     }
 
-    private void restartQuotaTimer() {
+    public void restartQuotaTimer() {
         if (timer != null) {
             timer.stop();
         }

@@ -45,6 +45,7 @@ public class CloudSimulator implements ICloudSimulator {
         fileHandler = new CloudFileHandler();
         cloudRateLimitStatus = new CloudRateLimitStatus(API_QUOTA_PER_HOUR);
         this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
+        cloudRateLimitStatus.restartQuotaTimer();
     }
 
     public static ByteArrayInputStream convertToInputStream(Object object) {

@@ -45,7 +45,7 @@ public class CloudSimulatorTest {
     public void setup() throws JAXBException {
         final long resetTime = System.currentTimeMillis()/1000 + API_RESET_DELAY;
         cloudFileHandler = mock(CloudFileHandler.class);
-        cloudRateLimitStatus = spy(new CloudRateLimitStatus(STARTING_API_COUNT, resetTime));
+        cloudRateLimitStatus = new CloudRateLimitStatus(STARTING_API_COUNT, resetTime);
         cloudSimulator = new CloudSimulator(cloudFileHandler, cloudRateLimitStatus, false);
 
         CloudAddressBook cloudAddressBook = getDummyAddressBook();
@@ -142,6 +142,7 @@ public class CloudSimulatorTest {
 
     @Test
     public void updatePerson_notEnoughQuota_unsuccessfulUpdate() throws JAXBException {
+        // Use up quota
         cloudRateLimitStatus.useQuota(STARTING_API_COUNT);
 
         CloudPerson updatedPerson = prepareUpdatedPerson();
@@ -246,6 +247,35 @@ public class CloudSimulatorTest {
         for (int i = 10 * 20 + 1; i <= 11 * 20; i++) {
             assertTrue(tagList.contains(new CloudTag("Tag" + i)));
         }
+    }
+
+    @Test
+    public void getPersons() throws JAXBException, IOException {
+        final int apiUsage = 1;
+
+        CloudAddressBook bigCloudAddressBook = getBigDummyAddressBook();
+        stub(cloudFileHandler.readCloudAddressBookFromFile("Big Test")).toReturn(bigCloudAddressBook);
+
+        RawCloudResponse cloudResponse = cloudSimulator.getPersons("Big Test", 12, 30, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Big Test");
+        verify(cloudFileHandler, never()).writeCloudAddressBookToFile(bigCloudAddressBook);
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+
+        List<CloudPerson> tagList = JsonUtil.fromJsonStringToList(convertToString(cloudResponse.getBody()), CloudPerson.class);
+        assertEquals(30, tagList.size());
+        for (int i = 11 * 30 + 1; i <= 12 * 30; i++) {
+            assertTrue(tagList.contains(new CloudPerson("firstName" + i, "lastName" + i)));
+        }
+    }
+
+    @Test
+    public void getRateLimitStatus() throws JAXBException {
+        RawCloudResponse cloudResponse = cloudSimulator.getRateLimitStatus(null);
+        verify(cloudFileHandler, never()).readCloudAddressBookFromFile("Big Test");
+        verify(cloudFileHandler, never()).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
     }
 
     private CloudPerson prepareUpdatedPerson() {
