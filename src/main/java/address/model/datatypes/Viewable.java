@@ -19,7 +19,8 @@ public abstract class Viewable<D extends BaseDataType> {
 
     /**
      * Create a new Viewable based on a backing object.
-     * @param backingObject
+     * @param backingObject used as {@link #backing}.
+     * @param visibleObjectGenerator used to generate {@link #visible} with {@code backingObject} as the argument.
      */
     protected Viewable(D backingObject, Function<D, D> visibleObjectGenerator) {
         backing = backingObject;
