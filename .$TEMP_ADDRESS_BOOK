@@ -1,26 +1,102 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-
 <addressbook>
     <persons>
         <city></city>
+        <firstName>Cornelia</firstName>
+        <githubProfilePicUrl></githubProfilePicUrl>
+        <githubUserName>6</githubUserName>
+        <isDeleted>false</isDeleted>
+        <isEdited>false</isEdited>
+        <lastName>Meier</lastName>
+        <postalCode></postalCode>
+        <street></street>
+    </persons>
+    <persons>
+        <city></city>
         <firstName>Werner</firstName>
+        <githubProfilePicUrl></githubProfilePicUrl>
         <githubUserName></githubUserName>
         <isDeleted>false</isDeleted>
         <isEdited>false</isEdited>
         <lastName>Meyer</lastName>
         <postalCode></postalCode>
         <street></street>
-        <updatedAt>2016-05-31T17:48:12.303</updatedAt>
+    </persons>
+    <persons>
+        <city></city>
+        <firstName>Lydia</firstName>
+        <githubProfilePicUrl></githubProfilePicUrl>
+        <githubUserName></githubUserName>
+        <isDeleted>false</isDeleted>
+        <isEdited>false</isEdited>
+        <lastName>Kunz</lastName>
+        <postalCode></postalCode>
+        <street></street>
+    </persons>
+    <persons>
+        <city></city>
+        <firstName>Anna</firstName>
+        <githubProfilePicUrl></githubProfilePicUrl>
+        <githubUserName></githubUserName>
+        <isDeleted>false</isDeleted>
+        <isEdited>false</isEdited>
+        <lastName>Best</lastName>
+        <postalCode></postalCode>
+        <street></street>
+    </persons>
+    <persons>
+        <city></city>
+        <firstName>Ruth</firstName>
+        <githubProfilePicUrl></githubProfilePicUrl>
+        <githubUserName></githubUserName>
+        <isDeleted>false</isDeleted>
+        <isEdited>false</isEdited>
+        <lastName>Mueller</lastName>
+        <postalCode></postalCode>
+        <street></street>
+    </persons>
+    <persons>
+        <city></city>
+        <firstName>Hans</firstName>
+        <githubProfilePicUrl></githubProfilePicUrl>
+        <githubUserName></githubUserName>
+        <isDeleted>false</isDeleted>
+        <isEdited>false</isEdited>
+        <lastName>Muster</lastName>
+        <postalCode></postalCode>
+        <street></street>
+    </persons>
+    <persons>
+        <city></city>
+        <firstName>Martin</firstName>
+        <githubProfilePicUrl></githubProfilePicUrl>
+        <githubUserName></githubUserName>
+        <isDeleted>false</isDeleted>
+        <isEdited>false</isEdited>
+        <lastName>Mueller</lastName>
+        <postalCode></postalCode>
+        <street></street>
     </persons>
     <persons>
         <city></city>
         <firstName>Stefan</firstName>
+        <githubProfilePicUrl></githubProfilePicUrl>
         <githubUserName></githubUserName>
         <isDeleted>false</isDeleted>
         <isEdited>false</isEdited>
         <lastName>Meier</lastName>
         <postalCode></postalCode>
         <street></street>
-        <updatedAt>2016-05-31T17:48:12.303</updatedAt>
+    </persons>
+    <persons>
+        <city></city>
+        <firstName>Heinz</firstName>
+        <githubProfilePicUrl></githubProfilePicUrl>
+        <githubUserName></githubUserName>
+        <isDeleted>false</isDeleted>
+        <isEdited>false</isEdited>
+        <lastName>Kurz</lastName>
+        <postalCode></postalCode>
+        <street></street>
     </persons>
 </addressbook>

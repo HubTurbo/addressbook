@@ -34,6 +34,7 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     @JsonIgnore private final SimpleStringProperty postalCode;
     @JsonIgnore private final SimpleStringProperty city;
     @JsonIgnore private final SimpleStringProperty githubUserName;
+    @JsonIgnore private final SimpleStringProperty githubProfilePicUrl;
 
     @JsonIgnore private final SimpleObjectProperty<LocalDate> birthday;
     @JsonIgnore private final ObservableList<Tag> tags;
@@ -49,6 +50,7 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         postalCode = new SimpleStringProperty("");
         city = new SimpleStringProperty("");
         githubUserName = new SimpleStringProperty("");
+        githubProfilePicUrl = new SimpleStringProperty("");
 
         birthday = new SimpleObjectProperty<>();
 
@@ -102,6 +104,7 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         setPostalCode(newDataSource.getPostalCode());
         setCity(newDataSource.getCity());
         setGithubUserName(newDataSource.getGithubUserName());
+        setGithubProfilePicUrl(newDataSource.getGithubProfilePicUrl());
 
         setBirthday(newDataSource.getBirthday());
         setTags(newDataSource.getTags());
@@ -170,7 +173,23 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return "https://www.github.com/" + githubUserName.get();
     }
 
-//// STREET
+    @Override
+    public StringProperty githubProfilePicUrlProperty() {
+        return githubProfilePicUrl;
+    }
+
+    @JsonProperty("githubProfilePicUrl")
+    @Override
+    public String getGithubProfilePicUrl() {
+        return githubProfilePicUrl.get();
+    }
+
+    @Override
+    public void setGithubProfilePicUrl(String profilePicUrl) {
+        githubProfilePicUrl.set(profilePicUrl);
+    }
+
+    //// STREET
 
     @JsonProperty("street")
     @Override

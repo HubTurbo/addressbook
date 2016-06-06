@@ -26,6 +26,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.effect.BoxBlur;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -71,6 +72,11 @@ public class PersonCardController {
 
     @FXML
     public void initialize() {
+
+        if (person.getGithubProfilePicUrl().length() > 0) {
+            new Thread(() -> profileImage.setImage(new Image(person.getGithubProfilePicUrl()))).start();
+        }
+
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
         address.textProperty().bind(new StringBinding(){
@@ -125,14 +131,21 @@ public class PersonCardController {
                 }
             }
         });
+        person.githubProfilePicUrlProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (newValue.length() > 0){
+                    new Thread(() -> profileImage.setImage(new Image(person.getGithubProfilePicUrl()))).start();
+                }
+            }
+        });
+
         if (person.getIsDeleted()){
             Platform.runLater(() -> gridPane.setOpacity(0.1f));
-
         }
+
         double xyPositionAndRadius = profileImage.getFitHeight()/2.0;
-        Circle circle = new Circle(xyPositionAndRadius,xyPositionAndRadius,xyPositionAndRadius);
-        profileImage.setClip(circle);
-        FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
+        profileImage.setClip(new Circle(xyPositionAndRadius,xyPositionAndRadius,xyPositionAndRadius));
     }
 
     public void handleDeletedPerson(){

@@ -37,4 +37,6 @@ public interface WritablePerson {
      * @param tags collection of tags.
      */
     void setTags(Collection<Tag> tags);
+
+    void setGithubProfilePicUrl(String profilePicUrl);
 }

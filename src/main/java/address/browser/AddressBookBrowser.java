@@ -14,6 +14,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -82,7 +84,19 @@ public class AddressBookBrowser{
                 @Override
                 public void onFinishLoadingFrame(FinishLoadingEvent finishLoadingEvent) {
                     if (finishLoadingEvent.isMainFrame()) {
-                        automateClickingAndScrolling(finishLoadingEvent.getBrowser());
+                        automateClickingAndScrolling(browserTab);
+                        BrowserTab browserTab = (BrowserTab)finishLoadingEvent.getBrowser();
+                        DOMElement element = browserTab.getDocument().findElement(By.className("avatar rounded-2"));
+                        if (element != null) {
+                            String profilePicUrl = element.getAttribute("src");
+                            try {
+                                new URL(profilePicUrl);
+                            } catch (MalformedURLException e) {
+                                return;
+                            }
+                            filteredPersons.get(filteredPersons.indexOf(browserTab.getPerson()))
+                                                               .setGithubProfilePicUrl(profilePicUrl);
+                        }
                     }
                 }
             });

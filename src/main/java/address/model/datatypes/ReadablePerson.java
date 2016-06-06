@@ -40,4 +40,10 @@ public interface ReadablePerson {
      * @return string representation of this Person's tags
      */
     String tagsString();
+
+    /**
+     *
+     * @return string representation of this person github profile picture URL
+     */
+    String getGithubProfilePicUrl();
 }
