@@ -11,15 +11,13 @@ public interface ReadablePerson {
     String getFirstName();
     String getLastName();
     /**
-     *
-     * @return
+     * @return first-last format full name
      */
     String fullName();
 
     String getGithubUserName();
     /**
-     *
-     * @return
+     * @return github profile url
      */
     String profilePageUrl();
 
@@ -29,8 +27,7 @@ public interface ReadablePerson {
 
     LocalDate getBirthday();
     /**
-     *
-     * @return
+     * @return birthday date-formatted as string
      */
     String birthdayString();
 
@@ -40,8 +37,7 @@ public interface ReadablePerson {
      */
     List<Tag> getTags();
     /**
-     *
-     * @return
+     * @return string representation of this Person's tags
      */
     String tagsString();
 }
