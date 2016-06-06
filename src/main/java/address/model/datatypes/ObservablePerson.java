@@ -35,7 +35,6 @@ public interface ObservablePerson extends ReadablePerson {
      * Passes matching property field pairs (paired between self and another ObservablePerson) as arguments to a callback.
      * The callback is called once for each property field in the ObservabePerson class.
      *
-     * @see #forEachObservableListFieldPairWith(ObservablePerson, BiConsumer)
      * @param other the ObservablePerson whose property fields make up the second parts of the property pairs
      * @param action called for every property field: action(self:property, other:same_property)
      *               first argument is from self, second is from the "other" parameter
@@ -53,18 +52,4 @@ public interface ObservablePerson extends ReadablePerson {
         action.accept(birthdayProperty(), other.birthdayProperty());
     }
 
-    /**
-     * Same as {@link #forEachPropertyFieldPairWith(ObservablePerson, BiConsumer) forEachPropertyFieldPairWith}
-     * but for ObservableList fields instead if Property fields.
-     *
-     * @see #forEachPropertyFieldPairWith(ObservablePerson, BiConsumer)
-     * @param other see param "other" at {@link #forEachPropertyFieldPairWith(ObservablePerson, BiConsumer)
-     *              forEachPropertyFieldPairWith}
-     * @param action see param "action" at {@link #forEachPropertyFieldPairWith(ObservablePerson, BiConsumer)
-     *               forEachPropertyFieldPairWith}
-     */
-    default void forEachObservableListFieldPairWith(ObservablePerson other,
-                                                    BiConsumer<? super ObservableList, ? super ObservableList> action) {
-        action.accept(getTags(), other.getTags());
-    }
 }
