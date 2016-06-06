@@ -3,6 +3,7 @@ package address.model.datatypes;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 
 public class Tag extends BaseDataType {
@@ -29,6 +30,19 @@ public class Tag extends BaseDataType {
         return this;
     }
 
+    public static Observable[] extractObservablesFrom(Tag tag) {
+        return new Observable[] {
+                tag.name
+        };
+    }
+
+    /**
+     * Same as calling {@link #extractObservablesFrom(Tag)} with {@code this} as the argument.
+     */
+    public Observable[] extractObservables() {
+        return extractObservablesFrom(this);
+    }
+
     @JsonProperty("name")
     public String getName() {
         return name.get();
@@ -37,6 +51,7 @@ public class Tag extends BaseDataType {
     public void setName(String name) {
         this.name.set(name);
     }
+
 
     public SimpleStringProperty nameProperty() {
         return name;
