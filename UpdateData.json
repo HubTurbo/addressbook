@@ -1,60 +1,50 @@
 {
-  "updateData" : [ {
-    "version" : "V1.0.0",
-    "filesToBeUpdated" : [ {
-      "isMainApp" : true,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/addressbook/addressbook.v1.jar",
-      "os" : "ALL"
-    }, {
-      "isMainApp" : false,
-      "downloadLink" : "http://maven.teamdev.com/repository/products/com/teamdev/jxbrowser/jxbrowser-win/6.4/jxbrowser-win-6.4.jar",
-      "os" : "WINDOWS"
-    } ]
+  "version" : "V0.0.0",
+  "mainAppFilename" : "resource-V0.0.0.jar",
+  "libraries" : [ {
+    "filename" : "license.jar",
+    "os" : "ALL"
   }, {
-    "version" : "V2.0.0",
-    "filesToBeUpdated" : [ {
-      "isMainApp" : false,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/jxbrowser-mac-6.4.jar",
-      "os" : "MAC"
-    }, {
-      "isMainApp" : false,
-      "downloadLink" : "http://maven.teamdev.com/repository/products/com/teamdev/jxbrowser/jxbrowser-win/6.4/jxbrowser-linux32-6.4.jar",
-      "os" : "LINUX32"
-    }, {
-      "isMainApp" : true,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/addressbook/addressbook.v2.2.mockito.objenesis.and.hamcrest-core.jar",
-      "os" : "ALL"
-    }, {
-      "isMainApp" : false,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/addressbook/hamcrest-core-1.1.jar",
-      "os" : "ALL"
-    }, {
-      "isMainApp" : false,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/addressbook/mockito-core-1.10.19.jar",
-      "os" : "ALL"
-    }, {
-      "isMainApp" : false,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/addressbook/objenesis-2.1.jar",
-      "os" : "ALL"
-    } ]
+    "filename" : "log4j-api-2.3.jar",
+    "os" : "ALL"
   }, {
-    "version" : "V3.0.0",
-    "filesToBeUpdated" : [ {
-      "isMainApp" : false,
-      "downloadLink" : "http://maven.teamdev.com/repository/products/com/teamdev/jxbrowser/jxbrowser-win/6.4/jxbrowser-linux64-6.4.jar",
-      "os" : "LINUX64"
-    }, {
-      "isMainApp" : true,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/addressbook/addressbook.v3.w.testfx.hamscrest-all.jar",
-      "os" : "ALL"
-    }, {
-      "isMainApp" : false,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/addressbook/hamcrest-all-1.3.jar",
-      "os" : "ALL"
-    }, {
-      "isMainApp" : false,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/addressbook/testfx-core-4.0.4-alpha.jar",
-      "os" : "ALL"
-    } ]
+    "filename" : "log4j-core-2.3.jar",
+    "os" : "ALL"
+  }, {
+    "filename" : "commons-io-2.4.jar",
+    "os" : "ALL"
+  }, {
+    "filename" : "controlsfx-8.40.10.jar",
+    "os" : "ALL"
+  }, {
+    "filename" : "jackson-datatype-jsr310-2.7.4.jar",
+    "os" : "ALL"
+  }, {
+    "filename" : "guava-19.0.jar",
+    "os" : "ALL"
+  }, {
+    "filename" : "jxbrowser-win-6.4.jar",
+    "os" : "ALL"
+  }, {
+    "filename" : "jxbrowser-mac-6.4.jar",
+    "os" : "ALL"
+  }, {
+    "filename" : "jxbrowser-linux32-6.4.jar",
+    "os" : "ALL"
+  }, {
+    "filename" : "jxbrowser-linux64-6.4.jar",
+    "os" : "ALL"
+  }, {
+    "filename" : "jackson-annotations-2.7.0.jar",
+    "os" : "ALL"
+  }, {
+    "filename" : "jxbrowser-6.4.jar",
+    "os" : "ALL"
+  }, {
+    "filename" : "jackson-core-2.7.4.jar",
+    "os" : "ALL"
+  }, {
+    "filename" : "jackson-databind-2.7.4.jar",
+    "os" : "ALL"
   } ]
 }

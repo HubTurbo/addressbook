@@ -1,21 +1,40 @@
 package address.updater.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import address.util.Version;
 
 import java.util.ArrayList;
 
 /**
- * Lists file changes on each version
+ * Lists app's latest version's main app and libraries data as stored in server
  */
 public class UpdateData {
-    @JsonProperty("updateData")
-    private ArrayList<VersionDescriptor> versionFileChanges = new ArrayList<>();
+    private Version version;
+    private String mainAppFilename;
+    private ArrayList<LibraryDescriptor> libraries = new ArrayList<>();
 
-    public void setVersionFileChanges(ArrayList<VersionDescriptor> versionFileChanges) {
-        this.versionFileChanges = versionFileChanges;
+    public UpdateData() {}
+
+    public Version getVersion() {
+        return version;
     }
 
-    public ArrayList<VersionDescriptor> getAllVersionFileChanges() {
-        return versionFileChanges;
+    public void setVersion(Version version) {
+        this.version = version;
+    }
+
+    public String getMainAppFilename() {
+        return mainAppFilename;
+    }
+
+    public void setMainAppFilename(String mainAppFilename) {
+        this.mainAppFilename = mainAppFilename;
+    }
+
+    public void setLibraries(ArrayList<LibraryDescriptor> libraries) {
+        this.libraries = libraries;
+    }
+
+    public ArrayList<LibraryDescriptor> getLibraries() {
+        return libraries;
     }
 }

@@ -3,9 +3,8 @@ package address.updater;
 import address.events.EventManager;
 import address.events.UpdaterFinishedEvent;
 import address.events.UpdaterInProgressEvent;
-import address.updater.model.FileUpdateDescriptor;
+import address.updater.model.LibraryDescriptor;
 import address.updater.model.UpdateData;
-import address.updater.model.VersionDescriptor;
 import address.util.JsonUtil;
 import address.util.OsDetector;
 import address.util.FileUtil;
@@ -180,27 +179,31 @@ public class UpdateManager {
     }
 
     private Optional<Version> getLatestVersion(UpdateData updateData) {
+        /*
         ArrayList<VersionDescriptor> versionFileChanges = updateData.getAllVersionFileChanges();
 
         return versionFileChanges.stream().map(VersionDescriptor::getVersion).max(Version::compareTo);
+        */
+        return Optional.empty();
     }
 
     private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(UpdateData updateData) {
-        FileUpdateDescriptor.Os machineOs;
+        LibraryDescriptor.Os machineOs;
 
         if (OsDetector.isOnWindows()) {
-            machineOs = FileUpdateDescriptor.Os.WINDOWS;
+            machineOs = LibraryDescriptor.Os.WINDOWS;
         } else if (OsDetector.isOnMac()) {
-            machineOs = FileUpdateDescriptor.Os.MAC;
+            machineOs = LibraryDescriptor.Os.MAC;
         } else if (OsDetector.isOn32BitsLinux()) {
-            machineOs = FileUpdateDescriptor.Os.LINUX32;
+            machineOs = LibraryDescriptor.Os.LINUX32;
         } else if (OsDetector.isOn64BitsLinux()) {
-            machineOs = FileUpdateDescriptor.Os.LINUX64;
+            machineOs = LibraryDescriptor.Os.LINUX64;
         } else {
             System.out.println("UpdateManager - OS not supported for updating");
             return new HashMap<>();
         }
 
+        /*
         ArrayList<VersionDescriptor> versionFileChanges = updateData.getAllVersionFileChanges();
 
         List<VersionDescriptor> relevantVersionFileChanges = versionFileChanges.stream()
@@ -212,13 +215,15 @@ public class UpdateManager {
 
         for (VersionDescriptor versionDescriptor : relevantVersionFileChanges) {
             versionDescriptor.getFileUpdateDescriptors().stream()
-                    .filter(fileUpdateDescriptor -> fileUpdateDescriptor.getOs() == FileUpdateDescriptor.Os.ALL ||
+                    .filter(fileUpdateDescriptor -> fileUpdateDescriptor.getOs() == LibraryDescriptor.Os.ALL ||
                             fileUpdateDescriptor.getOs() == machineOs)
                     .forEach(fileUpdateDescriptor -> filesToBeDownloaded.put(fileUpdateDescriptor.getDestinationFile(),
                             fileUpdateDescriptor.getDownloadLink()));
         }
 
         return filesToBeDownloaded;
+        */
+        return new HashMap<>();
     }
 
     /**

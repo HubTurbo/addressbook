@@ -93,6 +93,19 @@ allprojects {
         testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
     }
 
+    task generateUpdateData(type: JavaExec) {
+        group = "Release"
+
+        def arguments = project.ext.mainAppArchiveName + " ";
+        arguments += configurations.runtime.files.collect { "$it.name" }.join(" ")
+
+        classpath = sourceSets.main.runtimeClasspath
+
+        main = 'installer.UpdateDataGenerator'
+
+        args arguments.split()
+    }
+
     task createJarUpdater(type: Jar) {
         group = "Release"
 
@@ -163,6 +176,7 @@ allprojects {
             java {
                 srcDir 'src/main/java/'
                 include('installer/**/*')
+                exclude('installer/UpdateDataGenerator.java')
                 include('address/util/FileUtil.java')
                 include('address/util/OsDetector.java')
                 include('address/util/ProgressAwareInputStream.java')
