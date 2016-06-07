@@ -20,10 +20,14 @@ public class FileUtil {
         return isFileExists(new File(filepath));
     }
 
+    public static boolean isDirExists(File dir) {
+        return dir.exists() && dir.isDirectory();
+    }
+
     public static boolean isDirExists(String dirpath) {
         File dir = new File(dirpath);
 
-        return dir.exists() && dir.isDirectory();
+        return isDirExists(dir);
     }
 
     /**

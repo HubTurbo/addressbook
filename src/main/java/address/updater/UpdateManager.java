@@ -226,7 +226,7 @@ public class UpdateManager {
      */
     private void downloadAllFilesToBeUpdated(File updateDir, HashMap<String, URL> filesToBeUpdated)
             throws IOException {
-        if (!updateDir.exists() || !updateDir.isDirectory()) {
+        if (!FileUtil.isDirExists(updateDir)) {
             try {
                 Files.createDirectory(updateDir.toPath());
             } catch (IOException e) {
