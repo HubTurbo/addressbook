@@ -81,7 +81,7 @@ public class CloudSimulator implements ICloudSimulator {
 
             modifyCloudPersonBasedOnChance(returnedPerson);
 
-            RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, returnedPerson, getHeaders(cloudRateLimitStatus));
+            RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_CREATED, returnedPerson, getHeaders(cloudRateLimitStatus));
             String eTag = getResponseETag(cloudResponse);
             if (eTag.equals(previousETag)) return getNotModifiedResponse();
 

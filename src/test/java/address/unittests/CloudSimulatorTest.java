@@ -152,7 +152,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void addTag() throws JAXBException {
+    public void addTag() throws JAXBException, IOException {
         final int apiUsage = 1;
 
         CloudTag newTag = new CloudTag("New Tag");
@@ -165,6 +165,8 @@ public class CloudSimulatorTest {
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedCloudAddressBook);
         assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
         assertEquals(HttpURLConnection.HTTP_CREATED, cloudResponse.getResponseCode());
+        CloudTag cloudTag = JsonUtil.fromJsonString(convertToString(cloudResponse.getBody()), CloudTag.class);
+        assertEquals(newTag, cloudTag);
     }
 
     @Test
@@ -293,6 +295,25 @@ public class CloudSimulatorTest {
         assertEquals(-1, cloudResponse.getPreviousPageNo());
         assertEquals(1, cloudResponse.getFirstPageNo());
         assertEquals((int) Math.ceil(1/resourcesPerPage), cloudResponse.getLastPageNo());
+    }
+
+    @Test
+    public void addPerson() throws JAXBException, IOException {
+        final int apiUsage = 1;
+
+        CloudAddressBook cloudAddressBook = getDummyAddressBook();
+        stub(cloudFileHandler.readCloudAddressBookFromFile("Test")).toReturn(cloudAddressBook);
+
+        CloudPerson cloudPerson = new CloudPerson("unknownName", "unknownName");
+        RawCloudResponse cloudResponse = cloudSimulator.createPerson("Test", cloudPerson, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_CREATED, cloudResponse.getResponseCode());
+
+        CloudPerson person = JsonUtil.fromJsonString(convertToString(cloudResponse.getBody()), CloudPerson.class);
+        assertEquals(cloudPerson, person);
     }
 
     private String convertToString(InputStream stream) throws IOException {
