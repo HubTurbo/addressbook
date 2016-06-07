@@ -5,60 +5,46 @@ import address.events.*;
 import address.exceptions.DuplicateDataException;
 import address.exceptions.DuplicateTagException;
 import address.exceptions.DuplicatePersonException;
-import address.model.datatypes.Person;
-import address.model.datatypes.Tag;
-import address.model.datatypes.UniqueData;
+import address.model.datatypes.*;
 import address.util.PlatformEx;
 import com.google.common.eventbus.Subscribe;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 /**
  * Represents the in-memory model of the address book data.
- * All changes to model should be synchronized.
+ * All changes to any model should be synchronized. (FX and sync thread may clash).
  */
-public class ModelManager {
+public class ModelManager implements Model, VisibleModel {
 
-    private final ObservableList<Person> personModel = FXCollections.observableArrayList();
-    private final FilteredList<Person> filteredPersonModel = new FilteredList<>(personModel);
-    private final ObservableList<Tag> tagModel = FXCollections.observableArrayList();
+    private final BackingAddressBook backingModel;
+    private final VisibleAddressBook visibleModel;
 
-    /**
-     * @param initialPersons Initial persons to populate the model.
-     * @param initialTags Initial tags to populate the model.
-     */
-    public ModelManager(List<Person> initialPersons, List<Tag> initialTags) {
+    public ModelManager(AddressBook src) {
         System.out.println("Data found.");
-        System.out.println("Persons found : " + initialPersons.size());
-        System.out.println("Tags found : " + initialTags.size());
+        System.out.println("Persons found : " + src.getPersons().size());
+        System.out.println("Tags found : " + src.getTags().size());
 
-        resetData(initialPersons, initialTags);
+        backingModel = new BackingAddressBook(src);
+        visibleModel = backingModel.createVisibleAddressBook();
 
-        //Listen to any changed to person data and raise an event
-        //Note: this will not catch edits to Person objects
-        personModel.addListener(
-                (ListChangeListener<? super Person>) (change) ->
-                        EventManager.getInstance().post(new LocalModelChangedEvent(personModel, tagModel)));
+        // update changes need to go through #updatePerson or #updateTag to trigger the LMCEvent
+        final ListChangeListener<BaseDataType> modelChangeListener = change -> {
+            while (change.next()) {
+                if (change.wasAdded() || change.wasRemoved()) {
+                    EventManager.getInstance().post(new LocalModelChangedEvent(getAllPersons(), getAllTags()));
+                    return;
+                }
+            }
+        };
+        getAllPersons().addListener(modelChangeListener);
+        getAllTags().addListener(modelChangeListener);
 
-        //Listen to any changed to tag data and raise an event
-        //Note: this will not catch edits to Tag objects
-        tagModel.addListener(
-                (ListChangeListener<? super Tag>) (change) ->
-                        EventManager.getInstance().post(new LocalModelChangedEvent(personModel, tagModel)));
-
-        //Register for general events relevant to data manager
         EventManager.getInstance().registerHandler(this);
-    }
-
-    public ModelManager(AddressBook addressBook) {
-        this(addressBook.getPersons(), addressBook.getTags());
     }
 
     public ModelManager() {
@@ -81,29 +67,56 @@ public class ModelManager {
             new Tag("relatives"),
             new Tag("friends")
         };
-        resetData(Arrays.asList(samplePersonData), Arrays.asList(sampleTagData));
+        resetData(new AddressBook(Arrays.asList(samplePersonData), Arrays.asList(sampleTagData)));
     }
 
     /**
-     * Clears existing model and replaces with the provided new data. Selection is lost.
-     * @param newPeople
+     * Clears existing backing model and replaces with the provided new data.
      */
-    public synchronized void resetData(List<Person> newPeople, List<Tag> newTags) {
-        personModel.setAll(newPeople);
-        tagModel.setAll(newTags);
-    }
-
     public void resetData(AddressBook newData) {
-        resetData(newData.getPersons(), newData.getTags());
+        backingModel.resetData(newData);
     }
 
     public void clearModel() {
-        resetData(Collections.emptyList(), Collections.emptyList());
+        backingModel.clearModel();
     }
 
-///////////////////////////////////////////////////////////////////////
-// CREATE
-///////////////////////////////////////////////////////////////////////
+//// EXPOSING MODEL
+
+    /**
+     * @return all persons in visible model
+     */
+    @Override
+    public ObservableList<ViewablePerson> getAllViewablePersons() {
+        return visibleModel.getAllViewablePersons();
+    }
+
+    /**
+     * @return all groups in visible model
+     */
+    @Override
+    public ObservableList<Tag> getAllViewableTags() {
+        return visibleModel.getAllViewableTags();
+    }
+
+    /**
+     * @return all persons in backing model
+     */
+    @Override
+    public ObservableList<Person> getAllPersons() {
+        return backingModel.getAllPersons();
+    }
+
+    /**
+     * @return all tags in backing model
+     */
+    @Override
+    public ObservableList<Tag> getAllTags() {
+        return backingModel.getAllTags();
+    }
+
+
+//// CREATE
 
     /**
      * Adds a person to the model
@@ -111,10 +124,10 @@ public class ModelManager {
      * @throws DuplicatePersonException when this operation would cause duplicates
      */
     public synchronized void addPerson(Person personToAdd) throws DuplicatePersonException {
-        if (personModel.contains(personToAdd)) {
+        if (getAllPersons().contains(personToAdd)) {
             throw new DuplicatePersonException(personToAdd);
         }
-        personModel.add(personToAdd);
+        getAllPersons().add(personToAdd);
     }
 
     /**
@@ -123,10 +136,10 @@ public class ModelManager {
      * @throws DuplicateDataException when this operation would cause duplicates
      */
     public synchronized void addPersons(Collection<Person> toAdd) throws DuplicateDataException {
-        if (!UniqueData.canCombineWithoutDuplicates(personModel, toAdd)) {
+        if (!UniqueData.canCombineWithoutDuplicates(getAllPersons(), toAdd)) {
             throw new DuplicateDataException("Adding these " + toAdd.size() + " new people");
         }
-        personModel.addAll(toAdd);
+        getAllPersons().addAll(toAdd);
     }
 
     /**
@@ -135,10 +148,10 @@ public class ModelManager {
      * @throws DuplicateTagException when this operation would cause duplicates
      */
     public synchronized void addTag(Tag tagToAdd) throws DuplicateTagException {
-        if (tagModel.contains(tagToAdd)) {
+        if (getAllTags().contains(tagToAdd)) {
             throw new DuplicateTagException(tagToAdd);
         }
-        tagModel.add(tagToAdd);
+        getAllTags().add(tagToAdd);
     }
 
     /**
@@ -147,48 +160,17 @@ public class ModelManager {
      * @throws DuplicateDataException when this operation would cause duplicates
      */
     public synchronized void addTag(Collection<Tag> toAdd) throws DuplicateDataException {
-        if (!UniqueData.canCombineWithoutDuplicates(tagModel, toAdd)) {
+        if (!UniqueData.canCombineWithoutDuplicates(getAllTags(), toAdd)) {
             throw new DuplicateDataException("Adding these " + toAdd.size() + " new tags");
         }
-        tagModel.addAll(toAdd);
+        getAllTags().addAll(toAdd);
     }
 
-///////////////////////////////////////////////////////////////////////
-// READ
-///////////////////////////////////////////////////////////////////////
+//// READ
 
-    /**
-     * @return all persons in model
-     */
-    public ObservableList<Person> getPersonsModel() {
-        return personModel;
-    }
+    // todo
 
-    /**
-     * @return persons in active filtered view
-     */
-    public ObservableList<Person> getFilteredPersons() {
-        return filteredPersonModel;
-    }
-
-    /**
-     * @return all groups in model
-     */
-    public ObservableList<Tag> getTagModel() {
-        return tagModel;
-    }
-
-    public List<Tag> getTags() {
-        return tagModel;
-    }
-
-    public List<Person> getPersons() {
-        return personModel;
-    }
-
-///////////////////////////////////////////////////////////////////////
-// UPDATE
-///////////////////////////////////////////////////////////////////////
+//// UPDATE
 
     /**
      * Updates the details of a Person object. Updates to Person objects should be
@@ -198,12 +180,11 @@ public class ModelManager {
      * @param updated The temporary Person object containing new values.
      */
     public synchronized void updatePerson(Person original, Person updated) throws DuplicatePersonException {
-        if (!(new Person(original)).equals(updated)
-                && !personModel.stream().map(Person::new).noneMatch(updated::equals)) {
+        if (!original.equals(updated) && getAllPersons().contains(updated)) {
             throw new DuplicatePersonException(updated);
         }
         original.update(updated);
-        EventManager.getInstance().post(new LocalModelChangedEvent(personModel, tagModel));
+        EventManager.getInstance().post(new LocalModelChangedEvent(getAllPersons(), getAllTags()));
     }
 
     /**
@@ -215,12 +196,11 @@ public class ModelManager {
      * @param updated The temporary Tag object containing new values.
      */
     public synchronized void updateTag(Tag original, Tag updated) throws DuplicateTagException {
-        if (!(new Tag(original)).equals(updated)
-                && !tagModel.stream().map(Tag::new).noneMatch(updated::equals)) {
+        if (!original.equals(updated) && getAllTags().contains(updated)) {
             throw new DuplicateTagException(updated);
         }
         original.update(updated);
-        EventManager.getInstance().post(new LocalModelChangedEvent(personModel, tagModel));
+        EventManager.getInstance().post(new LocalModelChangedEvent(getAllPersons(), getAllTags()));
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -233,7 +213,7 @@ public class ModelManager {
      * @return true if there was a successful removal
      */
     public synchronized boolean deletePerson(Person personToDelete){
-        return personModel.remove(personToDelete);
+        return getAllPersons().remove(personToDelete);
     }
 
     /**
@@ -242,7 +222,7 @@ public class ModelManager {
      * @return true if there was at least one successful removal
      */
     public synchronized boolean deletePersons(Collection<Person> toDelete) {
-        return personModel.removeAll(new HashSet<>(toDelete)); // O(1) .contains boosts performance
+        return getAllPersons().removeAll(new HashSet<>(toDelete));
     }
 
     /**
@@ -251,7 +231,7 @@ public class ModelManager {
      * @return true if there was a successful removal
      */
     public synchronized boolean deleteTag(Tag tagToDelete){
-        return tagModel.remove(tagToDelete);
+        return getAllTags().remove(tagToDelete);
     }
 
     /**
@@ -260,28 +240,18 @@ public class ModelManager {
      * @return true if there was at least one successful removal
      */
     public synchronized boolean deleteTags(Collection<Tag> toDelete) {
-        return tagModel.removeAll(new HashSet<>(toDelete)); // O(1) .contains boosts performance
+        return getAllTags().removeAll(new HashSet<>(toDelete)); // O(1) .contains boosts performance
     }
 
-///////////////////////////////////////////////////////////////////////
-// EVENT HANDLERS
-///////////////////////////////////////////////////////////////////////
-
-    @Subscribe
-    private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
-        filteredPersonModel.setPredicate(fce.filterExpression::satisfies);
-    }
+//// EVENT HANDLERS
 
     @Subscribe
     private void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
         // NewMirrorDataEvent is created from outside FX Application thread
         PlatformEx.runLaterAndWait(() -> updateUsingExternalData(nde.data));
-        EventManager.getInstance().post(new LocalModelSyncedFromCloudEvent(personModel, tagModel));
     }
 
-///////////////////////////////////////////////////////////////////////
-// DIFFERENTIAL UPDATE ENGINE
-///////////////////////////////////////////////////////////////////////
+//// DIFFERENTIAL UPDATE ENGINE todo shift this logic to sync component (with conditional requests to remote)
 
     /**
      * Diffs extData with the current model and updates the current model with minimal change.
@@ -289,8 +259,8 @@ public class ModelManager {
      */
     public synchronized void updateUsingExternalData(AddressBook extData) {
         assert !extData.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
-        if (diffUpdate(personModel, extData.getPersons()) || diffUpdate(tagModel, extData.getTags())) {
-            EventManager.getInstance().post(new LocalModelChangedEvent(personModel, tagModel));
+        if (diffUpdate(getAllPersons(), extData.getPersons()) || diffUpdate(getAllTags(), extData.getTags())) {
+            EventManager.getInstance().post(new LocalModelChangedEvent(getAllPersons(), getAllTags()));
         }
     }
 
@@ -319,11 +289,13 @@ public class ModelManager {
         assert UniqueData.itemsAreUnique(target) : "target of diffUpdate should not have duplicates";
         assert UniqueData.itemsAreUnique(newData) : "newData for diffUpdate should not have duplicates";
 
-        final Map<E, E> remaining = new HashMap<>(); // has to be map; sets do not allow specific retrieval
+        final Map<E, E> remaining = new HashMap<>(); // has to be map; sets do not allow elemental retrieval
         newData.forEach((item) -> remaining.put(item, item));
 
         final Set<E> toBeRemoved = new HashSet<>();
         final AtomicBoolean changed = new AtomicBoolean(false);
+
+        // handle updates to existing data objects
         target.forEach(oldItem -> {
                 final E newItem = remaining.remove(oldItem); // find matching item in unconsidered new data
                 if (newItem == null) { // not in newData
@@ -333,6 +305,7 @@ public class ModelManager {
                     changed.set(true);
                 }
             });
+
         final Set<E> toBeAdded = remaining.keySet();
 
         // .removeAll time complexity: O(n * complexity of argument's .contains call). Use a HashSet for O(n) time.
