@@ -10,22 +10,18 @@ import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 
 import javafx.beans.binding.StringBinding;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
 public class PersonCardController {
     @FXML
-    private GridPane cardPane;
+    private HBox cardPane;
     @FXML
     private ImageView profileImage;
     @FXML
@@ -153,7 +149,7 @@ public class PersonCardController {
         });
     }
 
-    public GridPane getLayout() {
+    public HBox getLayout() {
         return cardPane;
     }
 }
