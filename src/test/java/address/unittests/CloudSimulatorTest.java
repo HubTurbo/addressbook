@@ -246,7 +246,7 @@ public class CloudSimulatorTest {
 
         List<CloudTag> tagList = JsonUtil.fromJsonStringToList(convertToString(cloudResponse.getBody()), CloudTag.class);
         assertEquals(resourcesPerPage, tagList.size());
-        for (int i = (pageNumber - 1) * resourcesPerPage + 1; i <= pageNumber * resourcesPerPage; i++) {
+        for (int i = (pageNumber - 1) * resourcesPerPage; i < pageNumber * resourcesPerPage; i++) {
             assertTrue(tagList.contains(new CloudTag("Tag" + i)));
         }
     }
@@ -268,7 +268,7 @@ public class CloudSimulatorTest {
 
         List<CloudPerson> tagList = JsonUtil.fromJsonStringToList(convertToString(cloudResponse.getBody()), CloudPerson.class);
         assertEquals(resourcesPerPage, tagList.size());
-        for (int i = (pageNumber - 1) * resourcesPerPage + 1; i <= pageNumber * resourcesPerPage; i++) {
+        for (int i = (pageNumber - 1) * resourcesPerPage; i < pageNumber * resourcesPerPage; i++) {
             assertTrue(tagList.contains(new CloudPerson("firstName" + i, "lastName" + i)));
         }
     }

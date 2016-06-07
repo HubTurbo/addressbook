@@ -12,12 +12,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * This class is responsible for emulating a cloud with an API similar
+ * to a subset of GitHub's
+ *
+ * In addition, data returned by this cloud may be modified due to
+ * simulated corruption or its responses may have significant delays,
+ * if the cloud is initialized with an unreliable network parameter
+ */
 public class CloudSimulator implements ICloudSimulator {
     private static final int API_QUOTA_PER_HOUR = 5000;
     private static final Random RANDOM_GENERATOR = new Random();
@@ -48,10 +54,6 @@ public class CloudSimulator implements ICloudSimulator {
         cloudRateLimitStatus.restartQuotaTimer();
     }
 
-    private String getResponseETag(RawCloudResponse response) {
-        return response.getHeaders().get("ETag");
-    }
-
     /**
      * Attempts to create a person if quota is available
      * <p>
@@ -77,7 +79,7 @@ public class CloudSimulator implements ICloudSimulator {
 
             RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, returnedPerson, getHeaders(cloudRateLimitStatus));
             String eTag = getResponseETag(cloudResponse);
-            if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
+            if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
             cloudRateLimitStatus.useQuota(1);
             return cloudResponse;
@@ -117,7 +119,7 @@ public class CloudSimulator implements ICloudSimulator {
 
         RawCloudResponse contentResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, queryResults, getHeaders(cloudRateLimitStatus));
         String eTag = getResponseETag(contentResponse);
-        if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
+        if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
         cloudRateLimitStatus.useQuota(1);
 
@@ -156,7 +158,7 @@ public class CloudSimulator implements ICloudSimulator {
 
         RawCloudResponse contentResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, queryResults, getHeaders(cloudRateLimitStatus));
         String eTag = getResponseETag(contentResponse);
-        if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
+        if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
         cloudRateLimitStatus.useQuota(1);
 
@@ -177,7 +179,7 @@ public class CloudSimulator implements ICloudSimulator {
     public RawCloudResponse getRateLimitStatus(String previousETag) {
         RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, cloudRateLimitStatus, getHeaders(cloudRateLimitStatus));
         String eTag = getResponseETag(cloudResponse);
-        if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
+        if (eTag.equals(previousETag)) return getNotModifiedResponse();
         return cloudResponse;
     }
 
@@ -209,7 +211,7 @@ public class CloudSimulator implements ICloudSimulator {
 
             RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, resultingPerson, getHeaders(cloudRateLimitStatus));
             String eTag = getResponseETag(cloudResponse);
-            if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
+            if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
             cloudRateLimitStatus.useQuota(1);
             return cloudResponse;
@@ -274,7 +276,7 @@ public class CloudSimulator implements ICloudSimulator {
 
             RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_CREATED, returnedTag, getHeaders(cloudRateLimitStatus));
             String eTag = getResponseETag(cloudResponse);
-            if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
+            if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
             cloudRateLimitStatus.useQuota(1);
             return cloudResponse;
@@ -310,7 +312,7 @@ public class CloudSimulator implements ICloudSimulator {
 
             RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, returnedTag, getHeaders(cloudRateLimitStatus));
             String eTag = getResponseETag(cloudResponse);
-            if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
+            if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
             cloudRateLimitStatus.useQuota(1);
             return cloudResponse;
@@ -412,7 +414,7 @@ public class CloudSimulator implements ICloudSimulator {
 
         RawCloudResponse contentResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, queryResults, getHeaders(cloudRateLimitStatus));
         String eTag = getResponseETag(contentResponse);
-        if (eTag.equals(previousETag)) return getNotModifiedResponse(eTag);
+        if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
         cloudRateLimitStatus.useQuota(1);
 
@@ -420,6 +422,10 @@ public class CloudSimulator implements ICloudSimulator {
             fillInPageNumbers(pageNumber, resourcesPerPage, filteredList, contentResponse);
         }
         return contentResponse;
+    }
+
+    private String getResponseETag(RawCloudResponse response) {
+        return response.getHeaders().get("ETag");
     }
 
     private HashMap<String, String> getHeaders(CloudRateLimitStatus cloudRateLimitStatus) {
@@ -431,6 +437,7 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private <V> void fillInPageNumbers(int pageNumber, int resourcesPerPage, List<V> fullResourceList, RawCloudResponse contentResponse) {
+        pageNumber = pageNumber < 1 ? 1 : pageNumber;
         int firstPageNumber = 1;
         int lastPageNumber = getLastPageNumber(fullResourceList.size(), resourcesPerPage);
         contentResponse.setFirstPageNo(firstPageNumber);
@@ -445,24 +452,12 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private <V> List<V> getQueryResults(int pageNumber, int resourcesPerPage, List<V> fullResourceList) {
-        int startIndex = (pageNumber - 1) * resourcesPerPage + 1;
-        int endIndex = startIndex + resourcesPerPage;
-        return getResultList(fullResourceList, startIndex, endIndex);
+        int startIndex = (pageNumber - 1) * resourcesPerPage;
+        int endIndex = pageNumber * resourcesPerPage;
+        return fullResourceList.subList(startIndex, endIndex);
     }
 
-    private <V> List<V> getResultList(List<V> fullResourceList, int startingIndex, int endingIndex) {
-        int totalResources = fullResourceList.size();
-        if (startingIndex >= totalResources) return new ArrayList<>();
-        if (endingIndex <= 0) return new ArrayList<>();
-
-        if (endingIndex > totalResources) {
-            endingIndex = totalResources;
-        }
-
-        return fullResourceList.subList(startingIndex, endingIndex);
-    }
-
-    private RawCloudResponse getNotModifiedResponse(String eTag) {
+    private RawCloudResponse getNotModifiedResponse() {
         return new RawCloudResponse(HttpURLConnection.HTTP_NOT_MODIFIED, null, getHeaders(cloudRateLimitStatus));
     }
 
@@ -474,13 +469,6 @@ public class CloudSimulator implements ICloudSimulator {
         return personList.stream()
                 .filter(person -> !person.getLastUpdatedAt().isBefore(time))
                 .collect(Collectors.toList());
-    }
-
-
-    private ZoneOffset getSystemTimezone() {
-        LocalDateTime localDateTime = LocalDateTime.now();
-        ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneOffset.systemDefault());
-        return zonedDateTime.getOffset();
     }
 
     private boolean shouldSimulateNetworkFailure() {
@@ -511,7 +499,7 @@ public class CloudSimulator implements ICloudSimulator {
 
     private boolean isExistingTag(List<CloudTag> tagList, CloudTag targetTag) {
         return tagList.stream()
-                .filter(tag -> !targetTag.getName().equals(targetTag.getName()))
+                .filter(tag -> tag.getName().equals(targetTag.getName()))
                 .findAny()
                 .isPresent();
     }
@@ -578,12 +566,12 @@ public class CloudSimulator implements ICloudSimulator {
 
     private void modifyCloudPersonList(List<CloudPerson> cloudPersonList) {
         cloudPersonList.stream()
-                .forEach(cloudPerson -> modifyCloudPersonBasedOnChance(cloudPerson));
+                .forEach(this::modifyCloudPersonBasedOnChance);
     }
 
     private void modifyCloudTagListBasedOnChance(List<CloudTag> cloudTagList) {
         cloudTagList.stream()
-                .forEach(cloudTag -> modifyCloudTagBasedOnChance(cloudTag));
+                .forEach(this::modifyCloudTagBasedOnChance);
     }
 
     private void addCloudPersonsBasedOnChance(List<CloudPerson> personList) {

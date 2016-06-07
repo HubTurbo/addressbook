@@ -19,8 +19,7 @@ public class CloudFileHandler {
         File cloudFile = getCloudDataFilePath(addressBookName);
         System.out.println("Reading from cloudFile: " + cloudFile.canRead());
         try {
-            CloudAddressBook cloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
-            return cloudAddressBook;
+            return XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
         } catch (FileNotFoundException | DataConversionException e) {
             System.out.println("Error reading from cloud file.");
             throw e;
@@ -41,10 +40,9 @@ public class CloudFileHandler {
 
     public void createCloudAddressBookFile(String addressBookName) throws IOException, DataConversionException {
         File cloudFile = getCloudDataFilePath(addressBookName);
-        if (cloudFile.exists()) {
+        if (cloudFile.exists() || !cloudFile.createNewFile()) {
             throw new IllegalArgumentException("AddressBook '" + addressBookName + "' already exists!");
         }
-        cloudFile.createNewFile();
         writeCloudAddressBookToFile(new CloudAddressBook(addressBookName));
     }
 }
