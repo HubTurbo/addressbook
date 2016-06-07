@@ -53,7 +53,7 @@ public class Installer extends Application {
     }
 
     private void showWaitingWindow(Stage stage) {
-        stage.setTitle("Initializing.");
+        stage.setTitle("Initializing");
         VBox windowMainLayout = new VBox();
         Group root = new Group();
         Scene scene = new Scene(root);
