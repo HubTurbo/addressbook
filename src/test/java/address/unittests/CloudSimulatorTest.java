@@ -78,6 +78,23 @@ public class CloudSimulatorTest {
     }
 
     @Test
+    public void createAddressBook_sameName_unsuccessfulCreation() throws IOException, JAXBException {
+        final int apiUsage = 1;
+
+        RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
+        verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_CREATED, cloudResponse.getResponseCode());
+
+        doThrow(new IllegalArgumentException("AddressBook 'Test' already exists!")).when(cloudFileHandler).createCloudAddressBookFile("Test");
+
+        RawCloudResponse cloudResponse2 = cloudSimulator.createAddressBook("Test");
+        verify(cloudFileHandler, times(2)).createCloudAddressBookFile("Test");
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse2.getResponseCode());
+    }
+
+    @Test
     public void deletePerson_enoughQuota_successfulDeletion() throws IOException, JAXBException {
         final int apiUsage = 1;
 
@@ -253,6 +270,29 @@ public class CloudSimulatorTest {
 
         assertEquals(1, cloudResponse.getFirstPageNo());
         assertEquals((int) Math.ceil(2000/resourcesPerPage), cloudResponse.getLastPageNo());
+    }
+
+    @Test
+    public void getPersons_sameRequest_notModifiedResponse() throws JAXBException {
+        final int apiUsage = 1;
+        final int pageNumber = 12;
+        final int resourcesPerPage = 30;
+
+        CloudAddressBook bigCloudAddressBook = getBigDummyAddressBook();
+        stub(cloudFileHandler.readCloudAddressBookFromFile("Big Test")).toReturn(bigCloudAddressBook).toReturn(bigCloudAddressBook);
+
+        RawCloudResponse cloudResponse = cloudSimulator.getPersons("Big Test", pageNumber, resourcesPerPage, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Big Test");
+        verify(cloudFileHandler, never()).writeCloudAddressBookToFile(bigCloudAddressBook);
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+
+        String responseETag = cloudResponse.getHeaders().get("ETag");
+        RawCloudResponse cloudResponse2 = cloudSimulator.getPersons("Big Test", pageNumber, resourcesPerPage, responseETag);
+        verify(cloudFileHandler, times(2)).readCloudAddressBookFromFile("Big Test");
+        verify(cloudFileHandler, never()).writeCloudAddressBookToFile(bigCloudAddressBook);
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, cloudResponse2.getResponseCode());
     }
 
     @Test
