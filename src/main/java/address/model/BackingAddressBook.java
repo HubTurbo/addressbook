@@ -10,7 +10,7 @@ import javafx.collections.ObservableList;
 /**
  *
  */
-class BackingAddressBook {
+class BackingAddressBook implements Model {
 
     private final ObservableList<Person> allPersons;
     private final ObservableList<Tag> allTags;
@@ -21,25 +21,42 @@ class BackingAddressBook {
     }
 
     BackingAddressBook(AddressBook src) {
-        allPersons.setAll(src.getPersons());
-        allTags.setAll(src.getTags());
+        resetData(src);
     }
 
-    VisibleAddressBook createVisibleAddressBook() {
+    public VisibleAddressBook createVisibleAddressBook() {
         return new VisibleAddressBook(this);
     }
 
-    AddressBook toAddressBook() {
+    public AddressBook toAddressBook() {
         return new AddressBook(allPersons, allTags);
     }
 
-    ObservableList<Person> getAllPersons() {
+    @Override
+    public ObservableList<Person> getAllPersons() {
         return allPersons;
     }
 
-    ObservableList<Tag> getAllTags() {
+    @Override
+    public ObservableList<Tag> getAllTags() {
         return allTags;
     }
 
+
+    /**
+     * Clears existing model and replaces with the provided new data.
+     */
+    void resetData(AddressBook newData) {
+        allPersons.setAll(newData.getPersons());
+        allTags.setAll(newData.getTags());
+    }
+
+    /**
+     * Clears existing model. Same effect as calling {@link #resetData(AddressBook)} with an empty {@code Addressbook}
+     */
+    void clearModel() {
+        allPersons.clear();
+        allTags.clear();
+    }
 
 }

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-class VisibleAddressBook {
+class VisibleAddressBook implements VisibleModel {
 
     private final BackingAddressBook backingModel;
 
@@ -51,11 +51,11 @@ class VisibleAddressBook {
         });
     }
 
-    ObservableList<ViewablePerson> getAllPersons() {
+    public ObservableList<ViewablePerson> getAllViewablePersons() {
         return allPersons;
     }
 
-    ObservableList<Tag> getAllTags() {
+    public ObservableList<Tag> getAllViewableTags() {
         return allTags;
     }
 
