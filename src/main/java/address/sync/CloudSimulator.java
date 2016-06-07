@@ -181,7 +181,7 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse getRateLimitStatus(String previousETag) {
-        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, cloudRateLimitStatus, getHeaders(cloudRateLimitStatus));
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, getHeaders(cloudRateLimitStatus), getHeaders(cloudRateLimitStatus));
         String eTag = getResponseETag(cloudResponse);
         if (eTag.equals(previousETag)) return getNotModifiedResponse();
         return cloudResponse;

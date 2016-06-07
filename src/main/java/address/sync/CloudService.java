@@ -309,15 +309,25 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<CloudRateLimitStatus> getLimitStatus() throws IOException {
+    public ExtractedCloudResponse<HashMap<String, String>> getLimitStatus() throws IOException {
         RawCloudResponse cloudResponse = cloud.getRateLimitStatus(null);
         HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
+        HashMap<String, String> bodyHashMap = getHashMapFromBody(cloudResponse.getBody());
+        HashMap<String, String> simplifiedHashMap = simplifyHashMap(bodyHashMap);
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
         }
         return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
-                                            getRateResetFromHeader(headerHashMap), null);
+                                            getRateResetFromHeader(headerHashMap), simplifiedHashMap);
+    }
+
+    private HashMap<String, String> simplifyHashMap(HashMap<String, String> bodyHashMap) {
+        HashMap<String, String> simplifiedHashMap = new HashMap<>();
+        simplifiedHashMap.put("Limit", bodyHashMap.get("X-RateLimit-Limit"));
+        simplifiedHashMap.put("Remaining", bodyHashMap.get("X-RateLimit-Remaining"));
+        simplifiedHashMap.put("Reset", bodyHashMap.get("X-RateLimit-Reset"));
+        return simplifiedHashMap;
     }
 
     /**
@@ -385,15 +395,15 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Parses the JSON-formatted stream and attempts to get the header in HashMap<String, Long> form
+     * Parses the JSON-formatted stream and attempts to get the header in HashMap<String, String> form
      *
      * @param headerStream
      * @return
      * @throws IOException
      */
-    private HashMap<String, Long> getHashMapFromHeader(InputStream headerStream) throws IOException {
+    private HashMap<String, String> getHashMapFromBody(InputStream headerStream) throws IOException {
         return JsonUtil.fromJsonStringToHashMap(
-                convertToString(headerStream), String.class, Long.class);
+                convertToString(headerStream), String.class, String.class);
     }
 
     private int getRateLimitFromHeader(HashMap<String, String> header) {
