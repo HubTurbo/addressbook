@@ -157,4 +157,64 @@ public class CloudServiceTest {
         assertEquals(tag, serviceResponse.getData().get());
         assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
     }
+
+    @Test
+    public void getTags() throws IOException {
+        int quotaLimit = 10;
+        int quotaRemaining = 9;
+
+        List<CloudTag> tagList = new ArrayList<>();
+        tagList.add(new CloudTag("tagName"));
+
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, tagList, header);
+        when(cloudSimulator.getTags(anyString(), anyInt(), anyInt(), isNull(String.class))).thenReturn(cloudResponse);
+
+        ExtractedCloudResponse<List<Tag>> serviceResponse = cloudService.getTags("Test");
+
+        assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
+        assertTrue(serviceResponse.getData().isPresent());
+        assertEquals(1, serviceResponse.getData().get().size());
+        assertEquals("tagName", serviceResponse.getData().get().get(0).getName());
+        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    @Test
+    public void updatePerson() throws IOException {
+        int quotaLimit = 10;
+        int quotaRemaining = 9;
+
+        CloudPerson cloudPerson = new CloudPerson("newFirstName", "newLastName");
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, cloudPerson, header);
+        when(cloudSimulator.updatePerson(anyString(), anyString(), anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(cloudResponse);
+
+        Person updatedPerson = new Person("newFirstName", "newLastName");
+        ExtractedCloudResponse<Person> serviceResponse = cloudService.updatePerson("Test", "firstName", "lastName", updatedPerson);
+
+        assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
+        assertTrue(serviceResponse.getData().isPresent());
+        assertEquals("newFirstName", serviceResponse.getData().get().getFirstName());
+        assertEquals("newLastName", serviceResponse.getData().get().getLastName());
+        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    @Test
+    public void editTag() throws IOException {
+        int quotaLimit = 10;
+        int quotaRemaining = 9;
+
+        CloudTag cloudTag = new CloudTag("newTagName");
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, cloudTag, header);
+        when(cloudSimulator.editTag(anyString(), anyString(), any(CloudTag.class), isNull(String.class))).thenReturn(cloudResponse);
+
+        Tag updatedTag = new Tag("newTagName");
+        ExtractedCloudResponse<Tag> serviceResponse = cloudService.editTag("Test", "tagName", updatedTag);
+
+        assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
+        assertTrue(serviceResponse.getData().isPresent());
+        assertEquals("newTagName", serviceResponse.getData().get().getName());
+        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
 }
