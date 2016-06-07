@@ -1,11 +1,13 @@
 package address.unittests;
 
 import address.model.datatypes.Person;
+import address.model.datatypes.Tag;
 import address.sync.CloudService;
 import address.sync.CloudSimulator;
 import address.sync.ExtractedCloudResponse;
 import address.sync.RawCloudResponse;
 import address.sync.model.CloudPerson;
+import address.sync.model.CloudTag;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,9 +22,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +59,7 @@ public class CloudServiceTest {
         List<CloudPerson> personsToReturn = new ArrayList<>();
         personsToReturn.add(new CloudPerson("firstName", "lastName"));
 
-        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, LocalDateTime.now().toEpochSecond(getSystemTimezone()) + 30000);
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
         RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, personsToReturn, header);
         when(cloudSimulator.getPersons("Test", 1, RESOURCES_PER_PAGE, null)).thenReturn(cloudResponse);
 
@@ -81,7 +81,7 @@ public class CloudServiceTest {
             personsToReturn.add(new CloudPerson("firstName" + i, "lastName" + i));
         }
 
-        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, LocalDateTime.now().toEpochSecond(getSystemTimezone()) + 30000);
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
         when(cloudSimulator.getPersons(anyString(), anyInt(), anyInt(), anyObject())).thenAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             String addressBookName = (String) args[0];
@@ -105,6 +105,7 @@ public class CloudServiceTest {
 
 
         ExtractedCloudResponse<List<Person>> serviceResponse = cloudService.getPersons("Test");
+        assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
         assertTrue(serviceResponse.getData().isPresent());
         assertEquals(noOfPersons, serviceResponse.getData().get().size());
 
@@ -112,6 +113,48 @@ public class CloudServiceTest {
             assertEquals("firstName" + i, serviceResponse.getData().get().get(i).getFirstName());
             assertEquals("lastName" + i, serviceResponse.getData().get().get(i).getLastName());
         }
+        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    private long getResetTime() {
+        return LocalDateTime.now().toEpochSecond(getSystemTimezone()) + 30000;
+    }
+
+    @Test
+    public void createPerson() throws IOException {
+        int quotaLimit = 10;
+        int quotaRemaining = 9;
+
+        CloudPerson cloudPerson = new CloudPerson("unknownName", "unknownName");
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_CREATED, cloudPerson, header);
+        when(cloudSimulator.createPerson(anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(cloudResponse);
+
+        Person person = new Person("unknownName", "unknownName");
+
+        ExtractedCloudResponse<Person> serviceResponse = cloudService.createPerson("Test", person);
+        assertEquals(HttpURLConnection.HTTP_CREATED, serviceResponse.getResponseCode());
+        assertTrue(serviceResponse.getData().isPresent());
+        assertEquals(person, serviceResponse.getData().get());
+        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    @Test
+    public void createTag() throws IOException {
+        int quotaLimit = 10;
+        int quotaRemaining = 9;
+
+        CloudTag cloudTag = new CloudTag("New Tag");
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_CREATED, cloudTag, header);
+        when(cloudSimulator.createTag(anyString(), any(CloudTag.class), isNull(String.class))).thenReturn(cloudResponse);
+
+        Tag tag = new Tag("New Tag");
+
+        ExtractedCloudResponse<Tag> serviceResponse = cloudService.createTag("Test", tag);
+        assertEquals(HttpURLConnection.HTTP_CREATED, serviceResponse.getResponseCode());
+        assertTrue(serviceResponse.getData().isPresent());
+        assertEquals(tag, serviceResponse.getData().get());
         assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
     }
 }
