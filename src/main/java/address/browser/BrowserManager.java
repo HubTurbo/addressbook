@@ -2,7 +2,7 @@ package address.browser;
 
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
-import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.Person;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -11,6 +11,7 @@ import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
 
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.control.TabPane;
 
 import java.util.List;
@@ -22,24 +23,35 @@ import java.util.logging.Level;
  */
 public class BrowserManager {
 
-    public static final int NUMBER_OF_PRELOADED_PAGES = 3;
+
+    public static final int NUMBER_OF_PRELOADED_PAGE = 3;
     public static final int PERSON_NOT_FOUND = -1;
 
     private Optional<AddressBookBrowser> browser;
 
-    private ObservableList<ReadOnlyViewablePerson> persons;
+    private ObservableList<Person> filteredPersons;
 
-    public BrowserManager(ObservableList<ReadOnlyViewablePerson> persons) {
-        this.persons = persons;
+    public AddressBookPagePool addressBookPagePool;
+    
+    public BrowserManager(ObservableList<Person> filteredPersons) {
+        this.filteredPersons = filteredPersons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
             browser = Optional.empty();
             return;
         }
-        browser = Optional.of(new AddressBookBrowser(NUMBER_OF_PRELOADED_PAGES, this.persons));
-        browser.get().registerListeners();
+        //browser = Optional.of(new AddressBookBrowser(NUMBER_OF_PRELOADED_PAGE, this.filteredPersons));
+        //browser.get().registerListeners();
         EventManager.getInstance().registerHandler(this);
+
+        addressBookPagePool = new AddressBookPagePool(NUMBER_OF_PRELOADED_PAGE);
+
     }
+
+
+
+
+
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent event){
@@ -48,20 +60,20 @@ public class BrowserManager {
             return;
         }
 
-        updateBrowserContent();
+        //updateBrowserContent();
     }
 
     /**
      * Updates the browser contents.
      */
     private void updateBrowserContent() {
-        List<ReadOnlyViewablePerson> personsInBrowserCache = browser.get().getPersonsLoadedInCache();
+        List<Person> personsInBrowserCache = browser.get().getPersonsLoadedInCache();
         personsInBrowserCache.stream().forEach(person -> {
-                if (persons.indexOf(person) == PERSON_NOT_FOUND){
+                if (filteredPersons.indexOf(person) == PERSON_NOT_FOUND){
                     browser.get().unloadProfilePage(person);
                 } else {
-                    int indexOfContact = persons.indexOf(person);
-                    ReadOnlyViewablePerson updatedPerson = persons.get(indexOfContact);
+                    int indexOfContact = filteredPersons.indexOf(person);
+                    Person updatedPerson = filteredPersons.get(indexOfContact);
 
                     if (!updatedPerson.getGithubUserName().equals(person.getGithubUserName())){
                         browser.get().unloadProfilePage(person);
@@ -82,9 +94,12 @@ public class BrowserManager {
      * Loads the person's profile page to the browser.
      * PreCondition: filteredModelPersons.size() >= 1
      */
-    public void loadProfilePage(ReadOnlyViewablePerson person){
+    public void loadProfilePage(Person person) {
         if (!browser.isPresent()) return;
-        browser.get().loadProfilePage(person);
+        //browser.get().loadProfilePage(person);
+
+        EmbeddedBrowser browserView = addressBookPagePool.loadPersonPage(person);
+        //Inject view into BrowserView placeholder.
     }
 
     /**
@@ -92,7 +107,8 @@ public class BrowserManager {
      */
     public Optional<TabPane> getBrowserView() {
         if (!browser.isPresent()) return Optional.empty();
-        return Optional.ofNullable(browser.get().getAddressBookBrowserView());
+        //return Optional.ofNullable(browser.get().getAddressBookBrowserView());
+        return Optional.ofNullable()
     }
 
     /**

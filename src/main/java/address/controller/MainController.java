@@ -390,7 +390,7 @@ public class MainController {
     public void showPersonWebPage() {
         SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
         Optional<TabPane> browserView = browserManager.getBrowserView();
-        if (!browserView.isPresent()) return;
+        //if (!browserView.isPresent()) return;
         pane.getItems().add(browserView.get());
     }
 
