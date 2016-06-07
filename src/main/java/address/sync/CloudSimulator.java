@@ -18,11 +18,15 @@ import java.util.stream.Collectors;
 
 /**
  * This class is responsible for emulating a cloud with an API similar
- * to a subset of GitHub's
+ * to a subset of GitHub's, together with a given hourly API quota.
+ *
+ * Requests for a full list of objects should be done in pages. Responses
+ * will include first page/prev page/next page/last page if they exist.
  *
  * In addition, data returned by this cloud may be modified due to
  * simulated corruption or its responses may have significant delays,
  * if the cloud is initialized with an unreliable network parameter
+ *
  */
 public class CloudSimulator implements ICloudSimulator {
     private static final int API_QUOTA_PER_HOUR = 5000;
@@ -293,7 +297,7 @@ public class CloudSimulator implements ICloudSimulator {
      * Consumes 1 API usage
      *
      * @param addressBookName
-     * @param oldTagName
+     * @param oldTagName        should match a existing tag's name
      * @param updatedTag
      * @return
      */
@@ -330,7 +334,7 @@ public class CloudSimulator implements ICloudSimulator {
      * Consumes 1 API usage
      *
      * @param addressBookName
-     * @param tagName
+     * @param tagName           should match an existing tag's name
      * @return
      */
     @Override
@@ -436,6 +440,20 @@ public class CloudSimulator implements ICloudSimulator {
         return headers;
     }
 
+    /**
+     * Fills in the page index details for a cloud response
+     *
+     * If pageNumber is non-positive, results for pageNumber = 1 will be returned.
+     *
+     * Previous page and next page will be -1 if pageNumber is not between the first
+     * page and last page.
+     *
+     * @param pageNumber
+     * @param resourcesPerPage
+     * @param fullResourceList
+     * @param contentResponse
+     * @param <V>
+     */
     private <V> void fillInPageNumbers(int pageNumber, int resourcesPerPage, List<V> fullResourceList, RawCloudResponse contentResponse) {
         pageNumber = pageNumber < 1 ? 1 : pageNumber;
         int firstPageNumber = 1;

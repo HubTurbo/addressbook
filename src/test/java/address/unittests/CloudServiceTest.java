@@ -93,13 +93,12 @@ public class CloudServiceTest {
 
             RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, personsToReturn.subList(startIndex, endIndex), header);
 
-            pageNumber = (pageNumber < 1 ? 1 : pageNumber);
-            int totalPages = (int) Math.ceil(noOfPersons/RESOURCES_PER_PAGE);
-            if (totalPages < 1 || pageNumber > totalPages) return cloudResponse;
-            if (pageNumber < totalPages) cloudResponse.setNextPageNo(pageNumber + 1);
-            if (pageNumber > 1) cloudResponse.setPreviousPageNo(pageNumber - 1);
+            pageNumber = pageNumber < 1 ? 1 : pageNumber;
+            int lastPage = (int) Math.ceil(noOfPersons/RESOURCES_PER_PAGE);
             cloudResponse.setFirstPageNo(1);
-            cloudResponse.setLastPageNo(totalPages);
+            cloudResponse.setLastPageNo(lastPage);
+            if (pageNumber < lastPage) cloudResponse.setNextPageNo(pageNumber + 1);
+            if (pageNumber > 1) cloudResponse.setPreviousPageNo(pageNumber - 1);
 
             return cloudResponse;
         });
