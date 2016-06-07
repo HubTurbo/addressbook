@@ -143,4 +143,24 @@ public class ViewablePerson extends Viewable<Person> implements ObservableViewab
         return visible.tagsString();
     }
 
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (other == null) return false;
+        if (!ViewablePerson.class.isAssignableFrom(other.getClass())) return false;
+
+        final ViewablePerson otherPerson = (ViewablePerson) other;
+        return backing.equals(otherPerson.backing);
+    }
+
+    @Override
+    public int hashCode() {
+        return backing.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return visible.toString();
+    }
 }

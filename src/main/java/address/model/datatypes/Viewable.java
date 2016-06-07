@@ -13,7 +13,7 @@ import java.util.function.Function;
  *      - common fields/references and constructor logic
  *      - maintains visible state separately from canonical state (see {@link #visible}, {@link #backing})
  */
-public abstract class Viewable<D extends BaseDataType> {
+public abstract class Viewable<D extends BaseDataType> extends UniqueData {
 
     protected final D visible;
     protected D backing;
