@@ -472,6 +472,9 @@ public class CloudSimulator implements ICloudSimulator {
     private <V> List<V> getQueryResults(int pageNumber, int resourcesPerPage, List<V> fullResourceList) {
         int startIndex = (pageNumber - 1) * resourcesPerPage;
         int endIndex = pageNumber * resourcesPerPage;
+        if (endIndex > fullResourceList.size()) {
+            endIndex = fullResourceList.size();
+        }
         return fullResourceList.subList(startIndex, endIndex);
     }
 
