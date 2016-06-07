@@ -2,10 +2,7 @@ package address.controller;
 
 import address.MainApp;
 import address.events.*;
-import address.util.Config;
-import address.util.DateTimeUtil;
-import address.util.FxViewUtil;
-import address.util.TickingTimer;
+import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -62,13 +59,13 @@ public class StatusBarFooterController {
     }
 
     @Subscribe
-    public void handleSyncingInProgressEvent(SyncInProgressEvent e) {
-        Platform.runLater(() -> syncStatusBar.setText(e.toString()));
+    public void handleSyncingInProgressEvent(SyncInProgressEvent sipe) {
+        Platform.runLater(() -> syncStatusBar.setText(sipe.toString()));
     }
 
     @Subscribe
-    public void handleSyncCompletedEvent(SyncCompletedEvent e) {
-        Platform.runLater(() -> syncStatusBar.setText(e.toString()));
+    public void handleSyncCompletedEvent(SyncCompletedEvent sce) {
+        Platform.runLater(() -> syncStatusBar.setText(sce.toString()));
         if (timer.isStarted()) {
             timer.restart();
             timer.resume();
@@ -78,28 +75,22 @@ public class StatusBarFooterController {
     }
 
     @Subscribe
-    public void handleUpdaterInProgressEvent(UpdaterInProgressEvent e) {
+    public void handleUpdaterInProgressEvent(UpdaterInProgressEvent uipe) {
         Platform.runLater(() -> {
-            updaterStatusBar.setText(e.toString());
-            updaterStatusBar.setProgress(e.getProgress());
+            updaterStatusBar.setText(uipe.toString());
+            updaterStatusBar.setProgress(uipe.getProgress());
         });
     }
 
     @Subscribe
-    public void handleUpdaterCompletedEvent(UpdaterFinishedEvent e) {
-
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException exception) {
-            exception.printStackTrace();
-        }
-
+    public void handleUpdaterCompletedEvent(UpdaterFinishedEvent ufe) {
         Platform.runLater(() -> {
-            updaterStatusBar.setText(e.toString());
+            updaterStatusBar.setText(ufe.toString());
             updaterStatusBar.setProgress(0.0);
 
-            Label versionLabel = new Label(String.format("V%d.%d.%d", MainApp.VERSION_MAJOR, MainApp.VERSION_MINOR,
-                    MainApp.VERSION_PATCH));
+            // TODO make it wait for a while before showing version so update status can be read
+
+            Label versionLabel = new Label(Version.getCurrentVersion().toString());
             versionLabel.setTextAlignment(TextAlignment.RIGHT);
             updaterStatusBar.setText("");
             updaterStatusBar.getRightItems().add(versionLabel);
