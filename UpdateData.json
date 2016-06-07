@@ -7,7 +7,7 @@
       "os" : "ALL"
     }, {
       "isMainApp" : false,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/jxbrowser-win-6.4.jar",
+      "downloadLink" : "http://maven.teamdev.com/repository/products/com/teamdev/jxbrowser/jxbrowser-win/6.4/jxbrowser-win-6.4.jar",
       "os" : "WINDOWS"
     } ]
   }, {
@@ -18,7 +18,7 @@
       "os" : "MAC"
     }, {
       "isMainApp" : false,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/jxbrowser-lin32-6.4.jar",
+      "downloadLink" : "http://maven.teamdev.com/repository/products/com/teamdev/jxbrowser/jxbrowser-win/6.4/jxbrowser-linux32-6.4.jar",
       "os" : "LINUX32"
     }, {
       "isMainApp" : true,
@@ -41,7 +41,7 @@
     "version" : "V3.0.0",
     "filesToBeUpdated" : [ {
       "isMainApp" : false,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/jxbrowser-lin64-6.4.jar",
+      "downloadLink" : "http://maven.teamdev.com/repository/products/com/teamdev/jxbrowser/jxbrowser-win/6.4/jxbrowser-linux64-6.4.jar",
       "os" : "LINUX64"
     }, {
       "isMainApp" : true,
