@@ -1,23 +1,12 @@
 package address.controller;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 
 
 import address.model.datatypes.Person;
 
-import address.events.EventManager;
-import address.events.SyncCompletedEvent;
-
-import address.status.PersonDeletedStatus;
-import address.ui.PersonListViewCell;
-import address.util.FxViewUtil;
-import com.google.common.eventbus.Subscribe;
 import javafx.animation.FadeTransition;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 
 import javafx.beans.binding.StringBinding;
 import javafx.beans.value.ChangeListener;
@@ -25,13 +14,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
-import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
@@ -67,15 +54,21 @@ public class PersonCardController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        EventManager.getInstance().registerHandler(this);
     }
 
     @FXML
     public void initialize() {
 
         if (person.getGithubProfilePicUrl().length() > 0) {
-            new Thread(() -> profileImage.setImage(new Image(person.getGithubProfilePicUrl()))).start();
+            setProfileImage();
         }
+
+        if (person.getIsDeleted()){
+            Platform.runLater(() -> gridPane.setOpacity(0.1f));
+        }
+
+        double xyPositionAndRadius = profileImage.getFitHeight()/2.0;
+        profileImage.setClip(new Circle(xyPositionAndRadius,xyPositionAndRadius,xyPositionAndRadius));
 
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
@@ -135,21 +128,21 @@ public class PersonCardController {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if (newValue.length() > 0){
-                    new Thread(() -> profileImage.setImage(new Image(person.getGithubProfilePicUrl()))).start();
+                    setProfileImage();
                 }
             }
         });
+    }
 
-        if (person.getIsDeleted()){
-            Platform.runLater(() -> gridPane.setOpacity(0.1f));
-        }
-
-        double xyPositionAndRadius = profileImage.getFitHeight()/2.0;
-        profileImage.setClip(new Circle(xyPositionAndRadius,xyPositionAndRadius,xyPositionAndRadius));
+    /**
+     * Asynchronously sets the profile image to the image view.
+     * Involves making an internet connection with the image hosting server.
+     */
+    private void setProfileImage() {
+        new Thread(() -> profileImage.setImage(new Image(person.getGithubProfilePicUrl()))).start();
     }
 
     public void handleDeletedPerson(){
-
         Platform.runLater(() -> {
             FadeTransition ft = new FadeTransition(Duration.millis(1000), gridPane);
             ft.setFromValue(1.0);
@@ -161,17 +154,5 @@ public class PersonCardController {
 
     public AnchorPane getLayout() {
         return cardPane;
-    }
-
-    @Subscribe
-    public void handlePersonDeletedStatus(PersonDeletedStatus e){
-        if (e.getPerson().equals(this.person)){
-            FadeTransition ft = new FadeTransition(Duration.millis(3000), gridPane);
-            ft.setFromValue(1.0);
-            ft.setToValue(0.1);
-            ft.setCycleCount(1);
-            ft.play();
-
-        }
     }
 }
