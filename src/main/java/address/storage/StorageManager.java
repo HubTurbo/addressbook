@@ -1,18 +1,16 @@
 package address.storage;
 
 import address.events.*;
+import address.exceptions.DataConversionException;
 import address.exceptions.FileContainsDuplicatesException;
 import address.main.ComponentManager;
 import address.model.AddressBook;
-import address.model.datatypes.Tag;
 import address.model.ModelManager;
-import address.model.datatypes.Person;
 import address.prefs.PrefsManager;
 import com.google.common.eventbus.Subscribe;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.util.List;
+import java.io.FileNotFoundException;
 
 /**
  * Manages storage of addressbook data in local disk.
@@ -33,17 +31,16 @@ public class StorageManager extends ComponentManager{
     }
 
     /**
-     *  Raises a FileOpeningExceptionEvent if there was any problem in reading data from the file
+     *  Raises a {@link address.events.FileOpeningExceptionEvent} if there was any problem in reading data from the file
      *  or if the file is not in the correct format.
-     * @param ldre
      */
     @Subscribe
-    private void handleLoadDataRequestEvent(LoadDataRequestEvent ldre) {
+    public void handleLoadDataRequestEvent(LoadDataRequestEvent ldre) {
         AddressBook data;
 
         try {
             data = XmlFileStorage.loadDataFromSaveFile(ldre.file);
-        } catch (JAXBException e) {
+        } catch (FileNotFoundException | DataConversionException e) {
             e.printStackTrace();
             raise(new FileOpeningExceptionEvent(e, ldre.file));
             return;
@@ -59,44 +56,38 @@ public class StorageManager extends ComponentManager{
     }
 
     /**
-     * Raises FileSavingExceptionEvent
-     * @param lmce
+     * Raises FileSavingExceptionEvent(similar to {@link #saveDataToFile(File, AddressBook)})
      */
     @Subscribe
-    private void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
+    public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
         System.out.println("Local data changed, saving to primary data file");
-        saveDataToFile(prefsManager.getSaveLocation(), lmce.personData, lmce.tagData);
+        saveDataToFile(prefsManager.getSaveLocation(), new AddressBook(lmce.personData, lmce.tagData));
     }
 
     /**
-     * Raises FileSavingExceptionEvent
-     * @param msfce
+     * Raises FileSavingExceptionEvent(similar to {@link #saveDataToFile(File, AddressBook)})
      */
     @Subscribe
-    private void handleLocalModelSyncedFromCloudEvent(LocalModelSyncedFromCloudEvent msfce) {
+    public void handleLocalModelSyncedFromCloudEvent(LocalModelSyncedFromCloudEvent msfce) {
         System.out.println("Local data synced, saving to primary data file");
-        saveDataToFile(prefsManager.getSaveLocation(), msfce.personData, msfce.tagData);
+        saveDataToFile(prefsManager.getSaveLocation(), new AddressBook( msfce.personData, msfce.tagData));
     }
 
     /**
-     * Raises FileSavingExceptionEvent
-     * @param sre
+     * Raises FileSavingExceptionEvent (similar to {@link #saveDataToFile(File, AddressBook)})
      */
     @Subscribe
-    private void handleSaveRequestEvent(SaveRequestEvent sre) {
-        saveDataToFile(sre.file, sre.personData, sre.tagData);
+    public void handleSaveRequestEvent(SaveRequestEvent sre) {
+        saveDataToFile(sre.file, new AddressBook(sre.personData, sre.tagData));
     }
 
     /**
-     * Raises FileSavingExceptionEvent
-     * @param file
-     * @param personData
-     * @param tagData
+     * Raises FileSavingExceptionEvent if the file is not found or if there was an error during data conversion.
      */
-    private void saveDataToFile(File file, List<Person> personData, List<Tag> tagData){
+    public void saveDataToFile(File file, AddressBook addressBook){
         try {
-            XmlFileStorage.saveDataToFile(file, new AddressBook(personData, tagData));
-        } catch (JAXBException e) {
+            XmlFileStorage.saveDataToFile(file, addressBook);
+        } catch (FileNotFoundException | DataConversionException e) {
             raise(new FileSavingExceptionEvent(e, file));
         }
     }

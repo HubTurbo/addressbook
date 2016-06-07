@@ -8,11 +8,8 @@ import address.util.TickingTimer;
 import address.util.XmlUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import javax.xml.bind.JAXBException;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import address.exceptions.DataConversionException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -83,7 +80,7 @@ public class CloudSimulator implements ICloudSimulator {
             return new RawCloudResponse(HttpURLConnection.HTTP_OK, bodyStream, getHeaders(eTag, rateLimitStatus));
         } catch (IllegalArgumentException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
-        } catch (JAXBException e) {
+        } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
@@ -106,7 +103,7 @@ public class CloudSimulator implements ICloudSimulator {
         try {
             CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
             fullPersonList.addAll(fileData.getAllPersons());
-        } catch (JAXBException e) {
+        } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
@@ -147,7 +144,7 @@ public class CloudSimulator implements ICloudSimulator {
         try {
             CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
             fullTagList.addAll(fileData.getAllTags());
-        } catch (JAXBException e) {
+        } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
 
@@ -218,7 +215,7 @@ public class CloudSimulator implements ICloudSimulator {
             return new RawCloudResponse(HttpURLConnection.HTTP_OK, bodyStream, getHeaders(eTag, rateLimitStatus));
         } catch (NoSuchElementException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
-        } catch (JAXBException e) {
+        } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
@@ -248,7 +245,7 @@ public class CloudSimulator implements ICloudSimulator {
             return getEmptyResponse(HttpURLConnection.HTTP_NO_CONTENT);
         } catch (NoSuchElementException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
-        } catch (JAXBException e) {
+        } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
@@ -282,7 +279,7 @@ public class CloudSimulator implements ICloudSimulator {
             return new RawCloudResponse(HttpURLConnection.HTTP_CREATED, bodyStream, getHeaders(eTag, rateLimitStatus));
         } catch (IllegalArgumentException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
-        } catch (JAXBException e) {
+        } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
@@ -317,7 +314,7 @@ public class CloudSimulator implements ICloudSimulator {
             return new RawCloudResponse(HttpURLConnection.HTTP_OK, bodyStream, getHeaders(eTag, rateLimitStatus));
         } catch (NoSuchElementException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
-        } catch (JAXBException e) {
+        } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
@@ -347,7 +344,7 @@ public class CloudSimulator implements ICloudSimulator {
             return getEmptyResponse(HttpURLConnection.HTTP_NO_CONTENT);
         } catch (NoSuchElementException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
-        } catch (JAXBException e) {
+        } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
@@ -398,7 +395,7 @@ public class CloudSimulator implements ICloudSimulator {
         try {
             CloudAddressBook fileData = readCloudAddressBookFromFile(addressBookName);
             fullPersonList.addAll(fileData.getAllPersons());
-        } catch (JAXBException e) {
+        } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
 
@@ -464,13 +461,13 @@ public class CloudSimulator implements ICloudSimulator {
         return fullResourceList.subList(startingIndex, endingIndex);
     }
 
-    private CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws JAXBException {
+    private CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws DataConversionException, FileNotFoundException {
         File cloudFile = getCloudDataFilePath(addressBookName);
         System.out.println("Reading from cloudFile: " + cloudFile.canRead());
         try {
             CloudAddressBook cloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
             return cloudAddressBook;
-        } catch (JAXBException e) {
+        } catch (FileNotFoundException | DataConversionException e) {
             System.out.println("Error reading from cloud file.");
             throw e;
         }
@@ -480,12 +477,13 @@ public class CloudSimulator implements ICloudSimulator {
         return new File("/cloud/" + addressBookName);
     }
 
-    private void writeCloudAddressBookToFile(String addressBookName, CloudAddressBook cloudAddressBook) throws JAXBException {
+    private void writeCloudAddressBookToFile(String addressBookName, CloudAddressBook cloudAddressBook)
+            throws DataConversionException, FileNotFoundException {
         File cloudFile = getCloudDataFilePath(addressBookName);
         System.out.println("Writing to cloudFile: " + cloudFile.canRead());
         try {
             XmlUtil.saveDataToFile(cloudFile, cloudAddressBook);
-        } catch (JAXBException e) {
+        } catch (FileNotFoundException | DataConversionException e) {
             System.out.println("Error writing to cloud file.");
             throw e;
         }
