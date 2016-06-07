@@ -24,10 +24,6 @@ import javafx.util.Duration;
 
 public class PersonCardController {
     @FXML
-    private GridPane gridPane;
-    @FXML
-    private HBox hBox;
-    @FXML
     private AnchorPane cardPane;
     @FXML
     private ImageView profileImage;
@@ -64,7 +60,7 @@ public class PersonCardController {
         }
 
         if (person.getIsDeleted()){
-            Platform.runLater(() -> gridPane.setOpacity(0.1f));
+            Platform.runLater(() -> cardPane.setOpacity(0.1f));
         }
 
         double xyPositionAndRadius = profileImage.getFitHeight()/2.0;
@@ -144,7 +140,7 @@ public class PersonCardController {
 
     public void handleDeletedPerson(){
         Platform.runLater(() -> {
-            FadeTransition ft = new FadeTransition(Duration.millis(1000), gridPane);
+            FadeTransition ft = new FadeTransition(Duration.millis(1000), cardPane);
             ft.setFromValue(1.0);
             ft.setToValue(0.1);
             ft.setCycleCount(1);

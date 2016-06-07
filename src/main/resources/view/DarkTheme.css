@@ -94,7 +94,6 @@
      -fx-background-color: -fx-focus-color;
 }
 
-
 .cell_big_label {
     -fx-font-size: 16px;
     -fx-text-fill: #010504;
@@ -239,5 +238,11 @@
     -fx-font-style: italic;
     -fx-fill: white;
     -fx-text-fill: white;
+}
+
+#cardPane {
+    -fx-background-color: transparent;
+    -fx-border-color: #d6d6d6;
+    -fx-border-width: 1 1 1 8;
 }
 
