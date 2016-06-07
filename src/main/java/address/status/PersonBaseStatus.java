@@ -12,8 +12,4 @@ public abstract class PersonBaseStatus {
     public PersonBaseStatus(Person person) {
         this.person = person;
     }
-
-    public Person getPerson() {
-        return person;
-    }
 }

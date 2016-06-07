@@ -113,20 +113,14 @@ public class PersonCardController {
                 return person.tagsString();
             }
         });
-        person.isDeletedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (newValue == true){
-                    handleDeletedPerson();
-                }
+        person.isDeletedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == true){
+                handleDeletedPerson();
             }
         });
-        person.githubUserNameProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if (newValue.length() > 0){
-                    setProfileImage();
-                }
+        person.githubUserNameProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > 0){
+                setProfileImage();
             }
         });
     }
