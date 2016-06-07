@@ -161,6 +161,7 @@ allprojects {
                 include('installer/**/*')
                 include('address/util/FileUtil.java')
                 include('address/util/OsDetector.java')
+                include('address/util/ProgressAwareInputStream.java')
             }
             resources {
                 srcDir project.ext.outputDir
