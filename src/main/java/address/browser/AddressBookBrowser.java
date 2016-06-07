@@ -9,13 +9,12 @@ import com.teamdev.jxbrowser.chromium.dom.DOMElement;
 import com.teamdev.jxbrowser.chromium.dom.events.DOMEventType;
 import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
 import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
+import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * A browser for displaying AddressBook contacts' profile page.
  */
-public class AddressBookBrowser{
+public class AddressBookBrowser {
 
     private static final String INSTRUCTION_PAGE_HTML_CODE =
             "<h3><center><font color=\"grey\">To view contact's web page, click on the contact on the left.</font></center></h3></body></html>";
@@ -76,7 +75,8 @@ public class AddressBookBrowser{
     }
 
     /**
-     * Registers listeners for automating clicking and scrolling.
+     * Registers page finish loading event listener to run tasks required after a page has finished
+     * loading successfully.
      */
     public void registerListeners() {
         for (BrowserTab browserTab : browserTabs) {
@@ -84,23 +84,48 @@ public class AddressBookBrowser{
                 @Override
                 public void onFinishLoadingFrame(FinishLoadingEvent finishLoadingEvent) {
                     if (finishLoadingEvent.isMainFrame()) {
-                        automateClickingAndScrolling(browserTab);
-                        BrowserTab browserTab = (BrowserTab)finishLoadingEvent.getBrowser();
-                        DOMElement element = browserTab.getDocument().findElement(By.className("avatar rounded-2"));
-                        if (element != null) {
-                            String profilePicUrl = element.getAttribute("src");
-                            try {
-                                new URL(profilePicUrl);
-                            } catch (MalformedURLException e) {
-                                return;
-                            }
-                            filteredPersons.get(filteredPersons.indexOf(browserTab.getPerson()))
-                                                               .setGithubProfilePicUrl(profilePicUrl);
-                        }
+                        runPageLoadedTasks(browserTab);
                     }
                 }
             });
         }
+    }
+
+    /**
+     * Runs the tasks required after a page has finished loading successfully.
+     * @param browserTab The browser instance that has finished loaded its page.
+     */
+    private void runPageLoadedTasks(BrowserTab browserTab) {
+        automateClickingAndScrolling(browserTab);
+
+        String profilePicUrl = getProfilePicUrl(browserTab);
+        updateProfilePicUrl(browserTab.getPerson(), profilePicUrl);
+    }
+
+    /**
+     * Updates the person's profile picture URL in the model.
+     * @param person The person to be updated in the model.
+     * @param profilePicUrl The person's GitHub profile picture URL.
+     */
+    private void updateProfilePicUrl(Person person, String profilePicUrl) {
+        if (URLUtil.isURIFormat(profilePicUrl)) {
+            filteredPersons.get(filteredPersons.indexOf(person))
+                                .setGithubProfilePicUrl(profilePicUrl);
+        }
+    }
+
+    /**
+     * Gets the person's profile picture URL from the browser content.
+     * @param browserTab The browser instance containing the person profile page.
+     * @return The person profile picture URL or null if fails to retrieve.
+     */
+    private String getProfilePicUrl(BrowserTab browserTab){
+        Optional<DOMElement> element = Optional.ofNullable(browserTab.getDocument()
+                                                                     .findElement(By.className("avatar rounded-2")));
+        if (element.isPresent()){
+            return element.get().getAttribute("src");
+        }
+        return null;
     }
 
     /**
