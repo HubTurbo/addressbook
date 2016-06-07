@@ -1,6 +1,10 @@
 package address.sync;
 
+import address.util.JsonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -13,7 +17,7 @@ import java.util.HashMap;
 public class RawCloudResponse {
     int responseCode;
     InputStream body;
-    InputStream headers;
+    HashMap<String, String> headers;
     int nextPageNo = -1;
     int previousPageNo = -1;
     int firstPageNo = -1;
@@ -51,21 +55,23 @@ public class RawCloudResponse {
         this.lastPageNo = lastPageNo;
     }
 
-    RawCloudResponse(int responseCode, InputStream body, HashMap<String, String> headers) {
-        this.responseCode = responseCode;
-        this.body = body;
-        this.headers = CloudSimulator.convertToInputStream(headers);
+    private void addETagToHeader(HashMap<String, String> header, String eTag) {
+        header.put("ETag", eTag);
     }
 
-    RawCloudResponse(int responseCode) {
+    public RawCloudResponse(int responseCode, Object body, HashMap<String, String> header) {
+        this.responseCode = responseCode;
+        if (body != null) {
+            this.body = convertToInputStream(body);
+            addETagToHeader(header, getETag(convertToInputStream(body)));
+        }
+        this.headers = header;
+    }
+
+    public RawCloudResponse(int responseCode) {
         assert responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR : "RawCloudResponse constructor misused";
         this.responseCode = responseCode;
-        this.headers = CloudSimulator.convertToInputStream(getEmptyHeader());
-    }
-
-    private HashMap<String, String> getEmptyHeader() {
-        HashMap<String, String> headers = new HashMap<>();
-        return headers;
+        this.headers = new HashMap<>();
     }
 
 
@@ -77,7 +83,7 @@ public class RawCloudResponse {
         return body;
     }
 
-    public InputStream getHeaders() {
+    public HashMap<String, String> getHeaders() {
         return headers;
     }
 
@@ -88,11 +94,9 @@ public class RawCloudResponse {
      * duplicate the stream before calling this method.
      *
      * @param bodyStream
-     * @param isEmptyBody
      * @return
      */
-    static String getETag(InputStream bodyStream, boolean isEmptyBody) {
-        if (isEmptyBody) return null;
+    public static String getETag(InputStream bodyStream) {
         try {
             // Adapted from http://www.javacreed.com/how-to-compute-hash-code-of-streams/
             DigestInputStream digestInputStream = new DigestInputStream(new BufferedInputStream(bodyStream),
@@ -110,6 +114,15 @@ public class RawCloudResponse {
             return formatter.toString();
         } catch (NoSuchAlgorithmException | IOException e) {
             System.out.println("Error generating ETag for response");
+            return null;
+        }
+    }
+
+    public static ByteArrayInputStream convertToInputStream(Object object) {
+        try {
+            return new ByteArrayInputStream(JsonUtil.toJsonString(object).getBytes());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
             return null;
         }
     }

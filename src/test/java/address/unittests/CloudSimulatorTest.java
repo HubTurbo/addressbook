@@ -231,11 +231,13 @@ public class CloudSimulatorTest {
     @Test
     public void getTags() throws JAXBException, IOException {
         final int apiUsage = 1;
+        final int pageNumber = 11;
+        final int resourcesPerPage = 20;
 
         CloudAddressBook bigCloudAddressBook = getBigDummyAddressBook();
         stub(cloudFileHandler.readCloudAddressBookFromFile("Big Test")).toReturn(bigCloudAddressBook);
 
-        RawCloudResponse cloudResponse = cloudSimulator.getTags("Big Test", 11, 20, null);
+        RawCloudResponse cloudResponse = cloudSimulator.getTags("Big Test", pageNumber, resourcesPerPage, null);
 
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Big Test");
         verify(cloudFileHandler, never()).writeCloudAddressBookToFile(bigCloudAddressBook);
@@ -243,8 +245,8 @@ public class CloudSimulatorTest {
         assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
 
         List<CloudTag> tagList = JsonUtil.fromJsonStringToList(convertToString(cloudResponse.getBody()), CloudTag.class);
-        assertEquals(20, tagList.size());
-        for (int i = 10 * 20 + 1; i <= 11 * 20; i++) {
+        assertEquals(resourcesPerPage, tagList.size());
+        for (int i = (pageNumber - 1) * resourcesPerPage + 1; i <= pageNumber * resourcesPerPage; i++) {
             assertTrue(tagList.contains(new CloudTag("Tag" + i)));
         }
     }
@@ -252,19 +254,21 @@ public class CloudSimulatorTest {
     @Test
     public void getPersons() throws JAXBException, IOException {
         final int apiUsage = 1;
+        final int pageNumber = 12;
+        final int resourcesPerPage = 30;
 
         CloudAddressBook bigCloudAddressBook = getBigDummyAddressBook();
         stub(cloudFileHandler.readCloudAddressBookFromFile("Big Test")).toReturn(bigCloudAddressBook);
 
-        RawCloudResponse cloudResponse = cloudSimulator.getPersons("Big Test", 12, 30, null);
+        RawCloudResponse cloudResponse = cloudSimulator.getPersons("Big Test", pageNumber, resourcesPerPage, null);
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Big Test");
         verify(cloudFileHandler, never()).writeCloudAddressBookToFile(bigCloudAddressBook);
         assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
         assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
 
         List<CloudPerson> tagList = JsonUtil.fromJsonStringToList(convertToString(cloudResponse.getBody()), CloudPerson.class);
-        assertEquals(30, tagList.size());
-        for (int i = 11 * 30 + 1; i <= 12 * 30; i++) {
+        assertEquals(resourcesPerPage, tagList.size());
+        for (int i = (pageNumber - 1) * resourcesPerPage + 1; i <= pageNumber * resourcesPerPage; i++) {
             assertTrue(tagList.contains(new CloudPerson("firstName" + i, "lastName" + i)));
         }
     }
