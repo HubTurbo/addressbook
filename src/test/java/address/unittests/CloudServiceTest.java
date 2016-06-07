@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
@@ -215,6 +216,38 @@ public class CloudServiceTest {
         assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
         assertTrue(serviceResponse.getData().isPresent());
         assertEquals("newTagName", serviceResponse.getData().get().getName());
+        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    @Test
+    public void deletePerson() throws IOException {
+        int quotaLimit = 10;
+        int quotaRemaining = 9;
+
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_NO_CONTENT, null, header);
+        when(cloudSimulator.deletePerson("Test", "firstName", "lastName")).thenReturn(cloudResponse);
+
+        ExtractedCloudResponse<Void> serviceResponse = cloudService.deletePerson("Test", "firstName", "lastName");
+
+        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, serviceResponse.getResponseCode());
+        assertFalse(serviceResponse.getData().isPresent());
+        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    @Test
+    public void deleteTag() throws IOException {
+        int quotaLimit = 10;
+        int quotaRemaining = 9;
+
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_NO_CONTENT, null, header);
+        when(cloudSimulator.deleteTag("Test", "tagName")).thenReturn(cloudResponse);
+
+        ExtractedCloudResponse<Void> serviceResponse = cloudService.deleteTag("Test", "tagName");
+
+        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, serviceResponse.getResponseCode());
+        assertFalse(serviceResponse.getData().isPresent());
         assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
     }
 }
