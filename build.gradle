@@ -51,7 +51,6 @@ allprojects {
         powermockVersion = '1.6.5'
         testFxVersion = '3.1.0'
 
-        outputDir = 'build/libs'
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         jarUpdaterArchiveName = 'jarUpdater.jar'
     }
@@ -131,7 +130,7 @@ allprojects {
         group = "Release"
 
         from configurations.compile
-        into project.ext.outputDir + '/lib'
+        into file(jar.getArchivePath().getParent() + '/lib')
     }
 
 
@@ -182,7 +181,7 @@ allprojects {
                 include('address/util/ProgressAwareInputStream.java')
             }
             resources {
-                srcDir project.ext.outputDir
+                srcDir jar.getArchivePath().getParent()
                 include(project.ext.mainAppArchiveName)
                 include('lib/*')
                 exclude('lib/jxbrowser-*-*.jar') // platform specific jxbrowser
