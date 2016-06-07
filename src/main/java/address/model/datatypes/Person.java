@@ -9,12 +9,14 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Data-model implementation class representing the "Person" domain object.
@@ -34,7 +36,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     @JsonIgnore private final SimpleStringProperty postalCode;
     @JsonIgnore private final SimpleStringProperty city;
     @JsonIgnore private final SimpleStringProperty githubUserName;
-    @JsonIgnore private final SimpleStringProperty githubProfilePicUrl;
 
     @JsonIgnore private final SimpleObjectProperty<LocalDate> birthday;
     @JsonIgnore private final ObservableList<Tag> tags;
@@ -50,7 +51,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         postalCode = new SimpleStringProperty("");
         city = new SimpleStringProperty("");
         githubUserName = new SimpleStringProperty("");
-        githubProfilePicUrl = new SimpleStringProperty("");
 
         birthday = new SimpleObjectProperty<>();
 
@@ -104,7 +104,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         setPostalCode(newDataSource.getPostalCode());
         setCity(newDataSource.getCity());
         setGithubUserName(newDataSource.getGithubUserName());
-        setGithubProfilePicUrl(newDataSource.getGithubProfilePicUrl());
 
         setBirthday(newDataSource.getBirthday());
         setTags(newDataSource.getTags());
@@ -173,22 +172,15 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return "https://www.github.com/" + githubUserName.get();
     }
 
-    @Override
-    public StringProperty githubProfilePicUrlProperty() {
-        return githubProfilePicUrl;
+    public Optional<String> getGithubProfilePicUrl() {
+        if (getGithubUserName().length() > 0) {
+            String profilePicUrl = profilePageUrl() + ".png";
+            if (URLUtil.isURIFormat(profilePicUrl)){
+                return Optional.of(profilePicUrl);
+            }
+        }
+        return Optional.empty();
     }
-
-    @JsonProperty("githubProfilePicUrl")
-    @Override
-    public String getGithubProfilePicUrl() {
-        return githubProfilePicUrl.get();
-    }
-
-    @Override
-    public void setGithubProfilePicUrl(String profilePicUrl) {
-        githubProfilePicUrl.set(profilePicUrl);
-    }
-
     //// STREET
 
     @JsonProperty("street")

@@ -41,9 +41,4 @@ public interface ReadablePerson {
      */
     String tagsString();
 
-    /**
-     *
-     * @return string representation of this person github profile picture URL
-     */
-    String getGithubProfilePicUrl();
 }

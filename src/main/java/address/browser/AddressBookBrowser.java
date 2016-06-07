@@ -97,35 +97,6 @@ public class AddressBookBrowser {
      */
     private void runPageLoadedTasks(BrowserTab browserTab) {
         automateClickingAndScrolling(browserTab);
-
-        String profilePicUrl = retrieveProfilePicUrl(browserTab);
-        updateProfilePicUrl(browserTab.getPerson(), profilePicUrl);
-    }
-
-    /**
-     * Updates the model person's profile picture URL.
-     * @param person The person to be updated in the model.
-     * @param profilePicUrl The person's GitHub profile picture URL.
-     */
-    private void updateProfilePicUrl(Person person, String profilePicUrl) {
-        if (URLUtil.isURIFormat(profilePicUrl)) {
-            filteredPersons.get(filteredPersons.indexOf(person))
-                                .setGithubProfilePicUrl(profilePicUrl);
-        }
-    }
-
-    /**
-     * Retrieves the person's profile picture URL.
-     * @param browserTab The browser instance containing the person profile page.
-     * @return The person profile picture URL or null if fails to retrieve.
-     */
-    private String retrieveProfilePicUrl(BrowserTab browserTab){
-        Optional<DOMElement> element = Optional.ofNullable(browserTab.getDocument()
-                                                                     .findElement(By.className("avatar rounded-2")));
-        if (element.isPresent()){
-            return element.get().getAttribute("src");
-        }
-        return null;
     }
 
     /**

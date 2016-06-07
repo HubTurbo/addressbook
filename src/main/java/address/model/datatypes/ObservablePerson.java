@@ -14,7 +14,6 @@ public interface ObservablePerson extends ReadablePerson {
     StringProperty firstNameProperty();
     StringProperty lastNameProperty();
     StringProperty githubUserNameProperty();
-    StringProperty githubProfilePicUrlProperty();
 
     StringProperty streetProperty();
     StringProperty postalCodeProperty();

@@ -4,7 +4,7 @@ import address.controller.PersonCardController;
 import address.model.datatypes.Person;
 
 import javafx.scene.control.ListCell;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 
 public class PersonListViewCell extends ListCell<Person> {
 
@@ -15,10 +15,8 @@ public class PersonListViewCell extends ListCell<Person> {
         if (empty || person == null) {
             setGraphic(null);
             setText(null);
-        }
-        else
-        {
-            AnchorPane pane = new PersonCardController(person).getLayout();
+        } else {
+            GridPane pane = new PersonCardController(person).getLayout();
             setGraphic(pane);
             pane.prefHeightProperty().bind(this.prefHeightProperty());
             pane.prefWidthProperty().bind(this.widthProperty());

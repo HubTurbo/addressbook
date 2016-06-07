@@ -1,6 +1,7 @@
 package address.controller;
 
 import java.io.IOException;
+import java.util.Optional;
 
 
 import address.model.datatypes.Person;
@@ -24,7 +25,7 @@ import javafx.util.Duration;
 
 public class PersonCardController {
     @FXML
-    private AnchorPane cardPane;
+    private GridPane cardPane;
     @FXML
     private ImageView profileImage;
     @FXML
@@ -55,7 +56,7 @@ public class PersonCardController {
     @FXML
     public void initialize() {
 
-        if (person.getGithubProfilePicUrl().length() > 0) {
+        if (person.getGithubUserName().length() > 0) {
             setProfileImage();
         }
 
@@ -120,7 +121,7 @@ public class PersonCardController {
                 }
             }
         });
-        person.githubProfilePicUrlProperty().addListener(new ChangeListener<String>() {
+        person.githubUserNameProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if (newValue.length() > 0){
@@ -135,7 +136,17 @@ public class PersonCardController {
      * Involves making an internet connection with the image hosting server.
      */
     private void setProfileImage() {
-        new Thread(() -> profileImage.setImage(new Image(person.getGithubProfilePicUrl()))).start();
+        Optional<String> profileImageUrl = person.getGithubProfilePicUrl();
+        if (profileImageUrl.isPresent()){
+            new Thread(() -> {
+                Image image = new Image(profileImageUrl.get());
+                if (image != null && image.getHeight() > 0) {
+                    profileImage.setImage(image);
+                } else {
+                    profileImage.setImage(new Image(this.getClass().getResourceAsStream("/images/default_profile_picture.png")));
+                }
+            }).start();
+        }
     }
 
     public void handleDeletedPerson(){
@@ -148,7 +159,7 @@ public class PersonCardController {
         });
     }
 
-    public AnchorPane getLayout() {
+    public GridPane getLayout() {
         return cardPane;
     }
 }
