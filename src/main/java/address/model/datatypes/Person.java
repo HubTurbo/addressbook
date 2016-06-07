@@ -9,12 +9,14 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Data-model implementation class representing the "Person" domain object.
@@ -38,6 +40,8 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     @JsonIgnore private final SimpleObjectProperty<LocalDate> birthday;
     @JsonIgnore private final ObservableList<Tag> tags;
 
+    @JsonIgnore private final BooleanProperty isDeleted;
+    @JsonIgnore private final BooleanProperty isEdited;
     // defaults
     {
         firstName = new SimpleStringProperty("");
@@ -49,7 +53,11 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         githubUserName = new SimpleStringProperty("");
 
         birthday = new SimpleObjectProperty<>();
+
         tags = FXCollections.observableArrayList();
+
+        isDeleted = new SimpleBooleanProperty(false);
+        isEdited = new SimpleBooleanProperty(false);
     }    
     
     /**
@@ -164,7 +172,16 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return "https://www.github.com/" + githubUserName.get();
     }
 
-//// STREET
+    public Optional<String> getGithubProfilePicUrl() {
+        if (getGithubUserName().length() > 0) {
+            String profilePicUrl = profilePageUrl() + ".png";
+            if (URLUtil.isURIFormat(profilePicUrl)){
+                return Optional.of(profilePicUrl);
+            }
+        }
+        return Optional.empty();
+    }
+    //// STREET
 
     @JsonProperty("street")
     @Override
@@ -271,6 +288,29 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     }
 
 //// OTHER LOGIC
+    public boolean getIsDeleted() {
+        return isDeleted.get();
+    }
+
+    public BooleanProperty isDeletedProperty() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted.set(isDeleted);
+    }
+
+    public boolean getIsEdited() {
+        return isEdited.get();
+    }
+
+    public BooleanProperty isEditedProperty() {
+        return isEdited;
+    }
+
+    public void setIsEdited(boolean isEdited) {
+        this.isEdited.set(isEdited);
+    }
 
     @Override
     public boolean equals(Object otherPerson){

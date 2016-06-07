@@ -40,4 +40,5 @@ public interface ReadablePerson {
      * @return string representation of this Person's tags
      */
     String tagsString();
+
 }
