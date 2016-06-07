@@ -146,7 +146,7 @@ public class UpdateManager {
     }
 
     /**
-     * (Dummy download) Get update data from a local file
+     * Get update data
      */
     private Optional<UpdateData> getUpdateDataFromServer() {
         try {
