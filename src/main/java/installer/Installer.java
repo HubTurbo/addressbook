@@ -161,7 +161,7 @@ public class Installer extends Application {
             return;
         }
 
-        String jxBrowserFilename = Paths.get(downloadLink.toString()).getFileName().toString();
+        String jxBrowserFilename = Paths.get(downloadLink.getPath()).getFileName().toString();
         File jxbrowserFile = Paths.get("lib", jxBrowserFilename).toFile();
 
         try {
