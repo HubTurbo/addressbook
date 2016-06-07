@@ -6,6 +6,7 @@ import address.util.ProgressAwareInputStream;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -39,12 +40,11 @@ public class Installer extends Application {
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private static final String LIB_DIR = "lib";
     private ProgressBar progressBar;
+    private Label loadingLabel;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        if (isFirstRun()) {
-            showWaitingWindow(primaryStage);
-        }
+        showWaitingWindow(primaryStage);
 
         pool.execute(() -> {
             run();
@@ -52,27 +52,24 @@ public class Installer extends Application {
         });
     }
 
-    private boolean isFirstRun() {
-        return !FileUtil.isDirExists(LIB_DIR);
-    }
-
     private void showWaitingWindow(Stage stage) {
-        stage.setTitle("Applying Updates");
+        stage.setTitle("Initializing.");
         VBox windowMainLayout = new VBox();
         Group root = new Group();
         Scene scene = new Scene(root);
         stage.setScene(scene);
         scene.setRoot(windowMainLayout);
 
-        Label loadingLabel = new Label("First time initialization. Downloading required components. Please wait.");
+        loadingLabel = new Label("Initializing. Please wait.");
 
         progressBar = new ProgressBar(-1.0);
         progressBar.setPrefWidth(400);
 
         final VBox vb = new VBox();
         vb.setSpacing(30);
-        vb.getChildren().addAll(loadingLabel, progressBar);
         vb.setPadding(new Insets(40));
+        vb.setAlignment(Pos.CENTER);
+        vb.getChildren().addAll(loadingLabel, progressBar);
         windowMainLayout.getChildren().add(vb);
 
         stage.show();
@@ -179,6 +176,8 @@ public class Installer extends Application {
             System.out.println("Failed to get size of JxBrowser file; will proceed to downloading it");
             e.printStackTrace();
         }
+
+        Platform.runLater(() -> loadingLabel.setText("Initializing. Downloading required components. Please wait."));
 
         try {
             downloadFile(jxbrowserFile, downloadLink);
