@@ -137,24 +137,36 @@ public class CloudPerson {
         return this.firstName != null && this.lastName != null && tags != null;
     }
 
+    @Override
     public boolean equals(Object o) {
-        if (!(o instanceof CloudPerson)) return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        if ((firstName == null && ((CloudPerson) o).firstName != null)
-                || (firstName != null && !firstName.equals(((CloudPerson) o).firstName))) return false;
+        CloudPerson that = (CloudPerson) o;
 
-        if ((lastName == null && ((CloudPerson) o).lastName != null)
-                || (lastName != null && !lastName.equals(((CloudPerson) o).lastName))) return false;
+        if (id != that.id) return false;
+        if (isDeleted != that.isDeleted) return false;
+        if (firstName != null ? !firstName.equals(that.firstName) : that.firstName != null) return false;
+        if (lastName != null ? !lastName.equals(that.lastName) : that.lastName != null) return false;
+        if (street != null ? !street.equals(that.street) : that.street != null) return false;
+        if (city != null ? !city.equals(that.city) : that.city != null) return false;
+        if (postalCode != null ? !postalCode.equals(that.postalCode) : that.postalCode != null) return false;
+        if (tags != null ? !tags.equals(that.tags) : that.tags != null) return false;
+        return birthday != null ? birthday.equals(that.birthday) : that.birthday == null;
 
-        if ((street == null && ((CloudPerson) o).street != null)
-                || (street != null && !street.equals(((CloudPerson) o).street))) return false;
+    }
 
-        if ((postalCode == null && ((CloudPerson) o).postalCode != null)
-                || (postalCode != null && !postalCode.equals(((CloudPerson) o).postalCode))) return false;
-
-        if ((tags == null && ((CloudPerson) o).tags != null)
-                || (tags != null && !tags.equals(((CloudPerson) o).tags))) return false;
-
-        return isDeleted == ((CloudPerson) o).isDeleted;
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
+        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (street != null ? street.hashCode() : 0);
+        result = 31 * result + (city != null ? city.hashCode() : 0);
+        result = 31 * result + (postalCode != null ? postalCode.hashCode() : 0);
+        result = 31 * result + (tags != null ? tags.hashCode() : 0);
+        result = 31 * result + (isDeleted ? 1 : 0);
+        result = 31 * result + (birthday != null ? birthday.hashCode() : 0);
+        return result;
     }
 }

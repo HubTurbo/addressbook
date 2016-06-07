@@ -43,13 +43,17 @@ public class CloudTag {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof CloudTag)) return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        return name.equals(((CloudTag) o).getName());
+        CloudTag cloudTag = (CloudTag) o;
+
+        return name != null ? name.equals(cloudTag.name) : cloudTag.name == null;
+
     }
 
     @Override
     public int hashCode() {
-        return 42 + name.hashCode();
+        return name != null ? name.hashCode() : 0;
     }
 }

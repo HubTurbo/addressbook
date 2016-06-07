@@ -51,9 +51,11 @@ public class CloudAddressBook {
                 cloudAddressBook.getAllTags().equals(tagsList);
     }
 
+    @Override
     public int hashCode() {
-        return "name".getBytes().hashCode() + personsList.hashCode()
-                + tagsList.hashCode();
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (personsList != null ? personsList.hashCode() : 0);
+        result = 31 * result + (tagsList != null ? tagsList.hashCode() : 0);
+        return result;
     }
-
 }
