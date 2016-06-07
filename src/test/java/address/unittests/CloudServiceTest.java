@@ -142,6 +142,34 @@ public class CloudServiceTest {
     }
 
     @Test
+    public void createPerson_newTag_successfulCreationOfPersonAndTag() throws IOException {
+        int quotaLimit = 10;
+        int quotaRemaining = 9;
+
+        CloudPerson cloudPerson = new CloudPerson("unknownName", "unknownName");
+        List<CloudTag> personCloudTags = new ArrayList<>();
+        personCloudTags.add(new CloudTag("New Tag"));
+        cloudPerson.setTags(personCloudTags);
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_CREATED, cloudPerson, header);
+        when(cloudSimulator.createPerson(anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(cloudResponse);
+
+        Person person = new Person("unknownName", "unknownName");
+        List<Tag> personTags = new ArrayList<>();
+        personTags.add(new Tag("New Tag"));
+        person.setTags(personTags);
+
+        ExtractedCloudResponse<Person> serviceResponse = cloudService.createPerson("Test", person);
+        assertEquals(HttpURLConnection.HTTP_CREATED, serviceResponse.getResponseCode());
+        assertTrue(serviceResponse.getData().isPresent());
+        // this only checks for name equality
+        assertEquals(person, serviceResponse.getData().get());
+        assertEquals(person.getTags().size(), serviceResponse.getData().get().getTags().size());
+        assertEquals(person.getTags().get(0).getName(), serviceResponse.getData().get().getTags().get(0).getName());
+        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    @Test
     public void createTag() throws IOException {
         int quotaLimit = 10;
         int quotaRemaining = 9;
