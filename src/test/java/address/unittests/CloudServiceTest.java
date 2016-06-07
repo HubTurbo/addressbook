@@ -6,7 +6,6 @@ import address.sync.CloudService;
 import address.sync.CloudSimulator;
 import address.sync.ExtractedCloudResponse;
 import address.sync.RawCloudResponse;
-import address.sync.model.CloudAddressBook;
 import address.sync.model.CloudPerson;
 import address.sync.model.CloudTag;
 import org.junit.Before;
@@ -316,6 +315,67 @@ public class CloudServiceTest {
         assertEquals(1, serviceResponse.getData().get().size());
         assertEquals("firstName", serviceResponse.getData().get().get(0).getFirstName());
         assertEquals("lastName", serviceResponse.getData().get().get(0).getLastName());
+        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    @Test
+    public void getUpdatedPersonsSince_manyData_successfulGet() throws IOException {
+        int quotaLimit = 10;
+        int quotaRemaining = 8;
+
+        LocalDateTime cutOffTime = LocalDateTime.now();
+
+        // response 1
+        List<CloudPerson> cloudPersons = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            cloudPersons.add(new CloudPerson("firstName" + i, "lastName" + i));
+        }
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining + 1, getResetTime());
+        RawCloudResponse cloudResponseOne = new RawCloudResponse(HttpURLConnection.HTTP_OK, cloudPersons, header);
+        cloudResponseOne.setFirstPageNo(1);
+        cloudResponseOne.setNextPageNo(2);
+        cloudResponseOne.setLastPageNo(2);
+
+        // response 2
+        List<CloudPerson> cloudPersons2 = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            cloudPersons2.add(new CloudPerson("firstName" + (i + 100), "lastName" + (i + 100)));
+        }
+        HashMap<String, String> header2 = getHeader(quotaLimit, quotaRemaining, getResetTime());
+        RawCloudResponse cloudResponseTwo = new RawCloudResponse(HttpURLConnection.HTTP_OK, cloudPersons2, header2);
+        cloudResponseTwo.setFirstPageNo(1);
+        cloudResponseTwo.setPreviousPageNo(1);
+        cloudResponseTwo.setLastPageNo(2);
+
+        when(cloudSimulator.getUpdatedPersons(anyString(), anyString(), anyInt(), anyInt(), anyString())).thenReturn(cloudResponseOne).thenReturn(cloudResponseTwo);
+
+        ExtractedCloudResponse<List<Person>> serviceResponse = cloudService.getUpdatedPersonsSince("Test", cutOffTime);
+
+        assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
+        assertTrue(serviceResponse.getData().isPresent());
+        assertEquals(150, serviceResponse.getData().get().size());
+        for (int i = 0; i < 150; i++) {
+            assertEquals("firstName" + i, serviceResponse.getData().get().get(i).getFirstName());
+            assertEquals("lastName" + i, serviceResponse.getData().get().get(i).getLastName());
+        }
+        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    @Test
+    public void getUpdatedPersonsSince_errorCloudResponse_returnEmptyResponse() throws IOException {
+        int quotaLimit = 10;
+        int quotaRemaining = 10;
+
+        LocalDateTime cutOffTime = LocalDateTime.now();
+
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR, null, header);
+        when(cloudSimulator.getUpdatedPersons(anyString(), anyString(), anyInt(), anyInt(), anyString())).thenReturn(cloudResponse);
+
+        ExtractedCloudResponse<List<Person>> serviceResponse = cloudService.getUpdatedPersonsSince("Test", cutOffTime);
+
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
+        assertFalse(serviceResponse.getData().isPresent());
         assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
     }
 
