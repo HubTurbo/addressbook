@@ -5,7 +5,7 @@ import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 import javafx.scene.Node;
 
 /**
- * An EmbeddedBrowser adapter for a jxBrowser Browser instance.
+ * An EmbeddedBrowser adapter for the jxBrowser Browser.
  */
 public class JxBrowserAdapter implements EmbeddedBrowser {
 

@@ -4,7 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.web.WebView;
 
 /**
- * An EmbeddedBrowser adapter for Java WebView browser.
+ * An EmbeddedBrowser adapter for the Java WebView browser.
  */
 public class WebViewBrowserAdapter implements EmbeddedBrowser {
 

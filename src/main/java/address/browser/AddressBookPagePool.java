@@ -40,7 +40,7 @@ public class AddressBookPagePool {
 
     /**
      * Loads the person's profile page.
-     * Precondition: Method clearPagesNotRequired() is needed to be called first to ensure the correctness of this
+     * Precondition: Method clearPagesNotRequired() needs to be called first to ensure the correctness of this
      *               method.
      * @param person The person whose profile page is to be loaded.
      * @return The browser assigned to load the person's profile page.
@@ -70,8 +70,9 @@ public class AddressBookPagePool {
     /**
      * Clears pages from the pool of pages that are not required anymore.
      * @param requiredPersons The persons whose pages are to be remained in the pool of pages.
-     *                        Preconditions: Used in pair with loadPersonPage(Person person), the requiredPersons
-     *                                       must contain the person that will be used in loadPersonPage() method.
+     *                        Preconditions: If loadPersonPage(Person person) method is going to be called after this
+     *                                       method, the requiredPersons must contain the person that will be used in
+     *                                       loadPersonPage() method.
      * @return An arraylist of pages that are cleared from the pool of pages.
      */
     public synchronized ArrayList<GithubProfilePage> clearPagesNotRequired(ArrayList<Person> requiredPersons) {
@@ -113,6 +114,6 @@ public class AddressBookPagePool {
      * @return A array list of person instance.
      */
     public ArrayList<Person> getActivePagesPerson(){
-        return activePages.stream().map(p -> p.getPerson()).collect(Collectors.toCollection(ArrayList::new));
+        return activePages.stream().map(page -> page.getPerson()).collect(Collectors.toCollection(ArrayList::new));
     }
 }

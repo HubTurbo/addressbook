@@ -128,12 +128,12 @@ public class BrowserManager {
      * Gets a list of person that are needed to be loaded to the browser.
      */
     private ArrayList<Person> getListOfRequiredPerson(List<Person> filteredPersons, int indexOfPerson) {
-        ArrayList<Person> listOfPersonToBeLoaded = new ArrayList<>();
+        ArrayList<Person> listOfRequiredPerson = new ArrayList<>();
 
         for (int i = 0; i < NUMBER_OF_PRELOADED_PAGE && i < filteredPersons.size(); i++){
-            listOfPersonToBeLoaded.add(new Person(filteredPersons.get((indexOfPerson + i) % filteredPersons.size())));
+            listOfRequiredPerson.add(new Person(filteredPersons.get((indexOfPerson + i) % filteredPersons.size())));
         }
-        return listOfPersonToBeLoaded;
+        return listOfRequiredPerson;
     }
 
     /**
