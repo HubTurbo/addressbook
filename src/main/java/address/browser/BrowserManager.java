@@ -1,5 +1,6 @@
 package address.browser;
 
+import address.browser.page.GithubProfilePage;
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
 import address.model.datatypes.Person;
@@ -18,7 +19,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 /**
- * Manages the browser.
+ * Manages the AddressBook browser.
  */
 public class BrowserManager {
 
@@ -62,7 +63,7 @@ public class BrowserManager {
         ArrayList<Person> pagesPerson = addressBookPagePool.get().getActivePagesPerson();
         pagesPerson.stream().forEach(person -> {
                 if (filteredPersons.indexOf(person) == PERSON_NOT_FOUND){
-                    Optional<EmbeddedBrowserGithubProfilePage> page = addressBookPagePool.get().clearPersonPage(person);
+                    Optional<GithubProfilePage> page = addressBookPagePool.get().clearPersonPage(person);
                     browserPlaceHolder.getChildren().remove(page.get().getBrowser().getBrowserView());
 
                     if (browserPlaceHolder.getChildren().size() == 0) {

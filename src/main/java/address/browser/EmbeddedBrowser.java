@@ -3,7 +3,7 @@ package address.browser;
 import javafx.scene.Node;
 
 /**
- * Created by YL Lim on 7/6/2016.
+ * An interface for different type of browser engine.
  */
 public interface EmbeddedBrowser {
 

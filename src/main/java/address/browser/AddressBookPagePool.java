@@ -1,7 +1,9 @@
 package address.browser;
 
+import address.browser.page.GithubProfilePage;
 import address.model.datatypes.Person;
 import address.util.FxViewUtil;
+import com.teamdev.jxbrowser.chromium.Browser;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class AddressBookPagePool {
 
-    private ArrayList<EmbeddedBrowserGithubProfilePage> activePages;
+    private ArrayList<GithubProfilePage> activePages;
 
     /**
      * For recycling of browser instance.
@@ -36,7 +38,7 @@ public class AddressBookPagePool {
         nonActiveBrowserStack = new Stack<>();
 
         for (int i=0; i<noOfPages; i++){
-            EmbeddedBrowser browser = new JxBrowserAdapter();
+            EmbeddedBrowser browser = new JxBrowserAdapter(new Browser());
             FxViewUtil.applyAnchorBoundaryParameters(browser.getBrowserView(), 0.0, 0.0, 0.0, 0.0);
             nonActiveBrowserStack.push(browser);
         }
@@ -50,7 +52,7 @@ public class AddressBookPagePool {
      * @return The browser assigned to load the person's profile page.
      */
     public synchronized EmbeddedBrowser loadPersonPage(Person person) {
-        Optional<EmbeddedBrowserGithubProfilePage> foundPage = activePages.stream().filter(embeddedBrowserGithubProfilePage
+        Optional<GithubProfilePage> foundPage = activePages.stream().filter(embeddedBrowserGithubProfilePage
                 -> embeddedBrowserGithubProfilePage.getPerson().equals(person)).findAny();
         if (foundPage.isPresent()) {
             if (!foundPage.get().getPerson().getGithubUserName().equals(person.getGithubUserName())){
@@ -58,14 +60,14 @@ public class AddressBookPagePool {
             }
             return foundPage.get().getBrowser();
         }
-        EmbeddedBrowserGithubProfilePage newPage;
+        GithubProfilePage newPage;
         EmbeddedBrowser browser;
 
         assert !nonActiveBrowserStack.isEmpty();
         browser = nonActiveBrowserStack.pop();
 
         browser.loadPage(person.profilePageUrl());
-        newPage = new EmbeddedBrowserGithubProfilePage(browser, person);
+        newPage = new GithubProfilePage(browser, person);
         activePages.add(newPage);
 
         return browser;
@@ -76,8 +78,8 @@ public class AddressBookPagePool {
      * @param requiredPersons The persons whose pages are <u><b>required</b></u> to be remained in the pool of pages.
      * @return An arraylist of pages that are cleared from the pool of pages.
      */
-    public synchronized ArrayList<EmbeddedBrowserGithubProfilePage> clearPagesNotRequired(ArrayList<Person> requiredPersons) {
-        ArrayList<EmbeddedBrowserGithubProfilePage> listOfNotRequiredPage = activePages.stream().filter(embeddedBrowserGithubProfilePage
+    public synchronized ArrayList<GithubProfilePage> clearPagesNotRequired(ArrayList<Person> requiredPersons) {
+        ArrayList<GithubProfilePage> listOfNotRequiredPage = activePages.stream().filter(embeddedBrowserGithubProfilePage
               -> !requiredPersons.contains(embeddedBrowserGithubProfilePage.getPerson())).collect(Collectors.toCollection(ArrayList::new));
         listOfNotRequiredPage.stream().forEach(page -> {
             nonActiveBrowserStack.push(page.getBrowser());
@@ -92,8 +94,8 @@ public class AddressBookPagePool {
      * @param person The person whose page is to be cleared, if exists.
      * @return An optional page that is cleared from the pool of pages.
      */
-    public synchronized Optional<EmbeddedBrowserGithubProfilePage> clearPersonPage(Person person) {
-        Optional<EmbeddedBrowserGithubProfilePage> page = activePages.stream().filter(embeddedBrowserGithubProfilePage
+    public synchronized Optional<GithubProfilePage> clearPersonPage(Person person) {
+        Optional<GithubProfilePage> page = activePages.stream().filter(embeddedBrowserGithubProfilePage
                 -> person.equals(embeddedBrowserGithubProfilePage.getPerson())).findAny();
 
         if (page.isPresent()){
