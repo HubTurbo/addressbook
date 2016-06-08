@@ -5,6 +5,7 @@ import address.events.EventManager;
 import address.events.TagSearchResultsChangedEvent;
 import address.events.TagsChangedEvent;
 import address.model.datatypes.Person;
+import address.model.datatypes.ReadablePerson;
 import address.model.datatypes.SelectableTag;
 import address.model.datatypes.Tag;
 import address.util.DateTimeUtil;
@@ -106,7 +107,7 @@ public class PersonEditDialogController extends EditDialogController {
     /**
      * Sets the initial placeholder data in the dialog fields
      */
-    public void setInitialPersonData(Person person) {
+    public void setInitialPersonData(ReadablePerson person) {
         firstNameField.setText(person.getFirstName());
         lastNameField.setText(person.getLastName());
         streetField.setText(person.getStreet());

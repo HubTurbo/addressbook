@@ -58,8 +58,13 @@ class VisibleAddressBook implements VisibleModel {
     }
 
     @Override
-    public ObservableList<ObservableViewablePerson> getAllViewablePersons() {
+    public ObservableList<ObservableViewablePerson> getAllViewablePersonsAsObservable() {
         return ObservableViewablePerson.readOnlyCollectionCast(allPersons, FXCollections::observableArrayList);
+    }
+
+    @Override
+    public ObservableList<ReadableViewablePerson> getAllViewablePersonsAsReadOnly() {
+        return ReadableViewablePerson.readOnlyCollectionCast(allPersons, FXCollections::observableArrayList);
     }
 
     @Override

@@ -2,9 +2,10 @@ package address.controller;
 
 import address.MainApp;
 import address.events.*;
+import address.model.datatypes.ReadablePerson;
 import address.model.datatypes.Tag;
 import address.model.ModelManager;
-import address.model.datatypes.Person;
+import address.model.datatypes.ObservableViewablePerson;
 import address.util.Config;
 import address.browser.BrowserManager;
 
@@ -57,7 +58,7 @@ public class MainController {
         this.modelManager = modelManager;
         this.config = config;
         this.mainApp = mainApp;
-        this.browserManager = new BrowserManager(modelManager.getFilteredPersons());
+        this.browserManager = new BrowserManager(modelManager.getAllViewablePersonsAsReadOnly());
     }
 
     public void start(Stage primaryStage) {
@@ -172,7 +173,7 @@ public class MainController {
      * @return a defensively copied optional containing the input data from user, or an empty optional if the
      *          operation is to be cancelled.
      */
-    public Optional<Person> getPersonDataInput(Person defaultData) {
+    public Optional<ReadablePerson> getPersonDataInput(ReadablePerson defaultData) {
         return showPersonEditDialog(defaultData);
     }
 
@@ -184,7 +185,7 @@ public class MainController {
      * @return an optional containing the new data, or an empty optional if there was an error
      *         creating the dialog or the user clicked cancel
      */
-    private Optional<Person> showPersonEditDialog(Person initialData) {
+    private Optional<ReadablePerson> showPersonEditDialog(ReadablePerson initialData) {
         final String fxmlResourcePath = FXML_PERSON_EDIT_DIALOG;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
@@ -205,7 +206,7 @@ public class MainController {
             PersonEditDialogController controller = loader.getController();
             controller.setDialogStage(dialogStage);
             controller.setInitialPersonData(initialData);
-            controller.setTagsModel(modelManager.getTags(), new ArrayList<>(initialData.getTags()));
+            controller.setTagsModel(modelManager.getAllTags(), new ArrayList<>(initialData.getTags()));
 
             dialogStage.showAndWait();
             if (controller.isOkClicked()) {
@@ -314,7 +315,7 @@ public class MainController {
 
             // Set the persons into the controller.
             BirthdayStatisticsController controller = loader.getController();
-            controller.setPersonData(modelManager.getFilteredPersons());
+            controller.setPersonData(modelManager.getAllViewablePersonsAsReadOnly());
 
             dialogStage.show();
         } catch (IOException e) {
@@ -381,7 +382,7 @@ public class MainController {
         browserManager.freeBrowserResources();
     }
 
-    public void loadGithubProfilePage(Person person){
+    public void loadGithubProfilePage(ObservableViewablePerson person){
         browserManager.loadProfilePage(person);
     }
 

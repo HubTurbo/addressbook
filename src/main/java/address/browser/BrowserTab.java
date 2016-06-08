@@ -1,6 +1,6 @@
 package address.browser;
 
-import address.model.datatypes.ObservableViewablePerson;
+import address.model.datatypes.ReadableViewablePerson;
 import com.teamdev.jxbrowser.chromium.Browser;
 
 /**
@@ -8,13 +8,13 @@ import com.teamdev.jxbrowser.chromium.Browser;
  */
 public class BrowserTab extends Browser {
 
-    private ObservableViewablePerson person;
+    private ReadableViewablePerson person;
 
     public BrowserTab() {
         super();
     }
 
-    public ObservableViewablePerson getPerson(){
+    public ReadableViewablePerson getPerson(){
         return this.person;
     }
 
@@ -28,7 +28,7 @@ public class BrowserTab extends Browser {
     /**
      * Loads the person's profile page to the browser tab.
      */
-    public synchronized void loadProfilePage(ObservableViewablePerson person) {
+    public synchronized void loadProfilePage(ReadableViewablePerson person) {
         this.person = person;
         super.loadURL(person.profilePageUrl());
     }

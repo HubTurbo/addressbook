@@ -122,8 +122,16 @@ public class ModelManager implements Model, VisibleModel {
      * @return all persons in visible model
      */
     @Override
-    public ObservableList<ObservableViewablePerson> getAllViewablePersons() {
-        return visibleModel.getAllViewablePersons();
+    public ObservableList<ObservableViewablePerson> getAllViewablePersonsAsObservable() {
+        return visibleModel.getAllViewablePersonsAsObservable();
+    }
+
+    /**
+     * @return all persons in visible model
+     */
+    @Override
+    public ObservableList<ReadableViewablePerson> getAllViewablePersonsAsReadOnly() {
+        return visibleModel.getAllViewablePersonsAsReadOnly();
     }
 
     /**
@@ -211,14 +219,15 @@ public class ModelManager implements Model, VisibleModel {
      * Updates the details of a Person object. Updates to Person objects should be
      * done through this method to ensure the proper events are raised to indicate
      * a change to the model. TODO listen on Person properties and not manually raise events here.
-     * @param original The Person object to be changed.
-     * @param updated The temporary Person object containing new values.
+     * @param target The Person object to be changed.
+     * @param updatedData The temporary Person object containing new values.
      */
-    public synchronized void updatePerson(Person original, Person updated) throws DuplicatePersonException {
-        if (!original.equals(updated) && getAllPersons().contains(updated)) {
-            throw new DuplicatePersonException(updated);
+    public synchronized void updatePerson(ReadablePerson target, ReadablePerson updatedData) throws DuplicatePersonException {
+        if (!target.equals(updatedData) && getAllPersons().contains(updatedData)) {
+            throw new DuplicatePersonException(updatedData);
         }
-        original.update(updated);
+
+        backingModel.findPerson(target).get().update(updatedData);
         EventManager.getInstance().post(new LocalModelChangedEvent(getAllPersons(), getAllTags()));
     }
 
@@ -238,16 +247,14 @@ public class ModelManager implements Model, VisibleModel {
         EventManager.getInstance().post(new LocalModelChangedEvent(getAllPersons(), getAllTags()));
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    // DELETE
-    ///////////////////////////////////////////////////////////////////////
+//// DELETE
 
     /**
      * Deletes the person from the model.
      * @param personToDelete
      * @return true if there was a successful removal
      */
-    public synchronized boolean deletePerson(Person personToDelete){
+    public synchronized boolean deletePerson(ReadablePerson personToDelete){
         return getAllPersons().remove(personToDelete);
     }
 
@@ -256,7 +263,7 @@ public class ModelManager implements Model, VisibleModel {
      * @param toDelete
      * @return true if there was at least one successful removal
      */
-    public synchronized boolean deletePersons(Collection<Person> toDelete) {
+    public synchronized boolean deletePersons(Collection<? extends ReadablePerson> toDelete) {
         return getAllPersons().removeAll(new HashSet<>(toDelete));
     }
 

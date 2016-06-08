@@ -148,8 +148,8 @@ public class RootLayoutController {
     @FXML
     private void handleSave() {
         final File saveFile = PrefsManager.getInstance().getSaveLocation();
-        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getPersonsModel(),
-                                                             modelManager.getTagModel()));
+        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getAllPersons(),
+                                                             modelManager.getAllTags()));
     }
 
     /**
@@ -168,8 +168,8 @@ public class RootLayoutController {
         }
 
         PrefsManager.getInstance().setSaveLocation(file);
-        EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getPersonsModel(),
-                                        modelManager.getTagModel()));
+        EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getAllPersons(),
+                                        modelManager.getAllTags()));
     }
 
     /**
@@ -230,6 +230,6 @@ public class RootLayoutController {
 
     @FXML
     private void handleShowTags() {
-        mainController.showTagList(modelManager.getTagModel());
+        mainController.showTagList(modelManager.getAllViewableTags());
     }
 }

@@ -2,9 +2,11 @@ package address.browser;
 
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
-import address.model.datatypes.ObservableViewablePerson;
+import address.model.datatypes.ReadableViewablePerson;
 import address.model.datatypes.Person;
 
+import address.model.datatypes.ReadablePerson;
+import address.model.datatypes.ReadableViewablePerson;
 import com.google.common.eventbus.Subscribe;
 
 import com.teamdev.jxbrowser.chromium.BrowserCore;
@@ -28,9 +30,9 @@ public class BrowserManager {
 
     private Optional<AddressBookBrowser> browser;
 
-    private ObservableList<ObservableViewablePerson> persons;
+    private ObservableList<ReadableViewablePerson> persons;
 
-    public BrowserManager(ObservableList<ObservableViewablePerson> persons) {
+    public BrowserManager(ObservableList<ReadableViewablePerson> persons) {
         this.persons = persons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
@@ -56,13 +58,13 @@ public class BrowserManager {
      * Updates the browser contents.
      */
     private void updateBrowserContent() {
-        List<ObservableViewablePerson> personsInBrowserCache = browser.get().getPersonsLoadedInCache();
+        List<ReadableViewablePerson> personsInBrowserCache = browser.get().getPersonsLoadedInCache();
         personsInBrowserCache.stream().forEach(person -> {
                 if (persons.indexOf(person) == PERSON_NOT_FOUND){
                     browser.get().unloadProfilePage(person);
                 } else {
                     int indexOfContact = persons.indexOf(person);
-                    ObservableViewablePerson updatedPerson = persons.get(indexOfContact);
+                    ReadableViewablePerson updatedPerson = persons.get(indexOfContact);
 
                     if (!updatedPerson.getGithubUserName().equals(person.getGithubUserName())){
                         browser.get().unloadProfilePage(person);
@@ -83,7 +85,7 @@ public class BrowserManager {
      * Loads the person's profile page to the browser.
      * PreCondition: filteredModelPersons.size() >= 1
      */
-    public void loadProfilePage(ObservableViewablePerson person){
+    public void loadProfilePage(ReadableViewablePerson person){
         if (!browser.isPresent()) return;
         browser.get().loadProfilePage(person);
     }

@@ -2,6 +2,7 @@ package address.controller;
 
 import java.io.IOException;
 
+import address.model.datatypes.ObservableViewablePerson;
 import address.model.datatypes.Person;
 import javafx.beans.binding.StringBinding;
 import javafx.fxml.FXML;
@@ -27,9 +28,9 @@ public class PersonCardController {
     @FXML
     private Label tags;
 
-    private Person person;
+    private ObservableViewablePerson person;
 
-    public PersonCardController(Person person) {
+    public PersonCardController(ObservableViewablePerson person) {
         this.person = person;
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/view/PersonListCard.fxml"));

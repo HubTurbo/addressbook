@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import address.model.datatypes.ReadableViewablePerson;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -47,16 +48,16 @@ public class BirthdayStatisticsController {
      * 
      * @param persons
      */
-    public void setPersonData(List<Person> persons) {
+    public void setPersonData(List<ReadableViewablePerson> persons) {
+
         // Count the number of people having their birthday in a specific month.
         int[] monthCounter = new int[12];
-        for (Person p : persons) {
-            if (p.getBirthday() == null){
-                continue;
+        persons.forEach(person -> {
+            if (person.getBirthday() != null) {
+                int month = person.getBirthday().getMonthValue() - 1;
+                monthCounter[month]++;
             }
-            int month = p.getBirthday().getMonthValue() - 1;
-            monthCounter[month]++;
-        }
+        });
 
         XYChart.Series<String, Integer> series = new XYChart.Series<>();
 

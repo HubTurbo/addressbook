@@ -1,18 +1,18 @@
 package address.status;
 
-import address.model.datatypes.Person;
+import address.model.datatypes.ReadablePerson;
 
 /**
  * An event triggered when an AddressBook's contact is created.
  */
 public class PersonCreatedStatus extends PersonBaseStatus {
 
-    public PersonCreatedStatus(Person person) {
+    public PersonCreatedStatus(ReadablePerson person) {
         super(person);
     }
 
     @Override
     public String toString() {
-        return String.format("%s %s is created", person.getFirstName(), person.getLastName());
+        return person + " was created";
     }
 }

@@ -3,7 +3,9 @@ package address.controller;
 import address.events.*;
 import address.exceptions.DuplicatePersonException;
 import address.model.ModelManager;
+import address.model.datatypes.ObservableViewablePerson;
 import address.model.datatypes.Person;
+import address.model.datatypes.ReadablePerson;
 import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
@@ -28,7 +30,7 @@ import java.util.Optional;
 public class PersonOverviewController {
 
     @FXML
-    private ListView<Person> personList;
+    private ListView<ObservableViewablePerson> personList;
 
     @FXML
     private TextField filterField;
@@ -54,10 +56,10 @@ public class PersonOverviewController {
         this.modelManager = modelManager;
 
         // Add observable list data to the list
-        personList.setItems(modelManager.getFilteredPersons());
+        personList.setItems(modelManager.getAllViewablePersonsAsObservable());
         personList.setCellFactory(listView -> new PersonListViewCell());
         personList.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> mainController.loadGithubProfilePage(new Person(newValue)));
+                (observable, oldValue, newValue) -> mainController.loadGithubProfilePage(newValue));
     }
 
     /**
@@ -83,14 +85,14 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleNewPerson() {
-        Optional<Person> newPerson = Optional.of(new Person());
+        Optional<ReadablePerson> prevInput = Optional.of(new Person());
         while (true) { // keep re-asking until user provides valid input or cancels operation.
-            newPerson = mainController.getPersonDataInput(newPerson.get());
+            prevInput = mainController.getPersonDataInput(prevInput.get());
 
-            if (!newPerson.isPresent()) break;
+            if (!prevInput.isPresent()) break;
             try {
-                modelManager.addPerson(newPerson.get());
-                mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(newPerson.get()));
+                modelManager.addPerson(new Person(prevInput.get()));
+                mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(prevInput.get()));
                 break;
             } catch (DuplicatePersonException e) {
                 mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
@@ -105,22 +107,21 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleEditPerson() {
-        Person selected = personList.getSelectionModel().getSelectedItem();
-        if (selected == null) { // no selection
+        ReadablePerson target = personList.getSelectionModel().getSelectedItem();
+        if (target == null) { // no selection
             mainController.showAlertDialogAndWait(AlertType.WARNING, "No Selection",
                 "No Person Selected", "Please select a person in the list.");
             return;
         }
 
-        Optional<Person> updated = Optional.of(new Person(selected));
+        Optional<ReadablePerson> prevInput = Optional.of(new Person(target));
         while (true) { // keep re-asking until user provides valid input or cancels operation.
-            updated = mainController.getPersonDataInput(updated.get());
-            if (!updated.isPresent()) break;
-
+            prevInput = mainController.getPersonDataInput(prevInput.get());
+            if (!prevInput.isPresent()) break;
             try {
-                mainController.getStatusBarHeaderController().postStatus(new PersonEditedStatus(new Person(selected),
-                                                                                                 updated.get()));
-                modelManager.updatePerson(selected, updated.get());
+                modelManager.updatePerson(target, prevInput.get());
+                mainController.getStatusBarHeaderController().postStatus(new PersonEditedStatus(new Person(target),
+                        prevInput.get()));
                 break;
             } catch (DuplicatePersonException e) {
                 mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate person",

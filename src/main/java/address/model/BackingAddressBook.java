@@ -2,10 +2,13 @@ package address.model;
 
 import address.model.datatypes.ExtractableObservables;
 import address.model.datatypes.Person;
+import address.model.datatypes.ReadablePerson;
 import address.model.datatypes.Tag;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
+import java.util.Optional;
 
 /**
  *
@@ -59,4 +62,13 @@ class BackingAddressBook implements Model {
         allTags.clear();
     }
 
+
+    Optional<Person> findPerson(ReadablePerson personToFind) {
+        for (Person p : allPersons) {
+            if (p.equals(personToFind)) {
+                return Optional.of(p);
+            }
+        }
+        return Optional.empty();
+    }
 }

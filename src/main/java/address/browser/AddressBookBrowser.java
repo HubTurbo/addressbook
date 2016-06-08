@@ -1,7 +1,6 @@
 package address.browser;
 
-import address.model.datatypes.ObservableViewablePerson;
-import address.model.datatypes.Person;
+import address.model.datatypes.ReadableViewablePerson;
 
 import address.model.datatypes.ReadablePerson;
 import com.teamdev.jxbrowser.chromium.Browser;
@@ -30,12 +29,12 @@ public class AddressBookBrowser{
             "<h3><center><font color=\"grey\">To view contact's web page, click on the contact on the left.</font></center></h3></body></html>";
 
     private ArrayList<BrowserTab> browserTabs;
-    private ObservableList<ObservableViewablePerson> persons;
+    private ObservableList<ReadableViewablePerson> persons;
     private TabPane addressBookBrowserView;
 
     private int noOfTabs;
 
-    public AddressBookBrowser(int noOfTabs, ObservableList<ObservableViewablePerson> persons) {
+    public AddressBookBrowser(int noOfTabs, ObservableList<ReadableViewablePerson> persons) {
         this.noOfTabs = noOfTabs;
         addressBookBrowserView = new TabPane();
         this.persons = persons;
@@ -110,14 +109,14 @@ public class AddressBookBrowser{
      * It also performs caching of other person profile page.
      * PreCondition: filteredModelPersons().size() >= 1
      */
-    public void loadProfilePage(ObservableViewablePerson person) {
+    public void loadProfilePage(ReadableViewablePerson person) {
 
         int indexOfPersonInListOfContacts = persons.indexOf(person);
 
-        List<ObservableViewablePerson> listOfPersonsToBeLoaded = getListOfPersonsToBeLoaded(persons,
+        List<ReadableViewablePerson> listOfPersonsToBeLoaded = getListOfPersonsToBeLoaded(persons,
                                                                                indexOfPersonInListOfContacts);
         unloadProfilePages(listOfPersonsToBeLoaded);
-        List<ObservableViewablePerson> listOfAlreadyLoadedPerson = getListOfAlreadyLoadedPerson(listOfPersonsToBeLoaded);
+        List<ReadableViewablePerson> listOfAlreadyLoadedPerson = getListOfAlreadyLoadedPerson(listOfPersonsToBeLoaded);
         listOfPersonsToBeLoaded.removeAll(listOfAlreadyLoadedPerson);
         loadProfilePages(listOfPersonsToBeLoaded);
         selectTabAssignedForPerson(person);
@@ -128,9 +127,9 @@ public class AddressBookBrowser{
      * @param listOfPersonsToBeLoaded A list of person whose profile pages are to be loaded to the browser.
      * @return a list of Person objects that are already loaded in the browser cache.
      */
-    private List<ObservableViewablePerson> getListOfAlreadyLoadedPerson(List<ObservableViewablePerson> listOfPersonsToBeLoaded) {
+    private List<ReadableViewablePerson> getListOfAlreadyLoadedPerson(List<ReadableViewablePerson> listOfPersonsToBeLoaded) {
 
-        List<ObservableViewablePerson> listOfAlreadyLoadedPerson = new ArrayList<>();
+        List<ReadableViewablePerson> listOfAlreadyLoadedPerson = new ArrayList<>();
         browserTabs.stream().forEach(browserTab -> {
                 if (browserTab.getPerson() != null && listOfPersonsToBeLoaded.contains(browserTab.getPerson())) {
                     listOfAlreadyLoadedPerson.add(browserTab.getPerson());
@@ -143,7 +142,7 @@ public class AddressBookBrowser{
      * Unloads profile pages that are unneeded from the cache of the browser.
      * @param listOfPersonsToLoad A list of person that are to be <b>loaded</b> to the browser cache.
      */
-    private void unloadProfilePages(List<ObservableViewablePerson> listOfPersonsToLoad) {
+    private void unloadProfilePages(List<ReadableViewablePerson> listOfPersonsToLoad) {
 
         ArrayList<BrowserTab> tabsToBeUnLoaded = (ArrayList<BrowserTab>) browserTabs
                 .stream()
@@ -167,7 +166,7 @@ public class AddressBookBrowser{
     /**
      * Selects the tab that is used to load the profile page of the person.
      */
-    private void selectTabAssignedForPerson(ObservableViewablePerson person) {
+    private void selectTabAssignedForPerson(ReadableViewablePerson person) {
         browserTabs.stream()
                    .filter(browserTab -> person.equals(browserTab.getPerson()))
                    .forEach(browserTab -> selectTab(browserTabs.indexOf(browserTab)));
@@ -176,7 +175,7 @@ public class AddressBookBrowser{
     /**
      * Loads profile pages into the browser.
      */
-    private void loadProfilePages(List<ObservableViewablePerson> listOfPersonsToBeLoaded) {
+    private void loadProfilePages(List<ReadableViewablePerson> listOfPersonsToBeLoaded) {
 
         ArrayList<BrowserTab> notAssignedTabs = (ArrayList<BrowserTab>) browserTabs.stream()
                                                                                    .filter(page -> !page.isAssigned())
@@ -192,8 +191,8 @@ public class AddressBookBrowser{
      /**
      * Gets a list of person that are needed to be loaded to the browser.
      */
-    private List<ObservableViewablePerson> getListOfPersonsToBeLoaded(List<ObservableViewablePerson> persons, int indexOfPerson) {
-        List<ObservableViewablePerson> listOfPersonsToBeLoaded = new ArrayList<>();
+    private List<ReadableViewablePerson> getListOfPersonsToBeLoaded(List<ReadableViewablePerson> persons, int indexOfPerson) {
+        List<ReadableViewablePerson> listOfPersonsToBeLoaded = new ArrayList<>();
         for (int i = 0; i < noOfTabs && i < persons.size(); i++){
             listOfPersonsToBeLoaded.add(persons.get((indexOfPerson + i) % persons.size()));
         }
@@ -241,8 +240,8 @@ public class AddressBookBrowser{
      * Gets the current list of person that are displayed and stored in the browser.
      * @return a current list of person that are displayed and stored in the browser.
      */
-    public List<ObservableViewablePerson> getPersonsLoadedInCache(){
-        List<ObservableViewablePerson> list = new ArrayList<>();
+    public List<ReadableViewablePerson> getPersonsLoadedInCache(){
+        List<ReadableViewablePerson> list = new ArrayList<>();
         List<BrowserTab> filteredBrowserTabs = browserTabs.stream().filter(browserTab ->
                                                         browserTab.getPerson() != null).collect(Collectors.toList());
         filteredBrowserTabs.stream().forEach(browserTab -> list.add(browserTab.getPerson()));
