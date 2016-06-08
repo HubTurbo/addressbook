@@ -38,18 +38,17 @@ allprojects {
     }
 
     project.ext {
-        log4jVersion = '2.3'
         controlsfxVersion = '8.40.10'
+        guavaVersion = '19.0'
         jacksonVersion = '2.7.0'
         jacksonDataTypeVersion = '2.7.4'
-        guavaVersion = '19.0'
+        jxBrowserVersion = '6.4'
         junitVersion = '4.12'
-        testFxVersion = '3.1.0'
+        log4jVersion = '2.3'
         mockitoVersion = '1+'
         mockServerVersion = '3.10.1'
         powermockVersion = '1.6.5'
-        jxBrowserVersion = '6.4'
-        controlsFxVersion = '8.40.10'
+        testFxVersion = '3.1.0'
 
         outputDir = 'build/libs'
         mainAppArchiveName = 'resource-' + project.version + '.jar'
