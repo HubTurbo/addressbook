@@ -1,5 +1,6 @@
 package address.unittests;
 
+import address.exceptions.DataConversionException;
 import address.sync.CloudFileHandler;
 import address.sync.CloudRateLimitStatus;
 import address.sync.CloudSimulator;
@@ -11,11 +12,7 @@ import address.util.JsonUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.xml.bind.JAXBException;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -40,10 +37,10 @@ public class CloudSimulatorTest {
      * readCloudAddressBookFromFile is also stubbed to return a pre-defined
      * dummy addressbook
      *
-     * @throws JAXBException
+     * @throws DataConversionException
      */
     @Before
-    public void setup() throws JAXBException {
+    public void setup() throws FileNotFoundException, DataConversionException {
         final long resetTime = System.currentTimeMillis()/1000 + API_RESET_DELAY;
         cloudFileHandler = mock(CloudFileHandler.class);
         cloudRateLimitStatus = new CloudRateLimitStatus(STARTING_API_COUNT, resetTime);
@@ -56,7 +53,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void createAddressBook() throws IOException, JAXBException {
+    public void createAddressBook() throws IOException, DataConversionException {
         final int apiUsage = 1;
 
         RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
@@ -66,7 +63,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void createAddressBook_notEnoughQuota_unsuccessfulCreation() throws IOException, JAXBException {
+    public void createAddressBook_notEnoughQuota_unsuccessfulCreation() throws IOException, DataConversionException {
         // Use up quota
         cloudRateLimitStatus.useQuota(STARTING_API_COUNT);
 
@@ -78,7 +75,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void createAddressBook_illegalArgument_unsuccessfulCreation() throws IOException, JAXBException {
+    public void createAddressBook_illegalArgument_unsuccessfulCreation() throws IOException, DataConversionException {
         int apiUsage = 1;
 
         doThrow(new IllegalArgumentException("AddressBook 'Test' already exists!")).when(cloudFileHandler).createCloudAddressBookFile("Test");
@@ -90,8 +87,8 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void createAddressBook_marshalException_unsuccessfulCreation() throws IOException, JAXBException {
-        doThrow(new JAXBException("Error marshalling to file.")).when(cloudFileHandler).createCloudAddressBookFile("Test");
+    public void createAddressBook_marshalException_unsuccessfulCreation() throws IOException, DataConversionException {
+        doThrow(new DataConversionException(new Exception("Error marshalling to file."))).when(cloudFileHandler).createCloudAddressBookFile("Test");
 
         RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
         verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
@@ -101,7 +98,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void deletePerson_enoughQuota_successfulDeletion() throws IOException, JAXBException {
+    public void deletePerson_enoughQuota_successfulDeletion() throws IOException, DataConversionException {
         final int apiUsage = 1;
 
         RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", "firstName", "lastName");
@@ -112,7 +109,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void deletePerson_noSuchPerson_unsuccessfulDeletion() throws JAXBException {
+    public void deletePerson_noSuchPerson_unsuccessfulDeletion() throws DataConversionException, FileNotFoundException {
         int apiUsage = 1;
 
         RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", "unknownName", "unknownName");
@@ -123,8 +120,8 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void deletePerson_marshalException_unsuccessfulDeletion() throws IOException, JAXBException {
-        doThrow(new JAXBException("Error marshalling to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+    public void deletePerson_marshalException_unsuccessfulDeletion() throws IOException, DataConversionException {
+        doThrow(new DataConversionException(new Exception("Error marshalling to file."))).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
         RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", "firstName", "lastName");
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -134,7 +131,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void updatePerson() throws JAXBException {
+    public void updatePerson() throws DataConversionException, FileNotFoundException {
         final int apiUsage = 1;
 
         CloudPerson updatedPerson = prepareUpdatedPerson();
@@ -147,7 +144,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void updatePerson_notEnoughQuota_unsuccessfulUpdate() throws JAXBException {
+    public void updatePerson_notEnoughQuota_unsuccessfulUpdate() throws DataConversionException, FileNotFoundException {
         // Use up quota
         cloudRateLimitStatus.useQuota(STARTING_API_COUNT);
 
@@ -162,7 +159,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void updatePerson_noSuchTag_successfulUpdateAndAddedTag() throws JAXBException {
+    public void updatePerson_noSuchTag_successfulUpdateAndAddedTag() throws DataConversionException, FileNotFoundException {
         final int apiUsage = 1;
 
         // Tag a person with a new tag not yet defined
@@ -188,7 +185,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void addTag() throws JAXBException, IOException {
+    public void addTag() throws DataConversionException, IOException {
         final int apiUsage = 1;
 
         CloudTag newTag = new CloudTag("New Tag");
@@ -206,7 +203,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void editTag() throws JAXBException {
+    public void editTag() throws DataConversionException, FileNotFoundException {
         final int apiUsage = 1;
 
         CloudTag updatedTag = new CloudTag("Updated tag");
@@ -223,7 +220,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void deleteTag() throws JAXBException {
+    public void deleteTag() throws DataConversionException, FileNotFoundException {
         final int apiUsage = 1;
 
         CloudAddressBook resultingAddressBook = getDummyAddressBook();
@@ -237,7 +234,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void getTags() throws JAXBException, IOException {
+    public void getTags() throws DataConversionException, IOException {
         final int apiUsage = 1;
         final int pageNumber = 11;
         final int resourcesPerPage = 20;
@@ -265,7 +262,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void getPersons() throws JAXBException, IOException {
+    public void getPersons() throws DataConversionException, IOException {
         final int apiUsage = 1;
         final int pageNumber = 12;
         final int resourcesPerPage = 30;
@@ -292,7 +289,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void getPersons_sameRequest_notModifiedResponse() throws JAXBException {
+    public void getPersons_sameRequest_notModifiedResponse() throws DataConversionException, FileNotFoundException {
         final int apiUsage = 1;
         final int pageNumber = 12;
         final int resourcesPerPage = 30;
@@ -315,7 +312,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void getRateLimitStatus() throws JAXBException {
+    public void getRateLimitStatus() throws DataConversionException, FileNotFoundException {
         RawCloudResponse cloudResponse = cloudSimulator.getRateLimitStatus(null);
         verify(cloudFileHandler, never()).readCloudAddressBookFromFile("Big Test");
         verify(cloudFileHandler, never()).writeCloudAddressBookToFile(any(CloudAddressBook.class));
@@ -324,7 +321,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void getUpdatedPersons() throws JAXBException, IOException {
+    public void getUpdatedPersons() throws DataConversionException, IOException {
         final int apiUsage = 1;
         final int pageNumber = 1;
         final int resourcesPerPage = 30;
@@ -357,7 +354,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void addPerson() throws JAXBException, IOException {
+    public void addPerson() throws DataConversionException, IOException {
         final int apiUsage = 1;
 
         CloudAddressBook cloudAddressBook = getDummyAddressBook();
