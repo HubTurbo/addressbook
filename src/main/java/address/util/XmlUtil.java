@@ -28,7 +28,7 @@ public class XmlUtil {
         assert file != null;
         assert classToConvert != null;
 
-        if(!file.exists()){
+        if(!FileUtil.isFileExists(file)){
             throw new FileNotFoundException("File not found : " + file.getAbsolutePath());
         }
 
