@@ -13,7 +13,7 @@ import java.util.Optional;
 /**
  * Contains the mapping of shortcuts and the corresponding event to raise
  */
-public class ShortcutsMap {
+public class Bindings {
     private static List<Shortcut> shortcuts = new ArrayList<>();
     private static List<GlobalHotkey> hotkeys = new ArrayList<>();
 
@@ -106,7 +106,7 @@ public class ShortcutsMap {
      * @param keyEvent
      * @return the Shortcut that matches the keyEvent
      */
-    protected Optional<BaseEvent> getEventToRaise(KeyEvent keyEvent) {
+    protected Optional<BaseEvent> getEventToRaiseForShortcut(KeyEvent keyEvent) {
         Optional<Shortcut> matchingShortcut =
                 shortcuts.stream()
                         .filter(shortcut -> shortcut.getKeyCombination().match(keyEvent))

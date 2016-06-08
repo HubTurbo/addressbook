@@ -18,7 +18,7 @@ public class ShortcutsManager extends ComponentManager{
     /** Provider for global hotkeys */
     private final Provider provider = Provider.getCurrentProvider(false);
 
-    public static ShortcutsMap SHORTCUTS = new ShortcutsMap();
+    public static Bindings BINDINGS = new Bindings();
 
 
     public ShortcutsManager(EventManager eventsManager) {
@@ -27,7 +27,7 @@ public class ShortcutsManager extends ComponentManager{
     }
 
     private void initGlobalHotkeys() {
-        for (GlobalHotkey hk: SHORTCUTS.getHotkeys()){
+        for (GlobalHotkey hk: BINDINGS.getHotkeys()){
             provider.register(KeyStroke.getKeyStroke(hk.getHotkeyString()),
                     (hotkey) -> raise(hk.getEventToRaise()));
         }
@@ -36,7 +36,7 @@ public class ShortcutsManager extends ComponentManager{
     @Subscribe
     public void handlePotentialKeyboardShortcutEvent(PotentialKeyboardShortcutEvent potentialKeyboardShortcutEvent) {
 
-        Optional<BaseEvent> eventToRaise = SHORTCUTS.getEventToRaise(potentialKeyboardShortcutEvent.keyEvent);
+        Optional<BaseEvent> eventToRaise = BINDINGS.getEventToRaiseForShortcut(potentialKeyboardShortcutEvent.keyEvent);
         if (eventToRaise.isPresent()) {
             raise(eventToRaise.get());
         } else {
