@@ -23,6 +23,14 @@ import java.util.function.Supplier;
  */
 public class ModelManager implements Model, VisibleModel {
 
+    public static void main(String... a) throws DuplicateDataException {
+        ModelManager x = new ModelManager();
+        List<ObservableViewablePerson> l = x.getAllViewablePersonsAsObservable();
+        x.resetWithSampleData();
+        x.deletePerson(new Person("Hans", "Muster"));
+        x.deletePerson(new ViewablePerson(new Person("Ruth", "Mueller")));
+    }
+
     private final BackingAddressBook backingModel;
     private final VisibleAddressBook visibleModel;
 

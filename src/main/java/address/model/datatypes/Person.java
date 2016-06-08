@@ -273,13 +273,18 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
 //// OTHER LOGIC
 
     @Override
-    public boolean equals(Object otherPerson){
-        if (otherPerson == this) return true;
-        if (otherPerson == null) return false;
-        if (!Person.class.isAssignableFrom(otherPerson.getClass())) return false;
-
-        final Person other = (Person) otherPerson;
-        return this.getFirstName().equals(other.getFirstName()) && this.getLastName().equals(other.getLastName());
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (other == null) return false;
+        if (Person.class.isAssignableFrom(other.getClass())) {
+            final ReadablePerson otherPerson = (ReadablePerson) other;
+            return this.getFirstName().equals(otherPerson.getFirstName())
+                    && this.getLastName().equals(otherPerson.getLastName());
+        }
+        if (ViewablePerson.class.isAssignableFrom(other.getClass())) {
+            return other.equals(this);
+        }
+        return false;
     }
 
     @Override
@@ -289,7 +294,7 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
 
     @Override
     public String toString() {
-        return "Person: " + fullName();
+        return "Person: " + String.format("%s %s", getFirstName(), getLastName());
     }
 
 }

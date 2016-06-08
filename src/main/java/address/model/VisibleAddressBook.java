@@ -45,13 +45,15 @@ class VisibleAddressBook implements VisibleModel {
 
             // ignore permutations (order doesn't matter) and updates (Viewable wrapper handles it)
             while (change.next()) {
-                // removed
-                allPersons.removeAll(change.getRemoved().stream()
-                        // remove map when person ID implemented and VP-P equals comparison is implemented.
-                        .map(ViewablePerson::new).collect(Collectors.toCollection(HashSet::new)));
-                // newly added
-                allPersons.addAll(change.getAddedSubList().stream()
-                        .map(ViewablePerson::new).collect(Collectors.toList()));
+                if (change.wasAdded() || change.wasRemoved()) {
+                    // removed
+                    allPersons.removeAll(change.getRemoved().stream()
+                            // remove map when person ID implemented and VP-P equals comparison is implemented.
+                            .map(ViewablePerson::new).collect(Collectors.toCollection(HashSet::new)));
+                    // newly added
+                    allPersons.addAll(change.getAddedSubList().stream()
+                            .map(ViewablePerson::new).collect(Collectors.toList()));
+                }
             }
 
         });

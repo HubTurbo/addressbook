@@ -30,7 +30,7 @@ import java.util.Optional;
 public class PersonOverviewController {
 
     @FXML
-    private ListView<ObservableViewablePerson> personList;
+    private ListView<ObservableViewablePerson> personListView;
 
     @FXML
     private TextField filterField;
@@ -48,7 +48,7 @@ public class PersonOverviewController {
      */
     @FXML
     private void initialize() {
-        personList.setContextMenu(createContextMenu());
+        personListView.setContextMenu(createContextMenu());
     }
 
     public void setConnections(MainController mainController, ModelManager modelManager) {
@@ -56,10 +56,14 @@ public class PersonOverviewController {
         this.modelManager = modelManager;
 
         // Add observable list data to the list
-        personList.setItems(modelManager.getAllViewablePersonsAsObservable());
-        personList.setCellFactory(listView -> new PersonListViewCell());
-        personList.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> mainController.loadGithubProfilePage(newValue));
+        personListView.setItems(modelManager.getAllViewablePersonsAsObservable());
+        personListView.setCellFactory(listView -> new PersonListViewCell());
+        personListView.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (newValue != null) {
+                        mainController.loadGithubProfilePage(newValue);
+                    }
+                });
     }
 
     /**
@@ -67,11 +71,13 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleDeletePerson() {
-        int selectedIndex = personList.getSelectionModel().getSelectedIndex();
+        int selectedIndex = personListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
+            ReadablePerson target = personListView.getItems().get(selectedIndex);
+            System.out.println("\t" + target);
+            modelManager.deletePerson(target);
             mainController.getStatusBarHeaderController().postStatus(
-                                                    new PersonDeletedStatus(personList.getItems().get(selectedIndex)));
-            modelManager.deletePerson(personList.getItems().get(selectedIndex));
+                    new PersonDeletedStatus(target));
         } else {
             // Nothing selected.
             mainController.showAlertDialogAndWait(AlertType.WARNING,
@@ -107,7 +113,7 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleEditPerson() {
-        ReadablePerson target = personList.getSelectionModel().getSelectedItem();
+        ReadablePerson target = personListView.getSelectionModel().getSelectedItem();
         if (target == null) { // no selection
             mainController.showAlertDialogAndWait(AlertType.WARNING, "No Selection",
                 "No Person Selected", "Please select a person in the list.");
@@ -174,13 +180,13 @@ public class PersonOverviewController {
      */
     private void jumpToList(int targetIndex) {
         Platform.runLater(() -> {
-                if (personList.getItems().size() < targetIndex) {
+                if (personListView.getItems().size() < targetIndex) {
                     return;
                 }
                 int indexOfItem = targetIndex - 1; //to account for list indexes starting from 0
-                personList.getSelectionModel().select(indexOfItem);
-                personList.getFocusModel().focus(indexOfItem);
-                personList.requestFocus();
+                personListView.getSelectionModel().select(indexOfItem);
+                personListView.getFocusModel().focus(indexOfItem);
+                personListView.requestFocus();
             });
     }
 }

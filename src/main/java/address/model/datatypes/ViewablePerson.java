@@ -144,14 +144,20 @@ public class ViewablePerson extends Viewable<Person> implements ObservableViewab
     }
 
 
+    /**
+     * Use backing Person for comparison.
+     */
     @Override
     public boolean equals(Object other) {
         if (other == this) return true;
         if (other == null) return false;
-        if (!ViewablePerson.class.isAssignableFrom(other.getClass())) return false;
-
-        final ViewablePerson otherPerson = (ViewablePerson) other;
-        return backing.equals(otherPerson.backing);
+        if (ViewablePerson.class.isAssignableFrom(other.getClass())) {
+            return backing.equals(((ViewablePerson) other).backing);
+        }
+        if (Person.class.isAssignableFrom(other.getClass())) {
+            return backing.equals(other);
+        }
+        return false;
     }
 
     @Override
