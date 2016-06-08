@@ -1,5 +1,6 @@
 package address.shortcuts;
 
+import address.events.BaseEvent;
 import javafx.scene.input.KeyCombination;
 
 /**
@@ -7,18 +8,23 @@ import javafx.scene.input.KeyCombination;
  */
 public class Shortcut {
     private KeyCombination keyCombination;
-    private Runnable action;
+    private BaseEvent eventToRaise;
 
-    Shortcut(KeyCombination keyCombination, Runnable action) {
+    Shortcut(KeyCombination keyCombination, BaseEvent eventToRaise) {
         this.keyCombination = keyCombination;
-        this.action = action;
+        this.eventToRaise = eventToRaise;
+    }
+
+    Shortcut(KeyCombination keyCombination) {
+        this.keyCombination = keyCombination;
+        this.eventToRaise = null;
     }
 
     public KeyCombination getKeyCombination() {
         return keyCombination;
     }
 
-    public Runnable getAction() {
-        return action;
+    public BaseEvent getEventToRaise() {
+        return eventToRaise;
     }
 }

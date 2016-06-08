@@ -1,5 +1,6 @@
 package address.shortcuts;
 
+import address.events.BaseEvent;
 import address.events.EventManager;
 import address.events.PotentialKeyboardShortcutEvent;
 import com.google.common.eventbus.Subscribe;
@@ -34,9 +35,9 @@ public class ShortcutsManager {
     @Subscribe
     public void handlePotentialKeyboardShortcutEvent(PotentialKeyboardShortcutEvent potentialKeyboardShortcutEvent) {
 
-        Optional<Runnable> action = SHORTCUTS.getAction(potentialKeyboardShortcutEvent.keyEvent);
-        if (action.isPresent()) {
-            action.get().run();
+        Optional<BaseEvent> eventToRaise = SHORTCUTS.getEventToRaise(potentialKeyboardShortcutEvent.keyEvent);
+        if (eventToRaise.isPresent()) {
+            EventManager.getInstance().post(eventToRaise.get());
         } else {
             System.out.println("No action for shortcut " + potentialKeyboardShortcutEvent.keyEvent);
         }
