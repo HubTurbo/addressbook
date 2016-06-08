@@ -5,27 +5,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
 class VisibleAddressBook implements VisibleModel {
 
-    private final BackingAddressBook backingModel;
+    final BackingAddressBook backingModel;
 
-    private final ObservableList<ViewablePerson> allPersons;
-    private final ObservableList<ObservableViewablePerson> allPersonsImmutable;
-
-
-    private final ObservableList<Tag> allTags; // todo change to viewabletag class
+    final ObservableList<ViewablePerson> allPersons;
+    final ObservableList<Tag> allTags; // todo change to viewabletag class
 
     {
         allPersons = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
-        allPersonsImmutable = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
-        allPersonsImmutable.setAll(allPersons);
-        allPersons.addListener((ListChangeListener<? super ViewablePerson>) change -> {
-
-        });
     }
 
     VisibleAddressBook(BackingAddressBook src) {
@@ -37,7 +28,6 @@ class VisibleAddressBook implements VisibleModel {
                         .collect(Collectors.toList()));
 
         bindPersonsToBacking();
-
     }
 
     private void bindPersonsToBacking() {

@@ -15,8 +15,8 @@ import java.util.Optional;
  */
 class BackingAddressBook implements Model {
 
-    private final ObservableList<Person> allPersons;
-    private final ObservableList<Tag> allTags;
+    final ObservableList<Person> allPersons;
+    final ObservableList<Tag> allTags;
 
     {
         allPersons = FXCollections.observableArrayList(ExtractableObservables::extractFrom);

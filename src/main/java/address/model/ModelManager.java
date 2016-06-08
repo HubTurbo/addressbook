@@ -11,7 +11,6 @@ import com.google.common.eventbus.Subscribe;
 
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.WeakListChangeListener;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,14 +21,6 @@ import java.util.function.Supplier;
  * All changes to any model should be synchronized. (FX and sync thread may clash).
  */
 public class ModelManager implements Model, VisibleModel {
-
-    public static void main(String... a) throws DuplicateDataException {
-        ModelManager x = new ModelManager();
-        List<ObservableViewablePerson> l = x.getAllViewablePersonsAsObservable();
-        x.resetWithSampleData();
-        x.deletePerson(new Person("Hans", "Muster"));
-        x.deletePerson(new ViewablePerson(new Person("Ruth", "Mueller")));
-    }
 
     private final BackingAddressBook backingModel;
     private final VisibleAddressBook visibleModel;
@@ -82,14 +73,14 @@ public class ModelManager implements Model, VisibleModel {
         superclassList.addAll(sourceList);
 
         // bind superclasslist to source list (add and delete. update not needed because elements are the same)
-        sourceList.addListener(new WeakListChangeListener<>(change -> {
+        sourceList.addListener((ListChangeListener<? super F>) change -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
                     superclassList.removeAll(change.getRemoved());
                     superclassList.addAll(change.getAddedSubList());
                 }
             }
-        }));
+        });
 
         return superclassList;
     }
@@ -171,14 +162,14 @@ public class ModelManager implements Model, VisibleModel {
 
     /**
      * Adds a person to the model
-     * @param personToAdd
      * @throws DuplicatePersonException when this operation would cause duplicates
      */
-    public synchronized void addPerson(Person personToAdd) throws DuplicatePersonException {
-        if (getAllPersons().contains(personToAdd)) {
+    public synchronized void addPerson(ReadablePerson personToAdd) throws DuplicatePersonException {
+        final Person toAdd = new Person(personToAdd);
+        if (getAllPersons().contains(toAdd)) {
             throw new DuplicatePersonException(personToAdd);
         }
-        getAllPersons().add(personToAdd);
+        getAllPersons().add(toAdd);
     }
 
     /**
