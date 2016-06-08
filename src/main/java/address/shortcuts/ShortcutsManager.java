@@ -23,15 +23,15 @@ public class ShortcutsManager {
     private static List<GlobalHotkey> hotkeys = new ArrayList<>();
 
     /* shortcuts in alphabetical order of names */
-    public static final List<String> HOTKEY_APP_MINIMIZE = new ArrayList<>();
-    public static final List<String> HOTKEY_APP_MAXIMIZE = new ArrayList<>();
-    public static final KeyCombination SHORTCUT_FILE_NEW;
-    public static final KeyCombination SHORTCUT_FILE_OPEN;
-    public static final KeyCombination SHORTCUT_FILE_SAVE;
-    public static final KeyCombination SHORTCUT_FILE_SAVE_AS;
-    public static final KeyCombination SHORTCUT_LIST_ENTER;
-    public static final KeyCombination SHORTCUT_PERSON_DELETE;
-    public static final KeyCombination SHORTCUT_PERSON_EDIT;
+    public static final List<GlobalHotkey> HOTKEY_APP_MINIMIZE = new ArrayList<>();
+    public static final List<GlobalHotkey> HOTKEY_APP_MAXIMIZE = new ArrayList<>();
+    public static final Shortcut SHORTCUT_FILE_NEW;
+    public static final Shortcut SHORTCUT_FILE_OPEN;
+    public static final Shortcut SHORTCUT_FILE_SAVE;
+    public static final Shortcut SHORTCUT_FILE_SAVE_AS;
+    public static final Shortcut SHORTCUT_LIST_ENTER;
+    public static final Shortcut SHORTCUT_PERSON_DELETE;
+    public static final Shortcut SHORTCUT_PERSON_EDIT;
 
     static {
 
@@ -101,10 +101,11 @@ public class ShortcutsManager {
      * @param modifierKey
      * @return corresponding key combination
      */
-    private static KeyCombination setShortcut(KeyCode mainKey, KeyCombination.Modifier... modifierKey) {
+    private static Shortcut setShortcut(KeyCode mainKey, KeyCombination.Modifier... modifierKey) {
         KeyCodeCombination keyCodeCombination = new KeyCodeCombination(mainKey, modifierKey);
-        shortcuts.add(new Shortcut(keyCodeCombination, () -> {}));
-        return keyCodeCombination;
+        Shortcut s = new Shortcut(keyCodeCombination, () -> { });
+        shortcuts.add(s);
+        return s;
     }
 
     /**
@@ -114,16 +115,18 @@ public class ShortcutsManager {
      * @param action
      * @return corresponding key combination
      */
-    private static KeyCodeCombination setShortcut(KeyCode mainKey, KeyCombination.Modifier modifierKey,
+    private static Shortcut setShortcut(KeyCode mainKey, KeyCombination.Modifier modifierKey,
                                                   Runnable action) {
         KeyCodeCombination keyCombination = new KeyCodeCombination(mainKey, modifierKey);
-        shortcuts.add(new Shortcut(keyCombination, action));
-        return keyCombination;
+        Shortcut s = new Shortcut(keyCombination, action);
+        shortcuts.add(s);
+        return s;
     }
 
-    private static String setHotkey(String hotkeyString, BaseEvent eventToRaise) {
-        hotkeys.add(new GlobalHotkey(hotkeyString, eventToRaise));
-        return hotkeyString;
+    private static GlobalHotkey setHotkey(String hotkeyString, BaseEvent eventToRaise) {
+        GlobalHotkey hk = new GlobalHotkey(hotkeyString, eventToRaise);
+        hotkeys.add(hk);
+        return hk;
     }
 
 
@@ -134,9 +137,9 @@ public class ShortcutsManager {
     private Optional<Runnable> getAction(KeyEvent keyEvent) {
         Optional<Shortcut> matchingShortcut =
                 shortcuts.stream()
-                        .filter(shortcut -> shortcut.keyCombination.match(keyEvent))
+                        .filter(shortcut -> shortcut.getKeyCombination().match(keyEvent))
                         .findFirst();
-        return Optional.ofNullable(matchingShortcut.isPresent() ? matchingShortcut.get().action : null);
+        return Optional.ofNullable(matchingShortcut.isPresent() ? matchingShortcut.get().getAction() : null);
     }
 
     @Subscribe
