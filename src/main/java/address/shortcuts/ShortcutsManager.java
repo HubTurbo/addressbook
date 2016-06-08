@@ -3,6 +3,7 @@ package address.shortcuts;
 import address.events.BaseEvent;
 import address.events.EventManager;
 import address.events.PotentialKeyboardShortcutEvent;
+import address.main.ComponentManager;
 import com.google.common.eventbus.Subscribe;
 import com.tulskiy.keymaster.common.Provider;
 
@@ -12,7 +13,7 @@ import java.util.Optional;
 /**
  * Manages keyboard shortcuts
  */
-public class ShortcutsManager {
+public class ShortcutsManager extends ComponentManager{
 
     /** Provider for global hotkeys */
     private final Provider provider = Provider.getCurrentProvider(false);
@@ -20,15 +21,15 @@ public class ShortcutsManager {
     public static ShortcutsMap SHORTCUTS = new ShortcutsMap();
 
 
-    public ShortcutsManager() {
-        EventManager.getInstance().registerHandler(this);
+    public ShortcutsManager(EventManager eventsManager) {
+        super(eventsManager);
         initGlobalHotkeys();
     }
 
     private void initGlobalHotkeys() {
         for (GlobalHotkey hk: SHORTCUTS.getHotkeys()){
             provider.register(KeyStroke.getKeyStroke(hk.getHotkeyString()),
-                    (hotkey) -> EventManager.getInstance().post(hk.getEventToRaise()));
+                    (hotkey) -> raise(hk.getEventToRaise()));
         }
     }
 
@@ -37,7 +38,7 @@ public class ShortcutsManager {
 
         Optional<BaseEvent> eventToRaise = SHORTCUTS.getEventToRaise(potentialKeyboardShortcutEvent.keyEvent);
         if (eventToRaise.isPresent()) {
-            EventManager.getInstance().post(eventToRaise.get());
+            raise(eventToRaise.get());
         } else {
             System.out.println("No action for shortcut " + potentialKeyboardShortcutEvent.keyEvent);
         }

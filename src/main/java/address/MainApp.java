@@ -66,7 +66,7 @@ public class MainApp extends Application {
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
 
-        shortcutsManager = new ShortcutsManager();
+        shortcutsManager = new ShortcutsManager(EventManager.getInstance());
 
         updateManager = new UpdateManager();
         alertMissingDependencies();
