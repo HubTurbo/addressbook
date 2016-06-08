@@ -28,9 +28,6 @@ public class BrowserManager {
     private static final String INSTRUCTION_PAGE_HTML_CODE =
             "<h3><center><font color=\"grey\">To view contact's web page, click on the contact on the left.</font></center></h3></body></html>";
 
-
-    //private Optional<AddressBookBrowser> browser;
-
     private ObservableList<Person> filteredPersons;
 
     public Optional<AddressBookPagePool> addressBookPagePool;
@@ -61,9 +58,9 @@ public class BrowserManager {
     /**
      * Updates the browser contents.
      */
-    private void updateBrowserContent() {
-        ArrayList<Person> personsInBrowserCache = addressBookPagePool.get().getPersonsLoadedInCache();
-        personsInBrowserCache.stream().forEach(person -> {
+    private synchronized void updateBrowserContent() {
+        ArrayList<Person> pagesPerson = addressBookPagePool.get().getActivePagesPerson();
+        pagesPerson.stream().forEach(person -> {
                 if (filteredPersons.indexOf(person) == PERSON_NOT_FOUND){
                     Optional<EmbeddedBrowserGithubProfilePage> page = addressBookPagePool.get().clearPersonPage(person);
                     browserPane.getChildren().remove(page.get().getBrowser().getBrowserView());
@@ -91,25 +88,25 @@ public class BrowserManager {
      * Loads the person's profile page to the browser.
      * PreCondition: filteredModelPersons.size() >= 1
      */
-    public void loadProfilePage(Person person) {
+    public synchronized void loadProfilePage(Person person) {
         if (!addressBookPagePool.isPresent()) return;
 
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
-        ArrayList<Person> listOfAdditionalPersonToBeLoaded = getListOfAdditionalPersonToBeLoaded(
-                                                             filteredPersons, indexOfPersonInListOfContacts);
-        addressBookPagePool.get().clearNotRequiredPages(listOfAdditionalPersonToBeLoaded);
+        ArrayList<Person> listOfRequiredPerson = getListOfRequiredPerson(filteredPersons,
+                                                                         indexOfPersonInListOfContacts);
+        addressBookPagePool.get().clearPagesNotRequired(listOfRequiredPerson);
 
         EmbeddedBrowser browserView = addressBookPagePool.get().loadPersonPage(person);
 
         replaceBrowserView(browserView.getBrowserView());
 
-        listOfAdditionalPersonToBeLoaded.remove(person);
-        preloadAdditionalPersonProfile(listOfAdditionalPersonToBeLoaded);
+        listOfRequiredPerson.remove(person);
+        preloadAdditionalPersonProfile(listOfRequiredPerson);
     }
 
     /**
-     *
+     * Pre-loads a list of person's profile page into the pool of pages.
      * @param listOfPerson The list of person whose profile pages are to be preloaded to the pool of browsers.
      */
     private void preloadAdditionalPersonProfile(ArrayList<Person> listOfPerson) {
@@ -126,7 +123,7 @@ public class BrowserManager {
     /**
      * Gets a list of person that are needed to be loaded to the browser.
      */
-    private ArrayList<Person> getListOfAdditionalPersonToBeLoaded(List<Person> filteredPersons, int indexOfPerson) {
+    private ArrayList<Person> getListOfRequiredPerson(List<Person> filteredPersons, int indexOfPerson) {
         ArrayList<Person> listOfPersonToBeLoaded = new ArrayList<>();
 
         for (int i = 0; i < NUMBER_OF_PRELOADED_PAGE && i < filteredPersons.size(); i++){

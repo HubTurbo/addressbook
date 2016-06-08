@@ -61,8 +61,6 @@ public class MainController {
         this.modelManager = modelManager;
         this.config = config;
         this.mainApp = mainApp;
-        browserPane = new AnchorPane();
-        this.browserManager = new BrowserManager(modelManager.getAllViewablePersonsReadOnly(), browserPane);
     }
 
     public void start(Stage primaryStage) {
@@ -382,7 +380,6 @@ public class MainController {
     /**
      *  Releases resources to ensure successful application termination.
      */
-
     public void releaseResourcesForAppTermination(){
         browserManager.freeBrowserResources();
     }
@@ -392,9 +389,9 @@ public class MainController {
     }
 
     public void showPersonWebPage() {
+        this.browserPane = new AnchorPane();
+        this.browserManager = new BrowserManager(modelManager.getFilteredPersons(), browserPane);
         SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-        //Optional<TabPane> browserView = browserManager.getBrowserView();
-        //if (!browserView.isPresent()) return;
         pane.getItems().add(browserPane);
     }
 
