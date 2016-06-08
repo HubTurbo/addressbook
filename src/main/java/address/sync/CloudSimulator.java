@@ -23,10 +23,12 @@ import java.util.stream.Collectors;
  * Requests for a full list of objects should be done in pages. Responses
  * will include first page/prev page/next page/last page if they exist.
  *
+ * Any bad requests due to inappropriate parameters will still consume API
+ * usage.
+ *
  * In addition, data returned by this cloud may be modified due to
  * simulated corruption or its responses may have significant delays,
  * if the cloud is initialized with an unreliable network parameter
- *
  */
 public class CloudSimulator implements ICloudSimulator {
     private static final int API_QUOTA_PER_HOUR = 5000;
@@ -88,6 +90,7 @@ public class CloudSimulator implements ICloudSimulator {
             cloudRateLimitStatus.useQuota(1);
             return cloudResponse;
         } catch (IllegalArgumentException e) {
+            cloudRateLimitStatus.useQuota(1);
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
         } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -220,6 +223,7 @@ public class CloudSimulator implements ICloudSimulator {
             cloudRateLimitStatus.useQuota(1);
             return cloudResponse;
         } catch (NoSuchElementException e) {
+            cloudRateLimitStatus.useQuota(1);
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
         } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -250,6 +254,7 @@ public class CloudSimulator implements ICloudSimulator {
             cloudRateLimitStatus.useQuota(1);
             return getEmptyResponse(HttpURLConnection.HTTP_NO_CONTENT);
         } catch (NoSuchElementException e) {
+            cloudRateLimitStatus.useQuota(1);
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
         } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -285,6 +290,7 @@ public class CloudSimulator implements ICloudSimulator {
             cloudRateLimitStatus.useQuota(1);
             return cloudResponse;
         } catch (IllegalArgumentException e) {
+            cloudRateLimitStatus.useQuota(1);
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
         } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -321,6 +327,7 @@ public class CloudSimulator implements ICloudSimulator {
             cloudRateLimitStatus.useQuota(1);
             return cloudResponse;
         } catch (NoSuchElementException e) {
+            cloudRateLimitStatus.useQuota(1);
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
         } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -351,6 +358,7 @@ public class CloudSimulator implements ICloudSimulator {
             cloudRateLimitStatus.useQuota(1);
             return getEmptyResponse(HttpURLConnection.HTTP_NO_CONTENT);
         } catch (NoSuchElementException e) {
+            cloudRateLimitStatus.useQuota(1);
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
         } catch (FileNotFoundException | DataConversionException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -381,6 +389,7 @@ public class CloudSimulator implements ICloudSimulator {
         } catch (DataConversionException | IOException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         } catch (IllegalArgumentException e) {
+            cloudRateLimitStatus.useQuota(1);
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
         }
     }

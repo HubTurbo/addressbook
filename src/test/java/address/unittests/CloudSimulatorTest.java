@@ -78,20 +78,26 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void createAddressBook_sameName_unsuccessfulCreation() throws IOException, JAXBException {
-        final int apiUsage = 1;
+    public void createAddressBook_illegalArgument_unsuccessfulCreation() throws IOException, JAXBException {
+        int apiUsage = 1;
+
+        doThrow(new IllegalArgumentException("AddressBook 'Test' already exists!")).when(cloudFileHandler).createCloudAddressBookFile("Test");
 
         RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
         verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
         assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
-        assertEquals(HttpURLConnection.HTTP_CREATED, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
+    }
 
-        doThrow(new IllegalArgumentException("AddressBook 'Test' already exists!")).when(cloudFileHandler).createCloudAddressBookFile("Test");
+    @Test
+    public void createAddressBook_marshalException_unsuccessfulCreation() throws IOException, JAXBException {
+        doThrow(new JAXBException("Error marshalling to file.")).when(cloudFileHandler).createCloudAddressBookFile("Test");
 
-        RawCloudResponse cloudResponse2 = cloudSimulator.createAddressBook("Test");
-        verify(cloudFileHandler, times(2)).createCloudAddressBookFile("Test");
-        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
-        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse2.getResponseCode());
+        RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
+        verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
+
+        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
     }
 
     @Test
@@ -107,11 +113,24 @@ public class CloudSimulatorTest {
 
     @Test
     public void deletePerson_noSuchPerson_unsuccessfulDeletion() throws JAXBException {
+        int apiUsage = 1;
+
         RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", "unknownName", "unknownName");
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
         verify(cloudFileHandler, never()).writeCloudAddressBookToFile(any(CloudAddressBook.class));
-        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
         assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
+    }
+
+    @Test
+    public void deletePerson_marshalException_unsuccessfulDeletion() throws IOException, JAXBException {
+        doThrow(new JAXBException("Error marshalling to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
+        RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", "firstName", "lastName");
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
     }
 
     @Test
