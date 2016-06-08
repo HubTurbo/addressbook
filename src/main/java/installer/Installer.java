@@ -158,8 +158,6 @@ public class Installer extends Application {
                 .filter(libDesc -> libDesc.getOs() == OsDetector.getOs())
                 .collect(Collectors.toList());
 
-        Platform.runLater(() -> loadingLabel.setText("Initializing. Downloading required components. Please wait."));
-
         for (LibraryDescriptor platformDependentLibrary : platformDependentLibraries) {
             URL downloadLink;
             try {
@@ -186,6 +184,8 @@ public class Installer extends Application {
                         platformDependentLibrary.getFilename());
                 e.printStackTrace();
             }
+            
+            Platform.runLater(() -> loadingLabel.setText("Initializing. Downloading required components. Please wait."));
 
             try {
                 downloadFile(libFile, downloadLink);
