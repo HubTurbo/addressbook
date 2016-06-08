@@ -3,6 +3,7 @@ package address.unittests.util;
 import address.exceptions.DataConversionException;
 import address.model.AddressBook;
 import address.util.AddressBookBuilder;
+import address.util.FileUtil;
 import address.util.XmlUtil;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 
 public class XmlUtilTest {
 
-    private static final String TEST_DATA_FOLDER = "src\\test\\data\\XmlUtilTest\\";
+    private static final String TEST_DATA_FOLDER = FileUtil.getPath("src/test/data/XmlUtilTest/");
     private static final File EMPTY_FILE = new File(TEST_DATA_FOLDER + "empty.xml");
     private static final File MISSING_FILE = new File(TEST_DATA_FOLDER + "missing.xml");
     private static final File VALID_FILE = new File(TEST_DATA_FOLDER + "validAddressBook.xml");
