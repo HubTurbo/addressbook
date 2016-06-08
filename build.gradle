@@ -87,8 +87,8 @@ allprojects {
         }
         testCompile "org.mockito:mockito-core:$mockitoVersion"
         testCompile group: "org.mock-server", name: "mockserver-netty", version: "$mockServerVersion"
-        testCompile group: "org.powermock", name: "powermock", version: "$powermockVersion"
-        testCompile group: "org.powermock", name: "powermock-api-mockito-common", version: "$powermockVersion"
+        testCompile "org.powermock:powermock-api-mockito:$powermockVersion"
+        testCompile "org.powermock:powermock-module-junit4:$powermockVersion"
         testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
     }
 
