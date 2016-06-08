@@ -25,17 +25,14 @@ public class BrowserManager {
     public static final int NUMBER_OF_PRELOADED_PAGE = 3;
     public static final int PERSON_NOT_FOUND = -1;
 
-    private static final String INSTRUCTION_PAGE_HTML_CODE =
-            "<h3><center><font color=\"grey\">To view contact's web page, click on the contact on the left.</font></center></h3></body></html>";
-
     private ObservableList<Person> filteredPersons;
 
     public Optional<AddressBookPagePool> addressBookPagePool;
 
-    private AnchorPane browserPane;
+    private AnchorPane browserPlaceHolder;
 
-    public BrowserManager(ObservableList<Person> filteredPersons, AnchorPane browserPane) {
-        this.browserPane = browserPane;
+    public BrowserManager(ObservableList<Person> filteredPersons, AnchorPane browserPlaceHolder) {
+        this.browserPlaceHolder = browserPlaceHolder;
         this.filteredPersons = filteredPersons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
@@ -63,7 +60,7 @@ public class BrowserManager {
         pagesPerson.stream().forEach(person -> {
                 if (filteredPersons.indexOf(person) == PERSON_NOT_FOUND){
                     Optional<EmbeddedBrowserGithubProfilePage> page = addressBookPagePool.get().clearPersonPage(person);
-                    browserPane.getChildren().remove(page.get().getBrowser().getBrowserView());
+                    browserPlaceHolder.getChildren().remove(page.get().getBrowser().getBrowserView());
                 } else {
                     int indexOfContact = filteredPersons.indexOf(person);
                     Person updatedPerson = filteredPersons.get(indexOfContact);
@@ -114,10 +111,10 @@ public class BrowserManager {
     }
 
     private void replaceBrowserView(Node browserView) {
-        if (browserPane.getChildren().size() >= 1){
-            browserPane.getChildren().remove(0);
+        if (browserPlaceHolder.getChildren().size() >= 1){
+            browserPlaceHolder.getChildren().remove(0);
         }
-        browserPane.getChildren().add(browserView);
+        browserPlaceHolder.getChildren().add(browserView);
     }
 
     /**

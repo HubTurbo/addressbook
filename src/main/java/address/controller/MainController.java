@@ -18,7 +18,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
@@ -33,6 +32,7 @@ import java.util.Optional;
  * The controller that creates the other controllers
  */
 public class MainController {
+    private static final String FXML_BROWSER_PLACE_HOLDER = "/view/BrowserPlaceHolder.fxml";
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
@@ -389,10 +389,19 @@ public class MainController {
     }
 
     public void showPersonWebPage() {
-        this.browserPane = new AnchorPane();
-        this.browserManager = new BrowserManager(modelManager.getFilteredPersons(), browserPane);
-        SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-        pane.getItems().add(browserPane);
+        String fxmlResourcePath = FXML_BROWSER_PLACE_HOLDER;
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            this.browserPane = (AnchorPane) loader.load();
+            this.browserManager = new BrowserManager(modelManager.getFilteredPersons(), browserPane);
+            SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
+            pane.getItems().add(browserPane);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for browser.",
+                    "IOException when trying to load " + fxmlResourcePath);
+        }
     }
 
     @Subscribe
