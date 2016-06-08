@@ -77,9 +77,6 @@ public class CloudService implements ICloudService {
 
         // Use the header of the last request, which contains the latest API rate limit
         HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-        if (!isValid(cloudResponse)) {
-            return getResponseWithNoData(cloudResponse, headerHashMap);
-        }
 
         return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
@@ -111,9 +108,6 @@ public class CloudService implements ICloudService {
 
         // Use the header of the last request, which contains the latest API rate limit
         HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-        if (!isValid(cloudResponse)) {
-            return getResponseWithNoData(cloudResponse, headerHashMap);
-        }
 
         return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
@@ -291,9 +285,6 @@ public class CloudService implements ICloudService {
 
         // Use the header of the last request, which contains the latest API rate limit
         HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-        if (!isValid(cloudResponse)) {
-            return getResponseWithNoData(cloudResponse, headerHashMap);
-        }
 
         return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
