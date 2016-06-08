@@ -47,6 +47,7 @@ allprojects {
         testFxVersion = '3.1.0'
         mockitoVersion = '1+'
         mockServerVersion = '3.10.1'
+        powermockVersion = '1.6.5'
         jxBrowserVersion = '6.4'
         controlsFxVersion = '8.40.10'
 
@@ -86,6 +87,8 @@ allprojects {
         }
         testCompile "org.mockito:mockito-core:$mockitoVersion"
         testCompile group: "org.mock-server", name: "mockserver-netty", version: "$mockServerVersion"
+        testCompile "org.powermock:powermock-api-mockito:$powermockVersion"
+        testCompile "org.powermock:powermock-module-junit4:$powermockVersion"
         testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
     }
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addressbook>
+    <persons>
+        <city></city>
+        <firstName>John</firstName>
+        <githubUserName></githubUserName>
+        <isDeleted>false</isDeleted>
+        <isEdited>false</isEdited>
+        <lastName>Doe</lastName>
+        <postalCode></postalCode>
+        <street></street>
+    </persons>
+    <tags>
+        <name>Friends</name>
+    </tags>
+</addressbook>
