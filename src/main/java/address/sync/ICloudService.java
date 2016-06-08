@@ -5,6 +5,7 @@ import address.model.datatypes.Person;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 public interface ICloudService {
@@ -25,6 +26,6 @@ public interface ICloudService {
     ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time) throws IOException;
 
     // Does not consume API
-    ExtractedCloudResponse<RateLimitStatus> getLimitStatus() throws IOException;
+    ExtractedCloudResponse<HashMap<String, String>> getLimitStatus() throws IOException;
 
 }

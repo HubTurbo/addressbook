@@ -43,4 +43,19 @@ public class CloudAddressBook {
         return this.tagsList;
     }
 
+    public boolean equals(Object o) {
+        if (!(o instanceof CloudAddressBook)) return false;
+
+        CloudAddressBook cloudAddressBook = (CloudAddressBook) o;
+        return cloudAddressBook.getAllPersons().equals(personsList) &&
+                cloudAddressBook.getAllTags().equals(tagsList);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (personsList != null ? personsList.hashCode() : 0);
+        result = 31 * result + (tagsList != null ? tagsList.hashCode() : 0);
+        return result;
+    }
 }
