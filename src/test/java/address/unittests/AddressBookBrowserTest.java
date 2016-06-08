@@ -3,6 +3,8 @@ package address.unittests;
 import address.browser.AddressBookBrowser;
 import address.browser.BrowserTab;
 import address.model.datatypes.Person;
+import address.model.datatypes.ReadableViewablePerson;
+import address.model.datatypes.ViewablePerson;
 import address.util.JavafxThreadingRule;
 import address.util.TestUtil;
 
@@ -18,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Test cases to test AddressBookBrowser
@@ -34,8 +37,8 @@ public class AddressBookBrowserTest {
     public void testLoadProfilePage_oneTab_browserIsAssignedToLoadPerson() throws NoSuchMethodException,
                                                                                   InvocationTargetException,
                                                                                   IllegalAccessException {
-        ObservableList<Person> list = FXCollections.observableArrayList();
-        list.setAll(TestUtil.generateSampleData());
+        ObservableList<ReadableViewablePerson> list = FXCollections.observableArrayList();
+        list.setAll(TestUtil.generateSampleViewablePersonData());
 
         AddressBookBrowser browser = new AddressBookBrowser(1, list);
         ArrayList<BrowserTab> tabs = getBrowserTabs(browser);
@@ -51,8 +54,8 @@ public class AddressBookBrowserTest {
     public void testLoadProfilePage_twoTabs_browserIsAssignedToLoadPersons() throws NoSuchMethodException,
                                                                                     InvocationTargetException,
                                                                                     IllegalAccessException {
-        ObservableList<Person> list = FXCollections.observableArrayList();
-        list.setAll(TestUtil.generateSampleData());
+        ObservableList<ReadableViewablePerson> list = FXCollections.observableArrayList();
+        list.setAll(TestUtil.generateSampleViewablePersonData());
         AddressBookBrowser browser = new AddressBookBrowser(2, list);
         ArrayList<BrowserTab> browserTabs = getBrowserTabs(browser);
 
@@ -73,8 +76,8 @@ public class AddressBookBrowserTest {
                                                                                            throws NoSuchMethodException,
                                                                                            InvocationTargetException,
                                                                                            IllegalAccessException {
-        List<Person> sampleList = TestUtil.generateSampleData();
-        ObservableList<Person> list = FXCollections.observableArrayList();
+        List<ViewablePerson> sampleList = TestUtil.generateSampleViewablePersonData();
+        ObservableList<ReadableViewablePerson> list = FXCollections.observableArrayList();
         list.add(sampleList.get(0));
         AddressBookBrowser browser = new AddressBookBrowser(3, list);
         ArrayList<BrowserTab> browserTabs = getBrowserTabs(browser);
@@ -91,8 +94,8 @@ public class AddressBookBrowserTest {
                                                                                         throws NoSuchMethodException,
                                                                                         InvocationTargetException,
                                                                                         IllegalAccessException {
-        List<Person> sampleList = TestUtil.generateSampleData();
-        ObservableList<Person> list = FXCollections.observableArrayList();
+        List<ViewablePerson> sampleList = TestUtil.generateSampleViewablePersonData();
+        ObservableList<ReadableViewablePerson> list = FXCollections.observableArrayList();
         list.add(sampleList.get(0));
         list.add(sampleList.get(1));
         list.add(sampleList.get(2));
