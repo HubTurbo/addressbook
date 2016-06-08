@@ -53,8 +53,26 @@ public class AddressBook {
         this.tags.addAll(tags);
     }
 
+    //TODO: refine later
+    public void addPerson(Person p){
+        persons.add(p);
+    }
+
+    //TODO: refine later
+    public void addTag(Tag t){
+        tags.add(t);
+    }
+
     // Deprecated (to be removed when no-dupe property is properly enforced
     public boolean containsDuplicates() {
         return !UniqueData.itemsAreUnique(persons) || !UniqueData.itemsAreUnique(tags);
+    }
+
+    @Override
+    public String toString(){
+        //TODO: refine later
+        return "Persons : " + persons.size() + "\n"
+                + "Tags : " + tags.size();
+
     }
 }

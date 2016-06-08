@@ -1,6 +1,7 @@
 package address.model.datatypes;
 
 import address.model.ModelManager;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.collections.ObservableList;
 
@@ -24,4 +25,7 @@ public interface ObservableViewablePerson extends ObservablePerson, ReadableView
     }
 
     IntegerProperty secondsLeftInPendingStateProperty();
+
+    BooleanProperty isEditedProperty();
+    BooleanProperty isDeletedProperty();
 }

@@ -26,6 +26,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 
 import java.util.Optional;
+import java.util.concurrent.*;
 
 public class PersonOverviewController {
 
@@ -37,6 +38,8 @@ public class PersonOverviewController {
 
     private MainController mainController;
     private ModelManager modelManager;
+
+    private final ScheduledExecutorService requestExecutor = Executors.newScheduledThreadPool(1);
 
     public PersonOverviewController() {
         EventManager.getInstance().registerHandler(this);
@@ -73,11 +76,12 @@ public class PersonOverviewController {
     private void handleDeletePerson() {
         int selectedIndex = personListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
-            ReadablePerson target = personListView.getItems().get(selectedIndex);
-            System.out.println("\t" + target);
-            modelManager.deletePerson(target);
-            mainController.getStatusBarHeaderController().postStatus(
-                    new PersonDeletedStatus(target));
+            ObservableViewablePerson target = personListView.getItems().get(selectedIndex);
+            mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(target));
+
+            personListView.getItems().get(selectedIndex).isDeletedProperty().set(true);
+            requestExecutor.schedule(()
+                    -> Platform.runLater(() -> modelManager.deletePerson(target)), 3, TimeUnit.SECONDS);
         } else {
             // Nothing selected.
             mainController.showAlertDialogAndWait(AlertType.WARNING,

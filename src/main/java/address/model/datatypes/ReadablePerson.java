@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -36,7 +37,8 @@ public interface ReadablePerson {
     /**
      * @return github profile url
      */
-    String profilePageUrl();
+    String githubProfilePageUrl();
+    Optional<String> githubProfilePicUrl();
 
     String getStreet();
     String getPostalCode();
@@ -57,4 +59,5 @@ public interface ReadablePerson {
      * @return string representation of this Person's tags
      */
     String tagsString();
+
 }

@@ -10,6 +10,7 @@ import com.teamdev.jxbrowser.chromium.dom.DOMElement;
 import com.teamdev.jxbrowser.chromium.dom.events.DOMEventType;
 import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
 import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
+import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  * A browser for displaying AddressBook contacts' profile page.
  */
-public class AddressBookBrowser{
+public class AddressBookBrowser {
 
     private static final String INSTRUCTION_PAGE_HTML_CODE =
             "<h3><center><font color=\"grey\">To view contact's web page, click on the contact on the left.</font></center></h3></body></html>";
@@ -75,7 +76,8 @@ public class AddressBookBrowser{
     }
 
     /**
-     * Registers listeners for automating clicking and scrolling.
+     * Registers page finish loading event listener to run tasks required after a page has finished
+     * loading successfully.
      */
     public void registerListeners() {
         for (BrowserTab browserTab : browserTabs) {
@@ -83,11 +85,19 @@ public class AddressBookBrowser{
                 @Override
                 public void onFinishLoadingFrame(FinishLoadingEvent finishLoadingEvent) {
                     if (finishLoadingEvent.isMainFrame()) {
-                        automateClickingAndScrolling(finishLoadingEvent.getBrowser());
+                        runPageLoadedTasks(browserTab);
                     }
                 }
             });
         }
+    }
+
+    /**
+     * Runs the tasks required after a page has finished loading successfully.
+     * @param browserTab The browser instance that has finished loaded its page.
+     */
+    private void runPageLoadedTasks(BrowserTab browserTab) {
+        automateClickingAndScrolling(browserTab);
     }
 
     /**

@@ -24,4 +24,7 @@ public interface ReadableViewablePerson extends ReadablePerson {
 
 
     int getSecondsLeftInPendingState();
+
+    boolean isEdited();
+    boolean isDeleted();
 }

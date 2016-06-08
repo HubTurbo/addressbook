@@ -1,33 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<HBox fx:id="cardPane"  xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <GridPane HBox.hgrow="ALWAYS">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" maxWidth="100.0"/>
+        </columnConstraints>
+        <children>
+            <VBox fx:id="contactDetails" GridPane.columnIndex="0">
+                <stylesheets>
+                    <URL value="@DarkTheme.css" />
+                    <URL value="@Extensions.css" />
+                </stylesheets>
+                <padding>
+                    <Insets bottom="5" left="15" right="5" top="5" />
+                </padding>
 
-<?import javafx.scene.control.Label?>
-<?import java.net.URL?>
-<?import javafx.geometry.Insets?>
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="80.0" prefWidth="300.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:id="gridPane">
-    <padding>
-        <Insets top="5" bottom="5" right="5" left="5"/>
-    </padding>
-    <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-    </columnConstraints>
-    <rowConstraints>
-        <RowConstraints minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
-        <RowConstraints minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
-        <RowConstraints minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
-    </rowConstraints>
-    <children>
-        <Label fx:id="firstName"/>
-        <Label fx:id="lastName" GridPane.columnIndex="1"/>
+                <children>
+                    <HBox spacing="5" >
+                        <Label fx:id="firstName" />
+                        <Label fx:id="lastName"  />
+                    </HBox>
+                    <Label fx:id="address"  styleClass="cell_small_label" >
+                    </Label>
+                    <Label fx:id="birthday"  styleClass="cell_small_label"/>
 
-        <Label fx:id="street" GridPane.rowIndex="1"/>
-        <Label fx:id="postalCode" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-
-        <Label fx:id="city" GridPane.rowIndex="2"/>
-        <Label fx:id="birthday" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-
-        <Label fx:id="tags" GridPane.columnSpan="2" GridPane.rowIndex="3"/>
-    </children>
-</GridPane>
+                    <Label fx:id="tags"  styleClass="cell_small_label"/>
+                </children>
+            </VBox>
+            <ImageView fx:id="profileImage" fitHeight="60.0" fitWidth="100.0" preserveRatio="true" GridPane.columnIndex="1">
+                <image>
+                    <Image url="@../images/default_profile_picture.png" />
+                </image>
+                <HBox.margin>
+                    <Insets bottom="10" left="10" right="10" top="10"/>
+                </HBox.margin>
+            </ImageView>
+        </children>
+    </GridPane>
+</HBox>

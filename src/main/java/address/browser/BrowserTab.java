@@ -30,7 +30,7 @@ public class BrowserTab extends Browser {
      */
     public synchronized void loadProfilePage(ReadableViewablePerson person) {
         this.person = person;
-        super.loadURL(person.profilePageUrl());
+        super.loadURL(person.githubProfilePageUrl());
     }
 
     public synchronized void unloadProfilePage(){

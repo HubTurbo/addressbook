@@ -5,12 +5,21 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 /**
  * Extends {@link Viewable} for the Person domain object.
  * @see Viewable
  */
 public class ViewablePerson extends Viewable<Person> implements ObservableViewablePerson {
+
+    private final BooleanProperty isDeleted;
+    private final BooleanProperty isEdited;
+
+    {
+        isDeleted = new SimpleBooleanProperty(false);
+        isEdited = new SimpleBooleanProperty(false);
+    }
 
     public ViewablePerson(Person backingPerson) {
         super(backingPerson, Person::new);
@@ -44,7 +53,35 @@ public class ViewablePerson extends Viewable<Person> implements ObservableViewab
     }
 
 // APPLICATION STATE ACCESSORS
-    // none yet
+
+    @Override
+    public boolean isDeleted() {
+        return isDeleted.get();
+    }
+
+    @Override
+    public BooleanProperty isDeletedProperty() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted.set(isDeleted);
+    }
+
+    @Override
+    public boolean isEdited() {
+        return isEdited.get();
+    }
+
+    @Override
+    public BooleanProperty isEditedProperty() {
+        return isEdited;
+    }
+
+    public void setIsEdited(boolean isEdited) {
+        this.isEdited.set(isEdited);
+    }
+
 
 // PERSON ACCESSORS
 
@@ -104,8 +141,13 @@ public class ViewablePerson extends Viewable<Person> implements ObservableViewab
     }
 
     @Override
-    public String profilePageUrl() {
-        return visible.profilePageUrl();
+    public String githubProfilePageUrl() {
+        return visible.githubProfilePageUrl();
+    }
+
+    @Override
+    public Optional<String> githubProfilePicUrl() {
+        return visible.githubProfilePicUrl();
     }
 
     @Override

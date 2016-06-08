@@ -1,24 +1,24 @@
 {
   "updateData" : [ {
-    "version" : 1,
+    "version" : "V1.0.0",
     "filesToBeUpdated" : [ {
       "isMainApp" : true,
       "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/addressbook/addressbook.v1.jar",
       "os" : "ALL"
     }, {
       "isMainApp" : false,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/jxbrowser-win-6.4.jar",
+      "downloadLink" : "http://maven.teamdev.com/repository/products/com/teamdev/jxbrowser/jxbrowser-win/6.4/jxbrowser-win-6.4.jar",
       "os" : "WINDOWS"
     } ]
   }, {
-    "version" : 2,
+    "version" : "V2.0.0",
     "filesToBeUpdated" : [ {
       "isMainApp" : false,
       "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/jxbrowser-mac-6.4.jar",
       "os" : "MAC"
     }, {
       "isMainApp" : false,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/jxbrowser-lin32-6.4.jar",
+      "downloadLink" : "http://maven.teamdev.com/repository/products/com/teamdev/jxbrowser/jxbrowser-win/6.4/jxbrowser-linux32-6.4.jar",
       "os" : "LINUX32"
     }, {
       "isMainApp" : true,
@@ -38,10 +38,10 @@
       "os" : "ALL"
     } ]
   }, {
-    "version" : 3,
+    "version" : "V3.0.0",
     "filesToBeUpdated" : [ {
       "isMainApp" : false,
-      "downloadLink" : "https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/jxbrowser-lin64-6.4.jar",
+      "downloadLink" : "http://maven.teamdev.com/repository/products/com/teamdev/jxbrowser/jxbrowser-win/6.4/jxbrowser-linux64-6.4.jar",
       "os" : "LINUX64"
     }, {
       "isMainApp" : true,

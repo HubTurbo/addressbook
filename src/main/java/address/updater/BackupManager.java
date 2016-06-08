@@ -2,6 +2,7 @@ package address.updater;
 
 import address.MainApp;
 import address.util.FileUtil;
+import address.util.Version;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,9 +17,11 @@ import java.util.stream.Collectors;
  */
 public class BackupManager {
     private static final int MAX_BACKUP_JAR_KEPT = 3;
-    private static final String BACKUP_SUFFIX = "_V";
-    private static final String BACKUP_FILENAME_STRING_FORMAT = "addressbook" + BACKUP_SUFFIX + "%d.jar";
-    private static final String BACKUP_FILENAME_PATTERN_STRING = "addressbook_V([0-9]+)\\.(jar|JAR)$";
+    private static final String BACKUP_MARKER = "_";
+    private static final String BACKUP_FILENAME_STRING_FORMAT =
+            "addressbook" + BACKUP_MARKER + Version.getCurrentVersion().toString() + ".jar";
+    private static final String BACKUP_FILENAME_PATTERN_STRING =
+            "addressbook" + BACKUP_MARKER + Version.VERSION_PATTERN_STRING +"\\.(jar|JAR)$";
 
     private DependencyTracker dependencyTracker;
 
@@ -37,7 +40,7 @@ public class BackupManager {
             return true;
         }
 
-        String backupFilename = getBackupFilename(mainAppJar.getName());
+        String backupFilename = getMainAppBackupFilename();
 
         try {
             FileUtil.copyFile(mainAppJar.toPath(), Paths.get(backupFilename), true);
@@ -51,18 +54,11 @@ public class BackupManager {
     }
 
     private boolean isRunFromBackupJar(String jarName) {
-        return jarName.contains(BACKUP_SUFFIX);
+        return jarName.contains(BACKUP_MARKER);
     }
 
-    private String getBackupFilename(String jarName) {
-        Pattern jarFilenamePattern = Pattern.compile("^(.*)\\.jar$", Pattern.CASE_INSENSITIVE);
-        Matcher jarFilenameMatcher = jarFilenamePattern.matcher(jarName);
-
-        if (!jarFilenameMatcher.find()) {
-            return jarName + BACKUP_SUFFIX + UpdateManager.VERSION;
-        }
-
-        return jarFilenameMatcher.group(1) + BACKUP_SUFFIX + UpdateManager.VERSION + ".jar";
+    private String getMainAppBackupFilename() {
+        return "addressbook" + BACKUP_MARKER + Version.getCurrentVersion().toString() + ".jar";
     }
 
     /**
@@ -95,7 +91,7 @@ public class BackupManager {
 
         Set<String> dependenciesOfUnusedVersions = new HashSet<>();
         Set<String> dependenciesOfVersionsInUse = new HashSet<>();
-        List<Integer> unusedVersions = new ArrayList<>();
+        List<Version> unusedVersions = new ArrayList<>();
 
         dependencyTracker.getAllVersionDependency().entrySet().stream()
                 .forEach(e -> {
@@ -139,8 +135,9 @@ public class BackupManager {
 
         // Exclude current version in case user is running backup Jar
         return listOfFilesInCurrDirectory.stream()
-                .filter(f -> !f.getName().equals(String.format(BACKUP_FILENAME_STRING_FORMAT, UpdateManager.VERSION)) &&
-                        f.getName().matches(BACKUP_FILENAME_PATTERN_STRING))
+                .filter(f ->
+                        !f.getName().equals(String.format(BACKUP_FILENAME_STRING_FORMAT, Version.getCurrentVersion()))
+                        && f.getName().matches(BACKUP_FILENAME_PATTERN_STRING))
                 .map(File::getName)
                 .sorted(getBackupFilenameComparatorByVersion())
                 .collect(Collectors.toList());

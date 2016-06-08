@@ -40,4 +40,20 @@ public class CloudTag {
     public boolean isValid() {
         return name != null;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CloudTag cloudTag = (CloudTag) o;
+
+        return name != null ? name.equals(cloudTag.name) : cloudTag.name == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
 }

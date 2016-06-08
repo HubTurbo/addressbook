@@ -9,12 +9,14 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Data-model implementation class representing the "Person" domain object.
@@ -49,7 +51,8 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         githubUserName = new SimpleStringProperty("");
 
         birthday = new SimpleObjectProperty<>();
-        tags = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
+
+        tags = FXCollections.observableArrayList();
     }    
     
     /**
@@ -160,11 +163,22 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     }
 
     @Override
-    public String profilePageUrl(){
+    public String githubProfilePageUrl(){
         return "https://www.github.com/" + githubUserName.get();
     }
 
-//// STREET
+    @Override
+    public Optional<String> githubProfilePicUrl() {
+        if (getGithubUserName().length() > 0) {
+            String profilePicUrl = githubProfilePageUrl() + ".png";
+            if (URLUtil.isURIFormat(profilePicUrl)){
+                return Optional.of(profilePicUrl);
+            }
+        }
+        return Optional.empty();
+    }
+
+    //// STREET
 
     @JsonProperty("street")
     @Override
@@ -294,7 +308,7 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
 
     @Override
     public String toString() {
-        return "Person: " + String.format("%s %s", getFirstName(), getLastName());
+        return "Person: " + fullName();
     }
 
 }

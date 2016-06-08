@@ -2,13 +2,15 @@ package installer;
 
 import address.util.FileUtil;
 import address.util.OsDetector;
+import address.util.ProgressAwareInputStream;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -37,12 +39,12 @@ import java.util.jar.JarFile;
 public class Installer extends Application {
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private static final String LIB_DIR = "lib";
+    private ProgressBar progressBar;
+    private Label loadingLabel;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        if (isFirstRun()) {
-            showWaitingWindow(primaryStage);
-        }
+        showWaitingWindow(primaryStage);
 
         pool.execute(() -> {
             run();
@@ -50,26 +52,24 @@ public class Installer extends Application {
         });
     }
 
-    private boolean isFirstRun() {
-        return !FileUtil.isDirExists(LIB_DIR);
-    }
-
     private void showWaitingWindow(Stage stage) {
-        stage.setTitle("Applying Updates");
+        stage.setTitle("Initializing");
         VBox windowMainLayout = new VBox();
         Group root = new Group();
         Scene scene = new Scene(root);
         stage.setScene(scene);
         scene.setRoot(windowMainLayout);
 
-        Label loadingLabel = new Label("First time initialization. Downloading required components. Please wait.");
+        loadingLabel = new Label("Initializing. Please wait.");
 
-        ProgressIndicator progressIndicator = new ProgressIndicator(-1.0);
+        progressBar = new ProgressBar(-1.0);
+        progressBar.setPrefWidth(400);
 
         final VBox vb = new VBox();
         vb.setSpacing(30);
-        vb.getChildren().addAll(loadingLabel, progressIndicator);
         vb.setPadding(new Insets(40));
+        vb.setAlignment(Pos.CENTER);
+        vb.getChildren().addAll(loadingLabel, progressBar);
         windowMainLayout.getChildren().add(vb);
 
         stage.show();
@@ -161,14 +161,14 @@ public class Installer extends Application {
             return;
         }
 
-        String jxBrowserFilename = Paths.get(downloadLink.toString()).getFileName().toString();
+        String jxBrowserFilename = Paths.get(downloadLink.getPath()).getFileName().toString();
         File jxbrowserFile = Paths.get("lib", jxBrowserFilename).toFile();
 
         try {
             URLConnection conn = downloadLink.openConnection();
             int jxbrowserFileSize = conn.getContentLength();
             if (jxbrowserFileSize != -1 && FileUtil.isFileExists(jxbrowserFile.toString()) &&
-                                           jxbrowserFile.length() == jxbrowserFileSize) {
+                    jxbrowserFile.length() == jxbrowserFileSize) {
                 System.out.println("JxBrowser already exists");
                 return;
             }
@@ -176,6 +176,8 @@ public class Installer extends Application {
             System.out.println("Failed to get size of JxBrowser file; will proceed to downloading it");
             e.printStackTrace();
         }
+
+        Platform.runLater(() -> loadingLabel.setText("Initializing. Downloading required components. Please wait."));
 
         try {
             downloadFile(jxbrowserFile, downloadLink);
@@ -215,7 +217,12 @@ public class Installer extends Application {
             if (!FileUtil.createFile(targetFile)) {
                 System.out.println("File already exists; file will be replaced");
             }
-            Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+            URLConnection conn = source.openConnection();
+            ProgressAwareInputStream inWithProgress = new ProgressAwareInputStream(in, conn.getContentLength());
+            inWithProgress.setOnProgressListener(prog -> Platform.runLater(() -> progressBar.setProgress(prog)));
+
+            Files.copy(inWithProgress, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             System.out.println(String.format("Installer - Failed to download %s", targetFile.toString()));
             throw e;

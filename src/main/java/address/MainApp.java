@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class MainApp extends Application {
 
-    public static final int VERSION_MAJOR = 1;
+    public static final int VERSION_MAJOR = 0;
     public static final int VERSION_MINOR = 0;
     public static final int VERSION_PATCH = 0;
 
@@ -62,7 +62,7 @@ public class MainApp extends Application {
     protected void setupComponents() {
         config = getConfig();
         modelManager = new ModelManager();
-        storageManager = new StorageManager(modelManager);
+        storageManager = new StorageManager(modelManager, PrefsManager.getInstance(), EventManager.getInstance());
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
 

@@ -1,7 +1,11 @@
 package address.sync.model;
 
+import address.util.LocalDateAdapter;
+
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CloudPerson {
@@ -13,7 +17,11 @@ public class CloudPerson {
     private String postalCode;
     private List<CloudTag> tags;
     private boolean isDeleted;
+
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     private LocalDateTime lastUpdatedAt;
+
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     private LocalDate birthday;
 
     public CloudPerson() {
@@ -22,6 +30,7 @@ public class CloudPerson {
     public CloudPerson(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.tags = new ArrayList<>();
         setLastUpdatedAt(LocalDateTime.now());
     }
 
@@ -121,10 +130,43 @@ public class CloudPerson {
         this.postalCode = updatedPerson.postalCode;
         this.tags = updatedPerson.tags;
         this.isDeleted = updatedPerson.isDeleted;
-        this.lastUpdatedAt = updatedPerson.lastUpdatedAt;
+        this.lastUpdatedAt = LocalDateTime.now();
     }
 
     public boolean isValid() {
-        return this.firstName != null && this.lastName != null;
+        return this.firstName != null && this.lastName != null && tags != null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CloudPerson that = (CloudPerson) o;
+
+        if (id != that.id) return false;
+        if (isDeleted != that.isDeleted) return false;
+        if (firstName != null ? !firstName.equals(that.firstName) : that.firstName != null) return false;
+        if (lastName != null ? !lastName.equals(that.lastName) : that.lastName != null) return false;
+        if (street != null ? !street.equals(that.street) : that.street != null) return false;
+        if (city != null ? !city.equals(that.city) : that.city != null) return false;
+        if (postalCode != null ? !postalCode.equals(that.postalCode) : that.postalCode != null) return false;
+        if (tags != null ? !tags.equals(that.tags) : that.tags != null) return false;
+        return birthday != null ? birthday.equals(that.birthday) : that.birthday == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
+        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (street != null ? street.hashCode() : 0);
+        result = 31 * result + (city != null ? city.hashCode() : 0);
+        result = 31 * result + (postalCode != null ? postalCode.hashCode() : 0);
+        result = 31 * result + (tags != null ? tags.hashCode() : 0);
+        result = 31 * result + (isDeleted ? 1 : 0);
+        result = 31 * result + (birthday != null ? birthday.hashCode() : 0);
+        return result;
     }
 }

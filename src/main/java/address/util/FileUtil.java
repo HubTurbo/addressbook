@@ -20,14 +20,18 @@ public class FileUtil {
         return isFileExists(new File(filepath));
     }
 
-    public static boolean isDirExists(String dirpath) {
-        File dir = new File(dirpath);
-
+    public static boolean isDirExists(File dir) {
         return dir.exists() && dir.isDirectory();
     }
 
+    public static boolean isDirExists(String dirpath) {
+        File dir = new File(dirpath);
+
+        return isDirExists(dir);
+    }
+
     /**
-     * Creates a file and its parent directories if it does not exists
+     * Creates a file if it does not exist along with its missing parent directories
      *
      * @return true if file is created, false if file already exists
      */
@@ -80,10 +84,15 @@ public class FileUtil {
         }
     }
 
+    /**
+     * Creates parent directories of file if it has a parent directory
+     */
     public static void createParentDirsOfFile(File file) throws IOException {
         File parentDir = file.getParentFile();
 
-        createDirs(parentDir);
+        if (parentDir != null) {
+            createDirs(parentDir);
+        }
     }
 
     /**
@@ -151,5 +160,16 @@ public class FileUtil {
 
     public static File getJarFileOfClass(Class givenClass) {
         return new File(givenClass.getProtectionDomain().getCodeSource().getLocation().getPath());
+    }
+
+    /**
+     * Converts a string to a platform-specific file path
+     * @param pathWithForwardSlash A String representing a file path but using '/' as the separator
+     * @return {@code pathWithForwardSlash} but '/' replaced with {@code File.separator}
+     */
+    public static String getPath(String pathWithForwardSlash) {
+        assert pathWithForwardSlash != null;
+        assert pathWithForwardSlash.contains("/");
+        return pathWithForwardSlash.replace("/", File.separator);
     }
 }
