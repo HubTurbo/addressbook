@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -87,8 +88,8 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void createAddressBook_marshalException_unsuccessfulCreation() throws IOException, DataConversionException {
-        doThrow(new DataConversionException(new Exception("Error marshalling to file."))).when(cloudFileHandler).createCloudAddressBookFile("Test");
+    public void createAddressBook_conversionException_unsuccessfulCreation() throws IOException, DataConversionException {
+        doThrow(new DataConversionException("Error in conversion when creating file.")).when(cloudFileHandler).createCloudAddressBookFile("Test");
 
         RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
         verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
@@ -120,8 +121,8 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void deletePerson_marshalException_unsuccessfulDeletion() throws IOException, DataConversionException {
-        doThrow(new DataConversionException(new Exception("Error marshalling to file."))).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+    public void deletePerson_conversionException_unsuccessfulDeletion() throws IOException, DataConversionException {
+        doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
         RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", "firstName", "lastName");
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -141,6 +142,30 @@ public class CloudSimulatorTest {
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(any(CloudAddressBook.class));
         assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
         assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+    }
+
+    @Test
+    public void updatePerson_conversionException() throws DataConversionException, FileNotFoundException {
+        doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
+        CloudPerson updatedPerson = prepareUpdatedPerson();
+        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", "firstName", "lastName", updatedPerson, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
+    }
+
+    @Test
+    public void updatePerson_noSuchPerson() throws DataConversionException, FileNotFoundException {
+        final int apiUsage = 1;
+
+        CloudPerson updatedPerson = prepareUpdatedPerson();
+        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", "unknownName", "unknownName", updatedPerson, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, never()).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
     }
 
     @Test
@@ -185,7 +210,7 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void addTag() throws DataConversionException, IOException {
+    public void createTag() throws DataConversionException, IOException {
         final int apiUsage = 1;
 
         CloudTag newTag = new CloudTag("New Tag");
@@ -203,6 +228,39 @@ public class CloudSimulatorTest {
     }
 
     @Test
+    public void createTag_conversionException() throws DataConversionException, IOException {
+        CloudTag newTag = new CloudTag("New Tag");
+        CloudAddressBook updatedCloudAddressBook = getDummyAddressBook();
+        doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
+        updatedCloudAddressBook.getAllTags().add(newTag);
+
+        RawCloudResponse cloudResponse = cloudSimulator.createTag("Test", newTag, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedCloudAddressBook);
+        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        assertNull(cloudResponse.getBody());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
+    }
+
+    @Test
+    public void createTag_alreadyExists() throws DataConversionException, IOException {
+        final int apiUsage = 1;
+
+        CloudTag newTag = new CloudTag("Tag one");
+
+        CloudAddressBook updatedCloudAddressBook = getDummyAddressBook();
+        updatedCloudAddressBook.getAllTags().add(newTag);
+
+        RawCloudResponse cloudResponse = cloudSimulator.createTag("Test", newTag, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, never()).writeCloudAddressBookToFile(updatedCloudAddressBook);
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertNull(cloudResponse.getBody());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
+    }
+
+    @Test
     public void editTag() throws DataConversionException, FileNotFoundException {
         final int apiUsage = 1;
 
@@ -217,6 +275,36 @@ public class CloudSimulatorTest {
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedCloudAddressBook);
         assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
         assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+    }
+
+    @Test
+    public void editTag_conversionException() throws DataConversionException, FileNotFoundException {
+        CloudTag updatedTag = new CloudTag("Updated tag");
+        doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
+        CloudAddressBook updatedCloudAddressBook = getDummyAddressBook();
+        updatedCloudAddressBook.getAllTags().remove(new CloudTag("Tag one"));
+        updatedCloudAddressBook.getAllTags().add(updatedTag);
+
+        RawCloudResponse cloudResponse = cloudSimulator.editTag("Test", "Tag one", updatedTag, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedCloudAddressBook);
+        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
+    }
+
+    @Test
+    public void editTag_noSuchTag() throws DataConversionException, FileNotFoundException {
+        final int apiUsage = 1;
+
+        CloudTag updatedTag = new CloudTag("Updated tag");
+        doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
+        RawCloudResponse cloudResponse = cloudSimulator.editTag("Test", "Tag two", updatedTag, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, never()).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
     }
 
     @Test
@@ -354,11 +442,8 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void addPerson() throws DataConversionException, IOException {
+    public void createPerson() throws DataConversionException, IOException {
         final int apiUsage = 1;
-
-        CloudAddressBook cloudAddressBook = getDummyAddressBook();
-        stub(cloudFileHandler.readCloudAddressBookFromFile("Test")).toReturn(cloudAddressBook);
 
         CloudPerson cloudPerson = new CloudPerson("unknownName", "unknownName");
         RawCloudResponse cloudResponse = cloudSimulator.createPerson("Test", cloudPerson, null);
@@ -370,6 +455,34 @@ public class CloudSimulatorTest {
 
         CloudPerson person = JsonUtil.fromJsonString(convertToString(cloudResponse.getBody()), CloudPerson.class);
         assertEquals(cloudPerson, person);
+    }
+
+    @Test
+    public void createPerson_alreadyExists_unsuccessfulCreation() throws DataConversionException, IOException {
+        final int apiUsage = 1;
+
+        CloudPerson cloudPerson = new CloudPerson("firstName", "lastName");
+        RawCloudResponse cloudResponse = cloudSimulator.createPerson("Test", cloudPerson, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, never()).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
+        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+        assertNull(cloudResponse.getBody());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
+    }
+
+    @Test
+    public void createPerson_conversionException_unsuccessfulCreation() throws DataConversionException, IOException {
+        doThrow(new DataConversionException("Error in conversion.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
+        CloudPerson cloudPerson = new CloudPerson("unknownName", "unknownName");
+        RawCloudResponse cloudResponse = cloudSimulator.createPerson("Test", cloudPerson, null);
+        verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+        verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
+        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        assertNull(cloudResponse.getBody());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
     }
 
     private String convertToString(InputStream stream) throws IOException {
