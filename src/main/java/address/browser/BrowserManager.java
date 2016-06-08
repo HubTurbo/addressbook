@@ -30,9 +30,12 @@ public class BrowserManager {
     public Optional<AddressBookPagePool> addressBookPagePool;
 
     private AnchorPane browserPlaceHolder;
+    private Node browserDefaultScreen;
 
-    public BrowserManager(ObservableList<Person> filteredPersons, AnchorPane browserPlaceHolder) {
+    public BrowserManager(ObservableList<Person> filteredPersons, AnchorPane browserPlaceHolder,
+                          Node browserDefaultScreen) {
         this.browserPlaceHolder = browserPlaceHolder;
+        this.browserDefaultScreen = browserDefaultScreen;
         this.filteredPersons = filteredPersons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
@@ -61,6 +64,10 @@ public class BrowserManager {
                 if (filteredPersons.indexOf(person) == PERSON_NOT_FOUND){
                     Optional<EmbeddedBrowserGithubProfilePage> page = addressBookPagePool.get().clearPersonPage(person);
                     browserPlaceHolder.getChildren().remove(page.get().getBrowser().getBrowserView());
+
+                    if (browserPlaceHolder.getChildren().size() == 0) {
+                        browserPlaceHolder.getChildren().add(browserDefaultScreen);
+                    }
                 } else {
                     int indexOfContact = filteredPersons.indexOf(person);
                     Person updatedPerson = filteredPersons.get(indexOfContact);
@@ -112,7 +119,7 @@ public class BrowserManager {
 
     private void replaceBrowserView(Node browserView) {
         if (browserPlaceHolder.getChildren().size() >= 1){
-            browserPlaceHolder.getChildren().remove(0);
+            browserPlaceHolder.getChildren().removeAll(browserPlaceHolder.getChildren());
         }
         browserPlaceHolder.getChildren().add(browserView);
     }

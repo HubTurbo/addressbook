@@ -32,7 +32,7 @@ import java.util.Optional;
  * The controller that creates the other controllers
  */
 public class MainController {
-    private static final String FXML_BROWSER_PLACE_HOLDER = "/view/BrowserPlaceHolder.fxml";
+    private static final String FXML_BROWSER_PLACE_HOLDER_SCREEN = "/view/DefaultBrowserPlaceHolderScreen.fxml";
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
@@ -54,7 +54,8 @@ public class MainController {
 
     private StatusBarHeaderController statusBarHeaderController;
 
-    private AnchorPane browserPane;
+    private AnchorPane browserPlaceHolder;
+    private HBox browserDefaultScreen;
 
     public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
         EventManager.getInstance().registerHandler(this);
@@ -389,17 +390,21 @@ public class MainController {
     }
 
     public void showPersonWebPage() {
-        String fxmlResourcePath = FXML_BROWSER_PLACE_HOLDER;
+        String fxmlResourcePath = FXML_BROWSER_PLACE_HOLDER_SCREEN;
         try {
+            this.browserPlaceHolder = new AnchorPane();
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
-            this.browserPane = (AnchorPane) loader.load();
-            this.browserManager = new BrowserManager(modelManager.getFilteredPersons(), browserPane);
+            browserDefaultScreen = (HBox) loader.load();
+            browserPlaceHolder.getChildren().add(browserDefaultScreen);
+            this.browserManager = new BrowserManager(modelManager.getFilteredPersons(), browserPlaceHolder,
+                                                     browserDefaultScreen);
             SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-            pane.getItems().add(browserPane);
+            pane.getItems().add(browserPlaceHolder);
+
         } catch (IOException e) {
             e.printStackTrace();
-            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for browser.",
+            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for browser default screen.",
                     "IOException when trying to load " + fxmlResourcePath);
         }
     }
