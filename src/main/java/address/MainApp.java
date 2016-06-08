@@ -95,6 +95,7 @@ public class MainApp extends Application {
         mainController.getPrimaryStage().hide();
         mainController.releaseResourcesForAppTermination();
         updateManager.applyUpdate();
+        shortcutsManager.clear();
         Platform.exit();
         System.exit(0);
     }

@@ -2,11 +2,13 @@ package address.shortcuts;
 
 import address.events.*;
 import com.google.common.eventbus.Subscribe;
+import com.tulskiy.keymaster.common.Provider;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 
+import javax.swing.*;
 import java.util.*;
 
 /**
@@ -14,9 +16,15 @@ import java.util.*;
  */
 public class ShortcutsManager {
 
+    /** Provider for global hotkeys */
+    private final Provider provider = Provider.getCurrentProvider(false);
+
     private static List<Shortcut> shortcuts = new ArrayList<>();
+    private static List<GlobalHotkey> hotkeys = new ArrayList<>();
 
     /* shortcuts in alphabetical order of names */
+    public static final String HOTKEY_APP_MINIMIZE;
+    public static final String HOTKEY_APP_MAXIMIZE;
     public static final KeyCombination SHORTCUT_FILE_NEW;
     public static final KeyCombination SHORTCUT_FILE_OPEN;
     public static final KeyCombination SHORTCUT_FILE_SAVE;
@@ -40,6 +48,9 @@ public class ShortcutsManager {
         SHORTCUT_FILE_SAVE = setShortcut(KeyCode.S, KeyCombination.CONTROL_DOWN);
 
         SHORTCUT_FILE_SAVE_AS = setShortcut(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN);
+
+        HOTKEY_APP_MINIMIZE = setHotkey("control alt X", new MinimizeAppRequestEvent());
+        HOTKEY_APP_MAXIMIZE = setHotkey("control shift X", new MaximizeAppRequestEvent());
 
         /*====== other keys ======================================================*/
 
@@ -70,6 +81,14 @@ public class ShortcutsManager {
 
     public ShortcutsManager() {
         EventManager.getInstance().registerHandler(this);
+        initGlobalHotkeys();
+    }
+
+    private void initGlobalHotkeys() {
+        for (GlobalHotkey hk: hotkeys){
+            provider.register(KeyStroke.getKeyStroke(hk.hotkeyString),
+                    (hotkey) -> EventManager.getInstance().post(hk.eventToRaise));
+        }
     }
 
     /**
@@ -99,18 +118,11 @@ public class ShortcutsManager {
         return keyCombination;
     }
 
-    /**
-     * Adds the shortcut to the list of shortcuts.
-     * @param mainKey
-     * @param action
-     * @return corresponding key combination
-     */
-    // temporarily set to public to suppress findbugs warning
-    public static KeyCodeCombination setShortcut(KeyCode mainKey, Runnable action) {
-        KeyCodeCombination keyCombination = new KeyCodeCombination(mainKey);
-        shortcuts.add(new Shortcut(keyCombination, action));
-        return keyCombination;
+    private static String setHotkey(String hotkeyString, BaseEvent eventToRaise) {
+        hotkeys.add(new GlobalHotkey(hotkeyString, eventToRaise));
+        return hotkeyString;
     }
+
 
     /**
      * @param keyEvent
@@ -135,4 +147,11 @@ public class ShortcutsManager {
         }
     }
 
+    /**
+     * Resets global hotkeys
+     */
+    public void clear() {
+        provider.reset();
+        provider.stop();
+    }
 }
