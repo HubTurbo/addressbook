@@ -202,13 +202,7 @@ public class Installer extends Application {
     private void startMainApplication() {
         System.out.println("Starting main application");
 
-        String classPath;
-
-        if (OsDetector.isOnWindows()) {
-            classPath = ";lib/*"; // untested
-        } else {
-            classPath = ":lib/*";
-        }
+        String classPath = File.pathSeparator + "lib" + File.separator + "*"; // untested on Windows
 
         String command = String.format("java -cp %s address.MainApp", classPath);
 
