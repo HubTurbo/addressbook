@@ -9,20 +9,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Manages and perform caching for a pool of activePages, where each having a non-identical content.
- *
- * The caching mechanism provides faster loading by:
- * 1) Upon calling on loadPersonPage(personToBeLoaded), It caches the next n person in the displayed list starting from
- *    the personToBeLoaded index in the displayed list.
- * 2) Returning page's browser instance immediately by preventing re-loading of pages if any of the page in the pool is
- *    found containing displaying the same page.
+ * Manages a pool of activePages, where each has a non-identical content.
  *
  * To ensure correct functionality and consistency of the pool of pages:
- * 1) To use loadPersonPage(), calling clearPagesNotRequired() or clearPersonPage() first is required.
- *    - Call clearPersonPage() when only a single person page (non-identical with the pool of pages) is to be loaded
- *      using the loadPersonPage() method.
- *    - Call clearPagesNotRequired() when multiple person page (non-identical with the pool of pages) are to be loaded
- *      using the loadPersonPage() method.
+ * 1) To use loadPersonPage(), calling clearPagesNotRequired() or clearPageNotRequired() first is required.
+ *    - Call clearPageNotRequired(parameter) when only a single person page (non-identical with the pool of pages)
+ *      is to be loaded using the loadPersonPage() method.
+ *    - Call clearPagesNotRequired(parameter) when multiple person page (non-identical with the pool of pages)
+ *      are to be loaded using the loadPersonPage() method.
  */
 public class AddressBookPagePool {
 
@@ -31,16 +25,16 @@ public class AddressBookPagePool {
     /**
      * For recycling of browser instance.
      */
-    private Stack<EmbeddedBrowser> nonActiveBrowserStack;
+    private Stack<EmbeddedBrowser> inActiveBrowserStack;
 
     public AddressBookPagePool(int noOfPages){
         activePages = new ArrayList<>(noOfPages);
-        nonActiveBrowserStack = new Stack<>();
+        inActiveBrowserStack = new Stack<>();
 
         for (int i=0; i<noOfPages; i++){
             EmbeddedBrowser browser = new JxBrowserAdapter(new Browser());
             FxViewUtil.applyAnchorBoundaryParameters(browser.getBrowserView(), 0.0, 0.0, 0.0, 0.0);
-            nonActiveBrowserStack.push(browser);
+            inActiveBrowserStack.push(browser);
         }
     }
 
@@ -63,8 +57,8 @@ public class AddressBookPagePool {
         GithubProfilePage newPage;
         EmbeddedBrowser browser;
 
-        assert !nonActiveBrowserStack.isEmpty();
-        browser = nonActiveBrowserStack.pop();
+        assert !inActiveBrowserStack.isEmpty();
+        browser = inActiveBrowserStack.pop();
 
         browser.loadPage(person.profilePageUrl());
         newPage = new GithubProfilePage(browser, person);
@@ -75,17 +69,20 @@ public class AddressBookPagePool {
 
     /**
      * Clears pages from the pool of pages that are not required anymore.
-     * @param requiredPersons The persons whose pages are <u><b>required</b></u> to be remained in the pool of pages.
+     * @param requiredPersons The persons whose pages are to be remained in the pool of pages.
+     *                        Preconditions: Used in pair with loadPersonPage(Person person), the requiredPersons
+     *                                       must contain the person that will be used in loadPersonPage() method.
      * @return An arraylist of pages that are cleared from the pool of pages.
      */
     public synchronized ArrayList<GithubProfilePage> clearPagesNotRequired(ArrayList<Person> requiredPersons) {
         ArrayList<GithubProfilePage> listOfNotRequiredPage = activePages.stream().filter(embeddedBrowserGithubProfilePage
-              -> !requiredPersons.contains(embeddedBrowserGithubProfilePage.getPerson())).collect(Collectors.toCollection(ArrayList::new));
+              -> !requiredPersons.contains(embeddedBrowserGithubProfilePage.getPerson()))
+                                           .collect(Collectors.toCollection(ArrayList::new));
         listOfNotRequiredPage.stream().forEach(page -> {
-            nonActiveBrowserStack.push(page.getBrowser());
+            inActiveBrowserStack.push(page.getBrowser());
             activePages.remove(page);
         });
-        assert activePages.size() + nonActiveBrowserStack.size() == BrowserManager.NUMBER_OF_PRELOADED_PAGE;
+        assert activePages.size() + inActiveBrowserStack.size() == BrowserManager.NUMBER_OF_PRELOADED_PAGE;
         return listOfNotRequiredPage;
     }
 
@@ -94,21 +91,21 @@ public class AddressBookPagePool {
      * @param person The person whose page is to be cleared, if exists.
      * @return An optional page that is cleared from the pool of pages.
      */
-    public synchronized Optional<GithubProfilePage> clearPersonPage(Person person) {
+    public synchronized Optional<GithubProfilePage> clearPageNotRequired(Person person) {
         Optional<GithubProfilePage> page = activePages.stream().filter(embeddedBrowserGithubProfilePage
                 -> person.equals(embeddedBrowserGithubProfilePage.getPerson())).findAny();
 
         if (page.isPresent()){
-            nonActiveBrowserStack.push(page.get().getBrowser());
+            inActiveBrowserStack.push(page.get().getBrowser());
             activePages.remove(page.get());
         }
-        assert activePages.size() + nonActiveBrowserStack.size() == BrowserManager.NUMBER_OF_PRELOADED_PAGE;
+        assert activePages.size() + inActiveBrowserStack.size() == BrowserManager.NUMBER_OF_PRELOADED_PAGE;
         return page;
     }
 
 
     public void dispose() {
-        nonActiveBrowserStack.stream().forEach(embeddedBrowser -> embeddedBrowser.dispose());
+        inActiveBrowserStack.stream().forEach(embeddedBrowser -> embeddedBrowser.dispose());
     }
 
     /**

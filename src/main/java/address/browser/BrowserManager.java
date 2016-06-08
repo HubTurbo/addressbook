@@ -63,7 +63,7 @@ public class BrowserManager {
         ArrayList<Person> pagesPerson = addressBookPagePool.get().getActivePagesPerson();
         pagesPerson.stream().forEach(person -> {
                 if (filteredPersons.indexOf(person) == PERSON_NOT_FOUND){
-                    Optional<GithubProfilePage> page = addressBookPagePool.get().clearPersonPage(person);
+                    Optional<GithubProfilePage> page = addressBookPagePool.get().clearPageNotRequired(person);
                     browserPlaceHolder.getChildren().remove(page.get().getBrowser().getBrowserView());
 
                     if (browserPlaceHolder.getChildren().size() == 0) {
@@ -74,7 +74,7 @@ public class BrowserManager {
                     Person updatedPerson = filteredPersons.get(indexOfContact);
 
                     if (!updatedPerson.getGithubUserName().equals(person.getGithubUserName())){
-                        addressBookPagePool.get().clearPersonPage(person);
+                        addressBookPagePool.get().clearPageNotRequired(person);
                         EmbeddedBrowser browser = addressBookPagePool.get().loadPersonPage(updatedPerson);
                         replaceBrowserView(browser.getBrowserView());
                     }
@@ -105,8 +105,7 @@ public class BrowserManager {
         EmbeddedBrowser browserView = addressBookPagePool.get().loadPersonPage(person);
 
         replaceBrowserView(browserView.getBrowserView());
-
-        listOfRequiredPerson.remove(person);
+        listOfRequiredPerson.remove(person); //person has already been loaded.
         preloadAdditionalPersonProfile(listOfRequiredPerson);
     }
 
