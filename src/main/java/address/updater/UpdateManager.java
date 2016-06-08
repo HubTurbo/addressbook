@@ -3,7 +3,6 @@ package address.updater;
 import address.events.EventManager;
 import address.events.UpdaterFinishedEvent;
 import address.events.UpdaterInProgressEvent;
-import address.updater.model.LibraryDescriptor;
 import address.updater.model.UpdateData;
 import address.util.JsonUtil;
 import address.util.OsDetector;
@@ -42,7 +41,9 @@ public class UpdateManager {
     private static final String JAR_UPDATER_APP_PATH = UPDATE_DIR + File.separator + "jarUpdater.jar";
     private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
     private static final String UPDATE_DATA_ON_SERVER =
-            "https://raw.githubusercontent.com/HubTurbo/addressbook/master/UpdateData.json";
+            "https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/UpdateData.json";
+            //TODO use real UpdateData.json once testing completes
+            //"https://raw.githubusercontent.com/HubTurbo/addressbook/master/UpdateData.json";
     private static final File UPDATE_DATA_FILE = new File(UPDATE_DIR + File.separator + "UpdateData.json");
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
@@ -95,7 +96,7 @@ public class UpdateManager {
             return;
         }
 
-        if (downloadedVersions.contains(latestVersion.get())) {
+        if (downloadedVersions.contains(latestVersion.get()) || Version.getCurrentVersion() == latestVersion.get()) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
             System.out.println("UpdateManager - " + MSG_NO_NEWER_VERSION);
             return;
@@ -103,7 +104,7 @@ public class UpdateManager {
 
         EventManager.getInstance().post(new UpdaterInProgressEvent(
                 "Collecting all update files that are to be downloaded", -1));
-        HashMap<String, URL> filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(updateData.get());
+        HashMap<String, String> filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(updateData.get());
 
         if (filesToBeUpdated.isEmpty()) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_UPDATE));
@@ -179,57 +180,40 @@ public class UpdateManager {
     }
 
     private Optional<Version> getLatestVersion(UpdateData updateData) {
-        /*
-        ArrayList<VersionDescriptor> versionFileChanges = updateData.getAllVersionFileChanges();
+        try {
+            return Optional.of(Version.fromString(updateData.getVersion()));
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
 
-        return versionFileChanges.stream().map(VersionDescriptor::getVersion).max(Version::compareTo);
-        */
         return Optional.empty();
     }
 
-    private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(UpdateData updateData) {
-        OsDetector.Os machineOs;
+    private HashMap<String, String> collectAllUpdateFilesToBeDownloaded(UpdateData updateData) {
+        OsDetector.Os machineOs = OsDetector.getOs();
 
-        if (OsDetector.isOnWindows()) {
-            machineOs = OsDetector.Os.WINDOWS;
-        } else if (OsDetector.isOnMac()) {
-            machineOs = OsDetector.Os.MAC;
-        } else if (OsDetector.isOn32BitsLinux()) {
-            machineOs = OsDetector.Os.LINUX32;
-        } else if (OsDetector.isOn64BitsLinux()) {
-            machineOs = OsDetector.Os.LINUX64;
-        } else {
+        if (machineOs == OsDetector.Os.UNKNOWN) {
             System.out.println("UpdateManager - OS not supported for updating");
             return new HashMap<>();
         }
 
-        /*
-        ArrayList<VersionDescriptor> versionFileChanges = updateData.getAllVersionFileChanges();
+        HashMap<String, String> filesToBeDownloaded = new HashMap<>();
 
-        List<VersionDescriptor> relevantVersionFileChanges = versionFileChanges.stream()
-                .filter(versionChangesDescriptor ->
-                        versionChangesDescriptor.getVersion().compareTo(Version.getCurrentVersion()) > 0)
-                .sorted().collect(Collectors.toList());
+        filesToBeDownloaded.put("addressbook.jar", updateData.getDownloadLinkForMainApp());
 
-        HashMap<String, URL> filesToBeDownloaded = new HashMap<>();
-
-        for (VersionDescriptor versionDescriptor : relevantVersionFileChanges) {
-            versionDescriptor.getFileUpdateDescriptors().stream()
-                    .filter(fileUpdateDescriptor -> fileUpdateDescriptor.getOs() == LibraryDescriptor.Os.ALL ||
-                            fileUpdateDescriptor.getOs() == machineOs)
-                    .forEach(fileUpdateDescriptor -> filesToBeDownloaded.put(fileUpdateDescriptor.getDestinationFile(),
-                            fileUpdateDescriptor.getDownloadLink()));
-        }
+        updateData.getLibraries().stream()
+                .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == OsDetector.getOs())
+                .filter(libDesc -> !FileUtil.isFileExists("lib/" + libDesc.getFilename()))
+                .forEach(libDesc -> filesToBeDownloaded.put("lib/" + libDesc.getFilename(),
+                        updateData.getDownloadLinkForALibrary(libDesc)));
 
         return filesToBeDownloaded;
-        */
-        return new HashMap<>();
     }
 
     /**
      * @param updateDir directory to store downloaded updates
      */
-    private void downloadAllFilesToBeUpdated(File updateDir, HashMap<String, URL> filesToBeUpdated)
+    private void downloadAllFilesToBeUpdated(File updateDir, HashMap<String, String> filesToBeUpdated)
             throws IOException {
         if (!FileUtil.isDirExists(updateDir)) {
             try {
@@ -241,8 +225,17 @@ public class UpdateManager {
         }
 
         for (String destFile : filesToBeUpdated.keySet()) {
+            URL downloadLink;
             try {
-                downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
+                downloadLink = new URL(filesToBeUpdated.get(destFile));
+            } catch (MalformedURLException e) {
+                System.out.println("Library has a malformed URL - " + filesToBeUpdated.get(destFile));
+                e.printStackTrace();
+                throw e;
+            }
+
+            try {
+                downloadFile(new File(updateDir.toString(), destFile), downloadLink);
             } catch (IOException e) {
                 System.out.println("Failed to download an update file, aborting update.");
                 throw e;
@@ -253,7 +246,7 @@ public class UpdateManager {
     private void downloadFile(File targetFile, URL source) throws IOException {
         try (InputStream in = source.openStream()) {
             if (!FileUtil.createFile(targetFile)) {
-                System.out.println("File already exists");
+                System.out.println("File already exists - " + targetFile);
             }
             Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
@@ -264,7 +257,7 @@ public class UpdateManager {
         }
     }
 
-    private void createUpdateSpecification(HashMap<String, URL> filesToBeUpdated) throws IOException {
+    private void createUpdateSpecification(HashMap<String, String> filesToBeUpdated) throws IOException {
         LocalUpdateSpecificationHelper.saveLocalUpdateSpecFile(
                 filesToBeUpdated.keySet().stream().collect(Collectors.toList())
         );
