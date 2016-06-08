@@ -23,8 +23,8 @@ public class ShortcutsManager {
     private static List<GlobalHotkey> hotkeys = new ArrayList<>();
 
     /* shortcuts in alphabetical order of names */
-    public static final String HOTKEY_APP_MINIMIZE;
-    public static final String HOTKEY_APP_MAXIMIZE;
+    public static final List<String> HOTKEY_APP_MINIMIZE = new ArrayList<>();
+    public static final List<String> HOTKEY_APP_MAXIMIZE = new ArrayList<>();
     public static final KeyCombination SHORTCUT_FILE_NEW;
     public static final KeyCombination SHORTCUT_FILE_OPEN;
     public static final KeyCombination SHORTCUT_FILE_SAVE;
@@ -49,8 +49,11 @@ public class ShortcutsManager {
 
         SHORTCUT_FILE_SAVE_AS = setShortcut(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN);
 
-        HOTKEY_APP_MINIMIZE = setHotkey("control alt X", new MinimizeAppRequestEvent());
-        HOTKEY_APP_MAXIMIZE = setHotkey("control shift X", new MaximizeAppRequestEvent());
+        HOTKEY_APP_MINIMIZE.add(setHotkey("control alt X", new MinimizeAppRequestEvent()));
+        HOTKEY_APP_MINIMIZE.add(setHotkey("meta alt X", new MinimizeAppRequestEvent()));
+
+        HOTKEY_APP_MAXIMIZE.add(setHotkey("control shift X", new MaximizeAppRequestEvent()));
+        HOTKEY_APP_MAXIMIZE.add(setHotkey("meta shift X", new MaximizeAppRequestEvent()));
 
         /*====== other keys ======================================================*/
 
