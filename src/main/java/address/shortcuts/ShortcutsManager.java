@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Manages keyboard shortcuts
+ * Manages key bindings.
  */
 public class ShortcutsManager extends ComponentManager{
 

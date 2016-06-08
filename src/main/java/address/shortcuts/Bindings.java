@@ -14,19 +14,38 @@ import java.util.Optional;
  * Contains the mapping of shortcuts and the corresponding event to raise
  */
 public class Bindings {
-    private List<Shortcut> shortcuts = new ArrayList<>();
+
+    /**
+     * List of accelerators used.
+     * They are here for the purpose of record keeping. Handled automatically by JavaFX.
+     */
+    private List<Accelerator> accelerators = new ArrayList<>();
+
+    /**
+     * List of Global hotkeys.
+     */
     private List<GlobalHotkey> hotkeys = new ArrayList<>();
 
-    /* shortcuts in alphabetical order of names */
+    /**
+     * List of keyboard shortcuts.
+     */
+    private List<Shortcut> shortcuts = new ArrayList<>();
+
+
+    /* Global hotkeys in alphabetical order of name */
     public List<GlobalHotkey> HOTKEY_APP_MINIMIZE = new ArrayList<>();
     public List<GlobalHotkey> HOTKEY_APP_MAXIMIZE = new ArrayList<>();
-    public Shortcut SHORTCUT_FILE_NEW;
-    public Shortcut SHORTCUT_FILE_OPEN;
-    public Shortcut SHORTCUT_FILE_SAVE;
-    public Shortcut SHORTCUT_FILE_SAVE_AS;
+
+    /* Accelerators in alphabetical order of name */
+    public Accelerator ACCELERATOR_FILE_NEW;
+    public Accelerator ACCELERATOR_FILE_OPEN;
+    public Accelerator ACCELERATOR_FILE_SAVE;
+    public Accelerator ACCELERATOR_FILE_SAVE_AS;
+    public Accelerator ACCELERATOR_PERSON_DELETE;
+    public Accelerator ACCELERATOR_PERSON_EDIT;
+
+    /* Shortcuts in alphabetical order of name */
     public Shortcut SHORTCUT_LIST_ENTER;
-    public Shortcut SHORTCUT_PERSON_DELETE;
-    public Shortcut SHORTCUT_PERSON_EDIT;
 
     public Bindings(){
         init();
@@ -34,19 +53,19 @@ public class Bindings {
 
     private void init(){
 
-        /*====== A-Z keys (in alphabetical order of main key =====================*/
+        /*====== bindings A-Z keys (in alphabetical order of main key =====================*/
 
-        SHORTCUT_PERSON_DELETE = setShortcut(KeyCode.D);
+        ACCELERATOR_PERSON_DELETE = setAccelerator(KeyCode.D);
 
-        SHORTCUT_PERSON_EDIT = setShortcut(KeyCode.E);
+        ACCELERATOR_PERSON_EDIT = setAccelerator(KeyCode.E);
 
-        SHORTCUT_FILE_NEW = setShortcut(KeyCode.N, KeyCombination.CONTROL_DOWN);
+        ACCELERATOR_FILE_NEW = setAccelerator(KeyCode.N, KeyCombination.CONTROL_DOWN);
 
-        SHORTCUT_FILE_OPEN = setShortcut(KeyCode.O, KeyCombination.CONTROL_DOWN);
+        ACCELERATOR_FILE_OPEN = setAccelerator(KeyCode.O, KeyCombination.CONTROL_DOWN);
 
-        SHORTCUT_FILE_SAVE = setShortcut(KeyCode.S, KeyCombination.CONTROL_DOWN);
+        ACCELERATOR_FILE_SAVE = setAccelerator(KeyCode.S, KeyCombination.CONTROL_DOWN);
 
-        SHORTCUT_FILE_SAVE_AS = setShortcut(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN);
+        ACCELERATOR_FILE_SAVE_AS = setAccelerator(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN);
 
         HOTKEY_APP_MINIMIZE.add(setHotkey("control alt X", new MinimizeAppRequestEvent()));
         HOTKEY_APP_MINIMIZE.add(setHotkey("meta alt X", new MinimizeAppRequestEvent()));
@@ -85,20 +104,38 @@ public class Bindings {
     }
 
     /**
-     * Adds the shortcut to the list of shortcuts.
+     * Creates a new {@link Accelerator} object and adds it to the list of accelerators.
+     * @param mainKey
+     * @param modifierKey
+     * @return the created object.
+     */
+    private Accelerator setAccelerator(KeyCode mainKey, KeyCombination.Modifier... modifierKey) {
+        KeyCodeCombination keyCodeCombination = new KeyCodeCombination(mainKey, modifierKey);
+        Accelerator a = new Accelerator(keyCodeCombination);
+        accelerators.add(a);
+        return a;
+    }
+
+    /**
+     * Creates a new {@link Shortcut} object and adds to the list of shortcuts.
      * @param mainKey
      * @param modifierKey
      * @param eventToRaise
-     * @return corresponding key combination
+     * @return the created object.
      */
-    private Shortcut setShortcut(KeyCode mainKey, KeyCombination.Modifier modifierKey,
-                                        BaseEvent eventToRaise) {
+    private Shortcut setShortcut(KeyCode mainKey, KeyCombination.Modifier modifierKey, BaseEvent eventToRaise) {
         KeyCodeCombination keyCombination = new KeyCodeCombination(mainKey, modifierKey);
         Shortcut s = new Shortcut(keyCombination, eventToRaise);
         shortcuts.add(s);
         return s;
     }
 
+    /**
+     * Creates a new {@link GlobalHotkey} object and adds it to the list.
+     * @param hotkeyString
+     * @param eventToRaise
+     * @return the created object.
+     */
     private GlobalHotkey setHotkey(String hotkeyString, BaseEvent eventToRaise) {
         GlobalHotkey hk = new GlobalHotkey(hotkeyString, eventToRaise);
         hotkeys.add(hk);
@@ -108,7 +145,7 @@ public class Bindings {
 
     /**
      * @param keyEvent
-     * @return the Shortcut that matches the keyEvent
+     * @return the Shortcut that matches the keyEvent, if any.
      */
     protected Optional<BaseEvent> getEventToRaiseForShortcut(KeyEvent keyEvent) {
         Optional<Shortcut> matchingShortcut =

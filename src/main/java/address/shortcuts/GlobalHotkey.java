@@ -3,7 +3,7 @@ package address.shortcuts;
 import address.events.BaseEvent;
 
 /**
- * Represents a global hotkey
+ * Represents a global hotkey.
  */
 public class GlobalHotkey {
     private String hotkeyString;
