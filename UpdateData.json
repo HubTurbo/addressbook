@@ -1,50 +1,50 @@
 {
   "version" : "V0.0.0",
-  "mainAppFilename" : "resource-V0.0.0.jar",
+  "mainApp" : "resource-V0.0.0.jar",
   "libraries" : [ {
     "filename" : "license.jar",
-    "os" : "ALL"
+    "os" : "ANY"
   }, {
     "filename" : "log4j-api-2.3.jar",
-    "os" : "ALL"
+    "os" : "ANY"
   }, {
     "filename" : "log4j-core-2.3.jar",
-    "os" : "ALL"
+    "os" : "ANY"
   }, {
     "filename" : "commons-io-2.4.jar",
-    "os" : "ALL"
+    "os" : "ANY"
   }, {
     "filename" : "controlsfx-8.40.10.jar",
-    "os" : "ALL"
+    "os" : "ANY"
   }, {
     "filename" : "jackson-datatype-jsr310-2.7.4.jar",
-    "os" : "ALL"
+    "os" : "ANY"
   }, {
     "filename" : "guava-19.0.jar",
-    "os" : "ALL"
+    "os" : "ANY"
   }, {
     "filename" : "jxbrowser-win-6.4.jar",
-    "os" : "ALL"
+    "os" : "WINDOWS"
   }, {
     "filename" : "jxbrowser-mac-6.4.jar",
-    "os" : "ALL"
+    "os" : "MAC"
   }, {
     "filename" : "jxbrowser-linux32-6.4.jar",
-    "os" : "ALL"
+    "os" : "LINUX32"
   }, {
     "filename" : "jxbrowser-linux64-6.4.jar",
-    "os" : "ALL"
+    "os" : "LINUX64"
   }, {
     "filename" : "jackson-annotations-2.7.0.jar",
-    "os" : "ALL"
+    "os" : "ANY"
   }, {
     "filename" : "jxbrowser-6.4.jar",
-    "os" : "ALL"
+    "os" : "ANY"
   }, {
     "filename" : "jackson-core-2.7.4.jar",
-    "os" : "ALL"
+    "os" : "ANY"
   }, {
     "filename" : "jackson-databind-2.7.4.jar",
-    "os" : "ALL"
+    "os" : "ANY"
   } ]
 }

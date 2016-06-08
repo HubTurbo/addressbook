@@ -1,25 +1,33 @@
 package address.updater.model;
 
-import address.util.Version;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.ArrayList;
 
 /**
  * Lists app's latest version's main app and libraries data as stored in server
  */
+@JsonPropertyOrder({ "version", "mainApp", "libraries" })
 public class UpdateData {
-    private Version version;
+    @JsonIgnore
+    private static String downloadLink = "https://github.com/HubTurbo/addressbook/releases/download/";
+
+    @JsonProperty("version")
+    private String versionString;
+    @JsonProperty("mainApp")
     private String mainAppFilename;
     private ArrayList<LibraryDescriptor> libraries = new ArrayList<>();
 
     public UpdateData() {}
 
-    public Version getVersion() {
-        return version;
+    public String getVersion() {
+        return versionString;
     }
 
-    public void setVersion(Version version) {
-        this.version = version;
+    public void setVersion(String versionString) {
+        this.versionString = versionString;
     }
 
     public String getMainAppFilename() {
@@ -36,5 +44,21 @@ public class UpdateData {
 
     public ArrayList<LibraryDescriptor> getLibraries() {
         return libraries;
+    }
+
+    public String getDownloadLinkForMainApp() {
+        return getVersionDownloadLink() + convertNameToDownloadFileName(mainAppFilename);
+    }
+
+    public String getDownloadLinkForALibrary(LibraryDescriptor libraryDescriptor) {
+        return getVersionDownloadLink() + convertNameToDownloadFileName(libraryDescriptor.getFilename());
+    }
+
+    private String getVersionDownloadLink() {
+        return downloadLink + versionString + "/";
+    }
+
+    private static String convertNameToDownloadFileName(String name) {
+        return name.replaceAll("\\s+", ".");
     }
 }

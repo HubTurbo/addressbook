@@ -63,13 +63,40 @@ allprojects {
         }
     }
 
+    sourceSets {
+        installer {
+            java {
+                srcDir 'src/main/java/'
+                include('installer/**/*')
+                exclude('installer/UpdateDataGenerator.java')
+                include('address/util/FileUtil.java')
+                include('address/util/OsDetector.java')
+                include('address/util/ProgressAwareInputStream.java')
+                include('address/util/JsonUtil.java')
+                include('address/updater/model/UpdateData.java')
+                include('address/updater/model/LibraryDescriptor.java')
+            }
+            resources {
+                srcDir jar.getArchivePath().getParent()
+                include(project.ext.mainAppArchiveName)
+                include('lib/*')
+                exclude('lib/jxbrowser-*-*.jar') // platform specific jxbrowser
+
+                srcDir rootDir
+                include('UpdateData.json')
+            }
+        }
+    }
+
     dependencies {
         compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
         compile 'commons-io:commons-io:2.4'
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+        installerCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
+        installerCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         compile "com.google.guava:guava:$guavaVersion"
         compile "com.teamdev.jxbrowser:jxbrowser-win:$jxBrowserVersion"
         compile "com.teamdev.jxbrowser:jxbrowser-mac:$jxBrowserVersion"
@@ -170,25 +197,6 @@ allprojects {
 
     createMainAppExecutable.dependsOn clean
 
-    sourceSets {
-        installer {
-            java {
-                srcDir 'src/main/java/'
-                include('installer/**/*')
-                exclude('installer/UpdateDataGenerator.java')
-                include('address/util/FileUtil.java')
-                include('address/util/OsDetector.java')
-                include('address/util/ProgressAwareInputStream.java')
-            }
-            resources {
-                srcDir jar.getArchivePath().getParent()
-                include(project.ext.mainAppArchiveName)
-                include('lib/*')
-                exclude('lib/jxbrowser-*-*.jar') // platform specific jxbrowser
-            }
-        }
-    }
-
     task createInstallerJar(type: Jar) {
         group = "Release"
 
@@ -197,7 +205,8 @@ allprojects {
         manifest {
             attributes 'Implementation-Title': 'Addressbook',
                     'Implementation-Version': '1.0',
-                    'Main-Class': 'installer.Installer'
+                    'Main-Class': 'installer.Installer',
+                    'Class-Path': configurations.installerRuntime.files.collect { "lib/${it.name}" }.join(" ")
         }
 
         archiveName = "addressbook.jar"

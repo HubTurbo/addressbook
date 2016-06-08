@@ -4,8 +4,8 @@ import address.updater.model.LibraryDescriptor;
 import address.updater.model.UpdateData;
 import address.util.FileUtil;
 import address.util.JsonUtil;
+import address.util.OsDetector;
 import address.util.Version;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class UpdateDataGenerator {
     public static void main(String[] args) {
         UpdateData updateData = new UpdateData();
-        updateData.setVersion(Version.getCurrentVersion());
+        updateData.setVersion(Version.getCurrentVersion().toString());
 
         List<String> arguments = Arrays.asList(args);
 
@@ -29,7 +29,7 @@ public class UpdateDataGenerator {
         ArrayList<String> librariesName = new ArrayList<>(arguments.subList(1, arguments.size()));
 
         ArrayList<LibraryDescriptor> librariesDescriptor = librariesName.stream()
-                .map(lib -> new LibraryDescriptor(lib, LibraryDescriptor.Os.ALL))
+                .map(lib -> new LibraryDescriptor(lib, OsDetector.Os.ANY))
                 .collect(Collectors.toCollection(ArrayList::new));
 
         updateData.setLibraries(librariesDescriptor);

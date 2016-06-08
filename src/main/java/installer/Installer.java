@@ -1,6 +1,9 @@
 package installer;
 
+import address.updater.model.LibraryDescriptor;
+import address.updater.model.UpdateData;
 import address.util.FileUtil;
+import address.util.JsonUtil;
 import address.util.OsDetector;
 import address.util.ProgressAwareInputStream;
 import javafx.application.Application;
@@ -25,10 +28,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 /**
  * Unpack all JARs required to run addressbook to the disk.
@@ -98,7 +103,7 @@ public class Installer extends Application {
             return;
         }
 
-        downloadPlatformSpecificJxBrowser();
+        downloadPlatformSpecificComponents();
         startMainApplication();
     }
 
@@ -135,59 +140,68 @@ public class Installer extends Application {
         return FileUtil.getJarFileOfClass(this.getClass()).getName();
     }
 
-    private void downloadPlatformSpecificJxBrowser() {
-        System.out.println("Getting Jx Browser");
+    static String convertStreamToString(java.io.InputStream is) {
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
+    }
 
-        String jxBrowserDownloadLink = "http://maven.teamdev.com/repository/products/com/teamdev/jxbrowser/";
+    private void downloadPlatformSpecificComponents() {
+        System.out.println("Getting platform specific components");
 
-        if (OsDetector.isOnWindows()) {
-            jxBrowserDownloadLink += "jxbrowser-win/6.4/jxbrowser-win-6.4.jar";
-        } else if (OsDetector.isOnMac()) {
-            jxBrowserDownloadLink += "jxbrowser-mac/6.4/jxbrowser-mac-6.4.jar";
-        } else if (OsDetector.isOn32BitsLinux()) {
-            jxBrowserDownloadLink += "jxbrowser-linux32/6.4/jxbrowser-linux32-6.4.jar";
-        } else if (OsDetector.isOn64BitsLinux()) {
-            jxBrowserDownloadLink += "jxbrowser-linux64/6.4/jxbrowser-linux64-6.4.jar";
-        } else {
-            System.out.println("Unknown OS");
-        }
+        String json = convertStreamToString(Installer.class.getResourceAsStream("/UpdateData.json"));
 
-        URL downloadLink;
+        UpdateData updateData;
+
         try {
-            downloadLink = new URL(jxBrowserDownloadLink);
-        } catch (MalformedURLException e) {
-            System.out.println("JxBrowser download link is malformed");
+            updateData = JsonUtil.fromJsonString(json, UpdateData.class);
+        } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
-        String jxBrowserFilename = Paths.get(downloadLink.getPath()).getFileName().toString();
-        File jxbrowserFile = Paths.get("lib", jxBrowserFilename).toFile();
-
-        try {
-            URLConnection conn = downloadLink.openConnection();
-            int jxbrowserFileSize = conn.getContentLength();
-            if (jxbrowserFileSize != -1 && FileUtil.isFileExists(jxbrowserFile.toString()) &&
-                    jxbrowserFile.length() == jxbrowserFileSize) {
-                System.out.println("JxBrowser already exists");
-                return;
-            }
-        } catch (IOException e) {
-            System.out.println("Failed to get size of JxBrowser file; will proceed to downloading it");
-            e.printStackTrace();
-        }
+        List<LibraryDescriptor> platformDependentLibraries =  updateData.getLibraries().stream()
+                .filter(libDesc -> libDesc.getOs() == OsDetector.getOs())
+                .collect(Collectors.toList());
 
         Platform.runLater(() -> loadingLabel.setText("Initializing. Downloading required components. Please wait."));
 
-        try {
-            downloadFile(jxbrowserFile, downloadLink);
-        } catch (IOException e) {
-            System.out.println("Failed to download JxBrowser");
-            e.printStackTrace();
-            return;
+        for (LibraryDescriptor platformDependentLibrary : platformDependentLibraries) {
+            URL downloadLink;
+            try {
+                downloadLink = new URL(updateData.getDownloadLinkForALibrary(platformDependentLibrary));
+            } catch (MalformedURLException e) {
+                System.out.println("Download link is malformed, will not download library - " +
+                        platformDependentLibrary.getFilename());
+                e.printStackTrace();
+                break;
+            }
+
+            File libFile = Paths.get("lib", platformDependentLibrary.getFilename()).toFile();
+
+            try {
+                URLConnection conn = downloadLink.openConnection();
+                int libDownloadFileSize = conn.getContentLength();
+                if (libDownloadFileSize != -1 && FileUtil.isFileExists(libFile.toString()) &&
+                        libFile.length() == libDownloadFileSize) {
+                    System.out.println("Library already exists - " + platformDependentLibrary.getFilename());
+                    break;
+                }
+            } catch (IOException e) {
+                System.out.println("Failed to get size of library; will proceed to downloading it - " +
+                        platformDependentLibrary.getFilename());
+                e.printStackTrace();
+            }
+
+            try {
+                downloadFile(libFile, downloadLink);
+            } catch (IOException e) {
+                System.out.println("Failed to download library - " + platformDependentLibrary.getFilename());
+                e.printStackTrace();
+                return;
+            }
         }
 
-        System.out.println("Has gotten Jx Browser");
+        System.out.println("Finished downloading platform dependent libraries");
     }
 
     private void startMainApplication() {
