@@ -14,21 +14,25 @@ import java.util.Optional;
  * Contains the mapping of shortcuts and the corresponding event to raise
  */
 public class Bindings {
-    private static List<Shortcut> shortcuts = new ArrayList<>();
-    private static List<GlobalHotkey> hotkeys = new ArrayList<>();
+    private List<Shortcut> shortcuts = new ArrayList<>();
+    private List<GlobalHotkey> hotkeys = new ArrayList<>();
 
     /* shortcuts in alphabetical order of names */
-    public static final List<GlobalHotkey> HOTKEY_APP_MINIMIZE = new ArrayList<>();
-    public static final List<GlobalHotkey> HOTKEY_APP_MAXIMIZE = new ArrayList<>();
-    public static final Shortcut SHORTCUT_FILE_NEW;
-    public static final Shortcut SHORTCUT_FILE_OPEN;
-    public static final Shortcut SHORTCUT_FILE_SAVE;
-    public static final Shortcut SHORTCUT_FILE_SAVE_AS;
-    public static final Shortcut SHORTCUT_LIST_ENTER;
-    public static final Shortcut SHORTCUT_PERSON_DELETE;
-    public static final Shortcut SHORTCUT_PERSON_EDIT;
+    public List<GlobalHotkey> HOTKEY_APP_MINIMIZE = new ArrayList<>();
+    public List<GlobalHotkey> HOTKEY_APP_MAXIMIZE = new ArrayList<>();
+    public Shortcut SHORTCUT_FILE_NEW;
+    public Shortcut SHORTCUT_FILE_OPEN;
+    public Shortcut SHORTCUT_FILE_SAVE;
+    public Shortcut SHORTCUT_FILE_SAVE_AS;
+    public Shortcut SHORTCUT_LIST_ENTER;
+    public Shortcut SHORTCUT_PERSON_DELETE;
+    public Shortcut SHORTCUT_PERSON_EDIT;
 
-    static {
+    public Bindings(){
+        init();
+    }
+
+    private void init(){
 
         /*====== A-Z keys (in alphabetical order of main key =====================*/
 
@@ -73,7 +77,7 @@ public class Bindings {
      * @param modifierKey
      * @return corresponding key combination
      */
-    private static Shortcut setShortcut(KeyCode mainKey, KeyCombination.Modifier... modifierKey) {
+    private Shortcut setShortcut(KeyCode mainKey, KeyCombination.Modifier... modifierKey) {
         KeyCodeCombination keyCodeCombination = new KeyCodeCombination(mainKey, modifierKey);
         Shortcut s = new Shortcut(keyCodeCombination);
         shortcuts.add(s);
@@ -87,7 +91,7 @@ public class Bindings {
      * @param eventToRaise
      * @return corresponding key combination
      */
-    private static Shortcut setShortcut(KeyCode mainKey, KeyCombination.Modifier modifierKey,
+    private Shortcut setShortcut(KeyCode mainKey, KeyCombination.Modifier modifierKey,
                                         BaseEvent eventToRaise) {
         KeyCodeCombination keyCombination = new KeyCodeCombination(mainKey, modifierKey);
         Shortcut s = new Shortcut(keyCombination, eventToRaise);
@@ -95,7 +99,7 @@ public class Bindings {
         return s;
     }
 
-    private static GlobalHotkey setHotkey(String hotkeyString, BaseEvent eventToRaise) {
+    private GlobalHotkey setHotkey(String hotkeyString, BaseEvent eventToRaise) {
         GlobalHotkey hk = new GlobalHotkey(hotkeyString, eventToRaise);
         hotkeys.add(hk);
         return hk;

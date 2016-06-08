@@ -8,6 +8,7 @@ import com.google.common.eventbus.Subscribe;
 import com.tulskiy.keymaster.common.Provider;
 
 import javax.swing.*;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -18,15 +19,16 @@ public class ShortcutsManager extends ComponentManager{
     /** Provider for global hotkeys */
     private final Provider provider = Provider.getCurrentProvider(false);
 
-    public static Bindings BINDINGS = new Bindings();
+    public static Bindings BINDINGS;
 
 
     public ShortcutsManager(EventManager eventsManager) {
         super(eventsManager);
-        initGlobalHotkeys();
+        BINDINGS = new Bindings();
+        registerGlobalHotkeys(BINDINGS.getHotkeys());
     }
 
-    private void initGlobalHotkeys() {
+    private void registerGlobalHotkeys(List<GlobalHotkey> hotkesy) {
         for (GlobalHotkey hk: BINDINGS.getHotkeys()){
             provider.register(KeyStroke.getKeyStroke(hk.getHotkeyString()),
                     (hotkey) -> raise(hk.getEventToRaise()));
