@@ -152,6 +152,21 @@ public class CloudServiceTest {
     }
 
     @Test
+    public void createPerson_errorCloudResponse() throws IOException {
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        when(cloudSimulator.createPerson(anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(cloudResponse);
+
+        Person person = new Person("unknownName", "unknownName");
+
+        ExtractedCloudResponse<Person> serviceResponse = cloudService.createPerson("Test", person);
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
+        assertFalse(serviceResponse.getData().isPresent());
+        assertEquals(0, serviceResponse.getQuotaLimit());
+        assertEquals(0, serviceResponse.getQuotaRemaining());
+        assertNull(serviceResponse.getQuotaResetTime());
+    }
+
+    @Test
     public void createPerson_newTag_successfulCreationOfPersonAndTag() throws IOException {
         int quotaLimit = 10;
         int quotaRemaining = 9;
@@ -196,6 +211,21 @@ public class CloudServiceTest {
         assertTrue(serviceResponse.getData().isPresent());
         assertEquals(tag, serviceResponse.getData().get());
         assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    @Test
+    public void createTag_errorCloudResponse() throws IOException {
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        when(cloudSimulator.createTag(anyString(), any(CloudTag.class), isNull(String.class))).thenReturn(cloudResponse);
+
+        Tag tag = new Tag("New Tag");
+
+        ExtractedCloudResponse<Tag> serviceResponse = cloudService.createTag("Test", tag);
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
+        assertFalse(serviceResponse.getData().isPresent());
+        assertEquals(0, serviceResponse.getQuotaLimit());
+        assertEquals(0, serviceResponse.getQuotaRemaining());
+        assertNull(serviceResponse.getQuotaResetTime());
     }
 
     @Test
@@ -274,6 +304,21 @@ public class CloudServiceTest {
     }
 
     @Test
+    public void editTag_errorCloudResponse() throws IOException {
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        when(cloudSimulator.editTag(anyString(), anyString(), any(CloudTag.class), isNull(String.class))).thenReturn(cloudResponse);
+
+        Tag updatedTag = new Tag("newTagName");
+        ExtractedCloudResponse<Tag> serviceResponse = cloudService.editTag("Test", "tagName", updatedTag);
+
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
+        assertFalse(serviceResponse.getData().isPresent());
+        assertEquals(0, serviceResponse.getQuotaLimit());
+        assertEquals(0, serviceResponse.getQuotaRemaining());
+        assertNull(serviceResponse.getQuotaResetTime());
+    }
+
+    @Test
     public void deletePerson() throws IOException {
         int quotaLimit = 10;
         int quotaRemaining = 9;
@@ -317,6 +362,20 @@ public class CloudServiceTest {
         assertEquals(HttpURLConnection.HTTP_NO_CONTENT, serviceResponse.getResponseCode());
         assertFalse(serviceResponse.getData().isPresent());
         assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    @Test
+    public void deleteTag_errorCloudResponse() throws IOException {
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        when(cloudSimulator.deleteTag("Test", "tagName")).thenReturn(cloudResponse);
+
+        ExtractedCloudResponse<Void> serviceResponse = cloudService.deleteTag("Test", "tagName");
+
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
+        assertFalse(serviceResponse.getData().isPresent());
+        assertEquals(0, serviceResponse.getQuotaLimit());
+        assertEquals(0, serviceResponse.getQuotaRemaining());
+        assertNull(serviceResponse.getQuotaResetTime());
     }
 
     @Test
@@ -434,5 +493,18 @@ public class CloudServiceTest {
         assertEquals("10", serviceResponse.getData().get().get("Limit"));
         assertEquals("10", serviceResponse.getData().get().get("Remaining"));
         assertEquals(String.valueOf(resetTime), serviceResponse.getData().get().get("Reset"));
+    }
+
+    @Test
+    public void getLimitStatus_errorCloudResponse() throws IOException {
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        when(cloudSimulator.getRateLimitStatus(isNull(String.class))).thenReturn(cloudResponse);
+        ExtractedCloudResponse<HashMap<String, String>> serviceResponse = cloudService.getLimitStatus();
+
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
+        assertFalse(serviceResponse.getData().isPresent());
+        assertEquals(0, serviceResponse.getQuotaLimit());
+        assertEquals(0, serviceResponse.getQuotaRemaining());
+        assertNull(serviceResponse.getQuotaResetTime());
     }
 }

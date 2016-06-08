@@ -303,11 +303,11 @@ public class CloudService implements ICloudService {
     public ExtractedCloudResponse<HashMap<String, String>> getLimitStatus() throws IOException {
         RawCloudResponse cloudResponse = cloud.getRateLimitStatus(null);
         HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-        HashMap<String, String> bodyHashMap = getHashMapFromBody(cloudResponse.getBody());
-        HashMap<String, String> simplifiedHashMap = simplifyHashMap(bodyHashMap);
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
         }
+        HashMap<String, String> bodyHashMap = getHashMapFromBody(cloudResponse.getBody());
+        HashMap<String, String> simplifiedHashMap = simplifyHashMap(bodyHashMap);
         return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), simplifiedHashMap);
