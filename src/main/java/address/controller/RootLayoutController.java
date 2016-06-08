@@ -69,10 +69,10 @@ public class RootLayoutController {
     }
 
     public void setShortcuts(){
-        menuFileNew.setAccelerator(ShortcutsManager.SHORTCUT_FILE_NEW.getKeyCombination());
-        menuFileOpen.setAccelerator(ShortcutsManager.SHORTCUT_FILE_OPEN.getKeyCombination());
-        menuFileSave.setAccelerator(ShortcutsManager.SHORTCUT_FILE_SAVE.getKeyCombination());
-        menuFileSaveAs.setAccelerator(ShortcutsManager.SHORTCUT_FILE_SAVE_AS.getKeyCombination());
+        menuFileNew.setAccelerator(ShortcutsManager.SHORTCUTS.SHORTCUT_FILE_NEW.getKeyCombination());
+        menuFileOpen.setAccelerator(ShortcutsManager.SHORTCUTS.SHORTCUT_FILE_OPEN.getKeyCombination());
+        menuFileSave.setAccelerator(ShortcutsManager.SHORTCUTS.SHORTCUT_FILE_SAVE.getKeyCombination());
+        menuFileSaveAs.setAccelerator(ShortcutsManager.SHORTCUTS.SHORTCUT_FILE_SAVE_AS.getKeyCombination());
     }
 
     @Subscribe
