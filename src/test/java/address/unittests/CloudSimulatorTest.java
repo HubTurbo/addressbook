@@ -55,11 +55,15 @@ public class CloudSimulatorTest {
 
     @Test
     public void createAddressBook() throws IOException, DataConversionException {
-        final int apiUsage = 1;
-
         RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
+
+        // File handler is called to create an address book file
         verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
-        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+
+        // 1 API quota is consumed
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for a successful creation
         assertEquals(HttpURLConnection.HTTP_CREATED, cloudResponse.getResponseCode());
     }
 
@@ -67,104 +71,162 @@ public class CloudSimulatorTest {
     public void createAddressBook_notEnoughQuota_unsuccessfulCreation() throws IOException, DataConversionException {
         // Use up quota
         cloudRateLimitStatus.useQuota(STARTING_API_COUNT);
+        assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
 
-        assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
         RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
+
+        // File creation will not be called since there is no more quota
         verify(cloudFileHandler, never()).createCloudAddressBookFile("Test");
+
+        // API count is not modified
         assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for a request with insufficient quota
         assertEquals(HttpURLConnection.HTTP_FORBIDDEN, cloudResponse.getResponseCode());
     }
 
     @Test
     public void createAddressBook_illegalArgument_unsuccessfulCreation() throws IOException, DataConversionException {
-        int apiUsage = 1;
-
+        // Prepare filehandler to throw an exception that the addressbook already exists
         doThrow(new IllegalArgumentException("AddressBook 'Test' already exists!")).when(cloudFileHandler).createCloudAddressBookFile("Test");
 
         RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
+
+        // File creation method is called
         verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
-        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Still consumes API quota since it is the caller's error
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for a bad request
         assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
     }
 
     @Test
     public void createAddressBook_conversionException_unsuccessfulCreation() throws IOException, DataConversionException {
+        // Prepares filehandler to throw an exception that there are problems with data conversion
         doThrow(new DataConversionException("Error in conversion when creating file.")).when(cloudFileHandler).createCloudAddressBookFile("Test");
 
         RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
+
+        // File creation method is called
         verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
 
+        // Does not consume API quota since it is an error on the cloud's end
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for a cloud error
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
     }
 
     @Test
     public void deletePerson_enoughQuota_successfulDeletion() throws IOException, DataConversionException {
-        final int apiUsage = 1;
-
         RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", "firstName", "lastName");
+
+        // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+
+        // File write method is called
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(any(CloudAddressBook.class));
-        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+
+        // 1 API quota is used
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for deleted content
         assertEquals(HttpURLConnection.HTTP_NO_CONTENT, cloudResponse.getResponseCode());
     }
 
     @Test
     public void deletePerson_noSuchPerson_unsuccessfulDeletion() throws DataConversionException, FileNotFoundException {
-        int apiUsage = 1;
-
         RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", "unknownName", "unknownName");
+
+        // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+
+        // File write method is never called, since there is an error
         verify(cloudFileHandler, never()).writeCloudAddressBookToFile(any(CloudAddressBook.class));
-        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+
+        // 1 API quota is still used, since it is the caller's error
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for a bad request
         assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
     }
 
     @Test
     public void deletePerson_conversionException_unsuccessfulDeletion() throws IOException, DataConversionException {
+        // Prepares filehandler to throw an exception that there are problems with data conversion
         doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
         RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", "firstName", "lastName");
+
+        // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+
+        // File write method is called
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
+        // API quota is not consumed since it is a cloud error
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for cloud error
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
     }
 
     @Test
     public void updatePerson() throws DataConversionException, FileNotFoundException {
-        final int apiUsage = 1;
-
         CloudPerson updatedPerson = prepareUpdatedPerson();
-
         RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", "firstName", "lastName", updatedPerson, null);
+
+        // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+
+        // File write method is called
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(any(CloudAddressBook.class));
-        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+
+        // 1 API quota is consumed
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for successful update
         assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
     }
 
     @Test
     public void updatePerson_conversionException() throws DataConversionException, FileNotFoundException {
+        // Prepares filehandler to throw an exception that there are problems writing to file
         doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
         CloudPerson updatedPerson = prepareUpdatedPerson();
         RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", "firstName", "lastName", updatedPerson, null);
+
+        // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+
+        // File write method is called
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
+        // API quota is not consumed since it is a cloud error
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for cloud error
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
     }
 
     @Test
     public void updatePerson_noSuchPerson() throws DataConversionException, FileNotFoundException {
-        final int apiUsage = 1;
-
         CloudPerson updatedPerson = prepareUpdatedPerson();
         RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", "unknownName", "unknownName", updatedPerson, null);
+
+        // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+
+        // File write method is never called, since there is an error
         verify(cloudFileHandler, never()).writeCloudAddressBookToFile(any(CloudAddressBook.class));
-        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+
+        // API quota is still consumed, since it is the caller's error
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for bad request
         assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
     }
 
@@ -172,29 +234,35 @@ public class CloudSimulatorTest {
     public void updatePerson_notEnoughQuota_unsuccessfulUpdate() throws DataConversionException, FileNotFoundException {
         // Use up quota
         cloudRateLimitStatus.useQuota(STARTING_API_COUNT);
+        assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
 
         CloudPerson updatedPerson = prepareUpdatedPerson();
-
-        assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
         RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", "firstName", "lastName", updatedPerson, null);
+
+        // File read is not called, since there is no quota
         verify(cloudFileHandler, never()).readCloudAddressBookFromFile("Test");
+
+        // File write is not called, since there is no quota
         verify(cloudFileHandler, never()).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
+        // API quota remaining does not change
         assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for insufficient quota
         assertEquals(HttpURLConnection.HTTP_FORBIDDEN, cloudResponse.getResponseCode());
     }
 
     @Test
     public void updatePerson_noSuchTag_successfulUpdateAndAddedTag() throws DataConversionException, FileNotFoundException {
-        final int apiUsage = 1;
-
-        // Tag a person with a new tag not yet defined
+        // Updated person with a new tag not previously defined
         CloudPerson updatedPerson = prepareUpdatedPerson();
         CloudTag newTag = new CloudTag("New Tag");
         List<CloudTag> tagList = new ArrayList<>();
         tagList.add(newTag);
         updatedPerson.setTags(tagList);
 
-        // person should be updated and tag should be added to the list of tags
+        // Expected result is that the person should be updated as it is
+        // And the new tag should be added to the list of tags
         List<CloudPerson> updatedPersonList = new ArrayList<>();
         updatedPersonList.add(updatedPerson);
         List<CloudTag> updatedTagList = new ArrayList<>();
@@ -203,77 +271,127 @@ public class CloudSimulatorTest {
         CloudAddressBook updatedAddressBook = new CloudAddressBook("Test", updatedPersonList, updatedTagList);
 
         RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", "firstName", "lastName", updatedPerson, null);
+
+        // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+
+        // File write method is called, with the expected result
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedAddressBook);
-        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+
+        // API quota is consumed
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for successful update
         assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
     }
 
     @Test
     public void createTag() throws DataConversionException, IOException {
-        final int apiUsage = 1;
-
+        // Tag to be created
         CloudTag newTag = new CloudTag("New Tag");
 
+        // Expected result after execution
         CloudAddressBook updatedCloudAddressBook = getDummyAddressBook();
         updatedCloudAddressBook.getAllTags().add(newTag);
 
         RawCloudResponse cloudResponse = cloudSimulator.createTag("Test", newTag, null);
+
+        // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+
+        // File write method is called, with expected result
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedCloudAddressBook);
-        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+
+        // API quota is used
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for successful creation
         assertEquals(HttpURLConnection.HTTP_CREATED, cloudResponse.getResponseCode());
+
+        // Returned content should be the same
         CloudTag cloudTag = JsonUtil.fromJsonString(convertToString(cloudResponse.getBody()), CloudTag.class);
         assertEquals(newTag, cloudTag);
     }
 
     @Test
     public void createTag_conversionException() throws DataConversionException, IOException {
+        // Tag to be created
         CloudTag newTag = new CloudTag("New Tag");
-        CloudAddressBook updatedCloudAddressBook = getDummyAddressBook();
-        doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
+        // Expected result after adding tag
+        CloudAddressBook updatedCloudAddressBook = getDummyAddressBook();
         updatedCloudAddressBook.getAllTags().add(newTag);
 
+        // However exception is thrown when writing to file
+        doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
+
         RawCloudResponse cloudResponse = cloudSimulator.createTag("Test", newTag, null);
+
+        // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+
+        // File write method is called, with expected result
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedCloudAddressBook);
+
+        // API quota is not consumed, since it is a cloud error
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response data should be null
         assertNull(cloudResponse.getBody());
+
+        // Response code for cloud error
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
     }
 
     @Test
     public void createTag_alreadyExists() throws DataConversionException, IOException {
-        final int apiUsage = 1;
-
+        // Tag to be created
         CloudTag newTag = new CloudTag("Tag one");
 
+        // Expected result after adding tag
         CloudAddressBook updatedCloudAddressBook = getDummyAddressBook();
         updatedCloudAddressBook.getAllTags().add(newTag);
 
         RawCloudResponse cloudResponse = cloudSimulator.createTag("Test", newTag, null);
+
+        // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+
+        // File write method is never called, since there is an error
         verify(cloudFileHandler, never()).writeCloudAddressBookToFile(updatedCloudAddressBook);
-        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+
+        // API quota is still consumed, since it is the caller's error
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response body should be null
         assertNull(cloudResponse.getBody());
+
+        // Response code for a bad request
         assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
     }
 
     @Test
     public void editTag() throws DataConversionException, FileNotFoundException {
-        final int apiUsage = 1;
-
+        // Updated tag to use
         CloudTag updatedTag = new CloudTag("Updated tag");
 
+        // Expected result after updating tag
         CloudAddressBook updatedCloudAddressBook = getDummyAddressBook();
         updatedCloudAddressBook.getAllTags().remove(new CloudTag("Tag one"));
         updatedCloudAddressBook.getAllTags().add(updatedTag);
 
         RawCloudResponse cloudResponse = cloudSimulator.editTag("Test", "Tag one", updatedTag, null);
+
+        // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
+
+        // File write method is called
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedCloudAddressBook);
-        assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
+
+        // API quota is consumed
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
+
+        // Response code for successful update
         assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
     }
 
