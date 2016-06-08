@@ -54,7 +54,7 @@ public class CloudServiceTest {
     }
 
     @Test
-    public void testGetPersons() throws IOException {
+    public void getPersons() throws IOException {
         int quotaLimit = 10;
         int quotaRemaining = 9;
         List<CloudPerson> personsToReturn = new ArrayList<>();
@@ -73,7 +73,22 @@ public class CloudServiceTest {
     }
 
     @Test
-    public void testGetPersons_multiplePages_successfulQuery() throws IOException {
+    public void getPersons_errorCloudResponse() throws IOException {
+        int quotaLimit = 10;
+        int quotaRemaining = 10;
+
+        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR, null, header);
+        when(cloudSimulator.getPersons("Test", 1, RESOURCES_PER_PAGE, null)).thenReturn(cloudResponse);
+
+        ExtractedCloudResponse<List<Person>> serviceResponse = cloudService.getPersons("Test");
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
+        assertFalse(serviceResponse.getData().isPresent());
+        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    @Test
+    public void getPersons_multiplePages_successfulQuery() throws IOException {
         int quotaLimit = 10;
         int quotaRemaining = 0;
         int noOfPersons = 1000;
