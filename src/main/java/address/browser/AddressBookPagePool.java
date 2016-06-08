@@ -111,7 +111,7 @@ public class AddressBookPagePool {
 
     /**
      * Gets the person instance from the list of active pages.
-     * @return A array list of person instance.
+     * @return An array list of person instance.
      */
     public ArrayList<Person> getActivePagesPerson(){
         return activePages.stream().map(page -> page.getPerson()).collect(Collectors.toCollection(ArrayList::new));
