@@ -22,7 +22,7 @@ public class ExtractedCloudResponse<V> {
     }
 
     ExtractedCloudResponse(int responseCode, int quotaLimit, int quotaRemaining, long quotaResetTimeEpochSeconds) {
-        this.responseCode = responseCode;
+        this(responseCode);
         this.quotaLimit = quotaLimit;
         this.quotaRemaining = quotaRemaining;
         this.quotaResetTime = LocalDateTime.ofEpochSecond(quotaResetTimeEpochSeconds, 0, getSystemTimezone());
@@ -31,6 +31,11 @@ public class ExtractedCloudResponse<V> {
     ExtractedCloudResponse(int responseCode, int quotaLimit, int quotaRemaining, long quotaResetTimeEpochSeconds, V data) {
         this(responseCode, quotaLimit, quotaRemaining, quotaResetTimeEpochSeconds);
         this.data = Optional.ofNullable(data);
+    }
+
+    ExtractedCloudResponse(int responseCode) {
+        this.responseCode = responseCode;
+        this.data = Optional.empty();
     }
 
     ExtractedCloudResponse() {

@@ -20,9 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -74,17 +72,15 @@ public class CloudServiceTest {
 
     @Test
     public void getPersons_errorCloudResponse() throws IOException {
-        int quotaLimit = 10;
-        int quotaRemaining = 10;
-
-        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
-        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR, null, header);
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         when(cloudSimulator.getPersons("Test", 1, RESOURCES_PER_PAGE, null)).thenReturn(cloudResponse);
 
         ExtractedCloudResponse<List<Person>> serviceResponse = cloudService.getPersons("Test");
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
         assertFalse(serviceResponse.getData().isPresent());
-        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+        assertEquals(0, serviceResponse.getQuotaLimit());
+        assertEquals(0, serviceResponse.getQuotaRemaining());
+        assertNull(serviceResponse.getQuotaResetTime());
     }
 
     @Test
@@ -244,6 +240,21 @@ public class CloudServiceTest {
     }
 
     @Test
+    public void updatePerson_errorCloudResponse() throws IOException {
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        when(cloudSimulator.updatePerson(anyString(), anyString(), anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(cloudResponse);
+
+        Person updatedPerson = new Person("newFirstName", "newLastName");
+        ExtractedCloudResponse<Person> serviceResponse = cloudService.updatePerson("Test", "firstName", "lastName", updatedPerson);
+
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
+        assertFalse(serviceResponse.getData().isPresent());
+        assertEquals(0, serviceResponse.getQuotaLimit());
+        assertEquals(0, serviceResponse.getQuotaRemaining());
+        assertNull(serviceResponse.getQuotaResetTime());
+    }
+
+    @Test
     public void editTag() throws IOException {
         int quotaLimit = 10;
         int quotaRemaining = 9;
@@ -276,6 +287,20 @@ public class CloudServiceTest {
         assertEquals(HttpURLConnection.HTTP_NO_CONTENT, serviceResponse.getResponseCode());
         assertFalse(serviceResponse.getData().isPresent());
         assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+    }
+
+    @Test
+    public void deletePerson_errorCloudResponse() throws IOException {
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        when(cloudSimulator.deletePerson("Test", "firstName", "lastName")).thenReturn(cloudResponse);
+
+        ExtractedCloudResponse<Void> serviceResponse = cloudService.deletePerson("Test", "firstName", "lastName");
+
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
+        assertFalse(serviceResponse.getData().isPresent());
+        assertEquals(0, serviceResponse.getQuotaLimit());
+        assertEquals(0, serviceResponse.getQuotaRemaining());
+        assertNull(serviceResponse.getQuotaResetTime());
     }
 
     @Test
@@ -378,20 +403,18 @@ public class CloudServiceTest {
 
     @Test
     public void getUpdatedPersonsSince_errorCloudResponse_returnEmptyResponse() throws IOException {
-        int quotaLimit = 10;
-        int quotaRemaining = 10;
-
         LocalDateTime cutOffTime = LocalDateTime.now();
 
-        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
-        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR, null, header);
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         when(cloudSimulator.getUpdatedPersons(anyString(), anyString(), anyInt(), anyInt(), anyString())).thenReturn(cloudResponse);
 
         ExtractedCloudResponse<List<Person>> serviceResponse = cloudService.getUpdatedPersonsSince("Test", cutOffTime);
 
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
         assertFalse(serviceResponse.getData().isPresent());
-        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
+        assertEquals(0, serviceResponse.getQuotaLimit());
+        assertEquals(0, serviceResponse.getQuotaRemaining());
+        assertNull(serviceResponse.getQuotaResetTime());
     }
 
     @Test

@@ -341,6 +341,9 @@ public class CloudService implements ICloudService {
 
     private <V> ExtractedCloudResponse<V> getResponseWithNoData(RawCloudResponse cloudResponse,
                                                                 HashMap<String, String> headerHashMap) {
+        if (headerHashMap == null || headerHashMap.size() < 3) {
+            return new ExtractedCloudResponse<>(cloudResponse.getResponseCode());
+        }
         return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), null);
