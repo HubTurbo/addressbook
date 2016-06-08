@@ -188,16 +188,16 @@ public class UpdateManager {
     }
 
     private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(UpdateData updateData) {
-        LibraryDescriptor.Os machineOs;
+        OsDetector.Os machineOs;
 
         if (OsDetector.isOnWindows()) {
-            machineOs = LibraryDescriptor.Os.WINDOWS;
+            machineOs = OsDetector.Os.WINDOWS;
         } else if (OsDetector.isOnMac()) {
-            machineOs = LibraryDescriptor.Os.MAC;
+            machineOs = OsDetector.Os.MAC;
         } else if (OsDetector.isOn32BitsLinux()) {
-            machineOs = LibraryDescriptor.Os.LINUX32;
+            machineOs = OsDetector.Os.LINUX32;
         } else if (OsDetector.isOn64BitsLinux()) {
-            machineOs = LibraryDescriptor.Os.LINUX64;
+            machineOs = OsDetector.Os.LINUX64;
         } else {
             System.out.println("UpdateManager - OS not supported for updating");
             return new HashMap<>();

@@ -10,6 +10,10 @@ import java.io.InputStreamReader;
 public class OsDetector {
     private static final String osName = System.getProperty("os.name");
 
+    public enum Os {
+        WINDOWS, MAC, LINUX32, LINUX64, ALL
+    }
+
     public enum Architecture {
         UNKNOWN, X86_64, I386, I686
     }

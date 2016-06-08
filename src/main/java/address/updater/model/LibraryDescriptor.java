@@ -1,21 +1,19 @@
 package address.updater.model;
 
 
+import address.util.OsDetector;
 
 /**
  * Download link for a file
  */
 public class LibraryDescriptor {
-    public enum Os {
-        WINDOWS, MAC, LINUX32, LINUX64, ALL
-    }
 
     private String filename;
-    private Os os;
+    private OsDetector.Os os;
 
     public LibraryDescriptor() {}
 
-    public LibraryDescriptor(String filename, Os os) {
+    public LibraryDescriptor(String filename, OsDetector.Os os) {
         this.filename = filename;
         this.os = os;
     }
@@ -24,7 +22,7 @@ public class LibraryDescriptor {
         return filename;
     }
 
-    public Os getOs() {
+    public OsDetector.Os getOs() {
         return os;
     }
 }
