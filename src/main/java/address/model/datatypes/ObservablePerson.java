@@ -1,5 +1,6 @@
 package address.model.datatypes;
 
+import address.model.ModelManager;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
@@ -7,13 +8,27 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * Allows access to the Person domain object's data as javafx properties and collections for easy binding and listening.
  * Also includes useful methods for working with fields from two ObservabblePersons together.
  */
 public interface ObservablePerson extends ReadablePerson, ExtractableObservables {
+
+    /**
+     * @param subtypeList source list of element type: subclasses of ObservablePersons
+     * @param collectionBuilder desired collection implementation of returned collection
+     * @see ModelManager#upcastToBoundCollection(ObservableList, Supplier)
+     * @return an upcasted read-only collection with element type {@code ObservablePerson}
+     */
+    static <R extends Collection<ObservablePerson>> R readOnlyCollectionCast(
+            ObservableList<? extends ObservablePerson> subtypeList, Supplier<R> collectionBuilder) {
+        return ModelManager.upcastToBoundCollection(subtypeList, collectionBuilder);
+    }
+
 
     StringProperty firstNameProperty();
     StringProperty lastNameProperty();

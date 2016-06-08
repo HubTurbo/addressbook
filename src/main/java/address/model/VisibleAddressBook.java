@@ -1,9 +1,6 @@
 package address.model;
 
-import address.model.datatypes.ExtractableObservables;
-import address.model.datatypes.Person;
-import address.model.datatypes.Tag;
-import address.model.datatypes.ViewablePerson;
+import address.model.datatypes.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -17,10 +14,18 @@ class VisibleAddressBook implements VisibleModel {
     private final BackingAddressBook backingModel;
 
     private final ObservableList<ViewablePerson> allPersons;
+    private final ObservableList<ObservableViewablePerson> allPersonsImmutable;
+
+
     private final ObservableList<Tag> allTags; // todo change to viewabletag class
 
     {
         allPersons = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
+        allPersonsImmutable = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
+        allPersonsImmutable.setAll(allPersons);
+        allPersons.addListener((ListChangeListener<? super ViewablePerson>) change -> {
+
+        });
     }
 
     VisibleAddressBook(BackingAddressBook src) {
@@ -29,9 +34,10 @@ class VisibleAddressBook implements VisibleModel {
 
         allPersons.setAll(backingModel.getAllPersons().stream()
                         .map(ViewablePerson::new)
-                        .collect(Collectors.toCollection(ArrayList::new)));
+                        .collect(Collectors.toList()));
 
         bindPersonsToBacking();
+
     }
 
     private void bindPersonsToBacking() {
@@ -51,10 +57,12 @@ class VisibleAddressBook implements VisibleModel {
         });
     }
 
-    public ObservableList<ViewablePerson> getAllViewablePersons() {
-        return allPersons;
+    @Override
+    public ObservableList<ObservableViewablePerson> getAllViewablePersons() {
+        return ObservableViewablePerson.readOnlyCollectionCast(allPersons, FXCollections::observableArrayList);
     }
 
+    @Override
     public ObservableList<Tag> getAllViewableTags() {
         return allTags;
     }

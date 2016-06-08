@@ -11,9 +11,11 @@ import com.google.common.eventbus.Subscribe;
 
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.WeakListChangeListener;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 /**
  * Represents the in-memory model of the address book data.
@@ -49,6 +51,39 @@ public class ModelManager implements Model, VisibleModel {
 
     public ModelManager() {
         this(new AddressBook());
+    }
+
+    /**
+     * Generates a new {@code (? extends Collection<ParentType>} view of a backing {@code ObservableList<ChildType}.
+     * Changes from the backing list are propagated to the returned collection, but not the other way round.
+     * Useful when you want to return a collection with a superinterface element type.
+     *
+     * @param sourceList ObservableList of elements used to create bound collection of the same elements upcast.
+     * @param upcastedCollectionBuilder Supplies a collection implementation to hold the upcast elements from sourceList.
+     * @param <F> upcasted supertype
+     * @return A collection containing elements from {@code sourceList} as upcasted versions of themselves, and changes
+     *         to the backing {@code sourceList} will be reflected in it.
+     */
+    public static <F, R extends Collection<F>> R upcastToBoundCollection(ObservableList<? extends F> sourceList,
+                                                                         Supplier<R> upcastedCollectionBuilder) {
+
+        R superclassList = upcastedCollectionBuilder.get();
+
+        // set superclass list elements to equal source list elements
+        superclassList.clear();
+        superclassList.addAll(sourceList);
+
+        // bind superclasslist to source list (add and delete. update not needed because elements are the same)
+        sourceList.addListener(new WeakListChangeListener<>(change -> {
+            while (change.next()) {
+                if (change.wasAdded() || change.wasRemoved()) {
+                    superclassList.removeAll(change.getRemoved());
+                    superclassList.addAll(change.getAddedSubList());
+                }
+            }
+        }));
+
+        return superclassList;
     }
 
     public synchronized void resetWithSampleData() throws DuplicateDataException {
@@ -87,7 +122,7 @@ public class ModelManager implements Model, VisibleModel {
      * @return all persons in visible model
      */
     @Override
-    public ObservableList<ViewablePerson> getAllViewablePersons() {
+    public ObservableList<ObservableViewablePerson> getAllViewablePersons() {
         return visibleModel.getAllViewablePersons();
     }
 
