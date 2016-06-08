@@ -64,6 +64,15 @@ allprojects {
     }
 
     sourceSets {
+        main {
+            java {
+                srcDir 'src/main/java'
+                exclude('installer/**/*')
+            }
+            resources {
+                srcDir 'src/main/resources'
+            }
+        }
         installer {
             java {
                 srcDir 'src/main/java/'
@@ -81,9 +90,6 @@ allprojects {
                 include(project.ext.mainAppArchiveName)
                 include('lib/*')
                 exclude('lib/jxbrowser-*-*.jar') // platform specific jxbrowser
-
-                srcDir rootDir
-                include('UpdateData.json')
             }
         }
     }
@@ -179,6 +185,9 @@ allprojects {
 
         }
         archiveName = project.ext.mainAppArchiveName
+        from(rootDir) {
+            include 'UpdateData.json'
+        }
     }
 
     jar.dependsOn copyDependencyLibrariesToReleaseDir
@@ -201,6 +210,9 @@ allprojects {
         group = "Release"
 
         from sourceSets.installer.output
+        from(rootDir) {
+            include 'UpdateData.json'
+        }
 
         manifest {
             attributes 'Implementation-Title': 'Addressbook',

@@ -140,15 +140,10 @@ public class Installer extends Application {
         return FileUtil.getJarFileOfClass(this.getClass()).getName();
     }
 
-    static String convertStreamToString(java.io.InputStream is) {
-        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
-    }
-
     private void downloadPlatformSpecificComponents() {
         System.out.println("Getting platform specific components");
 
-        String json = convertStreamToString(Installer.class.getResourceAsStream("/UpdateData.json"));
+        String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream("/UpdateData.json"));
 
         UpdateData updateData;
 

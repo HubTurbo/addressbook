@@ -2,6 +2,7 @@ package address.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -156,6 +157,11 @@ public class FileUtil {
      */
     public static void writeToFile(File file, String content) throws IOException {
         Files.write(file.toPath(), content.getBytes(CHARSET));
+    }
+
+    public static String readFromInputStream(InputStream inputStream) {
+        java.util.Scanner s = new java.util.Scanner(inputStream).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
     }
 
     public static File getJarFileOfClass(Class givenClass) {
