@@ -168,14 +168,8 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     }
 
     @Override
-    public Optional<String> githubProfilePicUrl() {
-        if (getGithubUserName().length() > 0) {
-            String profilePicUrl = githubProfilePageUrl() + ".png";
-            if (URLUtil.isURIFormat(profilePicUrl)){
-                return Optional.of(profilePicUrl);
-            }
-        }
-        return Optional.empty();
+    public String githubProfilePicUrl() {
+        return githubProfilePageUrl() + ".png";
     }
 
     //// STREET

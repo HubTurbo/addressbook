@@ -38,7 +38,7 @@ public interface ReadablePerson {
      * @return github profile url
      */
     String githubProfilePageUrl();
-    Optional<String> githubProfilePicUrl();
+    String githubProfilePicUrl();
 
     String getStreet();
     String getPostalCode();

@@ -146,7 +146,7 @@ public class ViewablePerson extends Viewable<Person> implements ObservableViewab
     }
 
     @Override
-    public Optional<String> githubProfilePicUrl() {
+    public String githubProfilePicUrl() {
         return visible.githubProfilePicUrl();
     }
 

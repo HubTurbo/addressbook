@@ -127,17 +127,14 @@ public class PersonCardController {
      * Involves making an internet connection with the image hosting server.
      */
     private void setProfileImage() {
-        Optional<String> profileImageUrl = person.githubProfilePicUrl();
-        if (profileImageUrl.isPresent()){
-            new Thread(() -> {
-                Image image = new Image(profileImageUrl.get());
+        new Thread(() -> {
+                Image image = new Image(person.githubProfilePicUrl());
                 if (image != null && image.getHeight() > 0) {
                     profileImage.setImage(image);
                 } else {
                     profileImage.setImage(new Image(this.getClass().getResourceAsStream("/images/default_profile_picture.png")));
                 }
             }).start();
-        }
     }
 
     public void handleDeletedPerson(){
