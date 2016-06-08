@@ -9,5 +9,6 @@ public interface EmbeddedBrowser {
 
     void loadPage(String url);
     Node getBrowserView();
+    void dispose();
 
 }

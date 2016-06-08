@@ -1,10 +1,12 @@
 package address.browser;
 
 import address.model.datatypes.Person;
+import address.util.FxViewUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -17,27 +19,37 @@ import java.util.stream.Collectors;
 public class AddressBookPagePool {
 
     private List<EmbeddedBrowserGithubProfilePage> pages;
+    private Stack<EmbeddedBrowser> browserStack;
 
     public AddressBookPagePool(int noOfPages){
         pages = new ArrayList<>(noOfPages);
+        browserStack = new Stack<>();
+
+        for (int i=0; i<noOfPages; i++){
+            EmbeddedBrowser browser = new JxBrowserAdapter();
+            FxViewUtil.applyAnchorBoundaryParameters(browser.getBrowserView(), 0.0, 0.0, 0.0, 0.0);
+            browserStack.push(browser);
+        }
+
     }
 
     /**
-     * Needs to call clearUnneededPersonPage before calling this method.
+     * Needs to call clearNotRequiredPages before calling this method.
      * @param person
      * @return
      */
     public EmbeddedBrowser loadPersonPage(Person person){
         //TODO: browser instance is re-created here, need to check performance issue.
         Optional<EmbeddedBrowserGithubProfilePage> foundPage = pages.stream().filter(embeddedBrowserGithubProfilePage
-                                            -> embeddedBrowserGithubProfilePage.getPerson().equals(person)).findAny();
-
+                -> embeddedBrowserGithubProfilePage.getPerson().equals(person)).findAny();
         if (foundPage.isPresent()) {
+            if (!foundPage.get().getPerson().getGithubUserName().equals(person.getGithubUserName())){
+                foundPage.get().getBrowser().loadPage(person.profilePageUrl());
+            }
             return foundPage.get().getBrowser();
         }
-
         EmbeddedBrowserGithubProfilePage newPage;
-        EmbeddedBrowser browser = new JxBrowserAdapter();
+        EmbeddedBrowser browser = browserStack.pop();
         browser.loadPage(person.profilePageUrl());
         newPage = new EmbeddedBrowserGithubProfilePage(browser, person);
         pages.add(newPage);
@@ -45,8 +57,38 @@ public class AddressBookPagePool {
         return browser;
     }
 
-    public void clearUnneededPersonPage(ArrayList<Person> neededPersons) {
-        pages = pages.stream().filter(embeddedBrowserGithubProfilePage
-                -> neededPersons.contains(embeddedBrowserGithubProfilePage.getPerson())).collect(Collectors.toList());
+    /**
+     * Clears pages that are not required anymore from the pool of pages.
+     * @param requiredPersons The persons whose pages are <u><b>required</b></u> to be remained in the pool of pages.
+     * @return
+     */
+    public ArrayList<EmbeddedBrowserGithubProfilePage> clearNotRequiredPages(ArrayList<Person> requiredPersons) {
+        ArrayList<EmbeddedBrowserGithubProfilePage> listOfNotRequiredPage= pages.stream().filter(embeddedBrowserGithubProfilePage
+              -> !requiredPersons.contains(embeddedBrowserGithubProfilePage.getPerson())).collect(Collectors.toCollection(ArrayList::new));
+        listOfNotRequiredPage.stream().forEach(page -> {
+            browserStack.push(page.getBrowser());
+            pages.remove(page);
+        });
+        return listOfNotRequiredPage;
+    }
+
+    public Optional<EmbeddedBrowserGithubProfilePage> clearPersonPage(Person person) {
+        Optional<EmbeddedBrowserGithubProfilePage> page= pages.stream().filter(embeddedBrowserGithubProfilePage
+                -> person.equals(embeddedBrowserGithubProfilePage.getPerson())).findAny();
+
+        if (page.isPresent()){
+            browserStack.push(page.get().getBrowser());
+            pages.remove(page);
+        }
+        return page;
+    }
+
+
+    public void dispose() {
+        browserStack.stream().forEach(embeddedBrowser -> embeddedBrowser.dispose());
+    }
+
+    public ArrayList<Person> getPersonsLoadedInCache(){
+        return pages.stream().map(p -> p.getPerson()).collect(Collectors.toCollection(ArrayList::new));
     }
 }

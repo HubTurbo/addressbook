@@ -12,10 +12,9 @@ import com.teamdev.jxbrowser.chromium.internal.Environment;
 
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.control.TabPane;
+import javafx.scene.layout.AnchorPane;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -23,61 +22,59 @@ import java.util.logging.Level;
  */
 public class BrowserManager {
 
-
     public static final int NUMBER_OF_PRELOADED_PAGE = 3;
     public static final int PERSON_NOT_FOUND = -1;
 
-    private Optional<AddressBookBrowser> browser;
+    private static final String INSTRUCTION_PAGE_HTML_CODE =
+            "<h3><center><font color=\"grey\">To view contact's web page, click on the contact on the left.</font></center></h3></body></html>";
+
+
+    //private Optional<AddressBookBrowser> browser;
 
     private ObservableList<Person> filteredPersons;
 
-    public AddressBookPagePool addressBookPagePool;
-    
-    public BrowserManager(ObservableList<Person> filteredPersons) {
+    public Optional<AddressBookPagePool> addressBookPagePool;
+
+    private AnchorPane browserPane;
+
+    public BrowserManager(ObservableList<Person> filteredPersons, AnchorPane browserPane) {
+        this.browserPane = browserPane;
         this.filteredPersons = filteredPersons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
-            browser = Optional.empty();
+            addressBookPagePool = Optional.empty();
             return;
         }
-        //browser = Optional.of(new AddressBookBrowser(NUMBER_OF_PRELOADED_PAGE, this.filteredPersons));
-        //browser.get().registerListeners();
         EventManager.getInstance().registerHandler(this);
-
-        addressBookPagePool = new AddressBookPagePool(NUMBER_OF_PRELOADED_PAGE);
-
+        addressBookPagePool = Optional.of(new AddressBookPagePool(NUMBER_OF_PRELOADED_PAGE));
     }
-
-
-
-
-
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent event){
 
-        if (!browser.isPresent()) {
+        if (!addressBookPagePool.isPresent()) {
             return;
         }
-
-        //updateBrowserContent();
+        updateBrowserContent();
     }
 
     /**
      * Updates the browser contents.
      */
     private void updateBrowserContent() {
-        List<Person> personsInBrowserCache = browser.get().getPersonsLoadedInCache();
+        ArrayList<Person> personsInBrowserCache = addressBookPagePool.get().getPersonsLoadedInCache();
         personsInBrowserCache.stream().forEach(person -> {
                 if (filteredPersons.indexOf(person) == PERSON_NOT_FOUND){
-                    browser.get().unloadProfilePage(person);
+                    Optional<EmbeddedBrowserGithubProfilePage> page = addressBookPagePool.get().clearPersonPage(person);
+                    browserPane.getChildren().remove(page.get().getBrowser().getBrowserView());
                 } else {
                     int indexOfContact = filteredPersons.indexOf(person);
                     Person updatedPerson = filteredPersons.get(indexOfContact);
 
                     if (!updatedPerson.getGithubUserName().equals(person.getGithubUserName())){
-                        browser.get().unloadProfilePage(person);
-                        browser.get().loadProfilePage(updatedPerson);
+                        addressBookPagePool.get().clearPersonPage(person);
+                        EmbeddedBrowser browser = addressBookPagePool.get().loadPersonPage(updatedPerson);
+                        replaceBrowserView(browser.getBrowserView());
                     }
                 }
             });
@@ -95,27 +92,55 @@ public class BrowserManager {
      * PreCondition: filteredModelPersons.size() >= 1
      */
     public void loadProfilePage(Person person) {
-        if (!browser.isPresent()) return;
-        //browser.get().loadProfilePage(person);
+        if (!addressBookPagePool.isPresent()) return;
 
-        EmbeddedBrowser browserView = addressBookPagePool.loadPersonPage(person);
-        //Inject view into BrowserView placeholder.
+        int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
+
+        ArrayList<Person> listOfAdditionalPersonToBeLoaded = getListOfAdditionalPersonToBeLoaded(
+                                                             filteredPersons, indexOfPersonInListOfContacts);
+        addressBookPagePool.get().clearNotRequiredPages(listOfAdditionalPersonToBeLoaded);
+
+        EmbeddedBrowser browserView = addressBookPagePool.get().loadPersonPage(person);
+
+        replaceBrowserView(browserView.getBrowserView());
+
+        listOfAdditionalPersonToBeLoaded.remove(person);
+        preloadAdditionalPersonProfile(listOfAdditionalPersonToBeLoaded);
     }
 
     /**
-     * Returns the UI view of the browser.
+     *
+     * @param listOfPerson The list of person whose profile pages are to be preloaded to the pool of browsers.
      */
-    public Optional<TabPane> getBrowserView() {
-        if (!browser.isPresent()) return Optional.empty();
-        //return Optional.ofNullable(browser.get().getAddressBookBrowserView());
-        return Optional.ofNullable()
+    private void preloadAdditionalPersonProfile(ArrayList<Person> listOfPerson) {
+        listOfPerson.stream().forEach(p -> addressBookPagePool.get().loadPersonPage(p));
+    }
+
+    private void replaceBrowserView(Node browserView) {
+        if (browserPane.getChildren().size() >= 1){
+            browserPane.getChildren().remove(0);
+        }
+        browserPane.getChildren().add(browserView);
+    }
+
+    /**
+     * Gets a list of person that are needed to be loaded to the browser.
+     */
+    private ArrayList<Person> getListOfAdditionalPersonToBeLoaded(List<Person> filteredPersons, int indexOfPerson) {
+        ArrayList<Person> listOfPersonToBeLoaded = new ArrayList<>();
+
+        for (int i = 0; i < NUMBER_OF_PRELOADED_PAGE && i < filteredPersons.size(); i++){
+            listOfPersonToBeLoaded.add(new Person(filteredPersons.get((indexOfPerson + i) % filteredPersons.size())));
+        }
+        return listOfPersonToBeLoaded;
     }
 
     /**
      * Frees resources allocated to the browser.
      */
     public void freeBrowserResources() {
-        if (!browser.isPresent()) return;
-        browser.get().dispose();
+        if (!addressBookPagePool.isPresent()) return;
+        addressBookPagePool.get().dispose();
     }
+
 }

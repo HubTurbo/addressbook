@@ -25,5 +25,10 @@ public class JxBrowserAdapter implements EmbeddedBrowser {
         return this.browserView;
     }
 
+    @Override
+    public void dispose() {
+        browserView.getBrowser().dispose();
+    }
+
 
 }

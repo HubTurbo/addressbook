@@ -23,4 +23,9 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
     public Node getBrowserView() {
         return webView;
     }
+
+    @Override
+    public void dispose() {
+        webView = null;
+    }
 }

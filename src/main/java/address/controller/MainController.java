@@ -54,12 +54,15 @@ public class MainController {
 
     private StatusBarHeaderController statusBarHeaderController;
 
+    private AnchorPane browserPane;
+
     public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
         EventManager.getInstance().registerHandler(this);
         this.modelManager = modelManager;
         this.config = config;
         this.mainApp = mainApp;
-        this.browserManager = new BrowserManager(modelManager.getAllViewablePersonsReadOnly());
+        browserPane = new AnchorPane();
+        this.browserManager = new BrowserManager(modelManager.getAllViewablePersonsReadOnly(), browserPane);
     }
 
     public void start(Stage primaryStage) {
@@ -379,6 +382,7 @@ public class MainController {
     /**
      *  Releases resources to ensure successful application termination.
      */
+
     public void releaseResourcesForAppTermination(){
         browserManager.freeBrowserResources();
     }
@@ -389,9 +393,9 @@ public class MainController {
 
     public void showPersonWebPage() {
         SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-        Optional<TabPane> browserView = browserManager.getBrowserView();
+        //Optional<TabPane> browserView = browserManager.getBrowserView();
         //if (!browserView.isPresent()) return;
-        pane.getItems().add(browserView.get());
+        pane.getItems().add(browserPane);
     }
 
     @Subscribe

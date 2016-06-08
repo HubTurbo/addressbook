@@ -17,4 +17,6 @@ public class EmbeddedBrowserGithubProfilePage extends EmbeddedBrowserPage{
     public Person getPerson() {
         return person;
     }
+
+
 }
