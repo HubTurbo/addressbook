@@ -8,7 +8,10 @@ import address.exceptions.DuplicatePersonException;
 import address.model.datatypes.*;
 import address.model.datatypes.person.*;
 import address.model.datatypes.tag.Tag;
+import address.model.datatypes.UniqueData;
+import address.util.LogManager;
 import address.util.PlatformEx;
+import ch.qos.logback.classic.Logger;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
@@ -26,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * All changes to any model should be synchronized. (FX and sync thread may clash).
  */
 public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddressBook {
+    private static final Logger logger = LogManager.getLogger(ModelManager.class.getName());
 
     private final AddressBook backingModel;
     private final ViewableAddressBook visibleModel;

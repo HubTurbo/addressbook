@@ -8,8 +8,8 @@ import ch.qos.logback.core.ConsoleAppender;
 import org.slf4j.LoggerFactory;
 
 public class LogManager {
-    public static <T> Logger getLogger(Class<T> clazz) {
-        Logger namedLogger = (Logger) LoggerFactory.getLogger(clazz.getName());
+    public static Logger getLogger(String className) {
+        Logger namedLogger = (Logger) LoggerFactory.getLogger(className);
 
         LoggerContext loggerContext = getResetContext(namedLogger);
         PatternLayoutEncoder encoder = createPatternEncoder(loggerContext);
@@ -30,7 +30,7 @@ public class LogManager {
     private static PatternLayoutEncoder createPatternEncoder(LoggerContext loggerContext) {
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setContext(loggerContext);
-        encoder.setPattern("%magenta(%-18.-18([%thread]))|%yellow(%13.13d{HH:mm:ss.SSS}) %highlight(%.-1level) %gray(%-15.-15logger{0}) %message%n");
+        encoder.setPattern("%magenta(%-30.-30([%thread]))| %highlight(%.-1level) %yellow(%d{HH:mm:ss.SSS}) %gray(%30.30logger{0}) %message%n");
         encoder.start();
         return encoder;
     }
