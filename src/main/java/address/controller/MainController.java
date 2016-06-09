@@ -58,7 +58,7 @@ public class MainController {
         this.modelManager = modelManager;
         this.config = config;
         this.mainApp = mainApp;
-        this.browserManager = new BrowserManager(modelManager.getAllViewablePersonsAsReadOnly());
+        this.browserManager = new BrowserManager(modelManager.getAllViewablePersonsReadOnly());
     }
 
     public void start(Stage primaryStage) {
@@ -315,7 +315,7 @@ public class MainController {
 
             // Set the persons into the controller.
             BirthdayStatisticsController controller = loader.getController();
-            controller.setPersonData(modelManager.getAllViewablePersonsAsReadOnly());
+            controller.setPersonData(modelManager.getAllViewablePersonsReadOnly());
 
             dialogStage.show();
         } catch (IOException e) {

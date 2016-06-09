@@ -3,6 +3,7 @@ package address.model.datatypes;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
+import address.util.collections.UnmodifiableObservableList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -19,7 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 
 @XmlRootElement(name = "addressbook")
-public class AddressBook {
+public class AddressBook implements ReadOnlyAddressBook {
 
     private final ObservableList<Person> persons;
     private final ObservableList<Tag> tags;
@@ -40,8 +41,8 @@ public class AddressBook {
         setTags(tags);
     }
 
-    public VisibleAddressBook createVisibleAddressBook() {
-        return new VisibleAddressBook(this);
+    public ViewableAddressBook createVisibleAddressBook() {
+        return new ViewableAddressBook(this);
     }
 
     @XmlElement(name = "persons")
@@ -106,5 +107,15 @@ public class AddressBook {
         return "Persons : " + persons.size() + "\n"
                 + "Tags : " + tags.size();
 
+    }
+
+    @Override
+    public ObservableList<ReadOnlyPerson> getAllPersonsReadOnly() {
+        return new UnmodifiableObservableList<>(persons);
+    }
+
+    @Override
+    public ObservableList<Tag> getAllTagsReadOnly() {
+        return new UnmodifiableObservableList<>(tags);
     }
 }

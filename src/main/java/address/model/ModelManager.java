@@ -21,10 +21,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Represents the in-memory model of the address book data.
  * All changes to any model should be synchronized. (FX and sync thread may clash).
  */
-public class ModelManager implements Model, VisibleModel {
+public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddressBook {
 
     private final AddressBook backingModel;
-    private final VisibleAddressBook visibleModel;
+    private final ViewableAddressBook visibleModel;
 
     public ModelManager(AddressBook src) {
         System.out.println("Data found.");
@@ -89,30 +89,37 @@ public class ModelManager implements Model, VisibleModel {
      * @return all persons in visible model IN AN UNMODIFIABLE VIEW
      */
     @Override
-    public ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsAsObservable() {
-        return visibleModel.getAllViewablePersonsAsObservable();
+    public ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsReadOnly() {
+        return visibleModel.getAllViewablePersonsReadOnly();
     }
 
     /**
-     * @return all persons in visible model IN AN UNMODIFIABLE VIEW
+     * @return all tags in backing model IN AN UNMODIFIABLE VIEW
      */
     @Override
-    public ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsAsReadOnly() {
-        return visibleModel.getAllViewablePersonsAsReadOnly();
+    public ObservableList<Tag> getAllViewableTagsReadOnly() {
+        return visibleModel.getAllViewableTagsReadOnly();
     }
 
     /**
-     * @return all groups in visible model IN AN UNMODIFIABLE VIEW
+     * @return all persons in backing model IN AN UNMODIFIABLE VIEW
      */
     @Override
-    public ObservableList<Tag> getAllViewableTags() {
-        return visibleModel.getAllViewableTags();
+    public ObservableList<ReadOnlyPerson> getAllPersonsReadOnly() {
+        return backingModel.getAllPersonsReadOnly();
+    }
+
+    /**
+     * @return all tags in backing model IN AN UNMODIFIABLE VIEW
+     */
+    @Override
+    public ObservableList<Tag> getAllTagsReadOnly() {
+        return backingModel.getAllTagsReadOnly();
     }
 
     /**
      * @return all persons in backing model
      */
-    @Override
     public ObservableList<Person> getAllPersons() {
         return backingModel.getPersons();
     }
@@ -120,7 +127,6 @@ public class ModelManager implements Model, VisibleModel {
     /**
      * @return all tags in backing model
      */
-    @Override
     public ObservableList<Tag> getAllTags() {
         return backingModel.getTags();
     }
@@ -344,4 +350,5 @@ public class ModelManager implements Model, VisibleModel {
         }
         assert false : "need to add logic for any new UniqueData classes";
     }
+
 }

@@ -230,6 +230,6 @@ public class RootLayoutController {
 
     @FXML
     private void handleShowTags() {
-        mainController.showTagList(modelManager.getAllViewableTags());
+        mainController.showTagList(modelManager.getAllViewableTagsReadOnly());
     }
 }

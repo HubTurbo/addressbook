@@ -1,7 +1,7 @@
 package address.model.datatypes;
 
-import address.model.VisibleModel;
 import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.model.datatypes.tag.Tag;
@@ -13,22 +13,22 @@ import javafx.collections.ObservableList;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-public class VisibleAddressBook implements VisibleModel {
+public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
 
     private final AddressBook backingModel;
 
-    private final ObservableList<ViewablePerson> allPersons;
-    private final ObservableList<Tag> allTags; // todo change to viewabletag class
+    private final ObservableList<ViewablePerson> persons;
+    private final ObservableList<Tag> tags; // todo change to viewabletag class
 
     {
-        allPersons = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
+        persons = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
     }
 
-    VisibleAddressBook(AddressBook src) {
+    ViewableAddressBook(AddressBook src) {
         backingModel = src;
-        allTags = backingModel.getTags(); // change when viewabletag is implemented
+        tags = backingModel.getTags(); // change when viewabletag is implemented
 
-        allPersons.setAll(backingModel.getPersons().stream()
+        persons.setAll(backingModel.getPersons().stream()
                         .map(ViewablePerson::new)
                         .collect(Collectors.toList()));
 
@@ -42,11 +42,11 @@ public class VisibleAddressBook implements VisibleModel {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
                     // removed
-                    allPersons.removeAll(change.getRemoved().stream()
+                    persons.removeAll(change.getRemoved().stream()
                             // remove map when person ID implemented and VP-P equals comparison is implemented.
                             .map(ViewablePerson::new).collect(Collectors.toCollection(HashSet::new)));
                     // newly added
-                    allPersons.addAll(change.getAddedSubList().stream()
+                    persons.addAll(change.getAddedSubList().stream()
                             .map(ViewablePerson::new).collect(Collectors.toList()));
                 }
             }
@@ -54,20 +54,31 @@ public class VisibleAddressBook implements VisibleModel {
         });
     }
 
-    @Override
-    public ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsAsObservable() {
-        return new UnmodifiableObservableList<>(allPersons);
+    public ObservableList<ViewablePerson> getPersons() {
+        return persons;
+    }
+
+    public ObservableList<Tag> getTags() {
+        return tags;
     }
 
     @Override
-    public ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsAsReadOnly() {
-        return new UnmodifiableObservableList<>(allPersons);
+    public ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsReadOnly() {
+        return new UnmodifiableObservableList<>(persons);
     }
 
     @Override
-    public ObservableList<Tag> getAllViewableTags() {
-        return new UnmodifiableObservableList<>(allTags);
+    public ObservableList<Tag> getAllViewableTagsReadOnly() {
+        return new UnmodifiableObservableList<>(tags);
     }
 
+    @Override
+    public ObservableList<ReadOnlyPerson> getAllPersonsReadOnly() {
+        return new UnmodifiableObservableList<>(persons);
+    }
 
+    @Override
+    public ObservableList<Tag> getAllTagsReadOnly() {
+        return new UnmodifiableObservableList<>(tags);
+    }
 }
