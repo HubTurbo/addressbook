@@ -6,6 +6,8 @@ import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -143,9 +145,21 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
     }
 
     @Override
-    public String githubProfilePageUrl() {
-        return visible.githubProfilePageUrl();
+    public URL profilePageUrl() {
+        URL url = null;
+
+        try {
+            url = new URL("https://github.com/" + getGithubUserName());
+        } catch (MalformedURLException e) {
+            try {
+                url = new URL("https://github.com");
+            } catch (MalformedURLException e1) {
+                assert false;
+            }
+        }
+        return url;
     }
+
 
     @Override
     public Optional<String> githubProfilePicUrl() {

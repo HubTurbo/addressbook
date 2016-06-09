@@ -1,9 +1,11 @@
 package address.browser;
 
+import address.MainApp;
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
-import address.model.datatypes.person.ReadOnlyViewablePerson;
 
+import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.util.UrlUtil;
 import com.google.common.eventbus.Subscribe;
 
 import com.teamdev.jxbrowser.chromium.BrowserCore;
@@ -11,62 +13,69 @@ import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
 
 import javafx.collections.ObservableList;
-import javafx.scene.control.TabPane;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.layout.AnchorPane;
 
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
- * Manages the browser.
+ * Manages the AddressBook browser.
  */
 public class BrowserManager {
 
-    public static final int NUMBER_OF_PRELOADED_PAGES = 3;
-    public static final int PERSON_NOT_FOUND = -1;
+    private static final String FXML_BROWSER_PLACE_HOLDER_SCREEN = "/view/DefaultBrowserPlaceHolderScreen.fxml";
 
-    private Optional<AddressBookBrowser> browser;
+    private ObservableList<ReadOnlyViewablePerson> filteredPersons;
 
-    private ObservableList<ReadOnlyViewablePerson> persons;
+    public Optional<HyperBrowser> hyperBrowser;
 
-    public BrowserManager(ObservableList<ReadOnlyViewablePerson> persons) {
-        this.persons = persons;
+    public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
+        this.filteredPersons = filteredPersons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
-            browser = Optional.empty();
+            hyperBrowser = Optional.empty();
             return;
         }
-        browser = Optional.of(new AddressBookBrowser(NUMBER_OF_PRELOADED_PAGES, this.persons));
-        browser.get().registerListeners();
         EventManager.getInstance().registerHandler(this);
+        hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.NUMBER_OF_PRELOADED_PAGE, getBrowserInitialScreen()));
     }
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent event){
 
-        if (!browser.isPresent()) {
+        if (!hyperBrowser.isPresent()) {
             return;
         }
-
         updateBrowserContent();
+    }
+
+    private Optional<Node> getBrowserInitialScreen(){
+        String fxmlResourcePath = FXML_BROWSER_PLACE_HOLDER_SCREEN;
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            return Optional.ofNullable(loader.load());
+        } catch (IOException e){
+            return Optional.empty();
+        }
     }
 
     /**
      * Updates the browser contents.
      */
-    private void updateBrowserContent() {
-        List<ReadOnlyViewablePerson> personsInBrowserCache = browser.get().getPersonsLoadedInCache();
-        personsInBrowserCache.stream().forEach(person -> {
-                if (persons.indexOf(person) == PERSON_NOT_FOUND){
-                    browser.get().unloadProfilePage(person);
-                } else {
-                    int indexOfContact = persons.indexOf(person);
-                    ReadOnlyViewablePerson updatedPerson = persons.get(indexOfContact);
+    private synchronized void updateBrowserContent() {
+        List<URL> pagesPerson = hyperBrowser.get().getCachedPagesUrl();
+        pagesPerson.stream().forEach(personUrl -> {
+                Optional<ReadOnlyViewablePerson> personFound = filteredPersons.stream().filter(person
+                        -> UrlUtil.compareBaseUrls(person.profilePageUrl(), personUrl)).findAny();
 
-                    if (!updatedPerson.getGithubUserName().equals(person.getGithubUserName())){
-                        browser.get().unloadProfilePage(person);
-                        browser.get().loadProfilePage(updatedPerson);
-                    }
+                if (!personFound.isPresent()){
+                    hyperBrowser.get().clearPage(personUrl);
                 }
             });
     }
@@ -82,24 +91,49 @@ public class BrowserManager {
      * Loads the person's profile page to the browser.
      * PreCondition: filteredModelPersons.size() >= 1
      */
-    public void loadProfilePage(ReadOnlyViewablePerson person){
-        if (!browser.isPresent()) return;
-        browser.get().loadProfilePage(person);
+    public synchronized void loadProfilePage(ReadOnlyViewablePerson person) {
+        if (!hyperBrowser.isPresent()) return;
+
+        int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
+
+        ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture = getListOfPersonToLoadInFuture(filteredPersons,
+                                                                                     indexOfPersonInListOfContacts);
+        try {
+            ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
+                                                                       .map(p -> p.profilePageUrl())
+                                                                       .collect(Collectors.toCollection(ArrayList::new));
+            hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
+        }
     }
 
     /**
-     * Returns the UI view of the browser.
+     * Gets a list of person that are needed to be loaded to the browser in future.
      */
-    public Optional<TabPane> getBrowserView() {
-        if (!browser.isPresent()) return Optional.empty();
-        return Optional.ofNullable(browser.get().getAddressBookBrowserView());
+    private ArrayList<ReadOnlyViewablePerson> getListOfPersonToLoadInFuture(List<ReadOnlyViewablePerson> filteredPersons, int indexOfPerson) {
+        ArrayList<ReadOnlyViewablePerson> listOfRequiredPerson = new ArrayList<>();
+
+        for (int i = 1; i < HyperBrowser.NUMBER_OF_PRELOADED_PAGE && i < filteredPersons.size(); i++){
+            listOfRequiredPerson.add(filteredPersons.get((indexOfPerson + i) % filteredPersons.size()));
+        }
+        return listOfRequiredPerson;
     }
 
     /**
      * Frees resources allocated to the browser.
      */
     public void freeBrowserResources() {
-        if (!browser.isPresent()) return;
-        browser.get().dispose();
+        if (!hyperBrowser.isPresent()) return;
+        hyperBrowser.get().dispose();
     }
+
+    public AnchorPane getHyperBrowserView(){
+        if (!hyperBrowser.isPresent()){
+            return new AnchorPane();
+        }
+        return hyperBrowser.get().getHyperBrowserView();
+    }
+
 }

@@ -8,6 +8,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.collections.ObservableList;
 
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -29,7 +30,7 @@ public interface ReadOnlyPerson extends ExtractableObservables {
     /**
      * @return github profile url
      */
-    String githubProfilePageUrl();
+    URL profilePageUrl();
     Optional<String> githubProfilePicUrl();
 
     String getStreet();
