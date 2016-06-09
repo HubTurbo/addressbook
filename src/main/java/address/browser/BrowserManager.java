@@ -5,8 +5,8 @@ import address.browser.page.GithubProfilePage;
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
 import address.exceptions.IllegalArgumentSizeException;
-import address.model.datatypes.Person;
 
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.UrlUtil;
 import com.google.common.eventbus.Subscribe;
 
@@ -32,11 +32,11 @@ public class BrowserManager {
 
     private static final String FXML_BROWSER_PLACE_HOLDER_SCREEN = "/view/DefaultBrowserPlaceHolderScreen.fxml";
 
-    private ObservableList<Person> filteredPersons;
+    private ObservableList<ReadOnlyViewablePerson> filteredPersons;
 
     public Optional<HyperBrowser> hyperBrowser;
 
-    public BrowserManager(ObservableList<Person> filteredPersons) {
+    public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
         this.filteredPersons = filteredPersons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
@@ -73,7 +73,7 @@ public class BrowserManager {
     private synchronized void updateBrowserContent() {
         ArrayList<URL> pagesPerson = hyperBrowser.get().getCachedPagesUrl();
         pagesPerson.stream().forEach(personUrl -> {
-                Optional<Person> personFound = filteredPersons.stream().filter(person
+                Optional<ReadOnlyViewablePerson> personFound = filteredPersons.stream().filter(person
                         -> UrlUtil.compareBaseUrls(person.profilePageUrl(), personUrl)).findAny();
 
                 if (!personFound.isPresent()){
@@ -93,19 +93,18 @@ public class BrowserManager {
      * Loads the person's profile page to the browser.
      * PreCondition: filteredModelPersons.size() >= 1
      */
-    public synchronized void loadProfilePage(Person person) {
+    public synchronized void loadProfilePage(ReadOnlyViewablePerson person) {
         if (!hyperBrowser.isPresent()) return;
 
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
-        ArrayList<Person> listOfPersonToLoadInFuture = getListOfPersonToLoadInFuture(filteredPersons,
+        ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture = getListOfPersonToLoadInFuture(filteredPersons,
                                                                                      indexOfPersonInListOfContacts);
         try {
             ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
                                                                        .map(p -> p.profilePageUrl())
                                                                        .collect(Collectors.toCollection(ArrayList::new));
-            GithubProfilePage page = (GithubProfilePage) hyperBrowser.get().loadUrls(person.profilePageUrl(),
-                                                                                     listOfFutureUrl);
+            hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
         } catch (IllegalArgumentSizeException e) {
             e.printStackTrace();
             assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
@@ -115,11 +114,11 @@ public class BrowserManager {
     /**
      * Gets a list of person that are needed to be loaded to the browser in future.
      */
-    private ArrayList<Person> getListOfPersonToLoadInFuture(List<Person> filteredPersons, int indexOfPerson) {
-        ArrayList<Person> listOfRequiredPerson = new ArrayList<>();
+    private ArrayList<ReadOnlyViewablePerson> getListOfPersonToLoadInFuture(List<ReadOnlyViewablePerson> filteredPersons, int indexOfPerson) {
+        ArrayList<ReadOnlyViewablePerson> listOfRequiredPerson = new ArrayList<>();
 
         for (int i = 1; i < HyperBrowser.NUMBER_OF_PRELOADED_PAGE && i < filteredPersons.size(); i++){
-            listOfRequiredPerson.add(new Person(filteredPersons.get((indexOfPerson + i) % filteredPersons.size())));
+            listOfRequiredPerson.add(filteredPersons.get((indexOfPerson + i) % filteredPersons.size()));
         }
         return listOfRequiredPerson;
     }

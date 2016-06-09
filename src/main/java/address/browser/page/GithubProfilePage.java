@@ -1,7 +1,6 @@
 package address.browser.page;
 
 import address.browser.EmbeddedBrowser;
-import address.model.datatypes.Person;
 
 /**
  * A github profile page

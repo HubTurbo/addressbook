@@ -390,7 +390,7 @@ public class MainController {
 
     public void showPersonWebPage() {
 
-        this.browserManager = new BrowserManager(modelManager.getFilteredPersons());
+        this.browserManager = new BrowserManager(modelManager.getAllViewablePersonsReadOnly());
         SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
         pane.getItems().add(browserManager.getHyperBrowserView());
     }

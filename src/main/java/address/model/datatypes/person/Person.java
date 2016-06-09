@@ -203,7 +203,7 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
     @Override
     public Optional<String> githubProfilePicUrl() {
         if (getGithubUserName().length() > 0) {
-            String profilePicUrl = githubProfilePageUrl() + ".png";
+            String profilePicUrl = profilePageUrl().toExternalForm() + ".png";
             if (URLUtil.isURIFormat(profilePicUrl)){
                 return Optional.of(profilePicUrl);
             }
