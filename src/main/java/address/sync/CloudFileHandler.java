@@ -2,11 +2,10 @@ package address.sync;
 
 import address.exceptions.DataConversionException;
 import address.sync.model.CloudAddressBook;
-import address.util.LogManager;
 import address.util.XmlUtil;
-import ch.qos.logback.classic.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

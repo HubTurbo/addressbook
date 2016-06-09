@@ -9,7 +9,6 @@ import address.model.datatypes.person.Person;
 import address.prefs.PrefsManager;
 import address.sync.task.CloudUpdateTask;
 import com.google.common.eventbus.Subscribe;
-import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +16,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.*;
-import address.util.LogManager;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /**
