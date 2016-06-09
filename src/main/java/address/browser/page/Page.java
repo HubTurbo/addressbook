@@ -7,7 +7,7 @@ import java.util.HashMap;
 /**
  * An abstract web page of an embedded browser.
  */
-public abstract class Page {
+public class Page {
 
     private EmbeddedBrowser browser;
 

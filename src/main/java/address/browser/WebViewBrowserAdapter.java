@@ -3,6 +3,9 @@ package address.browser;
 import javafx.scene.Node;
 import javafx.scene.web.WebView;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * An EmbeddedBrowser adapter for the Java WebView browser.
  */
@@ -27,5 +30,20 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
     @Override
     public void dispose() {
         webView = null;
+    }
+
+    @Override
+    public URL getUrl() throws MalformedURLException {
+        return new URL(getUrlString());
+    }
+
+    @Override
+    public String getUrlString() {
+        return webView.getEngine().getDocument().getDocumentURI();
+    }
+
+    @Override
+    public String getBaseUrl(){
+        return webView.getEngine().getDocument().getBaseURI();
     }
 }

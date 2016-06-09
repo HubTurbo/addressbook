@@ -8,15 +8,8 @@ import address.model.datatypes.Person;
  */
 public class GithubProfilePage extends Page {
 
-    private Person person;
-
-    public GithubProfilePage(EmbeddedBrowser browser, Person person) {
+    public GithubProfilePage(EmbeddedBrowser browser) {
         super(browser);
-        this.person = person;
-    }
-
-    public Person getPerson() {
-        return person;
     }
 
 

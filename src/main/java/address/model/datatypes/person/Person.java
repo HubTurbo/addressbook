@@ -17,6 +17,8 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
@@ -183,8 +185,19 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
     }
 
     @Override
-    public String githubProfilePageUrl(){
-        return "https://www.github.com/" + githubUserName.get();
+    public URL profilePageUrl(){
+        URL url = null;
+
+        try {
+            url = new URL("https://www.github.com/" + githubUserName.get());
+        } catch (MalformedURLException e) {
+            try {
+                url = new URL("https://www.github.com");
+            } catch (MalformedURLException e1) {
+                assert false;
+            }
+        }
+        return url;
     }
 
     @Override
