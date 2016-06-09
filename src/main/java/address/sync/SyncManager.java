@@ -77,7 +77,7 @@ public class SyncManager {
     }
 
     private Optional<AddressBook> getMirrorData() throws FileContainsDuplicatesException {
-        logger.info("Updating data from cloud.");
+        logger.info("Retrieving data from cloud.");
 
         final File mirrorFile = PrefsManager.getInstance().getMirrorLocation();
 

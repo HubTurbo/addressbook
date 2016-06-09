@@ -5,6 +5,7 @@ lib/*
 !lib/license.jar
 *.iml
 *.log
+*.csv
 /*.xml
 update/
 src/main/resources/updater/jarUpdater.jar

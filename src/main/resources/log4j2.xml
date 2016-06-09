@@ -17,6 +17,9 @@
             </Policies>
             <DefaultRolloverStrategy max="5"/>
         </RollingFile>
+        <File name="CsvFile" fileName="addressbook.csv">
+            <CsvParameterLayout delimiter=","/>
+        </File>
     </Appenders>
 
     <Loggers>
@@ -24,6 +27,9 @@
             <AppenderRef ref="STDOUT"/>
             <AppenderRef ref="RollingFile"/>
         </Root>
+        <Logger name="Csv" additivity="false">
+            <AppenderRef ref="CsvFile"/>
+        </Logger>
     </Loggers>
 
 </Configuration>

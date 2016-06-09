@@ -20,10 +20,10 @@ public class CloudFileHandler {
     public CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException, DataConversionException {
         File cloudFile = getCloudDataFilePath(addressBookName);
         try {
-            logger.info("Reading from cloud file.");
+            logger.info("Reading from cloud file '{}'.", cloudFile.getName());
             return XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
         } catch (FileNotFoundException | DataConversionException e) {
-            logger.warn("Error reading from cloud file.");
+            logger.warn("Error reading from cloud file '{}'.", cloudFile.getName());
             throw e;
         }
     }
@@ -32,10 +32,10 @@ public class CloudFileHandler {
         String addressBookName = cloudAddressBook.getName();
         File cloudFile = getCloudDataFilePath(addressBookName);
         try {
-            logger.info("Writing from cloud file.");
+            logger.info("Writing from cloud file '{}'.", cloudFile.getName());
             XmlUtil.saveDataToFile(cloudFile, cloudAddressBook);
         } catch (FileNotFoundException | DataConversionException e) {
-            logger.warn("Error writing to cloud file.");
+            logger.warn("Error writing to cloud file '{}'.", cloudFile.getName());
             throw e;
         }
     }
@@ -43,6 +43,7 @@ public class CloudFileHandler {
     public void createCloudAddressBookFile(String addressBookName) throws IOException, DataConversionException {
         File cloudFile = getCloudDataFilePath(addressBookName);
         if (cloudFile.exists() || !cloudFile.createNewFile()) {
+            logger.warn("Error creating addressbook '{}'.", addressBookName);
             throw new IllegalArgumentException("AddressBook '" + addressBookName + "' already exists!");
         }
         writeCloudAddressBookToFile(new CloudAddressBook(addressBookName));
