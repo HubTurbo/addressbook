@@ -12,12 +12,14 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Data-model implementation class representing the "Person" domain object.
@@ -164,10 +166,15 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
     }
 
     @Override
-    public String githubProfilePicUrl() {
-        return githubProfilePageUrl() + ".png";
+    public Optional<String> githubProfilePicUrl() {
+        if (getGithubUserName().length() > 0) {
+            String profilePicUrl = githubProfilePageUrl() + ".png";
+            if (URLUtil.isURIFormat(profilePicUrl)){
+                return Optional.of(profilePicUrl);
+            }
+        }
+        return Optional.empty();
     }
-
     //// STREET
 
     @JsonProperty("street")

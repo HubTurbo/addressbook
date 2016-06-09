@@ -6,6 +6,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 /**
  * Extends {@link Viewable} for the Person domain object.
@@ -146,7 +147,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
     }
 
     @Override
-    public String githubProfilePicUrl() {
+    public Optional<String> githubProfilePicUrl() {
         return visible.githubProfilePicUrl();
     }
 

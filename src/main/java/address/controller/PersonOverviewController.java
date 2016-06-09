@@ -76,12 +76,12 @@ public class PersonOverviewController {
     private void handleDeletePerson() {
         int selectedIndex = personListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
-            ReadOnlyViewablePerson target = personListView.getItems().get(selectedIndex);
-            mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(target));
+            final ReadOnlyPerson deleteTarget = personListView.getItems().get(selectedIndex);
+            mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(deleteTarget));
 
             personListView.getItems().get(selectedIndex).isDeletedProperty().set(true);
             requestExecutor.schedule(()
-                    -> Platform.runLater(() -> modelManager.deletePerson(target)), 3, TimeUnit.SECONDS);
+                    -> Platform.runLater(() -> modelManager.deletePerson(deleteTarget)), 3, TimeUnit.SECONDS);
         } else {
             // Nothing selected.
             mainController.showAlertDialogAndWait(AlertType.WARNING,
@@ -95,14 +95,14 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleNewPerson() {
-        Optional<ReadOnlyPerson> prevInput = Optional.of(new Person());
+        Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person());
         while (true) { // keep re-asking until user provides valid input or cancels operation.
-            prevInput = mainController.getPersonDataInput(prevInput.get());
+            prevInputData = mainController.getPersonDataInput(prevInputData.get());
 
-            if (!prevInput.isPresent()) break;
+            if (!prevInputData.isPresent()) break;
             try {
-                modelManager.addPerson(new Person(prevInput.get()));
-                mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(prevInput.get()));
+                modelManager.addPerson(new Person(prevInputData.get()));
+                mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(prevInputData.get()));
                 break;
             } catch (DuplicatePersonException e) {
                 mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
@@ -117,21 +117,21 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleEditPerson() {
-        ReadOnlyPerson target = personListView.getSelectionModel().getSelectedItem();
-        if (target == null) { // no selection
+        final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
+        if (editTarget == null) { // no selection
             mainController.showAlertDialogAndWait(AlertType.WARNING, "No Selection",
                 "No Person Selected", "Please select a person in the list.");
             return;
         }
 
-        Optional<ReadOnlyPerson> prevInput = Optional.of(new Person(target));
+        Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person(editTarget));
         while (true) { // keep re-asking until user provides valid input or cancels operation.
-            prevInput = mainController.getPersonDataInput(prevInput.get());
-            if (!prevInput.isPresent()) break;
+            prevInputData = mainController.getPersonDataInput(prevInputData.get());
+            if (!prevInputData.isPresent()) break;
             try {
-                modelManager.updatePerson(target, prevInput.get());
-                mainController.getStatusBarHeaderController().postStatus(new PersonEditedStatus(new Person(target),
-                        prevInput.get()));
+                modelManager.updatePerson(editTarget, prevInputData.get());
+                mainController.getStatusBarHeaderController().postStatus(
+                        new PersonEditedStatus(new Person(editTarget), prevInputData.get()));
                 break;
             } catch (DuplicatePersonException e) {
                 mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate person",
