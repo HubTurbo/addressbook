@@ -27,7 +27,7 @@ import java.util.Optional;
  * Eg. A GUI element controller that only needs access to the Person's properties should declare the received Person
  * as an ObservablePerson -- since it does not need the functionality in the other superclasses/interfaces.
  */
-public class Person extends BaseDataType implements ReadablePerson, WritablePerson, ObservablePerson {
+public class Person extends BaseDataType implements ReadablePerson, ObservablePerson {
 
     @JsonIgnore private final SimpleStringProperty firstName;
     @JsonIgnore private final SimpleStringProperty lastName;
@@ -87,10 +87,8 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     /**
      * {@inheritDoc}
      *
-     * @see WritablePerson#update(ReadablePerson)
      * @return self (calling this from a Person returns a Person instead of just a WritablePerson)
      */
-    @Override
     public Person update(ReadablePerson newDataSource) {
         setFirstName(newDataSource.getFirstName());
         setLastName(newDataSource.getLastName());
@@ -113,7 +111,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return firstName.get();
     }
 
-    @Override
     public void setFirstName(String firstName) {
         this.firstName.set(firstName);
     }
@@ -129,7 +126,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return lastName.get();
     }
 
-    @Override
     public void setLastName(String lastName) {
         this.lastName.set(lastName);
     }
@@ -152,7 +148,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return githubUserName.get();
     }
 
-    @Override
     public void setGithubUserName(String githubUserName) {
         this.githubUserName.set(githubUserName);
     }
@@ -180,7 +175,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return street.get();
     }
 
-    @Override
     public void setStreet(String street) {
         this.street.set(street);
     }
@@ -198,7 +192,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return postalCode.get();
     }
 
-    @Override
     public void setPostalCode(String postalCode) {
         this.postalCode.set(postalCode);
     }
@@ -216,7 +209,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return city.get();
     }
 
-    @Override
     public void setCity(String city) {
         this.city.set(city);
     }
@@ -236,7 +228,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     }
 
     @JsonSetter("birthday")
-    @Override
     public void setBirthday(LocalDate birthday) {
         this.birthday.set(birthday);
     }
@@ -260,7 +251,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return tags;
     }
 
-    @Override
     public void setTags(Collection<Tag> tags) {
         this.tags.clear();
         this.tags.addAll(tags);

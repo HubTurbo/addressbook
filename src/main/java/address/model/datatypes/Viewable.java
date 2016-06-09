@@ -61,7 +61,7 @@ public abstract class Viewable<D extends BaseDataType> extends BaseDataType {
      *
      * @param dependency notifies {@code listener} of any changes.
      * @param listener will be updated whenever {@code dependency} changes AND {@link #isSyncingWithBackingObject} is true.
-     * @param <T> ensures both arguments have same type parameter.
+     * @param <T> ensures both arguments have same param type.
      */
     protected <T> void conditionallyBindValue(ObservableValue<T> dependency, WritableValue<T> listener) {
         dependency.addListener((dep, oldValue, newValue) -> {

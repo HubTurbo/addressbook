@@ -11,7 +11,7 @@ import java.util.Optional;
  * Extends {@link Viewable} for the Person domain object.
  * @see Viewable
  */
-public class ViewablePerson extends Viewable<Person> implements ObservableViewablePerson {
+public class ViewablePerson extends Viewable<Person> implements ReadableViewablePerson, ObservableViewablePerson {
 
     private final BooleanProperty isDeleted;
     private final BooleanProperty isEdited;
