@@ -4,6 +4,8 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -22,8 +24,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "addressbook")
 public class AddressBook implements ReadOnlyAddressBook {
 
-    private final ObservableList<Person> persons;
-    private final ObservableList<Tag> tags;
+    @JsonIgnore private final ObservableList<Person> persons;
+    @JsonIgnore private final ObservableList<Tag> tags;
 
     {
         persons = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
@@ -46,11 +48,13 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     @XmlElement(name = "persons")
+    @JsonProperty("persons")
     public ObservableList<Person> getPersons() {
         return persons;
     }
 
     @XmlElement(name = "tags")
+    @JsonProperty("tags")
     public ObservableList<Tag> getTags() {
         return tags;
     }
