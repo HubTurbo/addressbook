@@ -2,6 +2,8 @@ package address.sync;
 
 import address.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -15,6 +17,7 @@ import java.util.Formatter;
 import java.util.HashMap;
 
 public class RawCloudResponse {
+    private static final Logger logger = LogManager.getLogger(RawCloudResponse.class);
     int responseCode;
     InputStream body;
     HashMap<String, String> headers;
@@ -113,7 +116,7 @@ public class RawCloudResponse {
 
             return formatter.toString();
         } catch (NoSuchAlgorithmException | IOException e) {
-            System.out.println("Error generating ETag for response");
+            logger.info("Error generating ETag for response");
             return null;
         }
     }

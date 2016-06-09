@@ -6,6 +6,8 @@ import address.events.PotentialKeyboardShortcutEvent;
 import address.main.ComponentManager;
 import com.google.common.eventbus.Subscribe;
 import com.tulskiy.keymaster.common.Provider;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.Optional;
  * Manages key bindings.
  */
 public class ShortcutsManager extends ComponentManager{
+    private static final Logger logger = LogManager.getLogger(ShortcutsManager.class);
 
     /** Provider for global hotkeys */
     private final Provider provider = Provider.getCurrentProvider(false);
@@ -42,7 +45,7 @@ public class ShortcutsManager extends ComponentManager{
         if (eventToRaise.isPresent()) {
             raise(eventToRaise.get());
         } else {
-            System.out.println("No action for shortcut " + potentialKeyboardShortcutEvent.keyEvent);
+            logger.info("No action for shortcut " + potentialKeyboardShortcutEvent.keyEvent);
         }
     }
 

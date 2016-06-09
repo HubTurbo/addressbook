@@ -45,7 +45,7 @@ allprojects {
         jKeyMasterVersion = '1.2'
         jxBrowserVersion = '6.4'
         junitVersion = '4.12'
-        log4jVersion = '2.3'
+        log4jVersion = '2.6'
         mockitoVersion = '1+'
         mockServerVersion = '3.10.1'
         powermockVersion = '1.6.5'
@@ -102,6 +102,7 @@ allprojects {
     dependencies {
         compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+        compile "org.slf4j:slf4j-simple:1.6.4"
         compile 'commons-io:commons-io:2.4'
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"

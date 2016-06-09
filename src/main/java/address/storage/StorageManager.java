@@ -8,6 +8,8 @@ import address.model.datatypes.AddressBook;
 import address.model.ModelManager;
 import address.prefs.PrefsManager;
 import com.google.common.eventbus.Subscribe;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,7 +18,8 @@ import java.io.FileNotFoundException;
  * Manages storage of addressbook data in local disk.
  * Handles storage related events.
  */
-public class StorageManager extends ComponentManager{
+public class StorageManager extends ComponentManager {
+    private static final Logger logger = LogManager.getLogger(StorageManager.class);
 
     private ModelManager modelManager;
     private PrefsManager prefsManager;
@@ -59,7 +62,7 @@ public class StorageManager extends ComponentManager{
      */
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
-        System.out.println("Local data changed, saving to primary data file");
+        logger.info("Local data changed, saving to primary data file");
         saveDataToFile(prefsManager.getSaveLocation(), new AddressBook(lmce.personData, lmce.tagData));
     }
 
@@ -68,7 +71,7 @@ public class StorageManager extends ComponentManager{
      */
     @Subscribe
     public void handleLocalModelSyncedFromCloudEvent(LocalModelSyncedFromCloudEvent msfce) {
-        System.out.println("Local data synced, saving to primary data file");
+        logger.info("Local data synced, saving to primary data file");
         saveDataToFile(prefsManager.getSaveLocation(), new AddressBook( msfce.personData, msfce.tagData));
     }
 

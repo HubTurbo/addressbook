@@ -1,6 +1,8 @@
 package address.sync;
 
 import address.util.TickingTimer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -8,6 +10,8 @@ import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
 public class CloudRateLimitStatus {
+    private static final Logger logger = LogManager.getLogger(CloudRateLimitStatus.class);
+
     private int quotaLimit;
     private int quotaRemaining;
     private long quotaReset;
@@ -33,7 +37,7 @@ public class CloudRateLimitStatus {
     }
 
     private void printTimeLeft(int timeLeft) {
-        if (timeLeft % 60 == 0) System.out.println(timeLeft + " seconds remaining to quota reset.");
+        if (timeLeft % 60 == 0) logger.info(timeLeft + " seconds remaining to quota reset.");
     }
 
     private ZoneOffset getSystemTimezone() {

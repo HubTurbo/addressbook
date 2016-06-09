@@ -16,6 +16,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,8 +43,10 @@ import java.util.stream.Collectors;
  * the main application JAR.
  */
 public class Installer extends Application {
-    private final ExecutorService pool = Executors.newSingleThreadExecutor();
+    private static final Logger logger = LogManager.getLogger(Installer.class);
     private static final String LIB_DIR = "lib";
+
+    private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private ProgressBar progressBar;
     private Label loadingLabel;
 
@@ -89,7 +93,7 @@ public class Installer extends Application {
         try {
             createLibDir();
         } catch (IOException e) {
-            System.out.println("Can't create lib directory");
+            logger.info("Can't create lib directory");
             e.printStackTrace();
             return;
         }
@@ -97,7 +101,7 @@ public class Installer extends Application {
         try {
             unpackAllJarsInsideSelf();
         } catch (IOException e) {
-            System.out.println("Failed to unpack all JARs");
+            logger.info("Failed to unpack all JARs");
             e.printStackTrace();
             return;
         }
@@ -111,7 +115,7 @@ public class Installer extends Application {
     }
 
     private void unpackAllJarsInsideSelf() throws IOException {
-        System.out.println("Unpacking");
+        logger.info("Unpacking");
 
         File installerFile = new File(getSelfJarFilename()); // JAR of this class
         try (JarFile jar = new JarFile(installerFile)) {
@@ -128,11 +132,11 @@ public class Installer extends Application {
                 }
             }
         } catch (IOException e) {
-            System.out.println("UpdateManager - Failed to extract jar updater");
+            logger.info("UpdateManager - Failed to extract jar updater");
             throw e;
         }
 
-        System.out.println("Finished Unpacking");
+        logger.info("Finished Unpacking");
     }
 
     private String getSelfJarFilename() {
@@ -140,7 +144,7 @@ public class Installer extends Application {
     }
 
     private void downloadPlatformSpecificComponents() {
-        System.out.println("Getting platform specific components");
+        logger.info("Getting platform specific components");
 
         String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream("/UpdateData.json"));
 
@@ -167,11 +171,11 @@ public class Installer extends Application {
                 int libDownloadFileSize = conn.getContentLength();
                 if (libDownloadFileSize != -1 && FileUtil.isFileExists(libFile.toString()) &&
                         libFile.length() == libDownloadFileSize) {
-                    System.out.println("Library already exists - " + platformDependentLibrary.getFilename());
+                    logger.info("Library already exists - " + platformDependentLibrary.getFilename());
                     break;
                 }
             } catch (IOException e) {
-                System.out.println("Failed to get size of library; will proceed to downloading it - " +
+                logger.info("Failed to get size of library; will proceed to downloading it - " +
                         platformDependentLibrary.getFilename());
                 e.printStackTrace();
             }
@@ -181,17 +185,17 @@ public class Installer extends Application {
             try {
                 downloadFile(libFile, downloadLink);
             } catch (IOException e) {
-                System.out.println("Failed to download library - " + platformDependentLibrary.getFilename());
+                logger.info("Failed to download library - " + platformDependentLibrary.getFilename());
                 e.printStackTrace();
                 return;
             }
         }
 
-        System.out.println("Finished downloading platform dependent libraries");
+        logger.info("Finished downloading platform dependent libraries");
     }
 
     private void startMainApplication() {
-        System.out.println("Starting main application");
+        logger.info("Starting main application");
 
         String classPath = File.pathSeparator + "lib" + File.separator + "*";
 
@@ -203,13 +207,13 @@ public class Installer extends Application {
             e.printStackTrace();
         }
 
-        System.out.println("Main application launched");
+        logger.info("Main application launched");
     }
 
     private void downloadFile(File targetFile, URL source) throws IOException {
         try (InputStream in = source.openStream()) {
             if (!FileUtil.createFile(targetFile)) {
-                System.out.println("File already exists; file will be replaced");
+                logger.info("File already exists; file will be replaced");
             }
 
             URLConnection conn = source.openConnection();
@@ -218,7 +222,7 @@ public class Installer extends Application {
 
             Files.copy(inWithProgress, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            System.out.println(String.format("Installer - Failed to download %s", targetFile.toString()));
+            logger.info(String.format("Installer - Failed to download %s", targetFile.toString()));
             throw e;
         }
     }

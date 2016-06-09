@@ -8,6 +8,8 @@ import address.util.OsDetector;
 import address.util.Version;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
  * Tracks which dependencies are missing and which are no longer needed (including by backup versions)
  */
 public class DependencyTracker {
+    private static final Logger logger = LogManager.getLogger(DependencyTracker.class);
     private static final File DEPENDENCY_HISTORY_FILE = new File("lib/dependency_history");
 
     private HashMap<Version, List<String>> dependenciesForVersionsInUse = new HashMap<>();
@@ -31,7 +34,7 @@ public class DependencyTracker {
         Optional<String> classPath = getClassPathAttributeFromManifest();
 
         if (!classPath.isPresent()) {
-            System.out.println("Class-path undefined");
+            logger.info("Class-path undefined");
         } else {
             updateVersionDependency(Version.getCurrentVersion(),
                     new ArrayList<>(Arrays.asList(classPath.get().split("\\s+"))));
@@ -53,7 +56,7 @@ public class DependencyTracker {
         while (it.hasNext()) {
             Map.Entry<Version, List<String>> entry = it.next();
             if (dependenciesOfUnusedVersions.contains(entry.getKey())) {
-                System.out.println("removing " + entry.getKey());
+                logger.info("removing " + entry.getKey());
                 it.remove();
             }
         }
@@ -66,7 +69,7 @@ public class DependencyTracker {
             try {
                 FileUtil.createFile(DEPENDENCY_HISTORY_FILE);
             } catch (IOException e) {
-                System.out.println("Failed to create dependency file");
+                logger.info("Failed to create dependency file");
                 e.printStackTrace();
             }
         }
@@ -74,17 +77,17 @@ public class DependencyTracker {
         try {
             FileUtil.writeToFile(DEPENDENCY_HISTORY_FILE, JsonUtil.toJsonString(dependenciesForVersionsInUse));
         } catch (JsonProcessingException e) {
-            System.out.println("Failed to convert dependencies to JSON");
+            logger.info("Failed to convert dependencies to JSON");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Failed to write dependencies to file");
+            logger.info("Failed to write dependencies to file");
             e.printStackTrace();
         }
     }
 
     private void readVersionDependency() {
         if (!DEPENDENCY_HISTORY_FILE.exists()) {
-            System.out.println("Dependencies file does not exist yet");
+            logger.info("Dependencies file does not exist yet");
             return;
         }
 
@@ -93,7 +96,7 @@ public class DependencyTracker {
             dependenciesForVersionsInUse = JsonUtil.fromJsonStringToGivenType(json,
                     new TypeReference<HashMap<Version, List<String>>>() {});
         } catch (IOException e) {
-            System.out.println("Failed to read dependencies from file");
+            logger.info("Failed to read dependencies from file");
             e.printStackTrace();
         }
     }
@@ -106,7 +109,7 @@ public class DependencyTracker {
         String className = mainAppClass.getSimpleName() + ".class";
         String resourcePath = mainAppClass.getResource(className).toString();
         if (!resourcePath.startsWith("jar")) {
-            System.out.println("Not run from JAR");
+            logger.info("Not run from JAR");
             return Optional.empty();
         }
         String manifestPath = resourcePath.substring(0, resourcePath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
@@ -116,7 +119,7 @@ public class DependencyTracker {
         try {
             manifest = new Manifest(new URL(manifestPath).openStream());
         } catch (IOException e) {
-            System.out.println("Manifest can't be read, not running dependency check");
+            logger.info("Manifest can't be read, not running dependency check");
             e.printStackTrace();
             return Optional.empty();
         }

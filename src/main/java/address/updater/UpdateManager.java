@@ -9,6 +9,8 @@ import address.util.OsDetector;
 import address.util.FileUtil;
 import address.util.Version;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
  */
 public class UpdateManager {
     public static final String UPDATE_DIR = "update";
+    private static final Logger logger = LogManager.getLogger(UpdateManager.class);
 
     // --- Messages
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
@@ -74,7 +77,7 @@ public class UpdateManager {
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_DELETE_UPDATE_SPEC));
-            System.out.println("UpdateManager - " + MSG_FAIL_DELETE_UPDATE_SPEC);
+            logger.info("UpdateManager - " + MSG_FAIL_DELETE_UPDATE_SPEC);
             return;
         }
 
@@ -83,7 +86,7 @@ public class UpdateManager {
 
         if (!updateData.isPresent()) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_UPDATE_DATA));
-            System.out.println("UpdateManager - " + MSG_NO_UPDATE_DATA);
+            logger.info("UpdateManager - " + MSG_NO_UPDATE_DATA);
             return;
         }
 
@@ -91,14 +94,14 @@ public class UpdateManager {
 
         if (!latestVersion.isPresent()) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_VERSION_AVAILABLE));
-            System.out.println("UpdateManager - " + MSG_NO_VERSION_AVAILABLE);
+            logger.info("UpdateManager - " + MSG_NO_VERSION_AVAILABLE);
             return;
         }
 
         if (downloadedVersions.contains(latestVersion.get()) ||
                 Version.getCurrentVersion().equals(latestVersion.get())) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
-            System.out.println("UpdateManager - " + MSG_NO_NEWER_VERSION);
+            logger.info("UpdateManager - " + MSG_NO_NEWER_VERSION);
             return;
         }
 
@@ -116,7 +119,7 @@ public class UpdateManager {
 
         if (filesToBeUpdated.isEmpty()) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_UPDATE));
-            System.out.println("UpdateManager - " + MSG_NO_UPDATE);
+            logger.info("UpdateManager - " + MSG_NO_UPDATE);
             return;
         }
 
@@ -125,7 +128,7 @@ public class UpdateManager {
             downloadAllFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
         } catch (IOException e) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
-            System.out.println("UpdateManager - " + MSG_FAIL_DOWNLOAD_UPDATE);
+            logger.info("UpdateManager - " + MSG_FAIL_DOWNLOAD_UPDATE);
             return;
         }
 
@@ -135,7 +138,7 @@ public class UpdateManager {
             createUpdateSpecification(filesToBeUpdated);
         } catch (IOException e) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_CREATE_UPDATE_SPEC));
-            System.out.println("UpdateManager - " + MSG_FAIL_CREATE_UPDATE_SPEC);
+            logger.info("UpdateManager - " + MSG_FAIL_CREATE_UPDATE_SPEC);
             return;
         }
 
@@ -143,7 +146,7 @@ public class UpdateManager {
             extractJarUpdater();
         } catch (IOException e) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_EXTRACT_JAR_UPDATER));
-            System.out.println("UpdateManager - " + MSG_FAIL_EXTRACT_JAR_UPDATER);
+            logger.info("UpdateManager - " + MSG_FAIL_EXTRACT_JAR_UPDATER);
             return;
         }
 
@@ -161,18 +164,18 @@ public class UpdateManager {
             downloadFile(UPDATE_DATA_FILE, new URL(UPDATE_DATA_ON_SERVER));
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            System.out.println("UpdateManager - update data URL is invalid");
+            logger.info("UpdateManager - update data URL is invalid");
             return Optional.empty();
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("UpdateManager - Failed to download update data");
+            logger.info("UpdateManager - Failed to download update data");
             return Optional.empty();
         }
 
         try {
             return Optional.of(JsonUtil.fromJsonString(FileUtil.readFromFile(UPDATE_DATA_FILE), UpdateData.class));
         } catch (IOException e) {
-            System.out.println("UpdateManager - Failed to parse update data from json file.");
+            logger.info("UpdateManager - Failed to parse update data from json file.");
             e.printStackTrace();
         }
 
@@ -194,7 +197,7 @@ public class UpdateManager {
         OsDetector.Os machineOs = OsDetector.getOs();
 
         if (machineOs == OsDetector.Os.UNKNOWN) {
-            System.out.println("UpdateManager - OS not supported for updating");
+            logger.info("UpdateManager - OS not supported for updating");
             return new HashMap<>();
         }
 
@@ -223,7 +226,7 @@ public class UpdateManager {
             try {
                 Files.createDirectory(updateDir.toPath());
             } catch (IOException e) {
-                System.out.println("Failed to create update directory");
+                logger.info("Failed to create update directory");
                 e.printStackTrace();
             }
         }
@@ -232,7 +235,7 @@ public class UpdateManager {
             try {
                 downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
             } catch (IOException e) {
-                System.out.println("Failed to download an update file, aborting update.");
+                logger.info("Failed to download an update file, aborting update.");
                 throw e;
             }
         }
@@ -241,12 +244,12 @@ public class UpdateManager {
     private void downloadFile(File targetFile, URL source) throws IOException {
         try (InputStream in = source.openStream()) {
             if (!FileUtil.createFile(targetFile)) {
-                System.out.println("File already exists - " + targetFile);
+                logger.info("File '{}' already exists", targetFile.getName());
             }
             Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            System.out.println(String.format("UpdateManager - Failed to download update for %s",
-                    targetFile.toString()));
+            logger.info("UpdateManager - Failed to download update for {}",
+                    targetFile.toString());
             e.printStackTrace();
             throw e;
         }
@@ -268,7 +271,7 @@ public class UpdateManager {
         try (InputStream in = UpdateManager.class.getClassLoader().getResourceAsStream(JAR_UPDATER_RESOURCE_PATH)) {
             Files.copy(in, jarUpdaterFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            System.out.println("UpdateManager - Failed to extract jar updater");
+            logger.info("UpdateManager - Failed to extract jar updater");
             throw e;
         }
     }
@@ -286,10 +289,10 @@ public class UpdateManager {
 
             FileUtil.writeToFile(DOWNLOADED_VERSIONS_FILE, JsonUtil.toJsonString(downloadedVersions));
         } catch (JsonProcessingException e) {
-            System.out.println("Failed to convert downloaded version to JSON");
+            logger.info("Failed to convert downloaded version to JSON");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Failed to write downloaded version to file");
+            logger.info("Failed to write downloaded version to file");
             e.printStackTrace();
         }
     }
@@ -298,7 +301,7 @@ public class UpdateManager {
         try {
             return JsonUtil.fromJsonStringToList(FileUtil.readFromFile(DOWNLOADED_VERSIONS_FILE), Version.class);
         } catch (IOException e) {
-            System.out.println("Failed to read downloaded version from file");
+            logger.info("Failed to read downloaded version from file");
             e.printStackTrace();
         }
 

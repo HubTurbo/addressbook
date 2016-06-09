@@ -1,0 +1,218 @@
+[JavaFX Application Thread] I 16:43:58.209 (ModelManager) Initializing model manager with: 0 persons, 0 tags
+Initializing model manager with: 0 persons, 0 tags
+[JavaFX Application Thread] I 16:43:59.792 (DependencyTracker) Dependencies file does not exist yet
+Dependencies file does not exist yet
+[JavaFX Application Thread] I 16:43:59.792 (DependencyTracker) Not run from JAR
+Not run from JAR
+[JavaFX Application Thread] I 16:43:59.792 (DependencyTracker) Class-path undefined
+Class-path undefined
+[JavaFX Application Thread] I 16:43:59.808 (UpdateManager) Failed to read downloaded version from file
+Failed to read downloaded version from file
+[JavaFX Application Thread] I 16:43:59.810 (MainApp) All dependencies are present
+All dependencies are present
+[pool-5-thread-1] I 16:44:01.033 (BackupManager) Not running from JAR, will not clean backups
+Not running from JAR, will not clean backups
+[JavaFX Application Thread] I 16:44:01.037 (EventManager) LoadDataRequestEvent: from .$TEMP_ADDRESS_BOOK
+LoadDataRequestEvent: from .$TEMP_ADDRESS_BOOK
+[pool-5-thread-2] I 16:44:01.037 (EventManager) UpdaterInProgressEvent: Clearing local update specification file
+UpdaterInProgressEvent: Clearing local update specification file
+[pool-5-thread-2] I 16:44:01.049 (EventManager) UpdaterInProgressEvent: Getting data from server
+UpdaterInProgressEvent: Getting data from server
+[JavaFX Application Thread] I 16:44:01.251 (TickingTimer) Started TickingTimer 'Cloud Quota Reset Time'
+Started TickingTimer 'Cloud Quota Reset Time'
+[pool-3-thread-1] I 16:44:01.556 (EventManager) SyncInProgressEvent: Synchronization with server in progress.
+SyncInProgressEvent: Synchronization with server in progress.
+[pool-3-thread-1] I 16:44:01.558 (SyncManager) Retrieving data from cloud.
+Retrieving data from cloud.
+[pool-3-thread-1] I 16:44:01.559 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:44:01.561 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:44:01.565 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:44:01.565 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:44:01.566 (SyncManager) Unable to retrieve data from mirror, cancelling sync...
+Unable to retrieve data from mirror, cancelling sync...
+[pool-3-thread-1] I 16:44:01.566 (EventManager) SyncCompletedEvent: Synchronization is completed.
+SyncCompletedEvent: Synchronization is completed.
+[pool-3-thread-1] I 16:44:01.568 (TickingTimer) Started TickingTimer 'Sync timer'
+Started TickingTimer 'Sync timer'
+[pool-5-thread-2] I 16:44:02.227 (UpdateManager) File 'UpdateData.json' already exists
+File 'UpdateData.json' already exists
+[pool-5-thread-2] I 16:44:03.038 (UpdateManager) UpdateManager - Failed to parse update data from json file.
+UpdateManager - Failed to parse update data from json file.
+[pool-5-thread-2] I 16:44:03.039 (EventManager) UpdaterFinishedEvent: There is no update data to be processed
+UpdaterFinishedEvent: There is no update data to be processed
+[pool-5-thread-2] I 16:44:03.041 (UpdateManager) UpdateManager - There is no update data to be processed
+UpdateManager - There is no update data to be processed
+[pool-3-thread-1] I 16:44:11.573 (EventManager) SyncInProgressEvent: Synchronization with server in progress.
+SyncInProgressEvent: Synchronization with server in progress.
+[pool-3-thread-1] I 16:44:11.574 (SyncManager) Retrieving data from cloud.
+Retrieving data from cloud.
+[pool-3-thread-1] I 16:44:11.575 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:44:11.575 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:44:11.575 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:44:11.576 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:44:11.576 (SyncManager) Unable to retrieve data from mirror, cancelling sync...
+Unable to retrieve data from mirror, cancelling sync...
+[pool-3-thread-1] I 16:44:11.576 (EventManager) SyncCompletedEvent: Synchronization is completed.
+SyncCompletedEvent: Synchronization is completed.
+[pool-3-thread-1] I 16:44:21.582 (EventManager) SyncInProgressEvent: Synchronization with server in progress.
+SyncInProgressEvent: Synchronization with server in progress.
+[pool-3-thread-1] I 16:44:21.583 (SyncManager) Retrieving data from cloud.
+Retrieving data from cloud.
+[pool-3-thread-1] I 16:44:21.583 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:44:21.583 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:44:21.584 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:44:21.584 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:44:21.584 (SyncManager) Unable to retrieve data from mirror, cancelling sync...
+Unable to retrieve data from mirror, cancelling sync...
+[pool-3-thread-1] I 16:44:21.584 (EventManager) SyncCompletedEvent: Synchronization is completed.
+SyncCompletedEvent: Synchronization is completed.
+[pool-3-thread-1] I 16:44:31.590 (EventManager) SyncInProgressEvent: Synchronization with server in progress.
+SyncInProgressEvent: Synchronization with server in progress.
+[pool-3-thread-1] I 16:44:31.598 (SyncManager) Retrieving data from cloud.
+Retrieving data from cloud.
+[pool-3-thread-1] I 16:44:31.598 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:44:31.599 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:44:31.599 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:44:31.600 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:44:31.600 (SyncManager) Unable to retrieve data from mirror, cancelling sync...
+Unable to retrieve data from mirror, cancelling sync...
+[pool-3-thread-1] I 16:44:31.601 (EventManager) SyncCompletedEvent: Synchronization is completed.
+SyncCompletedEvent: Synchronization is completed.
+[pool-3-thread-1] I 16:44:41.604 (EventManager) SyncInProgressEvent: Synchronization with server in progress.
+SyncInProgressEvent: Synchronization with server in progress.
+[pool-3-thread-1] I 16:44:41.604 (SyncManager) Retrieving data from cloud.
+Retrieving data from cloud.
+[pool-3-thread-1] I 16:44:41.605 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:44:41.605 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:44:41.606 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:44:41.606 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:44:41.606 (SyncManager) Unable to retrieve data from mirror, cancelling sync...
+Unable to retrieve data from mirror, cancelling sync...
+[pool-3-thread-1] I 16:44:41.607 (EventManager) SyncCompletedEvent: Synchronization is completed.
+SyncCompletedEvent: Synchronization is completed.
+[pool-3-thread-1] I 16:44:51.614 (EventManager) SyncInProgressEvent: Synchronization with server in progress.
+SyncInProgressEvent: Synchronization with server in progress.
+[pool-3-thread-1] I 16:44:51.625 (SyncManager) Retrieving data from cloud.
+Retrieving data from cloud.
+[pool-3-thread-1] I 16:44:51.625 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:44:51.626 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:44:51.626 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:44:51.627 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:44:51.627 (SyncManager) Unable to retrieve data from mirror, cancelling sync...
+Unable to retrieve data from mirror, cancelling sync...
+[pool-3-thread-1] I 16:44:51.627 (EventManager) SyncCompletedEvent: Synchronization is completed.
+SyncCompletedEvent: Synchronization is completed.
+[pool-8-thread-1] I 16:45:00.256 (CloudRateLimitStatus) 900 seconds remaining to quota reset.
+900 seconds remaining to quota reset.
+[pool-3-thread-1] I 16:45:01.632 (EventManager) SyncInProgressEvent: Synchronization with server in progress.
+SyncInProgressEvent: Synchronization with server in progress.
+[pool-3-thread-1] I 16:45:01.632 (SyncManager) Retrieving data from cloud.
+Retrieving data from cloud.
+[pool-3-thread-1] I 16:45:01.633 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:45:01.633 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:45:01.633 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:45:01.634 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:45:01.634 (SyncManager) Unable to retrieve data from mirror, cancelling sync...
+Unable to retrieve data from mirror, cancelling sync...
+[pool-3-thread-1] I 16:45:01.634 (EventManager) SyncCompletedEvent: Synchronization is completed.
+SyncCompletedEvent: Synchronization is completed.
+[pool-3-thread-1] I 16:45:11.640 (EventManager) SyncInProgressEvent: Synchronization with server in progress.
+SyncInProgressEvent: Synchronization with server in progress.
+[pool-3-thread-1] I 16:45:11.640 (SyncManager) Retrieving data from cloud.
+Retrieving data from cloud.
+[pool-3-thread-1] I 16:45:11.641 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:45:11.641 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:45:11.642 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:45:11.642 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:45:11.642 (SyncManager) Unable to retrieve data from mirror, cancelling sync...
+Unable to retrieve data from mirror, cancelling sync...
+[pool-3-thread-1] I 16:45:11.642 (EventManager) SyncCompletedEvent: Synchronization is completed.
+SyncCompletedEvent: Synchronization is completed.
+[pool-3-thread-1] I 16:45:21.648 (EventManager) SyncInProgressEvent: Synchronization with server in progress.
+SyncInProgressEvent: Synchronization with server in progress.
+[pool-3-thread-1] I 16:45:21.649 (SyncManager) Retrieving data from cloud.
+Retrieving data from cloud.
+[pool-3-thread-1] I 16:45:21.649 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:45:21.649 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:45:21.650 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:45:21.650 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:45:21.650 (SyncManager) Unable to retrieve data from mirror, cancelling sync...
+Unable to retrieve data from mirror, cancelling sync...
+[pool-3-thread-1] I 16:45:21.650 (EventManager) SyncCompletedEvent: Synchronization is completed.
+SyncCompletedEvent: Synchronization is completed.
+[pool-3-thread-1] I 16:45:31.655 (EventManager) SyncInProgressEvent: Synchronization with server in progress.
+SyncInProgressEvent: Synchronization with server in progress.
+[pool-3-thread-1] I 16:45:31.655 (SyncManager) Retrieving data from cloud.
+Retrieving data from cloud.
+[pool-3-thread-1] I 16:45:31.656 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:45:31.656 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:45:31.656 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:45:31.657 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:45:31.657 (SyncManager) Unable to retrieve data from mirror, cancelling sync...
+Unable to retrieve data from mirror, cancelling sync...
+[pool-3-thread-1] I 16:45:31.657 (EventManager) SyncCompletedEvent: Synchronization is completed.
+SyncCompletedEvent: Synchronization is completed.
+[pool-3-thread-1] I 16:45:41.660 (EventManager) SyncInProgressEvent: Synchronization with server in progress.
+SyncInProgressEvent: Synchronization with server in progress.
+[pool-3-thread-1] I 16:45:41.661 (SyncManager) Retrieving data from cloud.
+Retrieving data from cloud.
+[pool-3-thread-1] I 16:45:41.662 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:45:41.662 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:45:41.662 (CloudFileHandler) Reading from cloud file 'default'.
+Reading from cloud file 'default'.
+[pool-3-thread-1] W 16:45:41.663 (CloudFileHandler) Error reading from cloud file 'default'.
+Error reading from cloud file 'default'.
+[pool-3-thread-1] I 16:45:41.663 (SyncManager) Unable to retrieve data from mirror, cancelling sync...
+Unable to retrieve data from mirror, cancelling sync...
+[pool-3-thread-1] I 16:45:41.663 (EventManager) SyncCompletedEvent: Synchronization is completed.
+SyncCompletedEvent: Synchronization is completed.
+[JavaFX Application Thread] I 16:45:44.693 (EventManager) PotentialKeyboardShortcutEvent: PotentialKeyboardShortcutEvent : keyEvent is COMMAND
+PotentialKeyboardShortcutEvent: PotentialKeyboardShortcutEvent : keyEvent is COMMAND
+[JavaFX Application Thread] I 16:45:44.706 (ShortcutsManager) No action for shortcut KeyEvent [source = javafx.scene.Scene@3c957c52, target = StatusBar@3cb1511[styleClass=status-bar status-bar-with-border], eventType = KEY_PRESSED, consumed = false, character =  , text = , code = COMMAND, metaDown, shortcutDown]
+No action for shortcut KeyEvent [source = javafx.scene.Scene@3c957c52, target = StatusBar@3cb1511[styleClass=status-bar status-bar-with-border], eventType = KEY_PRESSED, consumed = false, character =  , text = , code = COMMAND, metaDown, shortcutDown]
+[JavaFX Application Thread] I 16:45:44.759 (EventManager) PotentialKeyboardShortcutEvent: PotentialKeyboardShortcutEvent : keyEvent is Q
+PotentialKeyboardShortcutEvent: PotentialKeyboardShortcutEvent : keyEvent is Q
+[JavaFX Application Thread] I 16:45:44.760 (ShortcutsManager) No action for shortcut KeyEvent [source = javafx.scene.Scene@3c957c52, target = StatusBar@3cb1511[styleClass=status-bar status-bar-with-border], eventType = KEY_PRESSED, consumed = false, character =  , text = q, code = Q, metaDown, shortcutDown]
+No action for shortcut KeyEvent [source = javafx.scene.Scene@3c957c52, target = StatusBar@3cb1511[styleClass=status-bar status-bar-with-border], eventType = KEY_PRESSED, consumed = false, character =  , text = q, code = Q, metaDown, shortcutDown]

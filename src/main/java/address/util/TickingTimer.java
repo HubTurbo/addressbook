@@ -1,5 +1,8 @@
 package address.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +28,7 @@ import java.util.function.Consumer;
  * }
  */
 public class TickingTimer {
+    private static final Logger logger = LogManager.getLogger(TickingTimer.class);
 
     // TICK_PERIOD must divide period, so a small value is best
     private static final int TICK_PERIOD = 1;
@@ -127,7 +131,7 @@ public class TickingTimer {
                 latches.clear();
             }
         }, TICK_PERIOD, TICK_PERIOD, timeUnit);
-        System.out.println("Started TickingTimer " + name);
+        logger.info("Started TickingTimer '{}'", name);
     }
 
     /**
@@ -140,14 +144,14 @@ public class TickingTimer {
             started = false;
         }
 
-        System.out.println("Stopping TickingTimer " + name);
+        logger.info("Stopping TickingTimer " + name);
         executor.shutdown();
         try {
             executor.awaitTermination(TICK_PERIOD, timeUnit);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("Successfully stopped TickingTimer " + name);
+        logger.info("Successfully stopped TickingTimer '{}'", name);
     }
 
     public boolean isStarted() {

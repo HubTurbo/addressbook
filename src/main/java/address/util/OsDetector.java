@@ -1,5 +1,8 @@
 package address.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,6 +11,8 @@ import java.io.InputStreamReader;
  * Detect what Operating System (OS) the application is running in
  */
 public class OsDetector {
+    private static final Logger logger = LogManager.getLogger(OsDetector.class);
+
     private static final String osName = System.getProperty("os.name");
 
     public enum Os {
@@ -63,7 +68,7 @@ public class OsDetector {
     }
 
     private static Architecture unknownArchitecture(Exception e) {
-        System.out.println("Unknown Linux kernel architecture: " + e.getLocalizedMessage());
+        logger.info("Unknown Linux kernel architecture: " + e.getLocalizedMessage());
         return Architecture.UNKNOWN;
     }
 
