@@ -6,6 +6,6 @@ package address.events;
 public class MinimizeAppRequestEvent extends BaseEvent {
     @Override
     public String toString() {
-        return "Request to maximize app window";
+        return "Request to minimize app window";
     }
 }

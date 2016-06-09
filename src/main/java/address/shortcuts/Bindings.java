@@ -33,8 +33,8 @@ public class Bindings {
 
 
     /* Global hotkeys in alphabetical order of name */
-    public List<GlobalHotkey> HOTKEY_APP_MINIMIZE = new ArrayList<>();
     public List<GlobalHotkey> HOTKEY_APP_MAXIMIZE = new ArrayList<>();
+    public List<GlobalHotkey> HOTKEY_APP_MINIMIZE = new ArrayList<>();
 
     /* Accelerators in alphabetical order of name */
     public Accelerator ACCELERATOR_FILE_NEW;
@@ -59,13 +59,13 @@ public class Bindings {
 
         ACCELERATOR_PERSON_EDIT = setAccelerator(KeyCode.E);
 
-        ACCELERATOR_FILE_NEW = setAccelerator(KeyCode.N, KeyCombination.CONTROL_DOWN);
+        ACCELERATOR_FILE_NEW = setAccelerator(KeyCode.N, KeyCombination.SHORTCUT_DOWN);
 
-        ACCELERATOR_FILE_OPEN = setAccelerator(KeyCode.O, KeyCombination.CONTROL_DOWN);
+        ACCELERATOR_FILE_OPEN = setAccelerator(KeyCode.O, KeyCombination.SHORTCUT_DOWN);
 
-        ACCELERATOR_FILE_SAVE = setAccelerator(KeyCode.S, KeyCombination.CONTROL_DOWN);
+        ACCELERATOR_FILE_SAVE = setAccelerator(KeyCode.S, KeyCombination.SHORTCUT_DOWN);
 
-        ACCELERATOR_FILE_SAVE_AS = setAccelerator(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN);
+        ACCELERATOR_FILE_SAVE_AS = setAccelerator(KeyCode.S, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
 
         HOTKEY_APP_MINIMIZE.add(setHotkey("control alt X", new MinimizeAppRequestEvent()));
         HOTKEY_APP_MINIMIZE.add(setHotkey("meta alt X", new MinimizeAppRequestEvent()));
@@ -75,18 +75,18 @@ public class Bindings {
 
         /*====== other keys ======================================================*/
 
-        SHORTCUT_LIST_ENTER = setShortcut(KeyCode.DOWN, KeyCombination.CONTROL_DOWN, new JumpToListRequestEvent(1));
+        SHORTCUT_LIST_ENTER = setShortcut(KeyCode.DOWN, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(1));
 
         //shortcuts for jumping to Nth item in the list n=1..9
-        setShortcut(KeyCode.DIGIT1, KeyCombination.CONTROL_DOWN, new JumpToListRequestEvent(1));
-        setShortcut(KeyCode.DIGIT2, KeyCombination.CONTROL_DOWN, new JumpToListRequestEvent(2));
-        setShortcut(KeyCode.DIGIT3, KeyCombination.CONTROL_DOWN, new JumpToListRequestEvent(3));
-        setShortcut(KeyCode.DIGIT4, KeyCombination.CONTROL_DOWN, new JumpToListRequestEvent(4));
-        setShortcut(KeyCode.DIGIT5, KeyCombination.CONTROL_DOWN, new JumpToListRequestEvent(5));
-        setShortcut(KeyCode.DIGIT6, KeyCombination.CONTROL_DOWN, new JumpToListRequestEvent(6));
-        setShortcut(KeyCode.DIGIT7, KeyCombination.CONTROL_DOWN, new JumpToListRequestEvent(7));
-        setShortcut(KeyCode.DIGIT8, KeyCombination.CONTROL_DOWN, new JumpToListRequestEvent(8));
-        setShortcut(KeyCode.DIGIT9, KeyCombination.CONTROL_DOWN, new JumpToListRequestEvent(9));
+        setShortcut(KeyCode.DIGIT1, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(1));
+        setShortcut(KeyCode.DIGIT2, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(2));
+        setShortcut(KeyCode.DIGIT3, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(3));
+        setShortcut(KeyCode.DIGIT4, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(4));
+        setShortcut(KeyCode.DIGIT5, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(5));
+        setShortcut(KeyCode.DIGIT6, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(6));
+        setShortcut(KeyCode.DIGIT7, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(7));
+        setShortcut(KeyCode.DIGIT8, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(8));
+        setShortcut(KeyCode.DIGIT9, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(9));
 
     }
     /**
