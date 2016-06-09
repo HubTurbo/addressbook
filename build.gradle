@@ -130,6 +130,8 @@ allprojects {
 
         installerCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         installerCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
+        installerCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
+        installerCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
     }
 
     configurations {
