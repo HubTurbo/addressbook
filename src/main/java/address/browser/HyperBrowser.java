@@ -13,7 +13,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * A HyperBrowser capable of displaying web pages instantaneously.
+ * A HyperBrowser capable of displaying web pages instantaneously when the page has been cached previously.
+ * This is achieved by keeping a cached pool of pages when loadUrls is called with a list of URLs that will be
+ * called in the future.
  */
 public class HyperBrowser {
 
