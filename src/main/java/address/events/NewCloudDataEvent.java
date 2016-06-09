@@ -2,12 +2,12 @@ package address.events;
 
 import address.model.datatypes.AddressBook;
 
-/** Indicates some new data is available from the mirror*/
-public class NewMirrorDataEvent extends BaseEvent {
+/** Indicates some new data is available from the cloud*/
+public class NewCloudDataEvent extends BaseEvent {
 
     public AddressBook data;
 
-    public NewMirrorDataEvent(AddressBook data){
+    public NewCloudDataEvent(AddressBook data){
         this.data = data;
     }
 

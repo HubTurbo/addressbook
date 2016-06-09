@@ -28,7 +28,6 @@ import javafx.stage.FileChooser;
 public class RootLayoutController {
 
     private static final String SAVE_LOC_TEXT_PREFIX = "Save File: ";
-    private static final String MIRROR_LOC_TEXT_PREFIX = "Mirror File: ";
     private static final String LOC_TEXT_NOT_SET = "[NOT SET]";
 
     private MainController mainController;
@@ -43,13 +42,9 @@ public class RootLayoutController {
     private MenuItem menuFileSave;
     @FXML
     private MenuItem menuFileSaveAs;
-    @FXML
-    private MenuItem menuChooseMirror;
 
     @FXML
     private Text saveLocText;
-    @FXML
-    private Text mirrorLocText;
 
     public RootLayoutController() {
         EventManager.getInstance().registerHandler(this);
@@ -58,7 +53,6 @@ public class RootLayoutController {
     @FXML
     private void initialize() {
         updateSaveLocationDisplay();
-        updateMirrorLocationDisplay();
     }
 
 
@@ -80,19 +74,9 @@ public class RootLayoutController {
         updateSaveLocationDisplay();
     }
 
-    @Subscribe
-    private void handleMirrorLocationChangedEvent(MirrorLocationChangedEvent e) {
-        updateMirrorLocationDisplay();
-    }
-
     private void updateSaveLocationDisplay() {
         saveLocText.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
                 PrefsManager.getInstance().getSaveLocation().getName() : LOC_TEXT_NOT_SET));
-    }
-
-    private void updateMirrorLocationDisplay() {
-        mirrorLocText.setText(MIRROR_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isMirrorLocationSet() ?
-                PrefsManager.getInstance().getMirrorLocation().getName() : LOC_TEXT_NOT_SET));
     }
 
     /**
@@ -112,12 +96,11 @@ public class RootLayoutController {
 
 
     /**
-     * Creates a new empty address book not connected to any save or mirror file
+     * Creates a new empty address book
      */
     @FXML
     private void handleNew() {
         PrefsManager.getInstance().clearSaveLocation();
-        PrefsManager.getInstance().clearMirrorLocation();
         modelManager.clearModel();
     }
 
@@ -131,14 +114,6 @@ public class RootLayoutController {
         if (toOpen == null) return;
         PrefsManager.getInstance().setSaveLocation(toOpen);
         EventManager.getInstance().post(new LoadDataRequestEvent(toOpen));
-    }
-
-    @FXML
-    private void handleChooseMirror() {
-        // Show open file dialog
-        File toSyncWith = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
-        if (toSyncWith == null) return;
-        PrefsManager.getInstance().setMirrorLocation(toSyncWith);
     }
 
     /**

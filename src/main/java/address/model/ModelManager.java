@@ -15,7 +15,6 @@ import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -281,8 +280,8 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
 //// EVENT HANDLERS
 
     @Subscribe
-    private void handleNewMirrorDataEvent(NewMirrorDataEvent nde){
-        // NewMirrorDataEvent is created from outside FX Application thread
+    private void handleNewCloudDataEvent(NewCloudDataEvent nde){
+        // NewCloudDataEvent is created from outside FX Application thread
         PlatformEx.runLaterAndWait(() -> updateUsingExternalData(nde.data));
     }
 
