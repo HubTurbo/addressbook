@@ -9,6 +9,8 @@ import address.model.datatypes.person.Person;
 import address.prefs.PrefsManager;
 import address.sync.task.CloudUpdateTask;
 import com.google.common.eventbus.Subscribe;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,12 +18,14 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.*;
+import address.util.LogManager;
 
 
 /**
  * Syncs data between a mirror file and the primary data file
  */
 public class SyncManager {
+    static Logger logger = LogManager.getLogger(SyncManager.class);
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ExecutorService requestExecutor = Executors.newCachedThreadPool();
@@ -49,13 +53,13 @@ public class SyncManager {
                 EventManager.getInstance().post(new SyncInProgressEvent());
                 Optional<AddressBook> mirrorData = getMirrorData();
                 if (!mirrorData.isPresent()) {
-                    System.out.println("Unable to retrieve data from mirror, cancelling sync...");
+                    logger.info("Unable to retrieve data from mirror, cancelling sync...");
                     return;
                 }
                 EventManager.getInstance().post(new NewMirrorDataEvent(mirrorData.get()));
             } catch (FileContainsDuplicatesException e) {
                 // do not sync changes from mirror if duplicates found in mirror
-                System.out.println("Duplicate data found in mirror, cancelling sync...");
+                logger.info("Duplicate data found in mirror, cancelling sync...");
             } finally {
                 EventManager.getInstance().post(new SyncCompletedEvent());
             }
@@ -73,7 +77,8 @@ public class SyncManager {
     }
 
     private Optional<AddressBook> getMirrorData() throws FileContainsDuplicatesException {
-        System.out.println("Updating data from cloud: " + System.nanoTime());
+        logger.info("Updating data from cloud.");
+
         final File mirrorFile = PrefsManager.getInstance().getMirrorLocation();
 
         try {
@@ -90,7 +95,7 @@ public class SyncManager {
             e.printStackTrace();
             return Optional.empty();
         } catch (NoSuchElementException e) {
-            System.out.println("Empty response from cloud!");
+            logger.debug("Empty response from cloud!");
             return Optional.empty();
         }
     }
