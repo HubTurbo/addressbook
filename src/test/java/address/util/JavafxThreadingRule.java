@@ -7,6 +7,8 @@ import javax.swing.SwingUtilities;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -25,6 +27,7 @@ import org.junit.runners.model.Statement;
  *
  */
 public class JavafxThreadingRule implements TestRule {
+    private static final Logger logger = LogManager.getLogger(JavafxThreadingRule.class);
 
     /**
      * Flag for setting up the JavaFX, we only need to do this once for all tests.
@@ -93,9 +96,9 @@ public class JavafxThreadingRule implements TestRule {
                 }
             });
 
-            System.out.println("javafx initialising...");
+            logger.info("javafx initialising...");
             latch.await();
-            System.out.println("javafx is initialised in " + (System.currentTimeMillis() - timeMillis) + "ms");
+            logger.info("javafx is initialised in " + (System.currentTimeMillis() - timeMillis) + "ms");
         }
 
     }

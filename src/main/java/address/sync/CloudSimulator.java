@@ -4,6 +4,9 @@ import address.sync.model.CloudAddressBook;
 import address.sync.model.CloudTag;
 import address.sync.model.CloudPerson;
 import address.exceptions.DataConversionException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.*;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
  * if the cloud is initialized with an unreliable network parameter
  */
 public class CloudSimulator implements ICloudSimulator {
+    private static final Logger logger = LogManager.getLogger(CloudSimulator.class);
     private static final int API_QUOTA_PER_HOUR = 5000;
     private static final Random RANDOM_GENERATOR = new Random();
     private static final double FAILURE_PROBABILITY = 0.1;
@@ -506,12 +510,12 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private RawCloudResponse getNetworkFailedResponse() {
-        System.out.println("Cloud simulator: failure occurred! Could not retrieve data");
+        logger.info("Cloud simulator: failure occurred! Could not retrieve data");
         return new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
     }
 
     private boolean hasApiQuotaRemaining() {
-        System.out.println("Current quota left: " + cloudRateLimitStatus.getQuotaRemaining());
+        logger.info("Current quota left: " + cloudRateLimitStatus.getQuotaRemaining());
         return cloudRateLimitStatus.getQuotaRemaining() > 0;
     }
 
@@ -605,7 +609,7 @@ public class CloudSimulator implements ICloudSimulator {
             if (shouldSimulateUnreliableNetwork && RANDOM_GENERATOR.nextDouble() <= ADD_PERSON_PROBABILITY) {
                 CloudPerson person = new CloudPerson(java.util.UUID.randomUUID().toString(),
                                                      java.util.UUID.randomUUID().toString());
-                System.out.println("Cloud simulator: adding " + person);
+                logger.info("Cloud simulator: adding " + person);
                 personList.add(person);
             }
         }
@@ -615,7 +619,7 @@ public class CloudSimulator implements ICloudSimulator {
         for (int i = 0; i < MAX_NUM_PERSONS_TO_ADD; i++) {
             if (shouldSimulateUnreliableNetwork && RANDOM_GENERATOR.nextDouble() <= ADD_TAG_PROBABILITY) {
                 CloudTag tag = new CloudTag(java.util.UUID.randomUUID().toString());
-                System.out.println("Cloud simulator: adding tag '" + tag + "'");
+                logger.info("Cloud simulator: adding tag '" + tag + "'");
                 tagList.add(tag);
             }
         }
@@ -623,7 +627,7 @@ public class CloudSimulator implements ICloudSimulator {
 
     private void modifyCloudPersonBasedOnChance(CloudPerson cloudPerson) {
         if (!shouldSimulateUnreliableNetwork || RANDOM_GENERATOR.nextDouble() > MODIFY_PERSON_PROBABILITY) return;
-        System.out.println("Cloud simulator: modifying person '" + cloudPerson + "'");
+        logger.info("Cloud simulator: modifying person '" + cloudPerson + "'");
         cloudPerson.setCity(java.util.UUID.randomUUID().toString());
         cloudPerson.setStreet(java.util.UUID.randomUUID().toString());
         cloudPerson.setPostalCode(String.valueOf(RANDOM_GENERATOR.nextInt(999999)));
@@ -631,7 +635,7 @@ public class CloudSimulator implements ICloudSimulator {
 
     private void modifyCloudTagBasedOnChance(CloudTag cloudTag) {
         if (!shouldSimulateUnreliableNetwork || RANDOM_GENERATOR.nextDouble() > MODIFY_TAG_PROBABILITY) return;
-        System.out.println("Cloud simulator: modifying tag '" + cloudTag + "'");
+        logger.info("Cloud simulator: modifying tag '" + cloudTag + "'");
         cloudTag.setName(UUID.randomUUID().toString());
     }
 
@@ -640,7 +644,7 @@ public class CloudSimulator implements ICloudSimulator {
         try {
             TimeUnit.SECONDS.sleep(delayAmount);
         } catch (InterruptedException e) {
-            System.out.println("Error occurred while delaying cloud response.");
+            logger.info("Error occurred while delaying cloud response.");
         }
     }
 

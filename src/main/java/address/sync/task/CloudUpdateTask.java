@@ -5,12 +5,15 @@ import address.model.datatypes.tag.Tag;
 import address.model.datatypes.UniqueData;
 import address.prefs.PrefsManager;
 import address.sync.CloudService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CloudUpdateTask implements Runnable {
+    private static final Logger logger = LogManager.getLogger(CloudUpdateTask.class);
     private final CloudService simulator;
     private final List<Person> personsData;
     private final List<Tag> tagsData;
@@ -24,7 +27,7 @@ public class CloudUpdateTask implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Requesting changes to the cloud: " + System.nanoTime());
+        logger.info("Requesting changes to the cloud: " + System.nanoTime());
 
         List<UniqueData> allData = new ArrayList<>();
         allData.addAll(personsData);
@@ -37,7 +40,7 @@ public class CloudUpdateTask implements Runnable {
         /*try {
             simulator.requestChangesToCloud(mirrorFile, personsData, tagsData);
         } catch (JAXBException e) {
-            System.out.println("Error requesting changes to the cloud");
+            logger.info("Error requesting changes to the cloud");
         }*/
     }
 }

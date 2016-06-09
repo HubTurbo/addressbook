@@ -39,7 +39,7 @@ public class BackupManager {
         File mainAppJar = FileUtil.getJarFileOfClass(MainApp.class);
 
         if (isRunFromBackupJar(mainAppJar.getName())) {
-            System.out.println("Run from a backup; not creating backup");
+            logger.info("Run from a backup; not creating backup");
             return true;
         }
 
@@ -48,7 +48,7 @@ public class BackupManager {
         try {
             FileUtil.copyFile(mainAppJar.toPath(), Paths.get(backupFilename), true);
         } catch (IOException e) {
-            System.out.println("Failed to create backup");
+            logger.info("Failed to create backup");
             e.printStackTrace();
             return false;
         }
@@ -81,13 +81,13 @@ public class BackupManager {
         List<Version> deletedVersions = new ArrayList<>();
 
         for (int i = 0; i < (allBackupFilenames.size() - MAX_BACKUP_JAR_KEPT); i++) {
-            System.out.println("Deleting " + allBackupFilenames.get(i));
+            logger.info("Deleting " + allBackupFilenames.get(i));
 
             try {
                 FileUtil.deleteFile(allBackupFilenames.get(i));
                 deletedVersions.add(getVersionOfBackupFileFromFilename(allBackupFilenames.get(i)));
             } catch (IOException e) {
-                System.out.println("Failed to delete old HT backup file " + allBackupFilenames.get(i));
+                logger.info("Failed to delete old HT backup file " + allBackupFilenames.get(i));
                 e.printStackTrace();
             }
         }
@@ -112,7 +112,7 @@ public class BackupManager {
             try {
                 FileUtil.deleteFile(new File(dep));
             } catch (IOException e) {
-                System.out.println("Failed to delete unused dependency - " + dep);
+                logger.info("Failed to delete unused dependency - " + dep);
                 e.printStackTrace();
             }
         });

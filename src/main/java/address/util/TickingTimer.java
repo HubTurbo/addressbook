@@ -144,7 +144,7 @@ public class TickingTimer {
             started = false;
         }
 
-        System.out.println("Stopping TickingTimer " + name);
+        logger.info("Stopping TickingTimer " + name);
         executor.shutdown();
         try {
             executor.awaitTermination(TICK_PERIOD, timeUnit);
