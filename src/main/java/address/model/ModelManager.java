@@ -41,9 +41,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
     }
 
     public ModelManager(AddressBook src) {
-        System.out.println("Data found.");
-        System.out.println("Persons found : " + src.getPersons().size());
-        System.out.println("Tags found : " + src.getTags().size());
+        logger.info("Initializing model manager with: {} persons, {} tags", src.getAllPersonsReadOnly().size(), src.getAllTagsReadOnly().size());
 
         backingModel = new AddressBook(src);
         visibleModel = backingModel.createVisibleAddressBook();
