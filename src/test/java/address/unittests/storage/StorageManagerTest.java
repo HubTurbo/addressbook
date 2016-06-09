@@ -43,7 +43,8 @@ public class StorageManagerTest {
         modelManagerMock = Mockito.mock(ModelManager.class);
         eventManagerMock = Mockito.mock(EventManager.class);
         prefsManagerMock = Mockito.mock(PrefsManager.class);
-        storageManager = new StorageManager(modelManagerMock, prefsManagerMock, eventManagerMock);
+        storageManager = new StorageManager(modelManagerMock, prefsManagerMock);
+        storageManager.setEventManager(eventManagerMock);
 
         // This spy will be used to mock only one method of the object under test
         storageManagerSpy = spy(storageManager);
