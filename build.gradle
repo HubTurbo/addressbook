@@ -51,7 +51,6 @@ allprojects {
         powermockVersion = '1.6.5'
         testFxVersion = '3.1.0'
 
-        outputDir = 'build/libs'
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         jarUpdaterArchiveName = 'jarUpdater.jar'
     }
@@ -61,6 +60,42 @@ allprojects {
             xml.enabled false
             csv.enabled false
             html.destination "${buildDir}/jacocoHtml"
+        }
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDir 'src/main/java'
+                exclude('installer/**/*')
+            }
+            resources {
+                srcDir 'src/main/resources'
+            }
+        }
+        installer {
+            java {
+                srcDir 'src/main/java/'
+                include('installer/**/*')
+                exclude('installer/UpdateDataGenerator.java')
+                include('address/util/FileUtil.java')
+                include('address/util/OsDetector.java')
+                include('address/util/ProgressAwareInputStream.java')
+                include('address/util/JsonUtil.java')
+                include('address/updater/model/UpdateData.java')
+                include('address/updater/model/LibraryDescriptor.java')
+            }
+            resources {
+                srcDir jar.getArchivePath().getParent()
+                include(project.ext.mainAppArchiveName)
+                include('lib/*')
+                exclude('lib/jxbrowser-*-*.jar') // platform specific jxbrowser
+            }
+        }
+        generateUpdateData {
+            java {
+                srcDir 'src/main/java/'
+            }
         }
     }
 
@@ -91,6 +126,28 @@ allprojects {
         testCompile "org.powermock:powermock-api-mockito:$powermockVersion"
         testCompile "org.powermock:powermock-module-junit4:$powermockVersion"
         testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
+
+        installerCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+        installerCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
+    }
+
+    configurations {
+        generateUpdateDataCompile {
+            extendsFrom compile
+        }
+    }
+
+    task generateUpdateData(type: JavaExec) {
+        group = "Release"
+
+        def arguments = project.ext.mainAppArchiveName + " ";
+        arguments += configurations.runtime.files.collect { "$it.name" }.join(" ")
+
+        classpath = sourceSets.generateUpdateData.runtimeClasspath
+
+        main = 'installer.UpdateDataGenerator'
+
+        args arguments.split()
     }
 
     task createJarUpdater(type: Jar) {
@@ -118,7 +175,7 @@ allprojects {
         group = "Release"
 
         from configurations.compile
-        into project.ext.outputDir + '/lib'
+        into file(jar.getArchivePath().getParent() + '/lib')
     }
 
 
@@ -140,6 +197,9 @@ allprojects {
 
         }
         archiveName = project.ext.mainAppArchiveName
+        from(rootDir) {
+            include 'UpdateData.json'
+        }
     }
 
     jar.dependsOn copyDependencyLibrariesToReleaseDir
@@ -158,33 +218,19 @@ allprojects {
 
     createMainAppExecutable.dependsOn clean
 
-    sourceSets {
-        installer {
-            java {
-                srcDir 'src/main/java/'
-                include('installer/**/*')
-                include('address/util/FileUtil.java')
-                include('address/util/OsDetector.java')
-                include('address/util/ProgressAwareInputStream.java')
-            }
-            resources {
-                srcDir project.ext.outputDir
-                include(project.ext.mainAppArchiveName)
-                include('lib/*')
-                exclude('lib/jxbrowser-*-*.jar') // platform specific jxbrowser
-            }
-        }
-    }
-
     task createInstallerJar(type: Jar) {
         group = "Release"
 
         from sourceSets.installer.output
+        from(rootDir) {
+            include 'UpdateData.json'
+        }
 
         manifest {
             attributes 'Implementation-Title': 'Addressbook',
                     'Implementation-Version': '1.0',
-                    'Main-Class': 'installer.Installer'
+                    'Main-Class': 'installer.Installer',
+                    'Class-Path': configurations.installerRuntime.files.collect { "lib/${it.name}" }.join(" ")
         }
 
         archiveName = "addressbook.jar"

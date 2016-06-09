@@ -21,7 +21,7 @@ public class BackupManager {
     private static final String BACKUP_FILENAME_STRING_FORMAT =
             "addressbook" + BACKUP_MARKER + Version.getCurrentVersion().toString() + ".jar";
     private static final String BACKUP_FILENAME_PATTERN_STRING =
-            "addressbook" + BACKUP_MARKER + Version.VERSION_PATTERN_STRING +"\\.(jar|JAR)$";
+            "addressbook" + BACKUP_MARKER + "(" + Version.VERSION_PATTERN_STRING + ")\\.(jar|JAR)$";
 
     private DependencyTracker dependencyTracker;
 
@@ -75,7 +75,7 @@ public class BackupManager {
         List<String> allBackupFilenames = getAllBackupFilenamesAsideFromCurrent();
 
         // delete unused backups and remember their versions
-        List<Integer> deletedVersions = new ArrayList<>();
+        List<Version> deletedVersions = new ArrayList<>();
 
         for (int i = 0; i < (allBackupFilenames.size() - MAX_BACKUP_JAR_KEPT); i++) {
             System.out.println("Deleting " + allBackupFilenames.get(i));
@@ -149,18 +149,18 @@ public class BackupManager {
     }
 
     /**
-     * Gets version of HubTurbo from Jar backup file.
-     * Expects filename in format "HubTurbo_V[major].[minor].[patch].jar".
-     * @param filename filename of HT backup JAR, in format "HubTurbo_V[major].[minor].[patch].jar"
-     * @return version of HT of backup JAR
+     * Gets version of Jar backup file.
+     * Expects filename in format "addressbook_V[major].[minor].[patch].jar".
+     * @param filename filename of addressbook backup JAR, in format "addressbook_V[major].[minor].[patch].jar"
+     * @return version of backup JAR
      */
-    private Integer getVersionOfBackupFileFromFilename(String filename) {
+    private Version getVersionOfBackupFileFromFilename(String filename) {
         Pattern htJarBackupFilenamePattern = Pattern.compile(BACKUP_FILENAME_PATTERN_STRING);
         Matcher htJarBackupFilenameMatcher = htJarBackupFilenamePattern.matcher(filename);
         if (!htJarBackupFilenameMatcher.find()) {
             assert false;
         }
 
-        return Integer.parseInt(htJarBackupFilenameMatcher.group(1));
+        return Version.fromString(htJarBackupFilenameMatcher.group(1));
     }
 }

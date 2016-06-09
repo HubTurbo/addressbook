@@ -3,9 +3,7 @@ package address.updater;
 import address.events.EventManager;
 import address.events.UpdaterFinishedEvent;
 import address.events.UpdaterInProgressEvent;
-import address.updater.model.FileUpdateDescriptor;
 import address.updater.model.UpdateData;
-import address.updater.model.VersionDescriptor;
 import address.util.JsonUtil;
 import address.util.OsDetector;
 import address.util.FileUtil;
@@ -33,6 +31,7 @@ public class UpdateManager {
     private static final String MSG_FAIL_DOWNLOAD_UPDATE = "Downloading update failed";
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR updater";
+    private static final String MSG_FAIL_MAIN_APP_URL = "Main app download link is broken";
     private static final String MSG_NO_UPDATE_DATA = "There is no update data to be processed";
     private static final String MSG_NO_UPDATE = "There is no update";
     private static final String MSG_NO_VERSION_AVAILABLE = "No version to be downloaded";
@@ -96,7 +95,8 @@ public class UpdateManager {
             return;
         }
 
-        if (downloadedVersions.contains(latestVersion.get())) {
+        if (downloadedVersions.contains(latestVersion.get()) ||
+                Version.getCurrentVersion().equals(latestVersion.get())) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
             System.out.println("UpdateManager - " + MSG_NO_NEWER_VERSION);
             return;
@@ -104,7 +104,15 @@ public class UpdateManager {
 
         EventManager.getInstance().post(new UpdaterInProgressEvent(
                 "Collecting all update files that are to be downloaded", -1));
-        HashMap<String, URL> filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(updateData.get());
+        HashMap<String, URL> filesToBeUpdated;
+        try {
+            filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(updateData.get());
+        } catch (MalformedURLException e) {
+            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_MAIN_APP_URL));
+            System.out.println("UpdateManager - " + MSG_FAIL_MAIN_APP_URL);
+            return;
+        }
+
 
         if (filesToBeUpdated.isEmpty()) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_UPDATE));
@@ -150,14 +158,6 @@ public class UpdateManager {
      */
     private Optional<UpdateData> getUpdateDataFromServer() {
         try {
-            FileUtil.createFile(UPDATE_DATA_FILE);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("UpdateManager - Failed to create update data file");
-            return Optional.empty();
-        }
-
-        try {
             downloadFile(UPDATE_DATA_FILE, new URL(UPDATE_DATA_ON_SERVER));
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -180,43 +180,36 @@ public class UpdateManager {
     }
 
     private Optional<Version> getLatestVersion(UpdateData updateData) {
-        ArrayList<VersionDescriptor> versionFileChanges = updateData.getAllVersionFileChanges();
+        try {
+            return Optional.of(Version.fromString(updateData.getVersion()));
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
 
-        return versionFileChanges.stream().map(VersionDescriptor::getVersion).max(Version::compareTo);
+        return Optional.empty();
     }
 
-    private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(UpdateData updateData) {
-        FileUpdateDescriptor.Os machineOs;
+    private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(UpdateData updateData)
+            throws MalformedURLException {
+        OsDetector.Os machineOs = OsDetector.getOs();
 
-        if (OsDetector.isOnWindows()) {
-            machineOs = FileUpdateDescriptor.Os.WINDOWS;
-        } else if (OsDetector.isOnMac()) {
-            machineOs = FileUpdateDescriptor.Os.MAC;
-        } else if (OsDetector.isOn32BitsLinux()) {
-            machineOs = FileUpdateDescriptor.Os.LINUX32;
-        } else if (OsDetector.isOn64BitsLinux()) {
-            machineOs = FileUpdateDescriptor.Os.LINUX64;
-        } else {
+        if (machineOs == OsDetector.Os.UNKNOWN) {
             System.out.println("UpdateManager - OS not supported for updating");
             return new HashMap<>();
         }
 
-        ArrayList<VersionDescriptor> versionFileChanges = updateData.getAllVersionFileChanges();
-
-        List<VersionDescriptor> relevantVersionFileChanges = versionFileChanges.stream()
-                .filter(versionChangesDescriptor ->
-                        versionChangesDescriptor.getVersion().compareTo(Version.getCurrentVersion()) > 0)
-                .sorted().collect(Collectors.toList());
-
         HashMap<String, URL> filesToBeDownloaded = new HashMap<>();
 
-        for (VersionDescriptor versionDescriptor : relevantVersionFileChanges) {
-            versionDescriptor.getFileUpdateDescriptors().stream()
-                    .filter(fileUpdateDescriptor -> fileUpdateDescriptor.getOs() == FileUpdateDescriptor.Os.ALL ||
-                            fileUpdateDescriptor.getOs() == machineOs)
-                    .forEach(fileUpdateDescriptor -> filesToBeDownloaded.put(fileUpdateDescriptor.getDestinationFile(),
-                            fileUpdateDescriptor.getDownloadLink()));
-        }
+        URL mainAppDownloadLink;
+
+        mainAppDownloadLink = updateData.getDownloadLinkForMainApp();
+
+        filesToBeDownloaded.put("addressbook.jar", mainAppDownloadLink);
+
+        updateData.getLibraries().stream()
+                .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == OsDetector.getOs())
+                .filter(libDesc -> !FileUtil.isFileExists("lib/" + libDesc.getFilename()))
+                .forEach(libDesc -> filesToBeDownloaded.put("lib/" + libDesc.getFilename(), libDesc.getDownloadLink()));
 
         return filesToBeDownloaded;
     }
@@ -248,7 +241,7 @@ public class UpdateManager {
     private void downloadFile(File targetFile, URL source) throws IOException {
         try (InputStream in = source.openStream()) {
             if (!FileUtil.createFile(targetFile)) {
-                System.out.println("File already exists");
+                System.out.println("File already exists - " + targetFile);
             }
             Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {

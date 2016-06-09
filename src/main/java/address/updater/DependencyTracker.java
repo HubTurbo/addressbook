@@ -1,6 +1,7 @@
 package address.updater;
 
 import address.MainApp;
+import address.updater.model.UpdateData;
 import address.util.FileUtil;
 import address.util.JsonUtil;
 import address.util.OsDetector;
@@ -125,32 +126,23 @@ public class DependencyTracker {
     }
 
     private void excludePlatformSpecificDependencies(List<String> dependencies) {
-        List<String> windowsDependencies = new ArrayList<>();
-        windowsDependencies.add("lib/jxbrowser-win-6.4.jar");
-        List<String> macDependencies = new ArrayList<>();
-        macDependencies.add("lib/jxbrowser-mac-6.4.jar");
-        List<String> linux32Dependencies = new ArrayList<>();
-        linux32Dependencies.add("lib/jxbrowser-linux32-6.4.jar");
-        List<String> linux64Dependencies = new ArrayList<>();
-        linux64Dependencies.add("lib/jxbrowser-linux64-6.4.jar");
+        String json = FileUtil.readFromInputStream(MainApp.class.getResourceAsStream("/UpdateData.json"));
 
-        if (OsDetector.isOnWindows()) {
-            dependencies.removeAll(macDependencies);
-            dependencies.removeAll(linux32Dependencies);
-            dependencies.removeAll(linux64Dependencies);
-        } else if (OsDetector.isOnMac()) {
-            dependencies.removeAll(windowsDependencies);
-            dependencies.removeAll(linux32Dependencies);
-            dependencies.removeAll(linux64Dependencies);
-        } else if (OsDetector.isOn32BitsLinux()) {
-            dependencies.removeAll(windowsDependencies);
-            dependencies.removeAll(macDependencies);
-            dependencies.removeAll(linux64Dependencies);
-        } else if (OsDetector.isOn64BitsLinux()) {
-            dependencies.removeAll(windowsDependencies);
-            dependencies.removeAll(macDependencies);
-            dependencies.removeAll(linux32Dependencies);
+        UpdateData updateData;
+
+        try {
+            updateData = JsonUtil.fromJsonString(json, UpdateData.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
         }
+
+        List<String> librariesNotForCurrentMachine =  updateData.getLibraries().stream()
+                .filter(libDesc -> libDesc.getOs() != OsDetector.Os.ANY && libDesc.getOs() != OsDetector.getOs())
+                .map(libDesc -> "lib/" + libDesc.getFilename())
+                .collect(Collectors.toList());
+
+        dependencies.removeAll(librariesNotForCurrentMachine);
     }
 
     /**

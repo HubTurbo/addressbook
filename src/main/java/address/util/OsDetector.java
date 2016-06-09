@@ -10,6 +10,10 @@ import java.io.InputStreamReader;
 public class OsDetector {
     private static final String osName = System.getProperty("os.name");
 
+    public enum Os {
+        WINDOWS, MAC, LINUX32, LINUX64, ANY, UNKNOWN
+    }
+
     public enum Architecture {
         UNKNOWN, X86_64, I386, I686
     }
@@ -42,6 +46,20 @@ public class OsDetector {
 
     public static boolean isOnLinux() {
         return osName.startsWith("Linux");
+    }
+
+    public static Os getOs() {
+        if (isOnWindows()) {
+            return Os.WINDOWS;
+        } else if (isOnMac()) {
+            return Os.MAC;
+        } else if (isOn32BitsLinux()) {
+            return Os.LINUX32;
+        } else if (isOn64BitsLinux()) {
+            return Os.LINUX64;
+        } else {
+            return Os.UNKNOWN;
+        }
     }
 
     private static Architecture unknownArchitecture(Exception e) {
