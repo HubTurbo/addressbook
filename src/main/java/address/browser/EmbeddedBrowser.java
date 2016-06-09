@@ -15,6 +15,5 @@ public interface EmbeddedBrowser {
     void dispose();
     URL getUrl() throws MalformedURLException;
     String getUrlString();
-    String getBaseUrl();
 
 }

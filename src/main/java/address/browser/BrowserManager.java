@@ -1,5 +1,7 @@
 package address.browser;
 
+import address.MainApp;
+import address.browser.page.GithubProfilePage;
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
 import address.exceptions.IllegalArgumentSizeException;
@@ -13,8 +15,11 @@ import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
 
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
@@ -25,8 +30,7 @@ import java.util.stream.Collectors;
  */
 public class BrowserManager {
 
-    public static final int NUMBER_OF_PRELOADED_PAGE = 3;
-    public static final int PERSON_NOT_FOUND = -1;
+    private static final String FXML_BROWSER_PLACE_HOLDER_SCREEN = "/view/DefaultBrowserPlaceHolderScreen.fxml";
 
     private ObservableList<Person> filteredPersons;
 
@@ -40,7 +44,7 @@ public class BrowserManager {
             return;
         }
         EventManager.getInstance().registerHandler(this);
-        hyperBrowser = Optional.of(new HyperBrowser(NUMBER_OF_PRELOADED_PAGE));
+        hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.NUMBER_OF_PRELOADED_PAGE, getBrowserInitialScreen()));
     }
 
     @Subscribe
@@ -52,11 +56,22 @@ public class BrowserManager {
         updateBrowserContent();
     }
 
+    private Optional<Node> getBrowserInitialScreen(){
+        String fxmlResourcePath = FXML_BROWSER_PLACE_HOLDER_SCREEN;
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            return Optional.ofNullable(loader.load());
+        } catch (IOException e){
+            return Optional.empty();
+        }
+    }
+
     /**
      * Updates the browser contents.
      */
     private synchronized void updateBrowserContent() {
-        ArrayList<URL> pagesPerson = hyperBrowser.get().getActivePagesUrl();
+        ArrayList<URL> pagesPerson = hyperBrowser.get().getCachedPagesUrl();
         pagesPerson.stream().forEach(personUrl -> {
                 Optional<Person> personFound = filteredPersons.stream().filter(person
                         -> UrlUtil.compareBaseUrls(person.profilePageUrl(), personUrl)).findAny();
@@ -84,27 +99,18 @@ public class BrowserManager {
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
         ArrayList<Person> listOfPersonToLoadInFuture = getListOfPersonToLoadInFuture(filteredPersons,
-                                                                         indexOfPersonInListOfContacts);
+                                                                                     indexOfPersonInListOfContacts);
         try {
             ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
-                                                                     .map(p -> p.profilePageUrl())
-                                                                     .collect(Collectors.toCollection(ArrayList::new));
-            hyperBrowser.get().loadPersonPage(person.profilePageUrl(), listOfFutureUrl);
+                                                                       .map(p -> p.profilePageUrl())
+                                                                       .collect(Collectors.toCollection(ArrayList::new));
+            GithubProfilePage page = (GithubProfilePage) hyperBrowser.get().loadUrls(person.profilePageUrl(),
+                                                                                     listOfFutureUrl);
         } catch (IllegalArgumentSizeException e) {
             e.printStackTrace();
-            //Will never go into here if preconditions of loadPersonPage is fulfilled.
+            assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
         }
     }
-
-    /**
-     * Pre-loads a list of person's profile page into the pool of pages.
-     * @param listOfPerson The list of person whose profile pages are to be preloaded to the pool of browsers.
-     */
-    /*
-    private void preloadAdditionalPersonProfile(ArrayList<Person> listOfPerson) {
-        listOfPerson.stream().forEach(p -> hyperBrowser.get().loadPersonPage(p));
-    }
-    */
 
     /**
      * Gets a list of person that are needed to be loaded to the browser in future.
@@ -112,7 +118,7 @@ public class BrowserManager {
     private ArrayList<Person> getListOfPersonToLoadInFuture(List<Person> filteredPersons, int indexOfPerson) {
         ArrayList<Person> listOfRequiredPerson = new ArrayList<>();
 
-        for (int i = 1; i < NUMBER_OF_PRELOADED_PAGE && i < filteredPersons.size(); i++){
+        for (int i = 1; i < HyperBrowser.NUMBER_OF_PRELOADED_PAGE && i < filteredPersons.size(); i++){
             listOfRequiredPerson.add(new Person(filteredPersons.get((indexOfPerson + i) % filteredPersons.size())));
         }
         return listOfRequiredPerson;

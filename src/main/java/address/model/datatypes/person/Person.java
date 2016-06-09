@@ -189,10 +189,10 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
         URL url = null;
 
         try {
-            url = new URL("https://www.github.com/" + githubUserName.get());
+            url = new URL("https://github.com/" + githubUserName.get());
         } catch (MalformedURLException e) {
             try {
-                url = new URL("https://www.github.com");
+                url = new URL("https://github.com");
             } catch (MalformedURLException e1) {
                 assert false;
             }

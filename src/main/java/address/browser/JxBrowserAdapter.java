@@ -36,7 +36,6 @@ public class JxBrowserAdapter implements EmbeddedBrowser {
 
     @Override
     public URL getUrl() throws MalformedURLException {
-
         return new URL(getUrlString());
     }
 
@@ -44,23 +43,5 @@ public class JxBrowserAdapter implements EmbeddedBrowser {
     public String getUrlString() {
         return browserView.getBrowser().getURL();
     }
-
-    @Override
-    public String getBaseUrl() {
-
-        URL url = null;
-        String parsedString;
-        try {
-            url = new URL(getUrlString());
-            parsedString = url.toURI().normalize().toASCIIString();
-        } catch (MalformedURLException e) {
-            return "";
-        } catch (URISyntaxException e) {
-            return "";
-        }
-        return parsedString;
-        //return url.getProtocol() + "://" + url.getHost() + url.getPath();
-    }
-
 
 }

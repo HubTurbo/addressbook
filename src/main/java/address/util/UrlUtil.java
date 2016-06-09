@@ -25,7 +25,7 @@ public class UrlUtil {
 
     public static boolean compareBaseUrls(URL url1, URL url2) {
         try {
-            return url1.toURI().normalize().equals(url2.toURI().normalize())
+            return url1.toURI().normalize().equals(url2.toURI().normalize());
         } catch (URISyntaxException e) {
             return false;
         }

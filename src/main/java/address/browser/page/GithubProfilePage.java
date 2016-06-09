@@ -12,5 +12,5 @@ public class GithubProfilePage extends Page {
         super(browser);
     }
 
-
+    //TODO: Implement automate clicking and scrolling here.
 }
