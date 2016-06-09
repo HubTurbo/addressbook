@@ -1,9 +1,8 @@
 package address.model.datatypes;
 
 import address.model.VisibleModel;
-import address.model.datatypes.person.ObservableViewablePerson;
 import address.model.datatypes.person.Person;
-import address.model.datatypes.person.ReadableViewablePerson;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
@@ -56,12 +55,12 @@ public class VisibleAddressBook implements VisibleModel {
     }
 
     @Override
-    public ObservableList<ObservableViewablePerson> getAllViewablePersonsAsObservable() {
+    public ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsAsObservable() {
         return new UnmodifiableObservableList<>(allPersons);
     }
 
     @Override
-    public ObservableList<ReadableViewablePerson> getAllViewablePersonsAsReadOnly() {
+    public ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsAsReadOnly() {
         return new UnmodifiableObservableList<>(allPersons);
     }
 

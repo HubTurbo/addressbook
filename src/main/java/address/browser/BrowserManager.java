@@ -2,7 +2,7 @@ package address.browser;
 
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
-import address.model.datatypes.person.ReadableViewablePerson;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -27,9 +27,9 @@ public class BrowserManager {
 
     private Optional<AddressBookBrowser> browser;
 
-    private ObservableList<ReadableViewablePerson> persons;
+    private ObservableList<ReadOnlyViewablePerson> persons;
 
-    public BrowserManager(ObservableList<ReadableViewablePerson> persons) {
+    public BrowserManager(ObservableList<ReadOnlyViewablePerson> persons) {
         this.persons = persons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
@@ -55,13 +55,13 @@ public class BrowserManager {
      * Updates the browser contents.
      */
     private void updateBrowserContent() {
-        List<ReadableViewablePerson> personsInBrowserCache = browser.get().getPersonsLoadedInCache();
+        List<ReadOnlyViewablePerson> personsInBrowserCache = browser.get().getPersonsLoadedInCache();
         personsInBrowserCache.stream().forEach(person -> {
                 if (persons.indexOf(person) == PERSON_NOT_FOUND){
                     browser.get().unloadProfilePage(person);
                 } else {
                     int indexOfContact = persons.indexOf(person);
-                    ReadableViewablePerson updatedPerson = persons.get(indexOfContact);
+                    ReadOnlyViewablePerson updatedPerson = persons.get(indexOfContact);
 
                     if (!updatedPerson.getGithubUserName().equals(person.getGithubUserName())){
                         browser.get().unloadProfilePage(person);
@@ -82,7 +82,7 @@ public class BrowserManager {
      * Loads the person's profile page to the browser.
      * PreCondition: filteredModelPersons.size() >= 1
      */
-    public void loadProfilePage(ReadableViewablePerson person){
+    public void loadProfilePage(ReadOnlyViewablePerson person){
         if (!browser.isPresent()) return;
         browser.get().loadProfilePage(person);
     }

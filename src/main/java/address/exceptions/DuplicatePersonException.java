@@ -1,12 +1,12 @@
 package address.exceptions;
 
-import address.model.datatypes.person.ReadablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 
 public class DuplicatePersonException extends DuplicateDataException {
 
-    public final ReadablePerson offender;
+    public final ReadOnlyPerson offender;
 
-    public DuplicatePersonException(ReadablePerson dup) {
+    public DuplicatePersonException(ReadOnlyPerson dup) {
         offender = dup;
     }
 

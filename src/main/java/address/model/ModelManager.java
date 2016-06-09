@@ -89,7 +89,7 @@ public class ModelManager implements Model, VisibleModel {
      * @return all persons in visible model IN AN UNMODIFIABLE VIEW
      */
     @Override
-    public ObservableList<ObservableViewablePerson> getAllViewablePersonsAsObservable() {
+    public ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsAsObservable() {
         return visibleModel.getAllViewablePersonsAsObservable();
     }
 
@@ -97,7 +97,7 @@ public class ModelManager implements Model, VisibleModel {
      * @return all persons in visible model IN AN UNMODIFIABLE VIEW
      */
     @Override
-    public ObservableList<ReadableViewablePerson> getAllViewablePersonsAsReadOnly() {
+    public ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsAsReadOnly() {
         return visibleModel.getAllViewablePersonsAsReadOnly();
     }
 
@@ -132,7 +132,7 @@ public class ModelManager implements Model, VisibleModel {
      * Adds a person to the model
      * @throws DuplicatePersonException when this operation would cause duplicates
      */
-    public synchronized void addPerson(ReadablePerson personToAdd) throws DuplicatePersonException {
+    public synchronized void addPerson(ReadOnlyPerson personToAdd) throws DuplicatePersonException {
         final Person toAdd = new Person(personToAdd);
         if (getAllPersons().contains(toAdd)) {
             throw new DuplicatePersonException(personToAdd);
@@ -189,7 +189,7 @@ public class ModelManager implements Model, VisibleModel {
      * @param target The Person object to be changed.
      * @param updatedData The temporary Person object containing new values.
      */
-    public synchronized void updatePerson(ReadablePerson target, ReadablePerson updatedData) throws DuplicatePersonException {
+    public synchronized void updatePerson(ReadOnlyPerson target, ReadOnlyPerson updatedData) throws DuplicatePersonException {
         if (!target.equals(updatedData) && getAllPersons().contains(updatedData)) {
             throw new DuplicatePersonException(updatedData);
         }
@@ -221,7 +221,7 @@ public class ModelManager implements Model, VisibleModel {
      * @param personToDelete
      * @return true if there was a successful removal
      */
-    public synchronized boolean deletePerson(ReadablePerson personToDelete){
+    public synchronized boolean deletePerson(ReadOnlyPerson personToDelete){
         return getAllPersons().remove(personToDelete);
     }
 
@@ -230,7 +230,7 @@ public class ModelManager implements Model, VisibleModel {
      * @param toDelete
      * @return true if there was at least one successful removal
      */
-    public synchronized boolean deletePersons(Collection<? extends ReadablePerson> toDelete) {
+    public synchronized boolean deletePersons(Collection<? extends ReadOnlyPerson> toDelete) {
         return getAllPersons().removeAll(new HashSet<>(toDelete));
     }
 

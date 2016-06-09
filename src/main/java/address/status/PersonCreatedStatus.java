@@ -1,13 +1,13 @@
 package address.status;
 
-import address.model.datatypes.person.ReadablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 
 /**
  * An event triggered when an AddressBook's contact is created.
  */
 public class PersonCreatedStatus extends PersonBaseStatus {
 
-    public PersonCreatedStatus(ReadablePerson person) {
+    public PersonCreatedStatus(ReadOnlyPerson person) {
         super(person);
     }
 

@@ -11,7 +11,7 @@ import java.time.LocalDate;
  * Extends {@link Viewable} for the Person domain object.
  * @see Viewable
  */
-public class ViewablePerson extends Viewable<Person> implements ReadableViewablePerson, ObservableViewablePerson {
+public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewablePerson {
 
     private final BooleanProperty isDeleted;
     private final BooleanProperty isEdited;

@@ -1,7 +1,7 @@
 package address.model.datatypes;
 
 import address.model.datatypes.person.Person;
-import address.model.datatypes.person.ReadablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -76,7 +76,7 @@ public class AddressBook {
         this.tags.setAll(tags);
     }
 
-    public Optional<Person> findPerson(ReadablePerson personToFind) {
+    public Optional<Person> findPerson(ReadOnlyPerson personToFind) {
         for (Person p : persons) {
             if (p.equals(personToFind)) {
                 return Optional.of(p);

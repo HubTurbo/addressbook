@@ -3,7 +3,7 @@ package address.controller;
 import java.io.IOException;
 
 
-import address.model.datatypes.person.ObservableViewablePerson;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -34,9 +34,9 @@ public class PersonCardController {
     @FXML
     private Label tags;
 
-    private ObservableViewablePerson person;
+    private ReadOnlyViewablePerson person;
 
-    public PersonCardController(ObservableViewablePerson person) {
+    public PersonCardController(ReadOnlyViewablePerson person) {
         this.person = person;
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/view/PersonListCard.fxml"));

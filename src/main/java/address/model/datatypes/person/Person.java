@@ -5,6 +5,7 @@ import address.model.datatypes.tag.Tag;
 import address.util.DateTimeUtil;
 import address.util.LocalDateAdapter;
 
+import address.util.collections.UnmodifiableObservableList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -25,9 +26,9 @@ import java.util.Collection;
  * Instead, use and declare the minimum required superclass/interface.
  *
  * Eg. A GUI element controller that only needs access to the Person's properties should declare the received Person
- * as an ObservablePerson -- since it does not need the functionality in the other superclasses/interfaces.
+ * as an ReadOnlyPerson -- since it does not need the functionality in the other superclasses/interfaces.
  */
-public class Person extends BaseDataType implements ReadablePerson, ObservablePerson {
+public class Person extends BaseDataType implements ReadOnlyPerson {
 
     @JsonIgnore private final SimpleStringProperty firstName;
     @JsonIgnore private final SimpleStringProperty lastName;
@@ -78,9 +79,9 @@ public class Person extends BaseDataType implements ReadablePerson, ObservablePe
     /**
      * Deep copy constructor.
      *
-     * @see Person#update(ReadablePerson)
+     * @see Person#update(ReadOnlyPerson)
      */
-    public Person(ReadablePerson toBeCopied) {
+    public Person(ReadOnlyPerson toBeCopied) {
         update(toBeCopied);
     }
 
@@ -89,7 +90,7 @@ public class Person extends BaseDataType implements ReadablePerson, ObservablePe
      *
      * @return self (calling this from a Person returns a Person instead of just a WritablePerson)
      */
-    public Person update(ReadablePerson newDataSource) {
+    public Person update(ReadOnlyPerson newDataSource) {
         setFirstName(newDataSource.getFirstName());
         setLastName(newDataSource.getLastName());
 
@@ -248,7 +249,7 @@ public class Person extends BaseDataType implements ReadablePerson, ObservablePe
     @JsonProperty("tags")
     @Override
     public ObservableList<Tag> getTags() {
-        return tags;
+        return new UnmodifiableObservableList<>(tags);
     }
 
     public void setTags(Collection<Tag> tags) {
@@ -275,7 +276,7 @@ public class Person extends BaseDataType implements ReadablePerson, ObservablePe
         if (other == this) return true;
         if (other == null) return false;
         if (Person.class.isAssignableFrom(other.getClass())) {
-            final ReadablePerson otherPerson = (ReadablePerson) other;
+            final ReadOnlyPerson otherPerson = (ReadOnlyPerson) other;
             return this.getFirstName().equals(otherPerson.getFirstName())
                     && this.getLastName().equals(otherPerson.getLastName());
         }

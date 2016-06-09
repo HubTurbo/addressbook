@@ -1,15 +1,15 @@
 package address.status;
 
-import address.model.datatypes.person.ReadablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 
 /**
  * An event triggered when an AddressBook's contact is edited.
  */
 public class PersonEditedStatus extends PersonBaseStatus {
 
-    private ReadablePerson uneditedPerson;
+    private ReadOnlyPerson uneditedPerson;
 
-    public PersonEditedStatus(ReadablePerson uneditedPerson, ReadablePerson person) {
+    public PersonEditedStatus(ReadOnlyPerson uneditedPerson, ReadOnlyPerson person) {
         super(person);
         this.uneditedPerson = uneditedPerson;
     }

@@ -1,13 +1,13 @@
 package address.status;
 
-import address.model.datatypes.person.ReadablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 
 /**
  * An event triggered when an AddressBook's contact is deleted.
  */
 public class PersonDeletedStatus extends PersonBaseStatus {
 
-    public PersonDeletedStatus(ReadablePerson person) {
+    public PersonDeletedStatus(ReadOnlyPerson person) {
         super(person);
     }
 

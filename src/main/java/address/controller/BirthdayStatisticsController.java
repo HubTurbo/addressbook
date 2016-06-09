@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import address.model.datatypes.person.ReadableViewablePerson;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -47,7 +47,7 @@ public class BirthdayStatisticsController {
      * 
      * @param persons
      */
-    public void setPersonData(List<ReadableViewablePerson> persons) {
+    public void setPersonData(List<ReadOnlyViewablePerson> persons) {
 
         // Count the number of people having their birthday in a specific month.
         int[] monthCounter = new int[12];

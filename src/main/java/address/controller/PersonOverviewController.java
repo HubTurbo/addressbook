@@ -3,9 +3,9 @@ package address.controller;
 import address.events.*;
 import address.exceptions.DuplicatePersonException;
 import address.model.ModelManager;
-import address.model.datatypes.person.ObservableViewablePerson;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.Person;
-import address.model.datatypes.person.ReadablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
@@ -31,7 +31,7 @@ import java.util.concurrent.*;
 public class PersonOverviewController {
 
     @FXML
-    private ListView<ObservableViewablePerson> personListView;
+    private ListView<ReadOnlyViewablePerson> personListView;
 
     @FXML
     private TextField filterField;
@@ -76,7 +76,7 @@ public class PersonOverviewController {
     private void handleDeletePerson() {
         int selectedIndex = personListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
-            ObservableViewablePerson target = personListView.getItems().get(selectedIndex);
+            ReadOnlyViewablePerson target = personListView.getItems().get(selectedIndex);
             mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(target));
 
             personListView.getItems().get(selectedIndex).isDeletedProperty().set(true);
@@ -95,7 +95,7 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleNewPerson() {
-        Optional<ReadablePerson> prevInput = Optional.of(new Person());
+        Optional<ReadOnlyPerson> prevInput = Optional.of(new Person());
         while (true) { // keep re-asking until user provides valid input or cancels operation.
             prevInput = mainController.getPersonDataInput(prevInput.get());
 
@@ -117,14 +117,14 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleEditPerson() {
-        ReadablePerson target = personListView.getSelectionModel().getSelectedItem();
+        ReadOnlyPerson target = personListView.getSelectionModel().getSelectedItem();
         if (target == null) { // no selection
             mainController.showAlertDialogAndWait(AlertType.WARNING, "No Selection",
                 "No Person Selected", "Please select a person in the list.");
             return;
         }
 
-        Optional<ReadablePerson> prevInput = Optional.of(new Person(target));
+        Optional<ReadOnlyPerson> prevInput = Optional.of(new Person(target));
         while (true) { // keep re-asking until user provides valid input or cancels operation.
             prevInput = mainController.getPersonDataInput(prevInput.get());
             if (!prevInput.isPresent()) break;

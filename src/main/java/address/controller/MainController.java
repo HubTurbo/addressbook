@@ -2,10 +2,10 @@ package address.controller;
 
 import address.MainApp;
 import address.events.*;
-import address.model.datatypes.person.ReadablePerson;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.model.ModelManager;
-import address.model.datatypes.person.ObservableViewablePerson;
 import address.util.Config;
 import address.browser.BrowserManager;
 
@@ -173,7 +173,7 @@ public class MainController {
      * @return a defensively copied optional containing the input data from user, or an empty optional if the
      *          operation is to be cancelled.
      */
-    public Optional<ReadablePerson> getPersonDataInput(ReadablePerson defaultData) {
+    public Optional<ReadOnlyPerson> getPersonDataInput(ReadOnlyPerson defaultData) {
         return showPersonEditDialog(defaultData);
     }
 
@@ -185,7 +185,7 @@ public class MainController {
      * @return an optional containing the new data, or an empty optional if there was an error
      *         creating the dialog or the user clicked cancel
      */
-    private Optional<ReadablePerson> showPersonEditDialog(ReadablePerson initialData) {
+    private Optional<ReadOnlyPerson> showPersonEditDialog(ReadOnlyPerson initialData) {
         final String fxmlResourcePath = FXML_PERSON_EDIT_DIALOG;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
@@ -382,7 +382,7 @@ public class MainController {
         browserManager.freeBrowserResources();
     }
 
-    public void loadGithubProfilePage(ObservableViewablePerson person){
+    public void loadGithubProfilePage(ReadOnlyViewablePerson person){
         browserManager.loadProfilePage(person);
     }
 
