@@ -20,6 +20,7 @@ import javafx.collections.ObservableList;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 /**
  * Data-model implementation class representing the "Person" domain object.
@@ -106,6 +107,27 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
         return this;
     }
 
+    // TODO: consider using reflection to access all isassignablefrom(Property) returning methods for maintainability
+    /**
+     * Passes matching property field pairs (paired between self and another ReadOnlyPerson) as arguments to a callback.
+     * The callback is called once for each property field in the ObservabePerson class.
+     *
+     * @param other the ReadOnlyPerson whose property fields make up the second parts of the property pairs
+     * @param action called for every property field: action(self:property, other:same_property)
+     *               first argument is from self, second is from the "other" parameter
+     */
+    public void forEachPropertyFieldPairWith(Person other, BiConsumer<? super Property, ? super Property> action) {
+        action.accept(firstName, other.firstName);
+        action.accept(lastName, other.lastName);
+        action.accept(githubUserName, other.githubUserName);
+
+        action.accept(street, other.street);
+        action.accept(postalCode, other.postalCode);
+        action.accept(city, other.city);
+
+        action.accept(birthday, other.birthday);
+    }
+
 //// NAME
 
     @JsonProperty("firstName")
@@ -119,7 +141,7 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
     }
 
     @Override
-    public StringProperty firstNameProperty() {
+    public ReadOnlyStringProperty firstNameProperty() {
         return firstName;
     }
 
@@ -134,7 +156,7 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
     }
 
     @Override
-    public StringProperty lastNameProperty() {
+    public ReadOnlyStringProperty lastNameProperty() {
         return lastName;
     }
 
@@ -156,7 +178,7 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
     }
 
     @Override
-    public StringProperty githubUserNameProperty() {
+    public ReadOnlyStringProperty githubUserNameProperty() {
         return githubUserName;
     }
 
@@ -188,7 +210,7 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
     }
 
     @Override
-    public StringProperty streetProperty() {
+    public ReadOnlyStringProperty streetProperty() {
         return street;
     }
 
@@ -205,7 +227,7 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
     }
 
     @Override
-    public StringProperty postalCodeProperty() {
+    public ReadOnlyStringProperty postalCodeProperty() {
         return postalCode;
     }
 
@@ -222,7 +244,7 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
     }
 
     @Override
-    public StringProperty cityProperty() {
+    public ReadOnlyStringProperty cityProperty() {
         return city;
     }
 
@@ -241,7 +263,7 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
     }
 
     @Override
-    public ObjectProperty<LocalDate> birthdayProperty() {
+    public ReadOnlyObjectProperty<LocalDate> birthdayProperty() {
         return birthday;
     }
 

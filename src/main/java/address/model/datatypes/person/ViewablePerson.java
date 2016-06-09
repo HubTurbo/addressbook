@@ -62,7 +62,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
     }
 
     @Override
-    public BooleanProperty isDeletedProperty() {
+    public ReadOnlyBooleanProperty isDeletedProperty() {
         return isDeleted;
     }
 
@@ -76,7 +76,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
     }
 
     @Override
-    public BooleanProperty isEditedProperty() {
+    public ReadOnlyBooleanProperty isEditedProperty() {
         return isEdited;
     }
 
@@ -88,37 +88,37 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
 // PERSON ACCESSORS
 
     @Override
-    public StringProperty firstNameProperty() {
+    public ReadOnlyStringProperty firstNameProperty() {
         return visible.firstNameProperty();
     }
 
     @Override
-    public StringProperty lastNameProperty() {
+    public ReadOnlyStringProperty lastNameProperty() {
         return visible.lastNameProperty();
     }
 
     @Override
-    public StringProperty githubUserNameProperty() {
+    public ReadOnlyStringProperty githubUserNameProperty() {
         return visible.githubUserNameProperty();
     }
 
     @Override
-    public StringProperty streetProperty() {
+    public ReadOnlyStringProperty streetProperty() {
         return visible.streetProperty();
     }
 
     @Override
-    public StringProperty postalCodeProperty() {
+    public ReadOnlyStringProperty postalCodeProperty() {
         return visible.postalCodeProperty();
     }
 
     @Override
-    public StringProperty cityProperty() {
+    public ReadOnlyStringProperty cityProperty() {
         return visible.cityProperty();
     }
 
     @Override
-    public ObjectProperty<LocalDate> birthdayProperty() {
+    public ReadOnlyObjectProperty<LocalDate> birthdayProperty() {
         return visible.birthdayProperty();
     }
 

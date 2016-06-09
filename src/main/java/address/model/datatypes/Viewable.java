@@ -1,7 +1,7 @@
 package address.model.datatypes;
 
-import address.model.datatypes.BaseDataType;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
@@ -84,7 +84,7 @@ public abstract class Viewable<D extends BaseDataType> extends BaseDataType {
 
 // APPLICATION STATE ACCESSORS
 
-    public IntegerProperty secondsLeftInPendingStateProperty() {
+    public ReadOnlyIntegerProperty secondsLeftInPendingStateProperty() {
         return secondsLeftInPendingState;
     }
 

@@ -11,6 +11,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
@@ -80,5 +81,14 @@ public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
     @Override
     public ObservableList<Tag> getAllTagsReadOnly() {
         return new UnmodifiableObservableList<>(tags);
+    }
+
+    public Optional<ViewablePerson> findPerson(ReadOnlyPerson toFind) {
+        for (ViewablePerson p : persons) {
+            if (p.equals(toFind)) {
+                return Optional.of(p);
+            }
+        }
+        return Optional.empty();
     }
 }

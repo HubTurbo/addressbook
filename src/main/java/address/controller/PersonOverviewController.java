@@ -39,8 +39,6 @@ public class PersonOverviewController {
     private MainController mainController;
     private ModelManager modelManager;
 
-    private final ScheduledExecutorService requestExecutor = Executors.newScheduledThreadPool(1);
-
     public PersonOverviewController() {
         EventManager.getInstance().registerHandler(this);
     }
@@ -79,9 +77,7 @@ public class PersonOverviewController {
             final ReadOnlyPerson deleteTarget = personListView.getItems().get(selectedIndex);
             mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(deleteTarget));
 
-            personListView.getItems().get(selectedIndex).isDeletedProperty().set(true);
-            requestExecutor.schedule(()
-                    -> Platform.runLater(() -> modelManager.deletePerson(deleteTarget)), 3, TimeUnit.SECONDS);
+            modelManager.delayedDeletePerson(deleteTarget, 1, TimeUnit.SECONDS);
         } else {
             // Nothing selected.
             mainController.showAlertDialogAndWait(AlertType.WARNING,

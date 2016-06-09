@@ -11,10 +11,14 @@ import address.model.datatypes.tag.Tag;
 import address.util.PlatformEx;
 import com.google.common.eventbus.Subscribe;
 
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -25,6 +29,11 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
 
     private final AddressBook backingModel;
     private final ViewableAddressBook visibleModel;
+    private final ScheduledExecutorService scheduler;
+
+    {
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+    }
 
     public ModelManager(AddressBook src) {
         System.out.println("Data found.");
@@ -229,6 +238,14 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      */
     public synchronized boolean deletePerson(ReadOnlyPerson personToDelete){
         return getAllPersons().remove(personToDelete);
+    }
+
+
+    public void delayedDeletePerson(ReadOnlyPerson toDelete, int delay, TimeUnit step) {
+        final Optional<ViewablePerson> deleteTarget = visibleModel.findPerson(toDelete);
+        assert deleteTarget.isPresent();
+        deleteTarget.get().setIsDeleted(true);
+        scheduler.schedule(()-> Platform.runLater(()->deletePerson(toDelete)), delay, step);
     }
 
     /**

@@ -1,10 +1,9 @@
 package address.model.datatypes.person;
 
 import javafx.beans.Observable;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -17,9 +16,9 @@ public interface ReadOnlyViewablePerson extends ReadOnlyPerson {
     boolean isEdited();
     boolean isDeleted();
 
-    IntegerProperty secondsLeftInPendingStateProperty();
-    BooleanProperty isEditedProperty();
-    BooleanProperty isDeletedProperty();
+    ReadOnlyIntegerProperty secondsLeftInPendingStateProperty();
+    ReadOnlyBooleanProperty isEditedProperty();
+    ReadOnlyBooleanProperty isDeletedProperty();
 
     @Override
     default Observable[] extractObservables() {

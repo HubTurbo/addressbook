@@ -3,9 +3,9 @@ package address.model.datatypes.person;
 import address.model.datatypes.ExtractableObservables;
 import address.model.datatypes.tag.Tag;
 import javafx.beans.Observable;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
@@ -47,15 +47,15 @@ public interface ReadOnlyPerson extends ExtractableObservables {
      */
     String tagsString();
 
-    StringProperty firstNameProperty();
-    StringProperty lastNameProperty();
-    StringProperty githubUserNameProperty();
+    ReadOnlyStringProperty firstNameProperty();
+    ReadOnlyStringProperty lastNameProperty();
+    ReadOnlyStringProperty githubUserNameProperty();
 
-    StringProperty streetProperty();
-    StringProperty postalCodeProperty();
-    StringProperty cityProperty();
+    ReadOnlyStringProperty streetProperty();
+    ReadOnlyStringProperty postalCodeProperty();
+    ReadOnlyStringProperty cityProperty();
 
-    ObjectProperty<LocalDate> birthdayProperty();
+    ReadOnlyObjectProperty<LocalDate> birthdayProperty();
 
     /**
      * @return ObservableList unmodifiable view of this Person's tags
@@ -77,27 +77,4 @@ public interface ReadOnlyPerson extends ExtractableObservables {
                 getTags()
         };
     }
-
-    // TODO: consider using reflection to access all isassignablefrom(Property) returning methods for maintainability
-    /**
-     * Passes matching property field pairs (paired between self and another ReadOnlyPerson) as arguments to a callback.
-     * The callback is called once for each property field in the ObservabePerson class.
-     *
-     * @param other the ReadOnlyPerson whose property fields make up the second parts of the property pairs
-     * @param action called for every property field: action(self:property, other:same_property)
-     *               first argument is from self, second is from the "other" parameter
-     */
-    default void forEachPropertyFieldPairWith(ReadOnlyPerson other,
-                                              BiConsumer<? super Property, ? super Property> action) {
-        action.accept(firstNameProperty(), other.firstNameProperty());
-        action.accept(lastNameProperty(), other.lastNameProperty());
-        action.accept(githubUserNameProperty(), other.githubUserNameProperty());
-
-        action.accept(streetProperty(), other.streetProperty());
-        action.accept(postalCodeProperty(), other.postalCodeProperty());
-        action.accept(cityProperty(), other.cityProperty());
-
-        action.accept(birthdayProperty(), other.birthdayProperty());
-    }
-
 }
