@@ -32,7 +32,6 @@ public class MainApp extends Application {
     public static final int VERSION_PATCH = 0;
 
     private static final Logger logger = LogManager.getLogger(MainApp.class);
-    private static final Logger logger2 = LogManager.getLogger("Csv");
 
     protected Config config;
     protected StorageManager storageManager;

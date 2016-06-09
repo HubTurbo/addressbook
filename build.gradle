@@ -50,7 +50,6 @@ allprojects {
         mockServerVersion = '3.10.1'
         powermockVersion = '1.6.5'
         testFxVersion = '3.1.0'
-        commonsCsvVersion = '1.4'
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         jarUpdaterArchiveName = 'jarUpdater.jar'
@@ -103,7 +102,7 @@ allprojects {
     dependencies {
         compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-        compile "org.apache.commons:commons-csv:$commonsCsvVersion"
+        compile "org.slf4j:slf4j-simple:1.6.4"
         compile 'commons-io:commons-io:2.4'
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"

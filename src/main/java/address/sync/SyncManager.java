@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
  * Syncs data between a mirror file and the primary data file
  */
 public class SyncManager {
-    private static final Logger logger = LogManager.getLogger(SyncManager.class.getName());
+    private static final Logger logger = LogManager.getLogger(SyncManager.class);
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ExecutorService requestExecutor = Executors.newCachedThreadPool();

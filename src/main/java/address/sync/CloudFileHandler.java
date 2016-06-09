@@ -11,7 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class CloudFileHandler {
-    private static final Logger logger = LogManager.getLogger(CloudFileHandler.class.getName());
+    private static final Logger logger = LogManager.getLogger(CloudFileHandler.class);
 
     private File getCloudDataFilePath(String addressBookName) {
         return new File("/cloud/" + addressBookName);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="info">
     <Properties>
-        <Property name="filename">addressbook.log</Property>
+        <Property name="filename">addressbook</Property>
     </Properties>
 
     <!-- TRACE, DEBUG, INFO, WARN, ERROR, FATAL -->
@@ -17,19 +17,21 @@
             </Policies>
             <DefaultRolloverStrategy max="5"/>
         </RollingFile>
-        <File name="CsvFile" fileName="addressbook.csv">
-            <CsvParameterLayout delimiter=","/>
-        </File>
+        <RollingFile name="RollingCsvFile" fileName="${filename}" filePattern="${filename}-%i.csv">
+            <PatternLayout pattern="'%thread','%level','%d{HH:mm:ss.SSS}{GMT+8}','%logger{0}','%message'%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
     </Appenders>
 
     <Loggers>
         <Root level="info">
             <AppenderRef ref="STDOUT"/>
             <AppenderRef ref="RollingFile"/>
+            <AppenderRef ref="RollingCsvFile"/>
         </Root>
-        <Logger name="Csv" additivity="false">
-            <AppenderRef ref="CsvFile"/>
-        </Logger>
     </Loggers>
 
 </Configuration>
