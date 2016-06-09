@@ -29,7 +29,7 @@ public class MainApp extends Application {
 
     public static final int VERSION_MAJOR = 0;
     public static final int VERSION_MINOR = 0;
-    public static final int VERSION_PATCH = 0;
+    public static final int VERSION_PATCH = 1;
 
     private static final Logger logger = LogManager.getLogger(MainApp.class);
 

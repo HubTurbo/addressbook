@@ -1,17 +1,21 @@
 {
-  "version" : "V0.0.0",
-  "mainApp" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.0/resource-V0.0.0.jar",
+  "version" : "V0.0.1",
+  "mainApp" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.1/resource-V0.0.1.jar",
   "libraries" : [ {
     "filename" : "license.jar",
     "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.0/license.jar",
     "os" : "ANY"
   }, {
-    "filename" : "log4j-api-2.3.jar",
-    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.0/log4j-api-2.3.jar",
+    "filename" : "log4j-api-2.6.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.1/log4j-api-2.6.jar",
     "os" : "ANY"
   }, {
-    "filename" : "log4j-core-2.3.jar",
-    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.0/log4j-core-2.3.jar",
+    "filename" : "log4j-core-2.6.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.1/log4j-core-2.6.jar",
+    "os" : "ANY"
+  }, {
+    "filename" : "slf4j-simple-1.6.4.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.1/slf4j-simple-1.6.4.jar",
     "os" : "ANY"
   }, {
     "filename" : "commons-io-2.4.jar",
@@ -46,6 +50,10 @@
     "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.0/jxbrowser-linux64-6.4.jar",
     "os" : "LINUX64"
   }, {
+    "filename" : "jkeymaster-1.2.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.1/jkeymaster-1.2.jar",
+    "os" : "ANY"
+  }, {
     "filename" : "jackson-annotations-2.7.0.jar",
     "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.0/jackson-annotations-2.7.0.jar",
     "os" : "ANY"
@@ -54,12 +62,20 @@
     "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.0/jxbrowser-6.4.jar",
     "os" : "ANY"
   }, {
+    "filename" : "jna-4.2.1.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.1/jna-4.2.1.jar",
+    "os" : "ANY"
+  }, {
     "filename" : "jackson-core-2.7.4.jar",
     "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.0/jackson-core-2.7.4.jar",
     "os" : "ANY"
   }, {
     "filename" : "jackson-databind-2.7.4.jar",
     "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.0/jackson-databind-2.7.4.jar",
+    "os" : "ANY"
+  }, {
+    "filename" : "slf4j-api-1.7.13.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.1/slf4j-api-1.7.13.jar",
     "os" : "ANY"
   } ]
 }
