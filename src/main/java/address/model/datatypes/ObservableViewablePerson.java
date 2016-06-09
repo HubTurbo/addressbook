@@ -13,17 +13,6 @@ import java.util.function.Supplier;
  */
 public interface ObservableViewablePerson extends ObservablePerson, ReadableViewablePerson {
 
-    /**
-     * @param subtypeList source list of element type: subclasses of ObservableViewablePersons
-     * @param collectionBuilder desired collection implementation of returned collection
-     * @see ModelManager#upcastToBoundCollection(ObservableList, Supplier)
-     * @return an upcasted read-only collection with element type {@code ObservableViewablePerson}
-     */
-    static <R extends Collection<ObservableViewablePerson>> R readOnlyCollectionCast(
-            ObservableList<? extends ObservableViewablePerson> subtypeList, Supplier<R> collectionBuilder) {
-        return ModelManager.upcastToBoundCollection(subtypeList, collectionBuilder);
-    }
-
     IntegerProperty secondsLeftInPendingStateProperty();
 
     BooleanProperty isEditedProperty();

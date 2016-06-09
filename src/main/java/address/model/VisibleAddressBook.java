@@ -1,6 +1,7 @@
 package address.model;
 
 import address.model.datatypes.*;
+import address.util.collections.UnmodifiableObservableList;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -51,17 +52,17 @@ class VisibleAddressBook implements VisibleModel {
 
     @Override
     public ObservableList<ObservableViewablePerson> getAllViewablePersonsAsObservable() {
-        return ObservableViewablePerson.readOnlyCollectionCast(allPersons, FXCollections::observableArrayList);
+        return new UnmodifiableObservableList<>(allPersons);
     }
 
     @Override
     public ObservableList<ReadableViewablePerson> getAllViewablePersonsAsReadOnly() {
-        return ReadableViewablePerson.readOnlyCollectionCast(allPersons, FXCollections::observableArrayList);
+        return new UnmodifiableObservableList<>(allPersons);
     }
 
     @Override
     public ObservableList<Tag> getAllViewableTags() {
-        return allTags;
+        return new UnmodifiableObservableList<>(allTags);
     }
 
 

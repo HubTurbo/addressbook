@@ -14,18 +14,6 @@ import java.util.function.Supplier;
  */
 public interface ReadablePerson {
 
-    /**
-     * @param subtypeList source list of element type: subclasses of ReadablePersons
-     * @param collectionBuilder desired collection implementation of returned collection
-     * @see ModelManager#upcastToBoundCollection(ObservableList, Supplier)
-     * @return an upcasted read-only collection with element type {@code ReadablePerson}
-     */
-    static <R extends Collection<ReadablePerson>> R readOnlyCollectionCast(
-            ObservableList<? extends ReadablePerson> subtypeList, Supplier<R> collectionBuilder) {
-        return ModelManager.upcastToBoundCollection(subtypeList, collectionBuilder);
-    }
-
-
     String getFirstName();
     String getLastName();
     /**
