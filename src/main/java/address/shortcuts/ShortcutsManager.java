@@ -22,8 +22,8 @@ public class ShortcutsManager extends ComponentManager{
     public static Bindings BINDINGS;
 
 
-    public ShortcutsManager(EventManager eventsManager) {
-        super(eventsManager);
+    public ShortcutsManager() {
+        super();
         BINDINGS = new Bindings();
         registerGlobalHotkeys(BINDINGS.getHotkeys());
     }

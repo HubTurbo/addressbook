@@ -9,9 +9,24 @@ import address.events.EventManager;
 public class ComponentManager {
     protected EventManager eventManager;
 
+    /**
+     * Uses default {@link EventManager}
+     */
+    public ComponentManager(){
+        this(EventManager.getInstance());
+    }
+
     public ComponentManager(EventManager eventManager){
         this.eventManager = eventManager;
         eventManager.registerHandler(this);
+    }
+
+    /**
+     * Injects the {@link EventManager} dependency
+     * @param eventManager
+     */
+    public void setEventManager(EventManager eventManager) {
+        this.eventManager = eventManager;
     }
 
     protected void raise(BaseEvent event){

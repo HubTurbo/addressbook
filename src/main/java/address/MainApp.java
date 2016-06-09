@@ -62,11 +62,11 @@ public class MainApp extends Application {
     protected void setupComponents() {
         config = getConfig();
         modelManager = new ModelManager();
-        storageManager = new StorageManager(modelManager, PrefsManager.getInstance(), EventManager.getInstance());
+        storageManager = new StorageManager(modelManager, PrefsManager.getInstance());
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
 
-        shortcutsManager = new ShortcutsManager(EventManager.getInstance());
+        shortcutsManager = new ShortcutsManager();
 
         updateManager = new UpdateManager();
         alertMissingDependencies();

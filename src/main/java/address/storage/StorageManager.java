@@ -22,10 +22,9 @@ public class StorageManager extends ComponentManager{
     private PrefsManager prefsManager;
 
     public StorageManager(ModelManager modelManager,
-                          PrefsManager prefsManager,
-                          EventManager eventManager){
+                          PrefsManager prefsManager){
 
-        super(eventManager);
+        super();
         this.modelManager = modelManager;
         this.prefsManager = prefsManager;
     }
