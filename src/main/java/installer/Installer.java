@@ -159,15 +159,7 @@ public class Installer extends Application {
                 .collect(Collectors.toList());
 
         for (LibraryDescriptor platformDependentLibrary : platformDependentLibraries) {
-            URL downloadLink;
-            try {
-                downloadLink = new URL(updateData.getDownloadLinkForALibrary(platformDependentLibrary));
-            } catch (MalformedURLException e) {
-                System.out.println("Download link is malformed, will not download library - " +
-                        platformDependentLibrary.getFilename());
-                e.printStackTrace();
-                break;
-            }
+            URL downloadLink = platformDependentLibrary.getDownloadLink();
 
             File libFile = Paths.get("lib", platformDependentLibrary.getFilename()).toFile();
 

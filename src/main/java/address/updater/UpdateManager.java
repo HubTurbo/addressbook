@@ -31,6 +31,7 @@ public class UpdateManager {
     private static final String MSG_FAIL_DOWNLOAD_UPDATE = "Downloading update failed";
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR updater";
+    private static final String MSG_FAIL_MAIN_APP_URL = "Main app download link is broken";
     private static final String MSG_NO_UPDATE_DATA = "There is no update data to be processed";
     private static final String MSG_NO_UPDATE = "There is no update";
     private static final String MSG_NO_VERSION_AVAILABLE = "No version to be downloaded";
@@ -96,7 +97,8 @@ public class UpdateManager {
             return;
         }
 
-        if (downloadedVersions.contains(latestVersion.get()) || Version.getCurrentVersion() == latestVersion.get()) {
+        if (downloadedVersions.contains(latestVersion.get()) ||
+                Version.getCurrentVersion().equals(latestVersion.get())) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
             System.out.println("UpdateManager - " + MSG_NO_NEWER_VERSION);
             return;
@@ -104,7 +106,15 @@ public class UpdateManager {
 
         EventManager.getInstance().post(new UpdaterInProgressEvent(
                 "Collecting all update files that are to be downloaded", -1));
-        HashMap<String, String> filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(updateData.get());
+        HashMap<String, URL> filesToBeUpdated;
+        try {
+            filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(updateData.get());
+        } catch (MalformedURLException e) {
+            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_MAIN_APP_URL));
+            System.out.println("UpdateManager - " + MSG_FAIL_MAIN_APP_URL);
+            return;
+        }
+
 
         if (filesToBeUpdated.isEmpty()) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_UPDATE));
@@ -150,14 +160,6 @@ public class UpdateManager {
      */
     private Optional<UpdateData> getUpdateDataFromServer() {
         try {
-            FileUtil.createFile(UPDATE_DATA_FILE);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("UpdateManager - Failed to create update data file");
-            return Optional.empty();
-        }
-
-        try {
             downloadFile(UPDATE_DATA_FILE, new URL(UPDATE_DATA_ON_SERVER));
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -189,7 +191,8 @@ public class UpdateManager {
         return Optional.empty();
     }
 
-    private HashMap<String, String> collectAllUpdateFilesToBeDownloaded(UpdateData updateData) {
+    private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(UpdateData updateData)
+            throws MalformedURLException {
         OsDetector.Os machineOs = OsDetector.getOs();
 
         if (machineOs == OsDetector.Os.UNKNOWN) {
@@ -197,15 +200,18 @@ public class UpdateManager {
             return new HashMap<>();
         }
 
-        HashMap<String, String> filesToBeDownloaded = new HashMap<>();
+        HashMap<String, URL> filesToBeDownloaded = new HashMap<>();
 
-        filesToBeDownloaded.put("addressbook.jar", updateData.getDownloadLinkForMainApp());
+        URL mainAppDownloadLink;
+
+        mainAppDownloadLink = updateData.getDownloadLinkForMainApp();
+
+        filesToBeDownloaded.put("addressbook.jar", mainAppDownloadLink);
 
         updateData.getLibraries().stream()
                 .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == OsDetector.getOs())
                 .filter(libDesc -> !FileUtil.isFileExists("lib/" + libDesc.getFilename()))
-                .forEach(libDesc -> filesToBeDownloaded.put("lib/" + libDesc.getFilename(),
-                        updateData.getDownloadLinkForALibrary(libDesc)));
+                .forEach(libDesc -> filesToBeDownloaded.put("lib/" + libDesc.getFilename(), libDesc.getDownloadLink()));
 
         return filesToBeDownloaded;
     }
@@ -213,7 +219,7 @@ public class UpdateManager {
     /**
      * @param updateDir directory to store downloaded updates
      */
-    private void downloadAllFilesToBeUpdated(File updateDir, HashMap<String, String> filesToBeUpdated)
+    private void downloadAllFilesToBeUpdated(File updateDir, HashMap<String, URL> filesToBeUpdated)
             throws IOException {
         if (!FileUtil.isDirExists(updateDir)) {
             try {
@@ -225,17 +231,8 @@ public class UpdateManager {
         }
 
         for (String destFile : filesToBeUpdated.keySet()) {
-            URL downloadLink;
             try {
-                downloadLink = new URL(filesToBeUpdated.get(destFile));
-            } catch (MalformedURLException e) {
-                System.out.println("Library has a malformed URL - " + filesToBeUpdated.get(destFile));
-                e.printStackTrace();
-                throw e;
-            }
-
-            try {
-                downloadFile(new File(updateDir.toString(), destFile), downloadLink);
+                downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
             } catch (IOException e) {
                 System.out.println("Failed to download an update file, aborting update.");
                 throw e;
@@ -257,7 +254,7 @@ public class UpdateManager {
         }
     }
 
-    private void createUpdateSpecification(HashMap<String, String> filesToBeUpdated) throws IOException {
+    private void createUpdateSpecification(HashMap<String, URL> filesToBeUpdated) throws IOException {
         LocalUpdateSpecificationHelper.saveLocalUpdateSpecFile(
                 filesToBeUpdated.keySet().stream().collect(Collectors.toList())
         );
