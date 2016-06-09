@@ -1,7 +1,7 @@
 package address.sync;
 
-import address.model.datatypes.Tag;
-import address.model.datatypes.Person;
+import address.model.datatypes.tag.Tag;
+import address.model.datatypes.person.Person;
 import address.sync.model.CloudTag;
 import address.sync.model.CloudPerson;
 import address.util.JsonUtil;

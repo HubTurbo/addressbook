@@ -1,8 +1,8 @@
 package address.unittests;
 
-import address.model.AddressBook;
-import address.model.datatypes.Tag;
-import address.model.datatypes.Person;
+import address.model.datatypes.AddressBook;
+import address.model.datatypes.tag.Tag;
+import address.model.datatypes.person.Person;
 import address.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 

@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import address.events.EventManager;
 import address.events.TagSearchResultsChangedEvent;
 import address.events.TagsChangedEvent;
-import address.model.datatypes.SelectableTag;
-import address.model.datatypes.Tag;
+import address.model.datatypes.tag.SelectableTag;
+import address.model.datatypes.tag.Tag;
 
 public class PersonEditDialogTagsModel {
     List<SelectableTag> tags = new ArrayList<>();

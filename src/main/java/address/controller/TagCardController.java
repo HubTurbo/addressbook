@@ -1,6 +1,6 @@
 package address.controller;
 
-import address.model.datatypes.Tag;
+import address.model.datatypes.tag.Tag;
 import address.exceptions.DuplicateTagException;
 import address.model.ModelManager;
 

@@ -15,7 +15,7 @@
         <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <TextField fx:id="filterField" onAction="#handleFilterChanged"/>
-                <ListView fx:id="personList" VBox.vgrow="ALWAYS"/>
+                <ListView fx:id="personListView" VBox.vgrow="ALWAYS"/>
                 <HBox>
                     <children>
                         <Button styleClass="button" mnemonicParsing="false" onAction="#handleDeletePerson" prefHeight="33.0" maxWidth="Infinity" HBox.hgrow="ALWAYS" text="Delete" />

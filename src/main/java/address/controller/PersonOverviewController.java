@@ -3,7 +3,9 @@ package address.controller;
 import address.events.*;
 import address.exceptions.DuplicatePersonException;
 import address.model.ModelManager;
-import address.model.datatypes.Person;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
@@ -29,15 +31,13 @@ import java.util.concurrent.*;
 public class PersonOverviewController {
 
     @FXML
-    private ListView<Person> personList;
+    private ListView<ReadOnlyViewablePerson> personListView;
 
     @FXML
     private TextField filterField;
 
     private MainController mainController;
     private ModelManager modelManager;
-
-    private final ScheduledExecutorService requestExecutor = Executors.newScheduledThreadPool(1);
 
     public PersonOverviewController() {
         EventManager.getInstance().registerHandler(this);
@@ -49,7 +49,7 @@ public class PersonOverviewController {
      */
     @FXML
     private void initialize() {
-        personList.setContextMenu(createContextMenu());
+        personListView.setContextMenu(createContextMenu());
     }
 
     public void setConnections(MainController mainController, ModelManager modelManager) {
@@ -57,12 +57,12 @@ public class PersonOverviewController {
         this.modelManager = modelManager;
 
         // Add observable list data to the list
-        personList.setItems(modelManager.getFilteredPersons());
-        personList.setCellFactory(listView -> new PersonListViewCell());
-        personList.getSelectionModel().selectedItemProperty().addListener(
+        personListView.setItems(modelManager.getAllViewablePersonsReadOnly());
+        personListView.setCellFactory(listView -> new PersonListViewCell());
+        personListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
-                    if(newValue != null){
-                        mainController.loadGithubProfilePage(new Person(newValue));
+                    if (newValue != null) {
+                        mainController.loadGithubProfilePage(newValue);
                     }
                 });
     }
@@ -72,14 +72,12 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleDeletePerson() {
-        int selectedIndex = personList.getSelectionModel().getSelectedIndex();
+        int selectedIndex = personListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
-            Person tmpPerson = personList.getItems().get(selectedIndex);
-            mainController.getStatusBarHeaderController().postStatus(
-                                                    new PersonDeletedStatus(tmpPerson));
-            personList.getItems().get(selectedIndex).setIsDeleted(true);
-            requestExecutor.schedule(()
-                    -> Platform.runLater(() -> modelManager.deletePerson(tmpPerson)), 3, TimeUnit.SECONDS);
+            final ReadOnlyPerson deleteTarget = personListView.getItems().get(selectedIndex);
+            mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(deleteTarget));
+
+            modelManager.delayedDeletePerson(deleteTarget, 1, TimeUnit.SECONDS);
         } else {
             // Nothing selected.
             mainController.showAlertDialogAndWait(AlertType.WARNING,
@@ -93,14 +91,14 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleNewPerson() {
-        Optional<Person> newPerson = Optional.of(new Person());
+        Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person());
         while (true) { // keep re-asking until user provides valid input or cancels operation.
-            newPerson = mainController.getPersonDataInput(newPerson.get());
+            prevInputData = mainController.getPersonDataInput(prevInputData.get());
 
-            if (!newPerson.isPresent()) break;
+            if (!prevInputData.isPresent()) break;
             try {
-                modelManager.addPerson(newPerson.get());
-                mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(newPerson.get()));
+                modelManager.addPerson(new Person(prevInputData.get()));
+                mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(prevInputData.get()));
                 break;
             } catch (DuplicatePersonException e) {
                 mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
@@ -115,22 +113,21 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleEditPerson() {
-        Person selected = personList.getSelectionModel().getSelectedItem();
-        if (selected == null) { // no selection
+        final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
+        if (editTarget == null) { // no selection
             mainController.showAlertDialogAndWait(AlertType.WARNING, "No Selection",
                 "No Person Selected", "Please select a person in the list.");
             return;
         }
 
-        Optional<Person> updated = Optional.of(new Person(selected));
+        Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person(editTarget));
         while (true) { // keep re-asking until user provides valid input or cancels operation.
-            updated = mainController.getPersonDataInput(updated.get());
-            if (!updated.isPresent()) break;
-
+            prevInputData = mainController.getPersonDataInput(prevInputData.get());
+            if (!prevInputData.isPresent()) break;
             try {
-                mainController.getStatusBarHeaderController().postStatus(new PersonEditedStatus(new Person(selected),
-                                                                                                 updated.get()));
-                modelManager.updatePerson(selected, updated.get());
+                modelManager.updatePerson(editTarget, prevInputData.get());
+                mainController.getStatusBarHeaderController().postStatus(
+                        new PersonEditedStatus(new Person(editTarget), prevInputData.get()));
                 break;
             } catch (DuplicatePersonException e) {
                 mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate person",
@@ -183,13 +180,13 @@ public class PersonOverviewController {
      */
     private void jumpToList(int targetIndex) {
         Platform.runLater(() -> {
-                if (personList.getItems().size() < targetIndex) {
+                if (personListView.getItems().size() < targetIndex) {
                     return;
                 }
                 int indexOfItem = targetIndex - 1; //to account for list indexes starting from 0
-                personList.getSelectionModel().select(indexOfItem);
-                personList.getFocusModel().focus(indexOfItem);
-                personList.requestFocus();
+                personListView.getSelectionModel().select(indexOfItem);
+                personListView.getFocusModel().focus(indexOfItem);
+                personListView.requestFocus();
             });
     }
 }

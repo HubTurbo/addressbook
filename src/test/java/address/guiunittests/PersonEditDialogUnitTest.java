@@ -2,7 +2,7 @@ package address.guiunittests;
 
 import address.TestApp;
 import address.controller.PersonEditDialogController;
-import address.model.datatypes.Tag;
+import address.model.datatypes.tag.Tag;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;

@@ -1,6 +1,6 @@
 package address.exceptions;
 
-import address.model.datatypes.Tag;
+import address.model.datatypes.tag.Tag;
 
 public class DuplicateTagException extends DuplicateDataException {
 

@@ -1,6 +1,6 @@
 package address.events;
 
-import address.model.AddressBook;
+import address.model.datatypes.AddressBook;
 
 /** Indicates some new data is available from the mirror*/
 public class NewMirrorDataEvent extends BaseEvent {

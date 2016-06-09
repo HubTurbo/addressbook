@@ -1,8 +1,8 @@
 package address.util;
 
-import address.model.AddressBook;
-import address.model.datatypes.Person;
-import address.model.datatypes.Tag;
+import address.model.datatypes.AddressBook;
+import address.model.datatypes.person.Person;
+import address.model.datatypes.tag.Tag;
 
 /**
  * A utility class to help with building Addressbook objects.

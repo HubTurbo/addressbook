@@ -1,8 +1,11 @@
-package address.model.datatypes;
+package address.model.datatypes.person;
 
+import address.model.datatypes.BaseDataType;
+import address.model.datatypes.tag.Tag;
 import address.util.DateTimeUtil;
 import address.util.LocalDateAdapter;
 
+import address.util.collections.UnmodifiableObservableList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -17,6 +20,7 @@ import javafx.collections.ObservableList;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 /**
  * Data-model implementation class representing the "Person" domain object.
@@ -25,9 +29,9 @@ import java.util.Optional;
  * Instead, use and declare the minimum required superclass/interface.
  *
  * Eg. A GUI element controller that only needs access to the Person's properties should declare the received Person
- * as an ObservablePerson -- since it does not need the functionality in the other superclasses/interfaces.
+ * as an ReadOnlyPerson -- since it does not need the functionality in the other superclasses/interfaces.
  */
-public class Person extends BaseDataType implements ReadablePerson, WritablePerson, ObservablePerson {
+public class Person extends BaseDataType implements ReadOnlyPerson {
 
     @JsonIgnore private final SimpleStringProperty firstName;
     @JsonIgnore private final SimpleStringProperty lastName;
@@ -40,8 +44,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     @JsonIgnore private final SimpleObjectProperty<LocalDate> birthday;
     @JsonIgnore private final ObservableList<Tag> tags;
 
-    @JsonIgnore private final BooleanProperty isDeleted;
-    @JsonIgnore private final BooleanProperty isEdited;
     // defaults
     {
         firstName = new SimpleStringProperty("");
@@ -55,9 +57,6 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         birthday = new SimpleObjectProperty<>();
 
         tags = FXCollections.observableArrayList();
-
-        isDeleted = new SimpleBooleanProperty(false);
-        isEdited = new SimpleBooleanProperty(false);
     }    
     
     /**
@@ -83,20 +82,18 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     /**
      * Deep copy constructor.
      *
-     * @see Person#update(ReadablePerson)
+     * @see Person#update(ReadOnlyPerson)
      */
-    public Person(ReadablePerson toBeCopied) {
+    public Person(ReadOnlyPerson toBeCopied) {
         update(toBeCopied);
     }
 
     /**
      * {@inheritDoc}
      *
-     * @see WritablePerson#update(ReadablePerson)
      * @return self (calling this from a Person returns a Person instead of just a WritablePerson)
      */
-    @Override
-    public Person update(ReadablePerson newDataSource) {
+    public Person update(ReadOnlyPerson newDataSource) {
         setFirstName(newDataSource.getFirstName());
         setLastName(newDataSource.getLastName());
 
@@ -110,6 +107,27 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return this;
     }
 
+    // TODO: consider using reflection to access all isassignablefrom(Property) returning methods for maintainability
+    /**
+     * Passes matching property field pairs (paired between self and another ReadOnlyPerson) as arguments to a callback.
+     * The callback is called once for each property field in the ObservabePerson class.
+     *
+     * @param other the ReadOnlyPerson whose property fields make up the second parts of the property pairs
+     * @param action called for every property field: action(self:property, other:same_property)
+     *               first argument is from self, second is from the "other" parameter
+     */
+    public void forEachPropertyFieldPairWith(Person other, BiConsumer<? super Property, ? super Property> action) {
+        action.accept(firstName, other.firstName);
+        action.accept(lastName, other.lastName);
+        action.accept(githubUserName, other.githubUserName);
+
+        action.accept(street, other.street);
+        action.accept(postalCode, other.postalCode);
+        action.accept(city, other.city);
+
+        action.accept(birthday, other.birthday);
+    }
+
 //// NAME
 
     @JsonProperty("firstName")
@@ -118,13 +136,12 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return firstName.get();
     }
 
-    @Override
     public void setFirstName(String firstName) {
         this.firstName.set(firstName);
     }
 
     @Override
-    public StringProperty firstNameProperty() {
+    public ReadOnlyStringProperty firstNameProperty() {
         return firstName;
     }
 
@@ -134,13 +151,12 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return lastName.get();
     }
 
-    @Override
     public void setLastName(String lastName) {
         this.lastName.set(lastName);
     }
 
     @Override
-    public StringProperty lastNameProperty() {
+    public ReadOnlyStringProperty lastNameProperty() {
         return lastName;
     }
 
@@ -157,24 +173,24 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return githubUserName.get();
     }
 
-    @Override
     public void setGithubUserName(String githubUserName) {
         this.githubUserName.set(githubUserName);
     }
 
     @Override
-    public StringProperty githubUserNameProperty() {
+    public ReadOnlyStringProperty githubUserNameProperty() {
         return githubUserName;
     }
 
     @Override
-    public String profilePageUrl(){
+    public String githubProfilePageUrl(){
         return "https://www.github.com/" + githubUserName.get();
     }
 
-    public Optional<String> getGithubProfilePicUrl() {
+    @Override
+    public Optional<String> githubProfilePicUrl() {
         if (getGithubUserName().length() > 0) {
-            String profilePicUrl = profilePageUrl() + ".png";
+            String profilePicUrl = githubProfilePageUrl() + ".png";
             if (URLUtil.isURIFormat(profilePicUrl)){
                 return Optional.of(profilePicUrl);
             }
@@ -189,13 +205,12 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return street.get();
     }
 
-    @Override
     public void setStreet(String street) {
         this.street.set(street);
     }
 
     @Override
-    public StringProperty streetProperty() {
+    public ReadOnlyStringProperty streetProperty() {
         return street;
     }
 
@@ -207,13 +222,12 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return postalCode.get();
     }
 
-    @Override
     public void setPostalCode(String postalCode) {
         this.postalCode.set(postalCode);
     }
 
     @Override
-    public StringProperty postalCodeProperty() {
+    public ReadOnlyStringProperty postalCodeProperty() {
         return postalCode;
     }
 
@@ -225,13 +239,12 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
         return city.get();
     }
 
-    @Override
     public void setCity(String city) {
         this.city.set(city);
     }
 
     @Override
-    public StringProperty cityProperty() {
+    public ReadOnlyStringProperty cityProperty() {
         return city;
     }
 
@@ -245,13 +258,12 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     }
 
     @JsonSetter("birthday")
-    @Override
     public void setBirthday(LocalDate birthday) {
         this.birthday.set(birthday);
     }
 
     @Override
-    public ObjectProperty<LocalDate> birthdayProperty() {
+    public ReadOnlyObjectProperty<LocalDate> birthdayProperty() {
         return birthday;
     }
 
@@ -266,10 +278,9 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     @JsonProperty("tags")
     @Override
     public ObservableList<Tag> getTags() {
-        return tags;
+        return new UnmodifiableObservableList<>(tags);
     }
 
-    @Override
     public void setTags(Collection<Tag> tags) {
         this.tags.clear();
         this.tags.addAll(tags);
@@ -288,38 +299,20 @@ public class Person extends BaseDataType implements ReadablePerson, WritablePers
     }
 
 //// OTHER LOGIC
-    public boolean getIsDeleted() {
-        return isDeleted.get();
-    }
-
-    public BooleanProperty isDeletedProperty() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(boolean isDeleted) {
-        this.isDeleted.set(isDeleted);
-    }
-
-    public boolean getIsEdited() {
-        return isEdited.get();
-    }
-
-    public BooleanProperty isEditedProperty() {
-        return isEdited;
-    }
-
-    public void setIsEdited(boolean isEdited) {
-        this.isEdited.set(isEdited);
-    }
 
     @Override
-    public boolean equals(Object otherPerson){
-        if (otherPerson == this) return true;
-        if (otherPerson == null) return false;
-        if (!Person.class.isAssignableFrom(otherPerson.getClass())) return false;
-
-        final Person other = (Person) otherPerson;
-        return this.getFirstName().equals(other.getFirstName()) && this.getLastName().equals(other.getLastName());
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (other == null) return false;
+        if (Person.class.isAssignableFrom(other.getClass())) {
+            final ReadOnlyPerson otherPerson = (ReadOnlyPerson) other;
+            return this.getFirstName().equals(otherPerson.getFirstName())
+                    && this.getLastName().equals(otherPerson.getLastName());
+        }
+        if (ViewablePerson.class.isAssignableFrom(other.getClass())) {
+            return other.equals(this);
+        }
+        return false;
     }
 
     @Override

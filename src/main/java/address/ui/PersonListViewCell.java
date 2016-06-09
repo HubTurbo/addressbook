@@ -1,14 +1,14 @@
 package address.ui;
 
 import address.controller.PersonCardController;
-import address.model.datatypes.Person;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import javafx.scene.control.ListCell;
 
-public class PersonListViewCell extends ListCell<Person> {
+public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     @Override
-    public void updateItem(Person person, boolean empty) {
+    public void updateItem(ReadOnlyViewablePerson person, boolean empty) {
         super.updateItem(person, empty);
 
         if (empty || person == null) {

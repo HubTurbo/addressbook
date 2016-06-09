@@ -1,15 +1,15 @@
 package address.status;
 
-import address.model.datatypes.Person;
+import address.model.datatypes.person.ReadOnlyPerson;
 
 /**
  * A base event for Contact
  */
 public abstract class PersonBaseStatus {
 
-    protected Person person;
+    protected ReadOnlyPerson person;
 
-    public PersonBaseStatus(Person person) {
+    public PersonBaseStatus(ReadOnlyPerson person) {
         this.person = person;
     }
 }

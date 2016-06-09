@@ -2,7 +2,7 @@ package address.ui;
 
 import address.controller.TagCardController;
 import address.controller.MainController;
-import address.model.datatypes.Tag;
+import address.model.datatypes.tag.Tag;
 import address.model.ModelManager;
 import javafx.scene.control.ListCell;
 

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 
-import address.model.datatypes.Person;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -35,9 +35,9 @@ public class PersonCardController {
     @FXML
     private Label tags;
 
-    private Person person;
+    private ReadOnlyViewablePerson person;
 
-    public PersonCardController(Person person) {
+    public PersonCardController(ReadOnlyViewablePerson person) {
         this.person = person;
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/view/PersonListCard.fxml"));
@@ -56,7 +56,7 @@ public class PersonCardController {
             setProfileImage();
         }
 
-        if (person.getIsDeleted()){
+        if (person.isDeleted()){
             Platform.runLater(() -> cardPane.setOpacity(0.1f));
         }
 
@@ -126,7 +126,7 @@ public class PersonCardController {
      * Involves making an internet connection with the image hosting server.
      */
     private void setProfileImage() {
-        Optional<String> profileImageUrl = person.getGithubProfilePicUrl();
+        final Optional<String> profileImageUrl = person.githubProfilePicUrl();
         if (profileImageUrl.isPresent()){
             new Thread(() -> {
                 Image image = new Image(profileImageUrl.get());

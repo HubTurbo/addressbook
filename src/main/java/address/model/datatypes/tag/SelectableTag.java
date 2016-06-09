@@ -1,4 +1,4 @@
-package address.model.datatypes;
+package address.model.datatypes.tag;
 
 // TODO CHANGE THIS TO WRAPPER CLASS
 public class SelectableTag extends Tag {

@@ -1,6 +1,6 @@
 package address.parser.expr;
 
-import address.model.datatypes.Person;
+import address.model.datatypes.person.Person;
 import address.parser.qualifier.Qualifier;
 import address.parser.qualifier.TrueQualifier;
 

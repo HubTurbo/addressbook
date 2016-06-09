@@ -1,6 +1,6 @@
 package address.parser.qualifier;
 
-import address.model.datatypes.Person;
+import address.model.datatypes.person.Person;
 import address.util.StringUtil;
 
 public class NameQualifier implements Qualifier {

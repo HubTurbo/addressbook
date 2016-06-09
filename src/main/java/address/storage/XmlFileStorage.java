@@ -1,7 +1,7 @@
 package address.storage;
 
 import address.exceptions.DataConversionException;
-import address.model.AddressBook;
+import address.model.datatypes.AddressBook;
 import address.util.XmlUtil;
 
 import java.io.File;
