@@ -42,9 +42,7 @@ public class UpdateManager {
     private static final String JAR_UPDATER_APP_PATH = UPDATE_DIR + File.separator + "jarUpdater.jar";
     private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
     private static final String UPDATE_DATA_ON_SERVER =
-            "https://github.com/HansNewbie/HubTurbo/releases/download/3.27.0/UpdateData.json";
-            //TODO use real UpdateData.json once testing completes
-            //"https://raw.githubusercontent.com/HubTurbo/addressbook/master/UpdateData.json";
+            "https://raw.githubusercontent.com/HubTurbo/addressbook/master/UpdateData.json";
     private static final File UPDATE_DATA_FILE = new File(UPDATE_DIR + File.separator + "UpdateData.json");
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
