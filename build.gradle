@@ -42,6 +42,7 @@ allprojects {
         guavaVersion = '19.0'
         jacksonVersion = '2.7.0'
         jacksonDataTypeVersion = '2.7.4'
+        jKeyMasterVersion = '1.2'
         jxBrowserVersion = '6.4'
         junitVersion = '4.12'
         log4jVersion = '2.3'
@@ -76,6 +77,7 @@ allprojects {
         compile "com.teamdev.jxbrowser:jxbrowser-linux32:$jxBrowserVersion"
         compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
+        compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
         compile fileTree(dir: 'lib', include: 'license.jar')
 
         testCompile "junit:junit:$junitVersion"

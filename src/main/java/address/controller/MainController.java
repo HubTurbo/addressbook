@@ -10,6 +10,7 @@ import address.browser.BrowserManager;
 
 import com.google.common.eventbus.Subscribe;
 
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -391,4 +392,32 @@ public class MainController {
         if (!browserView.isPresent()) return;
         pane.getItems().add(browserView.get());
     }
+
+    @Subscribe
+    private void handleMaximizeAppRequestEvent(MaximizeAppRequestEvent event){
+        System.out.println("Handling the maximize app window request");
+        Platform.runLater(() -> {
+            maximizeWindow();
+        });
+    }
+
+    @Subscribe
+    private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event){
+        System.out.println("Handling the minimize app window request");
+        Platform.runLater(() -> {
+            minimizeWindow();
+        });
+    }
+
+
+    private void minimizeWindow() {
+        primaryStage.setIconified(true);
+        primaryStage.setMaximized(false);
+    }
+
+    private void maximizeWindow() {
+        primaryStage.setMaximized(true);
+        primaryStage.setIconified(false);
+    }
+
 }

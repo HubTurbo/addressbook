@@ -66,7 +66,7 @@ public class MainApp extends Application {
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
 
-        shortcutsManager = new ShortcutsManager();
+        shortcutsManager = new ShortcutsManager(EventManager.getInstance());
 
         updateManager = new UpdateManager();
         alertMissingDependencies();
@@ -95,6 +95,7 @@ public class MainApp extends Application {
         mainController.getPrimaryStage().hide();
         mainController.releaseResourcesForAppTermination();
         updateManager.applyUpdate();
+        shortcutsManager.clear();
         Platform.exit();
         System.exit(0);
     }
