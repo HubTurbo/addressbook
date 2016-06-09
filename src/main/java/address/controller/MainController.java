@@ -53,14 +53,12 @@ public class MainController {
 
     private StatusBarHeaderController statusBarHeaderController;
 
-    private AnchorPane browserPlaceHolder;
-    private HBox browserDefaultScreen;
-
     public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
         EventManager.getInstance().registerHandler(this);
         this.modelManager = modelManager;
         this.config = config;
         this.mainApp = mainApp;
+        this.browserManager = new BrowserManager(modelManager.getAllViewablePersonsReadOnly());
     }
 
     public void start(Stage primaryStage) {
@@ -389,8 +387,6 @@ public class MainController {
     }
 
     public void showPersonWebPage() {
-
-        this.browserManager = new BrowserManager(modelManager.getAllViewablePersonsReadOnly());
         SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
         pane.getItems().add(browserManager.getHyperBrowserView());
     }

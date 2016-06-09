@@ -1,10 +1,8 @@
 package address.browser;
 
 import address.MainApp;
-import address.browser.page.GithubProfilePage;
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
-import address.exceptions.IllegalArgumentSizeException;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.UrlUtil;
@@ -71,7 +69,7 @@ public class BrowserManager {
      * Updates the browser contents.
      */
     private synchronized void updateBrowserContent() {
-        ArrayList<URL> pagesPerson = hyperBrowser.get().getCachedPagesUrl();
+        List<URL> pagesPerson = hyperBrowser.get().getCachedPagesUrl();
         pagesPerson.stream().forEach(personUrl -> {
                 Optional<ReadOnlyViewablePerson> personFound = filteredPersons.stream().filter(person
                         -> UrlUtil.compareBaseUrls(person.profilePageUrl(), personUrl)).findAny();
@@ -105,7 +103,7 @@ public class BrowserManager {
                                                                        .map(p -> p.profilePageUrl())
                                                                        .collect(Collectors.toCollection(ArrayList::new));
             hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
-        } catch (IllegalArgumentSizeException e) {
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
             assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
         }

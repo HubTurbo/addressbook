@@ -5,7 +5,6 @@ import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 import javafx.scene.Node;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 /**

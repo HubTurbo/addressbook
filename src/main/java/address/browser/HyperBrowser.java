@@ -1,7 +1,6 @@
 package address.browser;
 
 import address.browser.page.Page;
-import address.exceptions.IllegalArgumentSizeException;
 import address.util.FxViewUtil;
 import address.util.UrlUtil;
 import com.teamdev.jxbrowser.chromium.Browser;
@@ -98,7 +97,7 @@ public class HyperBrowser {
      * Gets a list of URL from HyperBrowser displayed page and cached pages.
      * @return A list of URL from HyperBrowser displayed page and cached pages.
      */
-    public ArrayList<URL> getCachedPagesUrl(){
+    public List<URL> getCachedPagesUrl(){
         return pages.stream().map(page -> {
             try {
                 return page.getBrowser().getUrl();
@@ -113,12 +112,12 @@ public class HyperBrowser {
      * @param url The URL of the content to load.
      * @param futureUrl The URLs that may be called to load in the next T time.
      * @return The page of the URL content.
-     * @throws IllegalArgumentSizeException When the amount of URLs to load is more than no of pages the paging system
+     * @throws IllegalArgumentException When the amount of URLs to load is more than no of pages the paging system
      *                                      of the HyperBrowser has.
      * @throws NullPointerException When url is null.
      */
-    public synchronized Page loadUrls(URL url, ArrayList<URL> futureUrl) throws IllegalArgumentSizeException
-                                                                                            , NullPointerException {
+    public synchronized Page loadUrls(URL url, List<URL> futureUrl) throws NullPointerException,
+                                                                           IllegalArgumentException {
         if (url == null) {
             throw new NullPointerException();
         }
@@ -128,7 +127,8 @@ public class HyperBrowser {
         }
 
         if (futureUrl.size() + 1 > noOfPages) {
-            throw new IllegalArgumentSizeException(futureUrl.size() + 1, noOfPages);
+            throw new IllegalArgumentException("The HyperBrowser can not load " + (futureUrl.size() + 1) + "URLs. "
+                    + "The HyperBrowser is configured to load a maximum of " + noOfPages + "URL.");
         }
 
         clearPagesNotRequired(getListOfUrlToBeLoaded(url, futureUrl));
@@ -140,7 +140,7 @@ public class HyperBrowser {
         return page;
     }
 
-    private ArrayList<URL> getListOfUrlToBeLoaded(URL url, ArrayList<URL> futureUrl) {
+    private List<URL> getListOfUrlToBeLoaded(URL url, List<URL> futureUrl) {
         ArrayList<URL> listOfUrlToBeLoaded = new ArrayList<>();
         listOfUrlToBeLoaded.add(url);
         listOfUrlToBeLoaded.addAll(futureUrl);
@@ -180,7 +180,7 @@ public class HyperBrowser {
      * @param urlsToLoad The URLs of the pages which are to be remained in the paging system.
      * @return An array list of pages that are cleared from paging system.
      */
-    private synchronized ArrayList<Page> clearPagesNotRequired(ArrayList<URL> urlsToLoad) {
+    private synchronized ArrayList<Page> clearPagesNotRequired(List<URL> urlsToLoad) {
         /**
          * TODO: handle the efficiency issue when there is few urlsToLoad than noOfPages of the HyperBrowser,
          * in this case some of the url that are not needed can be kept.
