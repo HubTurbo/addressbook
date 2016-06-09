@@ -10,6 +10,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -28,6 +30,8 @@ import java.util.concurrent.Executors;
  * --update-specification
  */
 public class JarUpdater extends Application {
+    private static final Logger logger = LogManager.getLogger(JarUpdater.class);
+
     private static final int MAX_RETRY = 10;
     private static final int WAIT_TIME = 2000;
     private static final String ERROR_ON_UPDATING_MESSAGE = "There was an error in updating.";
@@ -40,15 +44,14 @@ public class JarUpdater extends Application {
 
     @Override
     public void start(Stage stage) {
-        initLogger();
         showWaitingWindow(stage);
         pool.execute(() -> {
                 try {
                     run();
                 } catch (IllegalArgumentException e) {
-                    log(e.getMessage());
+                    logger.info(e.getMessage());
                 } catch (IOException e) {
-                    log(e.getMessage());
+                    logger.info(e.getMessage());
                     showErrorOnUpdatingDialog();
                 }
 
@@ -83,8 +86,8 @@ public class JarUpdater extends Application {
             throw new IllegalArgumentException("Please specify the filepath to update specification " +
                                                "and the source directory of the update files.");
         } else {
-            log("update-specification: " + updateSpecificationFilepath);
-            log("source-dir: " + sourceDir);
+            logger.info("update-specification: " + updateSpecificationFilepath);
+            logger.info("source-dir: " + sourceDir);
         }
 
         List<String> localUpdateData;
@@ -92,18 +95,18 @@ public class JarUpdater extends Application {
         try {
             localUpdateData = LocalUpdateSpecificationHelper.readLocalUpdateSpecFile(updateSpecificationFilepath);
         } catch (IOException e) {
-            log("Failed to read local update data");
+            logger.info("Failed to read local update data");
             throw e;
         }
 
         if (localUpdateData.isEmpty()) {
-            log("No update to be applied");
+            logger.info("No update to be applied");
             return;
         }
 
         applyUpdateToAllFiles(sourceDir, localUpdateData);
 
-        log("Update successful");
+        logger.info("Update successful");
 
         stop();
     }
@@ -125,7 +128,7 @@ public class JarUpdater extends Application {
      * the process has not ended yet. As such, we will make several tries with wait.
      */
     private void applyUpdate(Path source, Path dest) throws IOException {
-        log("Applying update for " + dest.toString());
+        logger.info("Applying update for " + dest.toString());
 
         if (!FileUtil.isFileExists(dest.toString())) {
             FileUtil.createParentDirsOfFile(dest.toFile());
@@ -136,15 +139,15 @@ public class JarUpdater extends Application {
                 FileUtil.moveFile(source, dest, true);
                 return;
             } catch (IOException e) {
-                log(String.format("Failed to move file %s to %s. Might be due to original JAR still in use.",
+                logger.info(String.format("Failed to move file %s to %s. Might be due to original JAR still in use.",
                         source.getFileName(), dest.getFileName()));
             }
 
             try {
-                log("Wait for a while before trying again.");
+                logger.info("Wait for a while before trying again.");
                 Thread.sleep(WAIT_TIME);
             } catch (InterruptedException e) {
-                log("Failed to wait for a while");
+                logger.info("Failed to wait for a while");
             }
         }
 
@@ -160,21 +163,5 @@ public class JarUpdater extends Application {
                 alert.showAndWait();
                 stop();
             });
-    }
-
-    private void initLogger() {
-        try {
-            PrintStream out = new PrintStream(new FileOutputStream(new File("update.log")),
-                    true, "UTF-8");
-            System.setOut(out);
-        } catch (FileNotFoundException e) {
-            log("File not found, will not create logger");
-        } catch (UnsupportedEncodingException e) {
-            log("Encoding not supported, will not create logger");
-        }
-    }
-
-    public static void log(String message) {
-        System.out.println(message);
     }
 }

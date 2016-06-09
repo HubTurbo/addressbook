@@ -17,6 +17,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
@@ -28,6 +30,8 @@ public class MainApp extends Application {
     public static final int VERSION_MAJOR = 0;
     public static final int VERSION_MINOR = 0;
     public static final int VERSION_PATCH = 0;
+
+    private static final Logger logger = LogManager.getLogger(MainApp.class);
 
     protected Config config;
     protected StorageManager storageManager;
@@ -76,13 +80,13 @@ public class MainApp extends Application {
         List<String> missingDependencies = updateManager.getMissingDependencies();
 
         if (missingDependencies.isEmpty()) {
-            System.out.println("All dependencies are present");
+            logger.info("All dependencies are present");
         } else {
             String message = "Missing dependencies:\n";
             for (String missingDependency : missingDependencies) {
                 message += "- " + missingDependency + "\n";
             }
-            System.out.println(message.trim());
+            logger.info(message.trim());
 
             mainController.showAlertDialogAndWait(Alert.AlertType.WARNING, "Missing Dependencies",
                     "There are missing dependencies. App may not work properly.",

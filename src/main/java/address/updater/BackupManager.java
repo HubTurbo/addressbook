@@ -3,6 +3,8 @@ package address.updater;
 import address.MainApp;
 import address.util.FileUtil;
 import address.util.Version;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
  * Deletes backup apps and their dependencies that are no longer used.
  */
 public class BackupManager {
+    private static final Logger logger = LogManager.getLogger(BackupManager.class);
     private static final int MAX_BACKUP_JAR_KEPT = 3;
     private static final String BACKUP_MARKER = "_";
     private static final String BACKUP_FILENAME_STRING_FORMAT =
@@ -68,7 +71,7 @@ public class BackupManager {
 
         if (dependencyTracker.getCurrentVersionDependencies() == null ||
                 dependencyTracker.getCurrentVersionDependencies().isEmpty()) {
-            System.out.println("Not running from JAR, will not clean backups");
+            logger.info("Not running from JAR, will not clean backups");
             return;
         }
 
