@@ -1,8 +1,10 @@
-package address.model;
+package address.model.datatypes;
 
-import address.model.datatypes.Person;
-import address.model.datatypes.Tag;
-import address.model.datatypes.UniqueData;
+import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadablePerson;
+import address.model.datatypes.tag.Tag;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.util.*;
 
@@ -19,8 +21,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "addressbook")
 public class AddressBook {
 
-    private final List<Person> persons = new ArrayList<>();
-    private final List<Tag> tags = new ArrayList<>();
+    private final ObservableList<Person> persons;
+    private final ObservableList<Tag> tags;
+
+    {
+        persons = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
+        tags = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
+    }
 
     public AddressBook() {}
 
@@ -33,24 +40,49 @@ public class AddressBook {
         setTags(tags);
     }
 
+    public VisibleAddressBook createVisibleAddressBook() {
+        return new VisibleAddressBook(this);
+    }
+
     @XmlElement(name = "persons")
-    public List<Person> getPersons() {
+    public ObservableList<Person> getPersons() {
         return persons;
     }
 
     @XmlElement(name = "tags")
-    public List<Tag> getTags() {
+    public ObservableList<Tag> getTags() {
         return tags;
     }
 
+    public void clearData() {
+        persons.clear();
+        tags.clear();
+    }
+
+    public void resetData(Collection<Person> ps, Collection<Tag> ts) {
+        persons.setAll(ps);
+        tags.setAll(ts);
+    }
+
+    public void resetData(AddressBook newData) {
+        resetData(newData.getPersons(), newData.getTags());
+    }
+
     public void setPersons(List<Person> persons) {
-        this.persons.clear();
-        this.persons.addAll(persons);
+        this.persons.setAll(persons);
     }
 
     public void setTags(List<Tag> tags) {
-        this.tags.clear();
-        this.tags.addAll(tags);
+        this.tags.setAll(tags);
+    }
+
+    public Optional<Person> findPerson(ReadablePerson personToFind) {
+        for (Person p : persons) {
+            if (p.equals(personToFind)) {
+                return Optional.of(p);
+            }
+        }
+        return Optional.empty();
     }
 
     //TODO: refine later

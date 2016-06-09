@@ -1,5 +1,7 @@
-package address.model.datatypes;
+package address.model.datatypes.tag;
 
+import address.model.datatypes.BaseDataType;
+import address.model.datatypes.ExtractableObservables;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

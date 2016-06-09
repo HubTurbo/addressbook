@@ -1,6 +1,6 @@
 package address.events;
 
-import address.model.datatypes.SelectableTag;
+import address.model.datatypes.tag.SelectableTag;
 
 import java.util.List;
 

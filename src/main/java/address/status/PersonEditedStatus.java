@@ -1,6 +1,6 @@
 package address.status;
 
-import address.model.datatypes.ReadablePerson;
+import address.model.datatypes.person.ReadablePerson;
 
 /**
  * An event triggered when an AddressBook's contact is edited.

@@ -1,6 +1,6 @@
 package address.unittests.storage;
 
-import address.model.AddressBook;
+import address.model.datatypes.AddressBook;
 import address.storage.XmlFileStorage;
 import address.util.XmlUtil;
 import org.junit.Before;

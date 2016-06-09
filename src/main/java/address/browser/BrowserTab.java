@@ -1,6 +1,6 @@
 package address.browser;
 
-import address.model.datatypes.ReadableViewablePerson;
+import address.model.datatypes.person.ReadableViewablePerson;
 import com.teamdev.jxbrowser.chromium.Browser;
 
 /**

@@ -7,7 +7,7 @@ import address.MainApp;
 import address.events.*;
 import address.exceptions.DuplicateDataException;
 import address.exceptions.DuplicateTagException;
-import address.model.datatypes.Tag;
+import address.model.datatypes.tag.Tag;
 import address.model.ModelManager;
 import address.shortcuts.ShortcutsManager;
 import address.prefs.PrefsManager;

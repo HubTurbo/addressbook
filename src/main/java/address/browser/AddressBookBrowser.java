@@ -1,8 +1,8 @@
 package address.browser;
 
-import address.model.datatypes.ReadableViewablePerson;
+import address.model.datatypes.person.ReadableViewablePerson;
 
-import address.model.datatypes.ReadablePerson;
+import address.model.datatypes.person.ReadablePerson;
 import com.teamdev.jxbrowser.chromium.Browser;
 import com.teamdev.jxbrowser.chromium.EditorCommand;
 import com.teamdev.jxbrowser.chromium.dom.By;
@@ -10,7 +10,6 @@ import com.teamdev.jxbrowser.chromium.dom.DOMElement;
 import com.teamdev.jxbrowser.chromium.dom.events.DOMEventType;
 import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
 import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
-import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;

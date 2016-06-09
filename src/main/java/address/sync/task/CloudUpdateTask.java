@@ -1,7 +1,7 @@
 package address.sync.task;
 
-import address.model.datatypes.Person;
-import address.model.datatypes.Tag;
+import address.model.datatypes.person.Person;
+import address.model.datatypes.tag.Tag;
 import address.model.datatypes.UniqueData;
 import address.prefs.PrefsManager;
 import address.sync.CloudService;

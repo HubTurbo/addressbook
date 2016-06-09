@@ -1,5 +1,7 @@
-package address.model.datatypes;
+package address.model.datatypes.person;
 
+import address.model.datatypes.BaseDataType;
+import address.model.datatypes.tag.Tag;
 import address.util.DateTimeUtil;
 import address.util.LocalDateAdapter;
 
@@ -9,14 +11,12 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * Data-model implementation class representing the "Person" domain object.

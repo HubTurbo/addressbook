@@ -1,11 +1,9 @@
 package address.controller;
 
 import java.io.IOException;
-import java.util.Optional;
 
 
-import address.model.datatypes.ObservableViewablePerson;
-import address.model.datatypes.Person;
+import address.model.datatypes.person.ObservableViewablePerson;
 
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;

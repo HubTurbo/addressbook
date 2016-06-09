@@ -6,16 +6,16 @@ import address.exceptions.DuplicateDataException;
 import address.exceptions.DuplicateTagException;
 import address.exceptions.DuplicatePersonException;
 import address.model.datatypes.*;
+import address.model.datatypes.person.*;
+import address.model.datatypes.tag.Tag;
 import address.util.PlatformEx;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
-import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
 
 /**
  * Represents the in-memory model of the address book data.
@@ -23,7 +23,7 @@ import java.util.function.Supplier;
  */
 public class ModelManager implements Model, VisibleModel {
 
-    private final BackingAddressBook backingModel;
+    private final AddressBook backingModel;
     private final VisibleAddressBook visibleModel;
 
     public ModelManager(AddressBook src) {
@@ -31,7 +31,7 @@ public class ModelManager implements Model, VisibleModel {
         System.out.println("Persons found : " + src.getPersons().size());
         System.out.println("Tags found : " + src.getTags().size());
 
-        backingModel = new BackingAddressBook(src);
+        backingModel = new AddressBook(src);
         visibleModel = backingModel.createVisibleAddressBook();
 
         // update changes need to go through #updatePerson or #updateTag to trigger the LMCEvent
@@ -80,7 +80,7 @@ public class ModelManager implements Model, VisibleModel {
     }
 
     public void clearModel() {
-        backingModel.clearModel();
+        backingModel.clearData();
     }
 
 //// EXPOSING MODEL
@@ -114,7 +114,7 @@ public class ModelManager implements Model, VisibleModel {
      */
     @Override
     public ObservableList<Person> getAllPersons() {
-        return backingModel.getAllPersons();
+        return backingModel.getPersons();
     }
 
     /**
@@ -122,7 +122,7 @@ public class ModelManager implements Model, VisibleModel {
      */
     @Override
     public ObservableList<Tag> getAllTags() {
-        return backingModel.getAllTags();
+        return backingModel.getTags();
     }
 
 

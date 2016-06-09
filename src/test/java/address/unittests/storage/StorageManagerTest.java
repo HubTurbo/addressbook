@@ -2,7 +2,7 @@ package address.unittests.storage;
 
 import address.events.*;
 import address.exceptions.DataConversionException;
-import address.model.AddressBook;
+import address.model.datatypes.AddressBook;
 import address.model.ModelManager;
 import address.prefs.PrefsManager;
 import address.storage.StorageManager;

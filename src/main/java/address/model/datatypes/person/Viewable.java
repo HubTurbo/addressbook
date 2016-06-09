@@ -1,5 +1,6 @@
-package address.model.datatypes;
+package address.model.datatypes.person;
 
+import address.model.datatypes.BaseDataType;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;

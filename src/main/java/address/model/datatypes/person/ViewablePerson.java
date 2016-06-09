@@ -1,11 +1,11 @@
-package address.model.datatypes;
+package address.model.datatypes.person;
 
+import address.model.datatypes.tag.Tag;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 /**
  * Extends {@link Viewable} for the Person domain object.

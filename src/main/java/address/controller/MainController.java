@@ -2,10 +2,10 @@ package address.controller;
 
 import address.MainApp;
 import address.events.*;
-import address.model.datatypes.ReadablePerson;
-import address.model.datatypes.Tag;
+import address.model.datatypes.person.ReadablePerson;
+import address.model.datatypes.tag.Tag;
 import address.model.ModelManager;
-import address.model.datatypes.ObservableViewablePerson;
+import address.model.datatypes.person.ObservableViewablePerson;
 import address.util.Config;
 import address.browser.BrowserManager;
 

@@ -4,7 +4,7 @@ import address.events.*;
 import address.exceptions.DataConversionException;
 import address.exceptions.FileContainsDuplicatesException;
 import address.main.ComponentManager;
-import address.model.AddressBook;
+import address.model.datatypes.AddressBook;
 import address.model.ModelManager;
 import address.prefs.PrefsManager;
 import com.google.common.eventbus.Subscribe;

@@ -1,7 +1,7 @@
 package address.util;
 
-import address.model.datatypes.Person;
-import address.model.datatypes.ViewablePerson;
+import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ViewablePerson;
 
 import java.util.Arrays;
 import java.util.List;

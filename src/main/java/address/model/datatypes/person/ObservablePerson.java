@@ -1,6 +1,7 @@
-package address.model.datatypes;
+package address.model.datatypes.person;
 
-import address.model.ModelManager;
+import address.model.datatypes.ExtractableObservables;
+import address.model.datatypes.tag.Tag;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
@@ -8,9 +9,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 /**
  * Allows access to the Person domain object's data as javafx properties and collections for easy binding and listening.

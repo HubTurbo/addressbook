@@ -1,7 +1,7 @@
 package address.events;
 
-import address.model.datatypes.Person;
-import address.model.datatypes.Tag;
+import address.model.datatypes.person.Person;
+import address.model.datatypes.tag.Tag;
 
 import java.io.File;
 import java.util.List;

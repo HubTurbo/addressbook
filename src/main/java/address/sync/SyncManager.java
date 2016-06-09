@@ -3,9 +3,9 @@ package address.sync;
 
 import address.events.*;
 import address.exceptions.FileContainsDuplicatesException;
-import address.model.AddressBook;
-import address.model.datatypes.Tag;
-import address.model.datatypes.Person;
+import address.model.datatypes.AddressBook;
+import address.model.datatypes.tag.Tag;
+import address.model.datatypes.person.Person;
 import address.prefs.PrefsManager;
 import address.sync.task.CloudUpdateTask;
 import com.google.common.eventbus.Subscribe;

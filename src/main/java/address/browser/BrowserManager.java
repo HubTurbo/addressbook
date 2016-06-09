@@ -2,11 +2,8 @@ package address.browser;
 
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
-import address.model.datatypes.ReadableViewablePerson;
-import address.model.datatypes.Person;
+import address.model.datatypes.person.ReadableViewablePerson;
 
-import address.model.datatypes.ReadablePerson;
-import address.model.datatypes.ReadableViewablePerson;
 import com.google.common.eventbus.Subscribe;
 
 import com.teamdev.jxbrowser.chromium.BrowserCore;

@@ -2,9 +2,8 @@ package address.unittests;
 
 import address.browser.AddressBookBrowser;
 import address.browser.BrowserTab;
-import address.model.datatypes.Person;
-import address.model.datatypes.ReadableViewablePerson;
-import address.model.datatypes.ViewablePerson;
+import address.model.datatypes.person.ReadableViewablePerson;
+import address.model.datatypes.person.ViewablePerson;
 import address.util.JavafxThreadingRule;
 import address.util.TestUtil;
 
@@ -20,7 +19,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Test cases to test AddressBookBrowser

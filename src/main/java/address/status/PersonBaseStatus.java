@@ -1,6 +1,6 @@
 package address.status;
 
-import address.model.datatypes.ReadablePerson;
+import address.model.datatypes.person.ReadablePerson;
 
 /**
  * A base event for Contact

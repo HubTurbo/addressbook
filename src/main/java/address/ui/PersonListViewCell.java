@@ -1,8 +1,7 @@
 package address.ui;
 
 import address.controller.PersonCardController;
-import address.model.datatypes.ObservableViewablePerson;
-import address.model.datatypes.Person;
+import address.model.datatypes.person.ObservableViewablePerson;
 
 import javafx.scene.control.ListCell;
 

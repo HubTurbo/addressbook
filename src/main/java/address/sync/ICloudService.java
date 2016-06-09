@@ -1,7 +1,7 @@
 package address.sync;
 
-import address.model.datatypes.Tag;
-import address.model.datatypes.Person;
+import address.model.datatypes.tag.Tag;
+import address.model.datatypes.person.Person;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

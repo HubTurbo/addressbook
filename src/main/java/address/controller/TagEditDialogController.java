@@ -1,7 +1,7 @@
 package address.controller;
 
 import address.events.EventManager;
-import address.model.datatypes.Tag;
+import address.model.datatypes.tag.Tag;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;

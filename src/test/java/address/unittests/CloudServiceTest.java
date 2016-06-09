@@ -1,7 +1,7 @@
 package address.unittests;
 
-import address.model.datatypes.Person;
-import address.model.datatypes.Tag;
+import address.model.datatypes.person.Person;
+import address.model.datatypes.tag.Tag;
 import address.sync.CloudService;
 import address.sync.CloudSimulator;
 import address.sync.ExtractedCloudResponse;

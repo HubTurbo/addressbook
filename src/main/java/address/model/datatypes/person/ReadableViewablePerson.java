@@ -1,10 +1,4 @@
-package address.model.datatypes;
-
-import address.model.ModelManager;
-import javafx.collections.ObservableList;
-
-import java.util.Collection;
-import java.util.function.Supplier;
+package address.model.datatypes.person;
 
 /**
  * Same purpose as {@link ReadablePerson}, extended with additional status data viewable by user.

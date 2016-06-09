@@ -5,14 +5,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import address.model.datatypes.ReadableViewablePerson;
+import address.model.datatypes.person.ReadableViewablePerson;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.XYChart;
-import address.model.datatypes.Person;
 
 /**
  * The controller for the birthday statistics view.

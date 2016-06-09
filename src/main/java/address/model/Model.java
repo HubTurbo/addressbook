@@ -1,7 +1,7 @@
 package address.model;
 
-import address.model.datatypes.Person;
-import address.model.datatypes.Tag;
+import address.model.datatypes.person.Person;
+import address.model.datatypes.tag.Tag;
 import javafx.collections.ObservableList;
 
 /**

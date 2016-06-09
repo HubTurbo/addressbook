@@ -1,6 +1,11 @@
-package address.model;
+package address.model.datatypes;
 
-import address.model.datatypes.*;
+import address.model.VisibleModel;
+import address.model.datatypes.person.ObservableViewablePerson;
+import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadableViewablePerson;
+import address.model.datatypes.person.ViewablePerson;
+import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -9,22 +14,22 @@ import javafx.collections.ObservableList;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-class VisibleAddressBook implements VisibleModel {
+public class VisibleAddressBook implements VisibleModel {
 
-    final BackingAddressBook backingModel;
+    private final AddressBook backingModel;
 
-    final ObservableList<ViewablePerson> allPersons;
-    final ObservableList<Tag> allTags; // todo change to viewabletag class
+    private final ObservableList<ViewablePerson> allPersons;
+    private final ObservableList<Tag> allTags; // todo change to viewabletag class
 
     {
         allPersons = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
     }
 
-    VisibleAddressBook(BackingAddressBook src) {
+    VisibleAddressBook(AddressBook src) {
         backingModel = src;
-        allTags = backingModel.getAllTags(); // change when viewabletag is implemented
+        allTags = backingModel.getTags(); // change when viewabletag is implemented
 
-        allPersons.setAll(backingModel.getAllPersons().stream()
+        allPersons.setAll(backingModel.getPersons().stream()
                         .map(ViewablePerson::new)
                         .collect(Collectors.toList()));
 
@@ -32,7 +37,7 @@ class VisibleAddressBook implements VisibleModel {
     }
 
     private void bindPersonsToBacking() {
-        backingModel.getAllPersons().addListener((ListChangeListener<? super Person>) change -> {
+        backingModel.getPersons().addListener((ListChangeListener<? super Person>) change -> {
 
             // ignore permutations (order doesn't matter) and updates (Viewable wrapper handles it)
             while (change.next()) {

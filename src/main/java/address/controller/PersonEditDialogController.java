@@ -4,10 +4,10 @@ import address.model.*;
 import address.events.EventManager;
 import address.events.TagSearchResultsChangedEvent;
 import address.events.TagsChangedEvent;
-import address.model.datatypes.Person;
-import address.model.datatypes.ReadablePerson;
-import address.model.datatypes.SelectableTag;
-import address.model.datatypes.Tag;
+import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadablePerson;
+import address.model.datatypes.tag.SelectableTag;
+import address.model.datatypes.tag.Tag;
 import address.util.DateTimeUtil;
 
 import com.google.common.eventbus.Subscribe;

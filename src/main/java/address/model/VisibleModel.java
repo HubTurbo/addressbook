@@ -1,8 +1,8 @@
 package address.model;
 
-import address.model.datatypes.ObservableViewablePerson;
-import address.model.datatypes.ReadableViewablePerson;
-import address.model.datatypes.Tag;
+import address.model.datatypes.person.ObservableViewablePerson;
+import address.model.datatypes.person.ReadableViewablePerson;
+import address.model.datatypes.tag.Tag;
 import javafx.collections.ObservableList;
 
 /**

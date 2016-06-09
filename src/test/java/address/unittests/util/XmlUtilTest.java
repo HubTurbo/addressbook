@@ -1,7 +1,7 @@
 package address.unittests.util;
 
 import address.exceptions.DataConversionException;
-import address.model.AddressBook;
+import address.model.datatypes.AddressBook;
 import address.util.AddressBookBuilder;
 import address.util.FileUtil;
 import address.util.XmlUtil;

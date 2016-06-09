@@ -1,12 +1,7 @@
-package address.model.datatypes;
+package address.model.datatypes.person;
 
-import address.model.ModelManager;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
-import javafx.collections.ObservableList;
-
-import java.util.Collection;
-import java.util.function.Supplier;
 
 /**
  * Same purpose as {@link ObservablePerson}, extended with additional status data viewable by user.

@@ -2,7 +2,7 @@ package address.unittests;
 
 import address.events.EventManager;
 import address.events.TagSearchResultsChangedEvent;
-import address.model.datatypes.Tag;
+import address.model.datatypes.tag.Tag;
 import address.model.PersonEditDialogTagsModel;
 import com.google.common.eventbus.Subscribe;
 import org.junit.Before;
