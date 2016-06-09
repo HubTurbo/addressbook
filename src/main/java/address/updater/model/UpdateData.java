@@ -1,6 +1,5 @@
 package address.updater.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -9,7 +8,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 /**
- * Lists app's latest version's main app and libraries data as stored in server
+ * Lists latest version's version, main app download link and libraries descriptors
  */
 @JsonPropertyOrder({ "version", "mainApp", "libraries" })
 public class UpdateData {

@@ -20,7 +20,6 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -194,7 +193,7 @@ public class Installer extends Application {
     private void startMainApplication() {
         System.out.println("Starting main application");
 
-        String classPath = File.pathSeparator + "lib" + File.separator + "*"; // untested on Windows
+        String classPath = File.pathSeparator + "lib" + File.separator + "*";
 
         String command = String.format("java -cp %s address.MainApp", classPath);
 

@@ -1,7 +1,6 @@
 package address.updater;
 
 import address.MainApp;
-import address.updater.model.LibraryDescriptor;
 import address.updater.model.UpdateData;
 import address.util.FileUtil;
 import address.util.JsonUtil;
