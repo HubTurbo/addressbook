@@ -32,69 +32,69 @@ public class UnmodifiableObservableList<E> implements ObservableList<E> {
 
     
     @Override
-    public void addListener(ListChangeListener<? super E> listener) {
+    public final void addListener(ListChangeListener<? super E> listener) {
         backingList.addListener(listener);
     }
 
     @Override
-    public void removeListener(ListChangeListener<? super E> listener) {
+    public final void removeListener(ListChangeListener<? super E> listener) {
         backingList.removeListener(listener);
     }
 
     @Override
-    public void addListener(InvalidationListener listener) {
+    public final void addListener(InvalidationListener listener) {
         backingList.addListener(listener);
     }
 
     @Override
-    public void removeListener(InvalidationListener listener) {
+    public final void removeListener(InvalidationListener listener) {
         backingList.removeListener(listener);
     }
 
     
     @Override
-    public boolean addAll(Object... elements) {
+    public final boolean addAll(Object... elements) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
     @Override
-    public boolean setAll(Object... elements) {
+    public final boolean setAll(Object... elements) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
     @Override
-    public boolean setAll(Collection<? extends E> col) {
+    public final boolean setAll(Collection<? extends E> col) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
     
     @Override
-    public boolean removeAll(Object... elements) {
+    public final boolean removeAll(Object... elements) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
     
     @Override
-    public boolean retainAll(Object... elements) {
+    public final boolean retainAll(Object... elements) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
     @Override
-    public void remove(int from, int to) {
+    public final void remove(int from, int to) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
     
     @Override
-    public FilteredList<E> filtered(Predicate<E> predicate) {
+    public final FilteredList<E> filtered(Predicate<E> predicate) {
         return new FilteredList<>(this, predicate);
     }
 
     @Override
-    public SortedList<E> sorted(Comparator<E> comparator) {
+    public final SortedList<E> sorted(Comparator<E> comparator) {
         return new SortedList<>(this, comparator);
     }
     
     @Override
-    public SortedList<E> sorted() {
+    public final SortedList<E> sorted() {
         return sorted(Comparator.nullsFirst((o1, o2) -> {
             if (o1 instanceof Comparable) {
                 return ((Comparable) o1).compareTo(o2);
@@ -105,32 +105,32 @@ public class UnmodifiableObservableList<E> implements ObservableList<E> {
 
     
     @Override
-    public int size() {
+    public final int size() {
         return backingList.size();
     }
 
     @Override
-    public boolean isEmpty() {
+    public final boolean isEmpty() {
         return backingList.isEmpty();
     }
     
     @Override
-    public boolean contains(Object o) {
+    public final boolean contains(Object o) {
         return backingList.contains(o);
     }
     
     @Override
-    public Iterator<E> iterator() {
+    public final Iterator<E> iterator() {
         return new Iterator<E>() {
             private final Iterator<? extends E> i = backingList.iterator();
 
-            public boolean hasNext() {return i.hasNext();}
-            public E next()          {return i.next();}
-            public void remove() {
+            public final boolean hasNext() {return i.hasNext();}
+            public final E next()          {return i.next();}
+            public final void remove() {
                 throw new UnsupportedOperationException();
             }
             @Override
-            public void forEachRemaining(Consumer<? super E> action) {
+            public final void forEachRemaining(Consumer<? super E> action) {
                 // Use backing collection version
                 i.forEachRemaining(action);
             }
@@ -138,172 +138,172 @@ public class UnmodifiableObservableList<E> implements ObservableList<E> {
     }
     
     @Override
-    public Object[] toArray() {
+    public final Object[] toArray() {
         return backingList.toArray();
     }
 
     @Override
-    public <T> T[] toArray(T[] a) {
+    public final <T> T[] toArray(T[] a) {
         return backingList.toArray(a);
     }
 
     
     @Override
-    public boolean add(E o) {
+    public final boolean add(E o) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
     
     @Override
-    public boolean remove(Object o) {
+    public final boolean remove(Object o) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public final boolean containsAll(Collection<?> c) {
         return backingList.containsAll(c);
     }
 
     @Override
-    public boolean addAll(Collection<? extends E> c) {
+    public final boolean addAll(Collection<? extends E> c) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends E> c) {
+    public final boolean addAll(int index, Collection<? extends E> c) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
     
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public final boolean removeAll(Collection<?> c) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
     
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public final boolean retainAll(Collection<?> c) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
     @Override
-    public void replaceAll(UnaryOperator<E> operator) {
+    public final void replaceAll(UnaryOperator<E> operator) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
     @Override
-    public void sort(Comparator<? super E> c) {
+    public final void sort(Comparator<? super E> c) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
     
     @Override
-    public void clear() {
+    public final void clear() {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
     
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         return o == this || backingList.equals(o);
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return backingList.hashCode();
     }
 
     
     @Override
-    public E get(int index) {
+    public final E get(int index) {
         return backingList.get(index);
     }
 
     @Override
-    public Object set(int index, Object element) {
+    public final Object set(int index, Object element) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
     @Override
-    public void add(int index, Object element) {
+    public final void add(int index, Object element) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
     @Override
-    public E remove(int index) {
+    public final E remove(int index) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
     
     @Override
-    public int indexOf(Object o) {
+    public final int indexOf(Object o) {
         return backingList.indexOf(o);
     }
     
     @Override
-    public int lastIndexOf(Object o) {
+    public final int lastIndexOf(Object o) {
         return backingList.lastIndexOf(o);
     }
 
     @Override
-    public ListIterator<E> listIterator() {
+    public final ListIterator<E> listIterator() {
         return listIterator(0);
     }
     
     @Override
-    public ListIterator<E> listIterator(int index) {
+    public final ListIterator<E> listIterator(int index) {
         return new ListIterator<E>() {
             private final ListIterator<? extends E> i = backingList.listIterator(index);
 
-            public boolean hasNext()     {return i.hasNext();}
-            public E next()              {return i.next();}
-            public boolean hasPrevious() {return i.hasPrevious();}
-            public E previous()          {return i.previous();}
-            public int nextIndex()       {return i.nextIndex();}
-            public int previousIndex()   {return i.previousIndex();}
+            public final boolean hasNext()     {return i.hasNext();}
+            public final E next()              {return i.next();}
+            public final boolean hasPrevious() {return i.hasPrevious();}
+            public final E previous()          {return i.previous();}
+            public final int nextIndex()       {return i.nextIndex();}
+            public final int previousIndex()   {return i.previousIndex();}
 
-            public void remove() {
+            public final void remove() {
                 throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
             }
-            public void set(E e) {
+            public final void set(E e) {
                 throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
             }
-            public void add(E e) {
+            public final void add(E e) {
                 throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
             }
 
             @Override
-            public void forEachRemaining(Consumer<? super E> action) {
+            public final void forEachRemaining(Consumer<? super E> action) {
                 i.forEachRemaining(action);
             }
         };
     }
 
     @Override
-    public List<E> subList(int fromIndex, int toIndex) {
+    public final List<E> subList(int fromIndex, int toIndex) {
         return Collections.unmodifiableList(backingList.subList(fromIndex, toIndex));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Spliterator<E> spliterator() {
+    public final Spliterator<E> spliterator() {
         return (Spliterator<E>) backingList.spliterator();
     }
 
     @Override
-    public boolean removeIf(Predicate<? super E> filter) {
+    public final boolean removeIf(Predicate<? super E> filter) {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Stream<E> stream() {
+    public final Stream<E> stream() {
         return (Stream<E>) backingList.stream();
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Stream<E> parallelStream() {
+    public final Stream<E> parallelStream() {
         return (Stream<E>) backingList.parallelStream();
     }
     
     @Override
-    public void forEach(Consumer<? super E> action) {
+    public final void forEach(Consumer<? super E> action) {
         backingList.forEach(action);
     }
 }
