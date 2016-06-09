@@ -1,5 +1,6 @@
 package address.model.datatypes.person;
 
+import address.model.datatypes.Viewable;
 import address.model.datatypes.tag.Tag;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;

@@ -1,4 +1,4 @@
-package address.model.datatypes.person;
+package address.model.datatypes;
 
 import address.model.datatypes.BaseDataType;
 import javafx.beans.property.IntegerProperty;
@@ -72,8 +72,17 @@ public abstract class Viewable<D extends BaseDataType> extends BaseDataType {
         });
     }
 
-// APPLICATION STATE ACCESSORS
 
+    public D getVisible() {
+        return visible;
+    }
+
+    public D getBacking() {
+        return backing;
+    }
+
+
+// APPLICATION STATE ACCESSORS
 
     public IntegerProperty secondsLeftInPendingStateProperty() {
         return secondsLeftInPendingState;
