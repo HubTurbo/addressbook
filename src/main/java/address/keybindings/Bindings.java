@@ -77,11 +77,19 @@ public class Bindings {
 
         ACCELERATOR_FILE_SAVE_AS = setAccelerator(KeyCode.S, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
 
-        HOTKEY_APP_MINIMIZE.add(setHotkey("control alt X", new MinimizeAppRequestEvent()));
-        HOTKEY_APP_MINIMIZE.add(setHotkey("meta alt X", new MinimizeAppRequestEvent()));
+        HOTKEY_APP_MINIMIZE.add(setHotkey(
+                new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN, KeyCodeCombination.ALT_DOWN),
+                new MinimizeAppRequestEvent()));
+        HOTKEY_APP_MINIMIZE.add(setHotkey(
+                new KeyCodeCombination(KeyCode.X, KeyCombination.META_DOWN, KeyCodeCombination.ALT_DOWN),
+                new MinimizeAppRequestEvent()));
 
-        HOTKEY_APP_MAXIMIZE.add(setHotkey("control shift X", new MaximizeAppRequestEvent()));
-        HOTKEY_APP_MAXIMIZE.add(setHotkey("meta shift X", new MaximizeAppRequestEvent()));
+        HOTKEY_APP_MAXIMIZE.add(setHotkey(
+                new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN, KeyCodeCombination.SHIFT_DOWN),
+                new MaximizeAppRequestEvent()));
+        HOTKEY_APP_MAXIMIZE.add(setHotkey(
+                new KeyCodeCombination(KeyCode.X, KeyCombination.META_DOWN, KeyCodeCombination.SHIFT_DOWN),
+                new MaximizeAppRequestEvent()));
 
         /*====== other keys ======================================================*/
 
@@ -155,12 +163,12 @@ public class Bindings {
 
     /**
      * Creates a new {@link GlobalHotkey} object and adds it to the list.
-     * @param hotkeyString
+     * @param keyCombination
      * @param eventToRaise
      * @return the created object.
      */
-    private GlobalHotkey setHotkey(String hotkeyString, BaseEvent eventToRaise) {
-        GlobalHotkey hk = new GlobalHotkey(hotkeyString, eventToRaise);
+    private GlobalHotkey setHotkey(KeyCombination keyCombination, BaseEvent eventToRaise) {
+        GlobalHotkey hk = new GlobalHotkey(keyCombination, eventToRaise);
         hotkeys.add(hk);
         return hk;
     }

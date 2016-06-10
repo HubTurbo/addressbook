@@ -37,8 +37,7 @@ public class KeyBindingsManager extends ComponentManager{
 
     private void registerGlobalHotkeys(List<GlobalHotkey> hotkeys) {
         for (GlobalHotkey hk: hotkeys){
-            provider.register(KeyStroke.getKeyStroke(hk.getHotkeyString()),
-                    (hotkey) -> raise(hk.getEventToRaise()));
+            provider.register(hk.getKeyStroke(), (hotkey) -> raise(hk.getEventToRaise()));
         }
     }
 
