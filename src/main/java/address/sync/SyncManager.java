@@ -2,7 +2,8 @@ package address.sync;
 
 
 import address.events.*;
-import address.exceptions.CorruptedCloudDataEvent;
+import address.events.UpdateWithoutActiveSyncEvent;
+import address.exceptions.SyncErrorException;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
@@ -10,8 +11,9 @@ import address.sync.task.CloudUpdateTask;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.*;
 
@@ -27,11 +29,26 @@ public class SyncManager {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ExecutorService requestExecutor = Executors.newCachedThreadPool();
+    private Optional<String> activeAddressBook;
 
     private CloudService cloudService;
 
+    private LocalDateTime lastSuccessfulPersonsUpdate;
+
     public SyncManager() {
+        activeAddressBook = Optional.empty();
         EventManager.getInstance().registerHandler(this);
+    }
+
+    // TODO: setActiveAddressBook should be called instead of listening for data request events
+    @Subscribe
+    public void handleLoadDataRequestEvent(LoadDataRequestEvent e) {
+        logger.info("Active addressbook set to {}", e.file.getName());
+        activeAddressBook = Optional.of(e.file.getName());
+    }
+
+    public void setActiveAddressBook(String activeAddressBookName) {
+        activeAddressBook = Optional.of(activeAddressBookName);
     }
 
     public void startSyncingData(long interval, boolean simulateUnreliableNetwork) {
@@ -41,26 +58,27 @@ public class SyncManager {
     }
 
     /**
-     * Runs periodically and adds any entries in the cloud data that is missing
-     * in the primary data file. 
+     * Runs periodically and posts results of updates as events
      * @param interval number of units to wait
      */
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
-            try {
-                EventManager.getInstance().post(new SyncInProgressEvent());
-                Optional<AddressBook> cloudData = getCloudData();
-                if (!cloudData.isPresent()) {
-                    logger.info("Unable to retrieve cloud data, cancelling sync...");
-                    return;
-                }
-                EventManager.getInstance().post(new NewCloudDataEvent(cloudData.get()));
-            } catch (CorruptedCloudDataEvent e) {
-                // do not sync changes from mirror if cloud data seems to be corrupted
-                logger.info("Possible corrupted cloud data found, cancelling sync...");
-            } finally {
-                EventManager.getInstance().post(new SyncCompletedEvent());
+            logger.info("Attempting to update at {}", System.currentTimeMillis());
+            if (!activeAddressBook.isPresent()) {
+                EventManager.getInstance().post(new UpdateWithoutActiveSyncEvent());
+                return;
             }
+            EventManager.getInstance().post(new SyncInProgressEvent());
+            try {
+                List<Person> updatedPersons = getUpdatedPersons(activeAddressBook.get());
+                logger.info("{} updated persons found.", updatedPersons.size());
+                EventManager.getInstance().post(new UpdateCompletedEvent<>(updatedPersons, "Person updates completed."));
+            } catch (SyncErrorException e) {
+                logger.info("Error obtaining person updates.");
+                EventManager.getInstance().post(new SyncFailedEvent(e.getMessage()));
+            }
+
+            EventManager.getInstance().post(new SyncCompletedEvent());
         };
 
         long initialDelay = 300; // temp fix for issue #66
@@ -74,25 +92,37 @@ public class SyncManager {
         return wrapper;
     }
 
-    private Optional<AddressBook> getCloudData() throws CorruptedCloudDataEvent {
-        logger.info("Retrieving data from cloud.");
+    /**
+     * Gets the list of updated persons since lastSuccessfulPersonsUpdate
+     *
+     * If lastSuccessfulPersonsUpdate is null, the full list of persons will be obtained instead
+     *
+     * @param addressBookName
+     * @return
+     * @throws SyncErrorException if bad response code, missing data or network error
+     */
+    private List<Person> getUpdatedPersons(String addressBookName) throws SyncErrorException {
+        logger.info("Retrieving person data from cloud.");
 
         try {
-            // TODO: default should be changed to the desired addressbook's name
-            ExtractedCloudResponse<List<Person>> personsResponse = cloudService.getPersons("default");
-            ExtractedCloudResponse<List<Tag>> tagsResponse = cloudService.getTags("default");
-            List<Person>  personList = personsResponse.getData().get();
-            List<Tag> tagList = tagsResponse.getData().get();
-            AddressBook data = wrapWithAddressBook(personList, tagList);
-            if (data.containsDuplicates()) throw new CorruptedCloudDataEvent(data);
-
-            return Optional.of(data);
+            ExtractedCloudResponse<List<Person>> personsResponse;
+            if (lastSuccessfulPersonsUpdate == null) {
+                logger.debug("No previous persons update found.");
+                personsResponse = cloudService.getPersons(addressBookName);
+            } else {
+                logger.debug("Last persons update at: {}", lastSuccessfulPersonsUpdate);
+                 personsResponse = cloudService.getUpdatedPersonsSince(addressBookName, lastSuccessfulPersonsUpdate);
+            }
+            if (personsResponse.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new SyncErrorException(personsResponse.getResponseCode() + " response from cloud instead of expected " + HttpURLConnection.HTTP_OK + " during persons update.");
+            }
+            if (!personsResponse.getData().isPresent()) {
+                throw new SyncErrorException("Unexpected missing data from response.");
+            }
+            lastSuccessfulPersonsUpdate = LocalDateTime.now();
+            return personsResponse.getData().get();
         } catch (IOException e) {
-            e.printStackTrace();
-            return Optional.empty();
-        } catch (NoSuchElementException e) {
-            logger.debug("Empty response from cloud!");
-            return Optional.empty();
+            throw new SyncErrorException("Error getting updated persons.");
         }
     }
 

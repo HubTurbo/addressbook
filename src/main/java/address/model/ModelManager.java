@@ -280,9 +280,10 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
 //// EVENT HANDLERS
 
     @Subscribe
-    private void handleNewCloudDataEvent(NewCloudDataEvent nde){
-        // NewCloudDataEvent is created from outside FX Application thread
-        PlatformEx.runLaterAndWait(() -> updateUsingExternalData(nde.data));
+    private <T> void handleUpdateCompletedEvent(UpdateCompletedEvent<T> uce) {
+        // Sync is done outside FX Application thread
+        // TODO: Decide how incoming updates should be handled
+        //PlatformEx.runLaterAndWait(() -> updateUsingExternalData(uce.getData()));
     }
 
 //// DIFFERENTIAL UPDATE ENGINE todo shift this logic to sync component (with conditional requests to remote)

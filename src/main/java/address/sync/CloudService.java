@@ -260,7 +260,8 @@ public class CloudService implements ICloudService {
 
     /**
      * Gets the list of persons for addressBookName, which have been modified after a certain time,
-     * if quota is available
+     * if quota is available.
+     * Parameter time should not be null.
      *
      * Consumes 1 + floor(result size/RESOURCES_PER_PAGE) API usage
      *

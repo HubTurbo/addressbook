@@ -1,13 +1,11 @@
 package address.controller;
 
-import address.MainApp;
 import address.events.*;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.StatusBar;
