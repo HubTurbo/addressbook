@@ -10,6 +10,7 @@ import address.model.datatypes.person.*;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.UniqueData;
 import address.util.PlatformEx;
+import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
@@ -100,7 +101,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @return all persons in visible model IN AN UNMODIFIABLE VIEW
      */
     @Override
-    public ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsReadOnly() {
+    public UnmodifiableObservableList<ReadOnlyViewablePerson> getAllViewablePersonsReadOnly() {
         return visibleModel.getAllViewablePersonsReadOnly();
     }
 
@@ -108,7 +109,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @return all tags in backing model IN AN UNMODIFIABLE VIEW
      */
     @Override
-    public ObservableList<Tag> getAllViewableTagsReadOnly() {
+    public UnmodifiableObservableList<Tag> getAllViewableTagsReadOnly() {
         return visibleModel.getAllViewableTagsReadOnly();
     }
 
@@ -116,7 +117,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @return all persons in backing model IN AN UNMODIFIABLE VIEW
      */
     @Override
-    public ObservableList<ReadOnlyPerson> getAllPersonsReadOnly() {
+    public UnmodifiableObservableList<ReadOnlyPerson> getAllPersonsReadOnly() {
         return backingModel.getAllPersonsReadOnly();
     }
 
@@ -124,7 +125,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @return all tags in backing model IN AN UNMODIFIABLE VIEW
      */
     @Override
-    public ObservableList<Tag> getAllTagsReadOnly() {
+    public UnmodifiableObservableList<Tag> getAllTagsReadOnly() {
         return backingModel.getAllTagsReadOnly();
     }
 
@@ -319,7 +320,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @param newData target will be updated to match newData's state
      * @return true if there were changes from the update.
      */
-    private synchronized <E extends UniqueData> boolean diffUpdate(Collection<E> target, Collection<E> newData) {
+    private synchronized <E extends BaseDataType> boolean diffUpdate(Collection<E> target, Collection<E> newData) {
         assert UniqueData.itemsAreUnique(target) : "target of diffUpdate should not have duplicates";
         assert UniqueData.itemsAreUnique(newData) : "newData for diffUpdate should not have duplicates";
 
@@ -358,7 +359,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @param target to be updated
      * @param newData data used for update
      */
-    private <E extends UniqueData> void updateDataItem(E target, E newData) {
+    private <E extends BaseDataType> void updateDataItem(E target, E newData) {
         if (target instanceof Person && newData instanceof Person) {
             ((Person) target).update((Person) newData);
             return;

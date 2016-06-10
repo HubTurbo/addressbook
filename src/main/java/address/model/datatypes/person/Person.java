@@ -290,7 +290,7 @@ public class Person extends BaseDataType implements ReadOnlyPerson {
 
     @JsonProperty("tags")
     @Override
-    public ObservableList<Tag> getTags() {
+    public UnmodifiableObservableList<Tag> getTags() {
         return new UnmodifiableObservableList<>(tags);
     }
 

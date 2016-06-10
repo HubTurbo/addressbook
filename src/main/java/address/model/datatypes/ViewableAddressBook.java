@@ -39,7 +39,7 @@ public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
     private void bindPersonsToBacking() {
         backingModel.getPersons().addListener((ListChangeListener<? super Person>) change -> {
 
-            // ignore permutations (order doesn't matter) and updates (Viewable wrapper handles it)
+            // ignore permutations (order doesn't matter) and updates (ViewableDataType wrapper handles it)
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
                     // removed
@@ -64,22 +64,22 @@ public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
     }
 
     @Override
-    public ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsReadOnly() {
+    public UnmodifiableObservableList<ReadOnlyViewablePerson> getAllViewablePersonsReadOnly() {
         return new UnmodifiableObservableList<>(persons);
     }
 
     @Override
-    public ObservableList<Tag> getAllViewableTagsReadOnly() {
+    public UnmodifiableObservableList<Tag> getAllViewableTagsReadOnly() {
         return new UnmodifiableObservableList<>(tags);
     }
 
     @Override
-    public ObservableList<ReadOnlyPerson> getAllPersonsReadOnly() {
+    public UnmodifiableObservableList<ReadOnlyPerson> getAllPersonsReadOnly() {
         return new UnmodifiableObservableList<>(persons);
     }
 
     @Override
-    public ObservableList<Tag> getAllTagsReadOnly() {
+    public UnmodifiableObservableList<Tag> getAllTagsReadOnly() {
         return new UnmodifiableObservableList<>(tags);
     }
 

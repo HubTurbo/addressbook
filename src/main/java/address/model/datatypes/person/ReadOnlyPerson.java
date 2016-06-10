@@ -2,6 +2,7 @@ package address.model.datatypes.person;
 
 import address.model.datatypes.ExtractableObservables;
 import address.model.datatypes.tag.Tag;
+import address.util.collections.UnmodifiableObservableList;
 import javafx.beans.Observable;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -14,8 +15,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
- * Allows access to the Person domain object's data as javafx properties and collections for easy binding and listening.
- * Also includes useful methods for working with fields from two ObservabblePersons together.
+ * Allows read-only access to the Person domain object's data.
  */
 public interface ReadOnlyPerson extends ExtractableObservables {
 
@@ -60,8 +60,9 @@ public interface ReadOnlyPerson extends ExtractableObservables {
 
     /**
      * @return ObservableList unmodifiable view of this Person's tags
+     * TODO ReadOnlyTag class
      */
-    ObservableList<Tag> getTags();
+    UnmodifiableObservableList<Tag> getTags();
 
     @Override
     default Observable[] extractObservables() {

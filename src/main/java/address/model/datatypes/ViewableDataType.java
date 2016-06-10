@@ -1,8 +1,6 @@
 package address.model.datatypes;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 
@@ -13,29 +11,30 @@ import java.util.function.Function;
  * eg.  - the ability to deactivate and reactivate syncing visible data with backing data (for optimistic ui updating)
  *      - common fields/references and constructor logic
  *      - maintains visible state separately from canonical state (see {@link #visible}, {@link #backing})
+ *      - common application session-lifecycle state across all domain data objects
  */
-public abstract class Viewable<D extends BaseDataType> extends BaseDataType {
+public abstract class ViewableDataType<D extends BaseDataType> extends BaseDataType implements ReadOnlyViewableDataType {
 
     protected final D visible;
     protected D backing;
     protected boolean isSyncingWithBackingObject;
 
-    /**
-     * Negative when nothing is pending, else equal to seconds left before pending period ends.
-     * Anyone who wants to be updated on the countdown at the second level needs only to observe this property.
-     */
-    protected final IntegerProperty secondsLeftInPendingState;
+    protected final IntegerProperty secondsLeftInPendingState; // Negative when not in pending state
+    protected final BooleanProperty isDeleted;
+    protected final BooleanProperty isEdited;
 
     {
         secondsLeftInPendingState = new SimpleIntegerProperty(-1);
+        isDeleted = new SimpleBooleanProperty(false);
+        isEdited = new SimpleBooleanProperty(false);
     }
 
     /**
-     * Create a new Viewable based on a backing object.
+     * Create a new ViewableDataType based on a backing object.
      * @param backingObject used as {@link #backing}.
      * @param visibleObjectGenerator used to generate {@link #visible} with {@code backingObject} as the argument.
      */
-    protected Viewable(D backingObject, Function<D, D> visibleObjectGenerator) {
+    protected ViewableDataType(D backingObject, Function<D, D> visibleObjectGenerator) {
         backing = backingObject;
         visible = visibleObjectGenerator.apply(backingObject);
         conditionallyBindVisibleToBacking();
@@ -84,12 +83,50 @@ public abstract class Viewable<D extends BaseDataType> extends BaseDataType {
 
 // APPLICATION STATE ACCESSORS
 
+    @Override
     public ReadOnlyIntegerProperty secondsLeftInPendingStateProperty() {
         return secondsLeftInPendingState;
     }
 
+    @Override
     public int getSecondsLeftInPendingState() {
         return secondsLeftInPendingState.get();
+    }
+
+    public void setSecondsLeftInPendingState(int s) {
+        secondsLeftInPendingState.set(s);
+    }
+
+    public void decrementSecondsLefInPendingState() {
+        secondsLeftInPendingState.set(secondsLeftInPendingState.get() - 1);
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return isDeleted.get();
+    }
+
+    @Override
+    public ReadOnlyBooleanProperty isDeletedProperty() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted.set(isDeleted);
+    }
+
+    @Override
+    public boolean isEdited() {
+        return isEdited.get();
+    }
+
+    @Override
+    public ReadOnlyBooleanProperty isEditedProperty() {
+        return isEdited;
+    }
+
+    public void setIsEdited(boolean isEdited) {
+        this.isEdited.set(isEdited);
     }
 
 
@@ -98,6 +135,7 @@ public abstract class Viewable<D extends BaseDataType> extends BaseDataType {
     /**
      * @return true if changes to the backing object AFTER this method call will propagate to the visible object.
      */
+    @Override
     public boolean isSyncingWithBackingObject() {
         return isSyncingWithBackingObject;
     }

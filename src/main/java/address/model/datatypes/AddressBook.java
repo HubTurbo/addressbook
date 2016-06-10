@@ -114,12 +114,12 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     @Override
-    public ObservableList<ReadOnlyPerson> getAllPersonsReadOnly() {
+    public UnmodifiableObservableList<ReadOnlyPerson> getAllPersonsReadOnly() {
         return new UnmodifiableObservableList<>(persons);
     }
 
     @Override
-    public ObservableList<Tag> getAllTagsReadOnly() {
+    public UnmodifiableObservableList<Tag> getAllTagsReadOnly() {
         return new UnmodifiableObservableList<>(tags);
     }
 }

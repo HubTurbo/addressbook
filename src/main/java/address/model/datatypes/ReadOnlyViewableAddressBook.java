@@ -2,6 +2,7 @@ package address.model.datatypes;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.tag.Tag;
+import address.util.collections.UnmodifiableObservableList;
 import javafx.collections.ObservableList;
 
 /**
@@ -12,9 +13,9 @@ public interface ReadOnlyViewableAddressBook extends ReadOnlyAddressBook {
     /**
      * @return all persons in this visible model AS AN UNMODIFIABLE VIEW
      */
-    ObservableList<ReadOnlyViewablePerson> getAllViewablePersonsReadOnly();
+    UnmodifiableObservableList<ReadOnlyViewablePerson> getAllViewablePersonsReadOnly();
     /**
      * @return all tags in this visible model AS AN UNMODIFIABLE VIEW
      */
-    ObservableList<Tag> getAllViewableTagsReadOnly();
+    UnmodifiableObservableList<Tag> getAllViewableTagsReadOnly();
 }

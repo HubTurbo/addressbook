@@ -1,10 +1,10 @@
 package address.model.datatypes.person;
 
-import address.model.datatypes.Viewable;
+import address.model.datatypes.ViewableDataType;
 import address.model.datatypes.tag.Tag;
+import address.util.collections.UnmodifiableObservableList;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,18 +12,11 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 /**
- * Extends {@link Viewable} for the Person domain object.
- * @see Viewable
+ * Extends {@link ViewableDataType} for the Person domain object.
+ * @see ViewableDataType
  */
-public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewablePerson {
+public class ViewablePerson extends ViewableDataType<Person> implements ReadOnlyViewablePerson {
 
-    private final BooleanProperty isDeleted;
-    private final BooleanProperty isEdited;
-
-    {
-        isDeleted = new SimpleBooleanProperty(false);
-        isEdited = new SimpleBooleanProperty(false);
-    }
 
     public ViewablePerson(Person backingPerson) {
         super(backingPerson, Person::new);
@@ -57,34 +50,6 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
     }
 
 // APPLICATION STATE ACCESSORS
-
-    @Override
-    public boolean isDeleted() {
-        return isDeleted.get();
-    }
-
-    @Override
-    public ReadOnlyBooleanProperty isDeletedProperty() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(boolean isDeleted) {
-        this.isDeleted.set(isDeleted);
-    }
-
-    @Override
-    public boolean isEdited() {
-        return isEdited.get();
-    }
-
-    @Override
-    public ReadOnlyBooleanProperty isEditedProperty() {
-        return isEdited;
-    }
-
-    public void setIsEdited(boolean isEdited) {
-        this.isEdited.set(isEdited);
-    }
 
 
 // PERSON ACCESSORS
@@ -192,7 +157,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
     }
 
     @Override
-    public ObservableList<Tag> getTags() {
+    public UnmodifiableObservableList<Tag> getTags() {
         return visible.getTags();
     }
 
