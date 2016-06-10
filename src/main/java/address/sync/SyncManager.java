@@ -61,6 +61,14 @@ public class SyncManager {
         activeAddressBook = Optional.of(activeAddressBookName);
     }
 
+    /**
+     * Initializes the cloud service, if it hasn't been
+     *
+     * Starts getting periodic updates from the cloud
+     *
+     * @param interval
+     * @param simulateUnreliableNetwork
+     */
     public void startSyncingData(long interval, boolean simulateUnreliableNetwork) {
         if (interval <= 0) return;
         if (cloudService == null) {
@@ -72,7 +80,7 @@ public class SyncManager {
     /**
      * Runs an update task periodically every interval milliseconds
      *
-     * Raises a SyncStartedEvent at the beginning, SyncFailedEvent or SyncCompletedEvent at the end of the task
+     * Raises a SyncStartedEvent at the beginning, and SyncFailedEvent or SyncCompletedEvent at the end of the task
      * Raises UpdateCompletedEvent after each resource update is finished successfully
      *
      * @param interval number of milliseconds to wait
@@ -162,7 +170,7 @@ public class SyncManager {
                         throw new SyncErrorException("Unexpected missing data from response.");
                     }
                     lastTagsETag = tagsResponse.getETag();
-                    // fall through
+                    // fallthrough
                 case HttpURLConnection.HTTP_NOT_MODIFIED:
                     lastSuccessfulTagsUpdate = LocalDateTime.now();
                     return tagsResponse.getData();
