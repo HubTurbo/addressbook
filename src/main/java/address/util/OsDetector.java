@@ -1,6 +1,5 @@
 package address.util;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -11,7 +10,7 @@ import java.io.InputStreamReader;
  * Detect what Operating System (OS) the application is running in
  */
 public class OsDetector {
-    private static final Logger logger = LogManager.getLogger(OsDetector.class);
+    private static final Logger logger = LoggerManager.getLogger(OsDetector.class);
 
     private static final String osName = System.getProperty("os.name");
 

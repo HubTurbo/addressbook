@@ -16,14 +16,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 /**
  * Syncs data between the cloud and the primary data file
  */
 public class SyncManager {
-    private static final Logger logger = LoggerManager.getLogger(SyncManager.class.getName());
+    private static final Logger logger = LoggerManager.getLogger(SyncManager.class);
 
     private final ScheduledExecutorService scheduler;
     private final ExecutorService requestExecutor;

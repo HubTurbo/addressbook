@@ -1,6 +1,7 @@
 package address.updater;
 
 import address.util.FileUtil;
+import address.util.LoggerManager;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -10,7 +11,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
@@ -30,7 +30,7 @@ import java.util.concurrent.Executors;
  * --update-specification
  */
 public class JarUpdater extends Application {
-    private static final Logger logger = LogManager.getLogger(JarUpdater.class);
+    private static final Logger logger = LoggerManager.getLogger(JarUpdater.class);
 
     private static final int MAX_RETRY = 10;
     private static final int WAIT_TIME = 2000;

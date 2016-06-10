@@ -9,14 +9,13 @@ import address.model.datatypes.*;
 import address.model.datatypes.person.*;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.UniqueData;
-import address.util.PlatformEx;
+import address.util.LoggerManager;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
@@ -30,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * All changes to any model should be synchronized. (FX and sync thread may clash).
  */
 public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddressBook {
-    private static final Logger logger = LogManager.getLogger(ModelManager.class);
+    private static final Logger logger = LoggerManager.getLogger(ModelManager.class);
 
     private final AddressBook backingModel;
     private final ViewableAddressBook visibleModel;

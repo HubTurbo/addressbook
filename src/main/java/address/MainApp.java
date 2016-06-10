@@ -13,11 +13,11 @@ import address.sync.SyncManager;
 import address.updater.UpdateManager;
 import address.util.Config;
 
+import address.util.LoggerManager;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class MainApp extends Application {
     public static final int VERSION_MINOR = 0;
     public static final int VERSION_PATCH = 1;
 
-    private static final Logger logger = LogManager.getLogger(MainApp.class);
+    private static final Logger logger = LoggerManager.getLogger(MainApp.class);
 
     protected Config config;
     protected StorageManager storageManager;

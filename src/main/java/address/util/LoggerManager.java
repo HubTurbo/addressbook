@@ -7,7 +7,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
-public class LoggerManager extends LogManager {
+public class LoggerManager {
     public static Level currentLogLevel;
 
     public static Logger getLogger(String className, Level loggingLevel) {
@@ -24,5 +24,10 @@ public class LoggerManager extends LogManager {
         LoggerConfig loggerConfig = config.getLoggerConfig(className);
         loggerConfig.setLevel(currentLogLevel);
         return LogManager.getLogger(className);
+    }
+
+    public static <T> Logger getLogger(Class<T> clazz) {
+        if (clazz == null) return LogManager.getRootLogger();
+        return LogManager.getLogger(clazz.getName());
     }
 }

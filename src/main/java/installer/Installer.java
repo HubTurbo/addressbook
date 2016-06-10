@@ -2,10 +2,7 @@ package installer;
 
 import address.updater.model.LibraryDescriptor;
 import address.updater.model.UpdateData;
-import address.util.FileUtil;
-import address.util.JsonUtil;
-import address.util.OsDetector;
-import address.util.ProgressAwareInputStream;
+import address.util.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -16,7 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
@@ -43,7 +39,7 @@ import java.util.stream.Collectors;
  * the main application JAR.
  */
 public class Installer extends Application {
-    private static final Logger logger = LogManager.getLogger(Installer.class);
+    private static final Logger logger = LoggerManager.getLogger(Installer.class);
     private static final String LIB_DIR = "lib";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();

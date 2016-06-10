@@ -22,14 +22,18 @@ public class Config {
             File configFile = new File("config.ini");
             if (configFile.exists()) {
                 Profile.Section section = new Ini(configFile).get("main");
-                String loggingLevelString = section.get("LoggingLevel");
-                LoggerManager.currentLogLevel = getLoggingLevel(loggingLevelString);
+                LoggerManager.currentLogLevel = getLoggingLevelFromSection(section);
             } else {
                 createConfigWithDefaults(configFile);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private Level getLoggingLevelFromSection(Profile.Section section) {
+        String loggingLevelString = section.get("LoggingLevel");
+        return determineLoggingLevel(loggingLevelString);
     }
 
     private void createConfigWithDefaults(File configFile) throws IOException {
@@ -40,7 +44,7 @@ public class Config {
         }
     }
 
-    private Level getLoggingLevel(String loggingLevelString) {
+    private Level determineLoggingLevel(String loggingLevelString) {
         Level[] allLoggingLevels = Level.values();
         for (Level level : allLoggingLevels) {
             if (level.toString().equals(loggingLevelString)) {

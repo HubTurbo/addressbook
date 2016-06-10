@@ -1,14 +1,14 @@
 package address.events;
 
+import address.util.LoggerManager;
 import com.google.common.eventbus.EventBus;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * Manages the event dispatching of the app.
  */
 public class EventManager {
-    private static final Logger logger = LogManager.getLogger(EventManager.class);
+    private static final Logger logger = LoggerManager.getLogger(EventManager.class);
     private final EventBus eventBus;
     private static EventManager instance;
 

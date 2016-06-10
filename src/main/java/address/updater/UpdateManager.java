@@ -4,12 +4,8 @@ import address.events.EventManager;
 import address.events.UpdaterFinishedEvent;
 import address.events.UpdaterInProgressEvent;
 import address.updater.model.UpdateData;
-import address.util.JsonUtil;
-import address.util.OsDetector;
-import address.util.FileUtil;
-import address.util.Version;
+import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
@@ -27,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class UpdateManager {
     public static final String UPDATE_DIR = "update";
-    private static final Logger logger = LogManager.getLogger(UpdateManager.class);
+    private static final Logger logger = LoggerManager.getLogger(UpdateManager.class);
 
     // --- Messages
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
