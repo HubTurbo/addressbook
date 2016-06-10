@@ -1,13 +1,17 @@
 package address.sync.model;
 
 import address.util.LocalDateAdapter;
+import address.util.LocalDateTimeAdapter;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@XmlRootElement(name = "cloudperson")
 public class CloudPerson {
     private int id;
     private String firstName;
@@ -18,10 +22,8 @@ public class CloudPerson {
     private List<CloudTag> tags;
     private boolean isDeleted;
 
-    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     private LocalDateTime lastUpdatedAt;
 
-    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     private LocalDate birthday;
 
     public CloudPerson() {
@@ -43,6 +45,8 @@ public class CloudPerson {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+
+    @XmlElement(name = "firstName")
     public String getFirstName() {
         return firstName;
     }
@@ -52,6 +56,7 @@ public class CloudPerson {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+    @XmlElement(name = "lastName")
     public String getLastName() {
         return lastName;
     }
@@ -61,6 +66,7 @@ public class CloudPerson {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+    @XmlElement(name = "street")
     public String getStreet() {
         return street;
     }
@@ -70,6 +76,7 @@ public class CloudPerson {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+    @XmlElement(name = "city")
     public String getCity() {
         return city;
     }
@@ -79,6 +86,7 @@ public class CloudPerson {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+    @XmlElement(name = "postalCode")
     public String getPostalCode() {
         return postalCode;
     }
@@ -88,6 +96,7 @@ public class CloudPerson {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+    @XmlElement(name = "tags")
     public List<CloudTag> getTags() {
         return tags;
     }
@@ -97,6 +106,7 @@ public class CloudPerson {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+    @XmlElement(name = "deleted")
     public boolean isDeleted() {
         return isDeleted;
     }
@@ -106,6 +116,8 @@ public class CloudPerson {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+    @XmlElement(name = "lastUpdatedAt")
+    @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
     public LocalDateTime getLastUpdatedAt() {
         return lastUpdatedAt;
     }
@@ -114,12 +126,15 @@ public class CloudPerson {
         this.lastUpdatedAt = lastUpdatedAt;
     }
 
+    @XmlElement(name = "birthday")
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     public LocalDate getBirthday() {
         return birthday;
     }
 
     public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
+        setLastUpdatedAt(LocalDateTime.now());
     }
 
     public void updatedBy(CloudPerson updatedPerson) {
@@ -130,6 +145,7 @@ public class CloudPerson {
         this.postalCode = updatedPerson.postalCode;
         this.tags = updatedPerson.tags;
         this.isDeleted = updatedPerson.isDeleted;
+        this.birthday = updatedPerson.birthday;
         this.lastUpdatedAt = LocalDateTime.now();
     }
 

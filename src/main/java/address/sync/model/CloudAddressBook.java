@@ -16,6 +16,9 @@ public class CloudAddressBook {
     List<CloudPerson> personsList;
     List<CloudTag> tagsList;
 
+    public CloudAddressBook() {
+    }
+
     public CloudAddressBook(String name) {
         this.name = name;
         this.personsList = new ArrayList<>();
@@ -41,6 +44,18 @@ public class CloudAddressBook {
     @XmlElement(name = "cloudtags")
     public List<CloudTag> getAllTags() {
         return this.tagsList;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPersonsList(List<CloudPerson> personsList) {
+        this.personsList = personsList;
+    }
+
+    public void setTagsList(List<CloudTag> tagsList) {
+        this.tagsList = tagsList;
     }
 
     public boolean equals(Object o) {
