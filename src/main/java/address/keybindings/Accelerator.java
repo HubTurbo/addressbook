@@ -5,14 +5,11 @@ import javafx.scene.input.KeyCombination;
 /**
  * Represents a shortcut that is also a keyboard accelerator.
  */
-public class Accelerator {
-    private KeyCombination keyCombination;
+public class Accelerator extends KeyBinding{
+
 
     Accelerator(KeyCombination keyCombination) {
-        this.keyCombination = keyCombination;
+        super(keyCombination);
     }
 
-    public KeyCombination getKeyCombination() {
-        return keyCombination;
-    }
 }

@@ -75,7 +75,7 @@ public class KeyBindingsManager extends ComponentManager{
         long elapsedTime = PotentialKeyboardShortcutEvent.elapsedTimeInMilliseconds(previousKeyEvent, currentEvent);
 
         if (elapsedTime < KEY_SEQUENCE_MAX_DELAY_BETWEEN_KEYS){
-            return BINDINGS.getSequence(previousKeyEvent.keyEvent.getCode(), currentEvent.keyEvent.getCode());
+            return BINDINGS.getSequence(previousKeyEvent.keyEvent, currentEvent.keyEvent);
         }
 
         return Optional.empty();

@@ -66,8 +66,11 @@ public class Bindings {
 
         ACCELERATOR_PERSON_EDIT = setAccelerator(KeyCode.E);
 
-        SEQUENCE_GOTO_BOTTOM = setSequence(KeyCode.G, KeyCode.B, new JumpToListRequestEvent(-1));
-        SEQUENCE_GOTO_TOP = setSequence(KeyCode.G, KeyCode.T, new JumpToListRequestEvent(1));
+        SEQUENCE_GOTO_BOTTOM = setSequence(new KeyCodeCombination(KeyCode.G), new KeyCodeCombination(KeyCode.B),
+                                           new JumpToListRequestEvent(-1));
+
+        SEQUENCE_GOTO_TOP = setSequence(new KeyCodeCombination(KeyCode.G), new KeyCodeCombination(KeyCode.T),
+                                        new JumpToListRequestEvent(1));
 
         ACCELERATOR_FILE_NEW = setAccelerator(KeyCode.N, KeyCombination.SHORTCUT_DOWN);
 
@@ -107,19 +110,6 @@ public class Bindings {
         setShortcut(KeyCode.DIGIT9, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(9));
 
     }
-    /**
-     * Adds the shortcut to the list of shortcuts.
-     * No action will be taken for this shortcut (suitable for shortcuts already used as an accelerator).
-     * @param mainKey
-     * @param modifierKey
-     * @return corresponding key combination
-     */
-    private Shortcut setShortcut(KeyCode mainKey, KeyCombination.Modifier... modifierKey) {
-        KeyCodeCombination keyCodeCombination = new KeyCodeCombination(mainKey, modifierKey);
-        Shortcut s = new Shortcut(keyCodeCombination);
-        shortcuts.add(s);
-        return s;
-    }
 
     /**
      * Creates a new {@link Accelerator} object and adds it to the list of accelerators.
@@ -137,13 +127,14 @@ public class Bindings {
 
     /**
      * Creates a new {@link KeySequence} object and adds it to the list of key sequences.
-     * @param firstKey
-     * @param secondKey
+     * @param firstKeyCombination
+     * @param secondKeyCombination
      * @param eventToRaise
      * @return the created object.
      */
-    private KeySequence setSequence(KeyCode firstKey, KeyCode secondKey, BaseEvent eventToRaise) {
-        KeySequence sq = new KeySequence(firstKey, secondKey, eventToRaise);
+    private KeySequence setSequence(KeyCombination firstKeyCombination, KeyCombination secondKeyCombination,
+                                    BaseEvent eventToRaise) {
+        KeySequence sq = new KeySequence(firstKeyCombination, secondKeyCombination, eventToRaise);
         sequences.add(sq);
         return sq;
     }
@@ -187,12 +178,12 @@ public class Bindings {
 
     /**
      * Returns the matching key sequence, if any
-     * @param firstKey
-     * @param secondKey
+     * @param firstEvent
+     * @param secondEvent
      */
-    protected Optional<KeySequence> getSequence(KeyCode firstKey, KeyCode secondKey) {
+    protected Optional<KeySequence> getSequence(KeyEvent firstEvent, KeyEvent secondEvent) {
         return sequences.stream()
-                .filter(sq -> sq.firstKey == firstKey && sq.secondKey == secondKey)
+                .filter(sq -> sq.keyCombination.match(firstEvent) && sq.secondKeyCombination.match(secondEvent))
                 .findFirst();
     }
 

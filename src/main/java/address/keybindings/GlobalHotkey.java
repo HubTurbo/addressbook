@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Represents a global hotkey.
  */
-public class GlobalHotkey {
+public class GlobalHotkey extends KeyBinding{
     private static Map<KeyCombination, KeyStroke> map = new HashMap<>();
     static{
         map.put(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN),
@@ -27,11 +27,10 @@ public class GlobalHotkey {
 
     private BaseEvent eventToRaise;
     private KeyStroke keyStroke;
-    private KeyCombination keyCombination;
 
 
     public GlobalHotkey(KeyCombination keyCombination, BaseEvent eventToRaise){
-        this.keyCombination = keyCombination;
+        super(keyCombination);
         this.keyStroke = getKeyStroke(keyCombination);
         this.eventToRaise = eventToRaise;
     }

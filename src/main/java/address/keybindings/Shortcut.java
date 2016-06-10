@@ -6,18 +6,12 @@ import javafx.scene.input.KeyCombination;
 /**
  * Represents a keyboard shortcut
  */
-public class Shortcut {
-    private KeyCombination keyCombination;
+public class Shortcut extends KeyBinding{
     private BaseEvent eventToRaise;
 
     Shortcut(KeyCombination keyCombination, BaseEvent eventToRaise) {
-        this.keyCombination = keyCombination;
+        super(keyCombination);
         this.eventToRaise = eventToRaise;
-    }
-
-    Shortcut(KeyCombination keyCombination) {
-        this.keyCombination = keyCombination;
-        this.eventToRaise = null;
     }
 
     public KeyCombination getKeyCombination() {
