@@ -164,25 +164,62 @@ public class Bindings {
         return hk;
     }
 
+
     /**
      * @param keyEvent
      * @return the Shortcut that matches the keyEvent, if any.
      */
-    protected Optional<Shortcut> getEventToRaiseForShortcut(KeyEvent keyEvent) {
-        return shortcuts.stream()
-                        .filter(shortcut -> shortcut.getKeyCombination().match(keyEvent))
-                        .findFirst();
+    protected Optional<Shortcut> getShortcut(KeyEvent keyEvent) {
+        return (Optional<Shortcut>) findMatchingBinding(keyEvent, shortcuts);
+    }
+
+    private Optional<? extends KeyBinding> findMatchingBinding(KeyEvent event, List<? extends KeyBinding> list){
+        return list.stream()
+                .filter(shortcut -> shortcut.getKeyCombination().match(event))
+                .findFirst();
     }
 
     /**
      * Returns the matching key sequence, if any
-     * @param firstEvent
-     * @param secondEvent
+     * @param currentEvent
+     * @param previousEvent
      */
-    protected Optional<KeySequence> getSequence(KeyEvent firstEvent, KeyEvent secondEvent) {
+    protected Optional<KeySequence> getSequence(PotentialKeyboardShortcutEvent currentEvent,
+                                                PotentialKeyboardShortcutEvent previousEvent) {
+
+        if (previousEvent == null){
+            return Optional.empty();
+        }
+
+        long elapsedTime = PotentialKeyboardShortcutEvent.elapsedTimeInMilliseconds(previousEvent, currentEvent);
+
+        if (elapsedTime > KeySequence.KEY_SEQUENCE_MAX_DELAY_BETWEEN_KEYS){
+            return Optional.empty();
+        }
+
         return sequences.stream()
-                .filter(sq -> sq.keyCombination.match(firstEvent) && sq.secondKeyCombination.match(secondEvent))
+                .filter(sq -> sq.keyCombination.match(previousEvent.keyEvent)
+                              && sq.secondKeyCombination.match(currentEvent.keyEvent))
                 .findFirst();
+    }
+
+    public Optional<? extends KeyBinding>  getBinding(PotentialKeyboardShortcutEvent current,
+                                                      PotentialKeyboardShortcutEvent previous){
+        Optional<? extends KeyBinding> matchingBinding;
+
+        matchingBinding = getSequence(current, previous);
+        if (matchingBinding.isPresent()) { return matchingBinding; }
+
+        matchingBinding = findMatchingBinding(current.keyEvent, shortcuts);
+        if (matchingBinding.isPresent()) { return matchingBinding; }
+
+        matchingBinding = findMatchingBinding(current.keyEvent, hotkeys);
+        if (matchingBinding.isPresent()) { return matchingBinding; }
+
+        matchingBinding = findMatchingBinding(current.keyEvent, accelerators);
+        if (matchingBinding.isPresent()) { return matchingBinding; }
+
+        return Optional.empty();
     }
 
 

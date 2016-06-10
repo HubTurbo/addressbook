@@ -12,7 +12,6 @@ public class KeyBinding {
     protected KeyCombination keyCombination;
     protected Optional<BaseEvent> eventToRaise;
 
-
     protected KeyBinding (KeyCombination keyCombination, BaseEvent eventToRaise) {
         this.keyCombination = keyCombination;
         this.eventToRaise = Optional.ofNullable(eventToRaise);
@@ -24,5 +23,9 @@ public class KeyBinding {
 
     public Optional<BaseEvent> getEventToRaise(){
         return eventToRaise;
+    }
+
+    public Optional<String> getWhyNoEvent(){
+        return Optional.empty();
     }
 }

@@ -8,7 +8,6 @@ import com.tulskiy.keymaster.common.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,8 +17,7 @@ import java.util.Optional;
 public class KeyBindingsManager extends ComponentManager{
     private static final Logger logger = LogManager.getLogger(KeyBindingsManager.class);
 
-    /** Max delay (in milliseconds) allowed between key presses of a key sequence */
-    private static final int KEY_SEQUENCE_MAX_DELAY_BETWEEN_KEYS = 1000;
+
 
     /** Provider for global hotkeys */
     private final Provider provider = Provider.getCurrentProvider(false);
@@ -44,47 +42,20 @@ public class KeyBindingsManager extends ComponentManager{
     @Subscribe
     public void handlePotentialKeyboardShortcutEvent(PotentialKeyboardShortcutEvent currentKeyEvent) {
 
-        Optional<KeySequence> ks = getKeySequence(previousKeyEvent, currentKeyEvent);
+        Optional<? extends KeyBinding> kb = BINDINGS.getBinding(currentKeyEvent, previousKeyEvent);
         previousKeyEvent = currentKeyEvent;
-        if (ks.isPresent()){
-            reactToBinding(ks.get());
+
+        if (!kb.isPresent()) {
+            logger.info("Not a recognized key binding : " + currentKeyEvent.keyEvent.getText());
             return;
         }
 
-        Optional<Shortcut> shortcut = BINDINGS.getEventToRaiseForShortcut(currentKeyEvent.keyEvent);
-        if (shortcut.isPresent()) {
-            reactToBinding(shortcut.get());
+        Optional<BaseEvent> event = kb.get().getEventToRaise();
+        if (event.isPresent()){
+            raise (event.get());
         } else {
-            logger.info("No action for shortcut " + currentKeyEvent.keyEvent);
+            logger.info("Not raising an event because "  + kb.get().getWhyNoEvent().get());
         }
-    }
-
-    private void reactToBinding(KeyBinding binding){
-        if (binding.getEventToRaise().isPresent()){
-            raise(binding.getEventToRaise().get());
-        }
-    }
-
-    /**
-     * Returns the matching key sequence, if any.
-     * @param previousKeyEvent
-     * @param currentEvent
-     * @return
-     */
-    private Optional<KeySequence> getKeySequence(PotentialKeyboardShortcutEvent previousKeyEvent,
-                                                 PotentialKeyboardShortcutEvent currentEvent) {
-
-        if (previousKeyEvent == null){
-            return Optional.empty();
-        }
-
-        long elapsedTime = PotentialKeyboardShortcutEvent.elapsedTimeInMilliseconds(previousKeyEvent, currentEvent);
-
-        if (elapsedTime < KEY_SEQUENCE_MAX_DELAY_BETWEEN_KEYS){
-            return BINDINGS.getSequence(previousKeyEvent.keyEvent, currentEvent.keyEvent);
-        }
-
-        return Optional.empty();
     }
 
     /**

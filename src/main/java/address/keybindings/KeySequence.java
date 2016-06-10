@@ -8,6 +8,9 @@ import javafx.scene.input.KeyCombination;
  */
 public class KeySequence extends KeyBinding{
 
+    /** Max delay (in milliseconds) allowed between key presses of a key sequence */
+    public static final int KEY_SEQUENCE_MAX_DELAY_BETWEEN_KEYS = 1000;
+
     protected KeyCombination secondKeyCombination;
 
     public KeySequence(KeyCombination firstKeyCombination,  BaseEvent eventToRaise) {

@@ -8,6 +8,7 @@ import javafx.scene.input.KeyCombination;
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a global hotkey.
@@ -42,4 +43,11 @@ public class GlobalHotkey extends KeyBinding{
         assert keyStroke != null;
         return keyStroke;
     }
+
+    @Override
+    public Optional<String> getWhyNoEvent(){
+        return Optional.of("Key binding " + keyCombination.getDisplayText()
+                + "is a global hotkey handled elsewhere in the app");
+    }
+
 }

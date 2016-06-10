@@ -40,6 +40,6 @@ public class PotentialKeyboardShortcutEvent extends BaseEvent{
     @Override
     public String toString(){
         final String className = this.getClass().getSimpleName();
-        return className + " : keyEvent is " + keyEvent.getCode();
+        return className + " : keyEvent is " + keyEvent;
     }
 }
