@@ -3,9 +3,7 @@ package address.image;
 
 import javafx.scene.image.Image;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.HashMap;
 
 /**
  * An Image Manager that manages the remote images.
@@ -16,10 +14,11 @@ import java.util.Optional;
 public class ImageManager {
 
     private static ImageManager instance;
-    List<CachedImage> imageList;
+
+    HashMap<String, Image> imageHashMap;
 
     private ImageManager(){
-        imageList = new ArrayList<>();
+        imageHashMap = new HashMap<>();
     }
 
     public static ImageManager getInstance(){
@@ -35,14 +34,14 @@ public class ImageManager {
      * @return The graphical view of the image.
      */
     public synchronized Image getImage(String url){
-        Optional<CachedImage> cachedImage = imageList.stream().filter(img -> img.getUrl().equals(url)).findAny();
+        Image cachedImage = imageHashMap.get(url);
 
-        if (cachedImage.isPresent()) {
-            return cachedImage.get().getImage();
+        if (cachedImage != null) {
+            return cachedImage;
         }
 
         Image newImage = new Image(url);
-        imageList.add(new CachedImage(newImage, url));
+        imageHashMap.put(url, newImage);
         return newImage;
     }
 }
