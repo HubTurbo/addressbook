@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 
+import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import javafx.animation.FadeTransition;
@@ -129,7 +130,7 @@ public class PersonCardController {
         final Optional<String> profileImageUrl = person.githubProfilePicUrl();
         if (profileImageUrl.isPresent()){
             new Thread(() -> {
-                Image image = new Image(profileImageUrl.get());
+                Image image = ImageManager.getInstance().getImage(profileImageUrl.get());
                 if (image != null && image.getHeight() > 0) {
                     profileImage.setImage(image);
                 } else {
