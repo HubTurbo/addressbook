@@ -1,9 +1,16 @@
 package address.sync.model;
 
+import address.util.LocalDateTimeAdapter;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDateTime;
 
+@XmlRootElement(name = "cloudtag")
 public class CloudTag {
     private String name;
+
     private LocalDateTime lastUpdatedAt;
 
     public CloudTag() {
@@ -15,6 +22,7 @@ public class CloudTag {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+    @XmlElement(name = "name")
     public String getName() {
         return name;
     }
@@ -29,6 +37,8 @@ public class CloudTag {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+    @XmlElement(name = "lastUpdatedAt")
+    @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
     public LocalDateTime getLastUpdatedAt() {
         return lastUpdatedAt;
     }

@@ -77,8 +77,8 @@ public class CloudService implements ICloudService {
 
         // Use the header of the last request, which contains the latest API rate limit
         HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+                                            getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap),
                                             convertToPersonList(cloudPersons));
@@ -89,16 +89,17 @@ public class CloudService implements ICloudService {
      *
      * Consumes 1 + floor(tags size/RESOURCES_PER_PAGE) API usage
      * @param addressBookName
+     * @param previousETag null if there is no previous request
      * @return wrapped response with list of tags
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<List<Tag>> getTags(String addressBookName) throws IOException {
+    public ExtractedCloudResponse<List<Tag>> getTags(String addressBookName, String previousETag) throws IOException {
         int curPageNumber = 1;
         RawCloudResponse cloudResponse;
         List<CloudTag> cloudTags = new ArrayList<>();
         do {
-            cloudResponse = cloud.getTags(addressBookName, curPageNumber, RESOURCES_PER_PAGE, null);
+            cloudResponse = cloud.getTags(addressBookName, curPageNumber, RESOURCES_PER_PAGE, previousETag);
             if (!isValid(cloudResponse)) {
                 return getResponseWithNoData(cloudResponse, cloudResponse.getHeaders());
             }
@@ -109,7 +110,8 @@ public class CloudService implements ICloudService {
         // Use the header of the last request, which contains the latest API rate limit
         HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
 
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+                                            getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), convertToTagList(cloudTags));
     }
@@ -132,7 +134,8 @@ public class CloudService implements ICloudService {
             return getResponseWithNoData(cloudResponse, headerHashMap);
         }
         CloudPerson returnedPerson = getDataFromBody(cloudResponse.getBody(), CloudPerson.class);
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+                                            getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), convertToPerson(returnedPerson));
     }
@@ -157,7 +160,8 @@ public class CloudService implements ICloudService {
             return getResponseWithNoData(cloudResponse, headerHashMap);
         }
         CloudPerson returnedPerson = getDataFromBody(cloudResponse.getBody(), CloudPerson.class);
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+                                            getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap),
                                             convertToPerson(returnedPerson));
@@ -182,7 +186,8 @@ public class CloudService implements ICloudService {
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
         }
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+                                            getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), null);
     }
@@ -205,7 +210,8 @@ public class CloudService implements ICloudService {
             return getResponseWithNoData(cloudResponse, headerHashMap);
         }
         CloudTag returnedTag = getDataFromBody(cloudResponse.getBody(), CloudTag.class);
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+                                            getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), convertToTag(returnedTag));
     }
@@ -230,7 +236,8 @@ public class CloudService implements ICloudService {
             return getResponseWithNoData(cloudResponse, headerHashMap);
         }
         CloudTag returnedTag = getDataFromBody(cloudResponse.getBody(), CloudTag.class);
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+                                            getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap),
                                             convertToTag(returnedTag));
@@ -253,14 +260,16 @@ public class CloudService implements ICloudService {
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
         }
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+                                            getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), null);
     }
 
     /**
      * Gets the list of persons for addressBookName, which have been modified after a certain time,
-     * if quota is available
+     * if quota is available.
+     * Parameter time should not be null.
      *
      * Consumes 1 + floor(result size/RESOURCES_PER_PAGE) API usage
      *
@@ -286,7 +295,8 @@ public class CloudService implements ICloudService {
         // Use the header of the last request, which contains the latest API rate limit
         HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
 
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+                                            getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), convertToPersonList(cloudPersons));
     }
@@ -307,13 +317,14 @@ public class CloudService implements ICloudService {
             return getResponseWithNoData(cloudResponse, headerHashMap);
         }
         HashMap<String, String> bodyHashMap = getHashMapFromBody(cloudResponse.getBody());
-        HashMap<String, String> simplifiedHashMap = simplifyHashMap(bodyHashMap);
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+        HashMap<String, String> simplifiedHashMap = getHeaderLimitStatus(bodyHashMap);
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+                                            getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), simplifiedHashMap);
     }
 
-    private HashMap<String, String> simplifyHashMap(HashMap<String, String> bodyHashMap) {
+    private HashMap<String, String> getHeaderLimitStatus(HashMap<String, String> bodyHashMap) {
         HashMap<String, String> simplifiedHashMap = new HashMap<>();
         simplifiedHashMap.put("Limit", bodyHashMap.get("X-RateLimit-Limit"));
         simplifiedHashMap.put("Remaining", bodyHashMap.get("X-RateLimit-Remaining"));
@@ -344,7 +355,8 @@ public class CloudService implements ICloudService {
         if (headerHashMap == null || headerHashMap.size() < 3) {
             return new ExtractedCloudResponse<>(cloudResponse.getResponseCode());
         }
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
+        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+                                            getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), null);
     }
@@ -400,6 +412,9 @@ public class CloudService implements ICloudService {
                 convertToString(headerStream), String.class, String.class);
     }
 
+    private String getETagFromHeader(HashMap<String, String> header) {
+        return header.get("ETag");
+    }
     private int getRateLimitFromHeader(HashMap<String, String> header) {
         return Integer.parseInt(header.get("X-RateLimit-Limit"));
     }

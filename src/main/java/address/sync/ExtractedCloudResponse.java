@@ -13,6 +13,7 @@ public class ExtractedCloudResponse<V> {
     private int quotaRemaining;
     private LocalDateTime quotaResetTime;
     private int responseCode;
+    String eTag;
 
     // temporarily copied from CloudSimulator, to be refactored
     private ZoneOffset getSystemTimezone() {
@@ -21,15 +22,16 @@ public class ExtractedCloudResponse<V> {
         return zonedDateTime.getOffset();
     }
 
-    ExtractedCloudResponse(int responseCode, int quotaLimit, int quotaRemaining, long quotaResetTimeEpochSeconds) {
+    ExtractedCloudResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining, long quotaResetTimeEpochSeconds) {
         this(responseCode);
+        this.eTag = eTag;
         this.quotaLimit = quotaLimit;
         this.quotaRemaining = quotaRemaining;
         this.quotaResetTime = LocalDateTime.ofEpochSecond(quotaResetTimeEpochSeconds, 0, getSystemTimezone());
     }
 
-    ExtractedCloudResponse(int responseCode, int quotaLimit, int quotaRemaining, long quotaResetTimeEpochSeconds, V data) {
-        this(responseCode, quotaLimit, quotaRemaining, quotaResetTimeEpochSeconds);
+    ExtractedCloudResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining, long quotaResetTimeEpochSeconds, V data) {
+        this(responseCode, eTag, quotaLimit, quotaRemaining, quotaResetTimeEpochSeconds);
         this.data = Optional.ofNullable(data);
     }
 
@@ -51,6 +53,10 @@ public class ExtractedCloudResponse<V> {
 
     public int getQuotaRemaining() {
         return quotaRemaining;
+    }
+
+    public String getETag() {
+        return eTag;
     }
 
     public LocalDateTime getQuotaResetTime() {

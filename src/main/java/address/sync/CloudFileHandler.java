@@ -14,15 +14,20 @@ public class CloudFileHandler {
     private static final Logger logger = LogManager.getLogger(CloudFileHandler.class);
 
     private File getCloudDataFilePath(String addressBookName) {
-        return new File("/cloud/" + addressBookName);
+        return new File("cloud/" + addressBookName);
     }
 
     public CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException, DataConversionException {
         File cloudFile = getCloudDataFilePath(addressBookName);
         try {
             logger.info("Reading from cloud file '{}'.", cloudFile.getName());
-            return XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
-        } catch (FileNotFoundException | DataConversionException e) {
+            CloudAddressBook cloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
+            if (cloudAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
+            return cloudAddressBook;
+        } catch (FileNotFoundException e) {
+            logger.warn("Cloud file '{}' not found.", cloudFile.getName());
+            throw e;
+        } catch (DataConversionException e) {
             logger.warn("Error reading from cloud file '{}'.", cloudFile.getName());
             throw e;
         }
