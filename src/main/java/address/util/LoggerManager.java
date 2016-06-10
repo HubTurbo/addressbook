@@ -7,8 +7,11 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
+import java.util.HashMap;
+
 public class LoggerManager {
     public static Level currentLogLevel;
+    public static HashMap<String, Level> specialLogLevel;
 
     public static Logger getLogger(String className, Level loggingLevel) {
         LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
@@ -22,7 +25,12 @@ public class LoggerManager {
         LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
         Configuration config = loggerContext.getConfiguration();
         LoggerConfig loggerConfig = config.getLoggerConfig(className);
-        loggerConfig.setLevel(currentLogLevel);
+
+        if (specialLogLevel.containsKey(className)) {
+            loggerConfig.setLevel(specialLogLevel.get(className));
+        } else {
+            loggerConfig.setLevel(currentLogLevel);
+        }
         return LogManager.getLogger(className);
     }
 
