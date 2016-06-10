@@ -17,12 +17,13 @@ public class CloudAddressBook {
     List<CloudTag> tagsList;
 
     public CloudAddressBook() {
+        this.personsList = new ArrayList<>();
+        this.tagsList = new ArrayList<>();
     }
 
     public CloudAddressBook(String name) {
+        this();
         this.name = name;
-        this.personsList = new ArrayList<>();
-        this.tagsList = new ArrayList<>();
     }
 
     public CloudAddressBook(String name, List<CloudPerson> personsList, List<CloudTag> tagsList) {

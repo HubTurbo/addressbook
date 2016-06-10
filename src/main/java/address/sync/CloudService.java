@@ -77,7 +77,6 @@ public class CloudService implements ICloudService {
 
         // Use the header of the last request, which contains the latest API rate limit
         HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-
         return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap),
