@@ -1,4 +1,4 @@
-package address.browser;
+package address.browser.embeddedbrowser;
 
 import javafx.scene.Node;
 
@@ -10,10 +10,14 @@ import java.net.URL;
  */
 public interface EmbeddedBrowser {
 
-    void loadPage(String url);
+    void loadUrl(String url);
     Node getBrowserView();
+    boolean isLoading();
     void dispose();
     URL getUrl() throws MalformedURLException;
     String getUrlString();
+    EbDocument getDomElement();
+    void executeCommand(int command);
+    void addLoadListener(EbLoadListener listener);
 
 }

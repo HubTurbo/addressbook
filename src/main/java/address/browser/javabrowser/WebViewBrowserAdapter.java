@@ -1,5 +1,9 @@
-package address.browser;
+package address.browser.javabrowser;
 
+import address.browser.embeddedbrowser.EbLoadListener;
+import address.browser.embeddedbrowser.EmbeddedBrowser;
+import address.browser.embeddedbrowser.EbDocument;
+import com.teamdev.jxbrowser.chromium.EditorCommand;
 import javafx.scene.Node;
 import javafx.scene.web.WebView;
 
@@ -18,13 +22,18 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
     }
 
     @Override
-    public void loadPage(String url) {
+    public void loadUrl(String url) {
         webView.getEngine().load(url);
     }
 
     @Override
     public Node getBrowserView() {
         return webView;
+    }
+
+    @Override
+    public boolean isLoading() {
+        return webView.getEngine().getLoadWorker().isRunning();
     }
 
     @Override
@@ -40,6 +49,21 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
     @Override
     public String getUrlString() {
         return webView.getEngine().getDocument().getDocumentURI();
+    }
+
+    @Override
+    public EbDocument getDomElement() {
+        return new WebViewDocAdapter(this.webView.getEngine().getDocument());
+    }
+
+    @Override
+    public void executeCommand(int command) {
+        //Not supported on web view browser.
+    }
+
+    @Override
+    public void addLoadListener(EbLoadListener listener) {
+
     }
 
 }

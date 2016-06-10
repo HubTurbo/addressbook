@@ -1,6 +1,8 @@
 package address.browser;
 
 import address.MainApp;
+import address.browser.page.GithubProfilePage;
+import address.browser.page.Page;
 import address.events.EventManager;
 import address.events.LocalModelChangedEvent;
 
@@ -102,7 +104,16 @@ public class BrowserManager {
             ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
                                                                        .map(p -> p.profilePageUrl())
                                                                        .collect(Collectors.toCollection(ArrayList::new));
-            hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
+            Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
+
+            GithubProfilePage gPage = new GithubProfilePage(page);
+            if (!gPage.isPageLoading()) {
+                gPage.automateClickingAndScrolling();
+            }
+            gPage.setPageLoadFinishListener(b -> {
+                gPage.automateClickingAndScrolling();
+            });
+
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
