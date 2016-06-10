@@ -29,7 +29,7 @@ public class StatusBarFooterController {
 
     public StatusBarFooterController() {
         EventManager.getInstance().registerHandler(this);
-        Config config = new Config();
+        Config config = Config.getConfig();
         updateIntervalInSecs = (int) DateTimeUtil.millisecsToSecs(config.updateInterval);
         timer = new TickingTimer("Sync timer", (int) updateIntervalInSecs,
                 this::syncSchedulerOntick, this::syncSchedulerOnTimeOut, TimeUnit.SECONDS);

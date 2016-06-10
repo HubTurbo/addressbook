@@ -33,7 +33,6 @@ public class MainApp extends Application {
 
     private static final Logger logger = LoggerManager.getLogger(MainApp.class);
 
-    protected Config config;
     protected StorageManager storageManager;
     protected ModelManager modelManager;
     protected SyncManager syncManager;
@@ -60,14 +59,14 @@ public class MainApp extends Application {
         updateManager.run();
         // initial load (precondition: mainController has been started.)
         EventManager.getInstance().post(new LoadDataRequestEvent(PrefsManager.getInstance().getSaveLocation()));
-        syncManager.startSyncingData(config.updateInterval, config.simulateUnreliableNetwork);
+        syncManager.startSyncingData(Config.getConfig().updateInterval, Config.getConfig().simulateUnreliableNetwork);
     }
 
     protected void setupComponents() {
-        config = getConfig();
+        Config.setConfig(getConfig());
         modelManager = new ModelManager();
         storageManager = new StorageManager(modelManager, PrefsManager.getInstance());
-        mainController = new MainController(this, modelManager, config);
+        mainController = new MainController(this, modelManager);
         syncManager = new SyncManager();
 
         keyBindingsManager = new KeyBindingsManager();

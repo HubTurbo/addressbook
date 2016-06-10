@@ -10,8 +10,8 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import java.util.HashMap;
 
 public class LoggerManager {
-    public static Level currentLogLevel;
-    public static HashMap<String, Level> specialLogLevel;
+    public static Level currentLogLevel  = Config.getConfig().currentLogLevel;
+    public static HashMap<String, Level> specialLogLevel = Config.getConfig().specialLogLevel;
 
     public static Logger getLogger(String className, Level loggingLevel) {
         LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);

@@ -46,7 +46,6 @@ public class MainController {
     private static final String ICON_EDIT = "/images/edit.png";
     private static final String ICON_CALENDAR = "/images/calendar.png";
 
-    private Config config;
     private Stage primaryStage;
     private VBox rootLayout;
 
@@ -56,17 +55,16 @@ public class MainController {
 
     private StatusBarHeaderController statusBarHeaderController;
 
-    public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
+    public MainController(MainApp mainApp, ModelManager modelManager) {
         EventManager.getInstance().registerHandler(this);
         this.modelManager = modelManager;
-        this.config = config;
         this.mainApp = mainApp;
         this.browserManager = new BrowserManager(modelManager.getAllViewablePersonsReadOnly());
     }
 
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        primaryStage.setTitle(config.appTitle);
+        primaryStage.setTitle(Config.getConfig().appTitle);
 
         // Set the application icon.
         this.primaryStage.getIcons().add(getImage(ICON_APPLICATION));

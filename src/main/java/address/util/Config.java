@@ -14,18 +14,37 @@ import java.util.List;
  * Config values used by the app
  */
 public class Config {
+
+    private static final long DEFAULT_UPDATE_INTERVAL = 10000;
+    private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
+    private static final Level DEFAULT_LOGGING_LEVEL = Level.INFO;
+
+
     public String appTitle = "Address App";
-    public long updateInterval = 10000;
-    public boolean simulateUnreliableNetwork = false;
-    public Level defaultLogLevel = Level.INFO;
+    public long updateInterval = DEFAULT_UPDATE_INTERVAL;
+    public boolean simulateUnreliableNetwork = DEFAULT_NETWORK_UNRELIABLE_MODE;
+    public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
+    public HashMap<String, Level> specialLogLevel;
+
+
+    private static Config config;
+
+    public static void setConfig(Config configToSet) {
+        config = configToSet;
+    }
+
+    public static Config getConfig() {
+        if (config == null) {
+            config = new Config();
+        }
+        return config;
+    }
 
     public Config() {
         try {
             File configFile = new File("config.ini");
             if (configFile.exists()) {
-                Profile.Section section = new Ini(configFile).get("Logging");
-                LoggerManager.currentLogLevel = getLoggingLevelFromSection(section);
-                LoggerManager.specialLogLevel = getSpecialLoggingClasses(section);
+                setConfigValues(new Ini(configFile));
             } else {
                 createConfigWithDefaults(configFile);
             }
@@ -34,7 +53,30 @@ public class Config {
         }
     }
 
-    private Level getLoggingLevelFromSection(Profile.Section section) {
+    private void setConfigValues(Ini iniFile) throws IOException {
+        setMainSectionValues(iniFile.get("Main"));
+        setLoggingSectionValues(iniFile.get("Logging"));
+        setCloudSectionValues(iniFile.get("Cloud"));
+    }
+
+    private void setLoggingSectionValues(Profile.Section loggingSection) throws IOException {
+        currentLogLevel = getLoggingLevel(loggingSection);
+        specialLogLevel = getSpecialLoggingClasses(loggingSection);
+    }
+
+    private void setMainSectionValues(Profile.Section mainSection) throws IOException {
+        updateInterval = getUpdateInterval(mainSection);
+    }
+
+    private void setCloudSectionValues(Profile.Section cloudSection) {
+        simulateUnreliableNetwork = Boolean.parseBoolean(cloudSection.get("unreliable"));
+    }
+
+    private long getUpdateInterval(Profile.Section mainSection) {
+        return Long.parseLong(mainSection.get("updateInterval"));
+    }
+
+    private Level getLoggingLevel(Profile.Section section) {
         String loggingLevelString = section.get("LoggingLevel");
         return determineLoggingLevel(loggingLevelString);
     }
@@ -42,11 +84,19 @@ public class Config {
     private void createConfigWithDefaults(File configFile) throws IOException {
         if (configFile.createNewFile()) {
             Wini wini = new Wini(configFile);
-            wini.put("Logging", "LoggingLevel", defaultLogLevel.toString());
+
+            // main
+            wini.put("Main", "updateInterval", DEFAULT_UPDATE_INTERVAL);
+
+            // logging
+            wini.put("Logging", "LoggingLevel", DEFAULT_LOGGING_LEVEL.toString());
             Level[] allLoggingLevels = Level.values();
             for (Level level : allLoggingLevels) {
                 wini.put("Logging", level.toString(), "");
             }
+
+            // cloud
+            wini.put("Cloud", "unreliable", DEFAULT_NETWORK_UNRELIABLE_MODE);
 
             wini.store();
         }
@@ -59,7 +109,7 @@ public class Config {
                 return level;
             }
         }
-        return defaultLogLevel;
+        return DEFAULT_LOGGING_LEVEL;
     }
 
     private HashMap<String, Level> getSpecialLoggingClasses(Profile.Section section) {
