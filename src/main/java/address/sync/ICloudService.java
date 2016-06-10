@@ -11,7 +11,7 @@ import java.util.List;
 public interface ICloudService {
     // Consumes API quota
     ExtractedCloudResponse<List<Person>> getPersons(String addressBookName) throws IOException;
-    ExtractedCloudResponse<List<Tag>> getTags(String addressBookName) throws IOException;
+    ExtractedCloudResponse<List<Tag>> getTags(String addressBookName, String previousETag) throws IOException;
 
     ExtractedCloudResponse<Person> createPerson(String addressBookName, Person person) throws IOException;
     ExtractedCloudResponse<Person> updatePerson(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) throws IOException;

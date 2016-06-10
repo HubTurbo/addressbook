@@ -240,7 +240,7 @@ public class CloudServiceTest {
         RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, tagList, header);
         when(cloudSimulator.getTags(anyString(), anyInt(), anyInt(), isNull(String.class))).thenReturn(cloudResponse);
 
-        ExtractedCloudResponse<List<Tag>> serviceResponse = cloudService.getTags("Test");
+        ExtractedCloudResponse<List<Tag>> serviceResponse = cloudService.getTags("Test", null);
 
         assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
         assertTrue(serviceResponse.getData().isPresent());

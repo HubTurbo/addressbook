@@ -32,6 +32,8 @@ public class SyncManager {
     private CloudService cloudService;
 
     private LocalDateTime lastSuccessfulPersonsUpdate;
+    private String lastTagsETag;
+    private LocalDateTime lastSuccessfulTagsUpdate;
 
     public SyncManager() {
         activeAddressBook = Optional.empty();
@@ -68,9 +70,12 @@ public class SyncManager {
     }
 
     /**
-     * Runs periodically and posts results of updates as events
+     * Runs an update task periodically every interval milliseconds
      *
-     * @param interval number of units to wait
+     * Raises a SyncStartedEvent at the beginning, SyncFailedEvent or SyncCompletedEvent at the end of the task
+     * Raises UpdateCompletedEvent after each resource update is finished successfully
+     *
+     * @param interval number of milliseconds to wait
      */
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
@@ -85,9 +90,18 @@ public class SyncManager {
                 List<Person> updatedPersons = getUpdatedPersons(activeAddressBook.get());
                 logger.info("{} updated persons found.", updatedPersons.size());
                 EventManager.getInstance().post(new UpdateCompletedEvent<>(updatedPersons, "Person updates completed."));
+
+                Optional<List<Tag>> updatedTagList = getUpdatedTags(activeAddressBook.get());
+                if (updatedTagList.isPresent()) {
+                    logger.info("Acquired new list of {} tags.", updatedPersons.size());
+                } else {
+                    logger.info("No updates to tags.");
+                }
+                EventManager.getInstance().post(new UpdateCompletedEvent<>(updatedTagList, "Tag updates completed."));
             } catch (SyncErrorException e) {
-                logger.info("Error obtaining person updates.");
+                logger.info("Error obtaining updates.");
                 EventManager.getInstance().post(new SyncFailedEvent(e.getMessage()));
+                return;
             }
 
             EventManager.getInstance().post(new SyncCompletedEvent());
@@ -97,15 +111,8 @@ public class SyncManager {
         scheduler.scheduleWithFixedDelay(task, initialDelay, interval, TimeUnit.MILLISECONDS);
     }
 
-    private AddressBook wrapWithAddressBook(List<Person> personList, List<Tag> tagList) {
-        AddressBook wrapper = new AddressBook();
-        wrapper.setPersons(personList);
-        wrapper.setTags(tagList);
-        return wrapper;
-    }
-
     /**
-     * Gets the list of updated persons since lastSuccessfulPersonsUpdate
+     * Gets the list of persons that have been updated since lastSuccessfulPersonsUpdate
      *
      * If lastSuccessfulPersonsUpdate is null, the full list of persons will be obtained instead
      *
@@ -135,6 +142,36 @@ public class SyncManager {
             return personsResponse.getData().get();
         } catch (IOException e) {
             throw new SyncErrorException("Error getting updated persons.");
+        }
+    }
+
+    private Optional<List<Tag>> getUpdatedTags(String addressBookName) throws SyncErrorException {
+        logger.info("Retrieving tag data from cloud.");
+
+        try {
+            if (lastTagsETag == null) {
+                logger.debug("No previous tag updates found.");
+            } else {
+                logger.debug("Found last tags update at: {}", lastSuccessfulTagsUpdate);
+            }
+
+            ExtractedCloudResponse<List<Tag>> tagsResponse = cloudService.getTags(addressBookName, lastTagsETag);
+            switch (tagsResponse.getResponseCode()) {
+                case HttpURLConnection.HTTP_OK:
+                    if (!tagsResponse.getData().isPresent()) {
+                        throw new SyncErrorException("Unexpected missing data from response.");
+                    }
+                    lastTagsETag = tagsResponse.getETag();
+                    // fall through
+                case HttpURLConnection.HTTP_NOT_MODIFIED:
+                    lastSuccessfulTagsUpdate = LocalDateTime.now();
+                    return tagsResponse.getData();
+                default:
+                    throw new SyncErrorException(tagsResponse.getResponseCode() + " response from cloud instead of expected " + HttpURLConnection.HTTP_OK + " or " + HttpURLConnection.HTTP_NOT_MODIFIED + " during tags update.");
+
+            }
+        } catch (IOException e) {
+            throw new SyncErrorException("Error getting updated tags.");
         }
     }
 
