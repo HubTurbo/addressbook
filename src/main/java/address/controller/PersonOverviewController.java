@@ -170,23 +170,42 @@ public class PersonOverviewController {
 
     @Subscribe
     private void handleJumpToListRequestEvent(JumpToListRequestEvent event) {
-        jumpToList(event.targetIndex);
+        Platform.runLater(() -> {
+            jumpToListItem(event.targetIndex);
+        });
     }
 
     /**
      * Jumps the Nth item of the list if it exists. No action if the Nth item does not exist.
+     * Jumps to the bottom if {@code targetIndex = -1}
      *
      * @param targetIndex starts from 1. To jump to 1st item, targetIndex should be 1.
+     *                    To jump to bottom, should be -1.
      */
-    private void jumpToList(int targetIndex) {
-        Platform.runLater(() -> {
-                if (personListView.getItems().size() < targetIndex) {
-                    return;
-                }
-                int indexOfItem = targetIndex - 1; //to account for list indexes starting from 0
-                personListView.getSelectionModel().select(indexOfItem);
-                personListView.getFocusModel().focus(indexOfItem);
-                personListView.requestFocus();
-            });
+
+
+    private void jumpToListItem(int targetIndex) {
+        int listSize = personListView.getItems().size();
+        if (listSize < targetIndex) {
+            return;
+        }
+        int indexOfItem;
+        if (targetIndex == -1){  // if the target is the bottom of the list
+            indexOfItem = listSize - 1;
+        } else {
+            indexOfItem = targetIndex - 1; //to account for list indexes starting from 0
+        }
+
+        selectItem(indexOfItem);
+    }
+
+    /**
+     * Selects the item in the list
+     * @param indexOfItem
+     */
+    private void selectItem(int indexOfItem) {
+        personListView.getSelectionModel().select(indexOfItem);
+        personListView.getFocusModel().focus(indexOfItem);
+        personListView.requestFocus();
     }
 }

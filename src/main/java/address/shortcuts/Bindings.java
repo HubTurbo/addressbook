@@ -22,9 +22,12 @@ public class Bindings {
     private List<Accelerator> accelerators = new ArrayList<>();
 
     /**
-     * List of Global hotkeys.
+     * List of global hotkeys.
      */
     private List<GlobalHotkey> hotkeys = new ArrayList<>();
+
+    /** List of key sequences */
+    private List<KeySequence> sequences = new ArrayList<>();
 
     /**
      * List of keyboard shortcuts.
@@ -44,6 +47,10 @@ public class Bindings {
     public Accelerator ACCELERATOR_PERSON_DELETE;
     public Accelerator ACCELERATOR_PERSON_EDIT;
 
+    /** Sequences in alphabetical order of name */
+    public KeySequence SEQUENCE_GOTO_TOP;
+    public KeySequence SEQUENCE_GOTO_BOTTOM;
+
     /* Shortcuts in alphabetical order of name */
     public Shortcut SHORTCUT_LIST_ENTER;
 
@@ -58,6 +65,9 @@ public class Bindings {
         ACCELERATOR_PERSON_DELETE = setAccelerator(KeyCode.D);
 
         ACCELERATOR_PERSON_EDIT = setAccelerator(KeyCode.E);
+
+        SEQUENCE_GOTO_BOTTOM = setSequence(KeyCode.G, KeyCode.B, new JumpToListRequestEvent(-1));
+        SEQUENCE_GOTO_TOP = setSequence(KeyCode.G, KeyCode.T, new JumpToListRequestEvent(1));
 
         ACCELERATOR_FILE_NEW = setAccelerator(KeyCode.N, KeyCombination.SHORTCUT_DOWN);
 
@@ -116,6 +126,19 @@ public class Bindings {
         return a;
     }
 
+
+    /**
+     * Creates a new {@link KeySequence} object and adds it to the list of key sequences.
+     * @param firstKey
+     * @param secondKey
+     * @param eventToRaise
+     * @return the created object.
+     */
+    private KeySequence setSequence(KeyCode firstKey, KeyCode secondKey, BaseEvent eventToRaise) {
+        KeySequence sq = new KeySequence(firstKey, secondKey, eventToRaise);
+        sequences.add(sq);
+        return sq;
+    }
     /**
      * Creates a new {@link Shortcut} object and adds to the list of shortcuts.
      * @param mainKey
@@ -142,7 +165,6 @@ public class Bindings {
         return hk;
     }
 
-
     /**
      * @param keyEvent
      * @return the Shortcut that matches the keyEvent, if any.
@@ -154,6 +176,18 @@ public class Bindings {
                         .findFirst();
         return Optional.ofNullable(matchingShortcut.isPresent() ? matchingShortcut.get().getEventToRaise() : null);
     }
+
+    /**
+     * Returns the matching key sequence, if any
+     * @param firstKey
+     * @param secondKey
+     */
+    protected Optional<KeySequence> getSequence(KeyCode firstKey, KeyCode secondKey) {
+        return sequences.stream()
+                .filter(sq -> sq.firstKey == firstKey && sq.secondKey == secondKey)
+                .findFirst();
+    }
+
 
     protected List<GlobalHotkey> getHotkeys() {
         return hotkeys;
