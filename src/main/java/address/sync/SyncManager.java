@@ -3,10 +3,10 @@ package address.sync;
 
 import address.events.*;
 import address.exceptions.SyncErrorException;
-import address.model.datatypes.AddressBook;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 import address.sync.task.CloudUpdateTask;
+import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.IOException;
@@ -16,14 +16,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
 
-import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 /**
  * Syncs data between the cloud and the primary data file
  */
 public class SyncManager {
-    private static final Logger logger = LogManager.getLogger(SyncManager.class);
+    private static final Logger logger = LoggerManager.getLogger(SyncManager.class.getName());
 
     private final ScheduledExecutorService scheduler;
     private final ExecutorService requestExecutor;
