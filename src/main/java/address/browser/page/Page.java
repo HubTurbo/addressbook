@@ -1,13 +1,11 @@
 package address.browser.page;
 
-import address.browser.EmbeddedBrowser;
-
-import java.util.HashMap;
+import address.browser.embeddedbrowser.EmbeddedBrowser;
 
 /**
  * An abstract web page of an embedded browser.
  */
-public class Page {
+public class Page implements PageInterface{
 
     private EmbeddedBrowser browser;
 
@@ -17,5 +15,10 @@ public class Page {
 
     public EmbeddedBrowser getBrowser() {
         return browser;
+    }
+
+    @Override
+    public boolean isPageLoading(){
+        return this.browser.isLoading();
     }
 }

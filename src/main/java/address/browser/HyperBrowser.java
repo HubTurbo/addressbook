@@ -1,5 +1,7 @@
 package address.browser;
 
+import address.browser.embeddedbrowser.EmbeddedBrowser;
+import address.browser.jxbrowser.JxBrowserAdapter;
 import address.browser.page.Page;
 import address.util.FxViewUtil;
 import address.util.UrlUtil;
@@ -170,7 +172,7 @@ public class HyperBrowser {
         assert !inActiveBrowserStack.isEmpty();
         EmbeddedBrowser browser = inActiveBrowserStack.pop();
 
-        browser.loadPage(url.toExternalForm());
+        browser.loadUrl(url.toExternalForm());
         Page newPage = new Page(browser);
         pages.add(newPage);
 

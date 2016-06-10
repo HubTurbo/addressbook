@@ -1,6 +1,7 @@
 package address.util;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -24,11 +25,7 @@ public class UrlUtil {
     }
 
     public static boolean compareBaseUrls(URL url1, URL url2) {
-        try {
-            return url1.toURI().normalize().equals(url2.toURI().normalize());
-        } catch (URISyntaxException e) {
-            return false;
-        }
+        return url1.getHost().equals(url2.getHost()) && url1.getPath().equals(url2.getPath());
     }
 
 }
