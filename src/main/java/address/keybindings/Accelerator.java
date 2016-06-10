@@ -9,7 +9,7 @@ public class Accelerator extends KeyBinding{
 
 
     Accelerator(KeyCombination keyCombination) {
-        super(keyCombination);
+        super(keyCombination, null);
     }
 
 }

@@ -9,11 +9,9 @@ import javafx.scene.input.KeyCombination;
 public class KeySequence extends KeyBinding{
 
     protected KeyCombination secondKeyCombination;
-    protected BaseEvent eventToRaise;
 
     public KeySequence(KeyCombination firstKeyCombination, KeyCombination secondKeyCombination, BaseEvent eventToRaise) {
-        super(firstKeyCombination);
+        super(firstKeyCombination, eventToRaise);
         this.secondKeyCombination = secondKeyCombination;
-        this.eventToRaise = eventToRaise;
     }
 }

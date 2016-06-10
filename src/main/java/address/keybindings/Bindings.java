@@ -168,12 +168,10 @@ public class Bindings {
      * @param keyEvent
      * @return the Shortcut that matches the keyEvent, if any.
      */
-    protected Optional<BaseEvent> getEventToRaiseForShortcut(KeyEvent keyEvent) {
-        Optional<Shortcut> matchingShortcut =
-                shortcuts.stream()
+    protected Optional<Shortcut> getEventToRaiseForShortcut(KeyEvent keyEvent) {
+        return shortcuts.stream()
                         .filter(shortcut -> shortcut.getKeyCombination().match(keyEvent))
                         .findFirst();
-        return Optional.ofNullable(matchingShortcut.isPresent() ? matchingShortcut.get().getEventToRaise() : null);
     }
 
     /**

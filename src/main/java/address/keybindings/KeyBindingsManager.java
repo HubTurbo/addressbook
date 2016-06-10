@@ -37,7 +37,7 @@ public class KeyBindingsManager extends ComponentManager{
 
     private void registerGlobalHotkeys(List<GlobalHotkey> hotkeys) {
         for (GlobalHotkey hk: hotkeys){
-            provider.register(hk.getKeyStroke(), (hotkey) -> raise(hk.getEventToRaise()));
+            provider.register(hk.getKeyStroke(), (hotkey) -> raise(hk.getEventToRaise().get()));
         }
     }
 
@@ -47,15 +47,21 @@ public class KeyBindingsManager extends ComponentManager{
         Optional<KeySequence> ks = getKeySequence(previousKeyEvent, currentKeyEvent);
         previousKeyEvent = currentKeyEvent;
         if (ks.isPresent()){
-            raise(ks.get().eventToRaise);
+            reactToBinding(ks.get());
             return;
         }
 
-        Optional<BaseEvent> eventToRaise = BINDINGS.getEventToRaiseForShortcut(currentKeyEvent.keyEvent);
-        if (eventToRaise.isPresent()) {
-            raise(eventToRaise.get());
+        Optional<Shortcut> shortcut = BINDINGS.getEventToRaiseForShortcut(currentKeyEvent.keyEvent);
+        if (shortcut.isPresent()) {
+            reactToBinding(shortcut.get());
         } else {
             logger.info("No action for shortcut " + currentKeyEvent.keyEvent);
+        }
+    }
+
+    private void reactToBinding(KeyBinding binding){
+        if (binding.getEventToRaise().isPresent()){
+            raise(binding.getEventToRaise().get());
         }
     }
 

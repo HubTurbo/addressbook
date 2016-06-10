@@ -25,22 +25,16 @@ public class GlobalHotkey extends KeyBinding{
                 KeyStroke.getKeyStroke("meta shift X") );
     }
 
-    private BaseEvent eventToRaise;
     private KeyStroke keyStroke;
 
 
     public GlobalHotkey(KeyCombination keyCombination, BaseEvent eventToRaise){
-        super(keyCombination);
+        super(keyCombination, eventToRaise);
         this.keyStroke = getKeyStroke(keyCombination);
-        this.eventToRaise = eventToRaise;
     }
 
     protected KeyStroke getKeyStroke() {
         return keyStroke;
-    }
-
-    protected BaseEvent getEventToRaise() {
-        return eventToRaise;
     }
 
     public static KeyStroke getKeyStroke(KeyCombination keyCombination){
