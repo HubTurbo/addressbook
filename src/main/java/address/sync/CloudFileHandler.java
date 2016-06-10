@@ -21,7 +21,9 @@ public class CloudFileHandler {
         File cloudFile = getCloudDataFilePath(addressBookName);
         try {
             logger.info("Reading from cloud file '{}'.", cloudFile.getName());
-            return XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
+            CloudAddressBook cloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
+            if (cloudAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
+            return cloudAddressBook;
         } catch (FileNotFoundException e) {
             logger.warn("Cloud file '{}' not found.", cloudFile.getName());
             throw e;
