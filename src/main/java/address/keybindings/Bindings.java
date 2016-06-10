@@ -4,7 +4,6 @@ import address.events.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,17 +164,16 @@ public class Bindings {
     }
 
 
-    /**
-     * @param keyEvent
-     * @return the Shortcut that matches the keyEvent, if any.
-     */
-    protected Optional<Shortcut> getShortcut(KeyEvent keyEvent) {
-        return (Optional<Shortcut>) findMatchingBinding(keyEvent, shortcuts);
+    private Optional<? extends KeyBinding> findMatchingBinding(PotentialKeyboardShortcutEvent keyboardShortcutEvent,
+                                                               List<? extends KeyBinding> list){
+        return list.stream()
+                .filter(shortcut -> keyboardShortcutEvent.isMatching(shortcut.getKeyCombination()))
+                .findFirst();
     }
 
-    private Optional<? extends KeyBinding> findMatchingBinding(KeyEvent event, List<? extends KeyBinding> list){
-        return list.stream()
-                .filter(shortcut -> shortcut.getKeyCombination().match(event))
+    private Optional<GlobalHotkey> findMatchingHotkey(PotentialKeyboardShortcutEvent keyboardShortcutEvent){
+        return hotkeys.stream()
+                .filter(shortcut -> keyboardShortcutEvent.isMatching(shortcut.getKeyCombination()))
                 .findFirst();
     }
 
@@ -184,8 +182,8 @@ public class Bindings {
      * @param currentEvent
      * @param previousEvent
      */
-    protected Optional<KeySequence> getSequence(PotentialKeyboardShortcutEvent currentEvent,
-                                                PotentialKeyboardShortcutEvent previousEvent) {
+    protected Optional<KeySequence> findMatchingSequence(PotentialKeyboardShortcutEvent currentEvent,
+                                                         PotentialKeyboardShortcutEvent previousEvent) {
 
         if (previousEvent == null){
             return Optional.empty();
@@ -198,8 +196,8 @@ public class Bindings {
         }
 
         return sequences.stream()
-                .filter(sq -> sq.keyCombination.match(previousEvent.keyEvent)
-                              && sq.secondKeyCombination.match(currentEvent.keyEvent))
+                .filter(sq -> previousEvent.isMatching(sq.keyCombination)
+                              && currentEvent.isMatching(sq.secondKeyCombination))
                 .findFirst();
     }
 
@@ -207,16 +205,16 @@ public class Bindings {
                                                       PotentialKeyboardShortcutEvent previous){
         Optional<? extends KeyBinding> matchingBinding;
 
-        matchingBinding = getSequence(current, previous);
+        matchingBinding = findMatchingSequence(current, previous);
         if (matchingBinding.isPresent()) { return matchingBinding; }
 
-        matchingBinding = findMatchingBinding(current.keyEvent, shortcuts);
+        matchingBinding = findMatchingHotkey(current);
         if (matchingBinding.isPresent()) { return matchingBinding; }
 
-        matchingBinding = findMatchingBinding(current.keyEvent, hotkeys);
+        matchingBinding = findMatchingBinding(current, shortcuts);
         if (matchingBinding.isPresent()) { return matchingBinding; }
 
-        matchingBinding = findMatchingBinding(current.keyEvent, accelerators);
+        matchingBinding = findMatchingBinding(current, accelerators);
         if (matchingBinding.isPresent()) { return matchingBinding; }
 
         return Optional.empty();

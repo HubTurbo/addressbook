@@ -44,10 +44,4 @@ public class GlobalHotkey extends KeyBinding{
         return keyStroke;
     }
 
-    @Override
-    public Optional<String> getWhyNoEvent(){
-        return Optional.of("Key binding " + keyCombination.getDisplayText()
-                + "is a global hotkey handled elsewhere in the app");
-    }
-
 }

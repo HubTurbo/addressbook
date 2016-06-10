@@ -22,6 +22,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +34,7 @@ import java.util.Optional;
  * The controller that creates the other controllers
  */
 public class MainController {
+    private static final Logger logger = LogManager.getLogger(MainController.class);
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
@@ -393,7 +396,7 @@ public class MainController {
 
     @Subscribe
     private void handleMaximizeAppRequestEvent(MaximizeAppRequestEvent event){
-        System.out.println("Handling the maximize app window request");
+        logger.info("Handling the maximize app window request");
         Platform.runLater(() -> {
             maximizeWindow();
         });
@@ -401,7 +404,7 @@ public class MainController {
 
     @Subscribe
     private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event){
-        System.out.println("Handling the minimize app window request");
+        logger.info("Handling the minimize app window request");
         Platform.runLater(() -> {
             minimizeWindow();
         });

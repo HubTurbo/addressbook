@@ -1,6 +1,7 @@
 package address.keybindings;
 
 import address.events.BaseEvent;
+import address.events.GlobalHotkeyEvent;
 import address.events.PotentialKeyboardShortcutEvent;
 import address.main.ComponentManager;
 import com.google.common.eventbus.Subscribe;
@@ -16,8 +17,6 @@ import java.util.Optional;
  */
 public class KeyBindingsManager extends ComponentManager{
     private static final Logger logger = LogManager.getLogger(KeyBindingsManager.class);
-
-
 
     /** Provider for global hotkeys */
     private final Provider provider = Provider.getCurrentProvider(false);
@@ -35,8 +34,13 @@ public class KeyBindingsManager extends ComponentManager{
 
     private void registerGlobalHotkeys(List<GlobalHotkey> hotkeys) {
         for (GlobalHotkey hk: hotkeys){
-            provider.register(hk.getKeyStroke(), (hotkey) -> raise(hk.getEventToRaise().get()));
+            provider.register(hk.getKeyStroke(), (hotkey) -> raise(new GlobalHotkeyEvent(hk.keyCombination)));
         }
+    }
+
+    @Subscribe
+    public void handleGlobalHotkeyEvent(GlobalHotkeyEvent globalHotkeyEvent){
+        raise(globalHotkeyEvent.keyboardShortcutEvent);
     }
 
     @Subscribe
@@ -46,7 +50,7 @@ public class KeyBindingsManager extends ComponentManager{
         previousKeyEvent = currentKeyEvent;
 
         if (!kb.isPresent()) {
-            logger.info("Not a recognized key binding : " + currentKeyEvent.keyEvent.getText());
+            logger.info("Not a recognized key binding : " + currentKeyEvent);
             return;
         }
 

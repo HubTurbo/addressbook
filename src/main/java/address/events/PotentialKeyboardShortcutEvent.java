@@ -1,8 +1,9 @@
 package address.events;
 
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -12,15 +13,23 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  */
 public class PotentialKeyboardShortcutEvent extends BaseEvent{
 
-    /** The key event */
-    public KeyEvent keyEvent;
+    /** The key event that triggered this event*/
+    public Optional<KeyEvent> keyEvent = Optional.empty();
+
+    /** A key combination that could have triggered this event */
+    public Optional<KeyCombination> keyCombination = Optional.empty();
 
     /** The time that the Key event occurred */
     public long time;
 
     public PotentialKeyboardShortcutEvent(KeyEvent keyEvent){
         this.time = System.nanoTime();
-        this.keyEvent = keyEvent;
+        this.keyEvent = Optional.of(keyEvent);
+    }
+
+    public PotentialKeyboardShortcutEvent(KeyCombination keyCombination){
+        this.time = System.nanoTime();
+        this.keyCombination = Optional.of(keyCombination);
     }
 
     /**
@@ -40,6 +49,14 @@ public class PotentialKeyboardShortcutEvent extends BaseEvent{
     @Override
     public String toString(){
         final String className = this.getClass().getSimpleName();
-        return className + " : keyEvent is " + keyEvent;
+        return className + " " + ( keyEvent.isPresent()? keyEvent.get(): keyCombination.get().getDisplayText());
+    }
+
+    public boolean isMatching(KeyCombination potentialMatch){
+        if (keyEvent.isPresent()){
+            return potentialMatch.match(keyEvent.get());
+        } else {
+            return potentialMatch.equals(keyCombination.get());
+        }
     }
 }
