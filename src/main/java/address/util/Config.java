@@ -25,6 +25,7 @@ public class Config {
             if (configFile.exists()) {
                 Profile.Section section = new Ini(configFile).get("Logging");
                 LoggerManager.currentLogLevel = getLoggingLevelFromSection(section);
+                LoggerManager.specialLogLevel = getSpecialLoggingClasses(section);
             } else {
                 createConfigWithDefaults(configFile);
             }
