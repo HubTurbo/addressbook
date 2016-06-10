@@ -1,4 +1,4 @@
-package address.shortcuts;
+package address.keybindings;
 
 import javafx.scene.input.KeyCombination;
 

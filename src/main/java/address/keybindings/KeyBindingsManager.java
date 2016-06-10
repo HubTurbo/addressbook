@@ -1,4 +1,4 @@
-package address.shortcuts;
+package address.keybindings;
 
 import address.events.BaseEvent;
 import address.events.PotentialKeyboardShortcutEvent;
@@ -15,8 +15,8 @@ import java.util.Optional;
 /**
  * Manages key bindings.
  */
-public class ShortcutsManager extends ComponentManager{
-    private static final Logger logger = LogManager.getLogger(ShortcutsManager.class);
+public class KeyBindingsManager extends ComponentManager{
+    private static final Logger logger = LogManager.getLogger(KeyBindingsManager.class);
 
     /** Max delay (in milliseconds) allowed between key presses of a key sequence */
     private static final int KEY_SEQUENCE_MAX_DELAY_BETWEEN_KEYS = 1000;
@@ -29,7 +29,7 @@ public class ShortcutsManager extends ComponentManager{
     public static Bindings BINDINGS;
 
 
-    public ShortcutsManager() {
+    public KeyBindingsManager() {
         super();
         BINDINGS = new Bindings();
         registerGlobalHotkeys(BINDINGS.getHotkeys());

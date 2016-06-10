@@ -103,7 +103,7 @@ public class MainController {
             // Give the rootController access to the main controller and modelManager
             RootLayoutController rootController = loader.getController();
             rootController.setConnections(mainApp, this, modelManager);
-            rootController.setShortcuts();
+            rootController.setAccelerators();
 
             primaryStage.show();
         } catch (IOException e) {

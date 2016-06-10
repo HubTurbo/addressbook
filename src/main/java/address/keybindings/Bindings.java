@@ -1,4 +1,4 @@
-package address.shortcuts;
+package address.keybindings;
 
 import address.events.*;
 import javafx.scene.input.KeyCode;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Contains the mapping of shortcuts and the corresponding event to raise
+ * Contains the mapping of key bindings and the corresponding event to raise
  */
 public class Bindings {
 
