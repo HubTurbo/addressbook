@@ -25,8 +25,8 @@ import org.apache.logging.log4j.Logger;
 public class SyncManager {
     private static final Logger logger = LogManager.getLogger(SyncManager.class);
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private final ExecutorService requestExecutor = Executors.newCachedThreadPool();
+    private final ScheduledExecutorService scheduler;
+    private final ExecutorService requestExecutor;
     private Optional<String> activeAddressBook;
 
     private CloudService cloudService;
@@ -34,6 +34,16 @@ public class SyncManager {
     private LocalDateTime lastSuccessfulPersonsUpdate;
 
     public SyncManager() {
+        activeAddressBook = Optional.empty();
+        scheduler = Executors.newScheduledThreadPool(1);
+        requestExecutor = Executors.newCachedThreadPool();
+        EventManager.getInstance().registerHandler(this);
+    }
+
+    public SyncManager(CloudService cloudService, ExecutorService executorService, ScheduledExecutorService scheduledExecutorService) {
+        this.cloudService = cloudService;
+        this.scheduler = scheduledExecutorService;
+        this.requestExecutor = executorService;
         activeAddressBook = Optional.empty();
         EventManager.getInstance().registerHandler(this);
     }
@@ -51,7 +61,9 @@ public class SyncManager {
 
     public void startSyncingData(long interval, boolean simulateUnreliableNetwork) {
         if (interval <= 0) return;
-        this.cloudService = new CloudService(simulateUnreliableNetwork);
+        if (cloudService == null) {
+            this.cloudService = new CloudService(simulateUnreliableNetwork);
+        }
         updatePeriodically(interval);
     }
 

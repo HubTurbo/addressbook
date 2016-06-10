@@ -1,4 +1,4 @@
-package address.unittests;
+package address.unittests.sync;
 
 import address.exceptions.DataConversionException;
 import address.sync.CloudFileHandler;

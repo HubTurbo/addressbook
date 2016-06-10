@@ -1,4 +1,4 @@
-package address.unittests;
+package address.unittests.sync;
 
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
