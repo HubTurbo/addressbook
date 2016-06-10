@@ -29,7 +29,6 @@ public class CloudFileHandler {
             throw e;
         } catch (DataConversionException e) {
             logger.warn("Error reading from cloud file '{}'.", cloudFile.getName());
-            e.printStackTrace();
             throw e;
         }
     }
