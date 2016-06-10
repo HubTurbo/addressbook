@@ -12,8 +12,10 @@ import java.util.function.Function;
  *      - common fields/references and constructor logic
  *      - maintains visible state separately from canonical state (see {@link #visible}, {@link #backing})
  *      - common application session-lifecycle state across all domain data objects
+ *
+ * Note: these status data fields should not be directly edited by users.
  */
-public abstract class ViewableDataType<D extends BaseDataType> extends BaseDataType implements ReadOnlyViewableDataType {
+public abstract class ViewableDataType<D extends DataType> extends DataType implements ReadOnlyViewableDataType {
 
     protected final D visible;
     protected D backing;
