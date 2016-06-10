@@ -15,7 +15,7 @@ public class EmbeddedBrowserObjectMapper {
             case  EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT:
                 return EditorCommand.SCROLL_TO_END_OF_DOCUMENT;
         }
-        return null;
+        throw new IllegalArgumentException("No such command");
     }
 
     public static DOMEventType convertEbDomEventType(int eventType) {
@@ -23,7 +23,7 @@ public class EmbeddedBrowserObjectMapper {
             case EbDomEventType.ON_LOAD:
                 return DOMEventType.OnLoad;
         }
-        return null;
+        throw new IllegalArgumentException("No such event type");
     }
 
 }
