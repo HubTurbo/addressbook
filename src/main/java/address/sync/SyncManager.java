@@ -2,7 +2,6 @@ package address.sync;
 
 
 import address.events.*;
-import address.events.UpdateWithoutActiveSyncEvent;
 import address.exceptions.SyncErrorException;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.tag.Tag;
@@ -19,7 +18,6 @@ import java.util.concurrent.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 
 /**
  * Syncs data between the cloud and the primary data file
@@ -40,14 +38,14 @@ public class SyncManager {
         EventManager.getInstance().registerHandler(this);
     }
 
-    // TODO: setActiveAddressBook should be called instead of listening for data request events
+    // TODO: setActiveAddressBook should be called by the model instead
     @Subscribe
     public void handleLoadDataRequestEvent(LoadDataRequestEvent e) {
-        logger.info("Active addressbook set to {}", e.file.getName());
-        activeAddressBook = Optional.of(e.file.getName());
+        setActiveAddressBook(e.file.getName());
     }
 
     public void setActiveAddressBook(String activeAddressBookName) {
+        logger.info("Active addressbook set to {}", activeAddressBookName);
         activeAddressBook = Optional.of(activeAddressBookName);
     }
 
@@ -59,16 +57,18 @@ public class SyncManager {
 
     /**
      * Runs periodically and posts results of updates as events
+     *
      * @param interval number of units to wait
      */
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
             logger.info("Attempting to update at {}", System.currentTimeMillis());
+            EventManager.getInstance().post(new SyncStartedEvent());
+
             if (!activeAddressBook.isPresent()) {
-                EventManager.getInstance().post(new UpdateWithoutActiveSyncEvent());
+                EventManager.getInstance().post(new SyncFailedEvent("No active addressbook sync found."));
                 return;
             }
-            EventManager.getInstance().post(new SyncInProgressEvent());
             try {
                 List<Person> updatedPersons = getUpdatedPersons(activeAddressBook.get());
                 logger.info("{} updated persons found.", updatedPersons.size());

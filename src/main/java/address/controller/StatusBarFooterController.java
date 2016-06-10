@@ -57,8 +57,8 @@ public class StatusBarFooterController {
     }
 
     @Subscribe
-    public void handleSyncingInProgressEvent(SyncInProgressEvent sipe) {
-        Platform.runLater(() -> syncStatusBar.setText(sipe.toString()));
+    public void handleSyncingStartedEvent(SyncStartedEvent sse) {
+        Platform.runLater(() -> syncStatusBar.setText(sse.toString()));
     }
 
     @Subscribe
