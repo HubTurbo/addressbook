@@ -34,24 +34,19 @@ public class Bindings {
     private List<Shortcut> shortcuts = new ArrayList<>();
 
 
-    /* Global hotkeys in alphabetical order of name */
-    public List<GlobalHotkey> HOTKEY_APP_MAXIMIZE = new ArrayList<>();
-    public List<GlobalHotkey> HOTKEY_APP_MINIMIZE = new ArrayList<>();
+    /* key bindings in alphabetical order of name */
+    public List<GlobalHotkey> APP_MAXIMIZE_HOTKEY = new ArrayList<>();
+    public List<GlobalHotkey> APP_MINIMIZE_HOTKEY = new ArrayList<>();
+    public Accelerator FILE_NEW_ACCELERATOR;
+    public Accelerator FILE_OPEN_ACCELERATOR;
+    public Accelerator FILE_SAVE_ACCELERATOR;
+    public Accelerator FILE_SAVE_AS_ACCELERATOR;
+    public KeySequence LIST_GOTO_TOP_SEQUENCE;
+    public KeySequence LIST_GOTO_BOTTOM_SEQUENCE;
+    public Shortcut LIST_ENTER_SHORTCUT;
+    public Accelerator PERSON_DELETE_ACCELERATOR;
+    public Accelerator PERSON_EDIT_ACCELERATOR;
 
-    /* Accelerators in alphabetical order of name */
-    public Accelerator ACCELERATOR_FILE_NEW;
-    public Accelerator ACCELERATOR_FILE_OPEN;
-    public Accelerator ACCELERATOR_FILE_SAVE;
-    public Accelerator ACCELERATOR_FILE_SAVE_AS;
-    public Accelerator ACCELERATOR_PERSON_DELETE;
-    public Accelerator ACCELERATOR_PERSON_EDIT;
-
-    /** Sequences in alphabetical order of name */
-    public KeySequence SEQUENCE_GOTO_TOP;
-    public KeySequence SEQUENCE_GOTO_BOTTOM;
-
-    /* Shortcuts in alphabetical order of name */
-    public Shortcut SHORTCUT_LIST_ENTER;
 
     public Bindings(){
         init();
@@ -61,41 +56,41 @@ public class Bindings {
 
         /*====== bindings A-Z keys (in alphabetical order of main key =====================*/
 
-        ACCELERATOR_PERSON_DELETE = setAccelerator(KeyCode.D);
+        PERSON_DELETE_ACCELERATOR = setAccelerator(KeyCode.D);
 
-        ACCELERATOR_PERSON_EDIT = setAccelerator(KeyCode.E);
+        PERSON_EDIT_ACCELERATOR = setAccelerator(KeyCode.E);
 
-        SEQUENCE_GOTO_BOTTOM = setSequence(new KeyCodeCombination(KeyCode.G), new KeyCodeCombination(KeyCode.B),
+        LIST_GOTO_BOTTOM_SEQUENCE = setSequence(new KeyCodeCombination(KeyCode.G), new KeyCodeCombination(KeyCode.B),
                                            new JumpToListRequestEvent(-1));
 
-        SEQUENCE_GOTO_TOP = setSequence(new KeyCodeCombination(KeyCode.G), new KeyCodeCombination(KeyCode.T),
+        LIST_GOTO_TOP_SEQUENCE = setSequence(new KeyCodeCombination(KeyCode.G), new KeyCodeCombination(KeyCode.T),
                                         new JumpToListRequestEvent(1));
 
-        ACCELERATOR_FILE_NEW = setAccelerator(KeyCode.N, KeyCombination.SHORTCUT_DOWN);
+        FILE_NEW_ACCELERATOR = setAccelerator(KeyCode.N, KeyCombination.SHORTCUT_DOWN);
 
-        ACCELERATOR_FILE_OPEN = setAccelerator(KeyCode.O, KeyCombination.SHORTCUT_DOWN);
+        FILE_OPEN_ACCELERATOR = setAccelerator(KeyCode.O, KeyCombination.SHORTCUT_DOWN);
 
-        ACCELERATOR_FILE_SAVE = setAccelerator(KeyCode.S, KeyCombination.SHORTCUT_DOWN);
+        FILE_SAVE_ACCELERATOR = setAccelerator(KeyCode.S, KeyCombination.SHORTCUT_DOWN);
 
-        ACCELERATOR_FILE_SAVE_AS = setAccelerator(KeyCode.S, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
+        FILE_SAVE_AS_ACCELERATOR = setAccelerator(KeyCode.S, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
 
-        HOTKEY_APP_MINIMIZE.add(setHotkey(
+        APP_MINIMIZE_HOTKEY.add(setHotkey(
                 new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN, KeyCodeCombination.ALT_DOWN),
                 new MinimizeAppRequestEvent()));
-        HOTKEY_APP_MINIMIZE.add(setHotkey(
+        APP_MINIMIZE_HOTKEY.add(setHotkey(
                 new KeyCodeCombination(KeyCode.X, KeyCombination.META_DOWN, KeyCodeCombination.ALT_DOWN),
                 new MinimizeAppRequestEvent()));
 
-        HOTKEY_APP_MAXIMIZE.add(setHotkey(
+        APP_MAXIMIZE_HOTKEY.add(setHotkey(
                 new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN, KeyCodeCombination.SHIFT_DOWN),
                 new MaximizeAppRequestEvent()));
-        HOTKEY_APP_MAXIMIZE.add(setHotkey(
+        APP_MAXIMIZE_HOTKEY.add(setHotkey(
                 new KeyCodeCombination(KeyCode.X, KeyCombination.META_DOWN, KeyCodeCombination.SHIFT_DOWN),
                 new MaximizeAppRequestEvent()));
 
         /*====== other keys ======================================================*/
 
-        SHORTCUT_LIST_ENTER = setShortcut(KeyCode.DOWN, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(1));
+        LIST_ENTER_SHORTCUT = setShortcut(KeyCode.DOWN, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(1));
 
         //shortcuts for jumping to Nth item in the list n=1..9
         setShortcut(KeyCode.DIGIT1, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(1));

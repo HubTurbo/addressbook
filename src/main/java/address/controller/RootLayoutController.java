@@ -63,10 +63,10 @@ public class RootLayoutController {
     }
 
     public void setAccelerators(){
-        menuFileNew.setAccelerator(KeyBindingsManager.BINDINGS.ACCELERATOR_FILE_NEW.getKeyCombination());
-        menuFileOpen.setAccelerator(KeyBindingsManager.BINDINGS.ACCELERATOR_FILE_OPEN.getKeyCombination());
-        menuFileSave.setAccelerator(KeyBindingsManager.BINDINGS.ACCELERATOR_FILE_SAVE.getKeyCombination());
-        menuFileSaveAs.setAccelerator(KeyBindingsManager.BINDINGS.ACCELERATOR_FILE_SAVE_AS.getKeyCombination());
+        menuFileNew.setAccelerator(KeyBindingsManager.BINDINGS.FILE_NEW_ACCELERATOR.getKeyCombination());
+        menuFileOpen.setAccelerator(KeyBindingsManager.BINDINGS.FILE_OPEN_ACCELERATOR.getKeyCombination());
+        menuFileSave.setAccelerator(KeyBindingsManager.BINDINGS.FILE_SAVE_ACCELERATOR.getKeyCombination());
+        menuFileSaveAs.setAccelerator(KeyBindingsManager.BINDINGS.FILE_SAVE_AS_ACCELERATOR.getKeyCombination());
     }
 
     @Subscribe
