@@ -1,7 +1,6 @@
 package address.keybindings;
 
 import address.events.*;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 
@@ -137,14 +136,14 @@ public class Bindings {
     }
 
 
-    private Optional<? extends KeyBinding> findMatchingBinding(PotentialKeyboardShortcutEvent keyboardShortcutEvent,
+    private Optional<? extends KeyBinding> findMatchingBinding(KeyBindingEvent keyboardShortcutEvent,
                                                                List<? extends KeyBinding> list){
         return list.stream()
                 .filter(shortcut -> keyboardShortcutEvent.isMatching(shortcut.getKeyCombination()))
                 .findFirst();
     }
 
-    private Optional<GlobalHotkey> findMatchingHotkey(PotentialKeyboardShortcutEvent keyboardShortcutEvent){
+    private Optional<GlobalHotkey> findMatchingHotkey(KeyBindingEvent keyboardShortcutEvent){
         return hotkeys.stream()
                 .filter(shortcut -> keyboardShortcutEvent.isMatching(shortcut.getKeyCombination()))
                 .findFirst();
@@ -155,14 +154,14 @@ public class Bindings {
      * @param currentEvent
      * @param previousEvent
      */
-    protected Optional<KeySequence> findMatchingSequence(PotentialKeyboardShortcutEvent currentEvent,
-                                                         PotentialKeyboardShortcutEvent previousEvent) {
+    protected Optional<KeySequence> findMatchingSequence(KeyBindingEvent currentEvent,
+                                                         KeyBindingEvent previousEvent) {
 
         if (previousEvent == null){
             return Optional.empty();
         }
 
-        long elapsedTime = PotentialKeyboardShortcutEvent.elapsedTimeInMilliseconds(previousEvent, currentEvent);
+        long elapsedTime = KeyBindingEvent.elapsedTimeInMilliseconds(previousEvent, currentEvent);
 
         if (elapsedTime > KeySequence.KEY_SEQUENCE_MAX_DELAY_BETWEEN_KEYS){
             return Optional.empty();
@@ -174,8 +173,8 @@ public class Bindings {
                 .findFirst();
     }
 
-    public Optional<? extends KeyBinding>  getBinding(PotentialKeyboardShortcutEvent current,
-                                                      PotentialKeyboardShortcutEvent previous){
+    public Optional<? extends KeyBinding>  getBinding(KeyBindingEvent current,
+                                                      KeyBindingEvent previous){
         Optional<? extends KeyBinding> matchingBinding;
 
         matchingBinding = findMatchingSequence(current, previous);

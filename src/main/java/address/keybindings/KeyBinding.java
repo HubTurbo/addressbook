@@ -25,7 +25,4 @@ public class KeyBinding {
         return eventToRaise;
     }
 
-    public Optional<String> getWhyNoEvent(){
-        return Optional.empty();
-    }
 }

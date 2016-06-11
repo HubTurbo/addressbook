@@ -15,9 +15,8 @@ public class Accelerator extends KeyBinding{
     }
 
     @Override
-    public Optional<String> getWhyNoEvent(){
-        return Optional.of("Key binding " + keyCombination.getDisplayText()
-                + " is an accelerator handled elsewhere in the app");
+    public String toString(){
+        return "Accelerator " + keyCombination.getDisplayText();
     }
 
 }

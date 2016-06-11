@@ -9,9 +9,9 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
- * Indicates a key event occurred that is potentially a keyboard shortcut
+ * Indicates a key event occurred that is potentially a key binding being used
  */
-public class PotentialKeyboardShortcutEvent extends BaseEvent{
+public class KeyBindingEvent extends BaseEvent{
 
     /** The key event that triggered this event*/
     public Optional<KeyEvent> keyEvent = Optional.empty();
@@ -22,12 +22,12 @@ public class PotentialKeyboardShortcutEvent extends BaseEvent{
     /** The time that the Key event occurred */
     public long time;
 
-    public PotentialKeyboardShortcutEvent(KeyEvent keyEvent){
+    public KeyBindingEvent(KeyEvent keyEvent){
         this.time = System.nanoTime();
         this.keyEvent = Optional.of(keyEvent);
     }
 
-    public PotentialKeyboardShortcutEvent(KeyCombination keyCombination){
+    public KeyBindingEvent(KeyCombination keyCombination){
         this.time = System.nanoTime();
         this.keyCombination = Optional.of(keyCombination);
     }
@@ -38,8 +38,8 @@ public class PotentialKeyboardShortcutEvent extends BaseEvent{
      * @param secondEvent
      * @return elapsed time in milli seconds.
      */
-    public static long elapsedTimeInMilliseconds(PotentialKeyboardShortcutEvent firstEvent,
-                                                 PotentialKeyboardShortcutEvent secondEvent){
+    public static long elapsedTimeInMilliseconds(KeyBindingEvent firstEvent,
+                                                 KeyBindingEvent secondEvent){
         long durationInNanoSeconds = secondEvent.time - firstEvent.time;
         long elapsedTimeInMilliseconds = MILLISECONDS.convert(durationInNanoSeconds, NANOSECONDS);
         assert elapsedTimeInMilliseconds >= 0;

@@ -7,10 +7,10 @@ import javafx.scene.input.KeyCombination;
  */
 public class GlobalHotkeyEvent extends BaseEvent {
 
-    public final PotentialKeyboardShortcutEvent keyboardShortcutEvent;
+    public final KeyBindingEvent keyboardShortcutEvent;
 
     public GlobalHotkeyEvent(KeyCombination keyCombination){
-        this.keyboardShortcutEvent = new PotentialKeyboardShortcutEvent(keyCombination);
+        this.keyboardShortcutEvent = new KeyBindingEvent(keyCombination);
     }
 
     @Override

@@ -44,4 +44,9 @@ public class GlobalHotkey extends KeyBinding{
         return keyStroke;
     }
 
+    @Override
+    public String toString(){
+        return "Global Hotkey " + keyCombination.getDisplayText();
+    }
+
 }

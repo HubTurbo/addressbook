@@ -2,7 +2,7 @@ package address.keybindings;
 
 import address.events.BaseEvent;
 import address.events.GlobalHotkeyEvent;
-import address.events.PotentialKeyboardShortcutEvent;
+import address.events.KeyBindingEvent;
 import address.main.ComponentManager;
 import com.google.common.eventbus.Subscribe;
 import com.tulskiy.keymaster.common.Provider;
@@ -21,7 +21,7 @@ public class KeyBindingsManager extends ComponentManager{
     /** Provider for global hotkeys */
     private final Provider provider = Provider.getCurrentProvider(false);
 
-    private PotentialKeyboardShortcutEvent previousKeyEvent = null;
+    private KeyBindingEvent previousKeyEvent = null;
 
     public static Bindings BINDINGS;
 
@@ -44,7 +44,7 @@ public class KeyBindingsManager extends ComponentManager{
     }
 
     @Subscribe
-    public void handlePotentialKeyboardShortcutEvent(PotentialKeyboardShortcutEvent currentKeyEvent) {
+    public void handleKeyBindingEvent(KeyBindingEvent currentKeyEvent) {
 
         Optional<? extends KeyBinding> kb = BINDINGS.getBinding(currentKeyEvent, previousKeyEvent);
         previousKeyEvent = currentKeyEvent;
@@ -56,9 +56,10 @@ public class KeyBindingsManager extends ComponentManager{
 
         Optional<BaseEvent> event = kb.get().getEventToRaise();
         if (event.isPresent()){
+            logger.info("Handling " + kb.get());
             raise (event.get());
         } else {
-            logger.info("Not raising an event because "  + kb.get().getWhyNoEvent().get());
+            logger.info("Not raising an event because it is handled elsewhere " + kb.get());
         }
     }
 

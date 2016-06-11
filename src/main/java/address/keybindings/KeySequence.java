@@ -22,4 +22,9 @@ public class KeySequence extends KeyBinding{
         super(firstKeyCombination, eventToRaise);
         this.secondKeyCombination = secondKeyCombination;
     }
+
+    @Override
+    public String toString(){
+        return "Key sequence " + keyCombination.getDisplayText() + ", " + secondKeyCombination.getDisplayText();
+    }
 }
