@@ -56,7 +56,7 @@ public class Bindings {
         /*====== bindings A-Z keys (in alphabetical order of main key =====================*/
 
         PERSON_DELETE_ACCELERATOR = setAccelerator("PERSON_DELETE_ACCELERATOR", "D");
-        PERSON_EDIT_ACCELERATOR = setAccelerator("PERSON_EDIT_ACCELERATOR", "D");
+        PERSON_EDIT_ACCELERATOR = setAccelerator("PERSON_EDIT_ACCELERATOR", "E");
         LIST_GOTO_BOTTOM_SEQUENCE = setSequence("LIST_GOTO_BOTTOM_SEQUENCE", "G", "B", new JumpToListRequestEvent(-1));
         LIST_GOTO_TOP_SEQUENCE = setSequence("LIST_GOTO_TOP_SEQUENCE", "G", "T", new JumpToListRequestEvent(1));
         FILE_NEW_ACCELERATOR = setAccelerator("FILE_NEW_ACCELERATOR", "Shortcut + N");
