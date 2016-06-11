@@ -56,64 +56,43 @@ public class Bindings {
 
         /*====== bindings A-Z keys (in alphabetical order of main key =====================*/
 
-        PERSON_DELETE_ACCELERATOR = setAccelerator(KeyCode.D);
-
-        PERSON_EDIT_ACCELERATOR = setAccelerator(KeyCode.E);
-
-        LIST_GOTO_BOTTOM_SEQUENCE = setSequence(new KeyCodeCombination(KeyCode.G), new KeyCodeCombination(KeyCode.B),
-                                           new JumpToListRequestEvent(-1));
-
-        LIST_GOTO_TOP_SEQUENCE = setSequence(new KeyCodeCombination(KeyCode.G), new KeyCodeCombination(KeyCode.T),
-                                        new JumpToListRequestEvent(1));
-
-        FILE_NEW_ACCELERATOR = setAccelerator(KeyCode.N, KeyCombination.SHORTCUT_DOWN);
-
-        FILE_OPEN_ACCELERATOR = setAccelerator(KeyCode.O, KeyCombination.SHORTCUT_DOWN);
-
-        FILE_SAVE_ACCELERATOR = setAccelerator(KeyCode.S, KeyCombination.SHORTCUT_DOWN);
-
-        FILE_SAVE_AS_ACCELERATOR = setAccelerator(KeyCode.S, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
-
-        APP_MINIMIZE_HOTKEY.add(setHotkey(
-                new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN, KeyCodeCombination.ALT_DOWN),
-                new MinimizeAppRequestEvent()));
-        APP_MINIMIZE_HOTKEY.add(setHotkey(
-                new KeyCodeCombination(KeyCode.X, KeyCombination.META_DOWN, KeyCodeCombination.ALT_DOWN),
-                new MinimizeAppRequestEvent()));
-
-        APP_MAXIMIZE_HOTKEY.add(setHotkey(
-                new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN, KeyCodeCombination.SHIFT_DOWN),
-                new MaximizeAppRequestEvent()));
-        APP_MAXIMIZE_HOTKEY.add(setHotkey(
-                new KeyCodeCombination(KeyCode.X, KeyCombination.META_DOWN, KeyCodeCombination.SHIFT_DOWN),
-                new MaximizeAppRequestEvent()));
+        PERSON_DELETE_ACCELERATOR = setAccelerator("D");
+        PERSON_EDIT_ACCELERATOR = setAccelerator("D");
+        LIST_GOTO_BOTTOM_SEQUENCE = setSequence("G", "B", new JumpToListRequestEvent(-1));
+        LIST_GOTO_TOP_SEQUENCE = setSequence("G", "T", new JumpToListRequestEvent(1));
+        FILE_NEW_ACCELERATOR = setAccelerator("Shortcut + N");
+        FILE_OPEN_ACCELERATOR = setAccelerator("Shortcut + O");
+        FILE_SAVE_ACCELERATOR = setAccelerator("Shortcut + S");
+        FILE_SAVE_AS_ACCELERATOR = setAccelerator("Shortcut + Alt + S");
+        APP_MINIMIZE_HOTKEY.add(setHotkey("Ctrl + Alt + X", new MinimizeAppRequestEvent()));
+        APP_MINIMIZE_HOTKEY.add(setHotkey("Meta + Alt + X", new MinimizeAppRequestEvent()));
+        APP_MAXIMIZE_HOTKEY.add(setHotkey("Ctrl + Shift + X", new MaximizeAppRequestEvent()));
+        APP_MAXIMIZE_HOTKEY.add(setHotkey("Meta + Shift + X", new MaximizeAppRequestEvent()));
 
         /*====== other keys ======================================================*/
 
-        LIST_ENTER_SHORTCUT = setShortcut(KeyCode.DOWN, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(1));
+        LIST_ENTER_SHORTCUT = setShortcut("Shortcut + Down", new JumpToListRequestEvent(1));
 
         //shortcuts for jumping to Nth item in the list n=1..9
-        setShortcut(KeyCode.DIGIT1, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(1));
-        setShortcut(KeyCode.DIGIT2, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(2));
-        setShortcut(KeyCode.DIGIT3, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(3));
-        setShortcut(KeyCode.DIGIT4, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(4));
-        setShortcut(KeyCode.DIGIT5, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(5));
-        setShortcut(KeyCode.DIGIT6, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(6));
-        setShortcut(KeyCode.DIGIT7, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(7));
-        setShortcut(KeyCode.DIGIT8, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(8));
-        setShortcut(KeyCode.DIGIT9, KeyCombination.SHORTCUT_DOWN, new JumpToListRequestEvent(9));
+        setShortcut("Shortcut + 1", new JumpToListRequestEvent(1));
+        setShortcut("Shortcut + 2", new JumpToListRequestEvent(2));
+        setShortcut("Shortcut + 3", new JumpToListRequestEvent(3));
+        setShortcut("Shortcut + 4", new JumpToListRequestEvent(4));
+        setShortcut("Shortcut + 5", new JumpToListRequestEvent(5));
+        setShortcut("Shortcut + 6", new JumpToListRequestEvent(6));
+        setShortcut("Shortcut + 7", new JumpToListRequestEvent(7));
+        setShortcut("Shortcut + 8", new JumpToListRequestEvent(8));
+        setShortcut("Shortcut + 9", new JumpToListRequestEvent(9));
 
     }
 
     /**
      * Creates a new {@link Accelerator} object and adds it to the list of accelerators.
-     * @param mainKey
-     * @param modifierKey
+     * @param keyCombination
      * @return the created object.
      */
-    private Accelerator setAccelerator(KeyCode mainKey, KeyCombination.Modifier... modifierKey) {
-        KeyCodeCombination keyCodeCombination = new KeyCodeCombination(mainKey, modifierKey);
-        Accelerator a = new Accelerator(keyCodeCombination);
+    private Accelerator setAccelerator(String keyCombination) {
+        Accelerator a = new Accelerator(KeyCodeCombination.valueOf(keyCombination));
         accelerators.add(a);
         return a;
     }
@@ -126,22 +105,21 @@ public class Bindings {
      * @param eventToRaise
      * @return the created object.
      */
-    private KeySequence setSequence(KeyCombination firstKeyCombination, KeyCombination secondKeyCombination,
-                                    BaseEvent eventToRaise) {
-        KeySequence sq = new KeySequence(firstKeyCombination, secondKeyCombination, eventToRaise);
+    private KeySequence setSequence(String firstKeyCombination, String secondKeyCombination, BaseEvent eventToRaise) {
+        KeySequence sq = new KeySequence(KeyCodeCombination.valueOf(firstKeyCombination),
+                                         KeyCodeCombination.valueOf(secondKeyCombination),
+                                         eventToRaise);
         sequences.add(sq);
         return sq;
     }
     /**
      * Creates a new {@link Shortcut} object and adds to the list of shortcuts.
-     * @param mainKey
-     * @param modifierKey
+     * @param keyCombination
      * @param eventToRaise
      * @return the created object.
      */
-    private Shortcut setShortcut(KeyCode mainKey, KeyCombination.Modifier modifierKey, BaseEvent eventToRaise) {
-        KeyCodeCombination keyCombination = new KeyCodeCombination(mainKey, modifierKey);
-        Shortcut s = new Shortcut(keyCombination, eventToRaise);
+    private Shortcut setShortcut(String keyCombination, BaseEvent eventToRaise) {
+        Shortcut s = new Shortcut(KeyCombination.valueOf(keyCombination), eventToRaise);
         shortcuts.add(s);
         return s;
     }
@@ -152,8 +130,8 @@ public class Bindings {
      * @param eventToRaise
      * @return the created object.
      */
-    private GlobalHotkey setHotkey(KeyCombination keyCombination, BaseEvent eventToRaise) {
-        GlobalHotkey hk = new GlobalHotkey(keyCombination, eventToRaise);
+    private GlobalHotkey setHotkey(String keyCombination, BaseEvent eventToRaise) {
+        GlobalHotkey hk = new GlobalHotkey(KeyCombination.valueOf(keyCombination), eventToRaise);
         hotkeys.add(hk);
         return hk;
     }
