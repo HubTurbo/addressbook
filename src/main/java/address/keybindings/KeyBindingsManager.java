@@ -16,11 +16,13 @@ import java.util.Optional;
  * Manages key bindings.
  */
 public class KeyBindingsManager extends ComponentManager{
+
     private static final Logger logger = LogManager.getLogger(KeyBindingsManager.class);
 
     /** Provider for global hotkeys */
     private final Provider provider = Provider.getCurrentProvider(false);
 
+    /** To keep track of the previous keyboard event, to match for key sequences */
     private KeyBindingEvent previousKeyEvent = null;
 
     public static Bindings BINDINGS;
@@ -32,12 +34,21 @@ public class KeyBindingsManager extends ComponentManager{
         registerGlobalHotkeys(BINDINGS.getHotkeys());
     }
 
+    /**
+     * Registers a {@link GlobalHotkeyEvent} with jKeymaster for each global hotkey
+     * @param hotkeys
+     */
     private void registerGlobalHotkeys(List<GlobalHotkey> hotkeys) {
         for (GlobalHotkey hk: hotkeys){
             provider.register(hk.getKeyStroke(), (hotkey) -> raise(new GlobalHotkeyEvent(hk.keyCombination)));
         }
     }
 
+    /**
+     * Swallows the {@link GlobalHotkeyEvent} raised by jKeyMaster and
+     * raises the corresponding {@link KeyBindingEvent}
+     * @param globalHotkeyEvent
+     */
     @Subscribe
     public void handleGlobalHotkeyEvent(GlobalHotkeyEvent globalHotkeyEvent){
         raise(globalHotkeyEvent.keyboardShortcutEvent);
@@ -50,7 +61,7 @@ public class KeyBindingsManager extends ComponentManager{
         previousKeyEvent = currentKeyEvent;
 
         if (!kb.isPresent()) {
-            logger.info("Not a recognized key binding : " + currentKeyEvent);
+            logger.debug("Not a recognized key binding : " + currentKeyEvent);
             return;
         }
 
@@ -59,7 +70,7 @@ public class KeyBindingsManager extends ComponentManager{
             logger.info("Handling " + kb.get());
             raise (event.get());
         } else {
-            logger.info("Not raising an event because it is handled elsewhere " + kb.get());
+            logger.info("Not raising an event because it is handled elsewhere : " + kb.get());
         }
     }
 

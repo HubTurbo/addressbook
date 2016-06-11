@@ -4,7 +4,7 @@ import address.events.BaseEvent;
 import javafx.scene.input.KeyCombination;
 
 /**
- * Represents a keyboard shortcut
+ * Represents a normal keyboard shortcut
  */
 public class Shortcut extends KeyBinding{
 
@@ -14,6 +14,12 @@ public class Shortcut extends KeyBinding{
 
     public KeyCombination getKeyCombination() {
         return keyCombination;
+    }
+
+
+    @Override
+    public String toString(){
+        return "Keyboard shortcut " + keyCombination.getDisplayText();
     }
 
 }

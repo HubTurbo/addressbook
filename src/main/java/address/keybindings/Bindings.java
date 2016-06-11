@@ -124,7 +124,7 @@ public class Bindings {
     }
 
     /**
-     * Creates a new {@link GlobalHotkey} object and adds it to the list.
+     * Creates a new {@link GlobalHotkey} object and adds it to the hotkey list.
      * @param keyCombination
      * @param eventToRaise
      * @return the created object.
@@ -136,10 +136,16 @@ public class Bindings {
     }
 
 
-    private Optional<? extends KeyBinding> findMatchingBinding(KeyBindingEvent keyboardShortcutEvent,
+    /**
+     * Finds a matching key binding, if any.
+     * @param keyBindingEvent
+     * @param list list of key bindings to search
+     * @return
+     */
+    private Optional<? extends KeyBinding> findMatchingBinding(KeyBindingEvent keyBindingEvent,
                                                                List<? extends KeyBinding> list){
         return list.stream()
-                .filter(shortcut -> keyboardShortcutEvent.isMatching(shortcut.getKeyCombination()))
+                .filter(shortcut -> keyBindingEvent.isMatching(shortcut.getKeyCombination()))
                 .findFirst();
     }
 
@@ -173,6 +179,11 @@ public class Bindings {
                 .findFirst();
     }
 
+    /**
+     * @param current the key event being matched
+     * @param previous the previous key event (this is needed to match for key sequences)
+     * @return the matching key binding, if any
+     */
     public Optional<? extends KeyBinding>  getBinding(KeyBindingEvent current,
                                                       KeyBindingEvent previous){
         Optional<? extends KeyBinding> matchingBinding;

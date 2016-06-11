@@ -95,7 +95,7 @@ public class MainController {
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
             scene.setOnKeyPressed(event -> {
-                    EventManager.getInstance().post(new KeyBindingEvent(event));
+                    EventManager.getInstance().postPotentialEvent(new KeyBindingEvent(event));
                 });
             primaryStage.setMinHeight(400);
             primaryStage.setMinWidth(740);

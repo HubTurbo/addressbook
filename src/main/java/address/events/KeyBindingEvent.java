@@ -16,7 +16,8 @@ public class KeyBindingEvent extends BaseEvent{
     /** The key event that triggered this event*/
     public Optional<KeyEvent> keyEvent = Optional.empty();
 
-    /** A key combination that could have triggered this event */
+    /** A key combination that matches the key event.
+     * This is used when a key event is not accessible.*/
     public Optional<KeyCombination> keyCombination = Optional.empty();
 
     /** The time that the Key event occurred */
@@ -46,17 +47,21 @@ public class KeyBindingEvent extends BaseEvent{
         return elapsedTimeInMilliseconds;
     }
 
-    @Override
-    public String toString(){
-        final String className = this.getClass().getSimpleName();
-        return className + " " + ( keyEvent.isPresent()? keyEvent.get(): keyCombination.get().getDisplayText());
-    }
-
+    /**
+     * @param potentialMatch
+     * @return true if the key combination matches this key binding
+     */
     public boolean isMatching(KeyCombination potentialMatch){
         if (keyEvent.isPresent()){
             return potentialMatch.match(keyEvent.get());
         } else {
             return potentialMatch.equals(keyCombination.get());
         }
+    }
+
+    @Override
+    public String toString(){
+        final String className = this.getClass().getSimpleName();
+        return className + " " + ( keyEvent.isPresent()? keyEvent.get().getText(): keyCombination.get().getDisplayText());
     }
 }
