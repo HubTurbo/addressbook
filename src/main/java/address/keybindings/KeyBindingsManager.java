@@ -51,7 +51,7 @@ public class KeyBindingsManager extends ComponentManager{
      */
     @Subscribe
     public void handleGlobalHotkeyEvent(GlobalHotkeyEvent globalHotkeyEvent){
-        raise(globalHotkeyEvent.keyboardShortcutEvent);
+        raise(globalHotkeyEvent.keyBindingEvent);
     }
 
     @Subscribe
