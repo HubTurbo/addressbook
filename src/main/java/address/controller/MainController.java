@@ -22,6 +22,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +34,7 @@ import java.util.Optional;
  * The controller that creates the other controllers
  */
 public class MainController {
+    private static final Logger logger = LogManager.getLogger(MainController.class);
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
@@ -92,7 +95,7 @@ public class MainController {
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
             scene.setOnKeyPressed(event -> {
-                    EventManager.getInstance().post(new PotentialKeyboardShortcutEvent(event));
+                    EventManager.getInstance().postPotentialEvent(new KeyBindingEvent(event));
                 });
             primaryStage.setMinHeight(400);
             primaryStage.setMinWidth(740);
@@ -103,7 +106,7 @@ public class MainController {
             // Give the rootController access to the main controller and modelManager
             RootLayoutController rootController = loader.getController();
             rootController.setConnections(mainApp, this, modelManager);
-            rootController.setShortcuts();
+            rootController.setAccelerators();
 
             primaryStage.show();
         } catch (IOException e) {
@@ -393,7 +396,7 @@ public class MainController {
 
     @Subscribe
     private void handleMaximizeAppRequestEvent(MaximizeAppRequestEvent event){
-        System.out.println("Handling the maximize app window request");
+        logger.info("Handling the maximize app window request");
         Platform.runLater(() -> {
             maximizeWindow();
         });
@@ -401,7 +404,7 @@ public class MainController {
 
     @Subscribe
     private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event){
-        System.out.println("Handling the minimize app window request");
+        logger.info("Handling the minimize app window request");
         Platform.runLater(() -> {
             minimizeWindow();
         });

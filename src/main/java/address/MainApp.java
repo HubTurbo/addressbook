@@ -6,7 +6,7 @@ import address.controller.MainController;
 import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
 import address.model.ModelManager;
-import address.shortcuts.ShortcutsManager;
+import address.keybindings.KeyBindingsManager;
 import address.prefs.PrefsManager;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
@@ -39,7 +39,7 @@ public class MainApp extends Application {
     protected SyncManager syncManager;
     protected UpdateManager updateManager;
     private MainController mainController;
-    private ShortcutsManager shortcutsManager;
+    private KeyBindingsManager keyBindingsManager;
 
     public MainApp() {}
 
@@ -70,7 +70,7 @@ public class MainApp extends Application {
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager();
 
-        shortcutsManager = new ShortcutsManager();
+        keyBindingsManager = new KeyBindingsManager();
 
         updateManager = new UpdateManager();
         alertMissingDependencies();
@@ -99,7 +99,7 @@ public class MainApp extends Application {
         mainController.getPrimaryStage().hide();
         mainController.releaseResourcesForAppTermination();
         updateManager.applyUpdate();
-        shortcutsManager.clear();
+        keyBindingsManager.clear();
         Platform.exit();
         System.exit(0);
     }
