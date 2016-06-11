@@ -23,8 +23,8 @@ public class GlobalHotkey extends KeyBinding{
     private KeyStroke keyStroke;
 
 
-    public GlobalHotkey(KeyCombination keyCombination, BaseEvent eventToRaise){
-        super(keyCombination, eventToRaise);
+    public GlobalHotkey(String name, KeyCombination keyCombination, BaseEvent eventToRaise){
+        super(name, keyCombination, eventToRaise);
         this.keyStroke = getKeyStroke(keyCombination);
     }
 
@@ -40,7 +40,7 @@ public class GlobalHotkey extends KeyBinding{
 
     @Override
     public String toString(){
-        return "Global Hotkey " + keyCombination.getDisplayText();
+        return "Global Hotkey " + getDisplayText();
     }
 
 }

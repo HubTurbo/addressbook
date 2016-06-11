@@ -8,8 +8,8 @@ import javafx.scene.input.KeyCombination;
  */
 public class Shortcut extends KeyBinding{
 
-    Shortcut(KeyCombination keyCombination, BaseEvent eventToRaise) {
-        super(keyCombination, eventToRaise);
+    Shortcut(String name, KeyCombination keyCombination, BaseEvent eventToRaise) {
+        super(name, keyCombination, eventToRaise);
     }
 
     public KeyCombination getKeyCombination() {
@@ -19,7 +19,7 @@ public class Shortcut extends KeyBinding{
 
     @Override
     public String toString(){
-        return "Keyboard shortcut " + keyCombination.getDisplayText();
+        return "Keyboard shortcut " + getDisplayText();
     }
 
 }

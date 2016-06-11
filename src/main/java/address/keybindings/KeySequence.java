@@ -13,18 +13,18 @@ public class KeySequence extends KeyBinding{
 
     protected KeyCombination secondKeyCombination;
 
-    public KeySequence(KeyCombination firstKeyCombination,  BaseEvent eventToRaise) {
-        super(firstKeyCombination, eventToRaise);
+    public KeySequence(String name, KeyCombination firstKeyCombination,  BaseEvent eventToRaise) {
+        super(name, firstKeyCombination, eventToRaise);
         assert false : "Invalid constructor called";
     }
 
-    public KeySequence(KeyCombination firstKeyCombination, KeyCombination secondKeyCombination, BaseEvent eventToRaise) {
-        super(firstKeyCombination, eventToRaise);
+    public KeySequence(String name, KeyCombination firstKeyCombination, KeyCombination secondKeyCombination, BaseEvent eventToRaise) {
+        super(name, firstKeyCombination, eventToRaise);
         this.secondKeyCombination = secondKeyCombination;
     }
 
     @Override
     public String toString(){
-        return "Key sequence " + keyCombination.getDisplayText() + ", " + secondKeyCombination.getDisplayText();
+        return "Key sequence " + getDisplayText() + ", " + secondKeyCombination.getDisplayText();
     }
 }

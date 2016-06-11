@@ -301,8 +301,9 @@ public class UpdateManager {
         try {
             return JsonUtil.fromJsonStringToList(FileUtil.readFromFile(DOWNLOADED_VERSIONS_FILE), Version.class);
         } catch (IOException e) {
-            logger.info("Failed to read downloaded version from file");
-            e.printStackTrace();
+            logger.warn("Failed to read downloaded version from file");
+            //e.printStackTrace();
+            //TODO: do better logging instead of printing stacktrace
         }
 
         return new ArrayList<>();

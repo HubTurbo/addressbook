@@ -10,13 +10,13 @@ import java.util.Optional;
 public class Accelerator extends KeyBinding{
 
 
-    Accelerator(KeyCombination keyCombination) {
-        super(keyCombination, null);
+    Accelerator(String name, KeyCombination keyCombination) {
+        super(name, keyCombination, null);
     }
 
     @Override
     public String toString(){
-        return "Accelerator " + keyCombination.getDisplayText();
+        return "Accelerator " + getDisplayText();
     }
 
 }
