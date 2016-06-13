@@ -4,8 +4,8 @@ import address.sync.model.CloudAddressBook;
 import address.sync.model.CloudTag;
 import address.sync.model.CloudPerson;
 import address.exceptions.DataConversionException;
+import address.util.AppLogger;
 import address.util.LoggerManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.io.IOException;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * if the cloud is initialized with an unreliable network parameter
  */
 public class CloudSimulator implements ICloudSimulator {
-    private static final Logger logger = LoggerManager.getLogger(CloudSimulator.class);
+    private static final AppLogger logger = LoggerManager.getLogger(CloudSimulator.class);
     private static final int API_QUOTA_PER_HOUR = 5000;
     private static final Random RANDOM_GENERATOR = new Random();
     private static final double FAILURE_PROBABILITY = 0.1;

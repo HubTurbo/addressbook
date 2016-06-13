@@ -6,7 +6,6 @@ import address.events.UpdaterInProgressEvent;
 import address.updater.model.UpdateData;
 import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class UpdateManager {
     public static final String UPDATE_DIR = "update";
-    private static final Logger logger = LoggerManager.getLogger(UpdateManager.class);
+    private static final AppLogger logger = LoggerManager.getLogger(UpdateManager.class);
 
     // --- Messages
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";

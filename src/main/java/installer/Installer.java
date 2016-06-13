@@ -13,7 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +38,7 @@ import java.util.stream.Collectors;
  * the main application JAR.
  */
 public class Installer extends Application {
-    private static final Logger logger = LoggerManager.getLogger(Installer.class);
+    private static final AppLogger logger = LoggerManager.getLogger(Installer.class);
     private static final String LIB_DIR = "lib";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();

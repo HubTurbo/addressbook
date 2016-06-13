@@ -2,6 +2,7 @@ package address.sync;
 
 import address.exceptions.DataConversionException;
 import address.sync.model.CloudAddressBook;
+import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.XmlUtil;
 import org.apache.logging.log4j.Logger;
@@ -11,7 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class CloudFileHandler {
-    private static final Logger logger = LoggerManager.getLogger(CloudFileHandler.class);
+    private static final AppLogger logger = LoggerManager.getLogger(CloudFileHandler.class);
 
     private File getCloudDataFilePath(String addressBookName) {
         return new File("cloud/" + addressBookName);
@@ -37,7 +38,7 @@ public class CloudFileHandler {
         String addressBookName = cloudAddressBook.getName();
         File cloudFile = getCloudDataFilePath(addressBookName);
         try {
-            logger.info("Writing from cloud file '{}'.", cloudFile.getName());
+            logger.info("Writing to cloud file '{}'.", cloudFile.getName());
             XmlUtil.saveDataToFile(cloudFile, cloudAddressBook);
         } catch (FileNotFoundException | DataConversionException e) {
             logger.warn("Error writing to cloud file '{}'.", cloudFile.getName());

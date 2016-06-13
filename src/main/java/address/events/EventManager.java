@@ -1,14 +1,14 @@
 package address.events;
 
+import address.util.AppLogger;
 import address.util.LoggerManager;
 import com.google.common.eventbus.EventBus;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Manages the event dispatching of the app.
  */
 public class EventManager {
-    private static final Logger logger = LoggerManager.getLogger(EventManager.class);
+    private static final AppLogger logger = LoggerManager.getLogger(EventManager.class);
     private final EventBus eventBus;
     private static EventManager instance;
 
@@ -39,7 +39,7 @@ public class EventManager {
      * @return
      */
     public <E extends BaseEvent> EventManager post(E event) {
-        logger.info("{}: {}", event.getClass().getSimpleName(), event);
+        logger.infoEvent(event);
         return postEvent(event);
     }
 
@@ -56,8 +56,8 @@ public class EventManager {
      * @return
      */
     public <E extends BaseEvent> EventManager postPotentialEvent(E event) {
-        logger.debug("{}: {}", event.getClass().getSimpleName(), event);
-        return postEvent((E) event);
+        logger.debugEvent(event);
+        return postEvent(event);
     }
 
 }

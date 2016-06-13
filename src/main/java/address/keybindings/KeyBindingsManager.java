@@ -3,9 +3,9 @@ package address.keybindings;
 import address.events.BaseEvent;
 import address.events.KeyBindingEvent;
 import address.main.ComponentManager;
+import address.util.AppLogger;
+import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
@@ -14,7 +14,7 @@ import java.util.Optional;
  */
 public class KeyBindingsManager extends ComponentManager{
 
-    private static final Logger logger = LogManager.getLogger(KeyBindingsManager.class);
+    private static final AppLogger logger = LoggerManager.getLogger(KeyBindingsManager.class);
 
     /** Manages global hotkey detection */
     private GlobalHotkeyProvider hotkeyProvider = new GlobalHotkeyProvider(eventManager);

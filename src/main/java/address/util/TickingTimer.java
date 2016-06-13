@@ -1,7 +1,5 @@
 package address.util;
 
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +25,7 @@ import java.util.function.Consumer;
  * }
  */
 public class TickingTimer {
-    private static final Logger logger = LoggerManager.getLogger(TickingTimer.class);
+    private static final AppLogger logger = LoggerManager.getLogger(TickingTimer.class);
 
     // TICK_PERIOD must divide period, so a small value is best
     private static final int TICK_PERIOD = 1;

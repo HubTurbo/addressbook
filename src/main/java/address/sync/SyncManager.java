@@ -6,6 +6,7 @@ import address.exceptions.SyncErrorException;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 import address.sync.task.CloudUpdateTask;
+import address.util.AppLogger;
 import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 
@@ -22,7 +23,7 @@ import org.apache.logging.log4j.Logger;
  * Syncs data between the cloud and the primary data file
  */
 public class SyncManager {
-    private static final Logger logger = LoggerManager.getLogger(SyncManager.class);
+    private static final AppLogger logger = LoggerManager.getLogger(SyncManager.class);
 
     private final ScheduledExecutorService scheduler;
     private final ExecutorService requestExecutor;
