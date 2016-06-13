@@ -15,17 +15,30 @@ import java.util.List;
  */
 public class Config {
 
+    private static final String CONFIG_FILE = "config.ini";
+
+    // Config variables grouped by sections
+    private static final String MAIN_SECTION = "Main";
+    private static final String UPDATE_INTERVAL = "updateInterval";
+
+    private static final String LOGGING_SECTION = "Logging";
+    private static final String LOGGING_LEVEL = "loggingLevel";
+
+    private static final String CLOUD_SECTION = "Cloud";
+    private static final String UNRELIABLE_NETWORK = "unreliableNetwork";
+
+    // Default values
     private static final long DEFAULT_UPDATE_INTERVAL = 10000;
-    private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
     private static final Level DEFAULT_LOGGING_LEVEL = Level.INFO;
+    private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
 
-
+    // Config values
     public String appTitle = "Address App";
+    // Customizable through config file
     public long updateInterval = DEFAULT_UPDATE_INTERVAL;
     public boolean simulateUnreliableNetwork = DEFAULT_NETWORK_UNRELIABLE_MODE;
     public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
     public HashMap<String, Level> specialLogLevel;
-
 
     private static Config config;
 
@@ -33,30 +46,44 @@ public class Config {
         config = configToSet;
     }
 
+    /**
+     * Lazy initialization of global config object
+     * <p>
+     * Reads values from the config file if it exists, else creates a
+     * config file with default values and uses it
+     *
+     * @return
+     */
     public static Config getConfig() {
         if (config == null) {
             config = new Config();
+            config.readFromConfigFileIfExists();
         }
         return config;
     }
 
-    public Config() {
+    /**
+     * Reads from the config file if it exists
+     *
+     * Else creates a config file with default values
+     */
+    private void readFromConfigFileIfExists() {
         try {
-            File configFile = new File("config.ini");
+            File configFile = new File(CONFIG_FILE);
             if (configFile.exists()) {
-                setConfigValues(new Ini(configFile));
+                readAndSetConfigFileValues(new Ini(configFile));
             } else {
-                createConfigWithDefaults(configFile);
+                createConfigFileWithDefaults(configFile);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void setConfigValues(Ini iniFile) throws IOException {
-        setMainSectionValues(iniFile.get("Main"));
-        setLoggingSectionValues(iniFile.get("Logging"));
-        setCloudSectionValues(iniFile.get("Cloud"));
+    private void readAndSetConfigFileValues(Ini iniFile) throws IOException {
+        setMainSectionValues(iniFile.get(MAIN_SECTION));
+        setLoggingSectionValues(iniFile.get(LOGGING_SECTION));
+        setCloudSectionValues(iniFile.get(CLOUD_SECTION));
     }
 
     private void setLoggingSectionValues(Profile.Section loggingSection) throws IOException {
@@ -69,37 +96,36 @@ public class Config {
     }
 
     private void setCloudSectionValues(Profile.Section cloudSection) {
-        simulateUnreliableNetwork = Boolean.parseBoolean(cloudSection.get("unreliable"));
+        simulateUnreliableNetwork = Boolean.parseBoolean(cloudSection.get(UNRELIABLE_NETWORK));
     }
 
     private long getUpdateInterval(Profile.Section mainSection) {
-        return Long.parseLong(mainSection.get("updateInterval"));
+        return Long.parseLong(mainSection.get(UPDATE_INTERVAL));
     }
 
     private Level getLoggingLevel(Profile.Section section) {
-        String loggingLevelString = section.get("LoggingLevel");
+        String loggingLevelString = section.get(LOGGING_LEVEL);
         return determineLoggingLevel(loggingLevelString);
     }
 
-    private void createConfigWithDefaults(File configFile) throws IOException {
-        if (configFile.createNewFile()) {
-            Wini wini = new Wini(configFile);
+    private void createConfigFileWithDefaults(File configFile) throws IOException {
+        if (!configFile.createNewFile()) return;
+        Wini wini = new Wini(configFile);
 
-            // main
-            wini.put("Main", "updateInterval", DEFAULT_UPDATE_INTERVAL);
+        // main
+        wini.put(MAIN_SECTION, UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL);
 
-            // logging
-            wini.put("Logging", "LoggingLevel", DEFAULT_LOGGING_LEVEL.toString());
-            Level[] allLoggingLevels = Level.values();
-            for (Level level : allLoggingLevels) {
-                wini.put("Logging", level.toString(), "");
-            }
-
-            // cloud
-            wini.put("Cloud", "unreliable", DEFAULT_NETWORK_UNRELIABLE_MODE);
-
-            wini.store();
+        // logging
+        wini.put(LOGGING_SECTION, LOGGING_LEVEL, DEFAULT_LOGGING_LEVEL.toString());
+        Level[] allLoggingLevels = Level.values();
+        for (Level level : allLoggingLevels) {
+            wini.put(LOGGING_SECTION, level.toString(), "");
         }
+
+        // cloud
+        wini.put(CLOUD_SECTION, UNRELIABLE_NETWORK, DEFAULT_NETWORK_UNRELIABLE_MODE);
+
+        wini.store();
     }
 
     private Level determineLoggingLevel(String loggingLevelString) {
@@ -126,6 +152,4 @@ public class Config {
         infoClasses.stream()
                 .forEach(infoClass -> specialLoggingClasses.put(infoClass, loggingLevel));
     }
-
-
 }
