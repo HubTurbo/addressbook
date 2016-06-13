@@ -1,6 +1,6 @@
 # Configuration
 
-Certain properties of the application can be customize through the configuration file (default: config.ini).
+Certain properties of the application can be customized through the configuration file (default: config.ini).
 The application creates a config file with default values if no existing config file can be found.
 - Logging level
 - Update interval
