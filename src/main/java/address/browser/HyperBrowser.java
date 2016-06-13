@@ -1,6 +1,7 @@
 package address.browser;
 
 import address.browser.embeddedbrowser.EmbeddedBrowser;
+import address.browser.javabrowser.WebViewBrowserAdapter;
 import address.browser.jxbrowser.JxBrowserAdapter;
 import address.browser.page.Page;
 import address.util.FxViewUtil;
@@ -8,6 +9,7 @@ import address.util.UrlUtil;
 import com.teamdev.jxbrowser.chromium.Browser;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.web.WebView;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,9 +26,12 @@ public class HyperBrowser {
 
     public static final int NUMBER_OF_PRELOADED_PAGE = 3;
 
+    public static final int FULL_FEATURE_BROWSER = 1;
+    public static final int LIMITED_FEATURE_BROWSER = 2;
+
     private final int noOfPages;
 
-    private ArrayList<Page> pages;
+    private List<Page> pages;
 
     /**
      * For recycling of browser instances.
@@ -36,12 +41,18 @@ public class HyperBrowser {
     private AnchorPane hyperBrowserView;
     private Optional<Node> initialScreen;
 
+    private URL displayedUrl;
+
+    private int browserType;
+
     /**
+     * @param browserType The type of browser. e.g. HyperBrowser.FULL_FEATURE_BROWSER
      * @param noOfPages The cache configuration setting of the HyperBrowser.
      *                  Recommended Value: HyperBrowser.NUMBER_OF_PRELOADED_PAGE
      * @param initialScreen The initial screen of HyperBrowser view.
      */
-    public HyperBrowser(int noOfPages, Optional<Node> initialScreen){
+    public HyperBrowser(int browserType, int noOfPages, Optional<Node> initialScreen){
+        this.browserType = browserType;
         this.noOfPages = noOfPages;
         this.initialScreen = initialScreen;
         initialiseHyperBrowser();
@@ -58,7 +69,15 @@ public class HyperBrowser {
         inActiveBrowserStack = new Stack<>();
 
         for (int i=0; i<noOfPages; i++){
-            EmbeddedBrowser browser = new JxBrowserAdapter(new Browser());
+            EmbeddedBrowser browser;
+            if (browserType == FULL_FEATURE_BROWSER){
+                browser = new JxBrowserAdapter(new Browser());
+            } else if (browserType == LIMITED_FEATURE_BROWSER){
+                browser = new WebViewBrowserAdapter(new WebView());
+            } else {
+                throw new IllegalArgumentException("No such browser type");
+            }
+
             FxViewUtil.applyAnchorBoundaryParameters(browser.getBrowserView(), 0.0, 0.0, 0.0, 0.0);
             inActiveBrowserStack.push(browser);
         }
@@ -97,32 +116,20 @@ public class HyperBrowser {
         assert pages.size() + inActiveBrowserStack.size() == NUMBER_OF_PRELOADED_PAGE;
     }
 
-    /**
-     * Gets a list of URL from HyperBrowser displayed page and cached pages.
-     * @return A list of URL from HyperBrowser displayed page and cached pages.
-     */
-    public List<URL> getCachedPagesUrl(){
-        return pages.stream().map(page -> {
-            try {
-                return page.getBrowser().getUrl();
-            } catch (MalformedURLException e) {
-                return null;
-            }
-        }).collect(Collectors.toCollection(ArrayList::new));
+    public synchronized Page loadUrls(URL url) throws IllegalArgumentException {
+        return this.loadUrls(url, Collections.emptyList());
     }
 
     /**
      * Loads the URLs to the browser.
      * @param url The URL of the content to load.
-     * @param futureUrl The URLs that may be called to load in the next T time.
+     * @param futureUrl The non-nullable list of URLs that may be called to load in the next T time.
      * @return The page of the URL content.
      * @throws IllegalArgumentException When the amount of URLs to load is more than no of pages the paging system
      *                                      of the HyperBrowser has.
-     * @throws NullPointerException When url is null.
      */
-    public synchronized Page loadUrls(URL url, List<URL> futureUrl) throws NullPointerException,
-                                                                           IllegalArgumentException {
-        if (url == null) {
+    public synchronized Page loadUrls(URL url, List<URL> futureUrl) throws IllegalArgumentException {
+        if (url == null || futureUrl == null) {
             throw new NullPointerException();
         }
 
@@ -138,14 +145,14 @@ public class HyperBrowser {
         clearPagesNotRequired(getListOfUrlToBeLoaded(url, futureUrl));
         Page page = loadPage(url);
         replaceBrowserView(page.getBrowser().getBrowserView());
-
+        displayedUrl = url;
         futureUrl.forEach(fUrl -> loadPage(fUrl));
 
         return page;
     }
 
     private List<URL> getListOfUrlToBeLoaded(URL url, List<URL> futureUrl) {
-        ArrayList<URL> listOfUrlToBeLoaded = new ArrayList<>();
+        List<URL> listOfUrlToBeLoaded = new ArrayList<>();
         listOfUrlToBeLoaded.add(url);
         listOfUrlToBeLoaded.addAll(futureUrl);
         return listOfUrlToBeLoaded;
@@ -184,12 +191,8 @@ public class HyperBrowser {
      * @param urlsToLoad The URLs of the pages which are to be remained in the paging system.
      * @return An array list of pages that are cleared from paging system.
      */
-    private synchronized ArrayList<Page> clearPagesNotRequired(List<URL> urlsToLoad) {
-        /**
-         * TODO: handle the efficiency issue when there is few urlsToLoad than noOfPages of the HyperBrowser,
-         * in this case some of the url that are not needed can be kept.
-         */
-        ArrayList<Page> listOfNotRequiredPage = pages.stream().filter(page
+    private synchronized void clearPagesNotRequired(List<URL> urlsToLoad) {
+        List<Page> listOfNotRequiredPage = pages.stream().filter(page
               -> {
             for (URL url: urlsToLoad){
                 try {
@@ -202,12 +205,32 @@ public class HyperBrowser {
             return true;
         }).collect(Collectors.toCollection(ArrayList::new));
 
-        listOfNotRequiredPage.stream().forEach(page -> {
+        Optional<Page> currDisplayedPage = listOfNotRequiredPage.stream().filter(page -> {
+            try {
+                return UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), displayedUrl);
+            } catch (MalformedURLException e) {
+                return false;
+            }
+        }).findAny();
+
+        if (currDisplayedPage.isPresent()) {
+            //So that, current displayed page can be removed first.
+            shiftElementToBottomOfList(listOfNotRequiredPage, currDisplayedPage);
+        }
+
+        int popCount = 0;
+        while (!listOfNotRequiredPage.isEmpty() && popCount < urlsToLoad.size()) {
+            Page page = listOfNotRequiredPage.remove(0);
             inActiveBrowserStack.push(page.getBrowser());
             pages.remove(page);
-        });
+            popCount++;
+        }
         assert pages.size() + inActiveBrowserStack.size() == NUMBER_OF_PRELOADED_PAGE;
-        return listOfNotRequiredPage;
+    }
+
+    private void shiftElementToBottomOfList(List<Page> listOfNotRequiredPage, Optional<Page> currDisplayedPage) {
+        listOfNotRequiredPage.add(0, currDisplayedPage.get());
+        listOfNotRequiredPage.remove(currDisplayedPage.get());
     }
 
     private void replaceBrowserView(Node browserView) {
@@ -215,5 +238,9 @@ public class HyperBrowser {
             hyperBrowserView.getChildren().removeAll(hyperBrowserView.getChildren());
         }
         hyperBrowserView.getChildren().add(browserView);
+    }
+
+    public URL getDisplayedUrl() {
+        return displayedUrl;
     }
 }
