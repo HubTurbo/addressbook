@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * All changes to any model should be synchronized. (FX and sync thread may clash).
  */
 public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddressBook {
-    private static final AppLogger logger = LoggerManager.getLogger(ModelManager.class.getSimpleName());
+    private static final AppLogger logger = LoggerManager.getLogger(ModelManager.class);
 
     private final AddressBook backingModel;
     private final ViewableAddressBook visibleModel;
