@@ -116,8 +116,7 @@ public class HyperBrowser {
         assert pages.size() + inActiveBrowserStack.size() == NUMBER_OF_PRELOADED_PAGE;
     }
 
-    public synchronized Page loadUrls(URL url) throws NullPointerException,
-            IllegalArgumentException {
+    public synchronized Page loadUrls(URL url) throws IllegalArgumentException {
         return this.loadUrls(url, Collections.emptyList());
     }
 
