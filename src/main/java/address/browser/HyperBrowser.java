@@ -36,6 +36,8 @@ public class HyperBrowser {
     private AnchorPane hyperBrowserView;
     private Optional<Node> initialScreen;
 
+    private URL displayedUrl;
+
     /**
      * @param noOfPages The cache configuration setting of the HyperBrowser.
      *                  Recommended Value: HyperBrowser.NUMBER_OF_PRELOADED_PAGE
@@ -97,18 +99,9 @@ public class HyperBrowser {
         assert pages.size() + inActiveBrowserStack.size() == NUMBER_OF_PRELOADED_PAGE;
     }
 
-    /**
-     * Gets a list of URL from HyperBrowser displayed page and cached pages.
-     * @return A list of URL from HyperBrowser displayed page and cached pages.
-     */
-    public List<URL> getCachedPagesUrl(){
-        return pages.stream().map(page -> {
-            try {
-                return page.getBrowser().getUrl();
-            } catch (MalformedURLException e) {
-                return null;
-            }
-        }).collect(Collectors.toCollection(ArrayList::new));
+    public synchronized Page loadUrls(URL url) throws NullPointerException,
+            IllegalArgumentException {
+        return this.loadUrls(url, null);
     }
 
     /**
@@ -138,7 +131,7 @@ public class HyperBrowser {
         clearPagesNotRequired(getListOfUrlToBeLoaded(url, futureUrl));
         Page page = loadPage(url);
         replaceBrowserView(page.getBrowser().getBrowserView());
-
+        displayedUrl = url;
         futureUrl.forEach(fUrl -> loadPage(fUrl));
 
         return page;
@@ -184,12 +177,12 @@ public class HyperBrowser {
      * @param urlsToLoad The URLs of the pages which are to be remained in the paging system.
      * @return An array list of pages that are cleared from paging system.
      */
-    private synchronized ArrayList<Page> clearPagesNotRequired(List<URL> urlsToLoad) {
+    private synchronized void clearPagesNotRequired(List<URL> urlsToLoad) {
         /**
          * TODO: handle the efficiency issue when there is few urlsToLoad than noOfPages of the HyperBrowser,
          * in this case some of the url that are not needed can be kept.
          */
-        ArrayList<Page> listOfNotRequiredPage = pages.stream().filter(page
+        Stack<Page> stackOfNotRequiredPage = pages.stream().filter(page
               -> {
             for (URL url: urlsToLoad){
                 try {
@@ -200,14 +193,17 @@ public class HyperBrowser {
                 }
             }
             return true;
-        }).collect(Collectors.toCollection(ArrayList::new));
+        }).collect(Collectors.toCollection(Stack::new));
 
-        listOfNotRequiredPage.stream().forEach(page -> {
+        int popCount = 0;
+
+        while (!stackOfNotRequiredPage.isEmpty() && popCount < urlsToLoad.size()) {
+            Page page = stackOfNotRequiredPage.pop();
             inActiveBrowserStack.push(page.getBrowser());
             pages.remove(page);
-        });
+            popCount++;
+        }
         assert pages.size() + inActiveBrowserStack.size() == NUMBER_OF_PRELOADED_PAGE;
-        return listOfNotRequiredPage;
     }
 
     private void replaceBrowserView(Node browserView) {
@@ -215,5 +211,9 @@ public class HyperBrowser {
             hyperBrowserView.getChildren().removeAll(hyperBrowserView.getChildren());
         }
         hyperBrowserView.getChildren().add(browserView);
+    }
+
+    public URL getDisplayedUrl() {
+        return displayedUrl;
     }
 }

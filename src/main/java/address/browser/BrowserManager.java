@@ -14,12 +14,17 @@ import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
@@ -36,7 +41,24 @@ public class BrowserManager {
 
     public Optional<HyperBrowser> hyperBrowser;
 
+    private StringProperty selectedPersonUsername;
+
+    private ChangeListener<String> listener = new ChangeListener<String>() {
+        @Override
+        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+            try {
+                URL url = new URL("https://github.com/" + newValue);
+                if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
+                    hyperBrowser.get().loadUrls(url);
+                }
+            } catch (MalformedURLException e) {
+                return;
+            }
+        }
+    };
+
     public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
+        this.selectedPersonUsername = new SimpleStringProperty();
         this.filteredPersons = filteredPersons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
@@ -53,7 +75,6 @@ public class BrowserManager {
         if (!hyperBrowser.isPresent()) {
             return;
         }
-        updateBrowserContent();
     }
 
     private Optional<Node> getBrowserInitialScreen(){
@@ -65,21 +86,6 @@ public class BrowserManager {
         } catch (IOException e){
             return Optional.empty();
         }
-    }
-
-    /**
-     * Updates the browser contents.
-     */
-    private synchronized void updateBrowserContent() {
-        List<URL> pagesPerson = hyperBrowser.get().getCachedPagesUrl();
-        pagesPerson.stream().forEach(personUrl -> {
-                Optional<ReadOnlyViewablePerson> personFound = filteredPersons.stream().filter(person
-                        -> UrlUtil.compareBaseUrls(person.profilePageUrl(), personUrl)).findAny();
-
-                if (!personFound.isPresent()){
-                    hyperBrowser.get().clearPage(personUrl);
-                }
-            });
     }
 
     public static void initializeBrowser() {
@@ -95,6 +101,8 @@ public class BrowserManager {
      */
     public synchronized void loadProfilePage(ReadOnlyViewablePerson person) {
         if (!hyperBrowser.isPresent()) return;
+
+        selectedPersonUsername.removeListener(listener);
 
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
@@ -118,6 +126,10 @@ public class BrowserManager {
             e.printStackTrace();
             assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
         }
+
+        selectedPersonUsername.unbind();
+        selectedPersonUsername.bind(person.githubUserNameProperty());
+        selectedPersonUsername.addListener(listener);
     }
 
     /**
