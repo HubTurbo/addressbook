@@ -214,7 +214,7 @@ public class HyperBrowser {
         }).findAny();
 
         if (currDisplayedPage.isPresent()) {
-            shiftElementToBottomOfList(listOfNotRequiredPage, currDisplayedPage);
+            shiftElementToBottomOfList(listOfNotRequiredPage, currDisplayedPage); //Remove current displayed page first
         }
 
         int popCount = 0;
