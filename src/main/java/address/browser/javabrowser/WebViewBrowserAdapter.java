@@ -48,6 +48,9 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
 
     @Override
     public String getUrlString() {
+        if (webView.getEngine().getDocument() == null) {
+            return "";
+        }
         return webView.getEngine().getDocument().getDocumentURI();
     }
 
