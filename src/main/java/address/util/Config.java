@@ -33,7 +33,6 @@ public class Config {
     private static final Level DEFAULT_LOGGING_LEVEL = Level.INFO;
     private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
     private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVELS = new HashMap<>();
-    public static final String MISSING_LOG_LEVELS = "Missing field from {} levels: {}";
     public static final String MISSING_FIELDS = "Missing field from {}: {}";
 
     // Config values
@@ -100,16 +99,25 @@ public class Config {
 
     private void setLoggingSectionValues(Profile.Section loggingSection) throws IOException {
         try {
-            currentLogLevel = getLoggingLevel(loggingSection);
+            currentLogLevel = getLoggingLevel(getFieldValue(loggingSection, LOGGING_LEVEL));
         } catch (NoSuchFieldException e) {
             logger.warn(MISSING_FIELDS, LOGGING_SECTION, e.toString());
         }
-        specialLogLevels = getSpecialLoggingClasses(loggingSection);
+
+        specialLogLevels = new HashMap<>();
+        for (Level level : Level.values()) {
+            try {
+                getFieldArray(loggingSection, level.toString()).stream()
+                        .forEach(classString -> specialLogLevels.put(classString, level));
+            } catch (NoSuchFieldException e) {
+                logger.warn(MISSING_FIELDS, LOGGING_SECTION, e.toString());
+            }
+        }
     }
 
     private void setMainSectionValues(Profile.Section mainSection) throws IOException {
         try {
-            updateInterval = getUpdateInterval(mainSection);
+            updateInterval = Long.parseLong(getFieldValue(mainSection, UPDATE_INTERVAL));
         } catch (NoSuchFieldException e) {
             logger.warn(MISSING_FIELDS, MAIN_SECTION, e.toString());
         }
@@ -117,30 +125,22 @@ public class Config {
 
     private void setCloudSectionValues(Profile.Section cloudSection) {
         try {
-            simulateUnreliableNetwork = getUnreliableNetwork(cloudSection);
+            simulateUnreliableNetwork = Boolean.parseBoolean(getFieldValue(cloudSection, UNRELIABLE_NETWORK));
         } catch (NoSuchFieldException e) {
             logger.warn(MISSING_FIELDS, CLOUD_SECTION, e.toString());
         }
     }
 
-    private long getUpdateInterval(Profile.Section mainSection) throws NoSuchFieldException {
-        String updateInterval = mainSection.get(UPDATE_INTERVAL);
-        if (updateInterval == null) throw new NoSuchFieldException(UPDATE_INTERVAL);
-        return Long.parseLong(updateInterval);
+    private String getFieldValue(Profile.Section mainSection, String fieldName) throws NoSuchFieldException {
+        String updateInterval = mainSection.get(fieldName);
+        if (updateInterval == null) throw new NoSuchFieldException(fieldName);
+        return updateInterval;
     }
 
-    private boolean getUnreliableNetwork(Profile.Section cloudSection) throws NoSuchFieldException {
-        String unreliableNetwork = cloudSection.get(UNRELIABLE_NETWORK);
-        if (unreliableNetwork == null) throw new NoSuchFieldException(UNRELIABLE_NETWORK);
-        return Boolean.parseBoolean(unreliableNetwork);
-    }
-
-    private Level getLoggingLevel(Profile.Section section) throws NoSuchFieldException {
-        String loggingLevelString = section.get(LOGGING_LEVEL);
-        if (loggingLevelString == null) {
-            throw new NoSuchFieldException(LOGGING_LEVEL);
-        }
-        return determineLoggingLevel(loggingLevelString);
+    private List<String> getFieldArray(Profile.Section mainSection, String fieldName) throws NoSuchFieldException {
+        List<String> updateInterval = mainSection.getAll(fieldName);
+        if (updateInterval == null) throw new NoSuchFieldException(fieldName);
+        return updateInterval;
     }
 
     private void createConfigFileWithDefaults(File configFile) throws IOException {
@@ -159,7 +159,7 @@ public class Config {
     }
 
     private void putLoggingSectionDefaults(Wini wini) {
-        wini.put(LOGGING_SECTION, LOGGING_LEVEL, DEFAULT_LOGGING_LEVEL.toString());
+        wini.put(LOGGING_SECTION, LOGGING_LEVEL, DEFAULT_LOGGING_LEVEL);
         for (Level level : Level.values()) {
             wini.put(LOGGING_SECTION, level.toString(), EMPTY_VALUE);
         }
@@ -175,46 +175,13 @@ public class Config {
      * @param loggingLevelString
      * @return
      */
-    private Level determineLoggingLevel(String loggingLevelString) {
-        Level[] allLoggingLevels = Level.values();
-        for (Level level : allLoggingLevels) {
+    private Level getLoggingLevel(String loggingLevelString) {
+        for (Level level : Level.values()) {
             if (level.toString().equals(loggingLevelString)) {
                 return level;
             }
         }
         logger.warn("Invalid logging level. Using default: " + DEFAULT_LOGGING_LEVEL);
         return DEFAULT_LOGGING_LEVEL;
-    }
-
-    /**
-     * Consolidate the list of classes and their respective indicated logging level
-     * into a HashMap
-     *
-     * It will simply log a warning message if any of the fields are missing, but
-     * the method will still continue to read the other fields' values
-     *
-     * @param section
-     * @return
-     */
-    private HashMap<String, Level> getSpecialLoggingClasses(Profile.Section section) {
-        HashMap<String, Level> specialLoggingClasses = new HashMap<>();
-        Level[] allLoggingLevels = Level.values();
-        for (Level level : allLoggingLevels) {
-            try {
-                addSpecialLoggingClasses(section, specialLoggingClasses, level);
-            } catch (NoSuchFieldException e) {
-                logger.warn(MISSING_LOG_LEVELS, level.toString());
-            }
-        }
-        return specialLoggingClasses;
-    }
-
-    private void addSpecialLoggingClasses(Profile.Section section, HashMap<String, Level> specialLoggingClasses, Level loggingLevel) throws NoSuchFieldException {
-        List<String> specialClasses = section.getAll(loggingLevel.toString());
-        if (specialClasses == null) {
-            throw new NoSuchFieldException(loggingLevel.toString());
-        }
-        specialClasses.stream()
-                .forEach(specialClass -> specialLoggingClasses.put(specialClass, loggingLevel));
     }
 }
