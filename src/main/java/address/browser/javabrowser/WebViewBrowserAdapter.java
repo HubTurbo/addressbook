@@ -4,6 +4,7 @@ import address.browser.embeddedbrowser.EbLoadListener;
 import address.browser.embeddedbrowser.EmbeddedBrowser;
 import address.browser.embeddedbrowser.EbDocument;
 import com.teamdev.jxbrowser.chromium.EditorCommand;
+import javafx.concurrent.Worker;
 import javafx.scene.Node;
 import javafx.scene.web.WebView;
 
@@ -17,8 +18,11 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
 
     private WebView webView;
 
+    private Worker.State state;
+
     public WebViewBrowserAdapter(WebView webview) {
         webView = webview;
+        webView.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> state=newValue);
     }
 
     @Override
@@ -33,7 +37,7 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
 
     @Override
     public boolean isLoading() {
-        return webView.getEngine().getLoadWorker().isRunning();
+        return state == Worker.State.SUCCEEDED;
     }
 
     @Override
