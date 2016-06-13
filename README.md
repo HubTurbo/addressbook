@@ -16,3 +16,4 @@ Information
 - [Keyboard Shortcuts](docs/KeyboardShortcuts.md)
 - [Release](docs/Release.md)
 - [Cloud Simulation](docs/CloudSimulation.md)
+- [Configuration](docs/Configuration.md)
