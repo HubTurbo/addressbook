@@ -54,7 +54,7 @@ public class AppLogger {
     }
 
     public void infoEvent(BaseEvent event) {
-        logger.info("{}: {}", event.getClass().getSimpleName(), event.toString());
+        infoEvent("{}: {}", event.getClass().getSimpleName(), event.toString());
     }
 
     // this method is required since info(message, obj, obj) seems to be problematic
