@@ -26,3 +26,8 @@ ERROR =
 ...
 ```
 Such a configuration will log messages at the `INFO` level throughout the application, except `ModelManager` and `SyncManager` which will log messages at the `TRACE` level.
+
+# Adding config variables (For developers)
+- Ensure that a default value is written to the config file (in `createConfigFileWithDefaults`)
+- Ensure that the config file value is read if it exists (in `readAndSetConfigValues`)
+- Access the read config value from the global config object obtainable through `getConfig()`
