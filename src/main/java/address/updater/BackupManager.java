@@ -1,10 +1,10 @@
 package address.updater;
 
 import address.MainApp;
+import address.util.AppLogger;
 import address.util.FileUtil;
 import address.util.LoggerManager;
 import address.util.Version;
-import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * Deletes backup apps and their dependencies that are no longer used.
  */
 public class BackupManager {
-    private static final Logger logger = LoggerManager.getLogger(BackupManager.class);
+    private static final AppLogger logger = LoggerManager.getLogger(BackupManager.class);
     private static final int MAX_BACKUP_JAR_KEPT = 3;
     private static final String BACKUP_MARKER = "_";
     private static final String BACKUP_FILENAME_STRING_FORMAT =

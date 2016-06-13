@@ -1,9 +1,9 @@
 package address.sync;
 
+import address.util.AppLogger;
 import address.util.JsonUtil;
 import address.util.LoggerManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -17,7 +17,7 @@ import java.util.Formatter;
 import java.util.HashMap;
 
 public class RawCloudResponse {
-    private static final Logger logger = LoggerManager.getLogger(RawCloudResponse.class);
+    private static final AppLogger logger = LoggerManager.getLogger(RawCloudResponse.class);
     int responseCode;
     InputStream body;
     HashMap<String, String> headers;

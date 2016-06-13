@@ -1,6 +1,7 @@
 package address.util;
 
 import address.events.BaseEvent;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 public class AppLogger {
@@ -36,10 +37,26 @@ public class AppLogger {
     }
 
     public <T extends Throwable> void throwing(T throwable) {
-        logger.throwing(throwable);
+        logger.throwing(Level.DEBUG, throwable);
     }
 
-    public void logEvent(BaseEvent event) {
+    public <T extends Throwable> void catching(T throwable) {
+        logger.catching(Level.DEBUG, throwable);
+    }
+
+    public void debugEvent(BaseEvent event) {
+        logger.debug("{}: {}", event.getClass().getName(), event.toString());
+    }
+
+    public void infoEvent(BaseEvent event) {
         logger.info("{}: {}", event.getClass().getName(), event.toString());
+    }
+
+    public void traceEntry(Object... params) {
+        logger.traceEntry("{}", params);
+    }
+
+    public <R> void traceExit(R result) {
+        logger.traceExit(result);
     }
 }

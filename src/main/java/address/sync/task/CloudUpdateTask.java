@@ -4,14 +4,14 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.UniqueData;
 import address.sync.CloudService;
+import address.util.AppLogger;
 import address.util.LoggerManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CloudUpdateTask implements Runnable {
-    private static final Logger logger = LoggerManager.getLogger(CloudUpdateTask.class);
+    private static final AppLogger logger = LoggerManager.getLogger(CloudUpdateTask.class);
     private final CloudService simulator;
     private final List<Person> personsData;
     private final List<Tag> tagsData;
