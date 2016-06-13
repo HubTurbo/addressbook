@@ -2,13 +2,9 @@ package address.updater;
 
 import address.MainApp;
 import address.updater.model.UpdateData;
-import address.util.FileUtil;
-import address.util.JsonUtil;
-import address.util.OsDetector;
-import address.util.Version;
+import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
@@ -23,7 +19,7 @@ import java.util.stream.Collectors;
  * Tracks which dependencies are missing and which are no longer needed (including by backup versions)
  */
 public class DependencyTracker {
-    private static final Logger logger = LogManager.getLogger(DependencyTracker.class);
+    private static final Logger logger = LoggerManager.getLogger(DependencyTracker.class);
     private static final File DEPENDENCY_HISTORY_FILE = new File("lib/dependency_history");
 
     private HashMap<Version, List<String>> dependenciesForVersionsInUse = new HashMap<>();

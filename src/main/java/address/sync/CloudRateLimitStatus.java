@@ -1,7 +1,7 @@
 package address.sync;
 
+import address.util.LoggerManager;
 import address.util.TickingTimer;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDateTime;
@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
 public class CloudRateLimitStatus {
-    private static final Logger logger = LogManager.getLogger(CloudRateLimitStatus.class);
+    private static final Logger logger = LoggerManager.getLogger(CloudRateLimitStatus.class);
 
     private int quotaLimit;
     private int quotaRemaining;

@@ -2,8 +2,8 @@ package address.sync;
 
 import address.exceptions.DataConversionException;
 import address.sync.model.CloudAddressBook;
+import address.util.LoggerManager;
 import address.util.XmlUtil;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
@@ -11,7 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class CloudFileHandler {
-    private static final Logger logger = LogManager.getLogger(CloudFileHandler.class);
+    private static final Logger logger = LoggerManager.getLogger(CloudFileHandler.class);
 
     private File getCloudDataFilePath(String addressBookName) {
         return new File("cloud/" + addressBookName);

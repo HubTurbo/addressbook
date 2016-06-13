@@ -13,11 +13,11 @@ import address.sync.SyncManager;
 import address.updater.UpdateManager;
 import address.util.Config;
 
+import address.util.LoggerManager;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
@@ -31,9 +31,8 @@ public class MainApp extends Application {
     public static final int VERSION_MINOR = 0;
     public static final int VERSION_PATCH = 1;
 
-    private static final Logger logger = LogManager.getLogger(MainApp.class);
+    private static final Logger logger = LoggerManager.getLogger(MainApp.class);
 
-    protected Config config;
     protected StorageManager storageManager;
     protected ModelManager modelManager;
     protected SyncManager syncManager;
@@ -60,14 +59,14 @@ public class MainApp extends Application {
         updateManager.run();
         // initial load (precondition: mainController has been started.)
         EventManager.getInstance().post(new LoadDataRequestEvent(PrefsManager.getInstance().getSaveLocation()));
-        syncManager.startSyncingData(config.updateInterval, config.simulateUnreliableNetwork);
+        syncManager.startSyncingData(Config.getConfig().updateInterval, Config.getConfig().simulateUnreliableNetwork);
     }
 
     protected void setupComponents() {
-        config = getConfig();
+        Config.setConfig(getConfig());
         modelManager = new ModelManager();
         storageManager = new StorageManager(modelManager, PrefsManager.getInstance());
-        mainController = new MainController(this, modelManager, config);
+        mainController = new MainController(this, modelManager);
         syncManager = new SyncManager();
 
         keyBindingsManager = new KeyBindingsManager();
