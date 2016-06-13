@@ -193,11 +193,7 @@ public class HyperBrowser {
      * @return An array list of pages that are cleared from paging system.
      */
     private synchronized void clearPagesNotRequired(List<URL> urlsToLoad) {
-        /**
-         * TODO: handle the efficiency issue when there is few urlsToLoad than noOfPages of the HyperBrowser,
-         * in this case some of the url that are not needed can be kept.
-         */
-        Stack<Page> stackOfNotRequiredPage = pages.stream().filter(page
+        List<Page> listOfNotRequiredPage = pages.stream().filter(page
               -> {
             for (URL url: urlsToLoad){
                 try {
@@ -208,17 +204,33 @@ public class HyperBrowser {
                 }
             }
             return true;
-        }).collect(Collectors.toCollection(Stack::new));
+        }).collect(Collectors.toCollection(ArrayList::new));
+
+        Optional<Page> currDisplayedPage = listOfNotRequiredPage.stream().filter(page -> {
+            try {
+                return UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), displayedUrl);
+            } catch (MalformedURLException e) {
+                return false;
+            }
+        }).findAny();
+
+        if (currDisplayedPage.isPresent()) {
+            shiftElementToBottomOfList(listOfNotRequiredPage, currDisplayedPage);
+        }
 
         int popCount = 0;
-
-        while (!stackOfNotRequiredPage.isEmpty() && popCount < urlsToLoad.size()) {
-            Page page = stackOfNotRequiredPage.pop();
+        while (!listOfNotRequiredPage.isEmpty() && popCount < urlsToLoad.size()) {
+            Page page = listOfNotRequiredPage.remove(0);
             inActiveBrowserStack.push(page.getBrowser());
             pages.remove(page);
             popCount++;
         }
         assert pages.size() + inActiveBrowserStack.size() == NUMBER_OF_PRELOADED_PAGE;
+    }
+
+    private void shiftElementToBottomOfList(List<Page> listOfNotRequiredPage, Optional<Page> currDisplayedPage) {
+        listOfNotRequiredPage.add(0, currDisplayedPage.get());
+        listOfNotRequiredPage.remove(currDisplayedPage.get());
     }
 
     private void replaceBrowserView(Node browserView) {
