@@ -57,7 +57,7 @@ public class EventManager {
      */
     public <E extends BaseEvent> EventManager postPotentialEvent(E event) {
         logger.debugEvent(event);
-        return postEvent((E) event);
+        return postEvent(event);
     }
 
 }

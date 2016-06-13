@@ -17,6 +17,7 @@ public class LoggerManager {
         Configuration config = loggerContext.getConfiguration();
         LoggerConfig loggerConfig = config.getLoggerConfig(className);
         loggerConfig.setLevel(loggingLevel);
+        loggerContext.updateLoggers(config);
         return new AppLogger(LogManager.getLogger(className));
     }
 
@@ -24,17 +25,17 @@ public class LoggerManager {
         LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
         Configuration config = loggerContext.getConfiguration();
         LoggerConfig loggerConfig = config.getLoggerConfig(className);
-
         if (specialLogLevel.containsKey(className)) {
             loggerConfig.setLevel(specialLogLevel.get(className));
         } else {
             loggerConfig.setLevel(currentLogLevel);
         }
+        loggerContext.updateLoggers(config);
         return new AppLogger(LogManager.getLogger(className));
     }
 
     public static <T> AppLogger getLogger(Class<T> clazz) {
         if (clazz == null) return new AppLogger(LogManager.getRootLogger());
-        return new AppLogger(LogManager.getLogger(clazz.getName()));
+        return getLogger(clazz.getName());
     }
 }

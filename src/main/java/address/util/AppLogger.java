@@ -44,19 +44,21 @@ public class AppLogger {
         logger.catching(Level.DEBUG, throwable);
     }
 
-    public void debugEvent(BaseEvent event) {
-        logger.debug("{}: {}", event.getClass().getName(), event.toString());
+    public <T extends BaseEvent> void debugEvent(T event) {
+        debugEvent("{}: {}", event.getClass().getSimpleName(), event.toString());
+    }
+
+    // this method is required since debug(message, obj, obj) seems to be problematic
+    private void debugEvent(String message, Object... params) {
+        logger.debug(message, params);
     }
 
     public void infoEvent(BaseEvent event) {
-        logger.info("{}: {}", event.getClass().getName(), event.toString());
+        logger.info("{}: {}", event.getClass().getSimpleName(), event.toString());
     }
 
-    public void traceEntry(Object... params) {
-        logger.traceEntry("{}", params);
-    }
-
-    public <R> void traceExit(R result) {
-        logger.traceExit(result);
+    // this method is required since info(message, obj, obj) seems to be problematic
+    private void infoEvent(String message, Object... params) {
+        logger.info(message, params);
     }
 }
