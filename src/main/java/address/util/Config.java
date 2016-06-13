@@ -16,6 +16,7 @@ import java.util.List;
 public class Config {
 
     private static final String CONFIG_FILE = "config.ini";
+    private static final String EMPTY_VALUE = "";
 
     // Config variables grouped by sections
     private static final String MAIN_SECTION = "Main";
@@ -31,6 +32,7 @@ public class Config {
     private static final long DEFAULT_UPDATE_INTERVAL = 10000;
     private static final Level DEFAULT_LOGGING_LEVEL = Level.INFO;
     private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
+    private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVEL = new HashMap<>();
 
     // Config values
     public String appTitle = "Address App";
@@ -38,7 +40,7 @@ public class Config {
     public long updateInterval = DEFAULT_UPDATE_INTERVAL;
     public boolean simulateUnreliableNetwork = DEFAULT_NETWORK_UNRELIABLE_MODE;
     public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
-    public HashMap<String, Level> specialLogLevel;
+    public HashMap<String, Level> specialLogLevel = DEFAULT_SPECIAL_LOG_LEVEL;
 
     private static Config config;
 
@@ -49,8 +51,8 @@ public class Config {
     /**
      * Lazy initialization of global config object
      * <p>
-     * Reads values from the config file if it exists, else creates a
-     * config file with default values and uses it
+     * Contains read values from the config file fields if they exist
+     * Fields not found in the config file will be set to defaults
      *
      * @return
      */
@@ -68,15 +70,22 @@ public class Config {
      * Else creates a config file with default values
      */
     private void readFromConfigFileIfExists() {
+        File configFile = new File(CONFIG_FILE);
         try {
-            File configFile = new File(CONFIG_FILE);
             if (configFile.exists()) {
                 readAndSetConfigFileValues(new Ini(configFile));
-            } else {
-                createConfigFileWithDefaults(configFile);
+                return;
             }
+            LoggerManager.getLogger(Config.class).info("Config file not found.");
         } catch (IOException e) {
-            e.printStackTrace();
+            LoggerManager.getLogger(Config.class).warn("Error reading from config file.");
+        }
+
+        try {
+            LoggerManager.getLogger(Config.class).info("Creating config file.");
+            createConfigFileWithDefaults(configFile);
+        } catch (IOException e) {
+            LoggerManager.getLogger(Config.class).warn("Error initializing config file.");
         }
     }
 
@@ -112,20 +121,26 @@ public class Config {
         if (!configFile.createNewFile()) return;
         Wini wini = new Wini(configFile);
 
-        // main
-        wini.put(MAIN_SECTION, UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL);
-
-        // logging
-        wini.put(LOGGING_SECTION, LOGGING_LEVEL, DEFAULT_LOGGING_LEVEL.toString());
-        Level[] allLoggingLevels = Level.values();
-        for (Level level : allLoggingLevels) {
-            wini.put(LOGGING_SECTION, level.toString(), "");
-        }
-
-        // cloud
-        wini.put(CLOUD_SECTION, UNRELIABLE_NETWORK, DEFAULT_NETWORK_UNRELIABLE_MODE);
+        putMainSectionDefaults(wini);
+        putLoggingSectionDefaults(wini);
+        putCloudSectionDefaults(wini);
 
         wini.store();
+    }
+
+    private void putCloudSectionDefaults(Wini wini) {
+        wini.put(CLOUD_SECTION, UNRELIABLE_NETWORK, DEFAULT_NETWORK_UNRELIABLE_MODE);
+    }
+
+    private void putLoggingSectionDefaults(Wini wini) {
+        wini.put(LOGGING_SECTION, LOGGING_LEVEL, DEFAULT_LOGGING_LEVEL.toString());
+        for (Level level : Level.values()) {
+            wini.put(LOGGING_SECTION, level.toString(), EMPTY_VALUE);
+        }
+    }
+
+    private void putMainSectionDefaults(Wini wini) {
+        wini.put(MAIN_SECTION, UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL);
     }
 
     private Level determineLoggingLevel(String loggingLevelString) {

@@ -23,7 +23,7 @@ public class LoggerManager {
     }
 
     private static Level determineLoggingLevelToSet(String className) {
-        if (specialLogLevel.containsKey(className)) {
+        if (specialLogLevel != null && specialLogLevel.containsKey(className)) {
             return specialLogLevel.get(className);
         }
         return currentLogLevel;
