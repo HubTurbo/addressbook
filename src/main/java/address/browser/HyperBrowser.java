@@ -31,7 +31,7 @@ public class HyperBrowser {
 
     private final int noOfPages;
 
-    private ArrayList<Page> pages;
+    private List<Page> pages;
 
     /**
      * For recycling of browser instances.
@@ -118,7 +118,7 @@ public class HyperBrowser {
 
     public synchronized Page loadUrls(URL url) throws NullPointerException,
             IllegalArgumentException {
-        return this.loadUrls(url, null);
+        return this.loadUrls(url, Collections.emptyList());
     }
 
     /**
@@ -153,7 +153,7 @@ public class HyperBrowser {
     }
 
     private List<URL> getListOfUrlToBeLoaded(URL url, List<URL> futureUrl) {
-        ArrayList<URL> listOfUrlToBeLoaded = new ArrayList<>();
+        List<URL> listOfUrlToBeLoaded = new ArrayList<>();
         listOfUrlToBeLoaded.add(url);
         listOfUrlToBeLoaded.addAll(futureUrl);
         return listOfUrlToBeLoaded;

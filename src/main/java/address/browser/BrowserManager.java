@@ -68,7 +68,6 @@ public class BrowserManager {
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent event){
-
         if (!hyperBrowser.isPresent()) {
             return;
         }
@@ -105,20 +104,19 @@ public class BrowserManager {
 
         ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture = getListOfPersonToLoadInFuture(filteredPersons,
                                                                                      indexOfPersonInListOfContacts);
+        ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
+                                                                    .map(p -> p.profilePageUrl())
+                                                                    .collect(Collectors.toCollection(ArrayList::new));
         try {
-            ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
-                                                                       .map(p -> p.profilePageUrl())
-                                                                       .collect(Collectors.toCollection(ArrayList::new));
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
-
             GithubProfilePage gPage = new GithubProfilePage(page);
+
             if (!gPage.isPageLoading()) {
                 gPage.automateClickingAndScrolling();
             }
             gPage.setPageLoadFinishListener(b -> {
                 gPage.automateClickingAndScrolling();
             });
-
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
