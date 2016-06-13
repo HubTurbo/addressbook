@@ -33,7 +33,7 @@ public class Config {
     private static final Level DEFAULT_LOGGING_LEVEL = Level.INFO;
     private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
     private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVELS = new HashMap<>();
-    public static final String MISSING_FIELDS = "Missing field from {}: {}";
+    private static final String MISSING_FIELD = "Missing field from {}: {}";
 
     // Config values
     public String appTitle = "Address App";
@@ -101,7 +101,7 @@ public class Config {
         try {
             currentLogLevel = getLoggingLevel(getFieldValue(loggingSection, LOGGING_LEVEL));
         } catch (NoSuchFieldException e) {
-            logger.warn(MISSING_FIELDS, LOGGING_SECTION, e.toString());
+            logger.warn(MISSING_FIELD, LOGGING_SECTION, LOGGING_LEVEL);
         }
 
         specialLogLevels = new HashMap<>();
@@ -110,7 +110,7 @@ public class Config {
                 getFieldArray(loggingSection, level.toString()).stream()
                         .forEach(classString -> specialLogLevels.put(classString, level));
             } catch (NoSuchFieldException e) {
-                logger.warn(MISSING_FIELDS, LOGGING_SECTION, e.toString());
+                logger.warn(MISSING_FIELD, LOGGING_SECTION, level.toString());
             }
         }
     }
@@ -119,7 +119,7 @@ public class Config {
         try {
             updateInterval = Long.parseLong(getFieldValue(mainSection, UPDATE_INTERVAL));
         } catch (NoSuchFieldException e) {
-            logger.warn(MISSING_FIELDS, MAIN_SECTION, e.toString());
+            logger.warn(MISSING_FIELD, MAIN_SECTION, UPDATE_INTERVAL);
         }
     }
 
@@ -127,7 +127,7 @@ public class Config {
         try {
             simulateUnreliableNetwork = Boolean.parseBoolean(getFieldValue(cloudSection, UNRELIABLE_NETWORK));
         } catch (NoSuchFieldException e) {
-            logger.warn(MISSING_FIELDS, CLOUD_SECTION, e.toString());
+            logger.warn(MISSING_FIELD, CLOUD_SECTION, UNRELIABLE_NETWORK);
         }
     }
 
