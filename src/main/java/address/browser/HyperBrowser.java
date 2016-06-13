@@ -1,6 +1,7 @@
 package address.browser;
 
 import address.browser.embeddedbrowser.EmbeddedBrowser;
+import address.browser.javabrowser.WebViewBrowserAdapter;
 import address.browser.jxbrowser.JxBrowserAdapter;
 import address.browser.page.Page;
 import address.util.FxViewUtil;
@@ -8,6 +9,7 @@ import address.util.UrlUtil;
 import com.teamdev.jxbrowser.chromium.Browser;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.web.WebView;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,6 +26,9 @@ public class HyperBrowser {
 
     public static final int NUMBER_OF_PRELOADED_PAGE = 3;
 
+    public static final int FULL_FEATURE_BROWSER = 1;
+    public static final int LIMITED_FEATURE_BROWSER = 2;
+
     private final int noOfPages;
 
     private ArrayList<Page> pages;
@@ -38,12 +43,16 @@ public class HyperBrowser {
 
     private URL displayedUrl;
 
+    private int browserType;
+
     /**
+     * @param browserType The type of browser. e.g. HyperBrowser.FULL_FEATURE_BROWSER
      * @param noOfPages The cache configuration setting of the HyperBrowser.
      *                  Recommended Value: HyperBrowser.NUMBER_OF_PRELOADED_PAGE
      * @param initialScreen The initial screen of HyperBrowser view.
      */
-    public HyperBrowser(int noOfPages, Optional<Node> initialScreen){
+    public HyperBrowser(int browserType, int noOfPages, Optional<Node> initialScreen){
+        this.browserType = browserType;
         this.noOfPages = noOfPages;
         this.initialScreen = initialScreen;
         initialiseHyperBrowser();
@@ -60,7 +69,15 @@ public class HyperBrowser {
         inActiveBrowserStack = new Stack<>();
 
         for (int i=0; i<noOfPages; i++){
-            EmbeddedBrowser browser = new JxBrowserAdapter(new Browser());
+            EmbeddedBrowser browser;
+            if (browserType == FULL_FEATURE_BROWSER){
+                browser = new JxBrowserAdapter(new Browser());
+            } else if (browserType == LIMITED_FEATURE_BROWSER){
+                browser = new WebViewBrowserAdapter(new WebView());
+            } else {
+                throw new IllegalArgumentException("No such browser type");
+            }
+
             FxViewUtil.applyAnchorBoundaryParameters(browser.getBrowserView(), 0.0, 0.0, 0.0, 0.0);
             inActiveBrowserStack.push(browser);
         }
@@ -107,15 +124,13 @@ public class HyperBrowser {
     /**
      * Loads the URLs to the browser.
      * @param url The URL of the content to load.
-     * @param futureUrl The URLs that may be called to load in the next T time.
+     * @param futureUrl The non-nullable list of URLs that may be called to load in the next T time.
      * @return The page of the URL content.
      * @throws IllegalArgumentException When the amount of URLs to load is more than no of pages the paging system
      *                                      of the HyperBrowser has.
-     * @throws NullPointerException When url is null.
      */
-    public synchronized Page loadUrls(URL url, List<URL> futureUrl) throws NullPointerException,
-                                                                           IllegalArgumentException {
-        if (url == null) {
+    public synchronized Page loadUrls(URL url, List<URL> futureUrl) throws IllegalArgumentException {
+        if (url == null || futureUrl == null) {
             throw new NullPointerException();
         }
 

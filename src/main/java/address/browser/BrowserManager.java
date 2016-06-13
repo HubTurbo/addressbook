@@ -43,9 +43,7 @@ public class BrowserManager {
 
     private StringProperty selectedPersonUsername;
 
-    private ChangeListener<String> listener = new ChangeListener<String>() {
-        @Override
-        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+    private ChangeListener<String> listener = (observable,  oldValue,  newValue) -> {
             try {
                 URL url = new URL("https://github.com/" + newValue);
                 if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
@@ -54,8 +52,7 @@ public class BrowserManager {
             } catch (MalformedURLException e) {
                 return;
             }
-        }
-    };
+        };
 
     public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
         this.selectedPersonUsername = new SimpleStringProperty();
@@ -63,10 +60,10 @@ public class BrowserManager {
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
             hyperBrowser = Optional.empty();
-            return;
+        } else {
+            EventManager.getInstance().registerHandler(this);
+            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, HyperBrowser.NUMBER_OF_PRELOADED_PAGE, getBrowserInitialScreen()));
         }
-        EventManager.getInstance().registerHandler(this);
-        hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.NUMBER_OF_PRELOADED_PAGE, getBrowserInitialScreen()));
     }
 
     @Subscribe
