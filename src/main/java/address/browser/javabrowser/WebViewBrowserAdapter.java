@@ -18,7 +18,7 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
 
     private WebView webView;
 
-    private Worker.State state;
+    private volatile Worker.State state;
 
     public WebViewBrowserAdapter(WebView webview) {
         webView = webview;
@@ -52,9 +52,6 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
 
     @Override
     public String getUrlString() {
-        if (webView.getEngine().getDocument() == null) {
-            return "";
-        }
         return webView.getEngine().getLocation();
     }
 

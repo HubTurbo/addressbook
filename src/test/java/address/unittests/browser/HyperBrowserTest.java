@@ -39,7 +39,7 @@ public class HyperBrowserTest {
     }
 
     @Test
-    public void testLimitedFeatureBrowser_LoadSuccess() {
+    public void testLimitedFeatureBrowser_LoadSuccess() throws InterruptedException {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.LIMITED_FEATURE_BROWSER, 1, Optional.empty());
         Page page = null;
         try {
@@ -48,7 +48,6 @@ public class HyperBrowserTest {
             fail();
         }
         while (page.isPageLoading()) ;
-        System.out.println("page url = " + page.getBrowser().getUrlString().toLowerCase());
         assertTrue(page.getBrowser().getUrlString().toLowerCase().equals("https://github.com/"));
     }
 
