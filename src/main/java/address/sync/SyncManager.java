@@ -110,9 +110,9 @@ public class SyncManager {
                 logger.info("Error obtaining updates.");
                 EventManager.getInstance().post(new SyncFailedEvent(e.getMessage()));
                 return;
+            } finally {
+                EventManager.getInstance().post(new SyncCompletedEvent());
             }
-
-            EventManager.getInstance().post(new SyncCompletedEvent());
         };
 
         long initialDelay = 300; // temp fix for issue #66

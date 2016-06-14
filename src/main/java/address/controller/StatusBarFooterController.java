@@ -73,17 +73,6 @@ public class StatusBarFooterController {
     }
 
     @Subscribe
-    public void handleSyncFailedEvent(SyncFailedEvent sfe){
-        Platform.runLater(() -> syncStatusBar.setText(sfe.toString()));
-        if (timer.isStarted()) {
-            timer.restart();
-            timer.resume();
-        } else {
-            timer.start();
-        }
-    }
-
-    @Subscribe
     public void handleUpdaterInProgressEvent(UpdaterInProgressEvent uipe) {
         Platform.runLater(() -> {
             updaterStatusBar.setText(uipe.toString());
