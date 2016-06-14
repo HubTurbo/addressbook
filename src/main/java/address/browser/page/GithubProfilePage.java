@@ -34,7 +34,6 @@ public class GithubProfilePage implements PageInterface{
         try {
             EbElement repoContainer = browser.getDomElement().findElementById("js-pjax-container");
             EbElement repoLink = browser.getDomElement().findElementByClass("octicon octicon-repo");
-
             EbElement userRepoList = browser.getDomElement().findElementByClass("repo-list js-repo-list");
             EbElement organizationRepoList = browser.getDomElement().findElementById("org-repositories");
 

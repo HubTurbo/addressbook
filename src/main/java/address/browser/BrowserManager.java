@@ -17,7 +17,6 @@ import com.teamdev.jxbrowser.chromium.internal.Environment;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -62,7 +61,8 @@ public class BrowserManager {
             hyperBrowser = Optional.empty();
         } else {
             EventManager.getInstance().registerHandler(this);
-            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, HyperBrowser.NUMBER_OF_PRELOADED_PAGE, getBrowserInitialScreen()));
+            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.LIMITED_FEATURE_BROWSER,
+                                       HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES, getBrowserInitialScreen()));
         }
     }
 
@@ -86,7 +86,7 @@ public class BrowserManager {
 
     public static void initializeBrowser() {
         if (Environment.isMac()) {
-            BrowserCore.initialize();
+            //BrowserCore.initialize();
         }
         LoggerProvider.setLevel(Level.SEVERE);
     }
@@ -117,6 +117,7 @@ public class BrowserManager {
             gPage.setPageLoadFinishListener(b -> {
                 gPage.automateClickingAndScrolling();
             });
+
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
@@ -133,7 +134,7 @@ public class BrowserManager {
     private ArrayList<ReadOnlyViewablePerson> getListOfPersonToLoadInFuture(List<ReadOnlyViewablePerson> filteredPersons, int indexOfPerson) {
         ArrayList<ReadOnlyViewablePerson> listOfRequiredPerson = new ArrayList<>();
 
-        for (int i = 1; i < HyperBrowser.NUMBER_OF_PRELOADED_PAGE && i < filteredPersons.size(); i++){
+        for (int i = 1; i < HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES && i < filteredPersons.size(); i++){
             listOfRequiredPerson.add(filteredPersons.get((indexOfPerson + i) % filteredPersons.size()));
         }
         return listOfRequiredPerson;
