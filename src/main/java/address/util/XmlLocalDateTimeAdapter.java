@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 /**
  * Adapter (for JAXB) to convert between the LocalDateTime and its string representation
  */
-public class LocalDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
+public class XmlLocalDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
 
     @Override
     public LocalDateTime unmarshal(String v) throws Exception {

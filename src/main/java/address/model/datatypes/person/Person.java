@@ -3,8 +3,8 @@ package address.model.datatypes.person;
 import address.model.datatypes.DataType;
 import address.model.datatypes.tag.Tag;
 import address.util.DateTimeUtil;
-import address.util.LocalDateAdapter;
 
+import address.util.XmlLocalDateAdapter;
 import address.util.collections.UnmodifiableObservableList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -264,7 +264,7 @@ public class Person extends DataType implements ReadOnlyPerson {
 //// BIRTHDAY
 
     @JsonProperty("birthday")
-    @XmlJavaTypeAdapter(LocalDateAdapter.class)
+    @XmlJavaTypeAdapter(XmlLocalDateAdapter.class)
     @Override
     public LocalDate getBirthday() {
         return birthday.get();

@@ -10,15 +10,15 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
  * 
  * @author Marco Jakob
  */
-public class LocalDateAdapter extends XmlAdapter<String, LocalDate> {
+public class XmlLocalDateAdapter extends XmlAdapter<String, LocalDate> {
 
     @Override
-    public LocalDate unmarshal(String v) throws Exception {
+    public LocalDate unmarshal(String v) {
         return LocalDate.parse(v);
     }
 
     @Override
-    public String marshal(LocalDate v) throws Exception {
+    public String marshal(LocalDate v) {
         return v.toString();
     }
 }
