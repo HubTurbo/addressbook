@@ -8,6 +8,8 @@ import org.junit.Rule;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
@@ -25,7 +27,7 @@ public class HyperBrowserTest {
     public JavafxThreadingRule javafxRule = new JavafxThreadingRule();
 
     @Test
-    public void testFullFeatureBrowser_LoadSuccess() {
+    public void testFullFeatureBrowser_loadUrl_loadSuccess() {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, 1, Optional.empty());
         Page page = null;
         try {
@@ -39,15 +41,21 @@ public class HyperBrowserTest {
     }
 
     @Test
-    public void testLimitedFeatureBrowser_LoadSuccess() throws InterruptedException {
+    public void testLimitedFeatureBrowser_loadUrl_loadSuccess() throws InterruptedException, MalformedURLException {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.LIMITED_FEATURE_BROWSER, 1, Optional.empty());
-        Page page = null;
-        try {
-            page = browser.loadUrls(new URL("https://github.com"));
-        } catch (MalformedURLException e) {
-            fail();
-        }
-        while (page.isPageLoading()) ;
+        Page page = browser.loadUrls(new URL("https://github.com"));
+        while (page.isPageLoading());
+        assertTrue(page.getBrowser().getUrlString().toLowerCase().equals("https://github.com/"));
+    }
+
+    @Test
+    public void testFullFeatureBrowser_loadUrls_loadSuccess() throws MalformedURLException {
+        HyperBrowser browser = new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, 3, Optional.empty());
+
+        List<URL> url = Arrays.asList(new URL("https://google.com"), new URL("https://yahoo.com"));
+
+        Page page = browser.loadUrls(new URL("https://github.com"), url);
+        while (page.isPageLoading());
         assertTrue(page.getBrowser().getUrlString().toLowerCase().equals("https://github.com/"));
     }
 
