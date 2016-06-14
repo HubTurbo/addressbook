@@ -113,7 +113,7 @@ public class HyperBrowser {
             inActiveBrowserStack.push(page.get().getBrowser());
             pages.remove(page.get());
         }
-        assert pages.size() + inActiveBrowserStack.size() == NUMBER_OF_PRELOADED_PAGE;
+        assert pages.size() + inActiveBrowserStack.size() == noOfPages;
     }
 
     public synchronized Page loadUrls(URL url) throws IllegalArgumentException {
@@ -192,7 +192,8 @@ public class HyperBrowser {
      * @return An array list of pages that are cleared from paging system.
      */
     private synchronized void clearPagesNotRequired(List<URL> urlsToLoad) {
-        List<Page> listOfNotRequiredPage = pages.stream().filter(page
+
+        Stack<Page> listOfNotRequiredPage = pages.stream().filter(page
               -> {
             for (URL url: urlsToLoad){
                 try {
@@ -203,29 +204,16 @@ public class HyperBrowser {
                 }
             }
             return true;
-        }).collect(Collectors.toCollection(ArrayList::new));
-
-        Optional<Page> currDisplayedPage = listOfNotRequiredPage.stream().filter(page -> {
-            try {
-                return UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), displayedUrl);
-            } catch (MalformedURLException e) {
-                return false;
-            }
-        }).findAny();
-
-        if (currDisplayedPage.isPresent()) {
-            //So that, current displayed page can be removed first.
-            shiftElementToBottomOfList(listOfNotRequiredPage, currDisplayedPage);
-        }
+        }).collect(Collectors.toCollection(Stack::new));
 
         int popCount = 0;
         while (!listOfNotRequiredPage.isEmpty() && popCount < urlsToLoad.size()) {
-            Page page = listOfNotRequiredPage.remove(0);
+            Page page = listOfNotRequiredPage.pop();
             inActiveBrowserStack.push(page.getBrowser());
             pages.remove(page);
             popCount++;
         }
-        assert pages.size() + inActiveBrowserStack.size() == NUMBER_OF_PRELOADED_PAGE;
+        assert pages.size() + inActiveBrowserStack.size() == noOfPages;
     }
 
     private void shiftElementToBottomOfList(List<Page> listOfNotRequiredPage, Optional<Page> currDisplayedPage) {
