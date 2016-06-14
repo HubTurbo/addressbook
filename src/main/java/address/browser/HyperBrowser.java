@@ -193,7 +193,7 @@ public class HyperBrowser {
      */
     private synchronized void clearPagesNotRequired(List<URL> urlsToLoad) {
 
-        Stack<Page> listOfNotRequiredPage = pages.stream().filter(page
+        Deque<Page> listOfNotRequiredPage = pages.stream().filter(page
               -> {
             for (URL url: urlsToLoad){
                 try {
@@ -204,11 +204,24 @@ public class HyperBrowser {
                 }
             }
             return true;
-        }).collect(Collectors.toCollection(Stack::new));
+        }).collect(Collectors.toCollection(ArrayDeque::new));
+
+        Optional<Page> currDisplayedPage = listOfNotRequiredPage.stream().filter(page -> {
+            try {
+                return UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), displayedUrl);
+            } catch (MalformedURLException e) {
+                return false;
+            }
+        }).findAny();
+
+        if (currDisplayedPage.isPresent()) {
+            //So that, current displayed page can be removed first.
+            shiftElementToBottomOfList(listOfNotRequiredPage, currDisplayedPage);
+        }
 
         int popCount = 0;
         while (!listOfNotRequiredPage.isEmpty() && popCount < urlsToLoad.size()) {
-            Page page = listOfNotRequiredPage.pop();
+            Page page = listOfNotRequiredPage.poll();
             inActiveBrowserStack.push(page.getBrowser());
             pages.remove(page);
             popCount++;
@@ -216,9 +229,9 @@ public class HyperBrowser {
         assert pages.size() + inActiveBrowserStack.size() == noOfPages;
     }
 
-    private void shiftElementToBottomOfList(List<Page> listOfNotRequiredPage, Optional<Page> currDisplayedPage) {
-        listOfNotRequiredPage.add(0, currDisplayedPage.get());
-        listOfNotRequiredPage.remove(currDisplayedPage.get());
+    private void shiftElementToBottomOfList(Deque<Page> listOfNotRequiredPage, Optional<Page> currDisplayedPage) {
+        listOfNotRequiredPage.addFirst(currDisplayedPage.get());
+        listOfNotRequiredPage.removeLastOccurrence(currDisplayedPage.get());
     }
 
     private void replaceBrowserView(Node browserView) {

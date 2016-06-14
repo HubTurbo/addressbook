@@ -51,11 +51,14 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
         if (webView.getEngine().getDocument() == null) {
             return "";
         }
-        return webView.getEngine().getDocument().getDocumentURI();
+        return webView.getEngine().getLocation();
     }
 
     @Override
     public EbDocument getDomElement() {
+        if (this.webView.getEngine().getDocument() == null) {
+            return null;
+        }
         return new WebViewDocAdapter(this.webView.getEngine().getDocument());
     }
 
