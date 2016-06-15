@@ -1,21 +1,23 @@
 package address.unittests.browser;
 
 import address.browser.BrowserManager;
-import address.browser.HyperBrowser;
-import address.browser.page.Page;
+import address.browser.BrowserManagerUtil;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;
-import address.util.UrlUtil;
+import address.util.JavafxThreadingRule;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import org.junit.Rule;
 import org.junit.Test;
-
 
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Optional;
 
+import static junit.framework.TestCase.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -24,43 +26,65 @@ import static org.junit.Assert.assertTrue;
  */
 public class BrowserManagerTest {
 
+    @Rule
+    /**
+     * To run test cases on JavaFX thread.
+     */
+    public JavafxThreadingRule javafxRule = new JavafxThreadingRule();
+
     private ObservableList<ReadOnlyViewablePerson> filteredPersons;
 
     public BrowserManagerTest() {
         this.filteredPersons = FXCollections.observableArrayList();
-        Person person;
-        person = new Person("John", "Smith");
-        person.setGithubUserName("1");
-        this.filteredPersons.add(new ViewablePerson(new Person(person)));
-        person = new Person("John", "Peter");
-        person.setGithubUserName("2");
-        this.filteredPersons.add(new ViewablePerson(new Person(person)));
-        person = new Person("Obama", "Smith");
-        this.filteredPersons.add(new ViewablePerson(new Person(person)));
-        person = new Person("Lala", "Lol");
-        this.filteredPersons.add(new ViewablePerson(new Person(person)));
-        person = new Person("Hehe", "Lala");
-        this.filteredPersons.add(new ViewablePerson(person));
+        this.filteredPersons.add(new ViewablePerson(new Person("John", "Smith")));
+        this.filteredPersons.add(new ViewablePerson(new Person("John", "Peter")));
+        this.filteredPersons.add(new ViewablePerson(new Person("Obama", "Smith")));
+        this.filteredPersons.add(new ViewablePerson(new Person("Lala", "Lol")));
+        this.filteredPersons.add(new ViewablePerson(new Person("Hehe", "Lala")));
     }
 
     @Test
     public void testNecessaryBrowserResources_resourcesNotNull() {
         BrowserManager manager = new BrowserManager(filteredPersons);
         assertNotNull(manager.getHyperBrowserView());
+        Optional<Node> node = BrowserManagerUtil.getBrowserInitialScreen();
+        assertTrue(node.isPresent());
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testLoadProfilePage_loadMultipleUrls_urlsLoaded() throws NoSuchFieldException, IllegalAccessException, MalformedURLException {
-        BrowserManager manager = new BrowserManager(filteredPersons);
-        manager.loadProfilePage(filteredPersons.get(0));
-        Optional<HyperBrowser> browser = (Optional<HyperBrowser>) manager.getClass().getDeclaredField("hyperBrowser")
-                                                                         .get(manager);
+    public void testGetListOfPersonToLoadInFuture_listMoreThan3Person_nextTwoIndexPersonReturned() throws NoSuchFieldException, IllegalAccessException,
+                                                                         MalformedURLException, InterruptedException {
+        List<ReadOnlyViewablePerson> list = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons, 0);
+        assertTrue(list.contains(filteredPersons.get(1)));
+        assertTrue(list.contains(filteredPersons.get(2)));
+    }
 
-        List<Page> pages = (List<Page>) browser.get().getClass().getDeclaredField("pages").get(browser.get());
-        assertTrue(UrlUtil.compareBaseUrls(pages.get(0).getBrowser().getUrl(), filteredPersons.get(0).profilePageUrl()));
-        assertTrue(UrlUtil.compareBaseUrls(pages.get(1).getBrowser().getUrl(), filteredPersons.get(1).profilePageUrl()));
-        assertTrue(UrlUtil.compareBaseUrls(pages.get(2).getBrowser().getUrl(), filteredPersons.get(2).profilePageUrl()));
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testGetListOfPersonToLoadInFuture_NearTheEndOfList_resultOverlappedToLowerIndex() throws NoSuchFieldException,
+                                                                                                IllegalAccessException,
+                                                                                                MalformedURLException,
+                                                                                                InterruptedException {
+        List<ReadOnlyViewablePerson> list = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons, 3);
+        assertTrue(list.contains(filteredPersons.get(4)));
+        assertTrue(list.contains(filteredPersons.get(0)));
+    }
+
+    @Test
+    public void testGetListOfPersonToLoadInFuture_listLessThan3Person_resultSizeBoundedToListSize() {
+        List<ReadOnlyViewablePerson> list = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons.subList(0,2), 0);
+        assertTrue(list.contains(filteredPersons.get(1)));
+        assertFalse(list.contains(filteredPersons.get(0)));
+        assertFalse(list.contains(filteredPersons.get(2)));
+        assertFalse(list.contains(filteredPersons.get(3)));
+        assertFalse(list.contains(filteredPersons.get(4)));
+    }
+
+    @Test
+    public void testGetListOfPersonToLoadInFuture_listOnly1Person_resultSizeBoundedToListSize() {
+        List<ReadOnlyViewablePerson> list = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons.subList(0,1), 0);
+        assertEquals(list.size(), 0);
     }
 
 }
