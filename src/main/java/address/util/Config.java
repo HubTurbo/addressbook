@@ -3,7 +3,6 @@ package address.util;
 import org.apache.logging.log4j.Level;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
-import org.ini4j.Wini;
 
 import java.io.File;
 import java.io.IOException;
@@ -145,28 +144,28 @@ public class Config {
 
     private void createConfigFileWithDefaults(File configFile) throws IOException {
         if (!configFile.createNewFile()) return;
-        Wini wini = new Wini(configFile);
+        Ini ini = new Ini(configFile);
 
-        putMainSectionDefaults(wini);
-        putLoggingSectionDefaults(wini);
-        putCloudSectionDefaults(wini);
+        putMainSectionDefaults(ini);
+        putLoggingSectionDefaults(ini);
+        putCloudSectionDefaults(ini);
 
-        wini.store();
+        ini.store();
     }
 
-    private void putCloudSectionDefaults(Wini wini) {
-        wini.put(CLOUD_SECTION, UNRELIABLE_NETWORK, DEFAULT_NETWORK_UNRELIABLE_MODE);
+    private void putCloudSectionDefaults(Ini ini) {
+        ini.put(CLOUD_SECTION, UNRELIABLE_NETWORK, DEFAULT_NETWORK_UNRELIABLE_MODE);
     }
 
-    private void putLoggingSectionDefaults(Wini wini) {
-        wini.put(LOGGING_SECTION, LOGGING_LEVEL, DEFAULT_LOGGING_LEVEL);
+    private void putLoggingSectionDefaults(Ini ini) {
+        ini.put(LOGGING_SECTION, LOGGING_LEVEL, DEFAULT_LOGGING_LEVEL);
         for (Level level : Level.values()) {
-            wini.put(LOGGING_SECTION, level.toString(), EMPTY_VALUE);
+            ini.put(LOGGING_SECTION, level.toString(), EMPTY_VALUE);
         }
     }
 
-    private void putMainSectionDefaults(Wini wini) {
-        wini.put(MAIN_SECTION, UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL);
+    private void putMainSectionDefaults(Ini ini) {
+        ini.put(MAIN_SECTION, UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL);
     }
 
     /**
