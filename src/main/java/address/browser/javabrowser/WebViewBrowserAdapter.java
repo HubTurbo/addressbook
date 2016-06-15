@@ -3,6 +3,7 @@ package address.browser.javabrowser;
 import address.browser.embeddedbrowser.EbLoadListener;
 import address.browser.embeddedbrowser.EmbeddedBrowser;
 import address.browser.embeddedbrowser.EbDocument;
+import address.util.UrlUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
@@ -51,8 +52,12 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
     }
 
     @Override
-    public URL getUrl() throws MalformedURLException {
-        return new URL(getUrlString());
+    public URL getUrl() {
+        try {
+            return new URL(getUrlString());
+        } catch (MalformedURLException e) {
+            return UrlUtil.generateValidBlankUrl();
+        }
     }
 
     @Override

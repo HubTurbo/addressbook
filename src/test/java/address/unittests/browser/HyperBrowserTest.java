@@ -56,19 +56,21 @@ public class HyperBrowserTest {
     }
 
     @Test
-    public void testLimitedFeatureBrowser_loadUrl_urlAssigned() throws MalformedURLException {
+    public void testLimitedFeatureBrowser_loadUrl_urlAssigned() throws MalformedURLException, InterruptedException {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.LIMITED_FEATURE_BROWSER, 1, Optional.empty());
         URL url = new URL("https://github.com");
         Page page = browser.loadUrls(url);
+        Thread.sleep(5);
         assertTrue(UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), url));
     }
 
     @Test
-    public void testLimitedFeatureBrowser_loadUrls_urlsAssigned() throws MalformedURLException, IllegalAccessException, NoSuchFieldException {
+    public void testLimitedFeatureBrowser_loadUrls_urlsAssigned() throws MalformedURLException, IllegalAccessException, NoSuchFieldException, InterruptedException {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.LIMITED_FEATURE_BROWSER, 3, Optional.empty());
 
         List<URL> listOfUrl = Arrays.asList(new URL("https://github.com"), new URL("https://google.com.sg"), new URL("https://sg.yahoo.com"));
         Page page = browser.loadUrls(listOfUrl.get(0), listOfUrl.subList(1,3));
+        Thread.sleep(5);
         assertTrue(UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), listOfUrl.get(0)));
 
         Field pages = browser.getClass().getDeclaredField("pages");

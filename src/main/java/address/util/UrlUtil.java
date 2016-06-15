@@ -1,5 +1,6 @@
 package address.util;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -16,5 +17,12 @@ public class UrlUtil {
         return isSameBaseUrl;
     }
 
-
+    public static URL generateValidBlankUrl() {
+        try {
+            return new URL("");
+        } catch (MalformedURLException e) {
+            assert false : "Never happen";
+            return null;
+        }
+    }
 }
