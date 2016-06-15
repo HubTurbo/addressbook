@@ -62,7 +62,7 @@ public class BrowserManager {
             hyperBrowser = Optional.empty();
         } else {
             EventManager.getInstance().registerHandler(this);
-            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.LIMITED_FEATURE_BROWSER, HyperBrowser.NUMBER_OF_PRELOADED_PAGE, getBrowserInitialScreen()));
+            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, HyperBrowser.NUMBER_OF_PRELOADED_PAGE, getBrowserInitialScreen()));
         }
     }
 
@@ -86,7 +86,7 @@ public class BrowserManager {
 
     public static void initializeBrowser() {
         if (Environment.isMac()) {
-            //BrowserCore.initialize();
+            BrowserCore.initialize();
         }
         LoggerProvider.setLevel(Level.SEVERE);
     }
