@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Config values used by the app
@@ -52,8 +54,8 @@ public class Config {
     /**
      * Lazy initialization of global config object
      * <p>
-     * Contains read values from the config file fields if they exist
-     * Fields not found in the config file will be set to defaults
+     * Creates a default config object if needed, and updates
+     * its fields based on values read from the config file
      *
      * @return
      */
@@ -84,7 +86,7 @@ public class Config {
 
         try {
             LoggerManager.getLogger(Config.class).info("Creating config file.");
-            createConfigFileWithDefaults(configFile);
+            createAndWriteToConfigFile(configFile);
         } catch (IOException e) {
             LoggerManager.getLogger(Config.class).warn("Error initializing config file.");
         }
@@ -106,7 +108,8 @@ public class Config {
         specialLogLevels = new HashMap<>();
         for (Level level : Level.values()) {
             try {
-                getFieldArray(loggingSection, level.toString()).stream()
+                getFieldList(loggingSection, level.toString()).stream()
+                        .filter(classString -> !classString.equals(EMPTY_VALUE))
                         .forEach(classString -> specialLogLevels.put(classString, level));
             } catch (NoSuchFieldException e) {
                 logger.warn(MISSING_FIELD, LOGGING_SECTION, level.toString());
@@ -136,36 +139,49 @@ public class Config {
         return updateInterval;
     }
 
-    private List<String> getFieldArray(Profile.Section mainSection, String fieldName) throws NoSuchFieldException {
+    private List<String> getFieldList(Profile.Section mainSection, String fieldName) throws NoSuchFieldException {
         List<String> updateInterval = mainSection.getAll(fieldName);
         if (updateInterval == null) throw new NoSuchFieldException(fieldName);
         return updateInterval;
     }
 
-    private void createConfigFileWithDefaults(File configFile) throws IOException {
+    private void createAndWriteToConfigFile(File configFile) throws IOException {
         if (!configFile.createNewFile()) return;
         Ini ini = new Ini(configFile);
 
-        putMainSectionDefaults(ini);
-        putLoggingSectionDefaults(ini);
-        putCloudSectionDefaults(ini);
+        putMainSection(ini);
+        putLoggingSection(ini);
+        putCloudSection(ini);
 
         ini.store();
     }
 
-    private void putCloudSectionDefaults(Ini ini) {
-        ini.put(CLOUD_SECTION, UNRELIABLE_NETWORK, DEFAULT_NETWORK_UNRELIABLE_MODE);
+    private void putCloudSection(Ini ini) {
+        ini.put(CLOUD_SECTION, UNRELIABLE_NETWORK, simulateUnreliableNetwork);
     }
 
-    private void putLoggingSectionDefaults(Ini ini) {
-        ini.put(LOGGING_SECTION, LOGGING_LEVEL, DEFAULT_LOGGING_LEVEL);
+    private void putLoggingSection(Ini ini) {
+        ini.put(LOGGING_SECTION, LOGGING_LEVEL, currentLogLevel);
         for (Level level : Level.values()) {
-            ini.put(LOGGING_SECTION, level.toString(), EMPTY_VALUE);
+            List<String> specialClassesForCurLevel = getSpecialLogClassesForLevel(level, specialLogLevels);
+            if (specialClassesForCurLevel.size() > 0) {
+                ini.get(LOGGING_SECTION).putAll(level.toString(), specialClassesForCurLevel);
+            } else {
+                // blank field if empty, instead of omitting field entirely
+                ini.get(LOGGING_SECTION).put(level.toString(), EMPTY_VALUE);
+            }
         }
     }
 
-    private void putMainSectionDefaults(Ini ini) {
-        ini.put(MAIN_SECTION, UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL);
+    private List<String> getSpecialLogClassesForLevel(Level level, HashMap<String, Level> specialLogLevels) {
+        Set<String> allSpecialClasses = specialLogLevels.keySet();
+        return allSpecialClasses.stream()
+                .filter(specialClass -> level.equals(specialLogLevels.get(specialClass)))
+                .collect(Collectors.toList());
+    }
+
+    private void putMainSection(Ini ini) {
+        ini.put(MAIN_SECTION, UPDATE_INTERVAL, updateInterval);
     }
 
     /**
