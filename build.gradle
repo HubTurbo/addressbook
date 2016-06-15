@@ -114,7 +114,7 @@ allprojects {
         compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
-        compile fileTree(dir: 'lib', include: 'license.jar')
+        compile fileTree(dir: 'lib', include: 'licence.jar')
         compile "org.ini4j:ini4j:0.5.4"
 
         testCompile "junit:junit:$junitVersion"
