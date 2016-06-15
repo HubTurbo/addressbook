@@ -54,41 +54,53 @@ public class Config {
     /**
      * Lazy initialization of global config object
      * <p>
-     * Creates a default config object if needed, and updates
-     * its fields based on values read from the config file
+     * Creates a config object if needed
+     *
+     * Updates its fields based on values read from the config file if it exists
+     * Else creates a new config file and/or uses default values
      *
      * @return
      */
     public static Config getConfig() {
         if (config == null) {
             config = new Config();
-            config.readFromConfigFileIfExists();
+            if (config.hasExistingConfigFile()) {
+                config.readFromConfigFile();
+            } else {
+                config.initializeConfigFile();
+            }
         }
         return config;
     }
 
-    /**
-     * Reads from the config file if it exists
-     *
-     * Else creates a config file with default values
-     */
-    private void readFromConfigFileIfExists() {
+    private void initializeConfigFile() {
         File configFile = new File(CONFIG_FILE);
         try {
-            if (configFile.exists()) {
-                readAndSetConfigFileValues(new Ini(configFile));
-                return;
-            }
-            LoggerManager.getLogger(Config.class).info("Config file not found.");
-        } catch (IOException e) {
-            LoggerManager.getLogger(Config.class).warn("Error reading from config file.");
-        }
-
-        try {
-            LoggerManager.getLogger(Config.class).info("Creating config file.");
+            logger.info("Creating config file.");
             createAndWriteToConfigFile(configFile);
         } catch (IOException e) {
-            LoggerManager.getLogger(Config.class).warn("Error initializing config file.");
+            logger.warn("Error initializing config file.");
+        }
+    }
+
+    private boolean hasExistingConfigFile() {
+        File configFile = new File(CONFIG_FILE);
+        if (!configFile.exists()) {
+            logger.info("Config file not found.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Reads from the config file
+     */
+    private void readFromConfigFile() {
+        File configFile = new File(CONFIG_FILE);
+        try {
+            readAndSetConfigFileValues(new Ini(configFile));
+        } catch (IOException e) {
+            logger.warn("Error reading from config file.");
         }
     }
 
@@ -98,6 +110,13 @@ public class Config {
         setCloudSectionValues(iniFile.get(CLOUD_SECTION));
     }
 
+    /**
+     * Sets the config public variables according to the values read from the given section
+     * Empty fields in specialLogLevels are treated as blank
+     *
+     * @param loggingSection
+     * @throws IOException
+     */
     private void setLoggingSectionValues(Profile.Section loggingSection) throws IOException {
         try {
             currentLogLevel = getLoggingLevel(getFieldValue(loggingSection, LOGGING_LEVEL));
@@ -145,6 +164,13 @@ public class Config {
         return updateInterval;
     }
 
+    /**
+     * Creates a new config file and writes the current config values of this object
+     * into the config file
+     *
+     * @param configFile
+     * @throws IOException
+     */
     private void createAndWriteToConfigFile(File configFile) throws IOException {
         if (!configFile.createNewFile()) return;
         Ini ini = new Ini(configFile);
@@ -186,6 +212,8 @@ public class Config {
 
     /**
      * Gets the logging level that matches loggingLevelString
+     *
+     * Returns the default logging level if there are no matches
      *
      * @param loggingLevelString
      * @return
