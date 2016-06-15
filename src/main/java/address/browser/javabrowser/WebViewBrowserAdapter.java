@@ -3,7 +3,6 @@ package address.browser.javabrowser;
 import address.browser.embeddedbrowser.EbLoadListener;
 import address.browser.embeddedbrowser.EmbeddedBrowser;
 import address.browser.embeddedbrowser.EbDocument;
-import com.teamdev.jxbrowser.chromium.EditorCommand;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
@@ -43,7 +42,7 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
 
     @Override
     public boolean isLoading() {
-        return state == Worker.State.SUCCEEDED;
+        return state != Worker.State.SUCCEEDED;
     }
 
     @Override

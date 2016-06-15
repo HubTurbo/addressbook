@@ -11,9 +11,10 @@ public class UrlUtil {
         if (url1 == null || url2 == null) {
             return false;
         }
-        boolean isSameBaseUrl = url1.getHost().toLowerCase().equals(url2.getHost().toLowerCase())
-                                && url1.getPath().toLowerCase().equals(url2.getPath().toLowerCase());
+        boolean isSameBaseUrl = url1.getHost().toLowerCase().replaceFirst("www.", "").equals(url2.getHost().replaceFirst("www.", "").toLowerCase())
+                                && url1.getPath().replaceFirst("/", "").toLowerCase().equals(url2.getPath().replaceFirst("/", "").toLowerCase());
         return isSameBaseUrl;
     }
+
 
 }
