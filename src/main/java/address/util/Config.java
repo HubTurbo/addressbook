@@ -64,9 +64,7 @@ public class Config {
     public static Config getConfig() {
         if (config == null) {
             config = new Config();
-            if (config.hasExistingConfigFile()) {
-                config.setConfigFileValues();
-            } else {
+            if (!config.hasExistingConfigFile() || !config.setConfigFileValues()) {
                 config.initializeConfigFile();
             }
         }
@@ -76,8 +74,8 @@ public class Config {
     private void initializeConfigFile() {
         File configFile = new File(CONFIG_FILE);
         try {
-            logger.info("Creating config file.");
-            createAndWriteToConfigFile(configFile);
+            logger.info("Initializing config file.");
+            recreateConfigFile(configFile);
         } catch (IOException e) {
             logger.warn("Error initializing config file.");
         }
@@ -94,20 +92,41 @@ public class Config {
 
     /**
      * Reads from the config file, and updates this object's values
+     *
+     * @return false if there are errors or missing fields
      */
-    private void setConfigFileValues() {
+    private boolean setConfigFileValues() {
         try {
-            Ini iniFile = new Ini(new File(CONFIG_FILE));
-            setValues(iniFile);
+            File configFile = new File(CONFIG_FILE);
+            Ini iniFile = new Ini(configFile);
+            boolean hasAllFields = setValues(iniFile);
+            if (hasAllFields) {
+                logger.info("Config file successfully read.");
+            } else {
+                logger.warn("Missing fields found.");
+            }
+            return hasAllFields;
         } catch (IOException e) {
             logger.warn("Error reading from config file.");
+            return false;
         }
     }
 
-    private void setValues(Ini iniFile) throws IOException {
-        setMainSectionValues(iniFile.get(MAIN_SECTION));
-        setLoggingSectionValues(iniFile.get(LOGGING_SECTION));
-        setCloudSectionValues(iniFile.get(CLOUD_SECTION));
+    /**
+     * Sets values read from iniFile
+     *
+     * @param iniFile
+     * @return false if there are missing fields
+     * @throws IOException
+     */
+    private boolean setValues(Ini iniFile) throws IOException {
+        boolean hasAllFields = true;
+
+        if (!setMainSectionValues(iniFile.get(MAIN_SECTION))) hasAllFields = false;
+        if (!setLoggingSectionValues(iniFile.get(LOGGING_SECTION))) hasAllFields = false;
+        if (!setCloudSectionValues(iniFile.get(CLOUD_SECTION))) hasAllFields = false;
+
+        return hasAllFields;
     }
 
     /**
@@ -117,11 +136,13 @@ public class Config {
      * @param loggingSection
      * @throws IOException
      */
-    private void setLoggingSectionValues(Profile.Section loggingSection) throws IOException {
+    private boolean setLoggingSectionValues(Profile.Section loggingSection) throws IOException {
+        boolean hasAllFields = true;
         try {
             currentLogLevel = getLoggingLevel(getFieldValue(loggingSection, LOGGING_LEVEL));
         } catch (NoSuchFieldException e) {
             logger.warn(MISSING_FIELD, LOGGING_SECTION, LOGGING_LEVEL);
+            hasAllFields = false;
         }
 
         specialLogLevels = new HashMap<>();
@@ -132,24 +153,33 @@ public class Config {
                         .forEach(classString -> specialLogLevels.put(classString, level));
             } catch (NoSuchFieldException e) {
                 logger.warn(MISSING_FIELD, LOGGING_SECTION, level.toString());
+                hasAllFields = false;
             }
         }
+
+        return hasAllFields;
     }
 
-    private void setMainSectionValues(Profile.Section mainSection) throws IOException {
+    private boolean setMainSectionValues(Profile.Section mainSection) throws IOException {
+        boolean hasAllFields = true;
         try {
             updateInterval = Long.parseLong(getFieldValue(mainSection, UPDATE_INTERVAL));
         } catch (NoSuchFieldException e) {
             logger.warn(MISSING_FIELD, MAIN_SECTION, UPDATE_INTERVAL);
+            hasAllFields = false;
         }
+        return hasAllFields;
     }
 
-    private void setCloudSectionValues(Profile.Section cloudSection) {
+    private boolean setCloudSectionValues(Profile.Section cloudSection) {
+        boolean hasAllFields = true;
         try {
             simulateUnreliableNetwork = Boolean.parseBoolean(getFieldValue(cloudSection, UNRELIABLE_NETWORK));
         } catch (NoSuchFieldException e) {
             logger.warn(MISSING_FIELD, CLOUD_SECTION, UNRELIABLE_NETWORK);
+            hasAllFields = false;
         }
+        return hasAllFields;
     }
 
     private String getFieldValue(Profile.Section mainSection, String fieldName) throws NoSuchFieldException {
@@ -165,14 +195,15 @@ public class Config {
     }
 
     /**
-     * Creates a new config file and writes the current config values of this object
-     * into the config file
+     * Deletes any existing config file, then creates a new config file and
+     * writes the current config values of this object into the config file
      *
      * @param configFile
      * @throws IOException
      */
-    private void createAndWriteToConfigFile(File configFile) throws IOException {
-        if (!configFile.createNewFile()) return;
+    private void recreateConfigFile(File configFile) throws IOException {
+        if (configFile.exists() && !configFile.delete()) throw new IOException("Error removing existing config file.");
+        if (!configFile.createNewFile()) throw new IOException("Error creating new config file.");
         Ini ini = new Ini(configFile);
 
         putMainSection(ini);
