@@ -35,7 +35,9 @@ public class Config {
     private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
     private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVELS = new HashMap<>();
     private static final String MISSING_FIELD = "Missing field from {}: {}";
+    
     private static Config config;
+
     // Config values
     public String appTitle = "Address App";
     // Customizable through config file
@@ -43,6 +45,7 @@ public class Config {
     public boolean simulateUnreliableNetwork = DEFAULT_NETWORK_UNRELIABLE_MODE;
     public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
     public HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
+
     private final AppLogger logger = LoggerManager.getLogger(Config.class);
 
     /**
