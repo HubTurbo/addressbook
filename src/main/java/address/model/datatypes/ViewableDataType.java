@@ -99,7 +99,7 @@ public abstract class ViewableDataType<D extends DataType> extends DataType impl
         secondsLeftInPendingState.set(s);
     }
 
-    public void decrementSecondsLefInPendingState() {
+    public void decrementSecondsLeftInPendingState() {
         secondsLeftInPendingState.set(secondsLeftInPendingState.get() - 1);
     }
 
