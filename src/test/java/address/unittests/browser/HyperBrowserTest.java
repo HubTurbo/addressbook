@@ -84,7 +84,7 @@ public class HyperBrowserTest {
     }
 
     @Test
-    public void testClearPage() throws MalformedURLException, IllegalAccessException, NoSuchFieldException {
+    public void testClearPage_removeOnePage_pageRemoved() throws MalformedURLException, IllegalAccessException, NoSuchFieldException {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, 3, Optional.empty());
 
         List<URL> listOfUrl = Arrays.asList(new URL("https://github.com"), new URL("https://google.com.sg"), new URL("https://sg.yahoo.com"));
@@ -96,6 +96,13 @@ public class HyperBrowserTest {
         assertTrue(listOfPages.size() == 2);
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(0).getBrowser().getUrl(), listOfUrl.get(1)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(1).getBrowser().getUrl(), listOfUrl.get(2)));
+    }
+
+    @Test
+    public void testGetDisplayedUrl_loadOnePage_getDisplayedUrlReturnPageUrl() throws MalformedURLException {
+        HyperBrowser browser = new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, 1, Optional.empty());
+        Page page = browser.loadUrls(new URL("https://github.com"));
+        assertTrue(UrlUtil.compareBaseUrls(browser.getDisplayedUrl(), new URL("https://github.com")));
     }
 
 }
