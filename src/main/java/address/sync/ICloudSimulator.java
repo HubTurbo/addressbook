@@ -9,8 +9,8 @@ public interface ICloudSimulator {
     RawCloudResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber, int resourcesPerPage, String previousETag);
     RawCloudResponse getTags(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag);
     RawCloudResponse getRateLimitStatus(String previousETag);
-    RawCloudResponse updatePerson(String addressBookName, String oldFirstName, String oldLastName, CloudPerson updatedPerson, String previousETag);
-    RawCloudResponse deletePerson(String addressBookName, String firstName, String lastName);
+    RawCloudResponse updatePerson(String addressBookName, int personId, CloudPerson updatedPerson, String previousETag);
+    RawCloudResponse deletePerson(String addressBookName, int personId);
     RawCloudResponse createTag(String addressBookName, CloudTag newTag, String previousETag);
     RawCloudResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag, String previousETag);
     RawCloudResponse deleteTag(String addressBookName, String tagName);

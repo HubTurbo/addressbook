@@ -62,6 +62,8 @@ public class CloudSimulator implements ICloudSimulator {
 
     /**
      * Attempts to create a person if quota is available
+     *
+     * A new ID for the new person will be generated; and the ID field in the given newPerson will be ignored
      * <p>
      * Consumes 1 API usage
      *
@@ -196,13 +198,12 @@ public class CloudSimulator implements ICloudSimulator {
      * Consumes 1 API usage
      *
      * @param addressBookName
-     * @param oldFirstName
-     * @param oldLastName
+     * @param personId
      * @param updatedPerson
      * @return
      */
     @Override
-    public RawCloudResponse updatePerson(String addressBookName, String oldFirstName, String oldLastName,
+    public RawCloudResponse updatePerson(String addressBookName, int personId,
                                          CloudPerson updatedPerson, String previousETag) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
@@ -210,7 +211,7 @@ public class CloudSimulator implements ICloudSimulator {
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         try {
             CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
-            CloudPerson resultingPerson = updatePersonDetails(fileData.getAllPersons(), fileData.getAllTags(), oldFirstName, oldLastName,
+            CloudPerson resultingPerson = updatePersonDetails(fileData.getAllPersons(), fileData.getAllTags(), personId,
                                                               updatedPerson);
             fileHandler.writeCloudAddressBookToFile(fileData);
 
@@ -236,19 +237,18 @@ public class CloudSimulator implements ICloudSimulator {
      * Consumes 1 API usage
      *
      * @param addressBookName
-     * @param firstName
-     * @param lastName
+     * @param personId
      * @return
      */
     @Override
-    public RawCloudResponse deletePerson(String addressBookName, String firstName, String lastName) {
+    public RawCloudResponse deletePerson(String addressBookName, int personId) {
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         try {
             CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
-            deletePersonFromData(fileData.getAllPersons(), firstName, lastName);
+            deletePersonFromData(fileData.getAllPersons(), personId);
             fileHandler.writeCloudAddressBookToFile(fileData);
 
             cloudRateLimitStatus.useQuota(1);
@@ -549,22 +549,27 @@ public class CloudSimulator implements ICloudSimulator {
         }
         if (isExistingPerson(personList, newPerson)) throw new IllegalArgumentException("Person already exists");
 
-        personList.add(newPerson);
+        CloudPerson personToAdd = generateIdForPerson(personList, newPerson);
+        personList.add(personToAdd);
 
+        return personToAdd;
+    }
+
+    private CloudPerson generateIdForPerson(List<CloudPerson> personList, CloudPerson newPerson) {
+        newPerson.setId(personList.size());
         return newPerson;
     }
 
-    private Optional<CloudPerson> getPerson(List<CloudPerson> personList, String firstName, String lastName) {
+    private Optional<CloudPerson> getPerson(List<CloudPerson> personList, int personId) {
         return personList.stream()
-                .filter(person -> person.getFirstName().equals(firstName)
-                        && person.getLastName().equals(lastName))
+                .filter(person -> person.getId() == personId)
                 .findAny();
     }
 
-    private CloudPerson updatePersonDetails(List<CloudPerson> personList, List<CloudTag> tagList, String oldFirstName,
-                                            String oldLastName, CloudPerson updatedPerson)
+    private CloudPerson updatePersonDetails(List<CloudPerson> personList, List<CloudTag> tagList, int personId,
+                                            CloudPerson updatedPerson)
             throws NoSuchElementException {
-        CloudPerson oldPerson = getPersonIfExists(personList, oldFirstName, oldLastName);
+        CloudPerson oldPerson = getPersonIfExists(personList, personId);
         oldPerson.updatedBy(updatedPerson);
 
         List<CloudTag> newTags = updatedPerson.getTags().stream()
@@ -575,8 +580,8 @@ public class CloudSimulator implements ICloudSimulator {
         return oldPerson;
     }
 
-    private CloudPerson getPersonIfExists(List<CloudPerson> personList, String oldFirstName, String oldLastName) {
-        Optional<CloudPerson> personQueryResult = getPerson(personList, oldFirstName, oldLastName);
+    private CloudPerson getPersonIfExists(List<CloudPerson> personList, int personId) {
+        Optional<CloudPerson> personQueryResult = getPerson(personList, personId);
         if (!personQueryResult.isPresent()) throw new NoSuchElementException("No such person found.");
 
         return personQueryResult.get();
@@ -656,9 +661,9 @@ public class CloudSimulator implements ICloudSimulator {
         return (int) Math.ceil(dataSize/resourcesPerPage);
     }
 
-    private void deletePersonFromData(List<CloudPerson> personList, String firstName, String lastName)
+    private void deletePersonFromData(List<CloudPerson> personList, int personId)
             throws NoSuchElementException {
-        CloudPerson deletedPerson = getPersonIfExists(personList, firstName, lastName);
+        CloudPerson deletedPerson = getPersonIfExists(personList, personId);
         deletedPerson.setDeleted(true);
     }
 
