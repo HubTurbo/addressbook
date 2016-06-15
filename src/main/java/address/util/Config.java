@@ -35,7 +35,7 @@ public class Config {
     private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
     private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVELS = new HashMap<>();
     private static final String MISSING_FIELD = "Missing field from {}: {}";
-
+    private static Config config;
     // Config values
     public String appTitle = "Address App";
     // Customizable through config file
@@ -43,19 +43,12 @@ public class Config {
     public boolean simulateUnreliableNetwork = DEFAULT_NETWORK_UNRELIABLE_MODE;
     public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
     public HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
-
-    private static Config config;
-    private AppLogger logger = LoggerManager.getLogger(Config.class);
-
-    public static void setConfig(Config configToSet) {
-        config = configToSet;
-    }
+    private final AppLogger logger = LoggerManager.getLogger(Config.class);
 
     /**
      * Lazy initialization of global config object
      * <p>
-     * Creates a config object if needed
-     *
+     * During initialization:
      * Updates its fields based on values read from the config file if it exists
      * Else creates a new config file and/or uses default values
      *
@@ -69,6 +62,10 @@ public class Config {
             }
         }
         return config;
+    }
+
+    public static void setConfig(Config configToSet) {
+        config = configToSet;
     }
 
     private void initializeConfigFile() {
@@ -135,9 +132,8 @@ public class Config {
      * Empty fields in specialLogLevels are treated as blank
      *
      * @param loggingSection
-     * @throws IOException
      */
-    private boolean setLoggingSectionValues(Profile.Section loggingSection) throws IOException {
+    private boolean setLoggingSectionValues(Profile.Section loggingSection) {
         boolean hasAllFields = true;
         try {
             currentLogLevel = getLoggingLevel(getFieldValue(loggingSection, LOGGING_LEVEL));
@@ -161,7 +157,7 @@ public class Config {
         return hasAllFields;
     }
 
-    private boolean setMainSectionValues(Profile.Section mainSection) throws IOException {
+    private boolean setMainSectionValues(Profile.Section mainSection) {
         boolean hasAllFields = true;
         try {
             updateInterval = Long.parseLong(getFieldValue(mainSection, UPDATE_INTERVAL));
@@ -220,6 +216,7 @@ public class Config {
 
     private void putLoggingSection(Ini ini) {
         ini.put(LOGGING_SECTION, LOGGING_LEVEL, currentLogLevel);
+
         for (Level level : Level.values()) {
             List<String> specialClassesForCurLevel = getSpecialLogClassesForLevel(level, specialLogLevels);
             if (specialClassesForCurLevel.size() > 0) {
