@@ -138,7 +138,7 @@ public class CloudSimulatorTest {
 
     @Test
     public void deletePerson_noSuchPerson_unsuccessfulDeletion() throws DataConversionException, FileNotFoundException {
-        RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", 1);
+        RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", 2);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -215,7 +215,7 @@ public class CloudSimulatorTest {
     @Test
     public void updatePerson_noSuchPerson() throws DataConversionException, FileNotFoundException {
         CloudPerson updatedPerson = prepareUpdatedPerson();
-        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
+        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", 2, updatedPerson, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -276,6 +276,7 @@ public class CloudSimulatorTest {
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
 
         // File write method is called, with the expected result
+        updatedPerson.setId(1);
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedAddressBook);
 
         // API quota is consumed
