@@ -80,7 +80,7 @@ public class BrowserManager {
                                                                     .map(p -> p.profilePageUrl())
                                                                     .collect(Collectors.toCollection(ArrayList::new));
         try {
-            Page page = hyperBrowser.get().loadUrl(person.profilePageUrl(), listOfFutureUrl);
+            Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
 
             if (!gPage.isPageLoading()) {
@@ -92,7 +92,7 @@ public class BrowserManager {
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            assert false : "Will never go into here if preconditions of loadUrl is fulfilled.";
+            assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
         }
 
         selectedPersonUsername.unbind();

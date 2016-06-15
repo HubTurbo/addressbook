@@ -54,7 +54,7 @@ public class HyperBrowserTest {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, 3, Optional.empty());
 
         List<URL> listOfUrl = Arrays.asList(new URL("https://github.com"), new URL("https://google.com.sg"), new URL("https://sg.yahoo.com"));
-        Page page = browser.loadUrl(listOfUrl.get(0), listOfUrl.subList(1,3));
+        Page page = browser.loadUrls(listOfUrl.get(0), listOfUrl.subList(1,3));
         waitForUrlToBeLoadedInBrowser(page.getBrowser(), 10);
         assertTrue(UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), listOfUrl.get(0)));
 
@@ -73,9 +73,9 @@ public class HyperBrowserTest {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, 3, Optional.empty());
 
 
-        browser.loadUrl(listOfUrl.get(0), listOfUrl.subList(1,3));
+        browser.loadUrls(listOfUrl.get(0), listOfUrl.subList(1,3));
         TimeUnit.SECONDS.sleep(3);
-        Page page = browser.loadUrl(listOfUrl.get(3), listOfUrl.subList(4,6));
+        Page page = browser.loadUrls(listOfUrl.get(3), listOfUrl.subList(4,6));
         waitForUrlToBeLoadedInBrowser(page.getBrowser(), 10);
         Field pages = browser.getClass().getDeclaredField("pages");
         pages.setAccessible(true);
@@ -89,9 +89,9 @@ public class HyperBrowserTest {
     @Test
     public void testFullFeatureBrowser_loadUrlsMultipleTimesOverLapping_correctUrlsAssigned() throws MalformedURLException, IllegalAccessException, NoSuchFieldException, InterruptedException {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, 3, Optional.empty());
-        browser.loadUrl(listOfUrl.get(0), listOfUrl.subList(1,3));
+        browser.loadUrls(listOfUrl.get(0), listOfUrl.subList(1,3));
         TimeUnit.SECONDS.sleep(3);
-        Page page = browser.loadUrl(listOfUrl.get(2), listOfUrl.subList(3,5));
+        Page page = browser.loadUrls(listOfUrl.get(2), listOfUrl.subList(3,5));
         waitForUrlToBeLoadedInBrowser(page.getBrowser(), 10);
 
         Field pages = browser.getClass().getDeclaredField("pages");
@@ -106,9 +106,9 @@ public class HyperBrowserTest {
     @Test
     public void testFullFeatureBrowser_loadUrlsMultipleTimesWithDuplicates_correctUrlsAssigned() throws MalformedURLException, IllegalAccessException, NoSuchFieldException, InterruptedException {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, 3, Optional.empty());
-        browser.loadUrl(listOfUrl.get(0), listOfUrl.subList(1,3));
+        browser.loadUrls(listOfUrl.get(0), listOfUrl.subList(1,3));
         TimeUnit.SECONDS.sleep(3);
-        Page page = browser.loadUrl(listOfUrl.get(2), Arrays.asList(listOfUrl.get(0), listOfUrl.get(0)));
+        Page page = browser.loadUrls(listOfUrl.get(2), Arrays.asList(listOfUrl.get(0), listOfUrl.get(0)));
         waitForUrlToBeLoadedInBrowser(page.getBrowser(), 10);
 
         Field pages = browser.getClass().getDeclaredField("pages");
@@ -122,7 +122,7 @@ public class HyperBrowserTest {
     @Test
     public void testFullFeatureBrowser_loadUrlsThenLoadUrl_displayedUrlRemoved() throws MalformedURLException, IllegalAccessException, NoSuchFieldException, InterruptedException {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, 3, Optional.empty());
-        browser.loadUrl(listOfUrl.get(0), listOfUrl.subList(1,3));
+        browser.loadUrls(listOfUrl.get(0), listOfUrl.subList(1,3));
         TimeUnit.SECONDS.sleep(3);
         Page page = browser.loadUrl(listOfUrl.get(4));
         waitForUrlToBeLoadedInBrowser(page.getBrowser(), 10);
@@ -148,7 +148,7 @@ public class HyperBrowserTest {
     @Test
     public void testLimitedFeatureBrowser_loadUrls_urlsAssigned() throws MalformedURLException, IllegalAccessException, NoSuchFieldException, InterruptedException {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.LIMITED_FEATURE_BROWSER, 3, Optional.empty());
-        Page page = browser.loadUrl(listOfUrl.get(0), listOfUrl.subList(1,3));
+        Page page = browser.loadUrls(listOfUrl.get(0), listOfUrl.subList(1,3));
         waitForUrlToBeLoadedInBrowser(page.getBrowser(), 10);
         assertTrue(UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), listOfUrl.get(0)));
 
@@ -165,7 +165,7 @@ public class HyperBrowserTest {
     @Test
     public void testClearPage_removeOnePage_pageRemoved() throws MalformedURLException, IllegalAccessException, NoSuchFieldException, InterruptedException {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, 3, Optional.empty());
-        Page page = browser.loadUrl(listOfUrl.get(0), listOfUrl.subList(1,3));
+        Page page = browser.loadUrls(listOfUrl.get(0), listOfUrl.subList(1,3));
         waitForUrlToBeLoadedInBrowser(page.getBrowser(), 10);
         browser.clearPage(page.getBrowser().getUrl());
         Field pages = browser.getClass().getDeclaredField("pages");
