@@ -38,7 +38,7 @@ public class BrowserManager {
 
     private ObservableList<ReadOnlyViewablePerson> filteredPersons;
 
-    public Optional<HyperBrowser> hyperBrowser;
+    private Optional<HyperBrowser> hyperBrowser;
 
     private StringProperty selectedPersonUsername;
 
@@ -60,16 +60,8 @@ public class BrowserManager {
         if (headlessProperty != null && headlessProperty.equals("true")) {
             hyperBrowser = Optional.empty();
         } else {
-            EventManager.getInstance().registerHandler(this);
             hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER,
                                        HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES, getBrowserInitialScreen()));
-        }
-    }
-
-    @Subscribe
-    public void handleLocalModelChangedEvent(LocalModelChangedEvent event){
-        if (!hyperBrowser.isPresent()) {
-            return;
         }
     }
 
