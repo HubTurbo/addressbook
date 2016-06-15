@@ -1,5 +1,6 @@
 package address.keybindings;
 
+import address.events.AcceleratorIgnoredEvent;
 import javafx.scene.input.KeyCombination;
 
 import java.util.Optional;
@@ -11,7 +12,7 @@ public class Accelerator extends KeyBinding{
 
 
     Accelerator(String name, KeyCombination keyCombination) {
-        super(name, keyCombination, null);
+        super(name, keyCombination, new AcceleratorIgnoredEvent(name));
     }
 
     @Override

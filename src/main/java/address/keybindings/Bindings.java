@@ -59,29 +59,29 @@ public class Bindings {
         PERSON_EDIT_ACCELERATOR = setAccelerator("PERSON_EDIT_ACCELERATOR", "E");
         LIST_GOTO_BOTTOM_SEQUENCE = setSequence("LIST_GOTO_BOTTOM_SEQUENCE", "G", "B", new JumpToListRequestEvent(-1));
         LIST_GOTO_TOP_SEQUENCE = setSequence("LIST_GOTO_TOP_SEQUENCE", "G", "T", new JumpToListRequestEvent(1));
-        FILE_NEW_ACCELERATOR = setAccelerator("FILE_NEW_ACCELERATOR", "Shortcut + N");
-        FILE_OPEN_ACCELERATOR = setAccelerator("FILE_OPEN_ACCELERATOR", "Shortcut + O");
-        FILE_SAVE_ACCELERATOR = setAccelerator("FILE_SAVE_ACCELERATOR", "Shortcut + S");
-        FILE_SAVE_AS_ACCELERATOR = setAccelerator("FILE_SAVE_AS_ACCELERATOR", "Shortcut + Alt + S");
-        APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "Ctrl + Alt + X", new MinimizeAppRequestEvent()));
-        APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "Meta + Alt + X", new MinimizeAppRequestEvent()));
-        APP_MAXIMIZE_HOTKEY.add(setHotkey("APP_MAXIMIZE_HOTKEY", "Ctrl + Shift + X", new MaximizeAppRequestEvent()));
-        APP_MAXIMIZE_HOTKEY.add(setHotkey("APP_MAXIMIZE_HOTKEY", "Meta + Shift + X", new MaximizeAppRequestEvent()));
+        FILE_NEW_ACCELERATOR = setAccelerator("FILE_NEW_ACCELERATOR", "SHORTCUT + N");
+        FILE_OPEN_ACCELERATOR = setAccelerator("FILE_OPEN_ACCELERATOR", "SHORTCUT + O");
+        FILE_SAVE_ACCELERATOR = setAccelerator("FILE_SAVE_ACCELERATOR", "SHORTCUT + S");
+        FILE_SAVE_AS_ACCELERATOR = setAccelerator("FILE_SAVE_AS_ACCELERATOR", "SHORTCUT + ALT + S");
+        APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "CTRL + ALT + X", new MinimizeAppRequestEvent()));
+        APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "META + ALT + X", new MinimizeAppRequestEvent()));
+        APP_MAXIMIZE_HOTKEY.add(setHotkey("APP_MAXIMIZE_HOTKEY", "CTRL + SHIFT + X", new MaximizeAppRequestEvent()));
+        APP_MAXIMIZE_HOTKEY.add(setHotkey("APP_MAXIMIZE_HOTKEY", "META + SHIFT + X", new MaximizeAppRequestEvent()));
 
         /*====== other keys ======================================================*/
 
         LIST_ENTER_SHORTCUT = setShortcut("LIST_ENTER_SHORTCUT", "Shortcut + Down", new JumpToListRequestEvent(1));
 
         //shortcuts for jumping to Nth item in the list n=1..9
-        setShortcut("LIST_JUMP_TO_1_SHORTCUT", "Shortcut + 1", new JumpToListRequestEvent(1));
-        setShortcut("LIST_JUMP_TO_2_SHORTCUT", "Shortcut + 2", new JumpToListRequestEvent(2));
-        setShortcut("LIST_JUMP_TO_3_SHORTCUT", "Shortcut + 3", new JumpToListRequestEvent(3));
-        setShortcut("LIST_JUMP_TO_4_SHORTCUT", "Shortcut + 4", new JumpToListRequestEvent(4));
-        setShortcut("LIST_JUMP_TO_5_SHORTCUT", "Shortcut + 5", new JumpToListRequestEvent(5));
-        setShortcut("LIST_JUMP_TO_6_SHORTCUT", "Shortcut + 6", new JumpToListRequestEvent(6));
-        setShortcut("LIST_JUMP_TO_7_SHORTCUT", "Shortcut + 7", new JumpToListRequestEvent(7));
-        setShortcut("LIST_JUMP_TO_8_SHORTCUT", "Shortcut + 8", new JumpToListRequestEvent(8));
-        setShortcut("LIST_JUMP_TO_9_SHORTCUT", "Shortcut + 9", new JumpToListRequestEvent(9));
+        setShortcut("LIST_JUMP_TO_1_SHORTCUT", "SHORTCUT + 1", new JumpToListRequestEvent(1));
+        setShortcut("LIST_JUMP_TO_2_SHORTCUT", "SHORTCUT + 2", new JumpToListRequestEvent(2));
+        setShortcut("LIST_JUMP_TO_3_SHORTCUT", "SHORTCUT + 3", new JumpToListRequestEvent(3));
+        setShortcut("LIST_JUMP_TO_4_SHORTCUT", "SHORTCUT + 4", new JumpToListRequestEvent(4));
+        setShortcut("LIST_JUMP_TO_5_SHORTCUT", "SHORTCUT + 5", new JumpToListRequestEvent(5));
+        setShortcut("LIST_JUMP_TO_6_SHORTCUT", "SHORTCUT + 6", new JumpToListRequestEvent(6));
+        setShortcut("LIST_JUMP_TO_7_SHORTCUT", "SHORTCUT + 7", new JumpToListRequestEvent(7));
+        setShortcut("LIST_JUMP_TO_8_SHORTCUT", "SHORTCUT + 8", new JumpToListRequestEvent(8));
+        setShortcut("LIST_JUMP_TO_9_SHORTCUT", "SHORTCUT + 9", new JumpToListRequestEvent(9));
 
     }
 
@@ -211,5 +211,17 @@ public class Bindings {
 
     protected List<GlobalHotkey> getHotkeys() {
         return hotkeys;
+    }
+
+    /**
+     * Returns a list of all {@link KeyBinding} objects being managed.
+     */
+    public List<KeyBinding> getAllBindings(){
+        List<KeyBinding> all = new ArrayList<>();
+        all.addAll(accelerators);
+        all.addAll(shortcuts);
+        all.addAll(sequences);
+        all.addAll(hotkeys);
+        return all;
     }
 }

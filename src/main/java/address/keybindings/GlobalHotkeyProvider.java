@@ -3,6 +3,7 @@ package address.keybindings;
 import address.events.EventManager;
 import address.events.GlobalHotkeyEvent;
 import address.events.KeyBindingEvent;
+import address.util.AppLogger;
 import com.google.common.eventbus.Subscribe;
 import com.tulskiy.keymaster.common.Provider;
 
@@ -15,14 +16,16 @@ import java.util.List;
 public class GlobalHotkeyProvider {
     /** Provider for global hotkeys */
     private final Provider provider = Provider.getCurrentProvider(false);
+    private final AppLogger logger;
     private EventManager eventManager;
 
     /**
      * Creates an instance and init the global hotkeys.
      * @param eventManager
      */
-    GlobalHotkeyProvider(EventManager eventManager){
+    GlobalHotkeyProvider(EventManager eventManager, AppLogger logger){
         this.eventManager = eventManager;
+        this.logger = logger;
         eventManager.registerHandler(this);
     }
 
@@ -33,7 +36,10 @@ public class GlobalHotkeyProvider {
     void registerGlobalHotkeys(List<GlobalHotkey> hotkeys) {
         for (GlobalHotkey hk: hotkeys){
             provider.register(hk.getKeyStroke(),
-                    (hotkey) -> eventManager.post(new GlobalHotkeyEvent(hk.keyCombination)));
+                    (hotkey) -> {
+                        logger.debug("Global hotkey detected by jkeyMaster : " + hk);
+                        eventManager.post(new GlobalHotkeyEvent(hk.keyCombination));
+                    });
         }
     }
 
@@ -44,6 +50,7 @@ public class GlobalHotkeyProvider {
      */
     @Subscribe
     public void handleGlobalHotkeyEvent(GlobalHotkeyEvent globalHotkeyEvent){
+        logger.debug("Converting global hotkey to normal key event : " + globalHotkeyEvent);
         eventManager.post(globalHotkeyEvent.keyBindingEvent);
     }
 
