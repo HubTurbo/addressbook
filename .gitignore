@@ -3,7 +3,7 @@ cloud/
 .gradle/
 .idea/
 lib/*
-!lib/license.jar
+!lib/licence.jar
 *.iml
 *.log
 *.csv

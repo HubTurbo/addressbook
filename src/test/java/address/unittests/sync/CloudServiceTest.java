@@ -56,7 +56,9 @@ public class CloudServiceTest {
         int quotaLimit = 10;
         int quotaRemaining = 9;
         List<CloudPerson> personsToReturn = new ArrayList<>();
-        personsToReturn.add(new CloudPerson("firstName", "lastName"));
+        CloudPerson personToReturn = new CloudPerson("firstName", "lastName");
+        personToReturn.setId(1);
+        personsToReturn.add(personToReturn);
 
         HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
         RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, personsToReturn, header);
@@ -255,12 +257,14 @@ public class CloudServiceTest {
         int quotaRemaining = 9;
 
         CloudPerson cloudPerson = new CloudPerson("newFirstName", "newLastName");
+        cloudPerson.setId(1);
+
         HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
         RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, cloudPerson, header);
-        when(cloudSimulator.updatePerson(anyString(), anyString(), anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(cloudResponse);
+        when(cloudSimulator.updatePerson(anyString(), anyInt(), any(CloudPerson.class), isNull(String.class))).thenReturn(cloudResponse);
 
         Person updatedPerson = new Person("newFirstName", "newLastName");
-        ExtractedCloudResponse<Person> serviceResponse = cloudService.updatePerson("Test", "firstName", "lastName", updatedPerson);
+        ExtractedCloudResponse<Person> serviceResponse = cloudService.updatePerson("Test", 1, updatedPerson);
 
         assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
         assertTrue(serviceResponse.getData().isPresent());
@@ -272,10 +276,10 @@ public class CloudServiceTest {
     @Test
     public void updatePerson_errorCloudResponse() throws IOException {
         RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
-        when(cloudSimulator.updatePerson(anyString(), anyString(), anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(cloudResponse);
+        when(cloudSimulator.updatePerson(anyString(), anyInt(), any(CloudPerson.class), isNull(String.class))).thenReturn(cloudResponse);
 
         Person updatedPerson = new Person("newFirstName", "newLastName");
-        ExtractedCloudResponse<Person> serviceResponse = cloudService.updatePerson("Test", "firstName", "lastName", updatedPerson);
+        ExtractedCloudResponse<Person> serviceResponse = cloudService.updatePerson("Test", 1, updatedPerson);
 
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
         assertFalse(serviceResponse.getData().isPresent());
@@ -325,9 +329,9 @@ public class CloudServiceTest {
 
         HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
         RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_NO_CONTENT, null, header);
-        when(cloudSimulator.deletePerson("Test", "firstName", "lastName")).thenReturn(cloudResponse);
+        when(cloudSimulator.deletePerson("Test", 1)).thenReturn(cloudResponse);
 
-        ExtractedCloudResponse<Void> serviceResponse = cloudService.deletePerson("Test", "firstName", "lastName");
+        ExtractedCloudResponse<Void> serviceResponse = cloudService.deletePerson("Test", 1);
 
         assertEquals(HttpURLConnection.HTTP_NO_CONTENT, serviceResponse.getResponseCode());
         assertFalse(serviceResponse.getData().isPresent());
@@ -337,9 +341,9 @@ public class CloudServiceTest {
     @Test
     public void deletePerson_errorCloudResponse() throws IOException {
         RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
-        when(cloudSimulator.deletePerson("Test", "firstName", "lastName")).thenReturn(cloudResponse);
+        when(cloudSimulator.deletePerson("Test", 1)).thenReturn(cloudResponse);
 
-        ExtractedCloudResponse<Void> serviceResponse = cloudService.deletePerson("Test", "firstName", "lastName");
+        ExtractedCloudResponse<Void> serviceResponse = cloudService.deletePerson("Test", 1);
 
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
         assertFalse(serviceResponse.getData().isPresent());

@@ -113,7 +113,7 @@ public class HyperBrowser {
             inActiveBrowserStack.push(page.get().getBrowser());
             pages.remove(page.get());
         }
-        assert pages.size() + inActiveBrowserStack.size() == NUMBER_OF_PRELOADED_PAGE;
+        assert pages.size() + inActiveBrowserStack.size() == noOfPages;
     }
 
     public synchronized Page loadUrls(URL url) throws IllegalArgumentException {
@@ -192,7 +192,8 @@ public class HyperBrowser {
      * @return An array list of pages that are cleared from paging system.
      */
     private synchronized void clearPagesNotRequired(List<URL> urlsToLoad) {
-        List<Page> listOfNotRequiredPage = pages.stream().filter(page
+
+        Deque<Page> listOfNotRequiredPage = pages.stream().filter(page
               -> {
             for (URL url: urlsToLoad){
                 try {
@@ -203,7 +204,7 @@ public class HyperBrowser {
                 }
             }
             return true;
-        }).collect(Collectors.toCollection(ArrayList::new));
+        }).collect(Collectors.toCollection(ArrayDeque::new));
 
         Optional<Page> currDisplayedPage = listOfNotRequiredPage.stream().filter(page -> {
             try {
@@ -220,17 +221,17 @@ public class HyperBrowser {
 
         int popCount = 0;
         while (!listOfNotRequiredPage.isEmpty() && popCount < urlsToLoad.size()) {
-            Page page = listOfNotRequiredPage.remove(0);
+            Page page = listOfNotRequiredPage.poll();
             inActiveBrowserStack.push(page.getBrowser());
             pages.remove(page);
             popCount++;
         }
-        assert pages.size() + inActiveBrowserStack.size() == NUMBER_OF_PRELOADED_PAGE;
+        assert pages.size() + inActiveBrowserStack.size() == noOfPages;
     }
 
-    private void shiftElementToBottomOfList(List<Page> listOfNotRequiredPage, Optional<Page> currDisplayedPage) {
-        listOfNotRequiredPage.add(0, currDisplayedPage.get());
-        listOfNotRequiredPage.remove(currDisplayedPage.get());
+    private void shiftElementToBottomOfList(Deque<Page> listOfNotRequiredPage, Optional<Page> currDisplayedPage) {
+        listOfNotRequiredPage.addFirst(currDisplayedPage.get());
+        listOfNotRequiredPage.removeLastOccurrence(currDisplayedPage.get());
     }
 
     private void replaceBrowserView(Node browserView) {

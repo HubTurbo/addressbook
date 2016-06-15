@@ -14,8 +14,8 @@ public interface ICloudService {
     ExtractedCloudResponse<List<Tag>> getTags(String addressBookName, String previousETag) throws IOException;
 
     ExtractedCloudResponse<Person> createPerson(String addressBookName, Person person) throws IOException;
-    ExtractedCloudResponse<Person> updatePerson(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) throws IOException;
-    ExtractedCloudResponse<Void> deletePerson(String addressBookName, String firstName, String lastName) throws IOException;
+    ExtractedCloudResponse<Person> updatePerson(String addressBookName, int personId, Person updatedPerson) throws IOException;
+    ExtractedCloudResponse<Void> deletePerson(String addressBookName, int personId) throws IOException;
 
     ExtractedCloudResponse<Tag> createTag(String addressBookName, Tag tag) throws IOException;
     ExtractedCloudResponse<Tag> editTag(String addressBookName, String oldTagName, Tag newTag) throws IOException;

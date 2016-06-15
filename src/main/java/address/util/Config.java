@@ -3,12 +3,13 @@ package address.util;
 import org.apache.logging.log4j.Level;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
-import org.ini4j.Wini;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Config values used by the app
@@ -16,6 +17,7 @@ import java.util.List;
 public class Config {
 
     private static final String CONFIG_FILE = "config.ini";
+    private static final String EMPTY_VALUE = "";
 
     // Config variables grouped by sections
     private static final String MAIN_SECTION = "Main";
@@ -31,6 +33,10 @@ public class Config {
     private static final long DEFAULT_UPDATE_INTERVAL = 10000;
     private static final Level DEFAULT_LOGGING_LEVEL = Level.INFO;
     private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
+    private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVELS = new HashMap<>();
+    private static final String MISSING_FIELD = "Missing field from {}: {}";
+    
+    private static Config config;
 
     // Config values
     public String appTitle = "Address App";
@@ -38,118 +44,219 @@ public class Config {
     public long updateInterval = DEFAULT_UPDATE_INTERVAL;
     public boolean simulateUnreliableNetwork = DEFAULT_NETWORK_UNRELIABLE_MODE;
     public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
-    public HashMap<String, Level> specialLogLevel;
+    public HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
 
-    private static Config config;
-
-    public static void setConfig(Config configToSet) {
-        config = configToSet;
-    }
+    private final AppLogger logger = LoggerManager.getLogger(Config.class);
 
     /**
      * Lazy initialization of global config object
      * <p>
-     * Reads values from the config file if it exists, else creates a
-     * config file with default values and uses it
+     * During initialization:
+     * Updates its fields based on values read from the config file if it exists
+     * Else creates a new config file and/or uses default values
      *
      * @return
      */
     public static Config getConfig() {
         if (config == null) {
             config = new Config();
-            config.readFromConfigFileIfExists();
+            if (!config.hasExistingConfigFile() || !config.setConfigFileValues()) {
+                config.initializeConfigFile();
+            }
         }
         return config;
     }
 
+    public static void setConfig(Config configToSet) {
+        config = configToSet;
+    }
+
+    private void initializeConfigFile() {
+        File configFile = new File(CONFIG_FILE);
+        try {
+            logger.info("Initializing config file.");
+            recreateConfigFile(configFile);
+        } catch (IOException e) {
+            logger.warn("Error initializing config file.");
+        }
+    }
+
+    private boolean hasExistingConfigFile() {
+        File configFile = new File(CONFIG_FILE);
+        if (!configFile.exists()) {
+            logger.info("Config file not found.");
+            return false;
+        }
+        return true;
+    }
+
     /**
-     * Reads from the config file if it exists
+     * Reads from the config file, and updates this object's values
+     * Missing fields are skipped from reading
      *
-     * Else creates a config file with default values
+     * @return false if there are errors or missing fields
      */
-    private void readFromConfigFileIfExists() {
+    private boolean setConfigFileValues() {
         try {
             File configFile = new File(CONFIG_FILE);
-            if (configFile.exists()) {
-                readAndSetConfigFileValues(new Ini(configFile));
+            Ini iniFile = new Ini(configFile);
+            boolean hasAllFields = setValues(iniFile);
+            if (hasAllFields) {
+                logger.info("Config values successfully read: '" + CONFIG_FILE + "'.");
             } else {
-                createConfigFileWithDefaults(configFile);
+                logger.warn("Config fields are missing: '" + CONFIG_FILE + "'.");
             }
+            return hasAllFields;
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error reading from config file.");
+            return false;
         }
     }
 
-    private void readAndSetConfigFileValues(Ini iniFile) throws IOException {
-        setMainSectionValues(iniFile.get(MAIN_SECTION));
-        setLoggingSectionValues(iniFile.get(LOGGING_SECTION));
-        setCloudSectionValues(iniFile.get(CLOUD_SECTION));
+    /**
+     * Sets values read from iniFile
+     *
+     * @param iniFile
+     * @return false if there are missing fields
+     * @throws IOException
+     */
+    private boolean setValues(Ini iniFile) throws IOException {
+        boolean hasAllFields = true;
+
+        if (!setMainSectionValues(iniFile.get(MAIN_SECTION))) hasAllFields = false;
+        if (!setLoggingSectionValues(iniFile.get(LOGGING_SECTION))) hasAllFields = false;
+        if (!setCloudSectionValues(iniFile.get(CLOUD_SECTION))) hasAllFields = false;
+
+        return hasAllFields;
     }
 
-    private void setLoggingSectionValues(Profile.Section loggingSection) throws IOException {
-        currentLogLevel = getLoggingLevel(loggingSection);
-        specialLogLevel = getSpecialLoggingClasses(loggingSection);
-    }
-
-    private void setMainSectionValues(Profile.Section mainSection) throws IOException {
-        updateInterval = getUpdateInterval(mainSection);
-    }
-
-    private void setCloudSectionValues(Profile.Section cloudSection) {
-        simulateUnreliableNetwork = Boolean.parseBoolean(cloudSection.get(UNRELIABLE_NETWORK));
-    }
-
-    private long getUpdateInterval(Profile.Section mainSection) {
-        return Long.parseLong(mainSection.get(UPDATE_INTERVAL));
-    }
-
-    private Level getLoggingLevel(Profile.Section section) {
-        String loggingLevelString = section.get(LOGGING_LEVEL);
-        return determineLoggingLevel(loggingLevelString);
-    }
-
-    private void createConfigFileWithDefaults(File configFile) throws IOException {
-        if (!configFile.createNewFile()) return;
-        Wini wini = new Wini(configFile);
-
-        // main
-        wini.put(MAIN_SECTION, UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL);
-
-        // logging
-        wini.put(LOGGING_SECTION, LOGGING_LEVEL, DEFAULT_LOGGING_LEVEL.toString());
-        Level[] allLoggingLevels = Level.values();
-        for (Level level : allLoggingLevels) {
-            wini.put(LOGGING_SECTION, level.toString(), "");
+    /**
+     * Sets the config public variables according to the values read from the given logging section
+     * Empty fields in specialLogLevels are treated as blank
+     *
+     * @param loggingSection
+     */
+    private boolean setLoggingSectionValues(Profile.Section loggingSection) {
+        boolean hasAllFields = true;
+        try {
+            currentLogLevel = getLoggingLevel(getFieldValue(loggingSection, LOGGING_LEVEL));
+        } catch (NoSuchFieldException e) {
+            logger.warn(MISSING_FIELD, LOGGING_SECTION, LOGGING_LEVEL);
+            hasAllFields = false;
         }
 
-        // cloud
-        wini.put(CLOUD_SECTION, UNRELIABLE_NETWORK, DEFAULT_NETWORK_UNRELIABLE_MODE);
+        specialLogLevels = new HashMap<>();
+        for (Level level : Level.values()) {
+            try {
+                getFieldList(loggingSection, level.toString()).stream()
+                        .filter(classString -> !classString.equals(EMPTY_VALUE))
+                        .forEach(classString -> specialLogLevels.put(classString, level));
+            } catch (NoSuchFieldException e) {
+                logger.warn(MISSING_FIELD, LOGGING_SECTION, level.toString());
+                hasAllFields = false;
+            }
+        }
 
-        wini.store();
+        return hasAllFields;
     }
 
-    private Level determineLoggingLevel(String loggingLevelString) {
-        Level[] allLoggingLevels = Level.values();
-        for (Level level : allLoggingLevels) {
+    private boolean setMainSectionValues(Profile.Section mainSection) {
+        boolean hasAllFields = true;
+        try {
+            updateInterval = Long.parseLong(getFieldValue(mainSection, UPDATE_INTERVAL));
+        } catch (NoSuchFieldException e) {
+            logger.warn(MISSING_FIELD, MAIN_SECTION, UPDATE_INTERVAL);
+            hasAllFields = false;
+        }
+        return hasAllFields;
+    }
+
+    private boolean setCloudSectionValues(Profile.Section cloudSection) {
+        boolean hasAllFields = true;
+        try {
+            simulateUnreliableNetwork = Boolean.parseBoolean(getFieldValue(cloudSection, UNRELIABLE_NETWORK));
+        } catch (NoSuchFieldException e) {
+            logger.warn(MISSING_FIELD, CLOUD_SECTION, UNRELIABLE_NETWORK);
+            hasAllFields = false;
+        }
+        return hasAllFields;
+    }
+
+    private String getFieldValue(Profile.Section mainSection, String fieldName) throws NoSuchFieldException {
+        String updateInterval = mainSection.get(fieldName);
+        if (updateInterval == null) throw new NoSuchFieldException(fieldName);
+        return updateInterval;
+    }
+
+    private List<String> getFieldList(Profile.Section mainSection, String fieldName) throws NoSuchFieldException {
+        List<String> updateInterval = mainSection.getAll(fieldName);
+        if (updateInterval == null) throw new NoSuchFieldException(fieldName);
+        return updateInterval;
+    }
+
+    /**
+     * Deletes any existing config file, then creates a new config file and
+     * writes the current config values of this object into the config file
+     *
+     * @param configFile
+     * @throws IOException
+     */
+    private void recreateConfigFile(File configFile) throws IOException {
+        if (configFile.exists() && !configFile.delete()) throw new IOException("Error removing existing config file.");
+        if (!configFile.createNewFile()) throw new IOException("Error creating new config file.");
+        Ini ini = new Ini(configFile);
+
+        putMainSection(ini);
+        putLoggingSection(ini);
+        putCloudSection(ini);
+
+        ini.store();
+    }
+
+    private void putCloudSection(Ini ini) {
+        ini.put(CLOUD_SECTION, UNRELIABLE_NETWORK, simulateUnreliableNetwork);
+    }
+
+    private void putLoggingSection(Ini ini) {
+        ini.put(LOGGING_SECTION, LOGGING_LEVEL, currentLogLevel);
+
+        for (Level level : Level.values()) {
+            List<String> specialClassesForCurLevel = getSpecialLogClassesForLevel(level, specialLogLevels);
+            if (specialClassesForCurLevel.size() > 0) {
+                ini.get(LOGGING_SECTION).putAll(level.toString(), specialClassesForCurLevel);
+            } else {
+                // blank field if empty, instead of omitting field entirely
+                ini.get(LOGGING_SECTION).put(level.toString(), EMPTY_VALUE);
+            }
+        }
+    }
+
+    private List<String> getSpecialLogClassesForLevel(Level level, HashMap<String, Level> specialLogLevels) {
+        Set<String> allSpecialClasses = specialLogLevels.keySet();
+        return allSpecialClasses.stream()
+                .filter(specialClass -> level.equals(specialLogLevels.get(specialClass)))
+                .collect(Collectors.toList());
+    }
+
+    private void putMainSection(Ini ini) {
+        ini.put(MAIN_SECTION, UPDATE_INTERVAL, updateInterval);
+    }
+
+    /**
+     * Gets the logging level that matches loggingLevelString
+     *
+     * Returns the default logging level if there are no matches
+     *
+     * @param loggingLevelString
+     * @return
+     */
+    private Level getLoggingLevel(String loggingLevelString) {
+        for (Level level : Level.values()) {
             if (level.toString().equals(loggingLevelString)) {
                 return level;
             }
         }
+        logger.warn("Invalid logging level. Using default: " + DEFAULT_LOGGING_LEVEL);
         return DEFAULT_LOGGING_LEVEL;
-    }
-
-    private HashMap<String, Level> getSpecialLoggingClasses(Profile.Section section) {
-        HashMap<String, Level> specialLoggingClasses = new HashMap<>();
-        Level[] allLoggingLevels = Level.values();
-        for (Level level : allLoggingLevels) {
-            addSpecialLoggingClasses(section, specialLoggingClasses, level);
-        }
-        return specialLoggingClasses;
-    }
-
-    private void addSpecialLoggingClasses(Profile.Section section, HashMap<String, Level> specialLoggingClasses, Level loggingLevel) {
-        List<String> infoClasses = section.getAll(loggingLevel.toString());
-        infoClasses.stream()
-                .forEach(infoClass -> specialLoggingClasses.put(infoClass, loggingLevel));
     }
 }
