@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class HyperBrowser {
 
 
-    public static final int NUMBER_OF_PRELOADED_PAGE = 3;
+    public static final int RECOMMENDED_NUMBER_OF_PAGES = 3;
 
     public static final int FULL_FEATURE_BROWSER = 1;
     public static final int LIMITED_FEATURE_BROWSER = 2;
@@ -48,7 +48,7 @@ public class HyperBrowser {
     /**
      * @param browserType The type of browser. e.g. HyperBrowser.FULL_FEATURE_BROWSER
      * @param noOfPages The cache configuration setting of the HyperBrowser.
-     *                  Recommended Value: HyperBrowser.NUMBER_OF_PRELOADED_PAGE
+     *                  Recommended Value: HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES
      * @param initialScreen The initial screen of HyperBrowser view.
      */
     public HyperBrowser(int browserType, int noOfPages, Optional<Node> initialScreen){
@@ -116,7 +116,7 @@ public class HyperBrowser {
         assert pages.size() + inActiveBrowserStack.size() == noOfPages;
     }
 
-    public synchronized Page loadUrls(URL url) throws IllegalArgumentException {
+    public synchronized Page loadUrl(URL url) throws IllegalArgumentException {
         return this.loadUrls(url, Collections.emptyList());
     }
 

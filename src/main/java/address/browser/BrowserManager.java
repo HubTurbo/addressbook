@@ -1,14 +1,10 @@
 package address.browser;
 
-import address.MainApp;
 import address.browser.page.GithubProfilePage;
 import address.browser.page.Page;
-import address.events.EventManager;
-import address.events.LocalModelChangedEvent;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.UrlUtil;
-import com.google.common.eventbus.Subscribe;
 
 import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.LoggerProvider;
@@ -17,13 +13,9 @@ import com.teamdev.jxbrowser.chromium.internal.Environment;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -35,11 +27,9 @@ import java.util.stream.Collectors;
  */
 public class BrowserManager {
 
-    private static final String FXML_BROWSER_PLACE_HOLDER_SCREEN = "/view/DefaultBrowserPlaceHolderScreen.fxml";
-
     private ObservableList<ReadOnlyViewablePerson> filteredPersons;
 
-    public Optional<HyperBrowser> hyperBrowser;
+    private Optional<HyperBrowser> hyperBrowser;
 
     private StringProperty selectedPersonUsername;
 
@@ -47,7 +37,7 @@ public class BrowserManager {
             try {
                 URL url = new URL("https://github.com/" + newValue);
                 if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
-                    hyperBrowser.get().loadUrls(url);
+                    hyperBrowser.get().loadUrl(url);
                 }
             } catch (MalformedURLException e) {
                 return;
@@ -61,26 +51,8 @@ public class BrowserManager {
         if (headlessProperty != null && headlessProperty.equals("true")) {
             hyperBrowser = Optional.empty();
         } else {
-            EventManager.getInstance().registerHandler(this);
-            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER, HyperBrowser.NUMBER_OF_PRELOADED_PAGE, getBrowserInitialScreen()));
-        }
-    }
-
-    @Subscribe
-    public void handleLocalModelChangedEvent(LocalModelChangedEvent event){
-        if (!hyperBrowser.isPresent()) {
-            return;
-        }
-    }
-
-    private Optional<Node> getBrowserInitialScreen(){
-        String fxmlResourcePath = FXML_BROWSER_PLACE_HOLDER_SCREEN;
-        try {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
-            return Optional.ofNullable(loader.load());
-        } catch (IOException e){
-            return Optional.empty();
+            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER,
+                                       HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES, BrowserManagerUtil.getBrowserInitialScreen()));
         }
     }
 
@@ -102,7 +74,7 @@ public class BrowserManager {
 
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
-        ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture = getListOfPersonToLoadInFuture(filteredPersons,
+        ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons,
                                                                                      indexOfPersonInListOfContacts);
         ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
                                                                     .map(p -> p.profilePageUrl())
@@ -117,6 +89,7 @@ public class BrowserManager {
             gPage.setPageLoadFinishListener(b -> {
                 gPage.automateClickingAndScrolling();
             });
+
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
@@ -125,18 +98,6 @@ public class BrowserManager {
         selectedPersonUsername.unbind();
         selectedPersonUsername.bind(person.githubUserNameProperty());
         selectedPersonUsername.addListener(listener);
-    }
-
-    /**
-     * Gets a list of person that are needed to be loaded to the browser in future.
-     */
-    private ArrayList<ReadOnlyViewablePerson> getListOfPersonToLoadInFuture(List<ReadOnlyViewablePerson> filteredPersons, int indexOfPerson) {
-        ArrayList<ReadOnlyViewablePerson> listOfRequiredPerson = new ArrayList<>();
-
-        for (int i = 1; i < HyperBrowser.NUMBER_OF_PRELOADED_PAGE && i < filteredPersons.size(); i++){
-            listOfRequiredPerson.add(filteredPersons.get((indexOfPerson + i) % filteredPersons.size()));
-        }
-        return listOfRequiredPerson;
     }
 
     /**

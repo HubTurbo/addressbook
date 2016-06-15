@@ -3,7 +3,9 @@ package address.browser.javabrowser;
 import address.browser.embeddedbrowser.EbLoadListener;
 import address.browser.embeddedbrowser.EmbeddedBrowser;
 import address.browser.embeddedbrowser.EbDocument;
-import com.teamdev.jxbrowser.chromium.EditorCommand;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Worker;
 import javafx.scene.Node;
 import javafx.scene.web.WebView;
 
@@ -13,12 +15,19 @@ import java.net.URL;
 /**
  * An EmbeddedBrowser adapter for the Java WebView browser.
  */
-public class WebViewBrowserAdapter implements EmbeddedBrowser {
+public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Worker.State> {
 
     private WebView webView;
 
+    private volatile Worker.State state;
+
+    private EbLoadListener listener;
+
     public WebViewBrowserAdapter(WebView webview) {
         webView = webview;
+        webView.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+            state=newValue;
+        });
     }
 
     @Override
@@ -33,7 +42,7 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
 
     @Override
     public boolean isLoading() {
-        return webView.getEngine().getLoadWorker().isRunning();
+        return state != Worker.State.SUCCEEDED;
     }
 
     @Override
@@ -48,9 +57,6 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
 
     @Override
     public String getUrlString() {
-        if (webView.getEngine().getDocument() == null) {
-            return "";
-        }
         return webView.getEngine().getLocation();
     }
 
@@ -64,12 +70,18 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser {
 
     @Override
     public void executeCommand(int command) {
-        //Not supported on web view browser.
     }
 
     @Override
     public void addLoadListener(EbLoadListener listener) {
-
+        this.listener = listener;
+        this.webView.getEngine().getLoadWorker().stateProperty().addListener(this);
     }
 
+    @Override
+    public void changed(ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) {
+        if (newValue == Worker.State.SUCCEEDED) {
+            listener.onFinishLoadingFrame(true);
+        }
+    }
 }
