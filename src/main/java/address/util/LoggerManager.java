@@ -2,17 +2,15 @@ package address.util;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
-import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import java.util.HashMap;
 
 public class LoggerManager {
     public static Level currentLogLevel  = Config.getConfig().currentLogLevel;
-    public static HashMap<String, Level> specialLogLevel = Config.getConfig().specialLogLevel;
+    public static HashMap<String, Level> specialLogLevel = Config.getConfig().specialLogLevels;
 
     public static AppLogger getLogger(String className, Level loggingLevel) {
         LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
@@ -23,7 +21,7 @@ public class LoggerManager {
     }
 
     private static Level determineLoggingLevelToSet(String className) {
-        if (specialLogLevel.containsKey(className)) {
+        if (specialLogLevel != null && specialLogLevel.containsKey(className)) {
             return specialLogLevel.get(className);
         }
         return currentLogLevel;
