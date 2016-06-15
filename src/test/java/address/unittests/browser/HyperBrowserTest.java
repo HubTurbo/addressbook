@@ -58,8 +58,9 @@ public class HyperBrowserTest {
     @Test
     public void testLimitedFeatureBrowser_loadUrl_urlAssigned() throws MalformedURLException {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.LIMITED_FEATURE_BROWSER, 1, Optional.empty());
-        Page page = browser.loadUrls(new URL("https://github.com"));
-        assertTrue(UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), new URL("https://github.com")));
+        URL url = new URL("https://github.com");
+        Page page = browser.loadUrls(url);
+        assertTrue(UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), url));
     }
 
     @Test
