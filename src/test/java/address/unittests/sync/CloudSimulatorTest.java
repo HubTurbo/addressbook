@@ -121,7 +121,7 @@ public class CloudSimulatorTest {
 
     @Test
     public void deletePerson_enoughQuota_successfulDeletion() throws IOException, DataConversionException {
-        RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", "firstName", "lastName");
+        RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", 1);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -138,7 +138,7 @@ public class CloudSimulatorTest {
 
     @Test
     public void deletePerson_noSuchPerson_unsuccessfulDeletion() throws DataConversionException, FileNotFoundException {
-        RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", "unknownName", "unknownName");
+        RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", 1);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -158,7 +158,7 @@ public class CloudSimulatorTest {
         // Prepares filehandler to throw an exception that there are problems with data conversion
         doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
-        RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", "firstName", "lastName");
+        RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", 1);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -176,7 +176,7 @@ public class CloudSimulatorTest {
     @Test
     public void updatePerson() throws DataConversionException, FileNotFoundException {
         CloudPerson updatedPerson = prepareUpdatedPerson();
-        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", "firstName", "lastName", updatedPerson, null);
+        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -197,7 +197,7 @@ public class CloudSimulatorTest {
         doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
         CloudPerson updatedPerson = prepareUpdatedPerson();
-        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", "firstName", "lastName", updatedPerson, null);
+        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -215,7 +215,7 @@ public class CloudSimulatorTest {
     @Test
     public void updatePerson_noSuchPerson() throws DataConversionException, FileNotFoundException {
         CloudPerson updatedPerson = prepareUpdatedPerson();
-        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", "unknownName", "unknownName", updatedPerson, null);
+        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -237,7 +237,7 @@ public class CloudSimulatorTest {
         assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
 
         CloudPerson updatedPerson = prepareUpdatedPerson();
-        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", "firstName", "lastName", updatedPerson, null);
+        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
 
         // File read is not called, since there is no quota
         verify(cloudFileHandler, never()).readCloudAddressBookFromFile("Test");
@@ -270,7 +270,7 @@ public class CloudSimulatorTest {
         updatedTagList.add(newTag);
         CloudAddressBook updatedAddressBook = new CloudAddressBook("Test", updatedPersonList, updatedTagList);
 
-        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", "firstName", "lastName", updatedPerson, null);
+        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -808,7 +808,11 @@ public class CloudSimulatorTest {
 
     private CloudAddressBook getDummyAddressBook() {
         CloudAddressBook cloudAddressBook = new CloudAddressBook("Test");
-        cloudAddressBook.getAllPersons().add(new CloudPerson("firstName", "lastName"));
+
+        CloudPerson dummyPerson = new CloudPerson("firstName", "lastName");
+        dummyPerson.setId(1);
+        cloudAddressBook.getAllPersons().add(dummyPerson);
+
         cloudAddressBook.getAllTags().add(new CloudTag("Tag one"));
         return cloudAddressBook;
     }

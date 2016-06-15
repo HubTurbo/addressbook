@@ -146,15 +146,14 @@ public class CloudService implements ICloudService {
      * Consumes 1 API usage
      *
      * @param addressBookName
-     * @param oldFirstName
-     * @param oldLastName
+     * @param personId
      * @param updatedPerson
      * @return wrapped response of the returned resulting person
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<Person> updatePerson(String addressBookName, String oldFirstName, String oldLastName, Person updatedPerson) throws IOException {
-        RawCloudResponse cloudResponse = cloud.updatePerson(addressBookName, oldFirstName, oldLastName, convertToCloudPerson(updatedPerson), null);
+    public ExtractedCloudResponse<Person> updatePerson(String addressBookName, int personId, Person updatedPerson) throws IOException {
+        RawCloudResponse cloudResponse = cloud.updatePerson(addressBookName, personId, convertToCloudPerson(updatedPerson), null);
         HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
@@ -173,15 +172,14 @@ public class CloudService implements ICloudService {
      * Consumes 1 API usage
      *
      * @param addressBookName
-     * @param firstName
-     * @param lastName
+     * @param personId
      * @return wrapped response with no additional data
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<Void> deletePerson(String addressBookName, String firstName, String lastName)
+    public ExtractedCloudResponse<Void> deletePerson(String addressBookName, int personId)
             throws IOException {
-        RawCloudResponse cloudResponse = cloud.deletePerson(addressBookName, firstName, lastName);
+        RawCloudResponse cloudResponse = cloud.deletePerson(addressBookName, personId);
         HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
@@ -452,6 +450,7 @@ public class CloudService implements ICloudService {
     }
 
     private Person convertToPerson(CloudPerson cloudPerson) {
+        // TODO: Copy cloudPerson's ID
         Person person = new Person(cloudPerson.getFirstName(), cloudPerson.getLastName());
         person.setStreet(cloudPerson.getStreet());
         person.setCity(cloudPerson.getCity());
