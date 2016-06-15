@@ -116,8 +116,8 @@ public class HyperBrowser {
         assert pages.size() + inActiveBrowserStack.size() == noOfPages;
     }
 
-    public synchronized Page loadUrls(URL url) throws IllegalArgumentException {
-        return this.loadUrls(url, Collections.emptyList());
+    public synchronized Page loadUrl(URL url) throws IllegalArgumentException {
+        return this.loadUrl(url, Collections.emptyList());
     }
 
     /**
@@ -128,7 +128,7 @@ public class HyperBrowser {
      * @throws IllegalArgumentException When the amount of URLs to load is more than no of pages the paging system
      *                                      of the HyperBrowser has.
      */
-    public synchronized Page loadUrls(URL url, List<URL> futureUrl) throws IllegalArgumentException {
+    public synchronized Page loadUrl(URL url, List<URL> futureUrl) throws IllegalArgumentException {
         if (url == null || futureUrl == null) {
             throw new NullPointerException();
         }

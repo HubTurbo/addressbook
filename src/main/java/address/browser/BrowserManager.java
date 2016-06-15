@@ -46,7 +46,7 @@ public class BrowserManager {
             try {
                 URL url = new URL("https://github.com/" + newValue);
                 if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
-                    hyperBrowser.get().loadUrls(url);
+                    hyperBrowser.get().loadUrl(url);
                 }
             } catch (MalformedURLException e) {
                 return;
@@ -108,7 +108,7 @@ public class BrowserManager {
                                                                     .map(p -> p.profilePageUrl())
                                                                     .collect(Collectors.toCollection(ArrayList::new));
         try {
-            Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
+            Page page = hyperBrowser.get().loadUrl(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
 
             if (!gPage.isPageLoading()) {
@@ -120,7 +120,7 @@ public class BrowserManager {
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
+            assert false : "Will never go into here if preconditions of loadUrl is fulfilled.";
         }
 
         selectedPersonUsername.unbind();

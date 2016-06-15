@@ -14,8 +14,8 @@ public class EmbeddedBrowserObjectMapper {
         switch(command) {
             case  EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT:
                 return EditorCommand.SCROLL_TO_END_OF_DOCUMENT;
+            default : throw new IllegalArgumentException("No such command");
         }
-        throw new IllegalArgumentException("No such command");
     }
 
     public static DOMEventType convertEbDomEventType(int eventType) {
