@@ -53,8 +53,7 @@ public class BrowserManagerTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testGetListOfPersonToLoadInFuture_listMoreThan3Person_nextTwoIndexPersonReturned() throws NoSuchFieldException, IllegalAccessException,
-                                                                         MalformedURLException, InterruptedException {
+    public void testGetListOfPersonToLoadInFuture_listMoreThan3Person_nextTwoIndexPersonReturned() {
         List<ReadOnlyViewablePerson> list = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons, 0);
         assertTrue(list.contains(filteredPersons.get(1)));
         assertTrue(list.contains(filteredPersons.get(2)));
@@ -62,10 +61,7 @@ public class BrowserManagerTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testGetListOfPersonToLoadInFuture_NearTheEndOfList_resultOverlappedToLowerIndex() throws NoSuchFieldException,
-                                                                                                IllegalAccessException,
-                                                                                                MalformedURLException,
-                                                                                                InterruptedException {
+    public void testGetListOfPersonToLoadInFuture_NearTheEndOfList_resultOverlappedToLowerIndex() {
         List<ReadOnlyViewablePerson> list = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons, 3);
         assertTrue(list.contains(filteredPersons.get(4)));
         assertTrue(list.contains(filteredPersons.get(0)));

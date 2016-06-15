@@ -194,6 +194,7 @@ public class HyperBrowserTest {
             } catch (MalformedURLException e) {
             }
             Thread.sleep(1);
+            count++;
         }
     }
 }
