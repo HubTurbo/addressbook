@@ -16,13 +16,4 @@ public class UrlUtil {
                                 && url1.getPath().replaceAll("/", "").toLowerCase().equals(url2.getPath().replaceAll("/", "").toLowerCase());
         return isSameBaseUrl;
     }
-
-    public static URL generateValidBlankUrl() {
-        try {
-            return new URL("");
-        } catch (MalformedURLException e) {
-            assert false : "Never happen";
-            return null;
-        }
-    }
 }

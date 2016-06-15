@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -41,7 +42,6 @@ public class UrlUtilTest {
         URL url2 = new URL("https://www.google.com/A/acb");
         assertFalse(UrlUtil.compareBaseUrls(url1, url2));
     }
-
 
 
 }

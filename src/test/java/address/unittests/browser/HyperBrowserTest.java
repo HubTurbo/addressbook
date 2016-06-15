@@ -60,7 +60,7 @@ public class HyperBrowserTest {
         HyperBrowser browser = new HyperBrowser(HyperBrowser.LIMITED_FEATURE_BROWSER, 1, Optional.empty());
         URL url = new URL("https://github.com");
         Page page = browser.loadUrls(url);
-        Thread.sleep(5);
+        Thread.sleep(1);
         assertTrue(UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), url));
     }
 
@@ -70,7 +70,7 @@ public class HyperBrowserTest {
 
         List<URL> listOfUrl = Arrays.asList(new URL("https://github.com"), new URL("https://google.com.sg"), new URL("https://sg.yahoo.com"));
         Page page = browser.loadUrls(listOfUrl.get(0), listOfUrl.subList(1,3));
-        Thread.sleep(5);
+        Thread.sleep(1);
         assertTrue(UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), listOfUrl.get(0)));
 
         Field pages = browser.getClass().getDeclaredField("pages");
