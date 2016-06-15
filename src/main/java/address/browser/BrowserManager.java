@@ -86,7 +86,7 @@ public class BrowserManager {
 
     public static void initializeBrowser() {
         if (Environment.isMac()) {
-            BrowserCore.initialize();
+            //BrowserCore.initialize();
         }
         LoggerProvider.setLevel(Level.SEVERE);
     }
