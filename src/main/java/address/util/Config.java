@@ -65,7 +65,7 @@ public class Config {
         if (config == null) {
             config = new Config();
             if (config.hasExistingConfigFile()) {
-                config.readFromConfigFile();
+                config.setConfigFileValues();
             } else {
                 config.initializeConfigFile();
             }
@@ -93,25 +93,25 @@ public class Config {
     }
 
     /**
-     * Reads from the config file
+     * Reads from the config file, and updates this object's values
      */
-    private void readFromConfigFile() {
-        File configFile = new File(CONFIG_FILE);
+    private void setConfigFileValues() {
         try {
-            readAndSetConfigFileValues(new Ini(configFile));
+            Ini iniFile = new Ini(new File(CONFIG_FILE));
+            setValues(iniFile);
         } catch (IOException e) {
             logger.warn("Error reading from config file.");
         }
     }
 
-    private void readAndSetConfigFileValues(Ini iniFile) throws IOException {
+    private void setValues(Ini iniFile) throws IOException {
         setMainSectionValues(iniFile.get(MAIN_SECTION));
         setLoggingSectionValues(iniFile.get(LOGGING_SECTION));
         setCloudSectionValues(iniFile.get(CLOUD_SECTION));
     }
 
     /**
-     * Sets the config public variables according to the values read from the given section
+     * Sets the config public variables according to the values read from the given logging section
      * Empty fields in specialLogLevels are treated as blank
      *
      * @param loggingSection
