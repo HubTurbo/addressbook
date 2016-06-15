@@ -1,7 +1,7 @@
 package address.sync.model;
 
-import address.util.LocalDateAdapter;
-import address.util.LocalDateTimeAdapter;
+import address.util.XmlLocalDateAdapter;
+import address.util.XmlLocalDateTimeAdapter;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -117,7 +117,7 @@ public class CloudPerson {
     }
 
     @XmlElement(name = "lastUpdatedAt")
-    @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
+    @XmlJavaTypeAdapter(XmlLocalDateTimeAdapter.class)
     public LocalDateTime getLastUpdatedAt() {
         return lastUpdatedAt;
     }
@@ -127,7 +127,7 @@ public class CloudPerson {
     }
 
     @XmlElement(name = "birthday")
-    @XmlJavaTypeAdapter(LocalDateAdapter.class)
+    @XmlJavaTypeAdapter(XmlLocalDateAdapter.class)
     public LocalDate getBirthday() {
         return birthday;
     }
