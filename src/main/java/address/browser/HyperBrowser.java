@@ -137,14 +137,14 @@ public class HyperBrowser {
 
         if (futureUrl.size() + 1 > noOfPages) {
             throw new IllegalArgumentException("The HyperBrowser can not load " + (futureUrl.size() + 1) + "URLs. "
-                    + "The HyperBrowser is configured to load a maximum of " + noOfPages + "URL.");
+                    + "The HyperBrowser is configured to load a maximum of " + noOfPages +  "URLs.");
         }
 
         clearPagesNotRequired(getListOfUrlToBeLoaded(url, futureUrl));
         Page page = loadPage(url);
         replaceBrowserView(page.getBrowser().getBrowserView());
         displayedUrl = url;
-        futureUrl.forEach(fUrl -> loadPage(fUrl));
+        futureUrl.forEach(this::loadPage);
 
         return page;
     }
@@ -199,6 +199,8 @@ public class HyperBrowser {
                         return false;
                     }
                 } catch (MalformedURLException e) {
+                    logger.warn("Malformed URL detected in existing pages.");
+                    // TODO proper handling instead of just logging
                 }
             }
             return true;

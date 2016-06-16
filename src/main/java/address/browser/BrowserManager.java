@@ -53,8 +53,10 @@ public class BrowserManager {
         this.filteredPersons = filteredPersons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
+            logger.info("Headless mode detected, not initializing HyperBrowser.");
             hyperBrowser = Optional.empty();
         } else {
+            logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
             hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER,
                                        HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES, BrowserManagerUtil.getBrowserInitialScreen()));
         }
@@ -64,6 +66,7 @@ public class BrowserManager {
         if (Environment.isMac()) {
             BrowserCore.initialize();
         }
+        logger.debug("Suppressing browser logs");
         LoggerProvider.setLevel(Level.SEVERE);
     }
 
@@ -81,7 +84,7 @@ public class BrowserManager {
         ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons,
                                                                                      indexOfPersonInListOfContacts);
         ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
-                                                                    .map(p -> p.profilePageUrl())
+                                                                    .map(ReadOnlyViewablePerson::profilePageUrl)
                                                                     .collect(Collectors.toCollection(ArrayList::new));
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
@@ -90,9 +93,7 @@ public class BrowserManager {
             if (!gPage.isPageLoading()) {
                 gPage.automateClickingAndScrolling();
             }
-            gPage.setPageLoadFinishListener(b -> {
-                gPage.automateClickingAndScrolling();
-            });
+            gPage.setPageLoadFinishListener(b -> gPage.automateClickingAndScrolling());
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -112,11 +113,10 @@ public class BrowserManager {
         hyperBrowser.get().dispose();
     }
 
-    public AnchorPane getHyperBrowserView(){
+    public AnchorPane getHyperBrowserView() {
         if (!hyperBrowser.isPresent()) {
             return new AnchorPane();
         }
         return hyperBrowser.get().getHyperBrowserView();
     }
-
 }
