@@ -2,46 +2,39 @@ package address.util;
 
 import javafx.application.Platform;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
- * Extensions to JavaFX's Platform class.
- * <p>
  * Contains utility methods for running code in various ways,
  * on or off (but close to) the JavaFX application thread.
  */
-public final class PlatformEx {
+public final class PlatformExecUtil {
 
-    private static final ExecutorService DELAY_EXECUTOR = Executors.newSingleThreadExecutor();
+    private static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
 
-    /**
-     * Similar to Platform.runLater, but with a small delay, so UI updates have time to propagate.
-     *
-     * @param action
-     */
-    public static void runLaterDelayed(Runnable action) {
-        runLaterDelayed(action, 300);
+    public static void runLater(Runnable action) {
+        Platform.runLater(action);
     }
 
-    public static void runLaterDelayed(Runnable action, int delay) {
-        DELAY_EXECUTOR.execute(() -> {
-                try {
-                    Thread.sleep(delay);
-                } catch (InterruptedException e) {
-                    assert false;
-                }
-                Platform.runLater(action);
-            });
+    public static <R> Future<R> callLater(Callable<R> callback) {
+        return new FutureTask<>(callback);
+    }
+
+    public static void runLaterDelayed(Runnable action, long delay, TimeUnit unit) {
+        SCHEDULER.schedule(() -> Platform.runLater(action), delay, unit);
+    }
+
+    public static <R> Future<R> callLaterDelayed(Callable<R> action, long delay, TimeUnit unit) {
+        final FutureTask<R> task = new FutureTask<R>(action);
+        SCHEDULER.schedule(() -> Platform.runLater(task), delay, unit);
+        return task;
     }
 
     /**
      * Blocks until the JavaFX event queue becomes empty.
      */
     public static void waitOnFxThread() {
-        runLaterAndWait(() -> {
-            });
+        runLaterAndWait(() -> {});
     }
 
     /**
@@ -80,6 +73,6 @@ public final class PlatformEx {
         runLaterAndWait(action);
     }
 
-    private PlatformEx() {
+    private PlatformExecUtil() {
     }
 }
