@@ -3,7 +3,7 @@ package address.ui;
 import address.controller.PersonCardController;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
-import address.util.MoveableList;
+import address.util.ReorderedList;
 import javafx.collections.ObservableList;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ListCell;
@@ -14,9 +14,9 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     private HBox cellGraphic;
 
-    MoveableList sortedList;
+    ReorderedList sortedList;
 
-    public PersonListViewCell(MoveableList sortedList) {
+    public PersonListViewCell(ReorderedList sortedList) {
         this.sortedList = sortedList;
         setOnDragDetected(event -> {
             if (getItem() == null) {

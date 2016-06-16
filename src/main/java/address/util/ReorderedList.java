@@ -8,12 +8,12 @@ import javafx.collections.ObservableList;
 /**
  * A wrapper class to contain the move-able(able to move items between different indexes) copy of the read-only person model.
  */
-public class MoveableList {
+public class ReorderedList {
 
     private ObservableList<ReadOnlyViewablePerson> actualList;
     private ObservableList<ReadOnlyViewablePerson> displayedList;
 
-    public MoveableList(ObservableList<ReadOnlyViewablePerson> actualList) {
+    public ReorderedList(ObservableList<ReadOnlyViewablePerson> actualList) {
         displayedList = FXCollections.observableArrayList();
         this.actualList = actualList;
         this.actualList.addListener((ListChangeListener<ReadOnlyViewablePerson>) c -> {
@@ -42,7 +42,7 @@ public class MoveableList {
     }
 
     /**
-     * Gets the observableList of this MoveableList.
+     * Gets the observableList of this ReorderedList.
      * @return
      */
     public ObservableList<ReadOnlyViewablePerson> getDisplayedList() {

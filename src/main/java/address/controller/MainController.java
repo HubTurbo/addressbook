@@ -9,6 +9,7 @@ import address.model.ModelManager;
 import address.util.Config;
 import address.browser.BrowserManager;
 
+import address.util.ReorderedList;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
@@ -55,11 +56,14 @@ public class MainController {
 
     private StatusBarHeaderController statusBarHeaderController;
 
+    private ReorderedList reorderedList;
+
     public MainController(MainApp mainApp, ModelManager modelManager) {
         EventManager.getInstance().registerHandler(this);
         this.modelManager = modelManager;
         this.mainApp = mainApp;
-        this.browserManager = new BrowserManager(modelManager.getAllViewablePersonsReadOnly());
+        this.reorderedList = new ReorderedList(modelManager.getAllViewablePersonsReadOnly());
+        this.browserManager = new BrowserManager(reorderedList.getDisplayedList());
     }
 
     public void start(Stage primaryStage) {
@@ -131,7 +135,7 @@ public class MainController {
             pane.getItems().add(personOverview);
             // Give the personOverviewController access to the main app and modelManager.
             PersonOverviewController personOverviewController = loader.getController();
-            personOverviewController.setConnections(this, modelManager);
+            personOverviewController.setConnections(this, modelManager, reorderedList);
 
         } catch (IOException e) {
             e.printStackTrace();
