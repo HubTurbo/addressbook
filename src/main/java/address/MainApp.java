@@ -97,6 +97,7 @@ public class MainApp extends Application {
 
     @Override
     public void stop() {
+        logger.info("Stopping application.");
         mainController.getPrimaryStage().hide();
         mainController.releaseResourcesForAppTermination();
         updateManager.applyUpdate();

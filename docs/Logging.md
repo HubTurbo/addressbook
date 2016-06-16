@@ -38,7 +38,6 @@ We are using [log4j2](http://logging.apache.org/log4j/2.x/) as our logger, and `
 - Possible guidelines to adhere to:
   - Include version of code being run in EVERY file
   - Don't manually concatenate strings, which may worsen performance
-    - This should apply to the code throughout, but is more significant when logging messages. If concatenation is really required, use `StringBuilder` or `StringBuffer`
     - Instead, use log4j2's `{}` to log parameters
   - `Catch` blocks that re-throw the exception should not log the exception as this may lead to repeated logging of the same exception
   - Avoid `NullPointerException`s, which may occur if we try to log some return value of an object's method, when the object itself may be null

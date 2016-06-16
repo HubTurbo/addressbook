@@ -356,13 +356,8 @@ public class MainController {
     }
 
     private void showFileOperationAlertAndWait(String description, String details, File file, Throwable cause) {
-        final StringBuilder content = new StringBuilder();
-        content.append(details)
-            .append(":\n")
-            .append(file == null ? "none" : file.getPath())
-            .append("\n\nDetails:\n======\n")
-            .append(cause.toString());
-
+        final String content = details + ":\n" + (file == null ? "none" : file.getPath()) + "\n\nDetails:\n======\n"
+                                + cause.toString();
         showAlertDialogAndWait(AlertType.ERROR, "File Op Error", description, content.toString());
     }
 
@@ -404,7 +399,7 @@ public class MainController {
 
     @Subscribe
     private void handleMaximizeAppRequestEvent(MaximizeAppRequestEvent event){
-        logger.info("Handling the maximize app window request");
+        logger.debug("Handling the maximize app window request");
         Platform.runLater(() -> {
             maximizeWindow();
         });

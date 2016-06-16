@@ -12,6 +12,8 @@ import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
 import address.prefs.PrefsManager;
 
+import address.util.AppLogger;
+import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.fxml.FXML;
@@ -26,6 +28,7 @@ import javafx.stage.FileChooser;
  * elements can be placed.
  */
 public class RootLayoutController {
+    private static AppLogger logger = LoggerManager.getLogger(RootLayoutController.class);
 
     private static final String SAVE_LOC_TEXT_PREFIX = "Save File: ";
     private static final String LOC_TEXT_NOT_SET = "[NOT SET]";

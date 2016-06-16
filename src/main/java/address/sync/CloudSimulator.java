@@ -73,6 +73,7 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse createPerson(String addressBookName, CloudPerson newPerson, String previousETag) {
+        logger.debug("createPerson called with: addressbook {}, person {}, prevETag {}", addressBookName, newPerson, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -110,6 +111,7 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse getPersons(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
+        logger.debug("getPersons called with: addressbook {}, page {}, resourcesperpage {}, prevETag {}", addressBookName, pageNumber, resourcesPerPage, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -149,6 +151,7 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse getTags(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
+        logger.debug("getTags called with: addressbook {}, page {}, resourcesperpage {}, prevETag {}", addressBookName, pageNumber, resourcesPerPage, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -186,6 +189,7 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse getRateLimitStatus(String previousETag) {
+        logger.debug("getRateLimitStatus called with: prevETag {}", previousETag);
         RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, getHeaders(cloudRateLimitStatus), getHeaders(cloudRateLimitStatus));
         String eTag = getResponseETag(cloudResponse);
         if (eTag.equals(previousETag)) return getNotModifiedResponse();
@@ -205,6 +209,8 @@ public class CloudSimulator implements ICloudSimulator {
     @Override
     public RawCloudResponse updatePerson(String addressBookName, int personId,
                                          CloudPerson updatedPerson, String previousETag) {
+
+        logger.debug("updatePerson called with: addressbook {}, personid {}, person {}, prevETag {}", addressBookName, personId, updatedPerson, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -242,6 +248,7 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse deletePerson(String addressBookName, int personId) {
+        logger.debug("deletePerson called with: addressbook {}, personid {}", addressBookName, personId);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -272,6 +279,7 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse createTag(String addressBookName, CloudTag newTag, String previousETag) {
+        logger.debug("createTag called with: addressbook {}, tag {}, prevETag {}", addressBookName, newTag, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -309,6 +317,7 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag, String previousETag) {
+        logger.debug("editTag called with: addressbook {}, tagname {}, tag {}, prevETag {}", addressBookName, oldTagName, updatedTag, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -346,6 +355,7 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse deleteTag(String addressBookName, String tagName) {
+        logger.debug("deleteTag called with: addressbook {}, tagname {}", addressBookName, tagName);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -375,6 +385,7 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse createAddressBook(String addressBookName) {
+        logger.debug("createAddressBook called with: addressbook {}", addressBookName);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -405,6 +416,7 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber, int resourcesPerPage, String previousETag) {
+        logger.debug("getUpdatedPersons called with: addressbook {}, time {}, pageno {}, resourcesperpage {}, prevETag {}", addressBookName, timeString, pageNumber, resourcesPerPage, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -488,10 +500,12 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private RawCloudResponse getNotModifiedResponse() {
+        logger.debug("Preparing not-modified response.");
         return new RawCloudResponse(HttpURLConnection.HTTP_NOT_MODIFIED, null, getHeaders(cloudRateLimitStatus));
     }
 
     private RawCloudResponse getEmptyResponse(int responseCode) {
+        logger.debug("Preparing empty response.");
         return new RawCloudResponse(responseCode, null, getHeaders(cloudRateLimitStatus));
     }
 
@@ -510,7 +524,7 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private RawCloudResponse getNetworkFailedResponse() {
-        logger.info("Cloud simulator: failure occurred! Could not retrieve data");
+        logger.info("Simulated network failure occurred!");
         return new RawCloudResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
     }
 
@@ -624,7 +638,7 @@ public class CloudSimulator implements ICloudSimulator {
         for (int i = 0; i < MAX_NUM_PERSONS_TO_ADD; i++) {
             if (shouldSimulateUnreliableNetwork && RANDOM_GENERATOR.nextDouble() <= ADD_TAG_PROBABILITY) {
                 CloudTag tag = new CloudTag(java.util.UUID.randomUUID().toString());
-                logger.info("Cloud simulator: adding tag '{}'", tag);
+                logger.debug("Cloud simulator: adding tag '{}'", tag);
                 tagList.add(tag);
             }
         }
