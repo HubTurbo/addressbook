@@ -39,7 +39,7 @@ public class BackupManager {
         File mainAppJar = FileUtil.getJarFileOfClass(MainApp.class);
 
         if (isRunFromBackupJar(mainAppJar.getName())) {
-            logger.info("Run from a backup; not creating backup");
+            logger.debug("Run from a backup; not creating backup");
             return true;
         }
 
@@ -48,7 +48,7 @@ public class BackupManager {
         try {
             FileUtil.copyFile(mainAppJar.toPath(), Paths.get(backupFilename), true);
         } catch (IOException e) {
-            logger.info("Failed to create backup");
+            logger.debug("Failed to create backup");
             e.printStackTrace();
             return false;
         }

@@ -29,7 +29,7 @@ public class DependencyTracker {
         Optional<String> classPath = getClassPathAttributeFromManifest();
 
         if (!classPath.isPresent()) {
-            logger.info("Class-path undefined");
+            logger.debug("Class-path undefined");
         } else {
             updateVersionDependency(Version.getCurrentVersion(),
                     new ArrayList<>(Arrays.asList(classPath.get().split("\\s+"))));
@@ -51,7 +51,7 @@ public class DependencyTracker {
         while (it.hasNext()) {
             Map.Entry<Version, List<String>> entry = it.next();
             if (dependenciesOfUnusedVersions.contains(entry.getKey())) {
-                logger.info("removing " + entry.getKey());
+                logger.debug("Removing " + entry.getKey());
                 it.remove();
             }
         }
@@ -64,7 +64,7 @@ public class DependencyTracker {
             try {
                 FileUtil.createFile(DEPENDENCY_HISTORY_FILE);
             } catch (IOException e) {
-                logger.info("Failed to create dependency file");
+                logger.debug("Failed to create dependency file");
                 e.printStackTrace();
             }
         }
@@ -72,17 +72,17 @@ public class DependencyTracker {
         try {
             FileUtil.writeToFile(DEPENDENCY_HISTORY_FILE, JsonUtil.toJsonString(dependenciesForVersionsInUse));
         } catch (JsonProcessingException e) {
-            logger.info("Failed to convert dependencies to JSON");
+            logger.debug("Failed to convert dependencies to JSON");
             e.printStackTrace();
         } catch (IOException e) {
-            logger.info("Failed to write dependencies to file");
+            logger.debug("Failed to write dependencies to file");
             e.printStackTrace();
         }
     }
 
     private void readVersionDependency() {
         if (!DEPENDENCY_HISTORY_FILE.exists()) {
-            logger.info("Dependencies file does not exist yet");
+            logger.debug("Dependencies file does not exist yet");
             return;
         }
 
@@ -91,7 +91,7 @@ public class DependencyTracker {
             dependenciesForVersionsInUse = JsonUtil.fromJsonStringToGivenType(json,
                     new TypeReference<HashMap<Version, List<String>>>() {});
         } catch (IOException e) {
-            logger.info("Failed to read dependencies from file");
+            logger.debug("Failed to read dependencies from file");
             e.printStackTrace();
         }
     }
@@ -104,7 +104,7 @@ public class DependencyTracker {
         String className = mainAppClass.getSimpleName() + ".class";
         String resourcePath = mainAppClass.getResource(className).toString();
         if (!resourcePath.startsWith("jar")) {
-            logger.info("Not run from JAR");
+            logger.debug("Not run from JAR");
             return Optional.empty();
         }
         String manifestPath = resourcePath.substring(0, resourcePath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
@@ -114,7 +114,7 @@ public class DependencyTracker {
         try {
             manifest = new Manifest(new URL(manifestPath).openStream());
         } catch (IOException e) {
-            logger.info("Manifest can't be read, not running dependency check");
+            logger.debug("Manifest can't be read, not running dependency check");
             e.printStackTrace();
             return Optional.empty();
         }

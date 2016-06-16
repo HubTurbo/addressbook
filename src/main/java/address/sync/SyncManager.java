@@ -88,7 +88,7 @@ public class SyncManager {
      */
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
-            logger.info("Attempting to update at {}", System.currentTimeMillis());
+            logger.info("Attempting to run periodic update.");
             EventManager.getInstance().post(new SyncStartedEvent());
 
             if (!activeAddressBook.isPresent()) {
@@ -144,7 +144,7 @@ public class SyncManager {
                 throw new SyncErrorException("Unexpected missing data from response.");
             }
 
-            logger.info("Persons updates from cloud successfully retrieved.");
+            logger.debug("Response for persons updates retrieved.");
             lastSuccessfulPersonsUpdate = LocalDateTime.now();
             return personsResponse.getData().get();
         } catch (IOException e) {
@@ -169,7 +169,7 @@ public class SyncManager {
                     lastTagsETag = tagsResponse.getETag();
                     // fallthrough
                 case HttpURLConnection.HTTP_NOT_MODIFIED:
-                    logger.info("Tag updates from cloud successfully retrieved.");
+                    logger.debug("Response for tags update retrieved.");
                     lastSuccessfulTagsUpdate = LocalDateTime.now();
                     return tagsResponse.getData();
                 default:

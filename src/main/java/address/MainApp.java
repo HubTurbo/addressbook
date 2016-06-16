@@ -54,6 +54,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        logger.info("Starting application: V{}.{}.{}", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
         setupComponents();
         mainController.start(primaryStage);
         updateManager.run();
@@ -86,7 +87,7 @@ public class MainApp extends Application {
                 message.append("- " + missingDependency + "\n");
             }
             String missingDependenciesMessage = message.toString().trim();
-            logger.info(missingDependenciesMessage);
+            logger.warn(missingDependenciesMessage);
 
             mainController.showAlertDialogAndWait(Alert.AlertType.WARNING, "Missing Dependencies",
                     "There are missing dependencies. App may not work properly.",

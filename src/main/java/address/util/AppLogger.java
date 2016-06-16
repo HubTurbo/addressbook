@@ -72,6 +72,16 @@ public class AppLogger {
         }
     }
 
+    public <T> String convertListToParams(List<T> listOfObjects) {
+        if (listOfObjects == null) return null;
+
+        if (logger.isDebugEnabled()) {
+            return Arrays.deepToString(listOfObjects.toArray());
+        } else {
+            return String.valueOf(listOfObjects.size());
+        }
+    }
+
     // this method is required since info(message, obj, obj) seems to be problematic
     private void infoEvent(String message, Object... params) {
         logger.info(message, params);
