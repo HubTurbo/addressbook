@@ -109,7 +109,7 @@ public class SyncManager {
                 EventManager.getInstance().post(new UpdateCompletedEvent<>(updatedTagList, "Tag updates completed."));
                 EventManager.getInstance().post(new SyncCompletedEvent());
             } catch (SyncErrorException e) {
-                logger.info("Error obtaining updates.");
+                logger.warn("Error obtaining updates.");
                 EventManager.getInstance().post(new SyncFailedEvent(e.getMessage()));
             }
         };
@@ -128,8 +128,6 @@ public class SyncManager {
      * @throws SyncErrorException if bad response code, missing data or network error
      */
     private List<Person> getUpdatedPersons(String addressBookName) throws SyncErrorException {
-        logger.info("Retrieving person data from cloud.");
-
         try {
             ExtractedCloudResponse<List<Person>> personsResponse;
             if (lastSuccessfulPersonsUpdate == null) {
@@ -137,7 +135,7 @@ public class SyncManager {
                 personsResponse = cloudService.getPersons(addressBookName);
             } else {
                 logger.debug("Last persons update at: {}", lastSuccessfulPersonsUpdate);
-                 personsResponse = cloudService.getUpdatedPersonsSince(addressBookName, lastSuccessfulPersonsUpdate);
+                personsResponse = cloudService.getUpdatedPersonsSince(addressBookName, lastSuccessfulPersonsUpdate);
             }
             if (personsResponse.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 throw new SyncErrorException(personsResponse.getResponseCode() + " response from cloud instead of expected " + HttpURLConnection.HTTP_OK + " during persons update.");
@@ -145,6 +143,8 @@ public class SyncManager {
             if (!personsResponse.getData().isPresent()) {
                 throw new SyncErrorException("Unexpected missing data from response.");
             }
+
+            logger.info("Persons updates from cloud successfully retrieved.");
             lastSuccessfulPersonsUpdate = LocalDateTime.now();
             return personsResponse.getData().get();
         } catch (IOException e) {
@@ -153,8 +153,6 @@ public class SyncManager {
     }
 
     private Optional<List<Tag>> getUpdatedTags(String addressBookName) throws SyncErrorException {
-        logger.info("Retrieving tag data from cloud.");
-
         try {
             if (lastTagsETag == null) {
                 logger.debug("No previous tag updates found.");
@@ -163,23 +161,18 @@ public class SyncManager {
             }
 
             ExtractedCloudResponse<List<Tag>> tagsResponse = cloudService.getTags(addressBookName, lastTagsETag);
-            logger.debug("Obtained response from cloud: "  + tagsResponse);
             switch (tagsResponse.getResponseCode()) {
                 case HttpURLConnection.HTTP_OK:
                     if (!tagsResponse.getData().isPresent()) {
-                        logger.info("Missing data from response");
                         throw new SyncErrorException("Unexpected missing data from response.");
                     }
                     lastTagsETag = tagsResponse.getETag();
                     // fallthrough
                 case HttpURLConnection.HTTP_NOT_MODIFIED:
+                    logger.info("Tag updates from cloud successfully retrieved.");
                     lastSuccessfulTagsUpdate = LocalDateTime.now();
-
-                    logger.info("Returning tags response: " + tagsResponse.getData());
                     return tagsResponse.getData();
                 default:
-
-                    logger.info("Response code: " + tagsResponse.getResponseCode());
                     throw new SyncErrorException(tagsResponse.getResponseCode() + " response from cloud instead of expected " + HttpURLConnection.HTTP_OK + " or " + HttpURLConnection.HTTP_NOT_MODIFIED + " during tags update.");
 
             }
