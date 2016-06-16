@@ -4,6 +4,9 @@ import address.events.BaseEvent;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class AppLogger {
     private Logger logger;
 
@@ -32,6 +35,10 @@ public class AppLogger {
         logger.error(message, params);
     }
 
+    public void error(String message, Throwable t) {
+        logger.error(message, t);
+    }
+
     public void fatal(String message, Object... params) {
         logger.fatal(message, params);
     }
@@ -55,6 +62,26 @@ public class AppLogger {
 
     public void infoEvent(BaseEvent event) {
         infoEvent("{}: {}", event.getClass().getSimpleName(), event.toString());
+    }
+
+    /**
+     * Logs lists of objects
+     *
+     * Logs the contents of the list if debug is enabled, else simply logs the size of the list
+     *
+     * @param message
+     * @param listOfObjects
+     */
+    public <T> void logList(String message, List<T> listOfObjects) {
+        if (listOfObjects == null) {
+            info(message, null);
+            return;
+        }
+        if (logger.isDebugEnabled()) {
+            debug(message, Arrays.deepToString(listOfObjects.toArray()));
+        } else {
+            info(message, listOfObjects.size());
+        }
     }
 
     // this method is required since info(message, obj, obj) seems to be problematic

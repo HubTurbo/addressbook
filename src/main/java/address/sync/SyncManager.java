@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
 
-import org.apache.logging.log4j.Logger;
-
 /**
  * Syncs data between the cloud and the primary data file
  */
@@ -70,7 +68,10 @@ public class SyncManager {
      * @param simulateUnreliableNetwork
      */
     public void startSyncingData(long interval, boolean simulateUnreliableNetwork) {
-        if (interval <= 0) return;
+        if (interval <= 0) {
+            logger.warn("Update interval specified is not positive: " + interval);
+            return;
+        }
         if (cloudService == null) {
             this.cloudService = new CloudService(simulateUnreliableNetwork);
         }
@@ -96,22 +97,20 @@ public class SyncManager {
             }
             try {
                 List<Person> updatedPersons = getUpdatedPersons(activeAddressBook.get());
-                logger.info("{} updated persons found.", updatedPersons.size());
+                logger.logList("Found updated persons: {}", updatedPersons);
                 EventManager.getInstance().post(new UpdateCompletedEvent<>(updatedPersons, "Person updates completed."));
 
                 Optional<List<Tag>> updatedTagList = getUpdatedTags(activeAddressBook.get());
                 if (updatedTagList.isPresent()) {
-                    logger.info("Acquired new list of {} tags.", updatedPersons.size());
+                    logger.logList("Acquired new list of tags: {}", updatedTagList.get());
                 } else {
                     logger.info("No updates to tags.");
                 }
                 EventManager.getInstance().post(new UpdateCompletedEvent<>(updatedTagList, "Tag updates completed."));
+                EventManager.getInstance().post(new SyncCompletedEvent());
             } catch (SyncErrorException e) {
                 logger.info("Error obtaining updates.");
                 EventManager.getInstance().post(new SyncFailedEvent(e.getMessage()));
-                return;
-            } finally {
-                EventManager.getInstance().post(new SyncCompletedEvent());
             }
         };
 
@@ -164,21 +163,27 @@ public class SyncManager {
             }
 
             ExtractedCloudResponse<List<Tag>> tagsResponse = cloudService.getTags(addressBookName, lastTagsETag);
+            logger.debug("Obtained response from cloud: "  + tagsResponse);
             switch (tagsResponse.getResponseCode()) {
                 case HttpURLConnection.HTTP_OK:
                     if (!tagsResponse.getData().isPresent()) {
+                        logger.info("Missing data from response");
                         throw new SyncErrorException("Unexpected missing data from response.");
                     }
                     lastTagsETag = tagsResponse.getETag();
                     // fallthrough
                 case HttpURLConnection.HTTP_NOT_MODIFIED:
                     lastSuccessfulTagsUpdate = LocalDateTime.now();
+
+                    logger.info("Returning tags response: " + tagsResponse.getData());
                     return tagsResponse.getData();
                 default:
+
+                    logger.info("Response code: " + tagsResponse.getResponseCode());
                     throw new SyncErrorException(tagsResponse.getResponseCode() + " response from cloud instead of expected " + HttpURLConnection.HTTP_OK + " or " + HttpURLConnection.HTTP_NOT_MODIFIED + " during tags update.");
 
             }
-        } catch (IOException e) {
+        } catch (SyncErrorException | IOException e) {
             throw new SyncErrorException("Error getting updated tags.");
         }
     }
