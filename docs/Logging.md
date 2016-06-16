@@ -1,10 +1,10 @@
 # Logging
 
-We are using [log4j2](http://logging.apache.org/log4j/2.x/) as our logger, and `LoggerManager` is used as a wraparound of the logger to control the logging levels programmatically according to our requirements.
+We are using [log4j2](http://logging.apache.org/log4j/2.x/) as our logger, and `AppLogger` is used as a wraparound of the logger to control the logging levels programmatically according to our requirements.
 
 **Note to developers**
-- The logging level can be controlled using the `loggingLevel` setting in the configuration file (See [Configuration](docs/Configuration.md)).
-- The global-logger can be obtained using `LoggerManager.getLogger(Class)` which will log messages according to `src/main/resources/log4j2.xml`'s specified pattern
+- The logging level can be controlled using the `loggingLevel` setting in the configuration file (See [Configuration](../docs/Configuration.md)).
+- The global-logger `AppLogger` can be obtained using `LoggerManager.getLogger(Class)` which will log messages according to `src/main/resources/log4j2.xml`'s specified pattern
 
 
 # Guidelines
