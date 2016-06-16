@@ -177,10 +177,7 @@ public class ViewablePerson extends ViewableDataType<Person> implements ReadOnly
         if (ViewablePerson.class.isAssignableFrom(other.getClass())) {
             return backing.equals(((ViewablePerson) other).backing);
         }
-        if (Person.class.isAssignableFrom(other.getClass())) {
-            return backing.equals(other);
-        }
-        return false;
+        return Person.class.isAssignableFrom(other.getClass()) && backing.equals(other);
     }
 
     @Override
