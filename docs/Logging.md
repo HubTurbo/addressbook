@@ -11,8 +11,10 @@ We are using [log4j2](http://logging.apache.org/log4j/2.x/) as our logger, and `
 
 ## Logging Levels
 
-- ERROR
-  - Critical use case affected, which may possible cause termination of the application
+- FATAL
+  - Critical use case affected, which may possibly cause the termination of the application
+
+- ERROR **(NOT USED)**
 
 - WARN
   - Can continue, but with caution
@@ -29,6 +31,7 @@ We are using [log4j2](http://logging.apache.org/log4j/2.x/) as our logger, and `
 
 - TRACE
   - Everywhere, e.g. entry and exit of ALL methods, including the parameters being given/returned
+  - Will not be using log4j2 for this, will explore AOP at a future date
 
 ## General
 

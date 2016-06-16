@@ -22,21 +22,9 @@ public class AppLogger {
         logger.debug(message, params);
     }
 
-    public void trace(String message, Object... params) {
-        logger.trace(message, params);
-    }
-
     public void warn(String message, Object... params) {
         logger.warn(message, params);
 
-    }
-
-    public void error(String message, Object... params) {
-        logger.error(message, params);
-    }
-
-    public void error(String message, Throwable t) {
-        logger.error(message, t);
     }
 
     public void fatal(String message, Object... params) {
