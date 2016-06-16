@@ -4,6 +4,8 @@ import address.browser.page.GithubProfilePage;
 import address.browser.page.Page;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.util.AppLogger;
+import address.util.LoggerManager;
 import address.util.UrlUtil;
 
 import com.teamdev.jxbrowser.chromium.BrowserCore;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
  * Manages the AddressBook browser.
  */
 public class BrowserManager {
+    private static AppLogger logger = LoggerManager.getLogger(BrowserManager.class);
 
     private ObservableList<ReadOnlyViewablePerson> filteredPersons;
 
@@ -40,7 +43,8 @@ public class BrowserManager {
                     hyperBrowser.get().loadUrl(url);
                 }
             } catch (MalformedURLException e) {
-                return;
+                logger.warn("Malformed URL obtained, not attempting to load.");
+                // TODO handle instead of simply logging a message
             }
         };
 
@@ -109,7 +113,7 @@ public class BrowserManager {
     }
 
     public AnchorPane getHyperBrowserView(){
-        if (!hyperBrowser.isPresent()){
+        if (!hyperBrowser.isPresent()) {
             return new AnchorPane();
         }
         return hyperBrowser.get().getHyperBrowserView();

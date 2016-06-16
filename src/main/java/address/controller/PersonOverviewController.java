@@ -16,6 +16,8 @@ import address.status.PersonDeletedStatus;
 import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
 import address.util.ReorderedList;
+import address.util.AppLogger;
+import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
@@ -30,6 +32,7 @@ import java.util.Optional;
 import java.util.concurrent.*;
 
 public class PersonOverviewController {
+    private static AppLogger logger = LoggerManager.getLogger(PersonOverviewController.class);
 
     @FXML
     private ListView<ReadOnlyViewablePerson> personListView;
@@ -67,6 +70,7 @@ public class PersonOverviewController {
         personListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue != null) {
+                        logger.debug("Person in list view clicked. Loading GitHub profile page: '{}'", newValue);
                         mainController.loadGithubProfilePage(newValue);
                     }
                 });

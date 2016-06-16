@@ -57,7 +57,7 @@ public class AppLogger {
      */
     public <T> void logList(String message, List<T> listOfObjects) {
         if (listOfObjects == null) {
-            info(message, null);
+            info(message, listOfObjects);
             return;
         }
         if (logger.isDebugEnabled()) {

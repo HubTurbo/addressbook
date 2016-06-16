@@ -407,7 +407,7 @@ public class MainController {
 
     @Subscribe
     private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event){
-        logger.info("Handling the minimize app window request");
+        logger.debug("Handling the minimize app window request");
         Platform.runLater(() -> {
             minimizeWindow();
         });

@@ -4,7 +4,9 @@ import address.browser.embeddedbrowser.EmbeddedBrowser;
 import address.browser.javabrowser.WebViewBrowserAdapter;
 import address.browser.jxbrowser.JxBrowserAdapter;
 import address.browser.page.Page;
+import address.util.AppLogger;
 import address.util.FxViewUtil;
+import address.util.LoggerManager;
 import address.util.UrlUtil;
 import com.teamdev.jxbrowser.chromium.Browser;
 import javafx.scene.Node;
@@ -22,7 +24,7 @@ import java.util.stream.Collectors;
  * called in the future.
  */
 public class HyperBrowser {
-
+    private static AppLogger logger = LoggerManager.getLogger(HyperBrowser.class);
 
     public static final int RECOMMENDED_NUMBER_OF_PAGES = 3;
 
@@ -133,10 +135,6 @@ public class HyperBrowser {
             throw new NullPointerException();
         }
 
-        if (futureUrl == null) {
-            futureUrl = new ArrayList<>(0);
-        }
-
         if (futureUrl.size() + 1 > noOfPages) {
             throw new IllegalArgumentException("The HyperBrowser can not load " + (futureUrl.size() + 1) + "URLs. "
                     + "The HyperBrowser is configured to load a maximum of " + noOfPages + "URL.");
@@ -192,7 +190,7 @@ public class HyperBrowser {
      * @return An array list of pages that are cleared from paging system.
      */
     private synchronized void clearPagesNotRequired(List<URL> urlsToLoad) {
-
+        logger.debug("Clearing pages which are no longer required.");
         Deque<Page> listOfNotRequiredPage = pages.stream().filter(page
               -> {
             for (URL url: urlsToLoad){
@@ -239,6 +237,7 @@ public class HyperBrowser {
             hyperBrowserView.getChildren().removeAll(hyperBrowserView.getChildren());
         }
         hyperBrowserView.getChildren().add(browserView);
+        logger.debug("Updated browser view.");
     }
 
     public URL getDisplayedUrl() {
