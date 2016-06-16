@@ -25,7 +25,7 @@ public class StorageManager extends ComponentManager {
     private PrefsManager prefsManager;
 
     public StorageManager(ModelManager modelManager,
-                          PrefsManager prefsManager){
+                          PrefsManager prefsManager) {
 
         super();
         this.modelManager = modelManager;

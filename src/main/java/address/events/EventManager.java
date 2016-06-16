@@ -27,7 +27,7 @@ public class EventManager {
         eventBus = new EventBus();
     }
 
-    public EventManager registerHandler(Object handler){
+    public EventManager registerHandler(Object handler) {
         eventBus.register(handler);
         return this;
     }
