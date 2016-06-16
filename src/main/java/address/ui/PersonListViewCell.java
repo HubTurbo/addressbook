@@ -62,15 +62,9 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
             if (dragboard.hasString()) {
                 ObservableList<ReadOnlyViewablePerson> list = getListView().getItems();
-                try {
-                    sortedList.moveElement(Integer.valueOf(dragboard.getString()), list.indexOf(getItem()));
-                } catch (UnsupportedOperationException e) {
-                    e.printStackTrace();
-                }
+                sortedList.moveElement(Integer.valueOf(dragboard.getString()), list.indexOf(getItem()));
             }
-
             event.setDropCompleted(true);
-
             event.consume();
         });
 
