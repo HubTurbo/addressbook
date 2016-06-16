@@ -1,10 +1,11 @@
 package address.util;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
-import com.sun.corba.se.impl.orbutil.concurrent.Mutex;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+
+import java.util.concurrent.Semaphore;
 
 /**
  * A wrapper class to contain the move-able(able to move items between different indexes) copy of the read-only person model.
@@ -14,7 +15,7 @@ public class ReorderedList {
     private ObservableList<ReadOnlyViewablePerson> actualList;
     private ObservableList<ReadOnlyViewablePerson> displayedList;
 
-    private Mutex mutex = new Mutex();
+    private Semaphore mutex = new Semaphore(1);
 
     public ReorderedList(ObservableList<ReadOnlyViewablePerson> actualList) {
         displayedList = FXCollections.observableArrayList();
