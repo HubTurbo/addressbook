@@ -8,6 +8,7 @@ import javafx.application.Platform;
  * A github profile page
  */
 public class GithubProfilePage implements PageInterface{
+    //TODO: some code in this class can be generalized to utility methods and pushed to the Page class
 
     Page page;
     EmbeddedBrowser browser;
@@ -24,6 +25,8 @@ public class GithubProfilePage implements PageInterface{
         EbElement userRepoList = browser.getDomElement().findElementByClass("repo-list js-repo-list");
         EbElement organizationRepoList = browser.getDomElement().findElementByClass("org-repositories");
 
+        //TODO: Page can have methods like called isElementPresent getElementByClass verifyPresence(String... classnames)
+
         return isElementFoundToNavigateToRepoPage(repoContainer, repoLink)
                 || isRepoElementExist(userRepoList, organizationRepoList);
     }
@@ -32,12 +35,14 @@ public class GithubProfilePage implements PageInterface{
      * Automates clicking on the Repositories tab and scrolling to the bottom of the page.
      */
     public void automateClickingAndScrolling() {
+        //TODO: click and scrollTo should be two methods in the Page class?
         synchronized (this) {
             try {
                 EbElement repoContainer = browser.getDomElement().findElementById("js-pjax-container");
                 EbElement repoLink = browser.getDomElement().findElementByClass("octicon octicon-repo");
                 EbElement userRepoList = browser.getDomElement().findElementByClass("repo-list js-repo-list");
                 EbElement organizationRepoList = browser.getDomElement().findElementById("org-repositories");
+
 
                 if (isRepoElementExist(userRepoList, organizationRepoList)) {
                     browser.executeCommand(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT);

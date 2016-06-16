@@ -1,4 +1,5 @@
 package address.browser.javabrowser;
+//TODO: javabrowser --> fxbrowser?
 
 import address.browser.embeddedbrowser.EbLoadListener;
 import address.browser.embeddedbrowser.EmbeddedBrowser;
@@ -80,6 +81,7 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
 
     @Override
     public void executeCommand(int command) {
+        //TODO: fail assertion or throw runtime error if not implemented yet
     }
 
     @Override
