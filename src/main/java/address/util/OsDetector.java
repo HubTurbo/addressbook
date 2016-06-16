@@ -65,7 +65,7 @@ public class OsDetector {
     }
 
     private static Architecture unknownArchitecture(Exception e) {
-        logger.info("Unknown Linux kernel architecture: " + e.getLocalizedMessage());
+        logger.info("Unknown Linux kernel architecture: {}", e.getLocalizedMessage());
         return Architecture.UNKNOWN;
     }
 

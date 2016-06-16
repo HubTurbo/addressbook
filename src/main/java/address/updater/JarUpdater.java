@@ -86,8 +86,8 @@ public class JarUpdater extends Application {
             throw new IllegalArgumentException("Please specify the filepath to update specification " +
                                                "and the source directory of the update files.");
         } else {
-            logger.info("update-specification: " + updateSpecificationFilepath);
-            logger.info("source-dir: " + sourceDir);
+            logger.info("update-specification: {}", updateSpecificationFilepath);
+            logger.info("source-dir: {}", sourceDir);
         }
 
         List<String> localUpdateData;
@@ -128,7 +128,7 @@ public class JarUpdater extends Application {
      * the process has not ended yet. As such, we will make several tries with wait.
      */
     private void applyUpdate(Path source, Path dest) throws IOException {
-        logger.info("Applying update for " + dest.toString());
+        logger.info("Applying update for {}", dest.toString());
 
         if (!FileUtil.isFileExists(dest.toString())) {
             FileUtil.createParentDirsOfFile(dest.toFile());

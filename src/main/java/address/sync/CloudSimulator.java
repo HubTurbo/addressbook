@@ -515,7 +515,7 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private boolean hasApiQuotaRemaining() {
-        logger.info("Current quota left: " + cloudRateLimitStatus.getQuotaRemaining());
+        logger.info("Current quota left: {}", cloudRateLimitStatus.getQuotaRemaining());
         return cloudRateLimitStatus.getQuotaRemaining() > 0;
     }
 
@@ -614,7 +614,7 @@ public class CloudSimulator implements ICloudSimulator {
             if (shouldSimulateUnreliableNetwork && RANDOM_GENERATOR.nextDouble() <= ADD_PERSON_PROBABILITY) {
                 CloudPerson person = new CloudPerson(java.util.UUID.randomUUID().toString(),
                                                      java.util.UUID.randomUUID().toString());
-                logger.info("Cloud simulator: adding " + person);
+                logger.info("Cloud simulator: adding '{}'", person);
                 personList.add(person);
             }
         }
@@ -624,7 +624,7 @@ public class CloudSimulator implements ICloudSimulator {
         for (int i = 0; i < MAX_NUM_PERSONS_TO_ADD; i++) {
             if (shouldSimulateUnreliableNetwork && RANDOM_GENERATOR.nextDouble() <= ADD_TAG_PROBABILITY) {
                 CloudTag tag = new CloudTag(java.util.UUID.randomUUID().toString());
-                logger.info("Cloud simulator: adding tag '" + tag + "'");
+                logger.info("Cloud simulator: adding tag '{}'", tag);
                 tagList.add(tag);
             }
         }
@@ -632,7 +632,7 @@ public class CloudSimulator implements ICloudSimulator {
 
     private void modifyCloudPersonBasedOnChance(CloudPerson cloudPerson) {
         if (!shouldSimulateUnreliableNetwork || RANDOM_GENERATOR.nextDouble() > MODIFY_PERSON_PROBABILITY) return;
-        logger.info("Cloud simulator: modifying person '" + cloudPerson + "'");
+        logger.debug("Cloud simulator: modifying person '{}'", cloudPerson);
         cloudPerson.setCity(java.util.UUID.randomUUID().toString());
         cloudPerson.setStreet(java.util.UUID.randomUUID().toString());
         cloudPerson.setPostalCode(String.valueOf(RANDOM_GENERATOR.nextInt(999999)));
@@ -640,7 +640,7 @@ public class CloudSimulator implements ICloudSimulator {
 
     private void modifyCloudTagBasedOnChance(CloudTag cloudTag) {
         if (!shouldSimulateUnreliableNetwork || RANDOM_GENERATOR.nextDouble() > MODIFY_TAG_PROBABILITY) return;
-        logger.info("Cloud simulator: modifying tag '" + cloudTag + "'");
+        logger.debug("Cloud simulator: modifying tag '{}'", cloudTag);
         cloudTag.setName(UUID.randomUUID().toString());
     }
 
@@ -649,7 +649,7 @@ public class CloudSimulator implements ICloudSimulator {
         try {
             TimeUnit.SECONDS.sleep(delayAmount);
         } catch (InterruptedException e) {
-            logger.info("Error occurred while delaying cloud response.");
+            logger.warn("Error occurred while delaying cloud response.");
         }
     }
 

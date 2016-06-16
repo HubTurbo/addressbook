@@ -40,16 +40,16 @@ public class KeyBindingsManager extends ComponentManager{
         previousKeyEvent = currentKeyEvent;
 
         if (!kb.isPresent()) {
-            logger.debug("Not a recognized key binding : " + currentKeyEvent);
+            logger.debug("Not a recognized key binding: {}", currentKeyEvent);
             return;
         }
 
         Optional<BaseEvent> event = kb.get().getEventToRaise();
         if (event.isPresent()){
-            logger.info("Handling " + kb.get());
+            logger.info("Handling {}", kb.get());
             raise (event.get());
         } else {
-            logger.info("Not raising an event because it is handled elsewhere : " + kb.get());
+            logger.info("Not raising an event because it is handled elsewhere: {}", kb.get());
         }
     }
 

@@ -102,9 +102,9 @@ public class Config {
             Ini iniFile = new Ini(configFile);
             boolean hasAllFields = setValues(iniFile);
             if (hasAllFields) {
-                logger.info("Config values successfully read: '" + CONFIG_FILE + "'.");
+                logger.info("Config values successfully read: '{}'", CONFIG_FILE);
             } else {
-                logger.warn("Config fields are missing: '" + CONFIG_FILE + "'.");
+                logger.warn("Config fields are missing: '{}'", CONFIG_FILE);
             }
             return hasAllFields;
         } catch (IOException e) {

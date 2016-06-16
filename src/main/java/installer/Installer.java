@@ -127,7 +127,7 @@ public class Installer extends Application {
                 }
             }
         } catch (IOException e) {
-            logger.info("UpdateManager - Failed to extract jar updater");
+            logger.info("Failed to extract jar updater");
             throw e;
         }
 
@@ -166,12 +166,12 @@ public class Installer extends Application {
                 int libDownloadFileSize = conn.getContentLength();
                 if (libDownloadFileSize != -1 && FileUtil.isFileExists(libFile.toString()) &&
                         libFile.length() == libDownloadFileSize) {
-                    logger.info("Library already exists - " + platformDependentLibrary.getFilename());
+                    logger.info("Library already exists: }|", platformDependentLibrary.getFilename());
                     break;
                 }
             } catch (IOException e) {
-                logger.info("Failed to get size of library; will proceed to downloading it - " +
-                        platformDependentLibrary.getFilename());
+                logger.info("Failed to get size of library; will proceed to downloading it: {}",
+                            platformDependentLibrary.getFilename());
                 e.printStackTrace();
             }
             
@@ -180,7 +180,7 @@ public class Installer extends Application {
             try {
                 downloadFile(libFile, downloadLink);
             } catch (IOException e) {
-                logger.info("Failed to download library - " + platformDependentLibrary.getFilename());
+                logger.info("Failed to download library {}", platformDependentLibrary.getFilename());
                 e.printStackTrace();
                 return;
             }
@@ -217,7 +217,7 @@ public class Installer extends Application {
 
             Files.copy(inWithProgress, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            logger.info(String.format("Installer - Failed to download %s", targetFile.toString()));
+            logger.info("Failed to download {}", targetFile.toString());
             throw e;
         }
     }
