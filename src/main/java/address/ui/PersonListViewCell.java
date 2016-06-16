@@ -42,7 +42,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         setOnDragEntered(event -> {
             if (event.getGestureSource() != this &&
                     event.getDragboard().hasString()) {
-                setOpacity(0.7);
+                setOpacity(0.1);
             }
         });
 
