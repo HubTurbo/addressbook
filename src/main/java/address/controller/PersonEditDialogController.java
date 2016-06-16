@@ -11,6 +11,7 @@ import address.model.datatypes.tag.Tag;
 import address.util.DateTimeUtil;
 
 import com.google.common.eventbus.Subscribe;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
@@ -61,6 +62,7 @@ public class PersonEditDialogController extends EditDialogController {
     @FXML
     private void initialize() {
         addListeners();
+        Platform.runLater(() -> firstNameField.requestFocus());
         EventManager.getInstance().registerHandler(this);
     }
 
@@ -236,6 +238,5 @@ public class PersonEditDialogController extends EditDialogController {
     protected void handleTagInput(String newTags) {
         model.setFilter(newTags);
     }
-
 
 }
