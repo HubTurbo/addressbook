@@ -137,7 +137,7 @@ public class SyncManager {
                 logger.debug("Last persons update at: {}", lastSuccessfulPersonsUpdate);
                 personsResponse = cloudService.getUpdatedPersonsSince(addressBookName, lastSuccessfulPersonsUpdate);
             }
-            if (personsResponse.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            if (personsResponse.getResponseCode() != HttpURLConnection.HTTP_OK && personsResponse.getResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
                 throw new SyncErrorException(personsResponse.getResponseCode() + " response from cloud instead of expected " + HttpURLConnection.HTTP_OK + " during persons update.");
             }
             if (!personsResponse.getData().isPresent()) {

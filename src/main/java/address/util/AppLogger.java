@@ -43,11 +43,6 @@ public class AppLogger {
         debugEvent("{}: {}", event.getClass().getSimpleName(), event.toString());
     }
 
-    // this method is required since debug(message, obj, obj) seems to be problematic
-    private void debugEvent(String message, Object... params) {
-        logger.debug(message, params);
-    }
-
     public void infoEvent(BaseEvent event) {
         infoEvent("{}: {}", event.getClass().getSimpleName(), event.toString());
     }
@@ -80,6 +75,11 @@ public class AppLogger {
         } else {
             return String.valueOf(listOfObjects.size());
         }
+    }
+
+    // this method is required since debug(message, obj, obj) seems to be problematic
+    private void debugEvent(String message, Object... params) {
+        logger.debug(message, params);
     }
 
     // this method is required since info(message, obj, obj) seems to be problematic
