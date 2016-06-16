@@ -36,6 +36,7 @@ public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
         bindPersonsToBacking();
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     private void bindPersonsToBacking() {
         backingModel.getPersons().addListener((ListChangeListener<? super Person>) change -> {
 
@@ -43,12 +44,10 @@ public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
                     // removed
-                    persons.removeAll(change.getRemoved().stream()
-                            // remove map when person ID implemented and VP-P equals comparison is implemented.
-                            .map(ViewablePerson::new).collect(Collectors.toCollection(HashSet::new)));
+                    persons.removeAll(new HashSet<>(change.getRemoved()));
                     // newly added
-                    persons.addAll(change.getAddedSubList().stream()
-                            .map(ViewablePerson::new).collect(Collectors.toList()));
+                    persons.addAll(change.getAddedSubList().stream().map(ViewablePerson::new)
+                            .collect(Collectors.toList()));
                 }
             }
 
