@@ -40,7 +40,7 @@ public class ImageManager {
             return cachedImage;
         }
 
-        Image newImage = new Image(url);
+        Image newImage = new Image(url, 100.0, 100.0, true, false);
         imageHashMap.put(url, newImage);
         return newImage;
     }
