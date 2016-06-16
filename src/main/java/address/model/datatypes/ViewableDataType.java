@@ -15,7 +15,7 @@ import java.util.function.Function;
  *
  * Note: these status data fields should not be directly edited by users.
  */
-public abstract class ViewableDataType<D extends DataType> extends DataType implements ReadOnlyViewableDataType {
+public abstract class ViewableDataType<D extends UniqueData> extends UniqueData implements ReadOnlyViewableDataType {
 
     protected final D visible;
     protected D backing;

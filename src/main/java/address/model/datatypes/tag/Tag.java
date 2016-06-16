@@ -1,14 +1,14 @@
 package address.model.datatypes.tag;
 
-import address.model.datatypes.DataType;
 import address.model.datatypes.ExtractableObservables;
+import address.model.datatypes.UniqueData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 
-public class Tag extends DataType implements ExtractableObservables {
+public class Tag extends UniqueData implements ExtractableObservables {
 
     @JsonIgnore private final SimpleStringProperty name;
 

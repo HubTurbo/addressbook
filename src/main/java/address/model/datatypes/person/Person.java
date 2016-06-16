@@ -1,6 +1,6 @@
 package address.model.datatypes.person;
 
-import address.model.datatypes.DataType;
+import address.model.datatypes.UniqueData;
 import address.model.datatypes.tag.Tag;
 import address.util.DateTimeUtil;
 
@@ -33,7 +33,7 @@ import java.util.function.BiConsumer;
  * Eg. A GUI element controller that only needs access to the Person's properties should declare the received Person
  * as an ReadOnlyPerson -- since it does not need the functionality in the other superclasses/interfaces.
  */
-public class Person extends DataType implements ReadOnlyPerson {
+public class Person extends UniqueData implements ReadOnlyPerson {
 
     @JsonIgnore private final SimpleStringProperty firstName;
     @JsonIgnore private final SimpleStringProperty lastName;

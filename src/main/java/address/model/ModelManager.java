@@ -46,7 +46,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         visibleModel = backingModel.createVisibleAddressBook();
 
         // update changes need to go through #updatePerson or #updateTag to trigger the LMCEvent
-        final ListChangeListener<DataType> modelChangeListener = change -> {
+        final ListChangeListener<Object> modelChangeListener = change -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
                     EventManager.getInstance().post(new LocalModelChangedEvent(getAllPersons(), getAllTags()));
@@ -320,7 +320,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @param newData target will be updated to match newData's state
      * @return true if there were changes from the update.
      */
-    private synchronized <E extends DataType> boolean diffUpdate(Collection<E> target, Collection<E> newData) {
+    private synchronized <E extends UniqueData> boolean diffUpdate(Collection<E> target, Collection<E> newData) {
         assert UniqueData.itemsAreUnique(target) : "target of diffUpdate should not have duplicates";
         assert UniqueData.itemsAreUnique(newData) : "newData for diffUpdate should not have duplicates";
 
@@ -359,7 +359,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @param target to be updated
      * @param newData data used for update
      */
-    private <E extends DataType> void updateDataItem(E target, E newData) {
+    private <E extends UniqueData> void updateDataItem(E target, E newData) {
         if (target instanceof Person && newData instanceof Person) {
             ((Person) target).update((Person) newData);
             return;
