@@ -15,6 +15,7 @@ import address.status.PersonCreatedStatus;
 import address.status.PersonDeletedStatus;
 import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
+import address.util.MoveableList;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
@@ -55,10 +56,10 @@ public class PersonOverviewController {
     public void setConnections(MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
         this.modelManager = modelManager;
-
+        MoveableList moveableList = new MoveableList(modelManager.getAllViewablePersonsReadOnly());
         // Add observable list data to the list
-        personListView.setItems(modelManager.getAllViewablePersonsReadOnly());
-        personListView.setCellFactory(listView -> new PersonListViewCell());
+        personListView.setItems(moveableList.getDisplayedList());
+        personListView.setCellFactory(listView -> new PersonListViewCell(moveableList));
         personListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue != null) {
