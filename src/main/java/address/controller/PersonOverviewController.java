@@ -15,6 +15,7 @@ import address.status.PersonCreatedStatus;
 import address.status.PersonDeletedStatus;
 import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
+import address.util.ReorderedList;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
@@ -39,8 +40,11 @@ public class PersonOverviewController {
     private MainController mainController;
     private ModelManager modelManager;
 
+    private ReorderedList reorderedList;
+
     public PersonOverviewController() {
         EventManager.getInstance().registerHandler(this);
+
     }
 
     /**
@@ -52,13 +56,14 @@ public class PersonOverviewController {
         personListView.setContextMenu(createContextMenu());
     }
 
-    public void setConnections(MainController mainController, ModelManager modelManager) {
+    public void setConnections(MainController mainController, ModelManager modelManager, ReorderedList reorderedList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
+        this.reorderedList = reorderedList;
 
         // Add observable list data to the list
-        personListView.setItems(modelManager.getAllViewablePersonsReadOnly());
-        personListView.setCellFactory(listView -> new PersonListViewCell());
+        personListView.setItems(reorderedList.getDisplayedList());
+        personListView.setCellFactory(listView -> new PersonListViewCell(reorderedList));
         personListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue != null) {
