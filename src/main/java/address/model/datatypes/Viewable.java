@@ -21,7 +21,7 @@ public abstract class Viewable<D extends UniqueData> extends UniqueData implemen
     protected D backing;
     protected boolean isSyncingWithBackingObject;
 
-    protected final IntegerProperty secondsLeftInPendingState; // Negative when not in pending state
+    protected final IntegerProperty secondsLeftInPendingState; // 0 when not in pending state
     protected final BooleanProperty isDeleted;
     protected final BooleanProperty isEdited;
 
