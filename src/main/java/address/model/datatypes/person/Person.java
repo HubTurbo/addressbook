@@ -295,10 +295,14 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         return Collections.unmodifiableList(tags);
     }
 
-    @JsonProperty("tags")
     @Override
     public UnmodifiableObservableList<Tag> getObservableTagList() {
         return new UnmodifiableObservableList<>(tags);
+    }
+
+    @JsonProperty("tags")
+    public List<Tag> getTags() {
+        return tags;
     }
 
     public void setTags(Collection<Tag> tags) {
