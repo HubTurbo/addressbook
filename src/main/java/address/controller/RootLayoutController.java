@@ -129,8 +129,8 @@ public class RootLayoutController {
     private void handleSave() {
         final File saveFile = PrefsManager.getInstance().getSaveLocation();
         logger.debug("Requesting save to: {}.", saveFile);
-        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getAllPersons(),
-                                                             modelManager.getAllTags()));
+        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.backingPersonList(),
+                                                             modelManager.getTagList()));
     }
 
     /**
@@ -150,8 +150,8 @@ public class RootLayoutController {
         }
 
         PrefsManager.getInstance().setSaveLocation(file);
-        EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.getAllPersons(),
-                                        modelManager.getAllTags()));
+        EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.backingPersonList(),
+                                        modelManager.getTagList()));
     }
 
     /**

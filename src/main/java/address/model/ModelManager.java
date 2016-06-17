@@ -144,14 +144,14 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
     /**
      * @return persons list in backing model
      */
-    ObservableList<Person> backingPersonList() {
+    public ObservableList<Person> backingPersonList() {
         return backingModel.getPersons();
     }
 
     /**
      * @return tags list in backing model
      */
-    ObservableList<Tag> backingTagList() {
+    public ObservableList<Tag> backingTagList() {
         return backingModel.getTags();
     }
 
