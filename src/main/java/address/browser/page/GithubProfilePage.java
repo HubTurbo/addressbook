@@ -47,8 +47,10 @@ public class GithubProfilePage implements PageInterface{
                         browser.executeCommand(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT)), true);
                 repoLink.click();
             }
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             //Page not supported as element not found in the page. Fail silently
+        } catch (IllegalStateException e) {
+            //Element not found. Fail silently.
         }
     }
 
