@@ -11,7 +11,12 @@ public class ExtractedRemoteResponse<V> {
     private int quotaRemaining;
     private LocalDateTime quotaResetTime;
     private int responseCode;
-    String eTag;
+    private String eTag;
+    private int prevPage;
+    private int nextPage;
+    private int firstPage;
+    private int lastPage;
+
 
     // temporarily copied from CloudSimulator, to be refactored
     private ZoneOffset getSystemTimezone() {
@@ -65,5 +70,37 @@ public class ExtractedRemoteResponse<V> {
 
     public Optional<V> getData() {
         return data;
+    }
+
+    public int getPrevPage() {
+        return prevPage;
+    }
+
+    public void setPrevPage(int prevPage) {
+        this.prevPage = prevPage;
+    }
+
+    public int getNextPage() {
+        return nextPage;
+    }
+
+    public void setNextPage(int nextPage) {
+        this.nextPage = nextPage;
+    }
+
+    public int getFirstPage() {
+        return firstPage;
+    }
+
+    public void setFirstPage(int firstPage) {
+        this.firstPage = firstPage;
+    }
+
+    public int getLastPage() {
+        return lastPage;
+    }
+
+    public void setLastPage(int lastPage) {
+        this.lastPage = lastPage;
     }
 }

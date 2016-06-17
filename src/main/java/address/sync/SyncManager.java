@@ -101,13 +101,9 @@ public class SyncManager {
                 EventManager.getInstance().post(
                         new UpdateCompletedEvent<>(updatedPersons, "Person updates completed."));
 
-                Optional<List<Tag>> updatedTagList = getUpdatedTags(activeAddressBook.get());
-                if (updatedTagList.isPresent()) {
-                    logger.logList("Acquired new list of tags: {}", updatedTagList.get());
-                } else {
-                    logger.info("No updates to tags.");
-                }
+                List<Tag> updatedTagList = getUpdatedTags(activeAddressBook.get());
                 EventManager.getInstance().post(new UpdateCompletedEvent<>(updatedTagList, "Tag updates completed."));
+
                 EventManager.getInstance().post(new SyncCompletedEvent());
             } catch (SyncErrorException e) {
                 logger.warn("Error obtaining updates.");
@@ -140,8 +136,20 @@ public class SyncManager {
         }
     }
 
-    private Optional<List<Tag>> getUpdatedTags(String addressBookName) throws SyncErrorException {
-        return Optional.empty(); // TODO implement
+    private List<Tag> getUpdatedTags(String addressBookName) throws SyncErrorException {
+        try {
+            Optional<List<Tag>> updatedTags = remoteManager.getTagsIfUpdated(addressBookName);
+
+            if (!updatedTags.isPresent()) {
+                logger.info("No updates to tags.");
+                return null;
+            } else {
+                logger.info("Updated tags: {}", updatedTags);
+                return updatedTags.get();
+            }
+        } catch (IOException e) {
+            throw new SyncErrorException("Error getting updated persons.");
+        }
     }
 
     @Subscribe

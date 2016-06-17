@@ -98,7 +98,8 @@ public class RemoteService implements IRemoteService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedRemoteResponse<List<Tag>> getTags(String addressBookName, String previousETag) throws IOException {
+    public ExtractedRemoteResponse<List<Tag>> getTags(String addressBookName, int pageNumber, String previousETag)
+            throws IOException {
         int curPageNumber = 1;
         CloudResponse remoteResponse;
         List<RemoteTag> remoteTags = new ArrayList<>();
@@ -282,20 +283,18 @@ public class RemoteService implements IRemoteService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedRemoteResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time)
+    public ExtractedRemoteResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time,
+                                                                        int curPageNumber, String previousETag)
             throws IOException {
-        int curPageNumber = 1;
         CloudResponse remoteResponse;
         List<RemotePerson> remotePersons = new ArrayList<>();
-        do {
-            remoteResponse = remote.getUpdatedPersons(addressBookName, time.toString(), curPageNumber,
-                    RESOURCES_PER_PAGE, null);
-            if (!isValid(remoteResponse)) {
-                return getResponseWithNoData(remoteResponse, remoteResponse.getHeaders());
-            }
-            remotePersons.addAll(getDataListFromBody(remoteResponse.getBody(), RemotePerson.class));
-            curPageNumber++;
-        } while (remoteResponse.getNextPageNo() != -1);
+
+        remoteResponse = remote.getUpdatedPersons(addressBookName, time.toString(), curPageNumber, RESOURCES_PER_PAGE,
+                                                  null);
+        if (!isValid(remoteResponse)) {
+            return getResponseWithNoData(remoteResponse, remoteResponse.getHeaders());
+        }
+        remotePersons.addAll(getDataListFromBody(remoteResponse.getBody(), RemotePerson.class));
 
         // Use the header of the last request, which contains the latest API rate limit
         HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
