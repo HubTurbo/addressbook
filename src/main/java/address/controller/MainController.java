@@ -124,7 +124,7 @@ public class MainController {
      * Shows the person overview inside the root layout.
      */
     public void showPersonOverview() {
-        logger.debug("Showing person overview.");
+        logger.debug("Loading person overview.");
         final String fxmlResourcePath = FXML_PERSON_OVERVIEW;
         try {
             // Load person overview.
@@ -157,7 +157,7 @@ public class MainController {
     }
 
     private void showFooterStatusBar() {
-        logger.debug("Showing footer status bar.");
+        logger.debug("Loading footer status bar.");
         final String fxmlResourcePath = FXML_STATUS_BAR_FOOTER;
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -169,7 +169,7 @@ public class MainController {
             rootLayout.getChildren().add(gPane);
 
         } catch (IOException e) {
-            logger.warn("Error showing footer status bar: {}", e);
+            logger.warn("Error Loading footer status bar: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for footer status bar.",
                     "IOException when trying to load " + fxmlResourcePath);
         }
@@ -195,7 +195,7 @@ public class MainController {
      *         creating the dialog or the user clicked cancel
      */
     private Optional<ReadOnlyPerson> showPersonEditDialog(ReadOnlyPerson initialData) {
-        logger.debug("Showing dialog for person edit.");
+        logger.debug("Loading dialog for person edit.");
         final String fxmlResourcePath = FXML_PERSON_EDIT_DIALOG;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
@@ -246,7 +246,7 @@ public class MainController {
      *         creating the dialog or the user clicked cancel
      */
     public Optional<Tag> getTagDataInput(Tag tag) {
-        logger.debug("Showing dialog for tag edit.");
+        logger.debug("Loading dialog for tag edit.");
         final String fxmlResourcePath = FXML_TAG_EDIT_DIALOG;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
@@ -283,7 +283,7 @@ public class MainController {
     }
 
     public void showTagList(ObservableList<Tag> tags) {
-        logger.debug("Showing tag list.");
+        logger.debug("Loading tag list.");
         final String fxmlResourcePath = FXML_TAG_LIST;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
@@ -316,7 +316,7 @@ public class MainController {
      * Opens a dialog to show birthday statistics.
      */
     public void showBirthdayStatistics() {
-        logger.debug("Showing birthday statistics.");
+        logger.debug("Loading birthday statistics.");
         final String fxmlResourcePath = FXML_BIRTHDAY_STATISTICS;
         try {
             // Load the fxml file and create a new stage for the popup.
