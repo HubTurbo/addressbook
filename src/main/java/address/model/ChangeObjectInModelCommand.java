@@ -1,6 +1,9 @@
 package address.model;
 
 import address.util.LoggerManager;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -36,13 +39,13 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     }
 
     protected final int gracePeriodDurationInSeconds;
-    protected State state; // current state
+    protected final ObjectProperty<State> state; // current state
 
     // Alternate state transition path caused by an interrupting signal during the grace period
     private CompletableFuture<Supplier<State>> overrideGracePeriod;
     
     {
-        state = NEWLY_CREATED;
+        state = new SimpleObjectProperty<>(NEWLY_CREATED);
         clearGracePeriodOverride();
     }
 
@@ -51,6 +54,14 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     }
 
     public State getState() {
+        return state.getValue();
+    }
+
+    void setState(State newState) {
+        state.setValue(newState);
+    }
+
+    public ReadOnlyObjectProperty<State> stateProperty() {
         return state;
     }
 
@@ -59,7 +70,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      * @param alternateStateTransition will override the default grace period state transition
      */
     protected void signalGracePeriodOverride(Supplier<State> alternateStateTransition) {
-        if (state != GRACE_PERIOD) {
+        if (getState() != GRACE_PERIOD) {
             LoggerManager.getLogger(this.getClass()).warn("Overriding signal received outside of grace period");
         }
         final boolean hasExistingValue = !overrideGracePeriod.complete(alternateStateTransition);
@@ -82,9 +93,25 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     @Override
     public final void run() {
         before();
+
         // Runs FSM till one of terminal states is reached.
-        while (!isTerminal(state)) {
-            state = handleAndTransitionState(state);
+        while (!isTerminal(getState())) {
+            setState(handleAndTransitionState(state.get()));
+        }
+
+        // handle terminal states
+        switch (getState()) {
+        case CANCELLED :
+            finishWithCancel();
+            break;
+        case SUCCESSFUL :
+            finishWithSuccess();
+            break;
+        case FAILED :
+            finishWithFailure();
+            break;
+        default :
+            assert false;
         }
         after();
     }
@@ -100,6 +127,21 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      * Called last after this command hits a terminal state and right before it stops.
      */
     protected abstract void after();
+
+    /**
+     * Runs when the terminal {@link State#CANCELLED} state is reached.
+     */
+    protected abstract void finishWithCancel();
+
+    /**
+     * Runs when the terminal {@link State#SUCCESSFUL} state is reached.
+     */
+    protected abstract void finishWithSuccess();
+
+    /**
+     * Runs when the terminal {@link State#FAILED} state is reached.
+     */
+    protected abstract void finishWithFailure();
 
     /**
      * @return true if {@code state} is one of the terminal states.
@@ -158,7 +200,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      * Updates {@link #handleChangeToSecondsLeftInGracePeriod(int)} whenever seconds remaining in the
      * grace period countdown changes.
      *
-     * This grace period phase allows overriding signals to interrupt and change the execution and state transition path
+     * This grace period phase allows signals to interrupt and override the execution and state transition path
      * Partial support is offered for a 'cancel' signal.
      * Some examples:
      *      - a request to cancel and undo this command ({@link #cancelInGracePeriod()})
@@ -174,6 +216,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      */
     private State countdownGracePeriodAndHandleOverrides() {
 
+        beforeGracePeriod();
         // Ensure that any override signals detected happen during the current grace period.
         clearGracePeriodOverride();
 
@@ -200,6 +243,11 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     }
 
     /**
+     * Hook that runs when the state enters {@link State#GRACE_PERIOD} right before the countdown starts.
+     */
+    protected abstract void beforeGracePeriod();
+
+    /**
      * Hook that gets called every time number of seconds left in the grace period changes.
      * @see #countdownGracePeriodAndHandleOverrides()
      */
@@ -218,7 +266,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
 
     /**
      * When the 'cancel' overriding signal is received (from {@link #cancelInGracePeriod()}) during the grace period,
-     * this method overrides execution and the state transition path.
+     * this method takes over the state transition path and execution.
      * Will be called from the {@link #run()} thread.
      *
      * @see #countdownGracePeriodAndHandleOverrides()

@@ -18,7 +18,6 @@ import java.util.function.Supplier;
  */
 public abstract class ChangePersonInModelCommand extends ChangeObjectInModelCommand {
 
-    protected ViewablePerson viewable;
     protected Supplier<Optional<ReadOnlyPerson>> inputRetriever;
     protected ReadOnlyPerson input;
 
@@ -45,16 +44,6 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
     }
 
     /**
-     * Updates grace period countdown in {@link #viewable}.
-     * @see super#handleChangeToSecondsLeftInGracePeriod(int)
-     */
-    @Override
-    protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
-        assert viewable != null : "viewableperson should be present before grace period";
-        PlatformExecUtil.runLater(() -> viewable.setSecondsLeftInPendingState(secondsLeft));
-    }
-
-    /**
      * Request to override this command with an edit command using {@code newInputSupplier} to supply input.
      * Only works if the command is currently in the {@link State#GRACE_PERIOD} state.
      *
@@ -78,7 +67,7 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
 
     /**
      * When the 'edit' overriding signal is received (from {@link #editInGracePeriod(Supplier)}) during the grace period,
-     * this method overrides execution and the state transition path.
+     * this method takes over the state transition path and execution.
      * Will be called from the {@link #run()} thread.
      *
      * @see #editInGracePeriod(Supplier)
@@ -90,7 +79,7 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
 
     /**
      * When the 'delete' overriding signal is received (from {@link #deleteInGracePeriod()}) during the grace period,
-     * this method overrides execution and the state transition path.
+     * this method takes over the state transition path and execution.
      * Will be called from the {@link #run()} thread.
      *
      * @see #deleteInGracePeriod()

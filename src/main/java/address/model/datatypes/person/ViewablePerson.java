@@ -129,7 +129,11 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
         forceSyncFromBacking();
     }
 
-// APPLICATION STATE METHODS
+//// OPTIMISTIC UPDATING
+
+    public void simulateUpdate(ReadOnlyPerson data) {
+        visible.update(data);
+    }
 
     @Override
     public void onRemoteIdConfirmed(Consumer<Integer> callback) {
@@ -140,7 +144,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
         }
     }
 
-// PERSON ACCESSORS
+//// PERSON ACCESSORS
 
     @Override
     public int getId() {
@@ -196,6 +200,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
         return visible.fullName();
     }
 
+    @Override
     public String getGithubUsername() {
         return visible.getGithubUsername();
     }
