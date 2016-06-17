@@ -56,7 +56,14 @@ public class ReorderedList {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        displayedList.add(to, displayedList.remove(from));
+
+        if (from < to) {
+            displayedList.add(to, displayedList.get(from));
+            displayedList.remove(displayedList.get(from));
+        } else {
+            displayedList.add(to, displayedList.remove(from));
+        }
+
         mutex.release();
     }
 
