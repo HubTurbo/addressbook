@@ -6,6 +6,11 @@ We are using [log4j2](http://logging.apache.org/log4j/2.x/) as our logger, and `
 - The logging level can be controlled using the `loggingLevel` setting in the configuration file (See [Configuration](../docs/Configuration.md)).
 - The global-logger `AppLogger` can be obtained using `LoggerManager.getLogger(Class)` which will log messages according to `src/main/resources/log4j2.json`'s specified patterns
 
+# log4j2 information
+- Supposedly optimized version of `LogBack`
+- Can also act as an API for other logger implementations such as `slf4j`
+  - `log4j2` has its internal implementation, but can be substituted as needed
+  - Our application uses the default internal implementation
 
 # Guidelines
 

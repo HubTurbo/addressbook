@@ -102,7 +102,7 @@ allprojects {
     dependencies {
         compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-        compile "org.slf4j:slf4j-simple:1.6.4" // Required, see http://www.slf4j.org/codes.html#StaticLoggerBinder
+        compile "org.slf4j:slf4j-simple:1.6.4" // Required to suppress warning, for jkeymaster, see http://www.slf4j.org/codes.html#StaticLoggerBinder
         compile 'commons-io:commons-io:2.4'
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
