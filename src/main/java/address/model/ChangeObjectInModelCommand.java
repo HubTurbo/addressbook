@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 import static address.model.ChangeObjectInModelCommand.State.*;
 
 /**
- * Framework-style superclass for all commands that would cause an individual domain object level change in the model,
+ * Framework-style superclass for all commands that would cause changes for single domain objects in the model,
  * and have it optimistically reflected on the UI. Internal logic approximates a finite state machine.
  * Abstract methods with return type  {@code State} are intended to implement state transition rules and command logic
  * through side effects.
