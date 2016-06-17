@@ -35,11 +35,11 @@ public class ViewablePerson extends ViewableDataType<Person> implements ReadOnly
                 int from = change.getFrom();
                 int to = change.getTo();
                 if (change.wasPermutated()) { // element reordering
-                    visible.getObservableTagList().subList(from, to).clear();
-                    visible.getObservableTagList().addAll(from, backing.getObservableTagList().subList(from, to));
+                    visible.getTags().subList(from, to).clear();
+                    visible.getTags().addAll(from, backing.getObservableTagList().subList(from, to));
                 } else { // list/element mutation
-                    visible.getObservableTagList().subList(from, from + change.getRemovedSize()).clear();
-                    visible.getObservableTagList().addAll(from, backing.getObservableTagList().subList(from, from + change.getAddedSize()));
+                    visible.getTags().subList(from, from + change.getRemovedSize()).clear();
+                    visible.getTags().addAll(from, backing.getObservableTagList().subList(from, from + change.getAddedSize()));
                 }
             }
         });
