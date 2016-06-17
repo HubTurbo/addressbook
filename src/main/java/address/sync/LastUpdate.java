@@ -21,6 +21,10 @@ public class LastUpdate {
         eTags.put(pageNumber, eTag);
     }
 
+    public int getETagCount() {
+        return eTags.size();
+    }
+
     public LocalDateTime getLastUpdatedAt() {
         return lastUpdatedAt;
     }

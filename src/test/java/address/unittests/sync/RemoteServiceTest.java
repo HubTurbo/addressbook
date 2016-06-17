@@ -6,8 +6,8 @@ import address.sync.cloud.RemoteResponse;
 import address.sync.RemoteService;
 import address.sync.cloud.CloudSimulator;
 import address.sync.ExtractedRemoteResponse;
-import address.sync.model.RemotePerson;
-import address.sync.model.RemoteTag;
+import address.sync.cloud.model.CloudPerson;
+import address.sync.cloud.model.CloudTag;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,8 +55,8 @@ public class RemoteServiceTest {
     public void getPersons() throws IOException {
         int quotaLimit = 10;
         int quotaRemaining = 9;
-        List<RemotePerson> personsToReturn = new ArrayList<>();
-        RemotePerson personToReturn = new RemotePerson("firstName", "lastName");
+        List<CloudPerson> personsToReturn = new ArrayList<>();
+        CloudPerson personToReturn = new CloudPerson("firstName", "lastName");
         personToReturn.setId(1);
         personsToReturn.add(personToReturn);
 
@@ -64,7 +64,7 @@ public class RemoteServiceTest {
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_OK, personsToReturn, header);
         when(cloudSimulator.getPersons("Test", 1, RESOURCES_PER_PAGE, null)).thenReturn(remoteResponse);
 
-        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getPersons("Test");
+        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getPersons("Test", 1);
         assertTrue(serviceResponse.getData().isPresent());
         assertEquals(1, serviceResponse.getData().get().size());
         assertEquals("firstName", serviceResponse.getData().get().get(0).getFirstName());
@@ -77,7 +77,7 @@ public class RemoteServiceTest {
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         when(cloudSimulator.getPersons("Test", 1, RESOURCES_PER_PAGE, null)).thenReturn(remoteResponse);
 
-        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getPersons("Test");
+        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getPersons("Test", 1);
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
         assertFalse(serviceResponse.getData().isPresent());
         assertEquals(0, serviceResponse.getQuotaLimit());
@@ -90,9 +90,9 @@ public class RemoteServiceTest {
         int quotaLimit = 10;
         int quotaRemaining = 0;
         int noOfPersons = 1000;
-        List<RemotePerson> personsToReturn = new ArrayList<>();
+        List<CloudPerson> personsToReturn = new ArrayList<>();
         for (int i = 0; i < noOfPersons; i++) {
-            personsToReturn.add(new RemotePerson("firstName" + i, "lastName" + i));
+            personsToReturn.add(new CloudPerson("firstName" + i, "lastName" + i));
         }
 
         HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
@@ -118,14 +118,14 @@ public class RemoteServiceTest {
         });
 
 
-        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getPersons("Test");
+        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getPersons("Test", 4);
         assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
         assertTrue(serviceResponse.getData().isPresent());
         assertEquals(noOfPersons, serviceResponse.getData().get().size());
 
-        for (int i = 0; i < noOfPersons; i++) {
-            assertEquals("firstName" + i, serviceResponse.getData().get().get(i).getFirstName());
-            assertEquals("lastName" + i, serviceResponse.getData().get().get(i).getLastName());
+        for (int i = 0; i < RESOURCES_PER_PAGE; i++) {
+            assertEquals("firstName" + (i + 400), serviceResponse.getData().get().get(i).getFirstName());
+            assertEquals("lastName" + (i + 400), serviceResponse.getData().get().get(i).getLastName());
         }
         assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
     }
@@ -139,10 +139,10 @@ public class RemoteServiceTest {
         int quotaLimit = 10;
         int quotaRemaining = 9;
 
-        RemotePerson remotePerson = new RemotePerson("unknownName", "unknownName");
+        CloudPerson remotePerson = new CloudPerson("unknownName", "unknownName");
         HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_CREATED, remotePerson, header);
-        when(cloudSimulator.createPerson(anyString(), any(RemotePerson.class), isNull(String.class))).thenReturn(remoteResponse);
+        when(cloudSimulator.createPerson(anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(remoteResponse);
 
         Person person = new Person("unknownName", "unknownName");
 
@@ -156,7 +156,7 @@ public class RemoteServiceTest {
     @Test
     public void createPerson_errorCloudResponse() throws IOException {
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
-        when(cloudSimulator.createPerson(anyString(), any(RemotePerson.class), isNull(String.class))).thenReturn(remoteResponse);
+        when(cloudSimulator.createPerson(anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(remoteResponse);
 
         Person person = new Person("unknownName", "unknownName");
 
@@ -173,13 +173,13 @@ public class RemoteServiceTest {
         int quotaLimit = 10;
         int quotaRemaining = 9;
 
-        RemotePerson remotePerson = new RemotePerson("unknownName", "unknownName");
-        List<RemoteTag> personRemoteTags = new ArrayList<>();
-        personRemoteTags.add(new RemoteTag("New Tag"));
-        remotePerson.setTags(personRemoteTags);
+        CloudPerson remotePerson = new CloudPerson("unknownName", "unknownName");
+        List<CloudTag> personCloudTags = new ArrayList<>();
+        personCloudTags.add(new CloudTag("New Tag"));
+        remotePerson.setTags(personCloudTags);
         HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_CREATED, remotePerson, header);
-        when(cloudSimulator.createPerson(anyString(), any(RemotePerson.class), isNull(String.class))).thenReturn(remoteResponse);
+        when(cloudSimulator.createPerson(anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(remoteResponse);
 
         Person person = new Person("unknownName", "unknownName");
         List<Tag> personTags = new ArrayList<>();
@@ -201,10 +201,10 @@ public class RemoteServiceTest {
         int quotaLimit = 10;
         int quotaRemaining = 9;
 
-        RemoteTag remoteTag = new RemoteTag("New Tag");
+        CloudTag remoteTag = new CloudTag("New Tag");
         HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_CREATED, remoteTag, header);
-        when(cloudSimulator.createTag(anyString(), any(RemoteTag.class), isNull(String.class))).thenReturn(remoteResponse);
+        when(cloudSimulator.createTag(anyString(), any(CloudTag.class), isNull(String.class))).thenReturn(remoteResponse);
 
         Tag tag = new Tag("New Tag");
 
@@ -218,7 +218,7 @@ public class RemoteServiceTest {
     @Test
     public void createTag_errorCloudResponse() throws IOException {
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
-        when(cloudSimulator.createTag(anyString(), any(RemoteTag.class), isNull(String.class))).thenReturn(remoteResponse);
+        when(cloudSimulator.createTag(anyString(), any(CloudTag.class), isNull(String.class))).thenReturn(remoteResponse);
 
         Tag tag = new Tag("New Tag");
 
@@ -235,14 +235,14 @@ public class RemoteServiceTest {
         int quotaLimit = 10;
         int quotaRemaining = 9;
 
-        List<RemoteTag> tagList = new ArrayList<>();
-        tagList.add(new RemoteTag("tagName"));
+        List<CloudTag> tagList = new ArrayList<>();
+        tagList.add(new CloudTag("tagName"));
 
         HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_OK, tagList, header);
         when(cloudSimulator.getTags(anyString(), anyInt(), anyInt(), isNull(String.class))).thenReturn(remoteResponse);
 
-        ExtractedRemoteResponse<List<Tag>> serviceResponse = remoteService.getTags("Test", null);
+        ExtractedRemoteResponse<List<Tag>> serviceResponse = remoteService.getTags("Test", 1, null);
 
         assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
         assertTrue(serviceResponse.getData().isPresent());
@@ -256,12 +256,12 @@ public class RemoteServiceTest {
         int quotaLimit = 10;
         int quotaRemaining = 9;
 
-        RemotePerson remotePerson = new RemotePerson("newFirstName", "newLastName");
+        CloudPerson remotePerson = new CloudPerson("newFirstName", "newLastName");
         remotePerson.setId(1);
 
         HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_OK, remotePerson, header);
-        when(cloudSimulator.updatePerson(anyString(), anyInt(), any(RemotePerson.class), isNull(String.class))).thenReturn(remoteResponse);
+        when(cloudSimulator.updatePerson(anyString(), anyInt(), any(CloudPerson.class), isNull(String.class))).thenReturn(remoteResponse);
 
         Person updatedPerson = new Person("newFirstName", "newLastName");
         ExtractedRemoteResponse<Person> serviceResponse = remoteService.updatePerson("Test", 1, updatedPerson);
@@ -276,7 +276,7 @@ public class RemoteServiceTest {
     @Test
     public void updatePerson_errorCloudResponse() throws IOException {
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
-        when(cloudSimulator.updatePerson(anyString(), anyInt(), any(RemotePerson.class), isNull(String.class))).thenReturn(remoteResponse);
+        when(cloudSimulator.updatePerson(anyString(), anyInt(), any(CloudPerson.class), isNull(String.class))).thenReturn(remoteResponse);
 
         Person updatedPerson = new Person("newFirstName", "newLastName");
         ExtractedRemoteResponse<Person> serviceResponse = remoteService.updatePerson("Test", 1, updatedPerson);
@@ -293,10 +293,10 @@ public class RemoteServiceTest {
         int quotaLimit = 10;
         int quotaRemaining = 9;
 
-        RemoteTag remoteTag = new RemoteTag("newTagName");
+        CloudTag remoteTag = new CloudTag("newTagName");
         HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_OK, remoteTag, header);
-        when(cloudSimulator.editTag(anyString(), anyString(), any(RemoteTag.class), isNull(String.class))).thenReturn(remoteResponse);
+        when(cloudSimulator.editTag(anyString(), anyString(), any(CloudTag.class), isNull(String.class))).thenReturn(remoteResponse);
 
         Tag updatedTag = new Tag("newTagName");
         ExtractedRemoteResponse<Tag> serviceResponse = remoteService.editTag("Test", "tagName", updatedTag);
@@ -310,7 +310,7 @@ public class RemoteServiceTest {
     @Test
     public void editTag_errorCloudResponse() throws IOException {
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
-        when(cloudSimulator.editTag(anyString(), anyString(), any(RemoteTag.class), isNull(String.class))).thenReturn(remoteResponse);
+        when(cloudSimulator.editTag(anyString(), anyString(), any(CloudTag.class), isNull(String.class))).thenReturn(remoteResponse);
 
         Tag updatedTag = new Tag("newTagName");
         ExtractedRemoteResponse<Tag> serviceResponse = remoteService.editTag("Test", "tagName", updatedTag);
@@ -404,14 +404,14 @@ public class RemoteServiceTest {
         int quotaRemaining = 9;
 
         LocalDateTime cutOffTime = LocalDateTime.now();
-        List<RemotePerson> remotePersons = new ArrayList<>();
-        remotePersons.add(new RemotePerson("firstName", "lastName"));
+        List<CloudPerson> remotePersons = new ArrayList<>();
+        remotePersons.add(new CloudPerson("firstName", "lastName"));
 
         HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_OK, remotePersons, header);
         when(cloudSimulator.getUpdatedPersons(anyString(), anyString(), anyInt(), anyInt(), anyString())).thenReturn(remoteResponse);
 
-        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getUpdatedPersonsSince("Test", cutOffTime);
+        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getUpdatedPersonsSince("Test", 1, cutOffTime, null);
 
         assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
         assertTrue(serviceResponse.getData().isPresent());
@@ -429,9 +429,9 @@ public class RemoteServiceTest {
         LocalDateTime cutOffTime = LocalDateTime.now();
 
         // response 1
-        List<RemotePerson> remotePersons = new ArrayList<>();
+        List<CloudPerson> remotePersons = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
-            remotePersons.add(new RemotePerson("firstName" + i, "lastName" + i));
+            remotePersons.add(new CloudPerson("firstName" + i, "lastName" + i));
         }
         HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining + 1, getResetTime());
         RemoteResponse remoteResponseOne = new RemoteResponse(HttpURLConnection.HTTP_OK, remotePersons, header);
@@ -440,9 +440,9 @@ public class RemoteServiceTest {
         remoteResponseOne.setLastPageNo(2);
 
         // response 2
-        List<RemotePerson> remotePersons2 = new ArrayList<>();
+        List<CloudPerson> remotePersons2 = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
-            remotePersons2.add(new RemotePerson("firstName" + (i + 100), "lastName" + (i + 100)));
+            remotePersons2.add(new CloudPerson("firstName" + (i + 100), "lastName" + (i + 100)));
         }
         HashMap<String, String> header2 = getHeader(quotaLimit, quotaRemaining, getResetTime());
         RemoteResponse remoteResponseTwo = new RemoteResponse(HttpURLConnection.HTTP_OK, remotePersons2, header2);
@@ -452,12 +452,12 @@ public class RemoteServiceTest {
 
         when(cloudSimulator.getUpdatedPersons(anyString(), anyString(), anyInt(), anyInt(), anyString())).thenReturn(remoteResponseOne).thenReturn(remoteResponseTwo);
 
-        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getUpdatedPersonsSince("Test", cutOffTime);
+        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getUpdatedPersonsSince("Test", 2, cutOffTime, null);
 
         assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
         assertTrue(serviceResponse.getData().isPresent());
-        assertEquals(150, serviceResponse.getData().get().size());
-        for (int i = 0; i < 150; i++) {
+        assertEquals(50, serviceResponse.getData().get().size());
+        for (int i = 100; i < 150; i++) {
             assertEquals("firstName" + i, serviceResponse.getData().get().get(i).getFirstName());
             assertEquals("lastName" + i, serviceResponse.getData().get().get(i).getLastName());
         }
@@ -471,7 +471,7 @@ public class RemoteServiceTest {
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         when(cloudSimulator.getUpdatedPersons(anyString(), anyString(), anyInt(), anyInt(), anyString())).thenReturn(remoteResponse);
 
-        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getUpdatedPersonsSince("Test", cutOffTime);
+        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getUpdatedPersonsSince("Test", 1, cutOffTime, null);
 
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
         assertFalse(serviceResponse.getData().isPresent());

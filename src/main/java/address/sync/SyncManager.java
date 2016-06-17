@@ -108,6 +108,9 @@ public class SyncManager {
             } catch (SyncErrorException e) {
                 logger.warn("Error obtaining updates.");
                 EventManager.getInstance().post(new SyncFailedEvent(e.getMessage()));
+            } catch (Exception e) {e.printStackTrace();
+
+                logger.warn("{}", e);
             }
         };
 

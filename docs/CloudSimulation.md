@@ -1,16 +1,16 @@
-In order to simulate the idea of a cloud, we have implemented 2 key components: `CloudService` and `CloudSimulator`
+In order to simulate the idea of a cloud, we have implemented 3 key components: `RemoteService` and `CloudSimulator`
 
 They are arranged as follows:
-> ... -> SyncManager <---> CloudService <---> CloudSimulator
+> ... -> SyncManager <---> RemoteManager <---> RemoteService <---> CloudSimulator
 
 # Key responsibilities
-## CloudService
+## RemoteService
 - Provides a high-level API for the local model to communicate with the server without having to be involved in too many details
 - Responsible for converting API calls into the cloud calls
 - Responsible for converting cloud responses into localised responses
   - Parses the stream of the content returned from the cloud (which is originally in JSON format). This applies to both the header and the body content
 - Deals with both local model and service model, and converts between them when needed
-- Returns an `ExtractedCloudResponse`, which contains the limit details as well as the returned (and converted) content that has been instantiated in memory
+- Returns an `ExtractedRemoteResponse`, which contains the limit details as well as the returned (and converted) content that has been instantiated in memory
 
 ## CloudSimulator
 - Provides a similar set of API as GitHub
@@ -19,7 +19,7 @@ They are arranged as follows:
 - Maintains the API count of the current session
   - Similar to GitHub (authenticated), it has an API limit of 5000 by default, and resets at every hour's mark
   - The reset is based on a `TickingTimer` running in the background i.e. the reset is run after a given time delay
-- Responses are returned as `RawCloudResponse`
+- Responses are returned as `RemoteResponse`
   - ALWAYS (almost) contains the rate limit information. e.g. rate limit remaining and its next reset time
     - The only time it doesn't is if there is an `internal server error` (500)
   - ALWAYS contains the response code that indicates the status of the request. This response code is similar to its respective HTTP status code
@@ -54,6 +54,9 @@ They are arranged as follows:
 - We can check updates for `labels` and `collaborators` without incurring API usage
 
 We need to simply save the `ETag` of the request and use it in further calls. If the response is that they are `304 Not Modified`, then it will not incur API usage.
+
+This is assuming that the number of labels and collaborators do not exceed 100.
+The case will become more complicated if we were to handle cases of > 100 (which is likely, but leave it for later).
 
 - We are able to reduce the number of API calls for getting updated issues
 For `issues`, `milestones` and `issue comments`, we can try to do something similar to `labels` and `collaborators` (see above). However, since the requests are paged, we have increased workload if we were to use `ETag`s to check for updates. For example, having 1000 issues will require up to 10 requests using the old `ETag`s, to ensure that none of the pages have changed. Results will also have to in descending order, since new issues will change all pages' `ETag`s if in ascending order)

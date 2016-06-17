@@ -245,8 +245,8 @@ public class RemoteService implements IRemoteService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedRemoteResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time,
-                                                                        int pageNumber, String previousETag)
+    public ExtractedRemoteResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, int pageNumber,
+                                                                        LocalDateTime time, String previousETag)
             throws IOException {
         RemoteResponse remoteResponse = remote.getUpdatedPersons(addressBookName, time.toString(), pageNumber,
                 RESOURCES_PER_PAGE, null);

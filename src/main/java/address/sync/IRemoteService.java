@@ -24,7 +24,7 @@ public interface IRemoteService {
 
     ExtractedRemoteResponse<Void> createAddressBook(String addressBookName) throws IOException;
 
-    ExtractedRemoteResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time, int curPageNumber, String previousETag)
+    ExtractedRemoteResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, int curPageNumber, LocalDateTime time, String previousETag)
             throws IOException;
 
     // Does not consume API
