@@ -303,7 +303,9 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      */
     public synchronized void updateUsingExternalData(AddressBook extData) {
         assert !extData.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
-        if (diffUpdate(getAllPersons(), extData.getPersons()) || diffUpdate(getAllTags(), extData.getTags())) {
+        boolean hasPersonsUpdates = diffUpdate(getAllPersons(), extData.getPersons());
+        boolean hasTagsUpdates = diffUpdate(getAllTags(), extData.getTags());
+        if (hasPersonsUpdates || hasTagsUpdates) {
             EventManager.getInstance().post(new LocalModelChangedEvent(getAllPersons(), getAllTags()));
         }
     }
