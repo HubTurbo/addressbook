@@ -1,4 +1,4 @@
-In order to simulate the idea of a cloud, we have implemented 3 key components: `RemoteService` and `CloudSimulator`
+In order to simulate the idea of a cloud, we have implemented 3 key components: `RemoteManager`, `RemoteService` and `CloudSimulator`
 
 They are arranged as follows:
 > ... -> SyncManager <---> RemoteManager <---> RemoteService <---> CloudSimulator
@@ -33,7 +33,7 @@ They are arranged as follows:
 ## Response code
 - Behaves similarly to `GitHub`
   - `20x` if request is successful. `x` depends on the type of request
-  - `304` if there are no change since the last response
+  - `304` if there are no changes since the last response
   - `400 - Bad Request` if the arguments given are invalid
   - `403 - Forbidden` if there is no more API quota left
   - `500 - Internal Server Error` if there is an error on the cloud. e.g. error reading from the cloud file
@@ -47,7 +47,7 @@ They are arranged as follows:
 - Does not have a `lastUpdatedAt` field
 
 # Other notes related to HT
--  `Last-Modified` and `If-Modified-Since` headers do not seem to be useful
+- `Last-Modified` and `If-Modified-Since` headers do not seem to be useful
 
 `Last-Modified` (response) and `If-Modified-Since` (request) headers seem to only apply to single-objects that have the `updatedAt` field (`issues` and `milestones`). The `Last-Modified` header field will also have the same value as `updatedAt`. This means that these do not provide us more information than we already have.
 
@@ -56,7 +56,7 @@ They are arranged as follows:
 We need to simply save the `ETag` of the request and use it in further calls. If the response is that they are `304 Not Modified`, then it will not incur API usage.
 
 This is assuming that the number of labels and collaborators do not exceed 100.
-The case will become more complicated if we were to handle cases of > 100 (which is likely, but leave it for later).
+It will become more complicated if we were to handle cases of > 100 (which is likely, but leave it for later).
 
 - We are able to reduce the number of API calls for getting updated issues
 For `issues`, `milestones` and `issue comments`, we can try to do something similar to `labels` and `collaborators` (see above). However, since the requests are paged, we have increased workload if we were to use `ETag`s to check for updates. For example, having 1000 issues will require up to 10 requests using the old `ETag`s, to ensure that none of the pages have changed. Results will also have to in descending order, since new issues will change all pages' `ETag`s if in ascending order)
