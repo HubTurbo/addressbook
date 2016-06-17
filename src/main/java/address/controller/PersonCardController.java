@@ -102,7 +102,7 @@ public class PersonCardController {
         });
         tags.textProperty().bind(new StringBinding(){
             {
-                bind(person.getTags()); //Bind property at instance initializer
+                bind(person.getObservableTagList()); //Bind property at instance initializer
             }
 
             @Override

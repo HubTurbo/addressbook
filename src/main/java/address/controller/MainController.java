@@ -221,7 +221,7 @@ public class MainController {
             PersonEditDialogController controller = loader.getController();
             controller.setDialogStage(dialogStage);
             controller.setInitialPersonData(initialData);
-            controller.setTagsModel(modelManager.getAllTags(), new ArrayList<>(initialData.getTags()));
+            controller.setTagsModel(modelManager.getAllTags(), new ArrayList<>(initialData.getObservableTagList()));
 
             dialogStage.showAndWait();
             if (controller.isOkClicked()) {

@@ -465,7 +465,7 @@ public class CloudService implements ICloudService {
         cloudPerson.setStreet(person.getStreet());
         cloudPerson.setCity(person.getCity());
         cloudPerson.setPostalCode(person.getPostalCode());
-        cloudPerson.setTags(convertToCloudTagList(person.getTags()));
+        cloudPerson.setTags(convertToCloudTagList(person.getTagList()));
         cloudPerson.setBirthday(person.getBirthday());
         return cloudPerson;
     }

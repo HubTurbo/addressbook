@@ -9,6 +9,7 @@ import javafx.collections.ListChangeListener;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -29,16 +30,16 @@ public class ViewablePerson extends ViewableDataType<Person> implements ReadOnly
 
         // all changes here result in removal of affected list elements and (re)adding of any updated/new elements
         // at their correct positions.
-        backing.getTags().addListener((ListChangeListener<? super Tag>) change -> {
+        backing.getObservableTagList().addListener((ListChangeListener<? super Tag>) change -> {
             while (change.next()) {
                 int from = change.getFrom();
                 int to = change.getTo();
                 if (change.wasPermutated()) { // element reordering
-                    visible.getTags().subList(from, to).clear();
-                    visible.getTags().addAll(from, backing.getTags().subList(from, to));
+                    visible.getObservableTagList().subList(from, to).clear();
+                    visible.getObservableTagList().addAll(from, backing.getObservableTagList().subList(from, to));
                 } else { // list/element mutation
-                    visible.getTags().subList(from, from + change.getRemovedSize()).clear();
-                    visible.getTags().addAll(from, backing.getTags().subList(from, from + change.getAddedSize()));
+                    visible.getObservableTagList().subList(from, from + change.getRemovedSize()).clear();
+                    visible.getObservableTagList().addAll(from, backing.getObservableTagList().subList(from, from + change.getAddedSize()));
                 }
             }
         });
@@ -157,8 +158,13 @@ public class ViewablePerson extends ViewableDataType<Person> implements ReadOnly
     }
 
     @Override
-    public UnmodifiableObservableList<Tag> getTags() {
-        return visible.getTags();
+    public List<Tag> getTagList() {
+        return visible.getTagList();
+    }
+
+    @Override
+    public UnmodifiableObservableList<Tag> getObservableTagList() {
+        return visible.getObservableTagList();
     }
 
     @Override

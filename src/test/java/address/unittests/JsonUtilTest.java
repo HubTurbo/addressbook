@@ -75,7 +75,7 @@ public class JsonUtilTest {
         assertEquals("Last", person.getLastName());
         assertEquals("Singapore", person.getCity());
         assertEquals("123456", person.getPostalCode());
-        assertEquals(tag, person.getTags().get(0));
+        assertEquals(tag, person.getTagList().get(0));
         assertEquals(LocalDate.of(1980, 3, 18), person.getBirthday());
         assertEquals("FirstLast", person.getGithubUserName());
     }
@@ -113,7 +113,7 @@ public class JsonUtilTest {
         assertEquals("Last", person.getLastName());
         assertEquals("Singapore", person.getCity());
         assertEquals("123456", person.getPostalCode());
-        assertEquals(tagRead, person.getTags().get(0));
+        assertEquals(tagRead, person.getTagList().get(0));
         assertEquals(LocalDate.of(1980, 3, 18), person.getBirthday());
         assertEquals("FirstLast", person.getGithubUserName());
     }

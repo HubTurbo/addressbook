@@ -191,8 +191,8 @@ public class CloudServiceTest {
         assertTrue(serviceResponse.getData().isPresent());
         // this only checks for name equality
         assertEquals(person, serviceResponse.getData().get());
-        assertEquals(person.getTags().size(), serviceResponse.getData().get().getTags().size());
-        assertEquals(person.getTags().get(0).getName(), serviceResponse.getData().get().getTags().get(0).getName());
+        assertEquals(person.getTagList().size(), serviceResponse.getData().get().getObservableTagList().size());
+        assertEquals(person.getTagList().get(0).getName(), serviceResponse.getData().get().getObservableTagList().get(0).getName());
         assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
     }
 

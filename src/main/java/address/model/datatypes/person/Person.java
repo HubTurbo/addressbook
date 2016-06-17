@@ -21,6 +21,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
@@ -105,7 +107,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         setGithubUserName(newDataSource.getGithubUserName());
 
         setBirthday(newDataSource.getBirthday());
-        setTags(newDataSource.getTags());
+        setTags(newDataSource.getObservableTagList());
         return this;
     }
 
@@ -288,9 +290,14 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 
 //// TAGS
 
+    @Override
+    public List<Tag> getTagList() {
+        return Collections.unmodifiableList(tags);
+    }
+
     @JsonProperty("tags")
     @Override
-    public UnmodifiableObservableList<Tag> getTags() {
+    public UnmodifiableObservableList<Tag> getObservableTagList() {
         return new UnmodifiableObservableList<>(tags);
     }
 

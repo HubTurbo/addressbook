@@ -4,15 +4,13 @@ import address.model.datatypes.ExtractableObservables;
 import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
 import javafx.beans.Observable;
-import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.collections.ObservableList;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 
 /**
  * Allows read-only access to the Person domain object's data.
@@ -44,25 +42,46 @@ public interface ReadOnlyPerson extends ExtractableObservables {
     String birthdayString();
 
     /**
+     * @return unmodifiable list view of tags.
+     */
+    List<Tag> getTagList();
+    /**
      * @return string representation of this Person's tags
      */
     String tagsString();
 
-    ReadOnlyStringProperty firstNameProperty();
-    ReadOnlyStringProperty lastNameProperty();
-    ReadOnlyStringProperty githubUserNameProperty();
+//// Operations below are optional; override if they will be needed.
+    
+    default ReadOnlyStringProperty firstNameProperty() {
+        throw new UnsupportedOperationException();
+    }
+    default ReadOnlyStringProperty lastNameProperty() {
+        throw new UnsupportedOperationException();
+    }
+    default ReadOnlyStringProperty githubUserNameProperty() {
+        throw new UnsupportedOperationException();
+    }
 
-    ReadOnlyStringProperty streetProperty();
-    ReadOnlyStringProperty postalCodeProperty();
-    ReadOnlyStringProperty cityProperty();
+    default ReadOnlyStringProperty streetProperty() {
+        throw new UnsupportedOperationException();
+    }
+    default ReadOnlyStringProperty postalCodeProperty() {
+        throw new UnsupportedOperationException();
+    }
+    default ReadOnlyStringProperty cityProperty() {
+        throw new UnsupportedOperationException();
+    }
 
-    ReadOnlyObjectProperty<LocalDate> birthdayProperty();
+    default ReadOnlyObjectProperty<LocalDate> birthdayProperty() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @return ObservableList unmodifiable view of this Person's tags
-     * TODO ReadOnlyTag class
      */
-    UnmodifiableObservableList<Tag> getTags();
+    default UnmodifiableObservableList<Tag> getObservableTagList() {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     default Observable[] extractObservables() {
@@ -76,7 +95,7 @@ public interface ReadOnlyPerson extends ExtractableObservables {
                 cityProperty(),
 
                 birthdayProperty(),
-                getTags()
+                getObservableTagList()
         };
     }
 }
