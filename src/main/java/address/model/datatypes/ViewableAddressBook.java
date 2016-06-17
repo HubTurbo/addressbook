@@ -10,7 +10,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -73,12 +75,22 @@ public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
     }
 
     @Override
-    public UnmodifiableObservableList<ReadOnlyPerson> getAllPersonsReadOnly() {
+    public List<ReadOnlyPerson> getPersonList() {
+        return Collections.unmodifiableList(persons);
+    }
+
+    @Override
+    public List<Tag> getTagList() {
+        return Collections.unmodifiableList(tags);
+    }
+
+    @Override
+    public UnmodifiableObservableList<ReadOnlyPerson> getPersonsAsReadOnlyObservableList() {
         return new UnmodifiableObservableList<>(persons);
     }
 
     @Override
-    public UnmodifiableObservableList<Tag> getAllTagsReadOnly() {
+    public UnmodifiableObservableList<Tag> getTagsAsReadOnlyObservableList() {
         return new UnmodifiableObservableList<>(tags);
     }
 

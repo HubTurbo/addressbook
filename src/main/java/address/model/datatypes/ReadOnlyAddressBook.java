@@ -5,18 +5,36 @@ import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
 import javafx.collections.ObservableList;
 
+import java.util.List;
+
 /**
  * Unmodifiable view of an address book
  */
 public interface ReadOnlyAddressBook {
 
     /**
-     * @return all persons in this model
+     * @return unmodifiable view of persons list
      */
-    UnmodifiableObservableList<ReadOnlyPerson> getAllPersonsReadOnly();
+    List<ReadOnlyPerson> getPersonList();
 
     /**
-     * @return all tags in this model
+     * @return unmodifiable view of tags list
      */
-    UnmodifiableObservableList<Tag> getAllTagsReadOnly();
+    List<Tag> getTagList();
+
+//// below method implementations are optional; override if functionality is needed.
+
+    /**
+     * @return all persons in backing model IN AN UNMODIFIABLE VIEW
+     */
+    default UnmodifiableObservableList<ReadOnlyPerson> getPersonsAsReadOnlyObservableList() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @return all tags in backing model IN AN UNMODIFIABLE VIEW
+     */
+    default UnmodifiableObservableList<Tag> getTagsAsReadOnlyObservableList() {
+        throw new UnsupportedOperationException();
+    }
 }
