@@ -54,6 +54,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        logger.info("Starting application: V{}.{}.{}", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
         setupComponents();
         mainController.start(primaryStage);
         updateManager.run();
@@ -81,20 +82,22 @@ public class MainApp extends Application {
         if (missingDependencies.isEmpty()) {
             logger.info("All dependencies are present");
         } else {
-            String message = "Missing dependencies:\n";
+            StringBuilder message = new StringBuilder("Missing dependencies:\n");
             for (String missingDependency : missingDependencies) {
-                message += "- " + missingDependency + "\n";
+                message.append("- " + missingDependency + "\n");
             }
-            logger.info(message.trim());
+            String missingDependenciesMessage = message.toString().trim();
+            logger.warn(missingDependenciesMessage);
 
             mainController.showAlertDialogAndWait(Alert.AlertType.WARNING, "Missing Dependencies",
                     "There are missing dependencies. App may not work properly.",
-                    message.trim());
+                    missingDependenciesMessage);
         }
     }
 
     @Override
     public void stop() {
+        logger.info("Stopping application.");
         mainController.getPrimaryStage().hide();
         mainController.releaseResourcesForAppTermination();
         updateManager.applyUpdate();

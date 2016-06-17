@@ -4,6 +4,8 @@ import address.browser.page.GithubProfilePage;
 import address.browser.page.Page;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.util.AppLogger;
+import address.util.LoggerManager;
 import address.util.UrlUtil;
 
 import com.teamdev.jxbrowser.chromium.BrowserCore;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
  * Manages the AddressBook browser.
  */
 public class BrowserManager {
+    private static AppLogger logger = LoggerManager.getLogger(BrowserManager.class);
 
     private ObservableList<ReadOnlyViewablePerson> filteredPersons;
 
@@ -40,7 +43,8 @@ public class BrowserManager {
                     hyperBrowser.get().loadUrl(url);
                 }
             } catch (MalformedURLException e) {
-                return;
+                logger.warn("Malformed URL obtained, not attempting to load.");
+                // TODO handle instead of simply logging a message
             }
         };
 
@@ -49,8 +53,10 @@ public class BrowserManager {
         this.filteredPersons = filteredPersons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
+            logger.info("Headless mode detected, not initializing HyperBrowser.");
             hyperBrowser = Optional.empty();
         } else {
+            logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
             hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER,
                                        HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES, BrowserManagerUtil.getBrowserInitialScreen()));
         }
@@ -60,6 +66,7 @@ public class BrowserManager {
         if (Environment.isMac()) {
             BrowserCore.initialize();
         }
+        logger.debug("Suppressing browser logs");
         LoggerProvider.setLevel(Level.SEVERE);
     }
 
@@ -77,7 +84,7 @@ public class BrowserManager {
         ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons,
                                                                                      indexOfPersonInListOfContacts);
         ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
-                                                                    .map(p -> p.profilePageUrl())
+                                                                    .map(ReadOnlyViewablePerson::profilePageUrl)
                                                                     .collect(Collectors.toCollection(ArrayList::new));
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
@@ -86,9 +93,7 @@ public class BrowserManager {
             if (!gPage.isPageLoading()) {
                 gPage.automateClickingAndScrolling();
             }
-            gPage.setPageLoadFinishListener(b -> {
-                gPage.automateClickingAndScrolling();
-            });
+            gPage.setPageLoadFinishListener(b -> gPage.automateClickingAndScrolling());
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -108,11 +113,10 @@ public class BrowserManager {
         hyperBrowser.get().dispose();
     }
 
-    public AnchorPane getHyperBrowserView(){
-        if (!hyperBrowser.isPresent()){
+    public AnchorPane getHyperBrowserView() {
+        if (!hyperBrowser.isPresent()) {
             return new AnchorPane();
         }
         return hyperBrowser.get().getHyperBrowserView();
     }
-
 }

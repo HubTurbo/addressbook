@@ -4,6 +4,9 @@ import address.events.BaseEvent;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class AppLogger {
     private Logger logger;
 
@@ -19,17 +22,9 @@ public class AppLogger {
         logger.debug(message, params);
     }
 
-    public void trace(String message, Object... params) {
-        logger.trace(message, params);
-    }
-
     public void warn(String message, Object... params) {
         logger.warn(message, params);
 
-    }
-
-    public void error(String message, Object... params) {
-        logger.error(message, params);
     }
 
     public void fatal(String message, Object... params) {
@@ -48,13 +43,43 @@ public class AppLogger {
         debugEvent("{}: {}", event.getClass().getSimpleName(), event.toString());
     }
 
+    public void infoEvent(BaseEvent event) {
+        infoEvent("{}: {}", event.getClass().getSimpleName(), event.toString());
+    }
+
+    /**
+     * Logs lists of objects
+     *
+     * Logs the contents of the list if debug is enabled, else simply logs the size of the list
+     *
+     * @param message
+     * @param listOfObjects
+     */
+    public <T> void logList(String message, List<T> listOfObjects) {
+        if (listOfObjects == null) {
+            info(message, listOfObjects);
+            return;
+        }
+        if (logger.isDebugEnabled()) {
+            debug(message, Arrays.deepToString(listOfObjects.toArray()));
+        } else {
+            info(message, listOfObjects.size());
+        }
+    }
+
+    public <T> String convertListToParams(List<T> listOfObjects) {
+        if (listOfObjects == null) return null;
+
+        if (logger.isDebugEnabled()) {
+            return Arrays.deepToString(listOfObjects.toArray());
+        } else {
+            return String.valueOf(listOfObjects.size());
+        }
+    }
+
     // this method is required since debug(message, obj, obj) seems to be problematic
     private void debugEvent(String message, Object... params) {
         logger.debug(message, params);
-    }
-
-    public void infoEvent(BaseEvent event) {
-        infoEvent("{}: {}", event.getClass().getSimpleName(), event.toString());
     }
 
     // this method is required since info(message, obj, obj) seems to be problematic

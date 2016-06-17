@@ -16,9 +16,7 @@ public class PersonEditedStatus extends PersonBaseStatus {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (uneditedPerson.equals(person)){
+        if (uneditedPerson.equals(person)) {
             return person + " has been edited";
         } else {
             return uneditedPerson + " has been edited to " + person;

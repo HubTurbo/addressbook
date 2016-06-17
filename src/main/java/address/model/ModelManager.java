@@ -39,8 +39,17 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
+    /**
+     * Initializes a ModelManager with the given AddressBook
+     * AddressBook and its variables should not be null.
+     * @param src
+     */
     public ModelManager(AddressBook src) {
-        logger.info("Initializing model manager with: {} persons, {} tags", src.getAllPersonsReadOnly().size(), src.getAllTagsReadOnly().size());
+        if (src == null) {
+            logger.fatal("Attempted to initialize with a null AddressBook");
+            assert false;
+        }
+        logger.debug("Initializing with address book: {}", src);
 
         backingModel = new AddressBook(src);
         visibleModel = backingModel.createVisibleAddressBook();

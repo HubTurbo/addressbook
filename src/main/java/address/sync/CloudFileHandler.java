@@ -21,7 +21,7 @@ public class CloudFileHandler {
     public CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException, DataConversionException {
         File cloudFile = getCloudDataFilePath(addressBookName);
         try {
-            logger.info("Reading from cloud file '{}'.", cloudFile.getName());
+            logger.debug("Reading from cloud file '{}'.", cloudFile.getName());
             CloudAddressBook cloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
             if (cloudAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
             return cloudAddressBook;

@@ -6,9 +6,11 @@ import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.model.ModelManager;
+import address.util.AppLogger;
 import address.util.Config;
 import address.browser.BrowserManager;
 
+import address.util.LoggerManager;
 import address.util.ReorderedList;
 import com.google.common.eventbus.Subscribe;
 
@@ -24,8 +26,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import java.util.Optional;
  * The controller that creates the other controllers
  */
 public class MainController {
-    private static final Logger logger = LogManager.getLogger(MainController.class);
+    private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
@@ -86,6 +86,7 @@ public class MainController {
      * person file.
      */
     public void initRootLayout() {
+        logger.debug("Initializing root layout.");
         final String fxmlResourcePath = FXML_ROOT_LAYOUT;
         try {
             // Load root layout from fxml file.
@@ -113,7 +114,7 @@ public class MainController {
 
             primaryStage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error initializing root layout: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml root layout.",
                                    "IOException when trying to load " + fxmlResourcePath);
         }
@@ -123,6 +124,7 @@ public class MainController {
      * Shows the person overview inside the root layout.
      */
     public void showPersonOverview() {
+        logger.debug("Loading person overview.");
         final String fxmlResourcePath = FXML_PERSON_OVERVIEW;
         try {
             // Load person overview.
@@ -139,7 +141,7 @@ public class MainController {
             personOverviewController.setConnections(this, modelManager, reorderedList);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error loading person overview: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for person overview.",
                                    "IOException when trying to load " + fxmlResourcePath);
         }
@@ -155,6 +157,7 @@ public class MainController {
     }
 
     private void showFooterStatusBar() {
+        logger.debug("Loading footer status bar.");
         final String fxmlResourcePath = FXML_STATUS_BAR_FOOTER;
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -166,7 +169,7 @@ public class MainController {
             rootLayout.getChildren().add(gPane);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error Loading footer status bar: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for footer status bar.",
                     "IOException when trying to load " + fxmlResourcePath);
         }
@@ -192,6 +195,7 @@ public class MainController {
      *         creating the dialog or the user clicked cancel
      */
     private Optional<ReadOnlyPerson> showPersonEditDialog(ReadOnlyPerson initialData) {
+        logger.debug("Loading dialog for person edit.");
         final String fxmlResourcePath = FXML_PERSON_EDIT_DIALOG;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
@@ -226,7 +230,7 @@ public class MainController {
                 return Optional.empty();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error loading person edit dialog: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for edit person dialog.",
                                    "IOException when trying to load " + fxmlResourcePath);
             return Optional.empty();
@@ -242,6 +246,7 @@ public class MainController {
      *         creating the dialog or the user clicked cancel
      */
     public Optional<Tag> getTagDataInput(Tag tag) {
+        logger.debug("Loading dialog for tag edit.");
         final String fxmlResourcePath = FXML_TAG_EDIT_DIALOG;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
@@ -270,7 +275,7 @@ public class MainController {
                 return Optional.empty();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error loading tag edit dialog: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for edit tag dialog.",
                                    "IOException when trying to load " + fxmlResourcePath);
             return Optional.empty();
@@ -278,6 +283,7 @@ public class MainController {
     }
 
     public void showTagList(ObservableList<Tag> tags) {
+        logger.debug("Loading tag list.");
         final String fxmlResourcePath = FXML_TAG_LIST;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
@@ -300,7 +306,7 @@ public class MainController {
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error loading tag list view: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for tag list.",
                                    "IOException when trying to load " + fxmlResourcePath);
         }
@@ -310,6 +316,7 @@ public class MainController {
      * Opens a dialog to show birthday statistics.
      */
     public void showBirthdayStatistics() {
+        logger.debug("Loading birthday statistics.");
         final String fxmlResourcePath = FXML_BIRTHDAY_STATISTICS;
         try {
             // Load the fxml file and create a new stage for the popup.
@@ -330,7 +337,7 @@ public class MainController {
 
             dialogStage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error loading birthday statistics view: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for birthday stats.",
                                    "IOException when trying to load " + fxmlResourcePath);
         }
@@ -356,13 +363,8 @@ public class MainController {
     }
 
     private void showFileOperationAlertAndWait(String description, String details, File file, Throwable cause) {
-        final StringBuilder content = new StringBuilder();
-        content.append(details)
-            .append(":\n")
-            .append(file == null ? "none" : file.getPath())
-            .append("\n\nDetails:\n======\n")
-            .append(cause.toString());
-
+        final String content = details + ":\n" + (file == null ? "none" : file.getPath()) + "\n\nDetails:\n======\n"
+                                + cause.toString();
         showAlertDialogAndWait(AlertType.ERROR, "File Op Error", description, content.toString());
     }
 
@@ -404,7 +406,7 @@ public class MainController {
 
     @Subscribe
     private void handleMaximizeAppRequestEvent(MaximizeAppRequestEvent event){
-        logger.info("Handling the maximize app window request");
+        logger.debug("Handling the maximize app window request");
         Platform.runLater(() -> {
             maximizeWindow();
         });
@@ -412,7 +414,7 @@ public class MainController {
 
     @Subscribe
     private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event){
-        logger.info("Handling the minimize app window request");
+        logger.debug("Handling the minimize app window request");
         Platform.runLater(() -> {
             minimizeWindow();
         });

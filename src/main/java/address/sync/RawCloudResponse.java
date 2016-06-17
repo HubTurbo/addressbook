@@ -116,7 +116,7 @@ public class RawCloudResponse {
 
             return formatter.toString();
         } catch (NoSuchAlgorithmException | IOException e) {
-            logger.info("Error generating ETag for response");
+            logger.warn("Error generating ETag for response");
             return null;
         }
     }

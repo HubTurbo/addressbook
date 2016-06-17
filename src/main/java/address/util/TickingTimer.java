@@ -128,7 +128,7 @@ public class TickingTimer {
                 latches.clear();
             }
         }, TICK_PERIOD, TICK_PERIOD, timeUnit);
-        logger.info("Started TickingTimer '{}'", name);
+        logger.debug("Started TickingTimer '{}'", name);
     }
 
     /**
@@ -141,14 +141,14 @@ public class TickingTimer {
             started = false;
         }
 
-        logger.info("Stopping TickingTimer " + name);
+        logger.info("Stopping TickingTimer '{}'", name);
         executor.shutdown();
         try {
             executor.awaitTermination(TICK_PERIOD, timeUnit);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        logger.info("Successfully stopped TickingTimer '{}'", name);
+        logger.debug("Successfully stopped TickingTimer '{}'", name);
     }
 
     public boolean isStarted() {

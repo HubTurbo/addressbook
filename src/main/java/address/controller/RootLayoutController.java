@@ -12,6 +12,8 @@ import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
 import address.prefs.PrefsManager;
 
+import address.util.AppLogger;
+import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.fxml.FXML;
@@ -26,6 +28,7 @@ import javafx.stage.FileChooser;
  * elements can be placed.
  */
 public class RootLayoutController {
+    private static AppLogger logger = LoggerManager.getLogger(RootLayoutController.class);
 
     private static final String SAVE_LOC_TEXT_PREFIX = "Save File: ";
     private static final String LOC_TEXT_NOT_SET = "[NOT SET]";
@@ -100,6 +103,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleNew() {
+        logger.debug("Wiping current model data.");
         PrefsManager.getInstance().clearSaveLocation();
         modelManager.clearModel();
     }
@@ -109,6 +113,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleOpen() {
+        logger.debug("Prompting file dialog for data source.");
         // Show open file dialog
         File toOpen = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
         if (toOpen == null) return;
@@ -123,6 +128,7 @@ public class RootLayoutController {
     @FXML
     private void handleSave() {
         final File saveFile = PrefsManager.getInstance().getSaveLocation();
+        logger.debug("Requesting save to: {}.", saveFile);
         EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.getAllPersons(),
                                                              modelManager.getAllTags()));
     }
@@ -132,6 +138,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleSaveAs() {
+        logger.debug("Prompting file dialog for save destination.");
         // Show save file dialog
         File file = getXmlFileChooser().showSaveDialog(mainController.getPrimaryStage());
 
@@ -148,16 +155,18 @@ public class RootLayoutController {
     }
 
     /**
-     * Appends dummy data to existing data
+     * Clears existing data and appends dummy data
      */
     @FXML
     private void handleResetWithSampleData() {
+        logger.debug("Resetting with sample data.");
         try {
             modelManager.resetWithSampleData();
         } catch (DuplicateDataException e) {
-            mainController.showAlertDialogAndWait(AlertType.INFORMATION, "Will cause duplicates",
-                    "Adding sample data clashes with existing data",
-                    "Some existing data already matches those in the sample data");
+            logger.warn("Error resetting sample data: {}", e);
+            mainController.showAlertDialogAndWait(AlertType.INFORMATION, "Duplicate data found",
+                    "Sample data has duplicates",
+                    "Verify that the sample data is valid and does not contain duplicates before adding");
         }
     }
 
@@ -166,6 +175,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleAbout() {
+        logger.debug("Showing information about the application.");
         mainController.showAlertDialogAndWait(AlertType.INFORMATION, "AddressApp", "About",
                 "Some code adapted from http://code.makery.ch");
     }
@@ -205,6 +215,7 @@ public class RootLayoutController {
 
     @FXML
     private void handleShowTags() {
+        logger.debug("Attempting to show tag list.");
         mainController.showTagList(modelManager.getAllViewableTagsReadOnly());
     }
 }

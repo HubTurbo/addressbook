@@ -25,7 +25,7 @@ public class CloudUpdateTask implements Runnable {
 
     @Override
     public void run() {
-        logger.info("Requesting changes to the cloud: " + System.nanoTime());
+        logger.info("Requesting changes to the cloud.");
 
         List<UniqueData> allData = new ArrayList<>();
         allData.addAll(personsData);

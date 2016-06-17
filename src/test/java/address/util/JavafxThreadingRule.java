@@ -96,7 +96,7 @@ public class JavafxThreadingRule implements TestRule {
 
             logger.info("javafx initialising...");
             latch.await();
-            logger.info("javafx is initialised in " + (System.currentTimeMillis() - timeMillis) + "ms");
+            logger.info("javafx is initialised in {} ms", (System.currentTimeMillis() - timeMillis));
         }
 
     }
