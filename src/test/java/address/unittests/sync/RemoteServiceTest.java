@@ -121,7 +121,7 @@ public class RemoteServiceTest {
         ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getPersons("Test", 4);
         assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
         assertTrue(serviceResponse.getData().isPresent());
-        assertEquals(noOfPersons, serviceResponse.getData().get().size());
+        assertEquals(RESOURCES_PER_PAGE, serviceResponse.getData().get().size());
 
         for (int i = 0; i < RESOURCES_PER_PAGE; i++) {
             assertEquals("firstName" + (i + 400), serviceResponse.getData().get().get(i).getFirstName());
@@ -450,16 +450,16 @@ public class RemoteServiceTest {
         remoteResponseTwo.setPreviousPageNo(1);
         remoteResponseTwo.setLastPageNo(2);
 
-        when(cloudSimulator.getUpdatedPersons(anyString(), anyString(), anyInt(), anyInt(), anyString())).thenReturn(remoteResponseOne).thenReturn(remoteResponseTwo);
+        when(cloudSimulator.getUpdatedPersons(anyString(), anyString(), anyInt(), anyInt(), anyString())).thenReturn(remoteResponseTwo);
 
         ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getUpdatedPersonsSince("Test", 2, cutOffTime, null);
 
         assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
         assertTrue(serviceResponse.getData().isPresent());
         assertEquals(50, serviceResponse.getData().get().size());
-        for (int i = 100; i < 150; i++) {
-            assertEquals("firstName" + i, serviceResponse.getData().get().get(i).getFirstName());
-            assertEquals("lastName" + i, serviceResponse.getData().get().get(i).getLastName());
+        for (int i = 0; i < 50; i++) {
+            assertEquals("firstName" + (i + 100), serviceResponse.getData().get().get(i).getFirstName());
+            assertEquals("lastName" + (i + 100), serviceResponse.getData().get().get(i).getLastName());
         }
         assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
     }

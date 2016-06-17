@@ -29,10 +29,6 @@ public class SyncManager {
 
     private RemoteManager remoteManager;
 
-    private LocalDateTime lastSuccessfulPersonsUpdate;
-    private String lastTagsETag;
-    private LocalDateTime lastSuccessfulTagsUpdate;
-
     public SyncManager() {
         activeAddressBook = Optional.empty();
         scheduler = Executors.newScheduledThreadPool(1);

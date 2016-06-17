@@ -84,8 +84,4 @@ public class RemoteManager {
         LastUpdate lastUpdateInformation = updateInformation.get(addressBookName);
         return lastUpdateInformation.getETag(pageNo);
     }
-
-    private boolean hasValidResponseCode(ExtractedRemoteResponse<List<Person>> response) {
-        return response.getResponseCode() <= 300;
-    }
 }

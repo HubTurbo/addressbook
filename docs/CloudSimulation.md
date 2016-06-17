@@ -34,6 +34,7 @@ They are arranged as follows:
 - Behaves similarly to `GitHub`
   - `20x` if request is successful. `x` depends on the type of request
   - `304` if there are no changes since the last response
+    - These responses will not include the page relations
   - `400 - Bad Request` if the arguments given are invalid
   - `403 - Forbidden` if there is no more API quota left
   - `500 - Internal Server Error` if there is an error on the cloud. e.g. error reading from the cloud file

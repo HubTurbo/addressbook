@@ -81,6 +81,7 @@ public class RemoteService implements IRemoteService {
      * Gets the list of tags at page pageNumber for addressBookName, if quota is available
      *
      * Consumes 1 API usage
+     *
      * @param addressBookName
      * @param pageNumber
      * @param previousETag null if there is no previous request
