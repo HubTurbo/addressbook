@@ -1,4 +1,4 @@
-package address.sync.model;
+package address.sync.cloud.model;
 
 import address.util.XmlLocalDateAdapter;
 import address.util.XmlLocalDateTimeAdapter;
@@ -11,25 +11,25 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement(name = "remoteperson")
-public class RemotePerson {
+@XmlRootElement(name = "cloudperson")
+public class CloudPerson {
     private int id;
     private String firstName;
     private String lastName;
     private String street;
     private String city;
     private String postalCode;
-    private List<RemoteTag> tags;
+    private List<CloudTag> tags;
     private boolean isDeleted;
 
     private LocalDateTime lastUpdatedAt;
 
     private LocalDate birthday;
 
-    public RemotePerson() {
+    public CloudPerson() {
     }
 
-    public RemotePerson(String firstName, String lastName) {
+    public CloudPerson(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.tags = new ArrayList<>();
@@ -97,11 +97,11 @@ public class RemotePerson {
     }
 
     @XmlElement(name = "tags")
-    public List<RemoteTag> getTags() {
+    public List<CloudTag> getTags() {
         return tags;
     }
 
-    public void setTags(List<RemoteTag> tags) {
+    public void setTags(List<CloudTag> tags) {
         this.tags = tags;
         setLastUpdatedAt(LocalDateTime.now());
     }
@@ -137,7 +137,7 @@ public class RemotePerson {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
-    public void updatedBy(RemotePerson updatedPerson) {
+    public void updatedBy(CloudPerson updatedPerson) {
         this.firstName = updatedPerson.firstName;
         this.lastName = updatedPerson.lastName;
         this.street = updatedPerson.street;
@@ -158,7 +158,7 @@ public class RemotePerson {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        RemotePerson that = (RemotePerson) o;
+        CloudPerson that = (CloudPerson) o;
 
         if (id != that.id) return false;
         if (isDeleted != that.isDeleted) return false;

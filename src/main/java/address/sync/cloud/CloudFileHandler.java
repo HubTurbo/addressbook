@@ -1,7 +1,7 @@
 package address.sync.cloud;
 
 import address.exceptions.DataConversionException;
-import address.sync.model.RemoteAddressBook;
+import address.sync.cloud.model.CloudAddressBook;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.XmlUtil;
@@ -17,13 +17,13 @@ public class CloudFileHandler {
         return new File("cloud/" + addressBookName);
     }
 
-    public RemoteAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException, DataConversionException {
+    public CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException, DataConversionException {
         File cloudFile = getCloudDataFilePath(addressBookName);
         try {
             logger.debug("Reading from cloud file '{}'.", cloudFile.getName());
-            RemoteAddressBook remoteAddressBook = XmlUtil.getDataFromFile(cloudFile, RemoteAddressBook.class);
-            if (remoteAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
-            return remoteAddressBook;
+            CloudAddressBook CloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
+            if (CloudAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
+            return CloudAddressBook;
         } catch (FileNotFoundException e) {
             logger.warn("Cloud file '{}' not found.", cloudFile.getName());
             throw e;
@@ -33,12 +33,12 @@ public class CloudFileHandler {
         }
     }
 
-    public void writeCloudAddressBookToFile(RemoteAddressBook remoteAddressBook) throws FileNotFoundException, DataConversionException {
-        String addressBookName = remoteAddressBook.getName();
+    public void writeCloudAddressBookToFile(CloudAddressBook CloudAddressBook) throws FileNotFoundException, DataConversionException {
+        String addressBookName = CloudAddressBook.getName();
         File cloudFile = getCloudDataFilePath(addressBookName);
         try {
             logger.info("Writing to cloud file '{}'.", cloudFile.getName());
-            XmlUtil.saveDataToFile(cloudFile, remoteAddressBook);
+            XmlUtil.saveDataToFile(cloudFile, CloudAddressBook);
         } catch (FileNotFoundException | DataConversionException e) {
             logger.warn("Error writing to cloud file '{}'.", cloudFile.getName());
             throw e;
@@ -51,6 +51,6 @@ public class CloudFileHandler {
             logger.warn("Error creating addressbook '{}'.", addressBookName);
             throw new IllegalArgumentException("AddressBook '" + addressBookName + "' already exists!");
         }
-        writeCloudAddressBookToFile(new RemoteAddressBook(addressBookName));
+        writeCloudAddressBookToFile(new CloudAddressBook(addressBookName));
     }
 }

@@ -4,8 +4,8 @@ import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 import address.sync.cloud.CloudSimulator;
 import address.sync.cloud.CloudResponse;
-import address.sync.model.RemotePerson;
-import address.sync.model.RemoteTag;
+import address.sync.cloud.model.CloudPerson;
+import address.sync.cloud.model.CloudTag;
 import address.util.AppLogger;
 import address.util.JsonUtil;
 import address.util.LoggerManager;
@@ -69,13 +69,13 @@ public class RemoteService implements IRemoteService {
     public ExtractedRemoteResponse<List<Person>> getPersons(String addressBookName) throws IOException {
         int curPageNumber = 1;
         CloudResponse remoteResponse;
-        List<RemotePerson> remotePersons = new ArrayList<>();
+        List<CloudPerson> CloudPersons = new ArrayList<>();
         do {
             remoteResponse = remote.getPersons(addressBookName, curPageNumber, RESOURCES_PER_PAGE, null);
             if (!isValid(remoteResponse)) {
                 return getResponseWithNoData(remoteResponse, remoteResponse.getHeaders());
             }
-            remotePersons.addAll(getDataListFromBody(remoteResponse.getBody(), RemotePerson.class));
+            CloudPersons.addAll(getDataListFromBody(remoteResponse.getBody(), CloudPerson.class));
             curPageNumber++;
         } while (remoteResponse.getNextPageNo() != -1);
 
@@ -85,7 +85,7 @@ public class RemoteService implements IRemoteService {
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap),
-                                            convertToPersonList(remotePersons));
+                                            convertToPersonList(CloudPersons));
     }
 
     /**
@@ -102,13 +102,13 @@ public class RemoteService implements IRemoteService {
             throws IOException {
         int curPageNumber = 1;
         CloudResponse remoteResponse;
-        List<RemoteTag> remoteTags = new ArrayList<>();
+        List<CloudTag> CloudTags = new ArrayList<>();
         do {
             remoteResponse = remote.getTags(addressBookName, curPageNumber, RESOURCES_PER_PAGE, previousETag);
             if (!isValid(remoteResponse)) {
                 return getResponseWithNoData(remoteResponse, remoteResponse.getHeaders());
             }
-            remoteTags.addAll(getDataListFromBody(remoteResponse.getBody(), RemoteTag.class));
+            CloudTags.addAll(getDataListFromBody(remoteResponse.getBody(), CloudTag.class));
             curPageNumber++;
         } while (remoteResponse.getNextPageNo() != -1);
 
@@ -118,7 +118,7 @@ public class RemoteService implements IRemoteService {
         return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
-                                            getRateResetFromHeader(headerHashMap), convertToTagList(remoteTags));
+                                            getRateResetFromHeader(headerHashMap), convertToTagList(CloudTags));
     }
 
     /**
@@ -133,12 +133,12 @@ public class RemoteService implements IRemoteService {
      */
     @Override
     public ExtractedRemoteResponse<Person> createPerson(String addressBookName, Person newPerson) throws IOException {
-        CloudResponse remoteResponse = remote.createPerson(addressBookName, convertToRemotePerson(newPerson), null);
+        CloudResponse remoteResponse = remote.createPerson(addressBookName, convertToCloudPerson(newPerson), null);
         HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
         if (!isValid(remoteResponse)) {
             return getResponseWithNoData(remoteResponse, headerHashMap);
         }
-        RemotePerson returnedPerson = getDataFromBody(remoteResponse.getBody(), RemotePerson.class);
+        CloudPerson returnedPerson = getDataFromBody(remoteResponse.getBody(), CloudPerson.class);
         return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
@@ -160,12 +160,12 @@ public class RemoteService implements IRemoteService {
     public ExtractedRemoteResponse<Person> updatePerson(String addressBookName, int personId, Person updatedPerson)
             throws IOException {
         CloudResponse remoteResponse = remote.updatePerson(addressBookName, personId,
-                convertToRemotePerson(updatedPerson), null);
+                convertToCloudPerson(updatedPerson), null);
         HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
         if (!isValid(remoteResponse)) {
             return getResponseWithNoData(remoteResponse, headerHashMap);
         }
-        RemotePerson returnedPerson = getDataFromBody(remoteResponse.getBody(), RemotePerson.class);
+        CloudPerson returnedPerson = getDataFromBody(remoteResponse.getBody(), CloudPerson.class);
         return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
@@ -209,12 +209,12 @@ public class RemoteService implements IRemoteService {
      */
     @Override
     public ExtractedRemoteResponse<Tag> createTag(String addressBookName, Tag tag) throws IOException {
-        CloudResponse remoteResponse = remote.createTag(addressBookName, convertToRemoteTag(tag), null);
+        CloudResponse remoteResponse = remote.createTag(addressBookName, convertToCloudTag(tag), null);
         HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
         if (!isValid(remoteResponse)) {
             return getResponseWithNoData(remoteResponse, headerHashMap);
         }
-        RemoteTag returnedTag = getDataFromBody(remoteResponse.getBody(), RemoteTag.class);
+        CloudTag returnedTag = getDataFromBody(remoteResponse.getBody(), CloudTag.class);
         return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
@@ -235,12 +235,12 @@ public class RemoteService implements IRemoteService {
     @Override
     public ExtractedRemoteResponse<Tag> editTag(String addressBookName, String oldTagName, Tag newTag)
             throws IOException {
-        CloudResponse remoteResponse = remote.editTag(addressBookName, oldTagName, convertToRemoteTag(newTag), null);
+        CloudResponse remoteResponse = remote.editTag(addressBookName, oldTagName, convertToCloudTag(newTag), null);
         HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
         if (!isValid(remoteResponse)) {
             return getResponseWithNoData(remoteResponse, headerHashMap);
         }
-        RemoteTag returnedTag = getDataFromBody(remoteResponse.getBody(), RemoteTag.class);
+        CloudTag returnedTag = getDataFromBody(remoteResponse.getBody(), CloudTag.class);
         return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
@@ -287,14 +287,14 @@ public class RemoteService implements IRemoteService {
                                                                         int curPageNumber, String previousETag)
             throws IOException {
         CloudResponse remoteResponse;
-        List<RemotePerson> remotePersons = new ArrayList<>();
+        List<CloudPerson> CloudPersons = new ArrayList<>();
 
         remoteResponse = remote.getUpdatedPersons(addressBookName, time.toString(), curPageNumber, RESOURCES_PER_PAGE,
                                                   null);
         if (!isValid(remoteResponse)) {
             return getResponseWithNoData(remoteResponse, remoteResponse.getHeaders());
         }
-        remotePersons.addAll(getDataListFromBody(remoteResponse.getBody(), RemotePerson.class));
+        CloudPersons.addAll(getDataListFromBody(remoteResponse.getBody(), CloudPerson.class));
 
         // Use the header of the last request, which contains the latest API rate limit
         HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
@@ -303,7 +303,7 @@ public class RemoteService implements IRemoteService {
         return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
-                                            getRateResetFromHeader(headerHashMap), convertToPersonList(remotePersons));
+                                            getRateResetFromHeader(headerHashMap), convertToPersonList(CloudPersons));
     }
 
     /**
@@ -432,56 +432,56 @@ public class RemoteService implements IRemoteService {
         return Long.parseLong(header.get("X-RateLimit-Reset"));
     }
 
-    private List<Person> convertToPersonList(List<RemotePerson> remotePersonList) {
+    private List<Person> convertToPersonList(List<CloudPerson> CloudPersonList) {
         List<Person> convertedList = new ArrayList<>();
-        remotePersonList.stream()
-                .forEach(remotePerson -> convertedList.add(convertToPerson(remotePerson)));
+        CloudPersonList.stream()
+                .forEach(CloudPerson -> convertedList.add(convertToPerson(CloudPerson)));
 
         return convertedList;
     }
 
-    private List<Tag> convertToTagList(List<RemoteTag> remoteTagList) {
+    private List<Tag> convertToTagList(List<CloudTag> CloudTagList) {
         List<Tag> convertedList = new ArrayList<>();
-        remoteTagList.stream()
-                .forEach(remoteTag -> convertedList.add(convertToTag(remoteTag)));
+        CloudTagList.stream()
+                .forEach(CloudTag -> convertedList.add(convertToTag(CloudTag)));
 
         return convertedList;
     }
 
-    private List<RemoteTag> convertToRemoteTagList(List<Tag> tagList) {
-        List<RemoteTag> convertedList = new ArrayList<>();
+    private List<CloudTag> convertToCloudTagList(List<Tag> tagList) {
+        List<CloudTag> convertedList = new ArrayList<>();
         tagList.stream()
-                .forEach(tag -> convertedList.add(convertToRemoteTag(tag)));
+                .forEach(tag -> convertedList.add(convertToCloudTag(tag)));
 
         return convertedList;
     }
 
-    private Person convertToPerson(RemotePerson remotePerson) {
-        // TODO: Copy remotePerson's ID
-        Person person = new Person(remotePerson.getFirstName(), remotePerson.getLastName());
-        person.setStreet(remotePerson.getStreet());
-        person.setCity(remotePerson.getCity());
-        person.setPostalCode(remotePerson.getPostalCode());
-        person.setTags(convertToTagList(remotePerson.getTags()));
-        person.setBirthday(remotePerson.getBirthday());
+    private Person convertToPerson(CloudPerson CloudPerson) {
+        // TODO: Copy CloudPerson's ID
+        Person person = new Person(CloudPerson.getFirstName(), CloudPerson.getLastName());
+        person.setStreet(CloudPerson.getStreet());
+        person.setCity(CloudPerson.getCity());
+        person.setPostalCode(CloudPerson.getPostalCode());
+        person.setTags(convertToTagList(CloudPerson.getTags()));
+        person.setBirthday(CloudPerson.getBirthday());
         return person;
     }
 
-    private RemotePerson convertToRemotePerson(Person person) {
-        RemotePerson remotePerson = new RemotePerson(person.getFirstName(), person.getLastName());
-        remotePerson.setStreet(person.getStreet());
-        remotePerson.setCity(person.getCity());
-        remotePerson.setPostalCode(person.getPostalCode());
-        remotePerson.setTags(convertToRemoteTagList(person.getTags()));
-        remotePerson.setBirthday(person.getBirthday());
-        return remotePerson;
+    private CloudPerson convertToCloudPerson(Person person) {
+        CloudPerson CloudPerson = new CloudPerson(person.getFirstName(), person.getLastName());
+        CloudPerson.setStreet(person.getStreet());
+        CloudPerson.setCity(person.getCity());
+        CloudPerson.setPostalCode(person.getPostalCode());
+        CloudPerson.setTags(convertToCloudTagList(person.getTags()));
+        CloudPerson.setBirthday(person.getBirthday());
+        return CloudPerson;
     }
 
-    private Tag convertToTag(RemoteTag remoteTag) {
-        return new Tag(remoteTag.getName());
+    private Tag convertToTag(CloudTag CloudTag) {
+        return new Tag(CloudTag.getName());
     }
 
-    private RemoteTag convertToRemoteTag(Tag tag) {
-        return new RemoteTag(tag.getName());
+    private CloudTag convertToCloudTag(Tag tag) {
+        return new CloudTag(tag.getName());
     }
 }
