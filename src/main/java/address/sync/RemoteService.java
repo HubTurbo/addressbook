@@ -2,37 +2,37 @@ package address.sync;
 
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
-import address.sync.model.CloudTag;
-import address.sync.model.CloudPerson;
+import address.sync.cloud.CloudSimulator;
+import address.sync.cloud.CloudResponse;
+import address.sync.model.RemotePerson;
+import address.sync.model.RemoteTag;
 import address.util.JsonUtil;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * Emulates the local cloud service
+ * This component is responsible for providing a high-level API for communication with the remote,
+ * as well as the reformatting the remote's response into a format understood by the local logic.
  *
- * This component is responsible for providing a high-level API for communication with the cloud,
- * as well as the reformatting the cloud's response into a format understood by the local logic.
- *
- * Most of the responses returned should include the rate limit status if the respective cloud response(s)
+ * Most of the responses returned should include the rate limit status if the respective remote response(s)
  * contain(s) them
  */
-public class CloudService implements ICloudService {
+public class RemoteService implements IRemoteService {
     private static final int RESOURCES_PER_PAGE = 100;
 
-    private final CloudSimulator cloud;
+    private final CloudSimulator remote;
 
-    public CloudService(boolean shouldSimulateUnreliableNetwork) {
-        cloud = new CloudSimulator(shouldSimulateUnreliableNetwork);
+    public RemoteService(boolean shouldSimulateUnreliableNetwork) {
+        remote = new CloudSimulator(shouldSimulateUnreliableNetwork);
     }
 
-    public CloudService(CloudSimulator cloudSimulator) {
-        cloud = cloudSimulator;
+    public RemoteService(CloudSimulator cloudSimulator) {
+        remote = cloudSimulator;
     }
 
     /**
-     * Checks whether a response from the cloud is valid
+     * Checks whether a response from the remote is valid
      *
      * A response is considered valid if the request has successfully executed
      * This does not include the case 304 where it has the same return result as before
@@ -40,7 +40,7 @@ public class CloudService implements ICloudService {
      * @param response
      * @return
      */
-    public static boolean isValid(RawCloudResponse response) {
+    public static boolean isValid(CloudResponse response) {
         switch (response.getResponseCode()) {
         case 200:
         case 201:
@@ -62,26 +62,26 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<List<Person>> getPersons(String addressBookName) throws IOException {
+    public ExtractedRemoteResponse<List<Person>> getPersons(String addressBookName) throws IOException {
         int curPageNumber = 1;
-        RawCloudResponse cloudResponse;
-        List<CloudPerson> cloudPersons = new ArrayList<>();
+        CloudResponse remoteResponse;
+        List<RemotePerson> remotePersons = new ArrayList<>();
         do {
-            cloudResponse = cloud.getPersons(addressBookName, curPageNumber, RESOURCES_PER_PAGE, null);
-            if (!isValid(cloudResponse)) {
-                return getResponseWithNoData(cloudResponse, cloudResponse.getHeaders());
+            remoteResponse = remote.getPersons(addressBookName, curPageNumber, RESOURCES_PER_PAGE, null);
+            if (!isValid(remoteResponse)) {
+                return getResponseWithNoData(remoteResponse, remoteResponse.getHeaders());
             }
-            cloudPersons.addAll(getDataListFromBody(cloudResponse.getBody(), CloudPerson.class));
+            remotePersons.addAll(getDataListFromBody(remoteResponse.getBody(), RemotePerson.class));
             curPageNumber++;
-        } while (cloudResponse.getNextPageNo() != -1);
+        } while (remoteResponse.getNextPageNo() != -1);
 
         // Use the header of the last request, which contains the latest API rate limit
-        HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
+        return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap),
-                                            convertToPersonList(cloudPersons));
+                                            convertToPersonList(remotePersons));
     }
 
     /**
@@ -94,30 +94,30 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<List<Tag>> getTags(String addressBookName, String previousETag) throws IOException {
+    public ExtractedRemoteResponse<List<Tag>> getTags(String addressBookName, String previousETag) throws IOException {
         int curPageNumber = 1;
-        RawCloudResponse cloudResponse;
-        List<CloudTag> cloudTags = new ArrayList<>();
+        CloudResponse remoteResponse;
+        List<RemoteTag> remoteTags = new ArrayList<>();
         do {
-            cloudResponse = cloud.getTags(addressBookName, curPageNumber, RESOURCES_PER_PAGE, previousETag);
-            if (!isValid(cloudResponse)) {
-                return getResponseWithNoData(cloudResponse, cloudResponse.getHeaders());
+            remoteResponse = remote.getTags(addressBookName, curPageNumber, RESOURCES_PER_PAGE, previousETag);
+            if (!isValid(remoteResponse)) {
+                return getResponseWithNoData(remoteResponse, remoteResponse.getHeaders());
             }
-            cloudTags.addAll(getDataListFromBody(cloudResponse.getBody(), CloudTag.class));
+            remoteTags.addAll(getDataListFromBody(remoteResponse.getBody(), RemoteTag.class));
             curPageNumber++;
-        } while (cloudResponse.getNextPageNo() != -1);
+        } while (remoteResponse.getNextPageNo() != -1);
 
         // Use the header of the last request, which contains the latest API rate limit
-        HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
+        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
 
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+        return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
-                                            getRateResetFromHeader(headerHashMap), convertToTagList(cloudTags));
+                                            getRateResetFromHeader(headerHashMap), convertToTagList(remoteTags));
     }
 
     /**
-     * Adds a person to the cloud, if quota is available
+     * Adds a person to the remote, if quota is available
      *
      * Consumes 1 API usage
      *
@@ -127,21 +127,21 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<Person> createPerson(String addressBookName, Person newPerson) throws IOException {
-        RawCloudResponse cloudResponse = cloud.createPerson(addressBookName, convertToCloudPerson(newPerson), null);
-        HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-        if (!isValid(cloudResponse)) {
-            return getResponseWithNoData(cloudResponse, headerHashMap);
+    public ExtractedRemoteResponse<Person> createPerson(String addressBookName, Person newPerson) throws IOException {
+        CloudResponse remoteResponse = remote.createPerson(addressBookName, convertToRemotePerson(newPerson), null);
+        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
+        if (!isValid(remoteResponse)) {
+            return getResponseWithNoData(remoteResponse, headerHashMap);
         }
-        CloudPerson returnedPerson = getDataFromBody(cloudResponse.getBody(), CloudPerson.class);
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+        RemotePerson returnedPerson = getDataFromBody(remoteResponse.getBody(), RemotePerson.class);
+        return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), convertToPerson(returnedPerson));
     }
 
     /**
-     * Updates a person on the cloud, if quota is available
+     * Updates a person on the remote, if quota is available
      *
      * Consumes 1 API usage
      *
@@ -152,16 +152,16 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<Person> updatePerson(String addressBookName, int personId, Person updatedPerson)
+    public ExtractedRemoteResponse<Person> updatePerson(String addressBookName, int personId, Person updatedPerson)
             throws IOException {
-        RawCloudResponse cloudResponse = cloud.updatePerson(addressBookName, personId,
-                convertToCloudPerson(updatedPerson), null);
-        HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-        if (!isValid(cloudResponse)) {
-            return getResponseWithNoData(cloudResponse, headerHashMap);
+        CloudResponse remoteResponse = remote.updatePerson(addressBookName, personId,
+                convertToRemotePerson(updatedPerson), null);
+        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
+        if (!isValid(remoteResponse)) {
+            return getResponseWithNoData(remoteResponse, headerHashMap);
         }
-        CloudPerson returnedPerson = getDataFromBody(cloudResponse.getBody(), CloudPerson.class);
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+        RemotePerson returnedPerson = getDataFromBody(remoteResponse.getBody(), RemotePerson.class);
+        return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap),
@@ -169,7 +169,7 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Deletes a person on the cloud, if quota is available
+     * Deletes a person on the remote, if quota is available
      *
      * Consumes 1 API usage
      *
@@ -179,21 +179,21 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<Void> deletePerson(String addressBookName, int personId)
+    public ExtractedRemoteResponse<Void> deletePerson(String addressBookName, int personId)
             throws IOException {
-        RawCloudResponse cloudResponse = cloud.deletePerson(addressBookName, personId);
-        HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-        if (!isValid(cloudResponse)) {
-            return getResponseWithNoData(cloudResponse, headerHashMap);
+        CloudResponse remoteResponse = remote.deletePerson(addressBookName, personId);
+        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
+        if (!isValid(remoteResponse)) {
+            return getResponseWithNoData(remoteResponse, headerHashMap);
         }
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+        return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), null);
     }
 
     /**
-     * Creates a tag on the cloud, if quota is available
+     * Creates a tag on the remote, if quota is available
      *
      * Consumes 1 API usage
      *
@@ -203,21 +203,21 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<Tag> createTag(String addressBookName, Tag tag) throws IOException {
-        RawCloudResponse cloudResponse = cloud.createTag(addressBookName, convertToCloudTag(tag), null);
-        HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-        if (!isValid(cloudResponse)) {
-            return getResponseWithNoData(cloudResponse, headerHashMap);
+    public ExtractedRemoteResponse<Tag> createTag(String addressBookName, Tag tag) throws IOException {
+        CloudResponse remoteResponse = remote.createTag(addressBookName, convertToRemoteTag(tag), null);
+        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
+        if (!isValid(remoteResponse)) {
+            return getResponseWithNoData(remoteResponse, headerHashMap);
         }
-        CloudTag returnedTag = getDataFromBody(cloudResponse.getBody(), CloudTag.class);
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+        RemoteTag returnedTag = getDataFromBody(remoteResponse.getBody(), RemoteTag.class);
+        return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), convertToTag(returnedTag));
     }
 
     /**
-     * Updates a tag on the cloud
+     * Updates a tag on the remote
      *
      * Consumes 1 API usage
      *
@@ -228,15 +228,15 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<Tag> editTag(String addressBookName, String oldTagName, Tag newTag)
+    public ExtractedRemoteResponse<Tag> editTag(String addressBookName, String oldTagName, Tag newTag)
             throws IOException {
-        RawCloudResponse cloudResponse = cloud.editTag(addressBookName, oldTagName, convertToCloudTag(newTag), null);
-        HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-        if (!isValid(cloudResponse)) {
-            return getResponseWithNoData(cloudResponse, headerHashMap);
+        CloudResponse remoteResponse = remote.editTag(addressBookName, oldTagName, convertToRemoteTag(newTag), null);
+        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
+        if (!isValid(remoteResponse)) {
+            return getResponseWithNoData(remoteResponse, headerHashMap);
         }
-        CloudTag returnedTag = getDataFromBody(cloudResponse.getBody(), CloudTag.class);
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+        RemoteTag returnedTag = getDataFromBody(remoteResponse.getBody(), RemoteTag.class);
+        return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap),
@@ -244,7 +244,7 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Deletes a tag on the cloud, if quota is available
+     * Deletes a tag on the remote, if quota is available
      *
      * Consumes 1 API usage
      *
@@ -254,13 +254,13 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<Void> deleteTag(String addressBookName, String tagName) throws IOException {
-        RawCloudResponse cloudResponse = cloud.deleteTag(addressBookName, tagName);
-        HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-        if (!isValid(cloudResponse)) {
-            return getResponseWithNoData(cloudResponse, headerHashMap);
+    public ExtractedRemoteResponse<Void> deleteTag(String addressBookName, String tagName) throws IOException {
+        CloudResponse remoteResponse = remote.deleteTag(addressBookName, tagName);
+        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
+        if (!isValid(remoteResponse)) {
+            return getResponseWithNoData(remoteResponse, headerHashMap);
         }
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+        return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), null);
@@ -278,28 +278,28 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time)
+    public ExtractedRemoteResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, LocalDateTime time)
             throws IOException {
         int curPageNumber = 1;
-        RawCloudResponse cloudResponse;
-        List<CloudPerson> cloudPersons = new ArrayList<>();
+        CloudResponse remoteResponse;
+        List<RemotePerson> remotePersons = new ArrayList<>();
         do {
-            cloudResponse = cloud.getUpdatedPersons(addressBookName, time.toString(), curPageNumber,
-                                                    RESOURCES_PER_PAGE, null);
-            if (!isValid(cloudResponse)) {
-                return getResponseWithNoData(cloudResponse, cloudResponse.getHeaders());
+            remoteResponse = remote.getUpdatedPersons(addressBookName, time.toString(), curPageNumber,
+                    RESOURCES_PER_PAGE, null);
+            if (!isValid(remoteResponse)) {
+                return getResponseWithNoData(remoteResponse, remoteResponse.getHeaders());
             }
-            cloudPersons.addAll(getDataListFromBody(cloudResponse.getBody(), CloudPerson.class));
+            remotePersons.addAll(getDataListFromBody(remoteResponse.getBody(), RemotePerson.class));
             curPageNumber++;
-        } while (cloudResponse.getNextPageNo() != -1);
+        } while (remoteResponse.getNextPageNo() != -1);
 
         // Use the header of the last request, which contains the latest API rate limit
-        HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
+        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
 
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+        return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
-                                            getRateResetFromHeader(headerHashMap), convertToPersonList(cloudPersons));
+                                            getRateResetFromHeader(headerHashMap), convertToPersonList(remotePersons));
     }
 
     /**
@@ -311,15 +311,15 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<HashMap<String, String>> getLimitStatus() throws IOException {
-        RawCloudResponse cloudResponse = cloud.getRateLimitStatus(null);
-        HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
-        if (!isValid(cloudResponse)) {
-            return getResponseWithNoData(cloudResponse, headerHashMap);
+    public ExtractedRemoteResponse<HashMap<String, String>> getLimitStatus() throws IOException {
+        CloudResponse remoteResponse = remote.getRateLimitStatus(null);
+        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
+        if (!isValid(remoteResponse)) {
+            return getResponseWithNoData(remoteResponse, headerHashMap);
         }
-        HashMap<String, String> bodyHashMap = getHashMapFromBody(cloudResponse.getBody());
+        HashMap<String, String> bodyHashMap = getHashMapFromBody(remoteResponse.getBody());
         HashMap<String, String> simplifiedHashMap = getHeaderLimitStatus(bodyHashMap);
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+        return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), simplifiedHashMap);
@@ -334,7 +334,7 @@ public class CloudService implements ICloudService {
     }
 
     /**
-     * Creates a new addressbook in the cloud with name addressBookName
+     * Creates a new addressbook in the remote with name addressBookName
      *
      * Consumes 1 API usage
      *
@@ -343,20 +343,20 @@ public class CloudService implements ICloudService {
      * @throws IOException
      */
     @Override
-    public ExtractedCloudResponse<Void> createAddressBook(String addressBookName) throws IOException {
-        RawCloudResponse cloudResponse = cloud.createAddressBook(addressBookName);
-        HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
+    public ExtractedRemoteResponse<Void> createAddressBook(String addressBookName) throws IOException {
+        CloudResponse remoteResponse = remote.createAddressBook(addressBookName);
+        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
 
         // empty response whether valid response code or not
-        return getResponseWithNoData(cloudResponse, headerHashMap);
+        return getResponseWithNoData(remoteResponse, headerHashMap);
     }
 
-    private <V> ExtractedCloudResponse<V> getResponseWithNoData(RawCloudResponse cloudResponse,
-                                                                HashMap<String, String> headerHashMap) {
+    private <V> ExtractedRemoteResponse<V> getResponseWithNoData(CloudResponse remoteResponse,
+                                                                 HashMap<String, String> headerHashMap) {
         if (headerHashMap == null || headerHashMap.size() < 3) {
-            return new ExtractedCloudResponse<>(cloudResponse.getResponseCode());
+            return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode());
         }
-        return new ExtractedCloudResponse<>(cloudResponse.getResponseCode(), getETagFromHeader(headerHashMap),
+        return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
                                             getRateResetFromHeader(headerHashMap), null);
@@ -428,56 +428,56 @@ public class CloudService implements ICloudService {
         return Long.parseLong(header.get("X-RateLimit-Reset"));
     }
 
-    private List<Person> convertToPersonList(List<CloudPerson> cloudPersonList) {
+    private List<Person> convertToPersonList(List<RemotePerson> remotePersonList) {
         List<Person> convertedList = new ArrayList<>();
-        cloudPersonList.stream()
-                .forEach(cloudPerson -> convertedList.add(convertToPerson(cloudPerson)));
+        remotePersonList.stream()
+                .forEach(remotePerson -> convertedList.add(convertToPerson(remotePerson)));
 
         return convertedList;
     }
 
-    private List<Tag> convertToTagList(List<CloudTag> cloudTagList) {
+    private List<Tag> convertToTagList(List<RemoteTag> remoteTagList) {
         List<Tag> convertedList = new ArrayList<>();
-        cloudTagList.stream()
-                .forEach(cloudTag -> convertedList.add(convertToTag(cloudTag)));
+        remoteTagList.stream()
+                .forEach(remoteTag -> convertedList.add(convertToTag(remoteTag)));
 
         return convertedList;
     }
 
-    private List<CloudTag> convertToCloudTagList(List<Tag> tagList) {
-        List<CloudTag> convertedList = new ArrayList<>();
+    private List<RemoteTag> convertToRemoteTagList(List<Tag> tagList) {
+        List<RemoteTag> convertedList = new ArrayList<>();
         tagList.stream()
-                .forEach(tag -> convertedList.add(convertToCloudTag(tag)));
+                .forEach(tag -> convertedList.add(convertToRemoteTag(tag)));
 
         return convertedList;
     }
 
-    private Person convertToPerson(CloudPerson cloudPerson) {
-        // TODO: Copy cloudPerson's ID
-        Person person = new Person(cloudPerson.getFirstName(), cloudPerson.getLastName());
-        person.setStreet(cloudPerson.getStreet());
-        person.setCity(cloudPerson.getCity());
-        person.setPostalCode(cloudPerson.getPostalCode());
-        person.setTags(convertToTagList(cloudPerson.getTags()));
-        person.setBirthday(cloudPerson.getBirthday());
+    private Person convertToPerson(RemotePerson remotePerson) {
+        // TODO: Copy remotePerson's ID
+        Person person = new Person(remotePerson.getFirstName(), remotePerson.getLastName());
+        person.setStreet(remotePerson.getStreet());
+        person.setCity(remotePerson.getCity());
+        person.setPostalCode(remotePerson.getPostalCode());
+        person.setTags(convertToTagList(remotePerson.getTags()));
+        person.setBirthday(remotePerson.getBirthday());
         return person;
     }
 
-    private CloudPerson convertToCloudPerson(Person person) {
-        CloudPerson cloudPerson = new CloudPerson(person.getFirstName(), person.getLastName());
-        cloudPerson.setStreet(person.getStreet());
-        cloudPerson.setCity(person.getCity());
-        cloudPerson.setPostalCode(person.getPostalCode());
-        cloudPerson.setTags(convertToCloudTagList(person.getTagList()));
-        cloudPerson.setBirthday(person.getBirthday());
-        return cloudPerson;
+    private RemotePerson convertToRemotePerson(Person person) {
+        RemotePerson remotePerson = new RemotePerson(person.getFirstName(), person.getLastName());
+        remotePerson.setStreet(person.getStreet());
+        remotePerson.setCity(person.getCity());
+        remotePerson.setPostalCode(person.getPostalCode());
+        remotePerson.setTags(convertToRemoteTagList(person.getTags()));
+        remotePerson.setBirthday(person.getBirthday());
+        return remotePerson;
     }
 
-    private Tag convertToTag(CloudTag cloudTag) {
-        return new Tag(cloudTag.getName());
+    private Tag convertToTag(RemoteTag remoteTag) {
+        return new Tag(remoteTag.getName());
     }
 
-    private CloudTag convertToCloudTag(Tag tag) {
-        return new CloudTag(tag.getName());
+    private RemoteTag convertToRemoteTag(Tag tag) {
+        return new RemoteTag(tag.getName());
     }
 }

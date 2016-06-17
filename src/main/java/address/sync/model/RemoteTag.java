@@ -7,17 +7,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDateTime;
 
-@XmlRootElement(name = "cloudtag")
-public class CloudTag {
+@XmlRootElement(name = "remotetag")
+public class RemoteTag {
     private String name;
 
     private LocalDateTime lastUpdatedAt;
 
-    public CloudTag() {
+    public RemoteTag() {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
-    public CloudTag(String name) {
+    public RemoteTag(String name) {
         this.name = name;
         setLastUpdatedAt(LocalDateTime.now());
     }
@@ -32,7 +32,7 @@ public class CloudTag {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
-    public void updatedBy(CloudTag updatedTag) {
+    public void updatedBy(RemoteTag updatedTag) {
         this.name = updatedTag.name;
         setLastUpdatedAt(LocalDateTime.now());
     }
@@ -56,9 +56,9 @@ public class CloudTag {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CloudTag cloudTag = (CloudTag) o;
+        RemoteTag remoteTag = (RemoteTag) o;
 
-        return name != null ? name.equals(cloudTag.name) : cloudTag.name == null;
+        return name != null ? name.equals(remoteTag.name) : remoteTag.name == null;
 
     }
 

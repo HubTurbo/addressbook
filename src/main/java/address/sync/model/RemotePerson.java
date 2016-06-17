@@ -11,25 +11,25 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement(name = "cloudperson")
-public class CloudPerson {
+@XmlRootElement(name = "remoteperson")
+public class RemotePerson {
     private int id;
     private String firstName;
     private String lastName;
     private String street;
     private String city;
     private String postalCode;
-    private List<CloudTag> tags;
+    private List<RemoteTag> tags;
     private boolean isDeleted;
 
     private LocalDateTime lastUpdatedAt;
 
     private LocalDate birthday;
 
-    public CloudPerson() {
+    public RemotePerson() {
     }
 
-    public CloudPerson(String firstName, String lastName) {
+    public RemotePerson(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.tags = new ArrayList<>();
@@ -97,11 +97,11 @@ public class CloudPerson {
     }
 
     @XmlElement(name = "tags")
-    public List<CloudTag> getTags() {
+    public List<RemoteTag> getTags() {
         return tags;
     }
 
-    public void setTags(List<CloudTag> tags) {
+    public void setTags(List<RemoteTag> tags) {
         this.tags = tags;
         setLastUpdatedAt(LocalDateTime.now());
     }
@@ -137,7 +137,7 @@ public class CloudPerson {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
-    public void updatedBy(CloudPerson updatedPerson) {
+    public void updatedBy(RemotePerson updatedPerson) {
         this.firstName = updatedPerson.firstName;
         this.lastName = updatedPerson.lastName;
         this.street = updatedPerson.street;
@@ -158,7 +158,7 @@ public class CloudPerson {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CloudPerson that = (CloudPerson) o;
+        RemotePerson that = (RemotePerson) o;
 
         if (id != that.id) return false;
         if (isDeleted != that.isDeleted) return false;

@@ -2,7 +2,7 @@ package address.unittests.sync;
 
 import address.events.EventManager;
 import address.events.SyncFailedEvent;
-import address.sync.CloudService;
+import address.sync.RemoteService;
 import address.sync.SyncManager;
 import com.google.common.eventbus.Subscribe;
 import org.junit.After;
@@ -35,10 +35,10 @@ public class SyncManagerTest {
     public void setup() {
         EventManager.getInstance().registerHandler(this);
         syncFailedEventCount = 0;
-        CloudService cloudService = mock(CloudService.class);
+        RemoteService remoteService = mock(RemoteService.class);
         executorService = mock(ExecutorService.class);
         scheduledExecutorService = mock(ScheduledExecutorService.class);
-        syncManager = new SyncManager(cloudService, executorService, scheduledExecutorService);
+        syncManager = new SyncManager(remoteService, executorService, scheduledExecutorService);
     }
 
     @Test

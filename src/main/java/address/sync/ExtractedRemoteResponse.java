@@ -1,13 +1,11 @@
 package address.sync;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-import java.util.TimeZone;
 
-public class ExtractedCloudResponse<V> {
+public class ExtractedRemoteResponse<V> {
     private Optional<V> data;
     private int quotaLimit;
     private int quotaRemaining;
@@ -22,8 +20,8 @@ public class ExtractedCloudResponse<V> {
         return zonedDateTime.getOffset();
     }
 
-    ExtractedCloudResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining,
-                           long quotaResetTimeEpochSeconds) {
+    ExtractedRemoteResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining,
+                            long quotaResetTimeEpochSeconds) {
         this(responseCode);
         this.eTag = eTag;
         this.quotaLimit = quotaLimit;
@@ -31,18 +29,18 @@ public class ExtractedCloudResponse<V> {
         this.quotaResetTime = LocalDateTime.ofEpochSecond(quotaResetTimeEpochSeconds, 0, getSystemTimezone());
     }
 
-    ExtractedCloudResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining,
-                           long quotaResetTimeEpochSeconds, V data) {
+    ExtractedRemoteResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining,
+                            long quotaResetTimeEpochSeconds, V data) {
         this(responseCode, eTag, quotaLimit, quotaRemaining, quotaResetTimeEpochSeconds);
         this.data = Optional.ofNullable(data);
     }
 
-    ExtractedCloudResponse(int responseCode) {
+    ExtractedRemoteResponse(int responseCode) {
         this.responseCode = responseCode;
         this.data = Optional.empty();
     }
 
-    ExtractedCloudResponse() {
+    ExtractedRemoteResponse() {
     }
 
     public int getResponseCode() {

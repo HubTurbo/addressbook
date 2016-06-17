@@ -6,27 +6,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is meant to wrap cloud persons and cloud tags in the cloud for easier storage
+ * This class is the addressbook model used by any remote server
  *
- * This class should NOT be used by other components aside from CloudService
+ * This class should NOT be used by other components aside from RemoteService
  */
-@XmlRootElement(name = "cloudaddressbook")
-public class CloudAddressBook {
+@XmlRootElement(name = "remoteaddressbook")
+public class RemoteAddressBook {
     String name;
-    List<CloudPerson> personsList;
-    List<CloudTag> tagsList;
+    List<RemotePerson> personsList;
+    List<RemoteTag> tagsList;
 
-    public CloudAddressBook() {
+    public RemoteAddressBook() {
         this.personsList = new ArrayList<>();
         this.tagsList = new ArrayList<>();
     }
 
-    public CloudAddressBook(String name) {
+    public RemoteAddressBook(String name) {
         this();
         this.name = name;
     }
 
-    public CloudAddressBook(String name, List<CloudPerson> personsList, List<CloudTag> tagsList) {
+    public RemoteAddressBook(String name, List<RemotePerson> personsList, List<RemoteTag> tagsList) {
         this.name = name;
         this.personsList = personsList;
         this.tagsList = tagsList;
@@ -37,13 +37,13 @@ public class CloudAddressBook {
         return this.name;
     }
 
-    @XmlElement(name = "cloudpersons")
-    public List<CloudPerson> getAllPersons() {
+    @XmlElement(name = "remotepersons")
+    public List<RemotePerson> getAllPersons() {
         return this.personsList;
     }
 
-    @XmlElement(name = "cloudtags")
-    public List<CloudTag> getAllTags() {
+    @XmlElement(name = "remotetags")
+    public List<RemoteTag> getAllTags() {
         return this.tagsList;
     }
 
@@ -51,20 +51,20 @@ public class CloudAddressBook {
         this.name = name;
     }
 
-    public void setPersonsList(List<CloudPerson> personsList) {
+    public void setPersonsList(List<RemotePerson> personsList) {
         this.personsList = personsList;
     }
 
-    public void setTagsList(List<CloudTag> tagsList) {
+    public void setTagsList(List<RemoteTag> tagsList) {
         this.tagsList = tagsList;
     }
 
     public boolean equals(Object o) {
-        if (!(o instanceof CloudAddressBook)) return false;
+        if (!(o instanceof RemoteAddressBook)) return false;
 
-        CloudAddressBook cloudAddressBook = (CloudAddressBook) o;
-        return cloudAddressBook.getAllPersons().equals(personsList) &&
-                cloudAddressBook.getAllTags().equals(tagsList);
+        RemoteAddressBook remoteAddressBook = (RemoteAddressBook) o;
+        return remoteAddressBook.getAllPersons().equals(personsList) &&
+                remoteAddressBook.getAllTags().equals(tagsList);
     }
 
     @Override
