@@ -2,7 +2,7 @@ package address.unittests.sync;
 
 import address.events.EventManager;
 import address.events.SyncFailedEvent;
-import address.sync.RemoteService;
+import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import com.google.common.eventbus.Subscribe;
 import org.junit.After;
@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.Thread.sleep;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -35,10 +34,10 @@ public class SyncManagerTest {
     public void setup() {
         EventManager.getInstance().registerHandler(this);
         syncFailedEventCount = 0;
-        RemoteService remoteService = mock(RemoteService.class);
+        RemoteManager remoteManager = mock(RemoteManager.class);
         executorService = mock(ExecutorService.class);
         scheduledExecutorService = mock(ScheduledExecutorService.class);
-        syncManager = new SyncManager(remoteService, executorService, scheduledExecutorService);
+        syncManager = new SyncManager(remoteManager, executorService, scheduledExecutorService);
     }
 
     @Test

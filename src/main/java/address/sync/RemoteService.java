@@ -6,7 +6,10 @@ import address.sync.cloud.CloudSimulator;
 import address.sync.cloud.CloudResponse;
 import address.sync.model.RemotePerson;
 import address.sync.model.RemoteTag;
+import address.util.AppLogger;
 import address.util.JsonUtil;
+import address.util.LoggerManager;
+
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -19,6 +22,7 @@ import java.util.*;
  * contain(s) them
  */
 public class RemoteService implements IRemoteService {
+    private static AppLogger logger = LoggerManager.getLogger(RemoteService.class);
     private static final int RESOURCES_PER_PAGE = 100;
 
     private final CloudSimulator remote;
@@ -296,6 +300,7 @@ public class RemoteService implements IRemoteService {
         // Use the header of the last request, which contains the latest API rate limit
         HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
 
+        logger.debug("Returning updated persons response.");
         return new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(), getETagFromHeader(headerHashMap),
                                             getRateLimitFromHeader(headerHashMap),
                                             getRateRemainingFromHeader(headerHashMap),
