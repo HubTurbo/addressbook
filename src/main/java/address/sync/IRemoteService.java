@@ -10,7 +10,8 @@ import java.util.List;
 
 public interface IRemoteService {
     // Consumes API quota
-    ExtractedRemoteResponse<List<Person>> getPersons(String addressBookName) throws IOException;
+    ExtractedRemoteResponse<List<Person>> getPersons(String addressBookName, int pageNumber) throws IOException;
+
     ExtractedRemoteResponse<List<Tag>> getTags(String addressBookName, int pageNumber, String previousETag) throws IOException;
 
     ExtractedRemoteResponse<Person> createPerson(String addressBookName, Person person) throws IOException;

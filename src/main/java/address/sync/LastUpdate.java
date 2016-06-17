@@ -1,18 +1,24 @@
 package address.sync;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Optional;
 
 public class LastUpdate {
     // TODO volatile?
-    String eTag;
+    HashMap<Integer, String> eTags;
     LocalDateTime lastUpdatedAt;
 
-    public String getETag() {
-        return eTag;
+    LastUpdate() {
+        eTags = new HashMap<>();
     }
 
-    public void setETag(String eTag) {
-        this.eTag = eTag;
+    public Optional<String> getETag(int pageNumber) {
+        return Optional.ofNullable(eTags.get(pageNumber));
+    }
+
+    public void setETag(Integer pageNumber, String eTag) {
+        eTags.put(pageNumber, eTag);
     }
 
     public LocalDateTime getLastUpdatedAt() {

@@ -16,8 +16,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 import java.util.HashMap;
 
-public class CloudResponse {
-    private static final AppLogger logger = LoggerManager.getLogger(CloudResponse.class);
+public class RemoteResponse {
+    private static final AppLogger logger = LoggerManager.getLogger(RemoteResponse.class);
     int responseCode;
     InputStream body;
     HashMap<String, String> headers;
@@ -62,7 +62,7 @@ public class CloudResponse {
         header.put("ETag", eTag);
     }
 
-    public CloudResponse(int responseCode, Object body, HashMap<String, String> header) {
+    public RemoteResponse(int responseCode, Object body, HashMap<String, String> header) {
         this.responseCode = responseCode;
         if (body != null) {
             this.body = convertToInputStream(body);
@@ -71,8 +71,8 @@ public class CloudResponse {
         this.headers = header;
     }
 
-    public CloudResponse(int responseCode) {
-        assert responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR : "CloudResponse constructor misused";
+    public RemoteResponse(int responseCode) {
+        assert responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR : "RemoteResponse constructor misused";
         this.responseCode = responseCode;
         this.headers = new HashMap<>();
     }

@@ -17,7 +17,7 @@ import java.util.Optional;
 public class RemoteManager {
     RemoteService remoteService;
 
-    HashMap<String, HashMap<Integer, LastUpdate>> updateInformation;
+    HashMap<String, LastUpdate> updateInformation;
     LocalDateTime personLastUpdatedAt;
 
     public RemoteManager() {
@@ -26,11 +26,15 @@ public class RemoteManager {
 
     public Optional<List<Person>> getUpdatedPersons(String addressBookName) throws IOException {
         ExtractedRemoteResponse<List<Person>> response;
-        if (personLastUpdatedAt == null) {
-            response = remoteService.getPersons(addressBookName);
-        } else {
-            response = remoteService.getUpdatedPersonsSince(addressBookName, personLastUpdatedAt);
-        }
+
+        int curPage = 1;
+        do {
+            if (personLastUpdatedAt == null) {
+                response = remoteService.getPersons(addressBookName, curPage);
+            } else {
+                response = remoteService.getUpdatedPersonsSince(addressBookName, personLastUpdatedAt, curPage, null);
+            }
+        } while (response.getNextPage() != -1);
         personLastUpdatedAt = LocalDateTime.now();
         return response.getData();
     }
@@ -46,6 +50,7 @@ public class RemoteManager {
         ExtractedRemoteResponse<List<Tag>> response;
 
         List<Tag> tagList = new ArrayList<>();
+        LastUpdate lastUpdateInfo = new LastUpdate();
         int curPage = 1;
         do {
             Optional<String> lastETag = getLastUpdate(updateInformation, addressBookName, curPage);
@@ -55,18 +60,20 @@ public class RemoteManager {
                 response = remoteService.getTags(addressBookName, curPage, lastETag.get());
             }
             if (!response.getData().isPresent()) return Optional.empty();
+            lastUpdateInfo.setETag(curPage, response.getETag());
             tagList.addAll(response.getData().get());
             curPage++;
         } while (response.getNextPage() != -1);
-
+        lastUpdateInfo.setLastUpdatedAt(LocalDateTime.now());
+        updateInformation.put(addressBookName, lastUpdateInfo);
+        
         return Optional.of(tagList);
     }
 
-    private Optional<String> getLastUpdate(HashMap<String, HashMap<Integer, LastUpdate>> updateInformation, String addressBookName, Integer pageNo) {
+    private Optional<String> getLastUpdate(HashMap<String, LastUpdate> updateInformation, String addressBookName, Integer pageNo) {
         if (!updateInformation.containsKey(addressBookName)) return Optional.empty();
-        HashMap<Integer, LastUpdate> lastUpdateInformation = updateInformation.get(addressBookName);
-        if (!lastUpdateInformation.containsKey(pageNo)) return Optional.empty();
-        return Optional.of(lastUpdateInformation.get(pageNo).getETag());
+        LastUpdate lastUpdateInformation = updateInformation.get(addressBookName);
+        return lastUpdateInformation.getETag(pageNo);
     }
 
     private boolean hasValidResponseCode(ExtractedRemoteResponse<List<Person>> response) {
