@@ -114,7 +114,7 @@ public class MainController {
 
             primaryStage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error initializing root layout: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml root layout.",
                                    "IOException when trying to load " + fxmlResourcePath);
         }
@@ -141,7 +141,7 @@ public class MainController {
             personOverviewController.setConnections(this, modelManager, reorderedList);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error loading person overview: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for person overview.",
                                    "IOException when trying to load " + fxmlResourcePath);
         }
@@ -157,6 +157,7 @@ public class MainController {
     }
 
     private void showFooterStatusBar() {
+        logger.debug("Showing footer status bar.");
         final String fxmlResourcePath = FXML_STATUS_BAR_FOOTER;
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -168,7 +169,7 @@ public class MainController {
             rootLayout.getChildren().add(gPane);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error showing footer status bar: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for footer status bar.",
                     "IOException when trying to load " + fxmlResourcePath);
         }
@@ -229,7 +230,7 @@ public class MainController {
                 return Optional.empty();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error loading person edit dialog: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for edit person dialog.",
                                    "IOException when trying to load " + fxmlResourcePath);
             return Optional.empty();
@@ -274,7 +275,7 @@ public class MainController {
                 return Optional.empty();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error loading tag edit dialog: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for edit tag dialog.",
                                    "IOException when trying to load " + fxmlResourcePath);
             return Optional.empty();
@@ -305,7 +306,7 @@ public class MainController {
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error loading tag list view: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for tag list.",
                                    "IOException when trying to load " + fxmlResourcePath);
         }
@@ -336,7 +337,7 @@ public class MainController {
 
             dialogStage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Error loading birthday statistics view: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for birthday stats.",
                                    "IOException when trying to load " + fxmlResourcePath);
         }
