@@ -28,6 +28,7 @@ public class HyperBrowser {
 
     public static final int RECOMMENDED_NUMBER_OF_PAGES = 3;
 
+    // TODO: Change to ENUM
     public static final int FULL_FEATURE_BROWSER = 1;
     public static final int LIMITED_FEATURE_BROWSER = 2;
 
@@ -199,7 +200,7 @@ public class HyperBrowser {
                         return false;
                     }
                 } catch (MalformedURLException e) {
-                    logger.warn("Malformed URL detected in existing pages.");
+                    logger.warn("Malformed URL detected in existing pages: {}", e);
                     // TODO proper handling instead of just logging
                 }
             }
