@@ -38,12 +38,14 @@ public class StorageManager extends ComponentManager {
      */
     @Subscribe
     public void handleLoadDataRequestEvent(LoadDataRequestEvent ldre) {
+        logger.info("Load data request received: " + ldre.file);
         AddressBook data;
 
         try {
+            logger.debug("Attempting to load data from file: " + ldre.file);
             data = XmlFileStorage.loadDataFromSaveFile(ldre.file);
         } catch (FileNotFoundException | DataConversionException e) {
-            e.printStackTrace();
+            logger.debug("Error loading data from file: {}", e);
             raise(new FileOpeningExceptionEvent(e, ldre.file));
             return;
         }
@@ -80,7 +82,9 @@ public class StorageManager extends ComponentManager {
      */
     @Subscribe
     public void handleSaveRequestEvent(SaveRequestEvent sre) {
-        saveDataToFile(sre.file, new AddressBook(sre.personData, sre.tagData));
+        AddressBook addressBookToSave = new AddressBook(sre.personData, sre.tagData);
+        logger.info("Save data request received: {}", addressBookToSave);
+        saveDataToFile(sre.file, addressBookToSave);
     }
 
     /**
