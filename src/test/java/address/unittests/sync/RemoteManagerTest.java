@@ -5,8 +5,6 @@ import address.model.datatypes.tag.Tag;
 import address.sync.ExtractedRemoteResponse;
 import address.sync.RemoteManager;
 import address.sync.RemoteService;
-import address.sync.cloud.RemoteResponse;
-import address.sync.cloud.model.CloudPerson;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 

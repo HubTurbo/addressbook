@@ -21,10 +21,10 @@ public class RemoteResponse {
     int responseCode;
     InputStream body;
     HashMap<String, String> headers;
-    int nextPageNo = -1;
-    int previousPageNo = -1;
-    int firstPageNo = -1;
-    int lastPageNo = -1;
+    int nextPageNo;
+    int previousPageNo;
+    int firstPageNo;
+    int lastPageNo;
 
     public int getNextPageNo() {
         return nextPageNo;
