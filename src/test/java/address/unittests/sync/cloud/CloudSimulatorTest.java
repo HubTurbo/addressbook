@@ -1,4 +1,4 @@
-package address.unittests.sync;
+package address.unittests.sync.cloud;
 
 import address.exceptions.DataConversionException;
 import address.sync.cloud.RemoteResponse;

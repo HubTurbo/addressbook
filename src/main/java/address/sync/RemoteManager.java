@@ -12,7 +12,8 @@ import java.util.Optional;
 
 /**
  * This class is meant to abstract away the details for making requests to the remote
- * Manages RemoteService to obtain the make the appropriate requests
+ * Manages RemoteService to obtain the make the appropriate requests, and keeps track of
+ * update information to reduce usage of API quota given by the remote
  */
 public class RemoteManager {
     RemoteService remoteService;
@@ -25,9 +26,15 @@ public class RemoteManager {
         remoteService = new RemoteService(false);
     }
 
+    public RemoteManager(RemoteService remoteService) {
+        updateInformation = new HashMap<>();
+        this.remoteService = remoteService;
+    }
+
     public Optional<List<Person>> getUpdatedPersons(String addressBookName) throws IOException {
         ExtractedRemoteResponse<List<Person>> response;
 
+        List<Person> personList = new ArrayList<>();
         int curPage = 1;
         do {
             if (personLastUpdatedAt == null) {
@@ -35,11 +42,13 @@ public class RemoteManager {
             } else {
                 response = remoteService.getUpdatedPersonsSince(addressBookName, curPage, personLastUpdatedAt, null);
             }
-        } while (response.getNextPage() != -1); // may have problems if RESOURCES_PER_PAGE issues have been updated at the same second
+            personList.addAll(response.getData().get());
+            curPage++;
+        } while (response.getNextPage() != 0); // may have problems if RESOURCES_PER_PAGE issues have been updated at the same second
                                                 // of the update request, since the second page will never be requested, and first page
                                                 // will always remain the same
         personLastUpdatedAt = LocalDateTime.now();
-        return response.getData();
+        return Optional.of(personList);
     }
 
     /**
@@ -67,7 +76,7 @@ public class RemoteManager {
             lastUpdateInfo.setETag(curPage, response.getETag());
             tagList.addAll(response.getData().get());
             curPage++;
-        } while (response.getNextPage() != -1 || curPage < prevPageCount);// does not handle the case moving from a fully-filled last page -> a new page with new tags
+        } while (response.getNextPage() != 0 || curPage < prevPageCount);// does not handle the case moving from a fully-filled last page -> a new page with new tags
         lastUpdateInfo.setLastUpdatedAt(LocalDateTime.now());
         updateInformation.put(addressBookName, lastUpdateInfo);
         

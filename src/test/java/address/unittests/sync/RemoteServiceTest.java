@@ -85,51 +85,6 @@ public class RemoteServiceTest {
         assertNull(serviceResponse.getQuotaResetTime());
     }
 
-    @Test
-    public void getPersons_multiplePages_successfulQuery() throws IOException {
-        int quotaLimit = 10;
-        int quotaRemaining = 0;
-        int noOfPersons = 1000;
-        List<CloudPerson> personsToReturn = new ArrayList<>();
-        for (int i = 0; i < noOfPersons; i++) {
-            personsToReturn.add(new CloudPerson("firstName" + i, "lastName" + i));
-        }
-
-        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining, getResetTime());
-        when(cloudSimulator.getPersons(anyString(), anyInt(), anyInt(), anyObject())).thenAnswer((invocation) -> {
-            Object[] args = invocation.getArguments();
-            String addressBookName = (String) args[0];
-            assertEquals("Test", addressBookName);
-            int pageNumber = (int) args[1];
-            int resourcesPerPage = (int) args[2];
-            int startIndex = (pageNumber - 1) * resourcesPerPage;
-            int endIndex = pageNumber * resourcesPerPage;
-
-            RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_OK, personsToReturn.subList(startIndex, endIndex), header);
-
-            pageNumber = pageNumber < 1 ? 1 : pageNumber;
-            int lastPage = (int) Math.ceil(noOfPersons/RESOURCES_PER_PAGE);
-            remoteResponse.setFirstPageNo(1);
-            remoteResponse.setLastPageNo(lastPage);
-            if (pageNumber < lastPage) remoteResponse.setNextPageNo(pageNumber + 1);
-            if (pageNumber > 1) remoteResponse.setPreviousPageNo(pageNumber - 1);
-
-            return remoteResponse;
-        });
-
-
-        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getPersons("Test", 4);
-        assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
-        assertTrue(serviceResponse.getData().isPresent());
-        assertEquals(RESOURCES_PER_PAGE, serviceResponse.getData().get().size());
-
-        for (int i = 0; i < RESOURCES_PER_PAGE; i++) {
-            assertEquals("firstName" + (i + 400), serviceResponse.getData().get().get(i).getFirstName());
-            assertEquals("lastName" + (i + 400), serviceResponse.getData().get().get(i).getLastName());
-        }
-        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
-    }
-
     private long getResetTime() {
         return LocalDateTime.now().toEpochSecond(getSystemTimezone()) + 30000;
     }
@@ -418,49 +373,6 @@ public class RemoteServiceTest {
         assertEquals(1, serviceResponse.getData().get().size());
         assertEquals("firstName", serviceResponse.getData().get().get(0).getFirstName());
         assertEquals("lastName", serviceResponse.getData().get().get(0).getLastName());
-        assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
-    }
-
-    @Test
-    public void getUpdatedPersonsSince_manyData_successfulGet() throws IOException {
-        int quotaLimit = 10;
-        int quotaRemaining = 8;
-
-        LocalDateTime cutOffTime = LocalDateTime.now();
-
-        // response 1
-        List<CloudPerson> remotePersons = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
-            remotePersons.add(new CloudPerson("firstName" + i, "lastName" + i));
-        }
-        HashMap<String, String> header = getHeader(quotaLimit, quotaRemaining + 1, getResetTime());
-        RemoteResponse remoteResponseOne = new RemoteResponse(HttpURLConnection.HTTP_OK, remotePersons, header);
-        remoteResponseOne.setFirstPageNo(1);
-        remoteResponseOne.setNextPageNo(2);
-        remoteResponseOne.setLastPageNo(2);
-
-        // response 2
-        List<CloudPerson> remotePersons2 = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            remotePersons2.add(new CloudPerson("firstName" + (i + 100), "lastName" + (i + 100)));
-        }
-        HashMap<String, String> header2 = getHeader(quotaLimit, quotaRemaining, getResetTime());
-        RemoteResponse remoteResponseTwo = new RemoteResponse(HttpURLConnection.HTTP_OK, remotePersons2, header2);
-        remoteResponseTwo.setFirstPageNo(1);
-        remoteResponseTwo.setPreviousPageNo(1);
-        remoteResponseTwo.setLastPageNo(2);
-
-        when(cloudSimulator.getUpdatedPersons(anyString(), anyString(), anyInt(), anyInt(), anyString())).thenReturn(remoteResponseTwo);
-
-        ExtractedRemoteResponse<List<Person>> serviceResponse = remoteService.getUpdatedPersonsSince("Test", 2, cutOffTime, null);
-
-        assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
-        assertTrue(serviceResponse.getData().isPresent());
-        assertEquals(50, serviceResponse.getData().get().size());
-        for (int i = 0; i < 50; i++) {
-            assertEquals("firstName" + (i + 100), serviceResponse.getData().get().get(i).getFirstName());
-            assertEquals("lastName" + (i + 100), serviceResponse.getData().get().get(i).getLastName());
-        }
         assertEquals(quotaRemaining, serviceResponse.getQuotaRemaining());
     }
 

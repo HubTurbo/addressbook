@@ -25,8 +25,8 @@ public class ExtractedRemoteResponse<V> {
         return zonedDateTime.getOffset();
     }
 
-    ExtractedRemoteResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining,
-                            long quotaResetTimeEpochSeconds) {
+    public ExtractedRemoteResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining,
+                                   long quotaResetTimeEpochSeconds) {
         this(responseCode);
         this.eTag = eTag;
         this.quotaLimit = quotaLimit;
@@ -34,13 +34,13 @@ public class ExtractedRemoteResponse<V> {
         this.quotaResetTime = LocalDateTime.ofEpochSecond(quotaResetTimeEpochSeconds, 0, getSystemTimezone());
     }
 
-    ExtractedRemoteResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining,
-                            long quotaResetTimeEpochSeconds, V data) {
+    public ExtractedRemoteResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining,
+                                   long quotaResetTimeEpochSeconds, V data) {
         this(responseCode, eTag, quotaLimit, quotaRemaining, quotaResetTimeEpochSeconds);
         this.data = Optional.ofNullable(data);
     }
 
-    ExtractedRemoteResponse(int responseCode) {
+    public ExtractedRemoteResponse(int responseCode) {
         this.responseCode = responseCode;
         this.data = Optional.empty();
     }
