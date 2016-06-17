@@ -6,9 +6,11 @@ import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.model.ModelManager;
+import address.util.AppLogger;
 import address.util.Config;
 import address.browser.BrowserManager;
 
+import address.util.LoggerManager;
 import address.util.ReorderedList;
 import com.google.common.eventbus.Subscribe;
 
@@ -24,8 +26,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import java.util.Optional;
  * The controller that creates the other controllers
  */
 public class MainController {
-    private static final Logger logger = LogManager.getLogger(MainController.class);
+    private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
@@ -86,6 +86,7 @@ public class MainController {
      * person file.
      */
     public void initRootLayout() {
+        logger.debug("Initializing root layout.");
         final String fxmlResourcePath = FXML_ROOT_LAYOUT;
         try {
             // Load root layout from fxml file.
@@ -123,6 +124,7 @@ public class MainController {
      * Shows the person overview inside the root layout.
      */
     public void showPersonOverview() {
+        logger.debug("Showing person overview.");
         final String fxmlResourcePath = FXML_PERSON_OVERVIEW;
         try {
             // Load person overview.
@@ -192,6 +194,7 @@ public class MainController {
      *         creating the dialog or the user clicked cancel
      */
     private Optional<ReadOnlyPerson> showPersonEditDialog(ReadOnlyPerson initialData) {
+        logger.debug("Showing dialog for person edit.");
         final String fxmlResourcePath = FXML_PERSON_EDIT_DIALOG;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
@@ -242,6 +245,7 @@ public class MainController {
      *         creating the dialog or the user clicked cancel
      */
     public Optional<Tag> getTagDataInput(Tag tag) {
+        logger.debug("Showing dialog for tag edit.");
         final String fxmlResourcePath = FXML_TAG_EDIT_DIALOG;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
@@ -278,6 +282,7 @@ public class MainController {
     }
 
     public void showTagList(ObservableList<Tag> tags) {
+        logger.debug("Showing tag list.");
         final String fxmlResourcePath = FXML_TAG_LIST;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
@@ -310,6 +315,7 @@ public class MainController {
      * Opens a dialog to show birthday statistics.
      */
     public void showBirthdayStatistics() {
+        logger.debug("Showing birthday statistics.");
         final String fxmlResourcePath = FXML_BIRTHDAY_STATISTICS;
         try {
             // Load the fxml file and create a new stage for the popup.
