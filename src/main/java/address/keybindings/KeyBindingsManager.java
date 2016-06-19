@@ -7,6 +7,7 @@ import address.main.ComponentManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
+import javafx.scene.input.KeyCombination;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +25,7 @@ public class KeyBindingsManager extends ComponentManager{
     /** To keep track of the previous keyboard event, to match for key sequences */
     private KeyBindingEvent previousKeyEvent = null;
 
-    public static Bindings BINDINGS;
-    //TODO: make this less exposed
+    protected static Bindings BINDINGS;
 
     /**
      * Creates an instance and initializes key bindings (i.e. ready for detection and handling)
@@ -60,9 +60,18 @@ public class KeyBindingsManager extends ComponentManager{
         hotkeyProvider.clear();
     }
 
-    /** Returns {@link address.keybindings.KeyBinding} objects managed.
+
+
+    /**
+     * Returns the key combination of the accelerator matching the name given.
      */
-    public List<KeyBinding> getAllKeyBindings() {
-        return BINDINGS.getAllBindings();
+    public static Optional<KeyCombination> getAcceleratorKeyCombo(String name) {
+        Optional<? extends KeyBinding> keyBinding =
+                BINDINGS.getAccelerators().stream()
+                .filter(kb -> kb.getName().equals(name))
+                .findFirst();
+        return keyBinding.isPresent()? Optional.of(keyBinding.get().getKeyCombination()) : Optional.empty();
     }
+
+
 }

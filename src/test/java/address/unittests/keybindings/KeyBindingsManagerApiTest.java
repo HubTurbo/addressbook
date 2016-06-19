@@ -2,10 +2,11 @@ package address.unittests.keybindings;
 
 
 import address.events.*;
-import address.keybindings.KeyBinding;
-import address.keybindings.KeyBindingsManager;
+import address.keybindings.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.times;
@@ -24,13 +27,13 @@ import static org.mockito.Mockito.times;
 public class KeyBindingsManagerApiTest {
 
     EventManager eventManagerSpy;
-    KeyBindingsManager keyBindingsManager;
+    KeyBindingsManagerEx keyBindingsManager;
     List<KeyBinding> yetToTest;
 
     @Before
     public void setup(){
         eventManagerSpy = Mockito.spy(EventManager.getInstance());
-        keyBindingsManager = new KeyBindingsManager();
+        keyBindingsManager = new KeyBindingsManagerEx();
         keyBindingsManager.setEventManager(eventManagerSpy);
     }
 
@@ -159,7 +162,7 @@ public class KeyBindingsManagerApiTest {
             previousEvent = null;
         }
 
-        Optional<? extends KeyBinding> tested = keyBindingsManager.BINDINGS.getBinding(currentEvent, previousEvent);
+        Optional<? extends KeyBinding> tested = keyBindingsManager.getBinding(currentEvent, previousEvent);
         yetToTest.remove(tested.get());
     }
 
@@ -176,6 +179,24 @@ public class KeyBindingsManagerApiTest {
         boolean ctrlDown = keyCombination.toLowerCase().contains("ctrl")
                            || keyCombination.toLowerCase().contains("shortcut");
         return new KeyEvent(null, null, null, KeyCode.valueOf(key), shiftDown, ctrlDown, altDown, metaDown);
+    }
+
+
+    @Test
+    public void getAcceleratorKeyCombo(){
+        //check one existing accelerator
+        Assert.assertEquals(keyBindingsManager.getAcceleratorKeyCombo("PERSON_DELETE_ACCELERATOR").get(),
+                KeyCombination.valueOf("D"));
+
+        //check one existing accelerator
+        Assert.assertEquals(keyBindingsManager.getAcceleratorKeyCombo("PERSON_EDIT_ACCELERATOR").get(),
+                KeyCombination.valueOf("E"));
+
+        //check an non-existing accelerator
+        assertFalse(keyBindingsManager.getAcceleratorKeyCombo("NON_EXISTENT").isPresent());
+
+        //check an non-existing accelerator that is a shortcut
+        assertFalse(keyBindingsManager.getAcceleratorKeyCombo("LIST_ENTER_SHORTCUT").isPresent());
     }
 
     /**
