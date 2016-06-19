@@ -11,24 +11,26 @@ import java.util.Optional;
 public class KeyBinding {
     protected String name;
     protected KeyCombination keyCombination;
-    protected Optional<BaseEvent> eventToRaise;
+    protected BaseEvent eventToRaise;
 
     protected KeyBinding (String name, KeyCombination keyCombination, BaseEvent eventToRaise) {
         this.name = name;
         this.keyCombination = keyCombination;
-        this.eventToRaise = Optional.ofNullable(eventToRaise);
+        this.eventToRaise = eventToRaise;
     }
 
     public KeyCombination getKeyCombination() {
         return keyCombination;
     }
 
-    public Optional<BaseEvent> getEventToRaise(){
+    public BaseEvent getEventToRaise(){
         return eventToRaise;
     }
 
+    public String getName() { return name; }
+
     protected String getDisplayText(){
-        return name + " " + keyCombination.getDisplayText();
+        return getName() + " " + keyCombination.getDisplayText();
     }
 
 }
