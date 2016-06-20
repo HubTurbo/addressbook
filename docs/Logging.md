@@ -5,6 +5,8 @@ We are using [log4j2](http://logging.apache.org/log4j/2.x/) as our logger, and `
 **Note to developers**
 - The logging level can be controlled using the `loggingLevel` setting in the configuration file (See [Configuration](../docs/Configuration.md)).
 - The `AppLogger` for a class can be obtained using `LoggerManager.getLogger(Class)` which will log messages according to `src/main/resources/log4j2.json`'s specified patterns
+- Currently log messages are output through 3 methods: `Console`, `.log` and `.csv`. Since the CSV file is using `;` as its delimiter, developers should avoid using `;` which may lead to incorrect interpretation of log data.
+
 
 **log4j2 information**
 - Supposedly optimized version of `LogBack`
