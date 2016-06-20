@@ -15,6 +15,7 @@ import address.util.AppLogger;
 import address.util.Config;
 
 import address.util.LoggerManager;
+import address.util.Version;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -54,7 +55,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        logger.info("Starting application: V{}.{}.{}", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+        logger.info("Starting application: {}", Version.getCurrentVersion());
         setupComponents();
         mainController.start(primaryStage);
         updateManager.run();
