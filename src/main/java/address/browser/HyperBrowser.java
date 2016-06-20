@@ -170,7 +170,7 @@ public class HyperBrowser {
                 return UrlUtil.compareBaseUrls(url, page.getBrowser().getOriginalUrl());
             } catch (MalformedURLException e) {
                 return false;
-            } 
+            }
         }).findAny();
 
         if (foundPage.isPresent()) {
