@@ -70,7 +70,7 @@ public class Bindings {
 
         /*====== other keys ======================================================*/
 
-        LIST_ENTER_SHORTCUT = setShortcut("LIST_ENTER_SHORTCUT", "Shortcut + Down", new JumpToListRequestEvent(1));
+        LIST_ENTER_SHORTCUT = setShortcut("LIST_ENTER_SHORTCUT", "SHORTCUT + DOWN", new JumpToListRequestEvent(1));
 
         //shortcuts for jumping to Nth item in the list n=1..9
         setShortcut("LIST_JUMP_TO_1_SHORTCUT", "SHORTCUT + 1", new JumpToListRequestEvent(1));
@@ -212,6 +212,8 @@ public class Bindings {
     protected List<GlobalHotkey> getHotkeys() {
         return hotkeys;
     }
+
+    protected List<Accelerator> getAccelerators() {return accelerators;}
 
     /**
      * Returns a list of all {@link KeyBinding} objects being managed.
