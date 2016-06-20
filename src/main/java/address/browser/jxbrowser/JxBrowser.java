@@ -34,7 +34,7 @@ public class JxBrowser extends Browser{
     @Override
     public synchronized void loadURL(String s) {
         super.loadURL(s);
-        originUrl = s;;
+        originUrl = s;
     }
 
     public String getOriginUrl() {

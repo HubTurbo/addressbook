@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class HyperBrowser {
     private static AppLogger logger = LoggerManager.getLogger(HyperBrowser.class);
 
-    public static final int RECOMMENDED_NUMBER_OF_PAGES = 3;
+    public static final int RECOMMENDED_NUMBER_OF_PAGES = 1;
 
     // TODO: Change to ENUM
     public static final int FULL_FEATURE_BROWSER = 1;

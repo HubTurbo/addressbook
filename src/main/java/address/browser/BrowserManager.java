@@ -53,11 +53,12 @@ public class BrowserManager {
         this.filteredPersons = filteredPersons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
+        //if (true){
             logger.info("Headless mode detected, not initializing HyperBrowser.");
             hyperBrowser = Optional.empty();
         } else {
             logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
-            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER,
+            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.LIMITED_FEATURE_BROWSER,
                                        HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
                                        BrowserManagerUtil.getBrowserInitialScreen()));
         }
@@ -76,6 +77,7 @@ public class BrowserManager {
      * PreCondition: filteredModelPersons.size() >= 1
      */
     public synchronized void loadProfilePage(ReadOnlyViewablePerson person) {
+        System.out.println("Load profile page");
         if (!hyperBrowser.isPresent()) return;
 
         selectedPersonUsername.removeListener(listener);
@@ -95,6 +97,7 @@ public class BrowserManager {
                 gPage.automateClickingAndScrolling();
             }
             gPage.setPageLoadFinishListener(b -> gPage.automateClickingAndScrolling());
+
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();

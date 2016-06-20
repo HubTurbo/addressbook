@@ -18,6 +18,7 @@ public class ReorderedList {
         displayedList = FXCollections.observableArrayList();
         this.actualList = actualList;
         this.actualList.addListener((ListChangeListener<ReadOnlyViewablePerson>) c -> {
+            synchronized (this) {
                 while (c.next()) {
                     if (c.wasAdded()) {
                         displayedList.addAll(c.getAddedSubList());
@@ -29,6 +30,7 @@ public class ReorderedList {
                         continue;
                     }
                 }
+            }
         });
         displayedList.addAll(actualList);
     }
@@ -38,14 +40,17 @@ public class ReorderedList {
      * @param from
      * @param to
      */
-    public synchronized void moveElement(int from, int to){
-        if (from < to) {
-            ReadOnlyViewablePerson tmpPerson = displayedList.get(from);
-            displayedList.add(to, tmpPerson);
-            displayedList.remove(from);
-        } else if (from > to){
-            ReadOnlyViewablePerson tmpPerson = displayedList.remove(from);
-            displayedList.add(to, tmpPerson);
+    public void moveElement(int from, int to){
+        synchronized (this) {
+            System.out.println("Drag from " + from + " to " + to);
+            if (from < to) {
+                ReadOnlyViewablePerson tmpPerson = displayedList.get(from);
+                displayedList.add(to, tmpPerson);
+                displayedList.remove(from);
+            } else if (from > to) {
+                ReadOnlyViewablePerson tmpPerson = displayedList.remove(from);
+                displayedList.add(to, tmpPerson);
+            }
         }
     }
 
