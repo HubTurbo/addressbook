@@ -23,7 +23,8 @@ public class CloudFileHandler {
         return CLOUD_DIRECTORY + addressBookName;
     }
 
-    public CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException, DataConversionException {
+    public CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException,
+            DataConversionException {
         File cloudFile = getCloudDataFile(addressBookName);
         try {
             logger.debug("Reading from cloud file '{}'.", cloudFile.getName());
@@ -39,7 +40,8 @@ public class CloudFileHandler {
         }
     }
 
-    public void writeCloudAddressBookToFile(CloudAddressBook CloudAddressBook) throws FileNotFoundException, DataConversionException {
+    public void writeCloudAddressBookToFile(CloudAddressBook CloudAddressBook) throws FileNotFoundException,
+            DataConversionException {
         String addressBookName = CloudAddressBook.getName();
         File cloudFile = getCloudDataFile(addressBookName);
         try {
@@ -55,16 +57,18 @@ public class CloudFileHandler {
             IllegalArgumentException {
         File cloudFile = getCloudDataFile(addressBookName);
         if (cloudFile.exists()) {
-            logger.warn("Error creating addressbook '{}'.", addressBookName);
+            logger.warn("Cannot create an addressbook that already exists: '{}'.", addressBookName);
             throw new IllegalArgumentException("AddressBook '" + addressBookName + "' already exists!");
         }
 
         File cloudDirectory = new File(CLOUD_DIRECTORY);
         if (!cloudDirectory.exists() && !cloudDirectory.mkdir()) {
+            logger.warn("Error creating directory: '{}'", CLOUD_DIRECTORY);
             throw new IOException("Error creating directory: " + CLOUD_DIRECTORY);
         }
 
         if (!cloudFile.createNewFile()) {
+            logger.warn("Error creating cloud file: '{}'", getCloudDataFilePath(addressBookName));
             throw new IOException("Error creating cloud file for addressbook: " + getCloudDataFilePath(addressBookName));
         }
 
