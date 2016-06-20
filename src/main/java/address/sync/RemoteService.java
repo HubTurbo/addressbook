@@ -61,6 +61,7 @@ public class RemoteService implements IRemoteService {
      * Gets the list of persons at page pageNumber for addressBookName, if quota is available
      *
      * Consumes 1 API usage
+     *
      * @param addressBookName
      * @return wrapped response with list of persons
      * @throws IOException if content cannot be interpreted
@@ -234,12 +235,11 @@ public class RemoteService implements IRemoteService {
     /**
      * Gets the list of persons at page pageNumber for addressBookName, which have been modified after a certain time,
      * if quota is available.
-     * Parameter time should not be null.
      *
      * Consumes 1 API usage
      *
      * @param addressBookName
-     * @param time
+     * @param time non-null LocalDateTime
      * @param pageNumber
      * @param previousETag
      * @return wrapped response with the resulting list of persons
@@ -334,6 +334,7 @@ public class RemoteService implements IRemoteService {
 
     /**
      * Parses the stream content and attempts to convert it into an object T
+     *
      * @param bodyStream
      * @param type
      * @param <T>
@@ -372,6 +373,7 @@ public class RemoteService implements IRemoteService {
     private String getETagFromHeader(HashMap<String, String> header) {
         return header.get("ETag");
     }
+
     private int getRateLimitFromHeader(HashMap<String, String> header) {
         return Integer.parseInt(header.get("X-RateLimit-Limit"));
     }
@@ -409,7 +411,7 @@ public class RemoteService implements IRemoteService {
     }
 
     private Person convertToPerson(CloudPerson CloudPerson) {
-        // TODO: Copy CloudPerson's ID
+        // TODO: Copy CloudPerson's ID once person ID is implemented
         Person person = new Person(CloudPerson.getFirstName(), CloudPerson.getLastName());
         person.setStreet(CloudPerson.getStreet());
         person.setCity(CloudPerson.getCity());
