@@ -3,7 +3,6 @@ package address.controller;
 import address.MainApp;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
-import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
 import address.util.DateTimeUtil;
 
@@ -87,7 +86,7 @@ public class PersonEditDialogController extends EditDialogController {
                 dialogStage.setScene(scene);
 
                 TagSelectionEditDialogController controller = loader.getController();
-                controller.setTagsModel(fullTagList, initialAssignedTags);
+                controller.setTags(fullTagList, initialAssignedTags);
                 controller.setDialogStage(dialogStage);
 
                 //dialogStage.getIcons().add(getImage(ICON_EDIT));

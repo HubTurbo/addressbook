@@ -7,6 +7,7 @@ import address.model.TagSelectionEditDialogModel;
 import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
 import com.google.common.eventbus.Subscribe;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -33,9 +34,10 @@ public class TagSelectionEditDialogController extends EditDialogController {
     public void initialize() {
         addListeners();
         EventManager.getInstance().registerHandler(this);
+        Platform.runLater(() -> tagSearch.requestFocus());
     }
 
-    public void setTagsModel(List<Tag> tags, List<Tag> assignedTags) {
+    public void setTags(List<Tag> tags, List<Tag> assignedTags) {
         this.model = new TagSelectionEditDialogModel(tags, assignedTags);
     }
 

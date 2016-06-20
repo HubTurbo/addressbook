@@ -1,7 +1,7 @@
 package address.guiunittests;
 
 import address.TestApp;
-import address.controller.PersonEditDialogController;
+import address.controller.TagSelectionEditDialogController;
 import address.model.datatypes.tag.Tag;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -21,7 +21,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.loadui.testfx.GuiTest.find;
 
-public class PersonEditDialogUnitTest extends ApplicationTest {
+public class TagSelectionEditDialogUnitTest extends ApplicationTest {
     private ScrollPane tagList;
     private TextField tagSearch;
     private ScrollPane tagResults;
@@ -29,10 +29,10 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
     @Override
     public void start(Stage primaryStage) {
         try {
-            FXMLLoader loader = new FXMLLoader(TestApp.class.getResource("/view/PersonEditDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(TestApp.class.getResource("/view/TagSelectionEditDialog.fxml"));
             AnchorPane baseNode = loader.load();
 
-            PersonEditDialogController controller = loader.getController();
+            TagSelectionEditDialogController controller = loader.getController();
 
             Tag tag1 = new Tag("enemies");
             Tag tag2 = new Tag("friends");
