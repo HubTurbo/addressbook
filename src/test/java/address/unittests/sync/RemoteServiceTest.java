@@ -28,8 +28,8 @@ import static org.mockito.Mockito.when;
 public class RemoteServiceTest {
     private static int RESOURCES_PER_PAGE = 100;
 
-    RemoteService remoteService;
-    CloudSimulator cloudSimulator;
+    private RemoteService remoteService;
+    private CloudSimulator cloudSimulator;
 
     private HashMap<String, String> getHeader(int limit, int remaining, long reset) {
         HashMap<String, String> headers = new HashMap<>();

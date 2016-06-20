@@ -25,15 +25,14 @@ import static org.mockito.Mockito.when;
 
 public class RemoteManagerTest {
     private static final int RESOURCES_PER_PAGE = 100;
-    RemoteService remoteService;
-    RemoteManager remoteManager;
+    private RemoteService remoteService;
+    private RemoteManager remoteManager;
 
     @Before
     public void setup() {
         remoteService = mock(RemoteService.class);
         remoteManager = new RemoteManager(remoteService);
     }
-
 
     private ZoneOffset getSystemTimezone() {
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -83,9 +82,10 @@ public class RemoteManagerTest {
 
 
         Optional<List<Person>> result = remoteManager.getUpdatedPersons("Test");
+
+        // should return the full list of persons
         assertTrue(result.isPresent());
         assertEquals(noOfPersons, result.get().size());
-
         for (int i = 0; i < noOfPersons; i++) {
             assertEquals("firstName" + i, result.get().get(i).getFirstName());
             assertEquals("lastName" + i, result.get().get(i).getLastName());
@@ -125,11 +125,11 @@ public class RemoteManagerTest {
 
         Optional<List<Tag>> result = remoteManager.getUpdatedTagList("Test");
 
+        // should return the full list of tags
         assertTrue(result.isPresent());
         assertEquals(150, result.get().size());
         for (int i = 0; i < 150; i++) {
             assertEquals("tag" + i, result.get().get(i).getName());
         }
     }
-
 }

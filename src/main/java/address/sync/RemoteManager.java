@@ -27,7 +27,7 @@ public class RemoteManager {
 
     public RemoteManager() {
         updateInformation = new HashMap<>();
-        remoteService = new RemoteService(false);
+        remoteService = new RemoteService();
     }
 
     public RemoteManager(RemoteService remoteService) {

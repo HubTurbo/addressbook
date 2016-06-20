@@ -27,8 +27,8 @@ public class RemoteService implements IRemoteService {
 
     private final CloudSimulator remote;
 
-    public RemoteService(boolean shouldSimulateUnreliableNetwork) {
-        remote = new CloudSimulator(shouldSimulateUnreliableNetwork);
+    public RemoteService() {
+        remote = new CloudSimulator();
     }
 
     public RemoteService(CloudSimulator cloudSimulator) {

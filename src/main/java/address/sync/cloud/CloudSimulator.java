@@ -5,6 +5,7 @@ import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
 import address.exceptions.DataConversionException;
 import address.util.AppLogger;
+import address.util.Config;
 import address.util.LoggerManager;
 
 import java.io.*;
@@ -53,10 +54,10 @@ public class CloudSimulator implements ICloudSimulator {
         this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
     }
 
-    public CloudSimulator(boolean shouldSimulateUnreliableNetwork) {
+    public CloudSimulator() {
         fileHandler = new CloudFileHandler();
         cloudRateLimitStatus = new CloudRateLimitStatus(API_QUOTA_PER_HOUR);
-        this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
+        this.shouldSimulateUnreliableNetwork = Config.getConfig().simulateUnreliableNetwork;
         cloudRateLimitStatus.restartQuotaTimer();
     }
 

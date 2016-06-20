@@ -18,13 +18,14 @@ import java.util.HashMap;
 
 public class RemoteResponse {
     private static final AppLogger logger = LoggerManager.getLogger(RemoteResponse.class);
-    int responseCode;
-    InputStream body;
-    HashMap<String, String> headers;
-    int nextPageNo;
-    int previousPageNo;
-    int firstPageNo;
-    int lastPageNo;
+
+    private int responseCode;
+    private InputStream body;
+    private HashMap<String, String> headers;
+    private int nextPageNo;
+    private int previousPageNo;
+    private int firstPageNo;
+    private int lastPageNo;
 
     public int getNextPageNo() {
         return nextPageNo;

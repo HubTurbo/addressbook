@@ -54,16 +54,15 @@ public class SyncManager {
     }
 
     /**
-     * Initializes the cloud service, if it hasn't been
+     * Initializes the remote service, if it hasn't been
      *
      * Starts getting periodic updates from the cloud
      *
-     * @param interval
-     * @param simulateUnreliableNetwork
+     * @param interval should be a positive integer
      */
-    public void startSyncingData(long interval, boolean simulateUnreliableNetwork) {
+    public void startSyncingData(long interval) {
         if (interval <= 0) {
-            logger.warn("Update interval specified is not positive: " + interval);
+            logger.warn("Update interval specified is not positive: {}", interval);
             return;
         }
         if (remoteManager == null) {
