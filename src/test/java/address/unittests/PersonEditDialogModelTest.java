@@ -3,7 +3,7 @@ package address.unittests;
 import address.events.EventManager;
 import address.events.TagSearchResultsChangedEvent;
 import address.model.datatypes.tag.Tag;
-import address.model.PersonEditDialogTagsModel;
+import address.model.TagSelectionEditDialogModel;
 import com.google.common.eventbus.Subscribe;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class PersonEditDialogModelTest {
     public void filterTags() {
         List<Tag> allTags = getList("friends", "relatives", "colleagues");
         List<Tag> assignedTags = getList("friends");
-        PersonEditDialogTagsModel model = new PersonEditDialogTagsModel(allTags, assignedTags);
+        TagSelectionEditDialogModel model = new TagSelectionEditDialogModel(allTags, assignedTags);
         model.setFilter("ela");
 
         assertEquals(2, eventCounter);

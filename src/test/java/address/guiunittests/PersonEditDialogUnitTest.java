@@ -46,7 +46,7 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
             allTags.add(tag2);
             allTags.add(tag3);
 
-            controller.setTagsModel(allTags, assignedTags);
+            controller.setTags(allTags, assignedTags);
 
             primaryStage.setScene(new Scene(baseNode));
             primaryStage.show();

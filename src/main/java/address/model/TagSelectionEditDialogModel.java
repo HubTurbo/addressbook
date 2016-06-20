@@ -11,14 +11,14 @@ import address.events.TagsChangedEvent;
 import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
 
-public class PersonEditDialogTagsModel {
+public class TagSelectionEditDialogModel {
     List<SelectableTag> tags = new ArrayList<>();
     List<SelectableTag> filteredTags = new ArrayList<>();
     Optional<Integer> selectedTagIndex = Optional.empty();
 
     List<SelectableTag> assignedTags = new ArrayList<>();
 
-    public PersonEditDialogTagsModel(List<Tag> tags, List<Tag> assignedTags) {
+    public TagSelectionEditDialogModel(List<Tag> tags, List<Tag> assignedTags) {
         List<SelectableTag> selectableTargets = tags.stream()
                                                     .map(SelectableTag::new)
                                                     .collect(Collectors.toList());
@@ -101,7 +101,6 @@ public class PersonEditDialogTagsModel {
     }
 
     public void setFilter(String filter) {
-
         List<SelectableTag> newContactTags = tags.stream()
                 .filter(tag -> tag.getName().contains(filter))
                 .collect(Collectors.toList());
@@ -128,7 +127,7 @@ public class PersonEditDialogTagsModel {
         EventManager.getInstance().post(new TagSearchResultsChangedEvent(filteredTags));
     }
 
-    public List<Tag> getAssignedTagss() {
+    public List<Tag> getAssignedTags() {
         return assignedTags.stream()
                 .map(assignedTag -> new Tag(assignedTag.getName()))
                 .collect(Collectors.toList());
