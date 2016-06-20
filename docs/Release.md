@@ -13,7 +13,7 @@
 4. Commit the  files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>`
   - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `UpdateData.json`
 5. Create a release in [GitHub](https://github.com/HubTurbo/addressbook/releases)
-6. Run `gradle` task `createInstallerJar` under `release` category
+6. Run `gradle` task `createInstallerJar` under `release` category (this must be run again to use the updated `UpdateData.json`)
 7. Upload the following as binaries to the latest release:
   - addressbook.jar
   - resource-\<version\>.jar
