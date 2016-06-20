@@ -1,9 +1,9 @@
 {
-  "version" : "V0.0.1",
-  "mainApp" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.1/resource-V0.0.1.jar",
+  "version" : "V0.0.2",
+  "mainApp" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.2/resource-V0.0.2.jar",
   "libraries" : [ {
-    "filename" : "license.jar",
-    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.0/license.jar",
+    "filename" : "licence.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.2/licence.jar",
     "os" : "ANY"
   }, {
     "filename" : "log4j-api-2.6.jar",
@@ -52,6 +52,10 @@
   }, {
     "filename" : "jkeymaster-1.2.jar",
     "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.1/jkeymaster-1.2.jar",
+    "os" : "ANY"
+  }, {
+    "filename" : "ini4j-0.5.4.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.2/ini4j-0.5.4.jar",
     "os" : "ANY"
   }, {
     "filename" : "jackson-annotations-2.7.0.jar",
