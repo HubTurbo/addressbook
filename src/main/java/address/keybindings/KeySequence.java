@@ -18,7 +18,8 @@ public class KeySequence extends KeyBinding{
         assert false : "Invalid constructor called";
     }
 
-    public KeySequence(String name, KeyCombination firstKeyCombination, KeyCombination secondKeyCombination, BaseEvent eventToRaise) {
+    public KeySequence(String name, KeyCombination firstKeyCombination, KeyCombination secondKeyCombination,
+                       BaseEvent eventToRaise) {
         super(name, firstKeyCombination, eventToRaise);
         this.secondKeyCombination = secondKeyCombination;
     }

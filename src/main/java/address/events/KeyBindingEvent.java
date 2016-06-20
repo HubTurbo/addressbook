@@ -62,6 +62,7 @@ public class KeyBindingEvent extends BaseEvent{
     @Override
     public String toString(){
         final String className = this.getClass().getSimpleName();
-        return className + " " + ( keyEvent.isPresent()? keyEvent.get().getText(): keyCombination.get().getDisplayText());
+        return className + " " + (keyEvent.isPresent() ? keyEvent.get().getText() :
+                                                         keyCombination.get().getDisplayText());
     }
 }

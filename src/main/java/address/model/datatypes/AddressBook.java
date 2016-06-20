@@ -108,7 +108,7 @@ public class AddressBook implements ReadOnlyAddressBook {
     @Override
     public String toString(){
         //TODO: refine later
-        return persons.size() + " persons, " + tags.size() +  " tags" ;
+        return persons.size() + " persons, " + tags.size() +  " tags";
 
     }
 

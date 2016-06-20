@@ -68,33 +68,33 @@ public class PersonEditDialogController extends EditDialogController {
 
     private void addListeners() {
         tagSearch.textProperty().addListener((observableValue, oldValue, newValue) -> {
-                handleTagInput(newValue);
-            });
+            handleTagInput(newValue);
+        });
         tagSearch.setOnKeyTyped(e -> {
-                switch (e.getCharacter()) {
-                case " ":
-                    e.consume();
-                    model.toggleSelection();
-                    tagSearch.clear();
-                    break;
-                default:
-                    break;
-                }
-            });
+            switch (e.getCharacter()) {
+            case " ":
+                e.consume();
+                model.toggleSelection();
+                tagSearch.clear();
+                break;
+            default:
+                break;
+            }
+        });
         tagSearch.setOnKeyPressed(e -> {
-                switch (e.getCode()) {
-                case DOWN:
-                    e.consume();
-                    model.selectNext();
-                    break;
-                case UP:
-                    e.consume();
-                    model.selectPrevious();
-                    break;
-                default:
-                    break;
-                }
-            });
+            switch (e.getCode()) {
+            case DOWN:
+                e.consume();
+                model.selectNext();
+                break;
+            case UP:
+                e.consume();
+                model.selectPrevious();
+                break;
+            default:
+                break;
+            }
+        });
     }
 
     /**
@@ -223,13 +223,13 @@ public class PersonEditDialogController extends EditDialogController {
         VBox content = new VBox();
         contactTagList.stream()
                 .forEach(contactTag -> {
-                        Label newLabel = new Label(contactTag.getName());
-                        if (isSelectable && contactTag.isSelected()) {
-                            newLabel.setStyle("-fx-background-color: blue;");
-                        }
-                        newLabel.setPrefWidth(261);
-                        content.getChildren().add(newLabel);
-                    });
+                    Label newLabel = new Label(contactTag.getName());
+                    if (isSelectable && contactTag.isSelected()) {
+                        newLabel.setStyle("-fx-background-color: blue;");
+                    }
+                    newLabel.setPrefWidth(261);
+                    content.getChildren().add(newLabel);
+                });
 
         return content;
     }

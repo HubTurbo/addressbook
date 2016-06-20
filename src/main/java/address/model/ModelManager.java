@@ -219,7 +219,8 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @param target The Person object to be changed.
      * @param updatedData The temporary Person object containing new values.
      */
-    public synchronized void updatePerson(ReadOnlyPerson target, ReadOnlyPerson updatedData) throws DuplicatePersonException {
+    public synchronized void updatePerson(ReadOnlyPerson target, ReadOnlyPerson updatedData)
+            throws DuplicatePersonException {
         if (!target.equals(updatedData) && backingPersonList().contains(updatedData)) {
             throw new DuplicatePersonException(updatedData);
         }
@@ -347,14 +348,14 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
 
         // handle updates to existing data objects
         target.forEach(oldItem -> {
-                final E newItem = remaining.remove(oldItem); // find matching item in unconsidered new data
-                if (newItem == null) { // not in newData
-                    toBeRemoved.add(oldItem);
-                } else { // exists in both new and old, update.
-                    updateDataItem(oldItem, newItem); // updates the items in target (reference points back to target)
-                    changed.set(true);
-                }
-            });
+            final E newItem = remaining.remove(oldItem); // find matching item in unconsidered new data
+            if (newItem == null) { // not in newData
+                toBeRemoved.add(oldItem);
+            } else { // exists in both new and old, update.
+                updateDataItem(oldItem, newItem); // updates the items in target (reference points back to target)
+                changed.set(true);
+            }
+        });
 
         final Set<E> toBeAdded = remaining.keySet();
 

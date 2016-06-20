@@ -17,7 +17,8 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'checkstyle'
     checkstyle {
-        toolVersion = '6.7'
+        toolVersion = '6.19'
+        sourceSets = [project.sourceSets.main]
     }
     apply plugin: 'pmd'
     apply plugin: 'findbugs'

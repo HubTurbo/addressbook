@@ -23,6 +23,6 @@ public class JumpToListRequestEvent extends BaseEvent{
     public boolean hasSameIntentionAs(BaseEvent other){
         return (other != null)
             && (other instanceof JumpToListRequestEvent)
-            && ((JumpToListRequestEvent)other).targetIndex == this.targetIndex;
+            && ((JumpToListRequestEvent) other).targetIndex == this.targetIndex;
     }
 }

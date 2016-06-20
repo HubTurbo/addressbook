@@ -41,7 +41,7 @@ public class JxDocAdapter implements EbDocument {
 
         if (domDocument.findElement(By.className(className)) == null) {
             return null;
-    }
+        }
         return new JxDocElementAdapter(domDocument.findElement(By.className(className)));
     }
 }

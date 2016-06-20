@@ -71,7 +71,7 @@ public class HyperBrowser {
         pages = new ArrayList<>(noOfPages);
         inActiveBrowserStack = new Stack<>();
 
-        for (int i=0; i<noOfPages; i++){
+        for (int i = 0; i < noOfPages; i++){
             EmbeddedBrowser browser;
             if (browserType == FULL_FEATURE_BROWSER){
                 browser = new JxBrowserAdapter(new Browser());
@@ -100,8 +100,7 @@ public class HyperBrowser {
      * @return An optional page that is cleared from the pool of pages.
      */
     public synchronized void clearPage(URL url) {
-        Optional<Page> page = pages.stream().filter(p
-                -> {
+        Optional<Page> page = pages.stream().filter(p -> {
             try {
                 return UrlUtil.compareBaseUrls(url, p.getBrowser().getUrl());
             } catch (MalformedURLException e) {
@@ -192,9 +191,8 @@ public class HyperBrowser {
      */
     private synchronized void clearPagesNotRequired(List<URL> urlsToLoad) {
         logger.debug("Clearing pages which are no longer required.");
-        Deque<Page> listOfNotRequiredPage = pages.stream().filter(page
-              -> {
-            for (URL url: urlsToLoad){
+        Deque<Page> listOfNotRequiredPage = pages.stream().filter(page -> {
+            for (URL url: urlsToLoad) {
                 try {
                     if (UrlUtil.compareBaseUrls(url, page.getBrowser().getUrl())) {
                         return false;

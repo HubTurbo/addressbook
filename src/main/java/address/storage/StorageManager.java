@@ -74,7 +74,7 @@ public class StorageManager extends ComponentManager {
     @Subscribe
     public void handleLocalModelSyncedFromCloudEvent(LocalModelSyncedFromCloudEvent msfce) {
         logger.info("Local data synced, saving to primary data file");
-        saveDataToFile(prefsManager.getSaveLocation(), new AddressBook( msfce.personData, msfce.tagData));
+        saveDataToFile(prefsManager.getSaveLocation(), new AddressBook(msfce.personData, msfce.tagData));
     }
 
     /**

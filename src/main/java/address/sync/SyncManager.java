@@ -40,7 +40,8 @@ public class SyncManager {
         EventManager.getInstance().registerHandler(this);
     }
 
-    public SyncManager(CloudService cloudService, ExecutorService executorService, ScheduledExecutorService scheduledExecutorService) {
+    public SyncManager(CloudService cloudService, ExecutorService executorService,
+                       ScheduledExecutorService scheduledExecutorService) {
         this.cloudService = cloudService;
         this.scheduler = scheduledExecutorService;
         this.requestExecutor = executorService;
@@ -98,7 +99,8 @@ public class SyncManager {
             try {
                 List<Person> updatedPersons = getUpdatedPersons(activeAddressBook.get());
                 logger.logList("Found updated persons: {}", updatedPersons);
-                EventManager.getInstance().post(new UpdateCompletedEvent<>(updatedPersons, "Person updates completed."));
+                EventManager.getInstance().post(
+                        new UpdateCompletedEvent<>(updatedPersons, "Person updates completed."));
 
                 Optional<List<Tag>> updatedTagList = getUpdatedTags(activeAddressBook.get());
                 if (updatedTagList.isPresent()) {
@@ -137,8 +139,11 @@ public class SyncManager {
                 logger.debug("Last persons update at: {}", lastSuccessfulPersonsUpdate);
                 personsResponse = cloudService.getUpdatedPersonsSince(addressBookName, lastSuccessfulPersonsUpdate);
             }
-            if (personsResponse.getResponseCode() != HttpURLConnection.HTTP_OK && personsResponse.getResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
-                throw new SyncErrorException(personsResponse.getResponseCode() + " response from cloud instead of expected " + HttpURLConnection.HTTP_OK + " during persons update.");
+            if (personsResponse.getResponseCode() != HttpURLConnection.HTTP_OK &&
+                personsResponse.getResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
+                throw new SyncErrorException(personsResponse.getResponseCode() +
+                        " response from cloud instead of expected " +
+                        HttpURLConnection.HTTP_OK + " during persons update.");
             }
             if (!personsResponse.getData().isPresent()) {
                 throw new SyncErrorException("Unexpected missing data from response.");
@@ -162,18 +167,20 @@ public class SyncManager {
 
             ExtractedCloudResponse<List<Tag>> tagsResponse = cloudService.getTags(addressBookName, lastTagsETag);
             switch (tagsResponse.getResponseCode()) {
-                case HttpURLConnection.HTTP_OK:
-                    if (!tagsResponse.getData().isPresent()) {
-                        throw new SyncErrorException("Unexpected missing data from response.");
-                    }
-                    lastTagsETag = tagsResponse.getETag();
-                    // fallthrough
-                case HttpURLConnection.HTTP_NOT_MODIFIED:
-                    logger.debug("Response for tags update retrieved.");
-                    lastSuccessfulTagsUpdate = LocalDateTime.now();
-                    return tagsResponse.getData();
-                default:
-                    throw new SyncErrorException(tagsResponse.getResponseCode() + " response from cloud instead of expected " + HttpURLConnection.HTTP_OK + " or " + HttpURLConnection.HTTP_NOT_MODIFIED + " during tags update.");
+            case HttpURLConnection.HTTP_OK:
+                if (!tagsResponse.getData().isPresent()) {
+                    throw new SyncErrorException("Unexpected missing data from response.");
+                }
+                lastTagsETag = tagsResponse.getETag();
+                // fallthrough
+            case HttpURLConnection.HTTP_NOT_MODIFIED:
+                logger.debug("Response for tags update retrieved.");
+                lastSuccessfulTagsUpdate = LocalDateTime.now();
+                return tagsResponse.getData();
+            default:
+                throw new SyncErrorException(tagsResponse.getResponseCode() +
+                        " response from cloud instead of expected " + HttpURLConnection.HTTP_OK + " or " +
+                        HttpURLConnection.HTTP_NOT_MODIFIED + " during tags update.");
 
             }
         } catch (SyncErrorException | IOException e) {

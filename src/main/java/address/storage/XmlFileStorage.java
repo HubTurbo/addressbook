@@ -14,7 +14,8 @@ public class XmlFileStorage {
     /**
      * Saves the given addressbook data to the specified file.
      */
-    public static void saveDataToFile(File file, AddressBook addressBook) throws DataConversionException, FileNotFoundException {
+    public static void saveDataToFile(File file, AddressBook addressBook)
+            throws DataConversionException, FileNotFoundException {
         XmlUtil.saveDataToFile(file, addressBook);
     }
 

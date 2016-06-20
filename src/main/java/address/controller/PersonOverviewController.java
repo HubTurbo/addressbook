@@ -68,12 +68,12 @@ public class PersonOverviewController {
         personListView.setItems(reorderedList.getDisplayedList());
         personListView.setCellFactory(listView -> new PersonListViewCell(reorderedList));
         personListView.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> {
-                    if (newValue != null) {
-                        logger.debug("Person in list view clicked. Loading GitHub profile page: '{}'", newValue);
-                        mainController.loadGithubProfilePage(newValue);
-                    }
-                });
+            (observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    logger.debug("Person in list view clicked. Loading GitHub profile page: '{}'", newValue);
+                    mainController.loadGithubProfilePage(newValue);
+                }
+            });
     }
 
     /**

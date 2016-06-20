@@ -23,12 +23,13 @@ public class XmlUtil {
      * @throws FileNotFoundException Thrown if the file is missing.
      * @throws DataConversionException Thrown if the file is empty or does not have the correct format.
      */
-    public static <T> T getDataFromFile(File file, Class<T> classToConvert) throws DataConversionException, FileNotFoundException {
+    public static <T> T getDataFromFile(File file, Class<T> classToConvert)
+            throws DataConversionException, FileNotFoundException {
 
         assert file != null;
         assert classToConvert != null;
 
-        if(!FileUtil.isFileExists(file)){
+        if (!FileUtil.isFileExists(file)) {
             throw new FileNotFoundException("File not found : " + file.getAbsolutePath());
         }
 
@@ -55,7 +56,7 @@ public class XmlUtil {
         assert file != null;
         assert data != null;
 
-        if(!file.exists()){
+        if (!file.exists()) {
             throw new FileNotFoundException("File not found : " + file.getAbsolutePath());
         }
 

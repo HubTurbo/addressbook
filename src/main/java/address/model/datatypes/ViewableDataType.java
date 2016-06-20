@@ -62,7 +62,8 @@ public abstract class ViewableDataType<D extends UniqueData> extends UniqueData 
      * {@link #isSyncingWithBackingObject} is true, then {@code listener} gets updated.
      *
      * @param dependency notifies {@code listener} of any changes.
-     * @param listener will be updated whenever {@code dependency} changes AND {@link #isSyncingWithBackingObject} is true.
+     * @param listener will be updated whenever {@code dependency} changes
+     *                 AND @link #isSyncingWithBackingObject} is true.
      * @param <T> ensures both arguments have same param type.
      */
     protected <T> void conditionallyBindValue(ObservableValue<T> dependency, WritableValue<T> listener) {

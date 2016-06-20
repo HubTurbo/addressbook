@@ -52,19 +52,19 @@ public class TagCardController {
 
         MenuItem newTagItem = new MenuItem("New");
         newTagItem.setOnAction(event -> {
-                Optional<Tag> newTag = Optional.of(new Tag());
-                while (true) { // keep re-asking until user provides valid input or cancels operation.
-                    newTag = mainController.getTagDataInput(newTag.get());
-                    if (!newTag.isPresent()) break;
-                    try {
-                        modelManager.addTag(newTag.get());
-                        break;
-                    } catch (DuplicateTagException e) {
-                        mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                                                              "Cannot have duplicate tags", e.toString());
-                    }
+            Optional<Tag> newTag = Optional.of(new Tag());
+            while (true) { // keep re-asking until user provides valid input or cancels operation.
+                newTag = mainController.getTagDataInput(newTag.get());
+                if (!newTag.isPresent()) break;
+                try {
+                    modelManager.addTag(newTag.get());
+                    break;
+                } catch (DuplicateTagException e) {
+                    mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
+                                                          "Cannot have duplicate tags", e.toString());
                 }
-            });
+            }
+        });
         MenuItem editTag = new MenuItem("Edit");
         editTag.setOnAction(event -> handleEditTagAction());
         MenuItem removeTag = new MenuItem("Remove");
@@ -78,19 +78,19 @@ public class TagCardController {
 
     public void setListeners() {
         box.setOnMouseClicked(mouseEv -> {
-                switch (mouseEv.getButton()) {
-                case PRIMARY :
-                    if (mouseEv.getClickCount() >= 2) {
-                        handleEditTagAction();
-                    }
-                    break;
-                case SECONDARY :
-                    if (mouseEv.getClickCount() == 1) {
-                        getContextMenu().show(tagName, Side.BOTTOM, 0, 0);
-                    }
-                    break;
+            switch (mouseEv.getButton()) {
+            case PRIMARY :
+                if (mouseEv.getClickCount() >= 2) {
+                    handleEditTagAction();
                 }
-            });
+                break;
+            case SECONDARY :
+                if (mouseEv.getClickCount() == 1) {
+                    getContextMenu().show(tagName, Side.BOTTOM, 0, 0);
+                }
+                break;
+            }
+        });
     }
 
     private void handleEditTagAction() {

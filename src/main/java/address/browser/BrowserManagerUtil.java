@@ -20,7 +20,8 @@ public class BrowserManagerUtil {
     /**
      * Gets a list of person that are needed to be loaded to the browser in future.
      */
-    public static ArrayList<ReadOnlyViewablePerson> getListOfPersonToLoadInFuture(List<ReadOnlyViewablePerson> filteredPersons, int indexOfPerson) {
+    public static ArrayList<ReadOnlyViewablePerson> getListOfPersonToLoadInFuture(
+            List<ReadOnlyViewablePerson> filteredPersons, int indexOfPerson) {
         ArrayList<ReadOnlyViewablePerson> listOfRequiredPerson = new ArrayList<>();
 
         for (int i = 1; i < HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES && i < filteredPersons.size(); i++){

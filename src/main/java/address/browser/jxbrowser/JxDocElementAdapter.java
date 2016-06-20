@@ -24,6 +24,7 @@ public class JxDocElementAdapter implements EbElement {
 
     @Override
     public void addEventListener(int type, EbDomEventListener listener, boolean b) {
-        element.addEventListener(EmbeddedBrowserObjectMapper.convertEbDomEventType(type), (DOMEventListener)listener.getDomEventListener(), b);
+        element.addEventListener(EmbeddedBrowserObjectMapper.convertEbDomEventType(type),
+                (DOMEventListener) listener.getDomEventListener(), b);
     }
 }

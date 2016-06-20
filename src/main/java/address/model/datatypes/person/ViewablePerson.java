@@ -39,7 +39,8 @@ public class ViewablePerson extends ViewableDataType<Person> implements ReadOnly
                     visible.getTags().addAll(from, backing.getObservableTagList().subList(from, to));
                 } else { // list/element mutation
                     visible.getTags().subList(from, from + change.getRemovedSize()).clear();
-                    visible.getTags().addAll(from, backing.getObservableTagList().subList(from, from + change.getAddedSize()));
+                    visible.getTags().addAll(from,
+                            backing.getObservableTagList().subList(from, from + change.getAddedSize()));
                 }
             }
         });

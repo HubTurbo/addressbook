@@ -14,7 +14,7 @@ public class LoggerManager {
 
     public static AppLogger getLogger(String className, Level loggingLevel) {
         LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-        AbstractConfiguration config = (AbstractConfiguration)loggerContext.getConfiguration();
+        AbstractConfiguration config = (AbstractConfiguration) loggerContext.getConfiguration();
         setLoggingLevel(config, className, loggingLevel);
         loggerContext.updateLoggers(config);
         return new AppLogger(LogManager.getLogger(className));

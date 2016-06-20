@@ -37,16 +37,16 @@ public class BrowserManager {
     private StringProperty selectedPersonUsername;
 
     private ChangeListener<String> listener = (observable,  oldValue,  newValue) -> {
-            try {
-                URL url = new URL("https://github.com/" + newValue);
-                if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
-                    hyperBrowser.get().loadUrl(url);
-                }
-            } catch (MalformedURLException e) {
-                logger.warn("Malformed URL obtained, not attempting to load.");
-                // TODO handle instead of simply logging a message
+        try {
+            URL url = new URL("https://github.com/" + newValue);
+            if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
+                hyperBrowser.get().loadUrl(url);
             }
-        };
+        } catch (MalformedURLException e) {
+            logger.warn("Malformed URL obtained, not attempting to load.");
+            // TODO handle instead of simply logging a message
+        }
+    };
 
     public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
         this.selectedPersonUsername = new SimpleStringProperty();
@@ -58,7 +58,8 @@ public class BrowserManager {
         } else {
             logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
             hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER,
-                                       HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES, BrowserManagerUtil.getBrowserInitialScreen()));
+                                       HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
+                                       BrowserManagerUtil.getBrowserInitialScreen()));
         }
     }
 
@@ -81,8 +82,8 @@ public class BrowserManager {
 
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
-        ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons,
-                                                                                     indexOfPersonInListOfContacts);
+        ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture =
+                BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons, indexOfPersonInListOfContacts);
         ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
                                                                     .map(ReadOnlyViewablePerson::profilePageUrl)
                                                                     .collect(Collectors.toCollection(ArrayList::new));

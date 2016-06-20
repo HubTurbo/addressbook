@@ -73,7 +73,8 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse createPerson(String addressBookName, CloudPerson newPerson, String previousETag) {
-        logger.debug("createPerson called with: addressbook {}, person {}, prevETag {}", addressBookName, newPerson, previousETag);
+        logger.debug("createPerson called with: addressbook {}, person {}, prevETag {}",
+                     addressBookName, newPerson, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -86,7 +87,8 @@ public class CloudSimulator implements ICloudSimulator {
 
             modifyCloudPersonBasedOnChance(returnedPerson);
 
-            RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_CREATED, returnedPerson, getHeaders(cloudRateLimitStatus));
+            RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_CREATED, returnedPerson,
+                    getHeaders(cloudRateLimitStatus));
             String eTag = getResponseETag(cloudResponse);
             if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
@@ -110,8 +112,10 @@ public class CloudSimulator implements ICloudSimulator {
      * @return
      */
     @Override
-    public RawCloudResponse getPersons(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
-        logger.debug("getPersons called with: addressbook {}, page {}, resourcesperpage {}, prevETag {}", addressBookName, pageNumber, resourcesPerPage, previousETag);
+    public RawCloudResponse getPersons(String addressBookName, int pageNumber, int resourcesPerPage,
+                                       String previousETag) {
+        logger.debug("getPersons called with: addressbook {}, page {}, resourcesperpage {}, prevETag {}",
+                     addressBookName, pageNumber, resourcesPerPage, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -128,7 +132,8 @@ public class CloudSimulator implements ICloudSimulator {
 
         mutateCloudPersonList(queryResults);
 
-        RawCloudResponse contentResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, queryResults, getHeaders(cloudRateLimitStatus));
+        RawCloudResponse contentResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, queryResults,
+                getHeaders(cloudRateLimitStatus));
         String eTag = getResponseETag(contentResponse);
         if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
@@ -151,7 +156,8 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse getTags(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
-        logger.debug("getTags called with: addressbook {}, page {}, resourcesperpage {}, prevETag {}", addressBookName, pageNumber, resourcesPerPage, previousETag);
+        logger.debug("getTags called with: addressbook {}, page {}, resourcesperpage {}, prevETag {}",
+                     addressBookName, pageNumber, resourcesPerPage, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -168,7 +174,8 @@ public class CloudSimulator implements ICloudSimulator {
         List<CloudTag> queryResults = getQueryResults(pageNumber, resourcesPerPage, fullTagList);
         modifyCloudTagListBasedOnChance(queryResults);
 
-        RawCloudResponse contentResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, queryResults, getHeaders(cloudRateLimitStatus));
+        RawCloudResponse contentResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, queryResults,
+                getHeaders(cloudRateLimitStatus));
         String eTag = getResponseETag(contentResponse);
         if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
@@ -190,7 +197,8 @@ public class CloudSimulator implements ICloudSimulator {
     @Override
     public RawCloudResponse getRateLimitStatus(String previousETag) {
         logger.debug("getRateLimitStatus called with: prevETag {}", previousETag);
-        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, getHeaders(cloudRateLimitStatus), getHeaders(cloudRateLimitStatus));
+        RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK,
+                getHeaders(cloudRateLimitStatus), getHeaders(cloudRateLimitStatus));
         String eTag = getResponseETag(cloudResponse);
         if (eTag.equals(previousETag)) return getNotModifiedResponse();
         return cloudResponse;
@@ -210,7 +218,8 @@ public class CloudSimulator implements ICloudSimulator {
     public RawCloudResponse updatePerson(String addressBookName, int personId,
                                          CloudPerson updatedPerson, String previousETag) {
 
-        logger.debug("updatePerson called with: addressbook {}, personid {}, person {}, prevETag {}", addressBookName, personId, updatedPerson, previousETag);
+        logger.debug("updatePerson called with: addressbook {}, personid {}, person {}, prevETag {}",
+                     addressBookName, personId, updatedPerson, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -223,7 +232,8 @@ public class CloudSimulator implements ICloudSimulator {
 
             modifyCloudPersonBasedOnChance(resultingPerson);
 
-            RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, resultingPerson, getHeaders(cloudRateLimitStatus));
+            RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, resultingPerson,
+                    getHeaders(cloudRateLimitStatus));
             String eTag = getResponseETag(cloudResponse);
             if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
@@ -279,7 +289,8 @@ public class CloudSimulator implements ICloudSimulator {
      */
     @Override
     public RawCloudResponse createTag(String addressBookName, CloudTag newTag, String previousETag) {
-        logger.debug("createTag called with: addressbook {}, tag {}, prevETag {}", addressBookName, newTag, previousETag);
+        logger.debug("createTag called with: addressbook {}, tag {}, prevETag {}",
+                     addressBookName, newTag, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -291,7 +302,8 @@ public class CloudSimulator implements ICloudSimulator {
 
             modifyCloudTagBasedOnChance(returnedTag);
 
-            RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_CREATED, returnedTag, getHeaders(cloudRateLimitStatus));
+            RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_CREATED, returnedTag,
+                    getHeaders(cloudRateLimitStatus));
             String eTag = getResponseETag(cloudResponse);
             if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
@@ -316,20 +328,24 @@ public class CloudSimulator implements ICloudSimulator {
      * @return
      */
     @Override
-    public RawCloudResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag, String previousETag) {
-        logger.debug("editTag called with: addressbook {}, tagname {}, tag {}, prevETag {}", addressBookName, oldTagName, updatedTag, previousETag);
+    public RawCloudResponse editTag(String addressBookName, String oldTagName,
+                                    CloudTag updatedTag, String previousETag) {
+        logger.debug("editTag called with: addressbook {}, tagname {}, tag {}, prevETag {}",
+                     addressBookName, oldTagName, updatedTag, previousETag);
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
         if (!hasApiQuotaRemaining()) return getEmptyResponse(HttpURLConnection.HTTP_FORBIDDEN);
         try {
             CloudAddressBook fileData = fileHandler.readCloudAddressBookFromFile(addressBookName);
-            CloudTag returnedTag = updateTagDetails(fileData.getAllPersons(), fileData.getAllTags(), oldTagName, updatedTag);
+            CloudTag returnedTag = updateTagDetails(fileData.getAllPersons(), fileData.getAllTags(),
+                                                    oldTagName, updatedTag);
             fileHandler.writeCloudAddressBookToFile(fileData);
 
             modifyCloudTagBasedOnChance(returnedTag);
 
-            RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, returnedTag, getHeaders(cloudRateLimitStatus));
+            RawCloudResponse cloudResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, returnedTag,
+                    getHeaders(cloudRateLimitStatus));
             String eTag = getResponseETag(cloudResponse);
             if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
@@ -395,7 +411,7 @@ public class CloudSimulator implements ICloudSimulator {
             fileHandler.createCloudAddressBookFile(addressBookName);
 
             cloudRateLimitStatus.useQuota(1);
-            //TODO: Return a wrapped simplified version of an empty addressbook (e.g. only important fields such as name)
+            //TODO Return a wrapped simplified version of an empty addressbook (e.g. only important fields such as name)
             return getEmptyResponse(HttpURLConnection.HTTP_CREATED);
         } catch (DataConversionException | IOException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -415,8 +431,12 @@ public class CloudSimulator implements ICloudSimulator {
      * @return
      */
     @Override
-    public RawCloudResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber, int resourcesPerPage, String previousETag) {
-        logger.debug("getUpdatedPersons called with: addressbook {}, time {}, pageno {}, resourcesperpage {}, prevETag {}", addressBookName, timeString, pageNumber, resourcesPerPage, previousETag);
+    public RawCloudResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber,
+                                              int resourcesPerPage, String previousETag) {
+        logger.debug(
+                "getUpdatedPersons called with: addressbook {}, time {}, pageno {}, resourcesperpage {}, prevETag {}",
+                addressBookName, timeString, pageNumber, resourcesPerPage, previousETag
+        );
         if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
         if (shouldSimulateSlowResponse()) delayRandomAmount();
 
@@ -437,7 +457,8 @@ public class CloudSimulator implements ICloudSimulator {
 
         mutateCloudPersonList(queryResults);
 
-        RawCloudResponse contentResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, queryResults, getHeaders(cloudRateLimitStatus));
+        RawCloudResponse contentResponse = new RawCloudResponse(HttpURLConnection.HTTP_OK, queryResults,
+                getHeaders(cloudRateLimitStatus));
         String eTag = getResponseETag(contentResponse);
         if (eTag.equals(previousETag)) return getNotModifiedResponse();
 
@@ -475,7 +496,8 @@ public class CloudSimulator implements ICloudSimulator {
      * @param contentResponse
      * @param <V>
      */
-    private <V> void fillInPageNumbers(int pageNumber, int resourcesPerPage, List<V> fullResourceList, RawCloudResponse contentResponse) {
+    private <V> void fillInPageNumbers(int pageNumber, int resourcesPerPage, List<V> fullResourceList,
+                                       RawCloudResponse contentResponse) {
         pageNumber = pageNumber < 1 ? 1 : pageNumber;
         int firstPageNumber = 1;
         int lastPageNumber = getLastPageNumber(fullResourceList.size(), resourcesPerPage);
@@ -672,7 +694,7 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private int getLastPageNumber(int dataSize, int resourcesPerPage) {
-        return (int) Math.ceil(dataSize/resourcesPerPage);
+        return (int) Math.ceil(dataSize / resourcesPerPage);
     }
 
     private void deletePersonFromData(List<CloudPerson> personList, int personId)
@@ -702,7 +724,8 @@ public class CloudSimulator implements ICloudSimulator {
         return tagQueryResult.get();
     }
 
-    private CloudTag updateTagDetails(List<CloudPerson> personList, List<CloudTag> tagList, String oldTagName, CloudTag updatedTag)
+    private CloudTag updateTagDetails(List<CloudPerson> personList, List<CloudTag> tagList, String oldTagName,
+                                      CloudTag updatedTag)
             throws NoSuchElementException {
         CloudTag oldTag = getTagIfExists(tagList, oldTagName);
         oldTag.updatedBy(updatedTag);
@@ -716,7 +739,8 @@ public class CloudSimulator implements ICloudSimulator {
         return oldTag;
     }
 
-    private void deleteTagFromData(List<CloudPerson> personList, List<CloudTag> tagList, String tagName) throws NoSuchElementException {
+    private void deleteTagFromData(List<CloudPerson> personList, List<CloudTag> tagList, String tagName)
+            throws NoSuchElementException {
         CloudTag tag = getTagIfExists(tagList, tagName);
         // This may differ from how GitHub does it, but we won't know for sure
         tagList.remove(tag);

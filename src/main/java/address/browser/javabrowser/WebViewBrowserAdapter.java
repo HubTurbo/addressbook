@@ -26,7 +26,7 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
     public WebViewBrowserAdapter(WebView webview) {
         webView = webview;
         webView.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
-            state=newValue;
+            state = newValue;
         });
     }
 
@@ -79,7 +79,8 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
     }
 
     @Override
-    public void changed(ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) {
+    public void changed(ObservableValue<? extends Worker.State> observable, Worker.State oldValue,
+                        Worker.State newValue) {
         if (newValue == Worker.State.SUCCEEDED) {
             listener.onFinishLoadingFrame(true);
         }

@@ -18,7 +18,8 @@ public class CloudFileHandler {
         return new File("cloud/" + addressBookName);
     }
 
-    public CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException, DataConversionException {
+    public CloudAddressBook readCloudAddressBookFromFile(String addressBookName)
+            throws FileNotFoundException, DataConversionException {
         File cloudFile = getCloudDataFilePath(addressBookName);
         try {
             logger.debug("Reading from cloud file '{}'.", cloudFile.getName());
@@ -34,7 +35,8 @@ public class CloudFileHandler {
         }
     }
 
-    public void writeCloudAddressBookToFile(CloudAddressBook cloudAddressBook) throws FileNotFoundException, DataConversionException {
+    public void writeCloudAddressBookToFile(CloudAddressBook cloudAddressBook)
+            throws FileNotFoundException, DataConversionException {
         String addressBookName = cloudAddressBook.getName();
         File cloudFile = getCloudDataFilePath(addressBookName);
         try {

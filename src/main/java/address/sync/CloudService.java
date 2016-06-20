@@ -42,14 +42,14 @@ public class CloudService implements ICloudService {
      */
     public static boolean isValid(RawCloudResponse response) {
         switch (response.getResponseCode()) {
-            case 200:
-            case 201:
-            case 202:
-            case 203:
-            case 204:
-                return true;
-            default:
-                return false;
+        case 200:
+        case 201:
+        case 202:
+        case 203:
+        case 204:
+            return true;
+        default:
+            return false;
         }
     }
 
@@ -152,8 +152,10 @@ public class CloudService implements ICloudService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedCloudResponse<Person> updatePerson(String addressBookName, int personId, Person updatedPerson) throws IOException {
-        RawCloudResponse cloudResponse = cloud.updatePerson(addressBookName, personId, convertToCloudPerson(updatedPerson), null);
+    public ExtractedCloudResponse<Person> updatePerson(String addressBookName, int personId, Person updatedPerson)
+            throws IOException {
+        RawCloudResponse cloudResponse = cloud.updatePerson(addressBookName, personId,
+                convertToCloudPerson(updatedPerson), null);
         HashMap<String, String> headerHashMap = cloudResponse.getHeaders();
         if (!isValid(cloudResponse)) {
             return getResponseWithNoData(cloudResponse, headerHashMap);
@@ -282,7 +284,8 @@ public class CloudService implements ICloudService {
         RawCloudResponse cloudResponse;
         List<CloudPerson> cloudPersons = new ArrayList<>();
         do {
-            cloudResponse = cloud.getUpdatedPersons(addressBookName, time.toString(), curPageNumber, RESOURCES_PER_PAGE, null);
+            cloudResponse = cloud.getUpdatedPersons(addressBookName, time.toString(), curPageNumber,
+                                                    RESOURCES_PER_PAGE, null);
             if (!isValid(cloudResponse)) {
                 return getResponseWithNoData(cloudResponse, cloudResponse.getHeaders());
             }

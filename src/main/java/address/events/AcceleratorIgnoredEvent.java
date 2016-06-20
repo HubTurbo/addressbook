@@ -19,6 +19,6 @@ public class AcceleratorIgnoredEvent extends BaseEvent{
     @Override
     public boolean hasSameIntentionAs(BaseEvent other){
         return (other instanceof AcceleratorIgnoredEvent)
-            && this.acceleratorName.equals(((AcceleratorIgnoredEvent)other).acceleratorName);
+            && this.acceleratorName.equals(((AcceleratorIgnoredEvent) other).acceleratorName);
     }
 }

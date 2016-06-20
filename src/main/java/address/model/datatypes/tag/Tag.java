@@ -34,9 +34,7 @@ public class Tag extends UniqueData implements ExtractableObservables {
 
     @Override
     public Observable[] extractObservables() {
-        return new Observable[] {
-                name
-        };
+        return new Observable[] { name };
     }
 
     @JsonProperty("name")

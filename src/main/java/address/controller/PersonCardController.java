@@ -61,8 +61,8 @@ public class PersonCardController {
             Platform.runLater(() -> cardPane.setOpacity(0.1f));
         }
 
-        double xyPositionAndRadius = profileImage.getFitHeight()/2.0;
-        profileImage.setClip(new Circle(xyPositionAndRadius,xyPositionAndRadius,xyPositionAndRadius));
+        double xyPositionAndRadius = profileImage.getFitHeight() / 2.0;
+        profileImage.setClip(new Circle(xyPositionAndRadius, xyPositionAndRadius, xyPositionAndRadius));
 
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
@@ -78,7 +78,7 @@ public class PersonCardController {
                 if (person.getStreet().length() > 0){
                     sb.append(person.getStreet() + "\n");
                 }
-                if(person.getCity().length() > 0){
+                if (person.getCity().length() > 0){
                     sb.append(person.getCity() + "\n");
                 }
                 if (person.getPostalCode().length() > 0){
@@ -134,7 +134,9 @@ public class PersonCardController {
                 if (image != null && image.getHeight() > 0) {
                     profileImage.setImage(image);
                 } else {
-                    profileImage.setImage(new Image(this.getClass().getResourceAsStream("/images/default_profile_picture.png")));
+                    profileImage.setImage(
+                            new Image(this.getClass().getResourceAsStream("/images/default_profile_picture.png"))
+                    );
                 }
             }).start();
         }

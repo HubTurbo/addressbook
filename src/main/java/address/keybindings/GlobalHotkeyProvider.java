@@ -36,10 +36,10 @@ public class GlobalHotkeyProvider {
     void registerGlobalHotkeys(List<GlobalHotkey> hotkeys) {
         for (GlobalHotkey hk: hotkeys){
             provider.register(hk.getKeyStroke(),
-                    (hotkey) -> {
-                        logger.debug("Global hotkey detected by jkeyMaster : " + hk);
-                        eventManager.post(new GlobalHotkeyEvent(hk.keyCombination));
-                    });
+                (hotkey) -> {
+                    logger.debug("Global hotkey detected by jkeyMaster : " + hk);
+                    eventManager.post(new GlobalHotkeyEvent(hk.keyCombination));
+                });
         }
     }
 

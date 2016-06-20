@@ -48,9 +48,9 @@ public final class PlatformExecUtil {
         assert action != null : "Non-null action required";
         CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-                action.run();
-                latch.countDown();
-            });
+            action.run();
+            latch.countDown();
+        });
         try {
             latch.await();
         } catch (InterruptedException ignored) {

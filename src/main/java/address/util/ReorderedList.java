@@ -8,7 +8,8 @@ import javafx.collections.ObservableList;
 import java.util.concurrent.Semaphore;
 
 /**
- * A wrapper class to contain the move-able(able to move items between different indexes) copy of the read-only person model.
+ * A wrapper class to contain the move-able(able to move items between
+ * different indexes) copy of the read-only person model.
  */
 public class ReorderedList {
 

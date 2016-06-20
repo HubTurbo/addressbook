@@ -99,8 +99,8 @@ public class MainController {
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
             scene.setOnKeyPressed(event -> {
-                    EventManager.getInstance().postPotentialEvent(new KeyBindingEvent(event));
-                });
+                EventManager.getInstance().postPotentialEvent(new KeyBindingEvent(event));
+            });
             primaryStage.setMinHeight(400);
             primaryStage.setMinWidth(740);
             primaryStage.setHeight(600);
@@ -408,17 +408,13 @@ public class MainController {
     @Subscribe
     private void handleMaximizeAppRequestEvent(MaximizeAppRequestEvent event){
         logger.debug("Handling the maximize app window request");
-        Platform.runLater(() -> {
-            maximizeWindow();
-        });
+        Platform.runLater(() -> maximizeWindow());
     }
 
     @Subscribe
     private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event){
         logger.debug("Handling the minimize app window request");
-        Platform.runLater(() -> {
-            minimizeWindow();
-        });
+        Platform.runLater(() -> minimizeWindow());
     }
 
 
