@@ -13,12 +13,19 @@ import java.io.IOException;
 public class CloudFileHandler {
     private static final AppLogger logger = LoggerManager.getLogger(CloudFileHandler.class);
 
-    private File getCloudDataFilePath(String addressBookName) {
-        return new File("cloud/" + addressBookName);
+    private static final String CLOUD_DIRECTORY = "cloud/";
+
+    private File getCloudDataFile(String addressBookName) {
+        return new File(getCloudDataFilePath(addressBookName));
     }
 
-    public CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException, DataConversionException {
-        File cloudFile = getCloudDataFilePath(addressBookName);
+    private String getCloudDataFilePath(String addressBookName) {
+        return CLOUD_DIRECTORY + addressBookName;
+    }
+
+    public CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException,
+            DataConversionException {
+        File cloudFile = getCloudDataFile(addressBookName);
         try {
             logger.debug("Reading from cloud file '{}'.", cloudFile.getName());
             CloudAddressBook CloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
@@ -33,9 +40,10 @@ public class CloudFileHandler {
         }
     }
 
-    public void writeCloudAddressBookToFile(CloudAddressBook CloudAddressBook) throws FileNotFoundException, DataConversionException {
+    public void writeCloudAddressBookToFile(CloudAddressBook CloudAddressBook) throws FileNotFoundException,
+            DataConversionException {
         String addressBookName = CloudAddressBook.getName();
-        File cloudFile = getCloudDataFilePath(addressBookName);
+        File cloudFile = getCloudDataFile(addressBookName);
         try {
             logger.info("Writing to cloud file '{}'.", cloudFile.getName());
             XmlUtil.saveDataToFile(cloudFile, CloudAddressBook);
@@ -45,12 +53,25 @@ public class CloudFileHandler {
         }
     }
 
-    public void createCloudAddressBookFile(String addressBookName) throws IOException, DataConversionException {
-        File cloudFile = getCloudDataFilePath(addressBookName);
-        if (cloudFile.exists() || !cloudFile.createNewFile()) {
-            logger.warn("Error creating addressbook '{}'.", addressBookName);
+    public void createCloudAddressBookFile(String addressBookName) throws IOException, DataConversionException,
+            IllegalArgumentException {
+        File cloudFile = getCloudDataFile(addressBookName);
+        if (cloudFile.exists()) {
+            logger.warn("Cannot create an addressbook that already exists: '{}'.", addressBookName);
             throw new IllegalArgumentException("AddressBook '" + addressBookName + "' already exists!");
         }
+
+        File cloudDirectory = new File(CLOUD_DIRECTORY);
+        if (!cloudDirectory.exists() && !cloudDirectory.mkdir()) {
+            logger.warn("Error creating directory: '{}'", CLOUD_DIRECTORY);
+            throw new IOException("Error creating directory: " + CLOUD_DIRECTORY);
+        }
+
+        if (!cloudFile.createNewFile()) {
+            logger.warn("Error creating cloud file: '{}'", getCloudDataFilePath(addressBookName));
+            throw new IOException("Error creating cloud file for addressbook: " + getCloudDataFilePath(addressBookName));
+        }
+
         writeCloudAddressBookToFile(new CloudAddressBook(addressBookName));
     }
 }
