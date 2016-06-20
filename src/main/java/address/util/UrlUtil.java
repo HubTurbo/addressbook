@@ -9,6 +9,7 @@ import java.net.URL;
 public class UrlUtil {
 
     public static boolean compareBaseUrls(URL url1, URL url2) {
+
         if (url1 == null || url2 == null) {
             return false;
         }
@@ -17,5 +18,7 @@ public class UrlUtil {
                                 && url1.getPath().replaceAll("/", "").toLowerCase()
                                    .equals(url2.getPath().replaceAll("/", "").toLowerCase());
         return isSameBaseUrl;
+
+        //return url1.getHost().equals(url2.getHost()) && url1.getPath().equals(url2.getPath());
     }
 }

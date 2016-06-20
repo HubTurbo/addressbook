@@ -20,7 +20,7 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
 
     private EbLoadListener listener;
 
-    public JxBrowserAdapter(Browser browser) {
+    public JxBrowserAdapter(JxBrowser browser) {
         this.browserView = new BrowserView(browser);
     }
 
@@ -52,6 +52,16 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
     @Override
     public String getUrlString() {
         return browserView.getBrowser().getURL();
+    }
+
+    @Override
+    public String getOriginalUrlString() {
+        return ((JxBrowser)browserView.getBrowser()).getOriginUrl();
+    }
+
+    @Override
+    public URL getOriginalUrl() throws MalformedURLException {
+        return new URL(getOriginalUrlString());
     }
 
     @Override

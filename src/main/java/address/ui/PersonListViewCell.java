@@ -18,10 +18,11 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     private HBox cellGraphic;
 
-    ReorderedList sortedList;
+    private ReorderedList sortedList;
 
     public PersonListViewCell(ReorderedList sortedList) {
         this.sortedList = sortedList;
+
         setOnDragDetected(event -> {
             if (getItem() == null) {
                 return;
@@ -45,8 +46,10 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
                     event.getDragboard().hasString()) {
                 event.acceptTransferModes(TransferMode.MOVE);
                 showDropLocationIndicator(event);
+
             }
             scrollIfNecessary(event);
+
             event.consume();
         });
 
@@ -104,7 +107,6 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
         ReadOnlyViewablePerson personToMove = list.get(indexOfSourceCell);
         int moveToIndex;
-
         double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
 
         if (currentYPosition < midPoint) {
@@ -112,8 +114,14 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         } else {
             moveToIndex = list.indexOf(getItem()) + 1;
         }
-        sortedList.moveElement(list.indexOf(personToMove), moveToIndex);
-        getListView().getSelectionModel().select(list.indexOf(personToMove));
+
+        int moveFromIndex = list.indexOf(personToMove);
+        if (moveFromIndex != moveToIndex && moveFromIndex + 1 != moveToIndex) {
+            System.out.println("moveFromIndex:" + moveFromIndex + " moveToIndex: " + moveToIndex);
+            getListView().getSelectionModel().clearSelection();
+            sortedList.moveElement(moveFromIndex, moveToIndex);
+            getListView().getSelectionModel().select(list.indexOf(personToMove));
+        }
     }
 
     /**
