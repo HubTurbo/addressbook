@@ -1,5 +1,8 @@
 # Release
 ## How to create a release
+0. **Pre-requisite** Run `gradle` task `createInstallerJar` under `release` category
+  - This is to ensure that all binaries can be created successfully (i.e. no compile-time error).
+  - If there is any compile-time error, resolve them first before continuing on the next step.
 1. Update version in `MainApp` and in `build.gradle`
 2. Run `gradle` task `generateUpdateData` under `release` category
   - The console will print a list of libraries which should be updated
