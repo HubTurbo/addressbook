@@ -1,4 +1,4 @@
-package address.sync;
+package address.sync.cloud;
 
 import address.util.AppLogger;
 import address.util.JsonUtil;
@@ -16,15 +16,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 import java.util.HashMap;
 
-public class RawCloudResponse {
-    private static final AppLogger logger = LoggerManager.getLogger(RawCloudResponse.class);
-    int responseCode;
-    InputStream body;
-    HashMap<String, String> headers;
-    int nextPageNo = -1;
-    int previousPageNo = -1;
-    int firstPageNo = -1;
-    int lastPageNo = -1;
+public class RemoteResponse {
+    private static final AppLogger logger = LoggerManager.getLogger(RemoteResponse.class);
+
+    private int responseCode;
+    private InputStream body;
+    private HashMap<String, String> headers;
+    private int nextPageNo;
+    private int previousPageNo;
+    private int firstPageNo;
+    private int lastPageNo;
 
     public int getNextPageNo() {
         return nextPageNo;
@@ -62,7 +63,7 @@ public class RawCloudResponse {
         header.put("ETag", eTag);
     }
 
-    public RawCloudResponse(int responseCode, Object body, HashMap<String, String> header) {
+    public RemoteResponse(int responseCode, Object body, HashMap<String, String> header) {
         this.responseCode = responseCode;
         if (body != null) {
             this.body = convertToInputStream(body);
@@ -71,8 +72,8 @@ public class RawCloudResponse {
         this.headers = header;
     }
 
-    public RawCloudResponse(int responseCode) {
-        assert responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR : "RawCloudResponse constructor misused";
+    public RemoteResponse(int responseCode) {
+        assert responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR : "RemoteResponse constructor misused";
         this.responseCode = responseCode;
         this.headers = new HashMap<>();
     }

@@ -1,13 +1,13 @@
-package address.unittests.sync;
+package address.unittests.sync.cloud;
 
 import address.exceptions.DataConversionException;
-import address.sync.CloudFileHandler;
-import address.sync.CloudRateLimitStatus;
-import address.sync.CloudSimulator;
-import address.sync.RawCloudResponse;
-import address.sync.model.CloudAddressBook;
-import address.sync.model.CloudPerson;
-import address.sync.model.CloudTag;
+import address.sync.cloud.RemoteResponse;
+import address.sync.cloud.CloudFileHandler;
+import address.sync.cloud.CloudRateLimitStatus;
+import address.sync.cloud.CloudSimulator;
+import address.sync.cloud.model.CloudAddressBook;
+import address.sync.cloud.model.CloudPerson;
+import address.sync.cloud.model.CloudTag;
 import address.util.JsonUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,15 +47,15 @@ public class CloudSimulatorTest {
         cloudRateLimitStatus = new CloudRateLimitStatus(STARTING_API_COUNT, resetTime);
         cloudSimulator = new CloudSimulator(cloudFileHandler, cloudRateLimitStatus, false);
 
-        CloudAddressBook cloudAddressBook = getDummyAddressBook();
-        stub(cloudFileHandler.readCloudAddressBookFromFile("Test")).toReturn(cloudAddressBook);
+        CloudAddressBook remoteAddressBook = getDummyAddressBook();
+        stub(cloudFileHandler.readCloudAddressBookFromFile("Test")).toReturn(remoteAddressBook);
 
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
     }
 
     @Test
     public void createAddressBook() throws IOException, DataConversionException {
-        RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
+        RemoteResponse remoteResponse = cloudSimulator.createAddressBook("Test");
 
         // File handler is called to create an address book file
         verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
@@ -64,7 +64,7 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for a successful creation
-        assertEquals(HttpURLConnection.HTTP_CREATED, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_CREATED, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -73,7 +73,7 @@ public class CloudSimulatorTest {
         cloudRateLimitStatus.useQuota(STARTING_API_COUNT);
         assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
 
-        RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
+        RemoteResponse remoteResponse = cloudSimulator.createAddressBook("Test");
 
         // File creation will not be called since there is no more quota
         verify(cloudFileHandler, never()).createCloudAddressBookFile("Test");
@@ -82,7 +82,7 @@ public class CloudSimulatorTest {
         assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for a request with insufficient quota
-        assertEquals(HttpURLConnection.HTTP_FORBIDDEN, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_FORBIDDEN, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class CloudSimulatorTest {
         // Prepare filehandler to throw an exception that the addressbook already exists
         doThrow(new IllegalArgumentException("AddressBook 'Test' already exists!")).when(cloudFileHandler).createCloudAddressBookFile("Test");
 
-        RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
+        RemoteResponse remoteResponse = cloudSimulator.createAddressBook("Test");
 
         // File creation method is called
         verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
@@ -99,7 +99,7 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for a bad request
-        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -107,7 +107,7 @@ public class CloudSimulatorTest {
         // Prepares filehandler to throw an exception that there are problems with data conversion
         doThrow(new DataConversionException("Error in conversion when creating file.")).when(cloudFileHandler).createCloudAddressBookFile("Test");
 
-        RawCloudResponse cloudResponse = cloudSimulator.createAddressBook("Test");
+        RemoteResponse remoteResponse = cloudSimulator.createAddressBook("Test");
 
         // File creation method is called
         verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
@@ -116,12 +116,12 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for a cloud error
-        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
     }
 
     @Test
     public void deletePerson_enoughQuota_successfulDeletion() throws IOException, DataConversionException {
-        RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", 1);
+        RemoteResponse remoteResponse = cloudSimulator.deletePerson("Test", 1);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -133,12 +133,12 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for deleted content
-        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, remoteResponse.getResponseCode());
     }
 
     @Test
     public void deletePerson_noSuchPerson_unsuccessfulDeletion() throws DataConversionException, FileNotFoundException {
-        RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", 2);
+        RemoteResponse remoteResponse = cloudSimulator.deletePerson("Test", 2);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -150,7 +150,7 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for a bad request
-        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -158,7 +158,7 @@ public class CloudSimulatorTest {
         // Prepares filehandler to throw an exception that there are problems with data conversion
         doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
-        RawCloudResponse cloudResponse = cloudSimulator.deletePerson("Test", 1);
+        RemoteResponse remoteResponse = cloudSimulator.deletePerson("Test", 1);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -170,13 +170,13 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for cloud error
-        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
     }
 
     @Test
     public void updatePerson() throws DataConversionException, FileNotFoundException {
         CloudPerson updatedPerson = prepareUpdatedPerson();
-        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
+        RemoteResponse remoteResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -188,7 +188,7 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for successful update
-        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_OK, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -197,7 +197,7 @@ public class CloudSimulatorTest {
         doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
         CloudPerson updatedPerson = prepareUpdatedPerson();
-        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
+        RemoteResponse remoteResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -209,13 +209,13 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for cloud error
-        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
     }
 
     @Test
     public void updatePerson_noSuchPerson() throws DataConversionException, FileNotFoundException {
         CloudPerson updatedPerson = prepareUpdatedPerson();
-        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", 2, updatedPerson, null);
+        RemoteResponse remoteResponse = cloudSimulator.updatePerson("Test", 2, updatedPerson, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -227,7 +227,7 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for bad request
-        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -237,7 +237,7 @@ public class CloudSimulatorTest {
         assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
 
         CloudPerson updatedPerson = prepareUpdatedPerson();
-        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
+        RemoteResponse remoteResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
 
         // File read is not called, since there is no quota
         verify(cloudFileHandler, never()).readCloudAddressBookFromFile("Test");
@@ -249,7 +249,7 @@ public class CloudSimulatorTest {
         assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for insufficient quota
-        assertEquals(HttpURLConnection.HTTP_FORBIDDEN, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_FORBIDDEN, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -270,7 +270,7 @@ public class CloudSimulatorTest {
         updatedTagList.add(newTag);
         CloudAddressBook updatedAddressBook = new CloudAddressBook("Test", updatedPersonList, updatedTagList);
 
-        RawCloudResponse cloudResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
+        RemoteResponse remoteResponse = cloudSimulator.updatePerson("Test", 1, updatedPerson, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -283,7 +283,7 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for successful update
-        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_OK, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -295,7 +295,7 @@ public class CloudSimulatorTest {
         CloudAddressBook updatedCloudAddressBook = getDummyAddressBook();
         updatedCloudAddressBook.getAllTags().add(newTag);
 
-        RawCloudResponse cloudResponse = cloudSimulator.createTag("Test", newTag, null);
+        RemoteResponse remoteResponse = cloudSimulator.createTag("Test", newTag, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -307,11 +307,11 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for successful creation
-        assertEquals(HttpURLConnection.HTTP_CREATED, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_CREATED, remoteResponse.getResponseCode());
 
         // Returned content should be the same
-        CloudTag cloudTag = JsonUtil.fromJsonString(convertToString(cloudResponse.getBody()), CloudTag.class);
-        assertEquals(newTag, cloudTag);
+        CloudTag remoteTag = JsonUtil.fromJsonString(convertToString(remoteResponse.getBody()), CloudTag.class);
+        assertEquals(newTag, remoteTag);
     }
 
     @Test
@@ -326,7 +326,7 @@ public class CloudSimulatorTest {
         // However exception is thrown when writing to file
         doThrow(new DataConversionException("Error in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
-        RawCloudResponse cloudResponse = cloudSimulator.createTag("Test", newTag, null);
+        RemoteResponse remoteResponse = cloudSimulator.createTag("Test", newTag, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -338,10 +338,10 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response data should be null
-        assertNull(cloudResponse.getBody());
+        assertNull(remoteResponse.getBody());
 
         // Response code for cloud error
-        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -353,7 +353,7 @@ public class CloudSimulatorTest {
         CloudAddressBook updatedCloudAddressBook = getDummyAddressBook();
         updatedCloudAddressBook.getAllTags().add(newTag);
 
-        RawCloudResponse cloudResponse = cloudSimulator.createTag("Test", newTag, null);
+        RemoteResponse remoteResponse = cloudSimulator.createTag("Test", newTag, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -365,10 +365,10 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response body should be null
-        assertNull(cloudResponse.getBody());
+        assertNull(remoteResponse.getBody());
 
         // Response code for a bad request
-        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -381,7 +381,7 @@ public class CloudSimulatorTest {
         updatedCloudAddressBook.getAllTags().remove(new CloudTag("Tag one"));
         updatedCloudAddressBook.getAllTags().add(updatedTag);
 
-        RawCloudResponse cloudResponse = cloudSimulator.editTag("Test", "Tag one", updatedTag, null);
+        RemoteResponse remoteResponse = cloudSimulator.editTag("Test", "Tag one", updatedTag, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -393,7 +393,7 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for successful update
-        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_OK, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -405,11 +405,11 @@ public class CloudSimulatorTest {
         updatedCloudAddressBook.getAllTags().remove(new CloudTag("Tag one"));
         updatedCloudAddressBook.getAllTags().add(updatedTag);
 
-        RawCloudResponse cloudResponse = cloudSimulator.editTag("Test", "Tag one", updatedTag, null);
+        RemoteResponse remoteResponse = cloudSimulator.editTag("Test", "Tag one", updatedTag, null);
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedCloudAddressBook);
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
-        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -417,7 +417,7 @@ public class CloudSimulatorTest {
         // Updated tag to use
         CloudTag updatedTag = new CloudTag("Updated tag");
 
-        RawCloudResponse cloudResponse = cloudSimulator.editTag("Test", "Tag two", updatedTag, null);
+        RemoteResponse remoteResponse = cloudSimulator.editTag("Test", "Tag two", updatedTag, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -429,7 +429,7 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for a bad request
-        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -438,7 +438,7 @@ public class CloudSimulatorTest {
         CloudAddressBook resultingAddressBook = getDummyAddressBook();
         resultingAddressBook.getAllTags().remove(new CloudTag("Tag one"));
 
-        RawCloudResponse cloudResponse = cloudSimulator.deleteTag("Test", "Tag one");
+        RemoteResponse remoteResponse = cloudSimulator.deleteTag("Test", "Tag one");
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -450,7 +450,7 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for successful deletion
-        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -462,7 +462,7 @@ public class CloudSimulatorTest {
         // Prepare filehandler to throw an exception that there are problems with data conversion
         doThrow(new DataConversionException("Exception in conversion when writing to file.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
-        RawCloudResponse cloudResponse = cloudSimulator.deleteTag("Test", "Tag one");
+        RemoteResponse remoteResponse = cloudSimulator.deleteTag("Test", "Tag one");
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -474,12 +474,12 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for a cloud error
-        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
     }
 
     @Test
     public void deleteTag_noSuchTag() throws DataConversionException, FileNotFoundException {
-        RawCloudResponse cloudResponse = cloudSimulator.deleteTag("Test", "Tag two");
+        RemoteResponse remoteResponse = cloudSimulator.deleteTag("Test", "Tag two");
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -491,7 +491,7 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Repsonse code for a bad request
-        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -503,7 +503,7 @@ public class CloudSimulatorTest {
         CloudAddressBook bigCloudAddressBook = getBigDummyAddressBook();
         stub(cloudFileHandler.readCloudAddressBookFromFile("Big Test")).toReturn(bigCloudAddressBook);
 
-        RawCloudResponse cloudResponse = cloudSimulator.getTags("Big Test", pageNumber, resourcesPerPage, null);
+        RemoteResponse remoteResponse = cloudSimulator.getTags("Big Test", pageNumber, resourcesPerPage, null);
 
         // File read is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Big Test");
@@ -515,10 +515,10 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for successful get
-        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_OK, remoteResponse.getResponseCode());
 
         // Expected result
-        List<CloudTag> tagList = JsonUtil.fromJsonStringToList(convertToString(cloudResponse.getBody()), CloudTag.class);
+        List<CloudTag> tagList = JsonUtil.fromJsonStringToList(convertToString(remoteResponse.getBody()), CloudTag.class);
 
         // Correct number of resources retrieved
         assertEquals(resourcesPerPage, tagList.size());
@@ -530,12 +530,12 @@ public class CloudSimulatorTest {
 
         // There is a next & prev page numbers, since we are retrieving
         // from near the middle of the list of tags
-        assertEquals(pageNumber + 1, cloudResponse.getNextPageNo());
-        assertEquals(pageNumber - 1, cloudResponse.getPreviousPageNo());
+        assertEquals(pageNumber + 1, remoteResponse.getNextPageNo());
+        assertEquals(pageNumber - 1, remoteResponse.getPreviousPageNo());
 
         // First page is always 1, last page number is dependent on the number of resources/resourcePerPage
-        assertEquals(1, cloudResponse.getFirstPageNo());
-        assertEquals((int) Math.ceil(1000/resourcesPerPage), cloudResponse.getLastPageNo());
+        assertEquals(1, remoteResponse.getFirstPageNo());
+        assertEquals((int) Math.ceil(1000/resourcesPerPage), remoteResponse.getLastPageNo());
     }
 
     @Test
@@ -547,7 +547,7 @@ public class CloudSimulatorTest {
         CloudAddressBook bigCloudAddressBook = getBigDummyAddressBook();
         stub(cloudFileHandler.readCloudAddressBookFromFile("Big Test")).toReturn(bigCloudAddressBook);
 
-        RawCloudResponse cloudResponse = cloudSimulator.getPersons("Big Test", pageNumber, resourcesPerPage, null);
+        RemoteResponse remoteResponse = cloudSimulator.getPersons("Big Test", pageNumber, resourcesPerPage, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Big Test");
@@ -559,10 +559,10 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for successful get
-        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_OK, remoteResponse.getResponseCode());
 
         // Expected result
-        List<CloudPerson> personList = JsonUtil.fromJsonStringToList(convertToString(cloudResponse.getBody()), CloudPerson.class);
+        List<CloudPerson> personList = JsonUtil.fromJsonStringToList(convertToString(remoteResponse.getBody()), CloudPerson.class);
 
         // Correct number of resources retrieved
         assertEquals(resourcesPerPage, personList.size());
@@ -573,12 +573,12 @@ public class CloudSimulatorTest {
         }
 
         // Prev/next page numbers are defined
-        assertEquals(pageNumber + 1, cloudResponse.getNextPageNo());
-        assertEquals(pageNumber - 1, cloudResponse.getPreviousPageNo());
+        assertEquals(pageNumber + 1, remoteResponse.getNextPageNo());
+        assertEquals(pageNumber - 1, remoteResponse.getPreviousPageNo());
 
         // First page is always 1, and last page is always resources/resourcesPerPage.
-        assertEquals(1, cloudResponse.getFirstPageNo());
-        assertEquals((int) Math.ceil(2000/resourcesPerPage), cloudResponse.getLastPageNo());
+        assertEquals(1, remoteResponse.getFirstPageNo());
+        assertEquals((int) Math.ceil(2000/resourcesPerPage), remoteResponse.getLastPageNo());
     }
 
     @Test
@@ -590,7 +590,7 @@ public class CloudSimulatorTest {
         CloudAddressBook bigCloudAddressBook = getBigDummyAddressBook();
         stub(cloudFileHandler.readCloudAddressBookFromFile("Big Test")).toReturn(bigCloudAddressBook).toReturn(bigCloudAddressBook);
 
-        RawCloudResponse cloudResponse = cloudSimulator.getPersons("Big Test", pageNumber, resourcesPerPage, null);
+        RemoteResponse remoteResponse = cloudSimulator.getPersons("Big Test", pageNumber, resourcesPerPage, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Big Test");
@@ -602,13 +602,13 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for successful get
-        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_OK, remoteResponse.getResponseCode());
 
         // Extract the previous response's ETag
-        String responseETag = cloudResponse.getHeaders().get("ETag");
+        String responseETag = remoteResponse.getHeaders().get("ETag");
 
         // Call the same method with extracted ETag
-        RawCloudResponse cloudResponse2 = cloudSimulator.getPersons("Big Test", pageNumber, resourcesPerPage, responseETag);
+        RemoteResponse remoteResponse2 = cloudSimulator.getPersons("Big Test", pageNumber, resourcesPerPage, responseETag);
 
         // File read method has been called twice
         verify(cloudFileHandler, times(2)).readCloudAddressBookFromFile("Big Test");
@@ -620,16 +620,16 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for no modification
-        assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, cloudResponse2.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, remoteResponse2.getResponseCode());
     }
 
     @Test
     public void getRateLimitStatus() throws DataConversionException, FileNotFoundException {
-        RawCloudResponse cloudResponse = cloudSimulator.getRateLimitStatus(null);
+        RemoteResponse remoteResponse = cloudSimulator.getRateLimitStatus(null);
         verify(cloudFileHandler, never()).readCloudAddressBookFromFile("Big Test");
         verify(cloudFileHandler, never()).writeCloudAddressBookToFile(any(CloudAddressBook.class));
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
-        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_OK, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -647,22 +647,22 @@ public class CloudSimulatorTest {
         bigCloudAddressBook.getAllPersons().get(352).updatedBy(updatedPerson);
 
         // get updated persons since response time
-        RawCloudResponse cloudResponse = cloudSimulator.getUpdatedPersons("Big Test", cutOffTime, pageNumber, resourcesPerPage, null);
+        RemoteResponse remoteResponse = cloudSimulator.getUpdatedPersons("Big Test", cutOffTime, pageNumber, resourcesPerPage, null);
 
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Big Test");
         verify(cloudFileHandler, never()).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
         assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
-        assertEquals(HttpURLConnection.HTTP_OK, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_OK, remoteResponse.getResponseCode());
 
-        List<CloudPerson> personList = JsonUtil.fromJsonStringToList(convertToString(cloudResponse.getBody()), CloudPerson.class);
+        List<CloudPerson> personList = JsonUtil.fromJsonStringToList(convertToString(remoteResponse.getBody()), CloudPerson.class);
         // should only return the updated person
         assertEquals(1, personList.size());
         assertTrue(personList.contains(new CloudPerson("firstName353", "lastName353")));
-        assertEquals(-1, cloudResponse.getNextPageNo());
-        assertEquals(-1, cloudResponse.getPreviousPageNo());
-        assertEquals(1, cloudResponse.getFirstPageNo());
-        assertEquals((int) Math.ceil(1/resourcesPerPage), cloudResponse.getLastPageNo());
+        assertEquals(0, remoteResponse.getNextPageNo());
+        assertEquals(0, remoteResponse.getPreviousPageNo());
+        assertEquals(1, remoteResponse.getFirstPageNo());
+        assertEquals((int) Math.ceil(1/resourcesPerPage), remoteResponse.getLastPageNo());
     }
 
     @Test
@@ -684,7 +684,7 @@ public class CloudSimulatorTest {
         // Prepare to throw exception that there is an error during data conversion
         doThrow(new DataConversionException("Error in conversion when reading file.")).when(cloudFileHandler).readCloudAddressBookFromFile("Big Test");
 
-        RawCloudResponse cloudResponse = cloudSimulator.getUpdatedPersons("Big Test", cutOffTime, pageNumber, resourcesPerPage, null);
+        RemoteResponse remoteResponse = cloudSimulator.getUpdatedPersons("Big Test", cutOffTime, pageNumber, resourcesPerPage, null);
 
         // File read method called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Big Test");
@@ -696,23 +696,23 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for a cloud error
-        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
 
         // Body is null
-        assertNull(cloudResponse.getBody());
+        assertNull(remoteResponse.getBody());
 
         // No pages numbers have been set
-        assertEquals(-1, cloudResponse.getNextPageNo());
-        assertEquals(-1, cloudResponse.getPreviousPageNo());
-        assertEquals(-1, cloudResponse.getFirstPageNo());
-        assertEquals(-1, cloudResponse.getLastPageNo());
+        assertEquals(0, remoteResponse.getNextPageNo());
+        assertEquals(0, remoteResponse.getPreviousPageNo());
+        assertEquals(0, remoteResponse.getFirstPageNo());
+        assertEquals(0, remoteResponse.getLastPageNo());
     }
 
     @Test
     public void createPerson() throws DataConversionException, IOException {
-        CloudPerson cloudPerson = new CloudPerson("unknownName", "unknownName");
+        CloudPerson remotePerson = new CloudPerson("unknownName", "unknownName");
 
-        RawCloudResponse cloudResponse = cloudSimulator.createPerson("Test", cloudPerson, null);
+        RemoteResponse remoteResponse = cloudSimulator.createPerson("Test", remotePerson, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -724,18 +724,18 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for successful creation
-        assertEquals(HttpURLConnection.HTTP_CREATED, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_CREATED, remoteResponse.getResponseCode());
 
-        CloudPerson person = JsonUtil.fromJsonString(convertToString(cloudResponse.getBody()), CloudPerson.class);
+        CloudPerson person = JsonUtil.fromJsonString(convertToString(remoteResponse.getBody()), CloudPerson.class);
 
         // Resulting data should be the same
-        assertEquals(cloudPerson, person);
+        assertEquals(remotePerson, person);
     }
 
     @Test
     public void createPerson_alreadyExists_unsuccessfulCreation() throws DataConversionException, IOException {
-        CloudPerson cloudPerson = new CloudPerson("firstName", "lastName");
-        RawCloudResponse cloudResponse = cloudSimulator.createPerson("Test", cloudPerson, null);
+        CloudPerson remotePerson = new CloudPerson("firstName", "lastName");
+        RemoteResponse remoteResponse = cloudSimulator.createPerson("Test", remotePerson, null);
 
         // File read method called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -747,15 +747,15 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Body is null
-        assertNull(cloudResponse.getBody());
+        assertNull(remoteResponse.getBody());
 
         // Response code for a bad request
-        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, remoteResponse.getResponseCode());
     }
 
     @Test
     public void createPerson_nullArgument_unsuccessfulCreation() throws DataConversionException, IOException {
-        RawCloudResponse cloudResponse = cloudSimulator.createPerson("Test", null, null);
+        RemoteResponse remoteResponse = cloudSimulator.createPerson("Test", null, null);
 
         // File read method called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -767,10 +767,10 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Body is null
-        assertNull(cloudResponse.getBody());
+        assertNull(remoteResponse.getBody());
 
         // Response code for a bad request
-        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, remoteResponse.getResponseCode());
     }
 
     @Test
@@ -778,8 +778,8 @@ public class CloudSimulatorTest {
         // Prepare to throw an exception that the data is compatible
         doThrow(new DataConversionException("Error in conversion.")).when(cloudFileHandler).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
-        CloudPerson cloudPerson = new CloudPerson("unknownName", "unknownName");
-        RawCloudResponse cloudResponse = cloudSimulator.createPerson("Test", cloudPerson, null);
+        CloudPerson remotePerson = new CloudPerson("unknownName", "unknownName");
+        RemoteResponse remoteResponse = cloudSimulator.createPerson("Test", remotePerson, null);
 
         // File read method is called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
@@ -791,10 +791,10 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
 
         // Should be null
-        assertNull(cloudResponse.getBody());
+        assertNull(remoteResponse.getBody());
 
         // Response code for a cloud error
-        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, cloudResponse.getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
     }
 
     private String convertToString(InputStream stream) throws IOException {
@@ -808,28 +808,28 @@ public class CloudSimulatorTest {
     }
 
     private CloudAddressBook getDummyAddressBook() {
-        CloudAddressBook cloudAddressBook = new CloudAddressBook("Test");
+        CloudAddressBook remoteAddressBook = new CloudAddressBook("Test");
 
         CloudPerson dummyPerson = new CloudPerson("firstName", "lastName");
         dummyPerson.setId(1);
-        cloudAddressBook.getAllPersons().add(dummyPerson);
+        remoteAddressBook.getAllPersons().add(dummyPerson);
 
-        cloudAddressBook.getAllTags().add(new CloudTag("Tag one"));
-        return cloudAddressBook;
+        remoteAddressBook.getAllTags().add(new CloudTag("Tag one"));
+        return remoteAddressBook;
     }
 
     private CloudAddressBook getBigDummyAddressBook() {
         int personsToGenerate = 2000;
         int tagsToGenerate = 1000;
-        CloudAddressBook cloudAddressBook = new CloudAddressBook("Big Test");
+        CloudAddressBook remoteAddressBook = new CloudAddressBook("Big Test");
         for (int i = 0; i < personsToGenerate; i++) {
-            cloudAddressBook.getAllPersons().add(new CloudPerson("firstName" + i, "lastName" + i));
+            remoteAddressBook.getAllPersons().add(new CloudPerson("firstName" + i, "lastName" + i));
         }
 
         for (int i = 0; i < tagsToGenerate; i++) {
-            cloudAddressBook.getAllTags().add(new CloudTag("Tag" + i));
+            remoteAddressBook.getAllTags().add(new CloudTag("Tag" + i));
         }
-        return cloudAddressBook;
+        return remoteAddressBook;
     }
 
     private CloudPerson prepareUpdatedPerson() {

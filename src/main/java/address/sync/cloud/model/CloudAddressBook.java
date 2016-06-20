@@ -1,4 +1,4 @@
-package address.sync.model;
+package address.sync.cloud.model;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is meant to wrap cloud persons and cloud tags in the cloud for easier storage
+ * This class is the addressbook model used by the cloud
  *
- * This class should NOT be used by other components aside from CloudService
+ * This class should NOT be used by other components aside from RemoteService
  */
 @XmlRootElement(name = "cloudaddressbook")
 public class CloudAddressBook {

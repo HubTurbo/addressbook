@@ -11,8 +11,6 @@ import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -27,11 +25,7 @@ public class SyncManager {
     private final ExecutorService requestExecutor;
     private Optional<String> activeAddressBook;
 
-    private CloudService cloudService;
-
-    private LocalDateTime lastSuccessfulPersonsUpdate;
-    private String lastTagsETag;
-    private LocalDateTime lastSuccessfulTagsUpdate;
+    private RemoteManager remoteManager;
 
     public SyncManager() {
         activeAddressBook = Optional.empty();
@@ -39,10 +33,9 @@ public class SyncManager {
         requestExecutor = Executors.newCachedThreadPool();
         EventManager.getInstance().registerHandler(this);
     }
-
-    public SyncManager(CloudService cloudService, ExecutorService executorService,
+    public SyncManager(RemoteManager remoteManager, ExecutorService executorService,
                        ScheduledExecutorService scheduledExecutorService) {
-        this.cloudService = cloudService;
+        this.remoteManager = remoteManager;
         this.scheduler = scheduledExecutorService;
         this.requestExecutor = executorService;
         activeAddressBook = Optional.empty();
@@ -61,20 +54,19 @@ public class SyncManager {
     }
 
     /**
-     * Initializes the cloud service, if it hasn't been
+     * Initializes the remote service, if it hasn't been
      *
      * Starts getting periodic updates from the cloud
      *
-     * @param interval
-     * @param simulateUnreliableNetwork
+     * @param interval should be a positive integer
      */
-    public void startSyncingData(long interval, boolean simulateUnreliableNetwork) {
+    public void startSyncingData(long interval) {
         if (interval <= 0) {
-            logger.warn("Update interval specified is not positive: " + interval);
+            logger.warn("Update interval specified is not positive: {}", interval);
             return;
         }
-        if (cloudService == null) {
-            this.cloudService = new CloudService(simulateUnreliableNetwork);
+        if (remoteManager == null) {
+            this.remoteManager = new RemoteManager();
         }
         updatePeriodically(interval);
     }
@@ -102,17 +94,16 @@ public class SyncManager {
                 EventManager.getInstance().post(
                         new UpdateCompletedEvent<>(updatedPersons, "Person updates completed."));
 
-                Optional<List<Tag>> updatedTagList = getUpdatedTags(activeAddressBook.get());
-                if (updatedTagList.isPresent()) {
-                    logger.logList("Acquired new list of tags: {}", updatedTagList.get());
-                } else {
-                    logger.info("No updates to tags.");
-                }
+                List<Tag> updatedTagList = getUpdatedTags(activeAddressBook.get());
                 EventManager.getInstance().post(new UpdateCompletedEvent<>(updatedTagList, "Tag updates completed."));
+
                 EventManager.getInstance().post(new SyncCompletedEvent());
             } catch (SyncErrorException e) {
                 logger.warn("Error obtaining updates.");
                 EventManager.getInstance().post(new SyncFailedEvent(e.getMessage()));
+            } catch (Exception e) {e.printStackTrace();
+
+                logger.warn("{}", e);
             }
         };
 
@@ -121,9 +112,7 @@ public class SyncManager {
     }
 
     /**
-     * Gets the list of persons that have been updated since lastSuccessfulPersonsUpdate
-     *
-     * If lastSuccessfulPersonsUpdate is null, the full list of persons will be obtained instead
+     * Gets the list of persons that have been updated since the last request
      *
      * @param addressBookName
      * @return
@@ -131,71 +120,42 @@ public class SyncManager {
      */
     private List<Person> getUpdatedPersons(String addressBookName) throws SyncErrorException {
         try {
-            ExtractedCloudResponse<List<Person>> personsResponse;
-            if (lastSuccessfulPersonsUpdate == null) {
-                logger.debug("No previous persons update found.");
-                personsResponse = cloudService.getPersons(addressBookName);
-            } else {
-                logger.debug("Last persons update at: {}", lastSuccessfulPersonsUpdate);
-                personsResponse = cloudService.getUpdatedPersonsSince(addressBookName, lastSuccessfulPersonsUpdate);
-            }
-            if (personsResponse.getResponseCode() != HttpURLConnection.HTTP_OK &&
-                personsResponse.getResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
-                throw new SyncErrorException(personsResponse.getResponseCode() +
-                        " response from cloud instead of expected " +
-                        HttpURLConnection.HTTP_OK + " during persons update.");
-            }
-            if (!personsResponse.getData().isPresent()) {
-                throw new SyncErrorException("Unexpected missing data from response.");
-            }
+            Optional<List<Person>> updatedPersons;
+            updatedPersons = remoteManager.getUpdatedPersons(addressBookName);
 
-            logger.debug("Response for persons updates retrieved.");
-            lastSuccessfulPersonsUpdate = LocalDateTime.now();
-            return personsResponse.getData().get();
+            if (!updatedPersons.isPresent()) throw new SyncErrorException("getUpdatedPersons failed.");
+
+            logger.debug("Updated persons retrieved.");
+            return updatedPersons.get();
         } catch (IOException e) {
             throw new SyncErrorException("Error getting updated persons.");
         }
     }
 
-    private Optional<List<Tag>> getUpdatedTags(String addressBookName) throws SyncErrorException {
+    private List<Tag> getUpdatedTags(String addressBookName) throws SyncErrorException {
         try {
-            if (lastTagsETag == null) {
-                logger.debug("No previous tag updates found.");
+            Optional<List<Tag>> updatedTags = remoteManager.getUpdatedTagList(addressBookName);
+
+            if (!updatedTags.isPresent()) {
+                logger.info("No updates to tags.");
+                return null;
             } else {
-                logger.debug("Found last tags update at: {}", lastSuccessfulTagsUpdate);
+                logger.info("Updated tags: {}", updatedTags);
+                return updatedTags.get();
             }
-
-            ExtractedCloudResponse<List<Tag>> tagsResponse = cloudService.getTags(addressBookName, lastTagsETag);
-            switch (tagsResponse.getResponseCode()) {
-            case HttpURLConnection.HTTP_OK:
-                if (!tagsResponse.getData().isPresent()) {
-                    throw new SyncErrorException("Unexpected missing data from response.");
-                }
-                lastTagsETag = tagsResponse.getETag();
-                // fallthrough
-            case HttpURLConnection.HTTP_NOT_MODIFIED:
-                logger.debug("Response for tags update retrieved.");
-                lastSuccessfulTagsUpdate = LocalDateTime.now();
-                return tagsResponse.getData();
-            default:
-                throw new SyncErrorException(tagsResponse.getResponseCode() +
-                        " response from cloud instead of expected " + HttpURLConnection.HTTP_OK + " or " +
-                        HttpURLConnection.HTTP_NOT_MODIFIED + " during tags update.");
-
-            }
-        } catch (SyncErrorException | IOException e) {
-            throw new SyncErrorException("Error getting updated tags.");
+        } catch (IOException e) {
+            throw new SyncErrorException("Error getting updated persons.");
         }
     }
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
-        requestExecutor.execute(new CloudUpdateTask(this.cloudService, lmce.personData, lmce.tagData));
+        requestExecutor.execute(new CloudUpdateTask(this.remoteManager, lmce.personData, lmce.tagData));
     }
 
     // To be removed after working out specification on saving and syncing behaviour
     @Subscribe
     public void handleSaveRequestEvent(SaveRequestEvent sre) {
-        requestExecutor.execute(new CloudUpdateTask(this.cloudService, sre.personData, sre.tagData));
+        requestExecutor.execute(new CloudUpdateTask(this.remoteManager, sre.personData, sre.tagData));
     }
 }

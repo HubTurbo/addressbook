@@ -1,19 +1,22 @@
 package address.sync;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-import java.util.TimeZone;
 
-public class ExtractedCloudResponse<V> {
+public class ExtractedRemoteResponse<V> {
     private Optional<V> data;
     private int quotaLimit;
     private int quotaRemaining;
     private LocalDateTime quotaResetTime;
     private int responseCode;
-    String eTag;
+    private String eTag;
+    private int prevPage;
+    private int nextPage;
+    private int firstPage;
+    private int lastPage;
+
 
     // temporarily copied from CloudSimulator, to be refactored
     private ZoneOffset getSystemTimezone() {
@@ -22,8 +25,8 @@ public class ExtractedCloudResponse<V> {
         return zonedDateTime.getOffset();
     }
 
-    ExtractedCloudResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining,
-                           long quotaResetTimeEpochSeconds) {
+    public ExtractedRemoteResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining,
+                                   long quotaResetTimeEpochSeconds) {
         this(responseCode);
         this.eTag = eTag;
         this.quotaLimit = quotaLimit;
@@ -31,18 +34,18 @@ public class ExtractedCloudResponse<V> {
         this.quotaResetTime = LocalDateTime.ofEpochSecond(quotaResetTimeEpochSeconds, 0, getSystemTimezone());
     }
 
-    ExtractedCloudResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining,
-                           long quotaResetTimeEpochSeconds, V data) {
+    public ExtractedRemoteResponse(int responseCode, String eTag, int quotaLimit, int quotaRemaining,
+                                   long quotaResetTimeEpochSeconds, V data) {
         this(responseCode, eTag, quotaLimit, quotaRemaining, quotaResetTimeEpochSeconds);
         this.data = Optional.ofNullable(data);
     }
 
-    ExtractedCloudResponse(int responseCode) {
+    public ExtractedRemoteResponse(int responseCode) {
         this.responseCode = responseCode;
         this.data = Optional.empty();
     }
 
-    ExtractedCloudResponse() {
+    ExtractedRemoteResponse() {
     }
 
     public int getResponseCode() {
@@ -67,5 +70,37 @@ public class ExtractedCloudResponse<V> {
 
     public Optional<V> getData() {
         return data;
+    }
+
+    public int getPrevPage() {
+        return prevPage;
+    }
+
+    public void setPrevPage(int prevPage) {
+        this.prevPage = prevPage;
+    }
+
+    public int getNextPage() {
+        return nextPage;
+    }
+
+    public void setNextPage(int nextPage) {
+        this.nextPage = nextPage;
+    }
+
+    public int getFirstPage() {
+        return firstPage;
+    }
+
+    public void setFirstPage(int firstPage) {
+        this.firstPage = firstPage;
+    }
+
+    public int getLastPage() {
+        return lastPage;
+    }
+
+    public void setLastPage(int lastPage) {
+        this.lastPage = lastPage;
     }
 }

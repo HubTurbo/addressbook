@@ -1,11 +1,10 @@
-package address.sync;
+package address.sync.cloud;
 
 import address.exceptions.DataConversionException;
-import address.sync.model.CloudAddressBook;
+import address.sync.cloud.model.CloudAddressBook;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.XmlUtil;
-import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,14 +17,13 @@ public class CloudFileHandler {
         return new File("cloud/" + addressBookName);
     }
 
-    public CloudAddressBook readCloudAddressBookFromFile(String addressBookName)
-            throws FileNotFoundException, DataConversionException {
+    public CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException, DataConversionException {
         File cloudFile = getCloudDataFilePath(addressBookName);
         try {
             logger.debug("Reading from cloud file '{}'.", cloudFile.getName());
-            CloudAddressBook cloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
-            if (cloudAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
-            return cloudAddressBook;
+            CloudAddressBook CloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
+            if (CloudAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
+            return CloudAddressBook;
         } catch (FileNotFoundException e) {
             logger.warn("Cloud file '{}' not found.", cloudFile.getName());
             throw e;
@@ -35,13 +33,12 @@ public class CloudFileHandler {
         }
     }
 
-    public void writeCloudAddressBookToFile(CloudAddressBook cloudAddressBook)
-            throws FileNotFoundException, DataConversionException {
-        String addressBookName = cloudAddressBook.getName();
+    public void writeCloudAddressBookToFile(CloudAddressBook CloudAddressBook) throws FileNotFoundException, DataConversionException {
+        String addressBookName = CloudAddressBook.getName();
         File cloudFile = getCloudDataFilePath(addressBookName);
         try {
             logger.info("Writing to cloud file '{}'.", cloudFile.getName());
-            XmlUtil.saveDataToFile(cloudFile, cloudAddressBook);
+            XmlUtil.saveDataToFile(cloudFile, CloudAddressBook);
         } catch (FileNotFoundException | DataConversionException e) {
             logger.warn("Error writing to cloud file '{}'.", cloudFile.getName());
             throw e;

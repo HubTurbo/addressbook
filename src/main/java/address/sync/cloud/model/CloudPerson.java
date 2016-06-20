@@ -1,4 +1,4 @@
-package address.sync.model;
+package address.sync.cloud.model;
 
 import address.util.XmlLocalDateAdapter;
 import address.util.XmlLocalDateTimeAdapter;

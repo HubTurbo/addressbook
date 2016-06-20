@@ -1,4 +1,4 @@
-package address.sync;
+package address.sync.cloud;
 
 import address.util.AppLogger;
 import address.util.LoggerManager;
