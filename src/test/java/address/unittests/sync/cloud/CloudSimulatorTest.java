@@ -659,8 +659,8 @@ public class CloudSimulatorTest {
         // should only return the updated person
         assertEquals(1, personList.size());
         assertTrue(personList.contains(new CloudPerson("firstName353", "lastName353")));
-        assertEquals(-1, remoteResponse.getNextPageNo());
-        assertEquals(-1, remoteResponse.getPreviousPageNo());
+        assertEquals(0, remoteResponse.getNextPageNo());
+        assertEquals(0, remoteResponse.getPreviousPageNo());
         assertEquals(1, remoteResponse.getFirstPageNo());
         assertEquals((int) Math.ceil(1/resourcesPerPage), remoteResponse.getLastPageNo());
     }
@@ -702,10 +702,10 @@ public class CloudSimulatorTest {
         assertNull(remoteResponse.getBody());
 
         // No pages numbers have been set
-        assertEquals(-1, remoteResponse.getNextPageNo());
-        assertEquals(-1, remoteResponse.getPreviousPageNo());
-        assertEquals(-1, remoteResponse.getFirstPageNo());
-        assertEquals(-1, remoteResponse.getLastPageNo());
+        assertEquals(0, remoteResponse.getNextPageNo());
+        assertEquals(0, remoteResponse.getPreviousPageNo());
+        assertEquals(0, remoteResponse.getFirstPageNo());
+        assertEquals(0, remoteResponse.getLastPageNo());
     }
 
     @Test
