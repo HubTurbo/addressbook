@@ -11,8 +11,6 @@ import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -137,7 +135,7 @@ public class SyncManager {
 
     private List<Tag> getUpdatedTags(String addressBookName) throws SyncErrorException {
         try {
-            Optional<List<Tag>> updatedTags = remoteManager.getTagsIfUpdated(addressBookName);
+            Optional<List<Tag>> updatedTags = remoteManager.getUpdatedTagList(addressBookName);
 
             if (!updatedTags.isPresent()) {
                 logger.info("No updates to tags.");

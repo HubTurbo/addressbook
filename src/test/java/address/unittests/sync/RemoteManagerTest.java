@@ -123,7 +123,7 @@ public class RemoteManagerTest {
 
         when(remoteService.getTags(anyString(), anyInt(), anyString())).thenReturn(remoteResponseOne).thenReturn(remoteResponseTwo);
 
-        Optional<List<Tag>> result = remoteManager.getTagsIfUpdated("Test");
+        Optional<List<Tag>> result = remoteManager.getUpdatedTagList("Test");
 
         assertTrue(result.isPresent());
         assertEquals(150, result.get().size());
