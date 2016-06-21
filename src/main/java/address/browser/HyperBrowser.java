@@ -76,8 +76,9 @@ public class HyperBrowser {
         for (int i = 0; i < noOfPages; i++){
             EmbeddedBrowser browser;
             if (browserType == FULL_FEATURE_BROWSER){
-                BrowserContext context = new BrowserContext(new BrowserContextParams("tmpTab" + i));
-                browser = new JxBrowserAdapter(new JxBrowser(context));
+                //In the event of deadlocking again, try uncommenting the line below and passed to jxBrowser constructor
+                //BrowserContext context = new BrowserContext(new BrowserContextParams("tmpTab" + i));
+                browser = new JxBrowserAdapter(new JxBrowser());
             } else if (browserType == LIMITED_FEATURE_BROWSER){
                 browser = new WebViewBrowserAdapter(new WebView());
             } else {

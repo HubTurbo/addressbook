@@ -16,6 +16,7 @@ import java.util.Optional;
 
 public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
+    public static final int SCROLL_AREA = 15;
     private HBox cellGraphic;
 
     private OrderedList orderedList;
@@ -48,7 +49,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
                 showDropLocationIndicator(event);
 
             }
-            scrollIfNecessary(event);
+            scrollIfPointerAtScrollArea(event);
 
             event.consume();
         });
@@ -140,15 +141,14 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
      * Scrolls up or down if pointer reaches the edge(top and bottom) of the listview.
      * @param event
      */
-    private void scrollIfNecessary(DragEvent event) {
+    private void scrollIfPointerAtScrollArea(DragEvent event) {
         double maxY = getListView().localToScene(getListView().getBoundsInLocal()).getMaxY();
         double minY = getListView().localToScene(getListView().getBoundsInLocal()).getMinY();
         Optional<VirtualScrollBar> scrollbar = FxViewUtil.getScrollBarFromListView(getListView());
         if (scrollbar.isPresent()) {
-            int scrollArea = 15;
-            if (event.getSceneY() > maxY - scrollArea && event.getSceneY() < maxY) {
+            if (event.getSceneY() > maxY - SCROLL_AREA && event.getSceneY() < maxY) {
                 scrollbar.get().increment();
-            } else if (event.getSceneY() < minY + scrollArea && event.getSceneY() > minY) {
+            } else if (event.getSceneY() < minY + SCROLL_AREA && event.getSceneY() > minY) {
                 scrollbar.get().decrement();
             }
         }

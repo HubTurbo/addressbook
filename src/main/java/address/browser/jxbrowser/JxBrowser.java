@@ -9,9 +9,10 @@ import com.teamdev.jxbrowser.chromium.BrowserType;
  */
 public class JxBrowser extends Browser{
 
-
-
     private String originUrl = "";
+
+    public JxBrowser() {
+    }
 
     public JxBrowser(BrowserContext browserContext) {
         super(browserContext);

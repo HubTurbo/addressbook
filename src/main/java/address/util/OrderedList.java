@@ -22,8 +22,7 @@ public class OrderedList<T> extends TransformationList<T, T> {
      */
     public OrderedList(ObservableList<T> source) {
         super(source);
-        orderedList = FXCollections.observableArrayList();
-
+        orderedList = FXCollections.observableArrayList(source);
     }
 
     @Override
@@ -59,8 +58,17 @@ public class OrderedList<T> extends TransformationList<T, T> {
         return orderedList.size();
     }
 
+    /**
+     * Moves the element in the list
+     * @param from The index(before shifting occurred) of the element to be shifted(before shift).
+     * @param to The index(before shifting occurred) of the list where element is to be shifted to.
+     */
     public void moveElement(int from, int to) {
+
         if (from < to) {
+            //Element to be shifted is below the index where the element need to be shifted to.
+            //Removing the element first will shift every element down.
+            //Therefore, only remove the element after shifting finished.
             T tmpPerson = orderedList.get(from);
             orderedList.add(to, tmpPerson);
             orderedList.remove(from);

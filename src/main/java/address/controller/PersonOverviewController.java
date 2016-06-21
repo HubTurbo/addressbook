@@ -45,7 +45,6 @@ public class PersonOverviewController {
 
     public PersonOverviewController() {
         EventManager.getInstance().registerHandler(this);
-
     }
 
     /**
