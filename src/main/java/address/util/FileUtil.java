@@ -25,10 +25,10 @@ public class FileUtil {
         return dir.exists() && dir.isDirectory();
     }
 
-    public static boolean isDirExists(String dirpath) {
-        File dir = new File(dirpath);
-
-        return isDirExists(dir);
+    public static void createIfMissing(File file) throws IOException {
+        if(!isFileExists(file)){
+            createFile(file);
+        }
     }
 
     /**

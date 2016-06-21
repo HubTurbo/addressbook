@@ -114,6 +114,7 @@ public class MainController {
             logger.warn("Error initializing root layout: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml root layout.",
                                    "IOException when trying to load " + fxmlResourcePath);
+            //TODO: this dialog doesn't show up
         }
     }
 
@@ -425,4 +426,8 @@ public class MainController {
         primaryStage.setIconified(false);
     }
 
+    public void stop() {
+        getPrimaryStage().hide();
+        releaseResourcesForAppTermination();
+    }
 }

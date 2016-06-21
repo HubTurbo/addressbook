@@ -56,7 +56,7 @@ public class KeyBindingsManager extends ComponentManager{
     /**
      * Resets global hotkeys
      */
-    public void clear() {
+    public void stop() {
         hotkeyProvider.clear();
     }
 

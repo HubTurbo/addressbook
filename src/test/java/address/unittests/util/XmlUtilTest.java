@@ -4,6 +4,7 @@ import address.exceptions.DataConversionException;
 import address.model.datatypes.AddressBook;
 import address.util.AddressBookBuilder;
 import address.util.FileUtil;
+import address.util.TestUtil;
 import address.util.XmlUtil;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,7 +21,7 @@ public class XmlUtilTest {
     private static final File EMPTY_FILE = new File(TEST_DATA_FOLDER + "empty.xml");
     private static final File MISSING_FILE = new File(TEST_DATA_FOLDER + "missing.xml");
     private static final File VALID_FILE = new File(TEST_DATA_FOLDER + "validAddressBook.xml");
-    private static final File TEMP_FILE = new File(TEST_DATA_FOLDER + "tempAddressBook.xml");
+    private static final File TEMP_FILE = new File(TestUtil.appendToSandboxPath("tempAddressBook.xml"));
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

@@ -65,7 +65,7 @@ public class UpdateManager {
         return dependencyTracker.getMissingDependencies();
     }
 
-    public void run() {
+    public void start() {
         pool.execute(backupManager::cleanupBackups);
         pool.execute(this::checkForUpdate);
     }
@@ -344,5 +344,9 @@ public class UpdateManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void stop() {
+        applyUpdate();
     }
 }

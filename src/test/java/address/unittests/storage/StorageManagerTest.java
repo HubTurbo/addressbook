@@ -4,9 +4,10 @@ import address.events.*;
 import address.exceptions.DataConversionException;
 import address.model.datatypes.AddressBook;
 import address.model.ModelManager;
-import address.prefs.PrefsManager;
+import address.prefs.UserPrefs;
 import address.storage.StorageManager;
 import address.storage.XmlFileStorage;
+import address.util.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,11 +26,11 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 @PrepareForTest(XmlFileStorage.class)
 public class StorageManagerTest {
 
-    private static final File DUMMY_FILE = new File("dummy");
+    private static final File DUMMY_FILE = new File(TestUtil.appendToSandboxPath("dummy.xml"));
     private static final AddressBook EMPTY_ADDRESSBOOK = new AddressBook();
     ModelManager modelManagerMock;
     EventManager eventManagerMock;
-    PrefsManager prefsManagerMock;
+    UserPrefs userPrefsMock;
     StorageManager storageManager;
     StorageManager storageManagerSpy;
 
@@ -42,8 +43,9 @@ public class StorageManagerTest {
         //create mocks for dependencies and inject them into StorageManager object under test
         modelManagerMock = Mockito.mock(ModelManager.class);
         eventManagerMock = Mockito.mock(EventManager.class);
-        prefsManagerMock = Mockito.mock(PrefsManager.class);
-        storageManager = new StorageManager(modelManagerMock, prefsManagerMock);
+        userPrefsMock = Mockito.mock(UserPrefs.class);
+        when(userPrefsMock.getSaveLocation()).thenReturn(DUMMY_FILE);
+        storageManager = new StorageManager(modelManagerMock, userPrefsMock);
         storageManager.setEventManager(eventManagerMock);
 
         // This spy will be used to mock only one method of the object under test

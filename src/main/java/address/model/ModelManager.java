@@ -74,22 +74,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
     }
 
     public synchronized void resetWithSampleData() throws DuplicateDataException {
-        final Person[] samplePersonData = {
-            new Person("Hans", "Muster"),
-            new Person("Ruth", "Mueller"),
-            new Person("Heinz", "Kurz"),
-            new Person("Cornelia", "Meier"),
-            new Person("Werner", "Meyer"),
-            new Person("Lydia", "Kunz"),
-            new Person("Anna", "Best"),
-            new Person("Stefan", "Meier"),
-            new Person("Martin", "Mueller")
-        };
-        final Tag[] sampleTagData = {
-            new Tag("relatives"),
-            new Tag("friends")
-        };
-        resetData(new AddressBook(Arrays.asList(samplePersonData), Arrays.asList(sampleTagData)));
+        resetData(AddressBook.generateSampleData());
     }
 
     /**

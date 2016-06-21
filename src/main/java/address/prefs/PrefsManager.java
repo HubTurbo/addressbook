@@ -14,10 +14,11 @@ public class PrefsManager {
 
     public static final String SAVE_LOC_PREF_KEY = "save-location";
 
-    public static final String DEFAULT_TEMP_FILE_PATH = ".$TEMP_ADDRESS_BOOK";
 
     private static PrefsManager instance;
-    private static Preferences userPrefs = Preferences.userNodeForPackage(PrefsManager.class);
+    private static Preferences prefStorage = Preferences.userNodeForPackage(PrefsManager.class);
+
+    private UserPrefs prefs;
 
     public static PrefsManager getInstance(){
         if (instance == null){
@@ -26,18 +27,17 @@ public class PrefsManager {
         return instance;
     }
 
-    private PrefsManager() {}
+    private PrefsManager() {
+        prefs = new UserPrefs();
+        prefs.saveLocation = prefStorage.get(SAVE_LOC_PREF_KEY, null);
+    }
 
-    /**
-     * @return the current save file preference or the default temp file if there is no recorded preference.
-     */
-    public File getSaveLocation() {
-        final String filePath = userPrefs.get(SAVE_LOC_PREF_KEY, null);
-        return filePath == null ? new File(DEFAULT_TEMP_FILE_PATH) : new File(filePath);
+    public UserPrefs getPrefs(){
+        return prefs;
     }
 
     public boolean isSaveLocationSet() {
-        return userPrefs.get(SAVE_LOC_PREF_KEY, null) != null;
+        return prefStorage.get(SAVE_LOC_PREF_KEY, null) != null;
     }
 
     /**
@@ -47,15 +47,17 @@ public class PrefsManager {
      */
     public void setSaveLocation(File save) {
         assert save != null;
-        userPrefs.put(SAVE_LOC_PREF_KEY, save.getPath());
-        EventManager.getInstance().post(new SaveLocationChangedEvent(getSaveLocation()));
+        prefStorage.put(SAVE_LOC_PREF_KEY, save.getPath());
+        prefs.saveLocation = save.getPath();
+        EventManager.getInstance().post(new SaveLocationChangedEvent(prefs.getSaveLocation()));
     }
 
     /**
      * Clears the current preferred save file path.
      */
     public void clearSaveLocation() {
-        userPrefs.remove(SAVE_LOC_PREF_KEY);
+        prefStorage.remove(SAVE_LOC_PREF_KEY);
+        prefs.saveLocation = null;
         EventManager.getInstance().post(new SaveLocationChangedEvent(null));
     }
 }

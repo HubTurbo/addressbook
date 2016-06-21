@@ -60,7 +60,7 @@ public class SyncManager {
      *
      * @param interval should be a positive integer
      */
-    public void startSyncingData(long interval) {
+    public void start(long interval) {
         if (interval <= 0) {
             logger.warn("Update interval specified is not positive: {}", interval);
             return;
