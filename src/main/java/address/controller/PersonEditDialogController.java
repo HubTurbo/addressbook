@@ -8,6 +8,7 @@ import address.util.AppLogger;
 import address.util.DateTimeUtil;
 
 import address.util.LoggerManager;
+import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,8 +19,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -87,12 +90,15 @@ public class PersonEditDialogController extends EditDialogController {
         loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
         try {
             AnchorPane pane = loader.load();
+
+
             // Create the dialog Stage.
             Stage dialogStage = new Stage();
-            dialogStage.setTitle("Choose tags");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(this.dialogStage);
-            Scene scene = new Scene(pane);
+            dialogStage.initStyle(StageStyle.TRANSPARENT);
+
+            Scene scene = new Scene(pane, Color.TRANSPARENT);
             scene.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.ESCAPE) {
                     dialogStage.close();
@@ -103,6 +109,7 @@ public class PersonEditDialogController extends EditDialogController {
             TagSelectionEditDialogController controller = loader.getController();
             controller.setTags(fullTagList, initialAssignedTags);
             controller.setDialogStage(dialogStage);
+
 
             dialogStage.showAndWait();
 
