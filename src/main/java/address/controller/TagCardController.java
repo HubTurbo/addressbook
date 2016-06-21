@@ -15,7 +15,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
-import java.util.Optional;
 
 public class TagCardController {
     @FXML
@@ -25,35 +24,18 @@ public class TagCardController {
 
     private Tag tag;
     private MainController mainController;
-    private ModelManager modelManager;
     private TagListController tagListController;
 
-    private static boolean isAddSuccessful(MainController mainController, ModelManager modelManager, Tag newTag) {
-        try {
-            modelManager.addTag(newTag);
-            return true;
-        } catch (DuplicateTagException e) {
-            mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag",
-                    e.toString());
-            return false;
-        }
-    }
-
-    public static VBox getDummyTagCard(TagListController tagListController, MainController mainController, ModelManager  modelManager) {
+    public static VBox getDummyTagCard(TagListController tagListController, MainController mainController) {
         VBox vBox = new VBox();
         vBox.getChildren().add(new Label("Click to add new tag"));
         vBox.setPadding(new Insets(10, 10, 10, 10));
-        ContextMenu contextMenu = new ContextMenu();
-
 
         vBox.setOnMouseClicked(mouseEv -> {
             switch (mouseEv.getButton()) {
                 case PRIMARY :
                     if (mouseEv.getClickCount() == 1) {
-                        Optional<Tag> newTag = Optional.of(new Tag());
-                        do {
-                            newTag = mainController.getTagDataInput(newTag.get());
-                        } while (newTag.isPresent() && !isAddSuccessful(mainController, modelManager, newTag.get()));
+                        mainController.addTagData();
                         tagListController.refreshList();
                     }
                     break;
@@ -62,9 +44,8 @@ public class TagCardController {
         return vBox;
     }
 
-    public TagCardController(Tag tag, MainController mainController, ModelManager modelManager, TagListController tagListController) {
+    public TagCardController(Tag tag, MainController mainController, TagListController tagListController) {
         this.mainController = mainController;
-        this.modelManager = modelManager;
         this.tag = tag;
         this.tagListController = tagListController;
 
@@ -117,59 +98,18 @@ public class TagCardController {
     }
 
     private void handleAddTagAction() {
-        Optional<Tag> newTag = Optional.of(new Tag());
-        do {
-            newTag = mainController.getTagDataInput(newTag.get());
-        } while (newTag.isPresent() && !isAddSuccessful(newTag.get()));
+        mainController.addTagData();
         tagListController.refreshList();
     }
 
     private void handleEditTagAction() {
-        Optional<Tag> updatedTag = Optional.of(new Tag(tag));
-        do {
-            updatedTag = mainController.getTagDataInput(updatedTag.get());
-        } while (updatedTag.isPresent() && !isUpdateSuccessful(tag, updatedTag.get()));
+        mainController.editTagData(tag);
         tagListController.refreshList();
     }
 
     private void handleDeleteTagAction() {
-        modelManager.deleteTag(tag);
+        mainController.deleteTagData(tag);
         tagListController.refreshList();
-    }
-
-    /**
-     * Attempts to update the model with the given new tag, and returns the result
-     *
-     * @param oldTag
-     * @param newTag
-     * @return true if successful
-     */
-    private boolean isUpdateSuccessful(Tag oldTag, Tag newTag) {
-        try {
-            modelManager.updateTag(oldTag, newTag);
-            return true;
-        } catch (DuplicateTagException e) {
-            mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag",
-                    e.toString());
-            return false;
-        }
-    }
-
-    /**
-     * Attempts to add the given new tag to the model, and returns the result
-     *
-     * @param newTag
-     * @return true if successful
-     */
-    private boolean isAddSuccessful(Tag newTag) {
-        try {
-            modelManager.addTag(newTag);
-            return true;
-        } catch (DuplicateTagException e) {
-            mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag",
-                    e.toString());
-            return false;
-        }
     }
 
     public VBox getLayout() {

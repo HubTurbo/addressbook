@@ -2,6 +2,7 @@ package address.controller;
 
 import address.MainApp;
 import address.events.*;
+import address.exceptions.DuplicateTagException;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
@@ -233,6 +234,77 @@ public class MainController {
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for edit person dialog.",
                                    "IOException when trying to load " + fxmlResourcePath);
             return Optional.empty();
+        }
+    }
+
+    /**
+     * Attempts to delete tag data from the model
+     * @param tag
+     */
+    public void deleteTagData(Tag tag) {
+        modelManager.deleteTag(tag);
+    }
+
+    /**
+     * Attempts to add new tag data to the model
+     *
+     * Tag data is obtained from prompting the user repeatedly until a valid tag is given or until the user cancels
+     * @return
+     */
+    public Optional<Tag> addTagData() {
+        Optional<Tag> newTag = Optional.of(new Tag());
+        do {
+            newTag = getTagDataInput(newTag.get());
+        } while (newTag.isPresent() && !isAddSuccessful(newTag.get()));
+
+        return newTag;
+    }
+
+    /**
+     * Attempts to edit the given tag and update the resulting tag in the model
+     *
+     * Tag data is obtained from prompting the user repeatedly until a valid tag is given or until the user cancels
+     * @param tag
+     * @return
+     */
+    public Optional<Tag> editTagData(Tag tag) {
+        Optional<Tag> editedTag = Optional.of(tag);
+        do {
+            editedTag = getTagDataInput(editedTag.get());
+        } while (editedTag.isPresent() && !isUpdateSuccessful(tag, editedTag.get()));
+
+        return editedTag;
+    }
+
+    /**
+     * Attempts to add the given new tag to the model, and returns the result
+     *
+     * @param newTag
+     * @return true if successful
+     */
+    private boolean isAddSuccessful(Tag newTag) {
+        try {
+            modelManager.addTag(newTag);
+            return true;
+        } catch (DuplicateTagException e) {
+            showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag", e.toString());
+            return false;
+        }
+    }
+
+    /**
+     * Attempts to update the given tag in the model, and returns the result
+     *
+     * @param newTag
+     * @return true if successful
+     */
+    private boolean isUpdateSuccessful(Tag originalTag, Tag newTag) {
+        try {
+            modelManager.updateTag(originalTag, newTag);
+            return true;
+        } catch (DuplicateTagException e) {
+            showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag", e.toString());
+            return false;
         }
     }
 

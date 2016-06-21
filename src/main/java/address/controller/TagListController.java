@@ -32,7 +32,7 @@ public class TagListController {
     }
 
     public void setTags(ObservableList<Tag> tagList) {
-        tags.setContent(getTagsVBox(tagList, mainController, modelManager));
+        tags.setContent(getTagsVBox(tagList, mainController));
     }
 
     public void setMainController(MainController mainController) {
@@ -43,17 +43,16 @@ public class TagListController {
         this.modelManager = modelManager;
     }
 
-    public VBox getTagsVBox(ObservableList<Tag> tagList, MainController mainController,
-                            ModelManager modelManager) {
+    public VBox getTagsVBox(ObservableList<Tag> tagList, MainController mainController) {
         VBox vBox = new VBox();
 
         if (tagList.size() == 0) {
-            vBox.getChildren().add(TagCardController.getDummyTagCard(this, mainController, modelManager));
+            vBox.getChildren().add(TagCardController.getDummyTagCard(this, mainController));
             return vBox;
         }
         tagList.stream()
                 .forEach(tag -> {
-                    TagCardController tagCardController = new TagCardController(tag, mainController, modelManager, this);
+                    TagCardController tagCardController = new TagCardController(tag, mainController, this);
                     vBox.getChildren().add(tagCardController.getLayout());
                 });
         return vBox;
