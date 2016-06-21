@@ -1,16 +1,76 @@
 # Release
+## Versioning
+Addressbook version has the format of `V<MAJOR>.<MINOR>.<PATCH>` with suffix of `ea` if it is an early access, e.g.
+`V1.0.0ea` for early access version and `V1.0.0` for stable version.
+
+- `MAJOR` version is bumped up when a release introduces major changes to the application.
+- `MINOR` version is bumped up on every release when `MAJOR` version does not change.
+- `PATCH` version is bumped up when there is a hotfix needed for the current release version.
+
+This versioning system is loosely based on [Semantic Versioning](http://semver.org/).
+
+## Release cycle
+Addressbook has 3 branches for release, namely `master`, `early-access` and `stable`:
+- `master` : development will occur in this branch.
+- `early-access`: when we have a release candidate from master, the latest commit in `master` will be merged to this
+branch as a candidate for stable release. This release candidate will be polished in this branch until it is ready for stable
+release. Any bug fixes to early access version will go to this branch, increasing the `PATCH` version number (e.g. from
+`V1.1.-0-ea` to `V1.1.-1-ea`). This change is then merged back to master.
+This release version is not meant for production use. Those who are interested to try out the latest (possibly unstable)
+features of Addressbook should use this early access version.
+- `stable` : Once `early-access` version is polished enough, it will be released as a stable version with the same version
+number as the `early-access` version, excluding the `ea` mark of `early-access` version. If there is any hotfix to stable
+version, it will be done in this branch, bumping up the `PATCH` version number (e.g. from `V1.1.-1-` to `V1.1.-2-`). This
+change is then merged to `early-access` branch with a bump in `early-access` `PATCH` version number from whatever it is
+(e.g. from `V1.2.-0-ea` to `V1.2.-1-ea`) and this will then be merged to `master`.
+
+To illustrate, look at the diagram below.
+
+<img src="images/Release Cycle.jpg" width="600">
+
+Development in master does not stop, even after creating an early access release. Version does not matter as well in master.
+
+On creating an early access release, merge the `master` branch to `early-access` branch and create a release (instruction below)
+with the `PATCH` version of 0, like `V1.0.0ea` and `V1.1.0ea` in the diagram. If the release has a bug, it will be fixed in
+`early-access` branch, and the bug fix needs to be merged back `master` branch as shown in `V1.0.1ea`.
+
+When `early-access` version is stable, we will create a stable release by merging `early-access` branch to `stable`
+branch and create a release. The version of the release uses the latest `early-access` version without early access flag
+(from `V1.0.2ea` to `V1.0.2` and from `V1.1.2ea` to `V1.1.2` in the diagram).
+
+If the stable release requires a bug fix, the bug fix will be done in `stable` branch. A re-release will be done with
+a bump in `PATCH` version, as shown in `V1.0.3` in the diagram. This bug fix will be merged back to `early-access` branch
+in which we will re-release the early access version with a bump in early access `PATCH` version, as shown in `V1.1.0ea`
+to `V1.1.1ea` in the diagram (and not to `V1.0.3ea`). This bug fix will also be merged to `master` branch from
+`early-access` branch.
+
+
+References to how teams have multiple release channel:
+- http://blog.atom.io/2015/10/21/introducing-the-atom-beta-channel.html
+- https://docs.google.com/presentation/d/1uv_dNkPVlDFG1kaImq7dW-6PasJQU1Yzpj5IKG_2coA/present?slide=id.i0
+- http://blog.rust-lang.org/2014/10/30/Stability.html
+
 ## How to create a release
+If this is release of a new version, merge `master` branch to `early-access` branch then run the steps below. If this
+is release to public on a polished early access version, merge `early-access` branch to `stable` branch then run the
+steps below.
+
+*In merging the branches to create a release, use `git merge --no-commit --no-ff` so that a merge commit won't be made,
+ in which you can make relevant changes (for example changing version number and early access flag) before committing with
+ the version of the software as the commit message.
+
 0. **Pre-requisite** Run `gradle` task `createInstallerJar` under `release` category
   - This is to ensure that all binaries can be created successfully (i.e. no compile-time error).
   - If there is any compile-time error, resolve them first before continuing on the next step.
-1. Update version in `MainApp` and in `build.gradle`
+1. Update version in `MainApp` and in `build.gradle`. If this is an early access version, set `IS_EARLY_ACCESS` in `MainApp`
+as `true` and add `ea` at the end of version in `build.gradle`.
 2. Run `gradle` task `generateUpdateData` under `release` category
   - The console will print a list of libraries which should be updated
 3. Open `UpdateData.json` and update the new fields accordingly
   - Put the link to download the new libraries. For now, we upload it to the new release we are going to create after this
   but the URL will follow GitHub release download link - `https://github.com/HubTurbo/addressbook/releases/download/<release version>/<filename>`.
   - Change the OS compatibility of the new libraries to ensure that only the libraries relevant to an OS will be loaded and checked
-4. Commit the  files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>`
+4. Commit and push the  files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>`
   - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `UpdateData.json`
 5. Create a release in [GitHub](https://github.com/HubTurbo/addressbook/releases)
 6. Run `gradle` task `createInstallerJar` under `release` category (this must be run again to use the updated `UpdateData.json`)

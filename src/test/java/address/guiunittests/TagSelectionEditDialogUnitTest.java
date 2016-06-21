@@ -1,13 +1,14 @@
 package address.guiunittests;
 
 import address.TestApp;
-import address.controller.PersonEditDialogController;
+import address.controller.TagSelectionEditDialogController;
 import address.model.datatypes.tag.Tag;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.Before;
@@ -21,18 +22,18 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.loadui.testfx.GuiTest.find;
 
-public class PersonEditDialogUnitTest extends ApplicationTest {
-    private ScrollPane tagList;
+public class TagSelectionEditDialogUnitTest extends ApplicationTest {
+    private FlowPane tagList;
     private TextField tagSearch;
     private ScrollPane tagResults;
 
     @Override
     public void start(Stage primaryStage) {
         try {
-            FXMLLoader loader = new FXMLLoader(TestApp.class.getResource("/view/PersonEditDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(TestApp.class.getResource("/view/TagSelectionEditDialog.fxml"));
             AnchorPane baseNode = loader.load();
 
-            PersonEditDialogController controller = loader.getController();
+            TagSelectionEditDialogController controller = loader.getController();
 
             Tag tag1 = new Tag("enemies");
             Tag tag2 = new Tag("friends");
@@ -46,7 +47,7 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
             allTags.add(tag2);
             allTags.add(tag3);
 
-            controller.setTagsModel(allTags, assignedTags);
+            controller.setTags(allTags, assignedTags);
 
             primaryStage.setScene(new Scene(baseNode));
             primaryStage.show();
@@ -67,7 +68,7 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
         clickOn(tagSearch).write("frien");
 
         assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
-        assertEquals(1, ((VBox) tagList.getContent()).getChildren().size());
+        assertEquals(1, tagList.getChildren().size());
     }
 
     @Test
@@ -75,7 +76,7 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
         clickOn(tagSearch).write("rela");
 
         assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
-        assertEquals(1, ((VBox) tagList.getContent()).getChildren().size());
+        assertEquals(1, tagList.getChildren().size());
     }
 
     @Test
@@ -83,7 +84,7 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
         clickOn(tagSearch).write("e");
 
         assertEquals(3, ((VBox) tagResults.getContent()).getChildren().size());
-        assertEquals(1, ((VBox) tagList.getContent()).getChildren().size());
+        assertEquals(1, tagList.getChildren().size());
     }
 
     @Test
@@ -91,6 +92,6 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
         clickOn(tagSearch).write("frie frie");
 
         assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
-        assertEquals(2, ((VBox) tagList.getContent()).getChildren().size());
+        assertEquals(2, tagList.getChildren().size());
     }
 }

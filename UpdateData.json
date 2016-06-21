@@ -1,6 +1,6 @@
 {
-  "version" : "V0.0.2",
-  "mainApp" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.2/resource-V0.0.2.jar",
+  "version" : "V0.0.3ea",
+  "mainApp" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.3ea/resource-V0.0.3ea.jar",
   "libraries" : [ {
     "filename" : "licence.jar",
     "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/V0.0.2/licence.jar",

@@ -1,23 +1,28 @@
 package address.controller;
 
-import address.model.*;
-import address.events.EventManager;
-import address.events.TagSearchResultsChangedEvent;
-import address.events.TagsChangedEvent;
+import address.MainApp;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
-import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
+import address.util.AppLogger;
 import address.util.DateTimeUtil;
 
-import com.google.common.eventbus.Subscribe;
+import address.util.LoggerManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -26,7 +31,13 @@ import java.util.List;
  * Dialog to edit details of a person.
  */
 public class PersonEditDialogController extends EditDialogController {
+    private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialogController.class);
+    private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
+    private static final String TOOLTIP_TAG_SELECTOR_SHORTCUT = "Shortcut + O";
+    private static final String TOOLTIP_LAUNCH_TAG_SELECTOR = "Click to launch tag selector";
 
+    @FXML
+    private AnchorPane mainPane;
     @FXML
     private TextField firstNameField;
     @FXML
@@ -39,18 +50,16 @@ public class PersonEditDialogController extends EditDialogController {
     private TextField cityField;
     @FXML
     private TextField birthdayField;
-
     @FXML
     private ScrollPane tagList;
     @FXML
-    private TextField tagSearch;
-    @FXML
-    private ScrollPane tagResults;
-    @FXML
     private TextField githubUserNameField;
 
-    private PersonEditDialogTagsModel model;
+    private List<Tag> finalAssignedTags;
+
     private Person finalPerson;
+    private List<Tag> fullTagList;
+
 
     public PersonEditDialogController() {
     }
@@ -62,48 +71,78 @@ public class PersonEditDialogController extends EditDialogController {
     @FXML
     private void initialize() {
         addListeners();
+        modifyInteractionsWithComponents();
         Platform.runLater(() -> firstNameField.requestFocus());
-        EventManager.getInstance().registerHandler(this);
+    }
+
+    private void modifyInteractionsWithComponents() {
+        tagList.setFocusTraversable(true);
+        tagList.setTooltip(getTooltip());
     }
 
     private void addListeners() {
-        tagSearch.textProperty().addListener((observableValue, oldValue, newValue) -> {
-            handleTagInput(newValue);
-        });
-        tagSearch.setOnKeyTyped(e -> {
-            switch (e.getCharacter()) {
-            case " ":
+        tagList.setOnMouseClicked(e -> launchTagSelectionEditDialog());
+        tagList.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.SPACE || e.getCode() == KeyCode.ENTER) {
                 e.consume();
-                model.toggleSelection();
-                tagSearch.clear();
-                break;
-            default:
-                break;
+                launchTagSelectionEditDialog();
             }
         });
-        tagSearch.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-            case DOWN:
+        mainPane.setOnKeyPressed(e -> {
+            if (e.isShortcutDown() && e.getCode() == KeyCode.O) {
                 e.consume();
-                model.selectNext();
-                break;
-            case UP:
-                e.consume();
-                model.selectPrevious();
-                break;
-            default:
-                break;
+                launchTagSelectionEditDialog();
             }
         });
     }
 
-    /**
-     * Sets the stage of this dialog.
-     * 
-     * @param dialogStage
-     */
-    public void setDialogStage(Stage dialogStage) {
-        this.dialogStage = dialogStage;
+    private Tooltip getTooltip() {
+        Tooltip tooltip = new Tooltip(TOOLTIP_TAG_SELECTOR_SHORTCUT);
+        tooltip.setGraphic(getTooltipLabel());
+        tooltip.setContentDisplay(ContentDisplay.TOP);
+        return tooltip;
+    }
+
+    private Label getTooltipLabel() {
+        Label label = new Label(TOOLTIP_LAUNCH_TAG_SELECTOR);
+        label.getStyleClass().add("tooltip-text");
+        return label;
+    }
+
+    private void launchTagSelectionEditDialog() {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
+        try {
+            AnchorPane pane = loader.load();
+
+            // Create the dialog Stage.
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(this.dialogStage);
+            dialogStage.initStyle(StageStyle.TRANSPARENT);
+
+            Scene scene = new Scene(pane, Color.TRANSPARENT);
+            dialogStage.setScene(scene);
+
+            TagSelectionEditDialogController controller = loader.getController();
+            controller.setTags(fullTagList, finalAssignedTags);
+            controller.setDialogStage(dialogStage);
+
+            dialogStage.showAndWait();
+
+            if (controller.isOkClicked()) finalAssignedTags = controller.getFinalAssignedTags();
+            tagList.setContent(getTagsVBox(finalAssignedTags));
+        } catch (IOException e) {
+            logger.warn("Error launching tag selection dialog: {}", e);
+
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.initOwner(dialogStage);
+            alert.setTitle("FXML Load Error");
+            alert.setHeaderText("Cannot load dialog for tag selection dialog");
+            alert.setContentText("IOException when trying to load " + FXML_TAG_SELECTION_EDIT_DIALOG);
+
+            alert.showAndWait();
+        }
     }
 
     /**
@@ -120,8 +159,10 @@ public class PersonEditDialogController extends EditDialogController {
         githubUserNameField.setText(person.getGithubUserName());
     }
 
-    public void setTagsModel(List<Tag> tags, List<Tag> assignedTags) {
-        model = new PersonEditDialogTagsModel(tags, assignedTags);
+    public void setTags(List<Tag> tags, List<Tag> assignedTags) {
+        this.fullTagList = tags;
+        this.finalAssignedTags = assignedTags;
+        tagList.setContent(getTagsVBox(assignedTags));
     }
 
     /**
@@ -138,19 +179,26 @@ public class PersonEditDialogController extends EditDialogController {
         finalPerson.setPostalCode(postalCodeField.getText());
         finalPerson.setCity(cityField.getText());
         finalPerson.setBirthday(DateTimeUtil.parse(birthdayField.getText()));
-        finalPerson.setTags(model.getAssignedTagss());
+        finalPerson.setTags(finalAssignedTags);
         finalPerson.setGithubUserName(githubUserNameField.getText());
         isOkClicked = true;
         dialogStage.close();
     }
 
-    public Person getFinalInput() {
-        return finalPerson;
+    private VBox getTagsVBox(List<Tag> contactTagList) {
+        VBox content = new VBox();
+        contactTagList.stream()
+                .forEach(contactTag -> {
+                    Label newLabel = new Label(contactTag.getName());
+                    newLabel.setPrefWidth(261);
+                    content.getChildren().add(newLabel);
+                });
+
+        return content;
     }
 
-    @FXML
-    private void handleInput(String newInput) {
-        model.setFilter(newInput);
+    public Person getFinalInput() {
+        return finalPerson;
     }
 
     /**
@@ -207,36 +255,6 @@ public class PersonEditDialogController extends EditDialogController {
 
     private boolean isFilled(TextField textField) {
         return textField.getText() != null && textField.getText().length() != 0;
-    }
-
-    @Subscribe
-    public void handleTagSearchResultsChangedEvent(TagSearchResultsChangedEvent e) {
-        tagResults.setContent(getTagsVBox(e.getSelectableTags(), true));
-    }
-
-    @Subscribe
-    public void handleTagsChangedEvent(TagsChangedEvent e) {
-        tagList.setContent(getTagsVBox(e.getResultTag(), false));
-    }
-
-    private VBox getTagsVBox(List<SelectableTag> contactTagList, boolean isSelectable) {
-        VBox content = new VBox();
-        contactTagList.stream()
-                .forEach(contactTag -> {
-                    Label newLabel = new Label(contactTag.getName());
-                    if (isSelectable && contactTag.isSelected()) {
-                        newLabel.setStyle("-fx-background-color: blue;");
-                    }
-                    newLabel.setPrefWidth(261);
-                    content.getChildren().add(newLabel);
-                });
-
-        return content;
-    }
-
-    @FXML
-    protected void handleTagInput(String newTags) {
-        model.setFilter(newTags);
     }
 
 }

@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  */
 public class Version implements Comparable<Version> {
 
-    public static final String VERSION_PATTERN_STRING = "V(\\d+)\\.(\\d+)\\.(\\d+)";
+    public static final String VERSION_PATTERN_STRING = "V(\\d+)\\.(\\d+)\\.(\\d+)(ea)?";
 
     private static final String EXCEPTION_STRING_NOT_VERSION = "String is not a valid Version. %s";
 
@@ -21,11 +21,13 @@ public class Version implements Comparable<Version> {
     private final int major;
     private final int minor;
     private final int patch;
+    private final boolean isEarlyAccess;
 
-    public Version(int major, int minor, int patch) {
+    public Version(int major, int minor, int patch, boolean isEarlyAccess) {
         this.major = major;
         this.minor = minor;
         this.patch = patch;
+        this.isEarlyAccess = isEarlyAccess;
     }
 
     public int getMajor() {
@@ -38,6 +40,10 @@ public class Version implements Comparable<Version> {
 
     public int getPatch() {
         return patch;
+    }
+
+    public boolean isEarlyAccess() {
+        return isEarlyAccess;
     }
 
     /**
@@ -55,23 +61,27 @@ public class Version implements Comparable<Version> {
 
         return new Version(Integer.parseInt(versionMatcher.group(1)),
                 Integer.parseInt(versionMatcher.group(2)),
-                Integer.parseInt(versionMatcher.group(3)));
+                Integer.parseInt(versionMatcher.group(3)),
+                versionMatcher.group(4) == null ? false : true);
     }
 
     @JsonValue
     public String toString() {
-        return String.format("V%d.%d.%d", major, minor, patch);
+        return String.format("V%d.%d.%d%s", major, minor, patch, isEarlyAccess ? "ea" : "");
     }
 
     public static Version getCurrentVersion() {
-        return new Version(MainApp.VERSION_MAJOR, MainApp.VERSION_MINOR, MainApp.VERSION_PATCH);
+        return new Version(MainApp.VERSION_MAJOR, MainApp.VERSION_MINOR, MainApp.VERSION_PATCH,
+                MainApp.IS_EARLY_ACCESS);
     }
 
     @Override
     public int compareTo(Version other) {
         return this.major != other.major ? this.major - other.major :
                this.minor != other.minor ? this.minor - other.minor :
-               this.patch != other.patch ? this.patch - other.patch : 0;
+               this.patch != other.patch ? this.patch - other.patch :
+               this.isEarlyAccess == other.isEarlyAccess() ? 0 :
+               this.isEarlyAccess ? -1 : 1;
     }
 
     @Override
@@ -90,6 +100,9 @@ public class Version implements Comparable<Version> {
     @Override
     public int hashCode() {
         String hash = String.format("%03d%03d%03d", major, minor, patch);
+        if (!isEarlyAccess) {
+            hash = "1" + hash;
+        }
         return Integer.parseInt(hash);
     }
 }

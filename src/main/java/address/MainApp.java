@@ -30,7 +30,8 @@ public class MainApp extends Application {
 
     public static final int VERSION_MAJOR = 0;
     public static final int VERSION_MINOR = 0;
-    public static final int VERSION_PATCH = 2;
+    public static final int VERSION_PATCH = 3;
+    public static final boolean IS_EARLY_ACCESS = true;
 
     private static final AppLogger logger = LoggerManager.getLogger(MainApp.class);
 
