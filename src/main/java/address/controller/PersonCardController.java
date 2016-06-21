@@ -115,7 +115,7 @@ public class PersonCardController {
             }
         });
         person.isDeletedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == true){
+            if (newValue){
                 handleDeletedPerson();
             }
         });

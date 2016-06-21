@@ -13,7 +13,7 @@
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" maxWidth="100.0"/>
         </columnConstraints>
         <children>
-            <VBox fx:id="contactDetails" GridPane.columnIndex="0">
+            <VBox GridPane.columnIndex="0">
                 <stylesheets>
                     <URL value="@DarkTheme.css" />
                     <URL value="@Extensions.css" />

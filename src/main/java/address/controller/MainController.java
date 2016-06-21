@@ -228,6 +228,7 @@ public class MainController {
                 return Optional.empty();
             }
         } catch (IOException e) {
+            e.printStackTrace();
             logger.warn("Error loading person edit dialog: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for edit person dialog.",
                                    "IOException when trying to load " + fxmlResourcePath);
