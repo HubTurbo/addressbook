@@ -4,7 +4,6 @@ import address.model.datatypes.AddressBook;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 import address.util.JsonUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -77,6 +76,7 @@ public class JsonUtilTest {
         addressBook.setTags(Arrays.asList(sampleTag));
 
         String jsonString = JsonUtil.toJsonString(addressBook);
+        System.out.println(jsonString);
 
         // Read
         AddressBook addressBookRead = JsonUtil.fromJsonString(jsonString, AddressBook.class);

@@ -6,6 +6,7 @@ import address.util.DateTimeUtil;
 
 import address.util.XmlLocalDateAdapter;
 import address.util.collections.UnmodifiableObservableList;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -35,7 +36,7 @@ import java.util.function.BiConsumer;
  */
 public class Person extends UniqueData implements ReadOnlyPerson {
 
-    private final int ID;
+    @JsonIgnore private final int ID;
 
     @JsonIgnore private final SimpleStringProperty firstName;
     @JsonIgnore private final SimpleStringProperty lastName;
@@ -70,7 +71,8 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         return new Person(0);
     }
 
-    public Person(int id) {
+    @JsonCreator
+    public Person(@JsonProperty("id") int id) {
         this.ID = id;
     }
 
@@ -134,6 +136,8 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 
 //// ID
 
+    @JsonProperty("id")
+    @Override
     public int getID() {
         return ID;
     }
