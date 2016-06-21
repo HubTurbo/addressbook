@@ -29,11 +29,5 @@
              <ScrollPane fx:id="tagResults" GridPane.columnIndex="1" GridPane.rowIndex="2" />
          </children>
       </GridPane>
-      <ButtonBar visible="false" layoutX="176.0" layoutY="233.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">
-        <buttons>
-            <Button defaultButton="true" mnemonicParsing="false" onAction="#handleOk" text="OK" />
-          <Button mnemonicParsing="false" onAction="#handleCancel" prefWidth="120.0" text="Cancel" />
-        </buttons>
-      </ButtonBar>
    </children>
 </AnchorPane>

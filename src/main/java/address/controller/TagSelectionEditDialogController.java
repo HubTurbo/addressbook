@@ -14,6 +14,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
@@ -38,10 +39,12 @@ public class TagSelectionEditDialogController extends EditDialogController {
 
     private TagSelectionEditDialogModel model;
     private Stage dialogStage;
+    private ScaleTransition transition;
 
     @FXML
     public void initialize() {
-        ScaleTransition transition = new ScaleTransition(Duration.millis(200), mainPane);
+        transition = new ScaleTransition(Duration.millis(200), mainPane);
+        transition.setAutoReverse(true);
         transition.setFromX(0);
         transition.setFromY(0);
         transition.setFromZ(0);
@@ -76,6 +79,10 @@ public class TagSelectionEditDialogController extends EditDialogController {
      * @param dialogStage
      */
     public void setDialogStage(Stage dialogStage) {
+        dialogStage.getScene().setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE) handleCancel();
+            if (e.getCode() == KeyCode.ENTER) handleOk();
+        });
         this.dialogStage = dialogStage;
     }
 
@@ -143,15 +150,24 @@ public class TagSelectionEditDialogController extends EditDialogController {
         model.setFilter(newTags);
     }
 
-    @FXML
     protected void handleOk() {
         isOkClicked = true;
-        dialogStage.close();
+        if (transition != null) {
+            transition.setOnFinished((e) -> dialogStage.close());
+            transition.setRate(-1);
+            transition.playFrom("end");
+        } else {
+            dialogStage.close();
+        }
     }
 
-
-    @FXML
     protected void handleCancel() {
-        dialogStage.close();
+        if (transition != null) {
+            transition.setOnFinished((e) -> dialogStage.close());
+            transition.setRate(-1);
+            transition.playFrom("end");
+        } else {
+            dialogStage.close();
+        }
     }
 }

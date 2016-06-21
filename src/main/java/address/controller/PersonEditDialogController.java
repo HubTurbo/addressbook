@@ -59,7 +59,6 @@ public class PersonEditDialogController extends EditDialogController {
 
     private Person finalPerson;
     private List<Tag> fullTagList;
-    private List<Tag> initialAssignedTags;
 
 
     public PersonEditDialogController() {
@@ -99,17 +98,11 @@ public class PersonEditDialogController extends EditDialogController {
             dialogStage.initStyle(StageStyle.TRANSPARENT);
 
             Scene scene = new Scene(pane, Color.TRANSPARENT);
-            scene.setOnKeyPressed(event -> {
-                if (event.getCode() == KeyCode.ESCAPE) {
-                    dialogStage.close();
-                }
-            });
             dialogStage.setScene(scene);
 
             TagSelectionEditDialogController controller = loader.getController();
-            controller.setTags(fullTagList, initialAssignedTags);
+            controller.setTags(fullTagList, finalAssignedTags);
             controller.setDialogStage(dialogStage);
-
 
             dialogStage.showAndWait();
 
@@ -143,7 +136,6 @@ public class PersonEditDialogController extends EditDialogController {
 
     public void setTags(List<Tag> tags, List<Tag> assignedTags) {
         this.fullTagList = tags;
-        this.initialAssignedTags = assignedTags;
         this.finalAssignedTags = assignedTags;
         tagList.setContent(getTagsVBox(assignedTags));
     }
