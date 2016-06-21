@@ -10,11 +10,7 @@ import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.value.WritableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -23,14 +19,11 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,8 +45,6 @@ public class MainController {
     private static final String ICON_APPLICATION = "/images/address_book_32.png";
     private static final String ICON_EDIT = "/images/edit.png";
     private static final String ICON_CALENDAR = "/images/calendar.png";
-
-    private static final String FXML_TIP_OF_THE_DAY = "/view/TipOfTheDay.fxml";
 
     private Stage primaryStage;
     private VBox rootLayout;
@@ -101,49 +92,8 @@ public class MainController {
     }
 
     private void showTipOfTheDay() {
-        double yOffset = 100;
-        double distance = 300;
-
-        final String fxmlResourcePath = FXML_TIP_OF_THE_DAY;
-        try {
-            // Load person overview.
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
-            VBox tipOfTheDay = loader.load();
-
-            Popup tipOfTheDayPopup = new Popup();
-            tipOfTheDayPopup.getContent().add(tipOfTheDay);
-            tipOfTheDayPopup.setX(primaryStage.getX() + primaryStage.getWidth());
-            tipOfTheDayPopup.setY(primaryStage.getY() + yOffset);
-
-            double screenRightEdge = primaryStage.getX() + primaryStage.getWidth();
-
-            Timeline timeline = new Timeline();
-
-            WritableValue<Double> writableWidth = new WritableValue<Double>() {
-                @Override
-                public Double getValue() {
-                    return tipOfTheDayPopup.getWidth();
-                }
-
-                @Override
-                public void setValue(Double value) {
-                    tipOfTheDayPopup.setX(screenRightEdge - value);
-                    tipOfTheDayPopup.setWidth(value);
-                }
-            };
-
-            KeyValue kv = new KeyValue(writableWidth, distance);
-            KeyFrame kf = new KeyFrame(Duration.millis(1500), kv);
-            timeline.getKeyFrames().addAll(kf);
-            timeline.play();
-
-            tipOfTheDayPopup.show(primaryStage);
-
-            tipOfTheDayPopup.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEvent -> tipOfTheDayPopup.hide());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        TipOfTheDayController tipOfTheDayController = new TipOfTheDayController(primaryStage);
+        tipOfTheDayController.start();
     }
 
     /**

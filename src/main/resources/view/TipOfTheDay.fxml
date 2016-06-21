@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
-<?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
 <VBox prefHeight="155.0" prefWidth="240.0" style="-fx-background-color: #EEE;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
@@ -17,7 +17,7 @@
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </VBox.margin>
       </Label>
-      <Label alignment="TOP_LEFT" contentDisplay="CENTER" prefHeight="200.0" prefWidth="200.0" text="This is tip of the day" textAlignment="JUSTIFY" wrapText="true">
+      <Label id="content" alignment="TOP_LEFT" contentDisplay="CENTER" prefHeight="200.0" prefWidth="200.0" text="This is tip of the day" textAlignment="JUSTIFY" wrapText="true">
          <VBox.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </VBox.margin>
