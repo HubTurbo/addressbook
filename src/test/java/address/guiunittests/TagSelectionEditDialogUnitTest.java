@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.Before;
@@ -22,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.loadui.testfx.GuiTest.find;
 
 public class TagSelectionEditDialogUnitTest extends ApplicationTest {
-    private ScrollPane tagList;
+    private FlowPane tagList;
     private TextField tagSearch;
     private ScrollPane tagResults;
 
@@ -67,7 +68,7 @@ public class TagSelectionEditDialogUnitTest extends ApplicationTest {
         clickOn(tagSearch).write("frien");
 
         assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
-        assertEquals(1, ((VBox) tagList.getContent()).getChildren().size());
+        assertEquals(1, tagList.getChildren().size());
     }
 
     @Test
@@ -75,7 +76,7 @@ public class TagSelectionEditDialogUnitTest extends ApplicationTest {
         clickOn(tagSearch).write("rela");
 
         assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
-        assertEquals(1, ((VBox) tagList.getContent()).getChildren().size());
+        assertEquals(1, tagList.getChildren().size());
     }
 
     @Test
@@ -83,7 +84,7 @@ public class TagSelectionEditDialogUnitTest extends ApplicationTest {
         clickOn(tagSearch).write("e");
 
         assertEquals(3, ((VBox) tagResults.getContent()).getChildren().size());
-        assertEquals(1, ((VBox) tagList.getContent()).getChildren().size());
+        assertEquals(1, tagList.getChildren().size());
     }
 
     @Test
@@ -91,6 +92,6 @@ public class TagSelectionEditDialogUnitTest extends ApplicationTest {
         clickOn(tagSearch).write("frie frie");
 
         assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
-        assertEquals(2, ((VBox) tagList.getContent()).getChildren().size());
+        assertEquals(2, tagList.getChildren().size());
     }
 }
