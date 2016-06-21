@@ -144,9 +144,8 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
         return visible.lastNameProperty();
     }
 
-    @Override
-    public ReadOnlyStringProperty githubUserNameProperty() {
-        return visible.githubUserNameProperty();
+    public ReadOnlyStringProperty githubUsernameProperty() {
+        return visible.githubUsernameProperty();
     }
 
     @Override
@@ -184,15 +183,14 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
         return visible.fullName();
     }
 
-    @Override
-    public String getGithubUserName() {
-        return visible.getGithubUserName();
+    public String getGithubUsername() {
+        return visible.getGithubUsername();
     }
 
     @Override
     public URL profilePageUrl() {
         try {
-            return new URL("https://github.com/" + getGithubUserName());
+            return new URL("https://github.com/" + getGithubUsername());
         } catch (MalformedURLException e) {
             try {
                 return new URL("https://github.com");

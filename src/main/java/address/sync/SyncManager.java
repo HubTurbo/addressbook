@@ -150,12 +150,12 @@ public class SyncManager {
 
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
-        requestExecutor.execute(new CloudUpdateTask(this.remoteManager, lmce.personData, lmce.tagData));
+        requestExecutor.execute(new CloudUpdateTask(this.remoteManager, lmce.data));
     }
 
     // To be removed after working out specification on saving and syncing behaviour
     @Subscribe
     public void handleSaveRequestEvent(SaveRequestEvent sre) {
-        requestExecutor.execute(new CloudUpdateTask(this.remoteManager, sre.personData, sre.tagData));
+        requestExecutor.execute(new CloudUpdateTask(this.remoteManager, sre.data));
     }
 }

@@ -161,7 +161,7 @@ public class PersonEditDialogController extends EditDialogController {
         cityField.setText(person.getCity());
         birthdayField.setText(person.birthdayString());
         birthdayField.setPromptText("dd.mm.yyyy");
-        githubUserNameField.setText(person.getGithubUserName());
+        githubUserNameField.setText(person.getGithubUsername());
     }
 
     public void setTags(List<Tag> tags, List<Tag> assignedTags) {
@@ -185,7 +185,7 @@ public class PersonEditDialogController extends EditDialogController {
         finalPerson.setCity(cityField.getText());
         finalPerson.setBirthday(DateTimeUtil.parse(birthdayField.getText()));
         finalPerson.setTags(finalAssignedTags);
-        finalPerson.setGithubUserName(githubUserNameField.getText());
+        finalPerson.setGithubUsername(githubUserNameField.getText());
         isOkClicked = true;
         dialogStage.close();
     }

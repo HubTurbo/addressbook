@@ -1,5 +1,6 @@
 package address.events;
 
+import address.model.datatypes.ReadOnlyAddressBook;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
 
@@ -12,16 +13,13 @@ import java.util.List;
 public class SaveRequestEvent extends BaseEvent {
 
     /** The file to which the data should be saved */
-    public File file;
+    public final File file;
 
-    /** The data to be saved*/
-    public List<Person> personData;
-    public List<Tag> tagData;
+    public final ReadOnlyAddressBook data;
 
-    public SaveRequestEvent(File file, List<Person> personData, List<Tag> tagData){
+    public SaveRequestEvent(File file, ReadOnlyAddressBook data){
         this.file = file;
-        this.personData = personData;
-        this.tagData = tagData;
+        this.data = data;
     }
 
     @Override

@@ -5,6 +5,7 @@ import address.exceptions.DataConversionException;
 import address.model.datatypes.AddressBook;
 import address.model.ModelManager;
 import address.prefs.PrefsManager;
+import address.storage.StorageAddressBook;
 import address.storage.StorageManager;
 import address.storage.XmlFileStorage;
 import org.junit.Before;
@@ -26,7 +27,7 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 public class StorageManagerTest {
 
     private static final File DUMMY_FILE = new File("dummy");
-    private static final AddressBook EMPTY_ADDRESSBOOK = new AddressBook();
+    private static final StorageAddressBook EMPTY_ADDRESSBOOK = new StorageAddressBook(new AddressBook());
     ModelManager modelManagerMock;
     EventManager eventManagerMock;
     PrefsManager prefsManagerMock;
@@ -49,17 +50,6 @@ public class StorageManagerTest {
         // This spy will be used to mock only one method of the object under test
         storageManagerSpy = spy(storageManager);
         doNothing().when(storageManagerSpy).saveDataToFile(DUMMY_FILE,EMPTY_ADDRESSBOOK);
-    }
-
-    @Test
-    public void saveDataToFile_valid_noEvents() throws DataConversionException, FileNotFoundException {
-
-        //invoke method under test
-        storageManager.saveDataToFile(DUMMY_FILE,EMPTY_ADDRESSBOOK);
-
-        //verify the dependent method was called correctly
-        PowerMockito.verifyStatic();
-        XmlFileStorage.saveDataToFile(DUMMY_FILE, EMPTY_ADDRESSBOOK);
     }
 
     @Test
@@ -93,19 +83,7 @@ public class StorageManagerTest {
 
         //mock dependent method of same object (that method is tested elsewhere)
         storageManagerSpy.handleSaveRequestEvent(
-                new SaveRequestEvent(DUMMY_FILE,EMPTY_ADDRESSBOOK.getPersons(),EMPTY_ADDRESSBOOK.getTags()));
-
-        //verify that method is called correctly
-        verify(storageManagerSpy, times(1)).saveDataToFile(any(File.class), any(AddressBook.class));
-        //TODO: make the above verification stronger by comparing actual parameters instead of 'any'
-    }
-
-    @Test
-    public void handleLocalModelSyncedFromCloudEvent(){
-
-        //mock dependent method of same object (that method is tested elsewhere)
-        storageManagerSpy.handleLocalModelSyncedFromCloudEvent(
-                new LocalModelSyncedFromCloudEvent(EMPTY_ADDRESSBOOK.getPersons(),EMPTY_ADDRESSBOOK.getTags()));
+                new SaveRequestEvent(DUMMY_FILE,EMPTY_ADDRESSBOOK));
 
         //verify that method is called correctly
         verify(storageManagerSpy, times(1)).saveDataToFile(any(File.class), any(AddressBook.class));
@@ -116,8 +94,7 @@ public class StorageManagerTest {
     public void handleLocalModelChangedEvent(){
 
         //mock dependent method of same object (that method is tested elsewhere)
-        storageManagerSpy.handleLocalModelChangedEvent(
-                new LocalModelChangedEvent(EMPTY_ADDRESSBOOK.getPersons(),EMPTY_ADDRESSBOOK.getTags()));
+        storageManagerSpy.handleLocalModelChangedEvent(new LocalModelChangedEvent(EMPTY_ADDRESSBOOK));
 
         //verify that method is called correctly
         verify(storageManagerSpy, times(1)).saveDataToFile(any(File.class), any(AddressBook.class));

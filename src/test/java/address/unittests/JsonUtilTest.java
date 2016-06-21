@@ -1,8 +1,11 @@
 package address.unittests;
 
 import address.model.datatypes.AddressBook;
+import address.model.datatypes.ReadOnlyAddressBook;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
+import address.storage.StorageAddressBook;
 import address.util.JsonUtil;
 
 import java.io.IOException;
@@ -40,12 +43,12 @@ public class JsonUtilTest {
                 "    \"name\" : \"Tag\"\n" +
                 "  } ]\n" +
                 "}";
-        AddressBook addressBook = JsonUtil.fromJsonString(jsonString, AddressBook.class);
-        assertEquals(1, addressBook.getPersons().size());
-        assertEquals(1, addressBook.getTags().size());
+        ReadOnlyAddressBook addressBook = JsonUtil.fromJsonString(jsonString, StorageAddressBook.class);
+        assertEquals(1, addressBook.getPersonList().size());
+        assertEquals(1, addressBook.getTagList().size());
 
-        Person person = addressBook.getPersons().get(0);
-        Tag tag = addressBook.getTags().get(0);
+        ReadOnlyPerson person = addressBook.getPersonList().get(0);
+        Tag tag = addressBook.getTagList().get(0);
 
         assertEquals(1, person.getID());
         assertEquals("First", person.getFirstName());
@@ -55,7 +58,7 @@ public class JsonUtilTest {
         assertEquals(tag, person.getTagList().get(0));
         assertEquals("Tag", person.getTagList().get(0).getName());
         assertEquals(LocalDate.of(1980, 3, 18), person.getBirthday());
-        assertEquals("FirstLast", person.getGithubUserName());
+        assertEquals("FirstLast", person.getGithubUsername());
     }
 
     @Test
@@ -69,22 +72,22 @@ public class JsonUtilTest {
         tag.add(sampleTag);
         samplePerson.setTags(tag);
         samplePerson.setBirthday(LocalDate.of(1980, 3, 18));
-        samplePerson.setGithubUserName("FirstLast");
+        samplePerson.setGithubUsername("FirstLast");
 
         AddressBook addressBook = new AddressBook();
         addressBook.setPersons(Arrays.asList(samplePerson));
         addressBook.setTags(Arrays.asList(sampleTag));
 
-        String jsonString = JsonUtil.toJsonString(addressBook);
+        String jsonString = JsonUtil.toJsonString(new StorageAddressBook(addressBook));
         System.out.println(jsonString);
 
         // Read
-        AddressBook addressBookRead = JsonUtil.fromJsonString(jsonString, AddressBook.class);
-        assertEquals(1, addressBookRead.getPersons().size());
-        assertEquals(1, addressBookRead.getTags().size());
+        ReadOnlyAddressBook addressBookRead = JsonUtil.fromJsonString(jsonString, StorageAddressBook.class);
+        assertEquals(1, addressBookRead.getPersonList().size());
+        assertEquals(1, addressBookRead.getTagList().size());
 
-        Person person = addressBookRead.getPersons().get(0);
-        Tag tagRead = addressBookRead.getTags().get(0);
+        ReadOnlyPerson person = addressBookRead.getPersonList().get(0);
+        Tag tagRead = addressBookRead.getTagList().get(0);
 
         assertEquals(1, person.getID());
         assertEquals("First", person.getFirstName());
@@ -94,6 +97,6 @@ public class JsonUtilTest {
         assertEquals(tagRead, person.getTagList().get(0));
         assertEquals("Tag", person.getTagList().get(0).getName());
         assertEquals(LocalDate.of(1980, 3, 18), person.getBirthday());
-        assertEquals("FirstLast", person.getGithubUserName());
+        assertEquals("FirstLast", person.getGithubUsername());
     }
 }

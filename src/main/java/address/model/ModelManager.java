@@ -58,7 +58,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         final ListChangeListener<Object> modelChangeListener = change -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
-                    EventManager.getInstance().post(new LocalModelChangedEvent(backingPersonList(), backingTagList()));
+                    EventManager.getInstance().post(new LocalModelChangedEvent(this));
                     return;
                 }
             }
@@ -207,7 +207,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         }
 
         backingModel.findPerson(target).get().update(updatedData);
-        EventManager.getInstance().post(new LocalModelChangedEvent(backingPersonList(), backingTagList()));
+        EventManager.getInstance().post(new LocalModelChangedEvent(this));
     }
 
     /**
@@ -223,7 +223,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
             throw new DuplicateTagException(updated);
         }
         original.update(updated);
-        EventManager.getInstance().post(new LocalModelChangedEvent(backingPersonList(), backingTagList()));
+        EventManager.getInstance().post(new LocalModelChangedEvent(this));
     }
 
 //// DELETE
@@ -287,12 +287,13 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * Diffs extData with the current model and updates the current model with minimal change.
      * @param extData data from an external canonical source
      */
-    public synchronized void updateUsingExternalData(AddressBook extData) {
-        assert !extData.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
-        boolean hasPersonsUpdates = diffUpdate(backingPersonList(), extData.getPersons());
-        boolean hasTagsUpdates = diffUpdate(backingTagList(), extData.getTags());
+    public synchronized void updateUsingExternalData(ReadOnlyAddressBook extData) {
+        final AddressBook data = new AddressBook(extData);
+        assert !data.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
+        boolean hasPersonsUpdates = diffUpdate(backingPersonList(), data.getPersons());
+        boolean hasTagsUpdates = diffUpdate(backingTagList(), data.getTags());
         if (hasPersonsUpdates || hasTagsUpdates) {
-            EventManager.getInstance().post(new LocalModelChangedEvent(backingPersonList(), backingTagList()));
+            EventManager.getInstance().post(new LocalModelChangedEvent(this));
         }
     }
 

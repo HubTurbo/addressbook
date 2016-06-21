@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addressbook>
     <persons>
-        <city></city>
+        <id>1</id>
         <firstName>John</firstName>
-        <githubUserName></githubUserName>
         <lastName>Doe</lastName>
-        <postalCode></postalCode>
+        <githubUsername></githubUsername>
         <street></street>
+        <postalCode></postalCode>
+        <city></city>
     </persons>
     <tags>
         <name>Friends</name>

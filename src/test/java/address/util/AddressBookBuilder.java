@@ -12,7 +12,7 @@ import address.model.datatypes.tag.Tag;
 public class AddressBookBuilder {
 
     private AddressBook addressBook;
-    private int idCounter = -1;
+    private int idCounter = 1;
 
     public AddressBookBuilder(){
         addressBook = new AddressBook();

@@ -1,9 +1,7 @@
 package address.controller;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 
 import address.image.ImageManager;
@@ -57,7 +55,7 @@ public class PersonCardController {
     @FXML
     public void initialize() {
 
-        if (person.getGithubUserName().length() > 0) {
+        if (person.getGithubUsername().length() > 0) {
             setProfileImage();
         }
 
@@ -121,7 +119,7 @@ public class PersonCardController {
                 handleDeletedPerson();
             }
         });
-        person.githubUserNameProperty().addListener((observable, oldValue, newValue) -> {
+        person.githubUsernameProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.length() > 0){
                 setProfileImage();
             }

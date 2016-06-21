@@ -2,15 +2,10 @@ package address.model.datatypes.person;
 
 import address.model.datatypes.UniqueData;
 import address.model.datatypes.tag.Tag;
-
-import address.util.XmlUtil.LocalDateAdapter;
 import address.util.collections.UnmodifiableObservableList;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -32,18 +27,18 @@ import java.util.function.BiConsumer;
  */
 public class Person extends UniqueData implements ReadOnlyPerson {
 
-    @JsonIgnore private final int ID;
+    private final int ID;
 
-    @JsonIgnore private final SimpleStringProperty firstName;
-    @JsonIgnore private final SimpleStringProperty lastName;
+    private final StringProperty firstName;
+    private final StringProperty lastName;
 
-    @JsonIgnore private final SimpleStringProperty street;
-    @JsonIgnore private final SimpleStringProperty postalCode;
-    @JsonIgnore private final SimpleStringProperty city;
-    @JsonIgnore private final SimpleStringProperty githubUserName;
+    private final StringProperty githubUsername;
+    private final StringProperty street;
+    private final StringProperty postalCode;
+    private final StringProperty city;
 
-    @JsonIgnore private final SimpleObjectProperty<LocalDate> birthday;
-    @JsonIgnore private final ObservableList<Tag> tags;
+    private final SimpleObjectProperty<LocalDate> birthday;
+    private final ObservableList<Tag> tags;
 
     // defaults
     {
@@ -53,7 +48,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         street = new SimpleStringProperty("");
         postalCode = new SimpleStringProperty("");
         city = new SimpleStringProperty("");
-        githubUserName = new SimpleStringProperty("");
+        githubUsername = new SimpleStringProperty("");
 
         birthday = new SimpleObjectProperty<>();
 
@@ -67,8 +62,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         return new Person(0);
     }
 
-    @JsonCreator
-    public Person(@JsonProperty("id") int id) {
+    public Person(int id) {
         this.ID = id;
     }
 
@@ -102,7 +96,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         setStreet(newDataSource.getStreet());
         setPostalCode(newDataSource.getPostalCode());
         setCity(newDataSource.getCity());
-        setGithubUserName(newDataSource.getGithubUserName());
+        setGithubUsername(newDataSource.getGithubUsername());
 
         setBirthday(newDataSource.getBirthday());
         setTags(newDataSource.getTagList());
@@ -121,7 +115,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
     public void forEachPropertyFieldPairWith(Person other, BiConsumer<? super Property, ? super Property> action) {
         action.accept(firstName, other.firstName);
         action.accept(lastName, other.lastName);
-        action.accept(githubUserName, other.githubUserName);
+        action.accept(githubUsername, other.githubUsername);
 
         action.accept(street, other.street);
         action.accept(postalCode, other.postalCode);
@@ -173,18 +167,16 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 //// GITHUB USERNAME
 
     @JsonProperty("githubUsername")
-    @Override
-    public String getGithubUserName() {
-        return githubUserName.get();
+    public String getGithubUsername() {
+        return githubUsername.get();
     }
 
-    public void setGithubUserName(String githubUserName) {
-        this.githubUserName.set(githubUserName);
+    public void setGithubUsername(String githubUsername) {
+        this.githubUsername.set(githubUsername);
     }
 
-    @Override
-    public ReadOnlyStringProperty githubUserNameProperty() {
-        return githubUserName;
+    public ReadOnlyStringProperty githubUsernameProperty() {
+        return githubUsername;
     }
 
 //// STREET
@@ -241,7 +233,6 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 //// BIRTHDAY
 
     @JsonProperty("birthday")
-    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     @Override
     public LocalDate getBirthday() {
         return birthday.get();

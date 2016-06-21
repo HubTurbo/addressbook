@@ -37,4 +37,5 @@ public interface ReadOnlyAddressBook {
     default UnmodifiableObservableList<Tag> getTagsAsReadOnlyObservableList() {
         throw new UnsupportedOperationException();
     }
+
 }

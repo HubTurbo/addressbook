@@ -1,6 +1,7 @@
 package address.unittests.storage;
 
 import address.model.datatypes.AddressBook;
+import address.storage.StorageAddressBook;
 import address.storage.XmlFileStorage;
 import address.util.XmlUtil;
 import org.junit.Before;
@@ -20,12 +21,12 @@ import static org.junit.Assert.*;
 public class XmlFileStorageTest {
 
     private static final File DUMMY_FILE = new File("dummy");
-    private static final AddressBook EMPTY_ADDRESSBOOK = new AddressBook();
+    private static final StorageAddressBook EMPTY_ADDRESSBOOK = new StorageAddressBook(new AddressBook());
 
     @Before
     public void setUp() throws Exception{
         PowerMockito.mockStatic(XmlUtil.class);
-        PowerMockito.when(XmlUtil.getDataFromFile(DUMMY_FILE,AddressBook.class)).thenReturn(EMPTY_ADDRESSBOOK);
+        PowerMockito.when(XmlUtil.getDataFromFile(DUMMY_FILE, StorageAddressBook.class)).thenReturn(EMPTY_ADDRESSBOOK);
     }
 
 

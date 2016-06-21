@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -20,12 +21,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Duplicates are not allowed (by .equals comparison)
  * TODO: truly enforce set property through code (Sets, XML Schemas)
  */
-
-@XmlRootElement(name = "addressbook")
 public class AddressBook implements ReadOnlyAddressBook {
 
-    @JsonIgnore private final ObservableList<Person> persons;
-    @JsonIgnore private final ObservableList<Tag> tags;
+    private final ObservableList<Person> persons;
+    private final ObservableList<Tag> tags;
 
     {
         persons = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
@@ -34,12 +33,12 @@ public class AddressBook implements ReadOnlyAddressBook {
 
     public AddressBook() {}
 
-    public AddressBook(AddressBook toBeCopied) {
-        this(toBeCopied.getPersons(), toBeCopied.getTags());
+    public AddressBook(ReadOnlyAddressBook toBeCopied) {
+        this(toBeCopied.getPersonList(), toBeCopied.getTagList());
     }
 
-    public AddressBook(List<Person> persons, List<Tag> tags) {
-        setPersons(persons);
+    public AddressBook(List<ReadOnlyPerson> persons, List<Tag> tags) {
+        setPersons(persons.stream().map(Person::new).collect(Collectors.toList()));
         setTags(tags);
     }
 
@@ -106,10 +105,9 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     @Override
-    public String toString(){
-        //TODO: refine later
+    public String toString() {
         return persons.size() + " persons, " + tags.size() +  " tags";
-
+        // TODO: refine later
     }
 
     @Override

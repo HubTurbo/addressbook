@@ -6,7 +6,6 @@ import address.util.DateTimeUtil;
 import address.util.collections.UnmodifiableObservableList;
 import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import javafx.beans.Observable;
-import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 
@@ -46,11 +45,11 @@ public interface ReadOnlyPerson extends ExtractableObservables {
         return getFirstName() + ' ' + getLastName();
     }
 
-    String getGithubUserName();
+    String getGithubUsername();
 
     default URL profilePageUrl(){
         try {
-            return new URL("https://github.com/" + getGithubUserName());
+            return new URL("https://github.com/" + getGithubUsername());
         } catch (MalformedURLException e) {
             try {
                 return new URL("https://github.com");
@@ -61,7 +60,7 @@ public interface ReadOnlyPerson extends ExtractableObservables {
         return null;
     }
     default Optional<String> githubProfilePicUrl() {
-        if (getGithubUserName().length() > 0) {
+        if (getGithubUsername().length() > 0) {
             String profilePicUrl = profilePageUrl().toExternalForm() + ".png";
             if (URLUtil.isURIFormat(profilePicUrl)){
                 return Optional.of(profilePicUrl);
@@ -109,7 +108,7 @@ public interface ReadOnlyPerson extends ExtractableObservables {
     default ReadOnlyStringProperty lastNameProperty() {
         throw new UnsupportedOperationException();
     }
-    default ReadOnlyStringProperty githubUserNameProperty() {
+    default ReadOnlyStringProperty githubUsernameProperty() {
         throw new UnsupportedOperationException();
     }
 
@@ -139,7 +138,7 @@ public interface ReadOnlyPerson extends ExtractableObservables {
         return new Observable[] {
                 firstNameProperty(),
                 lastNameProperty(),
-                githubUserNameProperty(),
+                githubUsernameProperty(),
 
                 streetProperty(),
                 postalCodeProperty(),

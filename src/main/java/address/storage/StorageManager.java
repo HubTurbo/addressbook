@@ -6,6 +6,7 @@ import address.exceptions.FileContainsDuplicatesException;
 import address.main.ComponentManager;
 import address.model.datatypes.AddressBook;
 import address.model.ModelManager;
+import address.model.datatypes.ReadOnlyAddressBook;
 import address.prefs.PrefsManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;
@@ -39,60 +40,39 @@ public class StorageManager extends ComponentManager {
     @Subscribe
     public void handleLoadDataRequestEvent(LoadDataRequestEvent ldre) {
         logger.info("Load data request received: " + ldre.file);
-        AddressBook data;
-
         try {
             logger.debug("Attempting to load data from file: " + ldre.file);
-            data = XmlFileStorage.loadDataFromSaveFile(ldre.file);
+            modelManager.updateUsingExternalData(XmlFileStorage.loadDataFromSaveFile(ldre.file));
         } catch (FileNotFoundException | DataConversionException e) {
             logger.debug("Error loading data from file: {}", e);
             raise(new FileOpeningExceptionEvent(e, ldre.file));
-            return;
         }
-
-        if (data.containsDuplicates()) {
-            raise(new FileOpeningExceptionEvent(new FileContainsDuplicatesException(ldre.file), ldre.file));
-            return;
-        }
-        //TODO: move duplication detection out of this class
-
-        modelManager.updateUsingExternalData(data);
     }
 
     /**
-     * Raises FileSavingExceptionEvent(similar to {@link #saveDataToFile(File, AddressBook)})
+     * Raises FileSavingExceptionEvent(similar to {@link #saveDataToFile(File, ReadOnlyAddressBook)})
      */
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
         logger.info("Local data changed, saving to primary data file");
-        saveDataToFile(prefsManager.getSaveLocation(), new AddressBook(lmce.personData, lmce.tagData));
+        saveDataToFile(prefsManager.getSaveLocation(), lmce.data);
     }
 
     /**
-     * Raises FileSavingExceptionEvent(similar to {@link #saveDataToFile(File, AddressBook)})
-     */
-    @Subscribe
-    public void handleLocalModelSyncedFromCloudEvent(LocalModelSyncedFromCloudEvent msfce) {
-        logger.info("Local data synced, saving to primary data file");
-        saveDataToFile(prefsManager.getSaveLocation(), new AddressBook(msfce.personData, msfce.tagData));
-    }
-
-    /**
-     * Raises FileSavingExceptionEvent (similar to {@link #saveDataToFile(File, AddressBook)})
+     * Raises FileSavingExceptionEvent (similar to {@link #saveDataToFile(File, ReadOnlyAddressBook)})
      */
     @Subscribe
     public void handleSaveRequestEvent(SaveRequestEvent sre) {
-        AddressBook addressBookToSave = new AddressBook(sre.personData, sre.tagData);
-        logger.info("Save data request received: {}", addressBookToSave);
-        saveDataToFile(sre.file, addressBookToSave);
+        logger.info("Save data request received: ", sre.data);
+        saveDataToFile(sre.file, sre.data);
     }
 
     /**
      * Raises FileSavingExceptionEvent if the file is not found or if there was an error during data conversion.
      */
-    public void saveDataToFile(File file, AddressBook addressBook){
+    public void saveDataToFile(File file, ReadOnlyAddressBook data){
         try {
-            XmlFileStorage.saveDataToFile(file, addressBook);
+            XmlFileStorage.saveDataToFile(file, new StorageAddressBook(data));
         } catch (FileNotFoundException | DataConversionException e) {
             raise(new FileSavingExceptionEvent(e, file));
         }
