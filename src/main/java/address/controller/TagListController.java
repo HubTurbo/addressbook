@@ -2,7 +2,6 @@ package address.controller;
 
 import address.model.datatypes.tag.Tag;
 import address.model.ModelManager;
-import com.sun.tools.internal.ws.processor.model.Model;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;

@@ -6,6 +6,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 
 public class TagEditDialogController extends EditDialogController {
     @FXML
@@ -45,6 +47,19 @@ public class TagEditDialogController extends EditDialogController {
 
     private boolean isEmptyName() {
         return tagNameField.getText().isEmpty();
+    }
+
+    public void setDialogStage(Stage dialogStage) {
+        dialogStage.getScene().setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                handleCancel();
+            }
+
+            if (e.getCode() == KeyCode.ENTER) {
+                handleOk();
+            }
+        });
+        this.dialogStage = dialogStage;
     }
 
     public Tag getFinalInput() {
