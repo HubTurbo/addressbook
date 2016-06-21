@@ -51,23 +51,4 @@ public class StorageAddressBook implements ReadOnlyAddressBook {
         return Collections.unmodifiableList(tags);
     }
 
-    public static void main(String... args) throws Exception {
-        JAXBContext context = JAXBContext.newInstance(StorageAddressBook.class);
-        Marshaller m = context.createMarshaller();
-        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        AddressBook data1 = new AddressBook();
-        data1.addPerson(new Person("long", "potato", 1));
-        Person p = new Person("tagged", "lel", 2);
-        Tag t1 = new Tag("wow");
-        Tag t2 = new Tag("omg");
-        p.setTags(Arrays.asList(t1, t2));
-        data1.addPerson(p);
-        data1.addTag(t1);
-        data1.addTag(t2);
-        StorageAddressBook data = new StorageAddressBook(data1);
-
-//        m.marshal(data, System.out);
-        System.out.println(JsonUtil.toJsonString(data));
-    }
 }
