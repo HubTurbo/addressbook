@@ -32,14 +32,14 @@ public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
         tags = backingModel.getTags(); // change when viewabletag is implemented
 
         persons.setAll(backingModel.getPersons().stream()
-                        .map(ViewablePerson::new)
-                        .collect(Collectors.toList()));
+                .map(ViewablePerson::createViewableFrom)
+                .collect(Collectors.toList()));
 
-        bindPersonsToBacking();
+        bindViewablePersonListToBackingList();
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
-    private void bindPersonsToBacking() {
+    private void bindViewablePersonListToBackingList() {
         backingModel.getPersons().addListener((ListChangeListener<? super Person>) change -> {
 
             // ignore permutations (order doesn't matter) and updates (ViewableDataType wrapper handles it)
@@ -48,7 +48,8 @@ public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
                     // removed
                     persons.removeAll(new HashSet<>(change.getRemoved()));
                     // newly added
-                    persons.addAll(change.getAddedSubList().stream().map(ViewablePerson::new)
+                    persons.addAll(change.getAddedSubList().stream()
+                            .map(ViewablePerson::createViewableFrom)
                             .collect(Collectors.toList()));
                 }
             }

@@ -36,11 +36,11 @@ public class BrowserManagerTest {
 
     public BrowserManagerTest() {
         this.filteredPersons = FXCollections.observableArrayList();
-        this.filteredPersons.add(new ViewablePerson(new Person("John", "Smith")));
-        this.filteredPersons.add(new ViewablePerson(new Person("John", "Peter")));
-        this.filteredPersons.add(new ViewablePerson(new Person("Obama", "Smith")));
-        this.filteredPersons.add(new ViewablePerson(new Person("Lala", "Lol")));
-        this.filteredPersons.add(new ViewablePerson(new Person("Hehe", "Lala")));
+        this.filteredPersons.add(ViewablePerson.createViewableFrom(new Person("John", "Smith", -1)));
+        this.filteredPersons.add(ViewablePerson.createViewableFrom(new Person("John", "Peter", -2)));
+        this.filteredPersons.add(ViewablePerson.createViewableFrom(new Person("Obama", "Smith", -3)));
+        this.filteredPersons.add(ViewablePerson.createViewableFrom(new Person("Lala", "Lol", -4)));
+        this.filteredPersons.add(ViewablePerson.createViewableFrom(new Person("Hehe", "Lala", -5)));
     }
 
     @Test

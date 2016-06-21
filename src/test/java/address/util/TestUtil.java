@@ -12,33 +12,23 @@ import java.util.stream.Collectors;
  */
 public class TestUtil {
 
+    public static final Person[] samplePersonData = {
+            new Person("Hans", "Muster", -1),
+            new Person("Ruth", "Mueller", -2),
+            new Person("Heinz", "Kurz", -3),
+            new Person("Cornelia", "Meier", -4),
+            new Person("Werner", "Meyer", -5),
+            new Person("Lydia", "Kunz", -6),
+            new Person("Anna", "Best", -7),
+            new Person("Stefan", "Meier", -8),
+            new Person("Martin", "Mueller", -9)
+    };
+
     public static List<Person> generateSamplePersonData() {
-        final Person[] samplePersonData = {
-                new Person("Hans", "Muster"),
-                new Person("Ruth", "Mueller"),
-                new Person("Heinz", "Kurz"),
-                new Person("Cornelia", "Meier"),
-                new Person("Werner", "Meyer"),
-                new Person("Lydia", "Kunz"),
-                new Person("Anna", "Best"),
-                new Person("Stefan", "Meier"),
-                new Person("Martin", "Mueller")
-        };
         return Arrays.asList(samplePersonData);
     }
 
     public static List<ViewablePerson> generateSampleViewablePersonData() {
-        final Person[] samplePersonData = {
-                new Person("Hans", "Muster"),
-                new Person("Ruth", "Mueller"),
-                new Person("Heinz", "Kurz"),
-                new Person("Cornelia", "Meier"),
-                new Person("Werner", "Meyer"),
-                new Person("Lydia", "Kunz"),
-                new Person("Anna", "Best"),
-                new Person("Stefan", "Meier"),
-                new Person("Martin", "Mueller")
-        };
-        return generateSamplePersonData().stream().map(ViewablePerson::new).collect(Collectors.toList());
+        return generateSamplePersonData().stream().map(ViewablePerson::createViewableFrom).collect(Collectors.toList());
     }
 }

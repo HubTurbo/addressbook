@@ -97,7 +97,7 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleNewPerson() {
-        Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person());
+        Optional<ReadOnlyPerson> prevInputData = Optional.of(Person.createPersonDataContainer());
         while (true) { // keep re-asking until user provides valid input or cancels operation.
             prevInputData = mainController.getPersonDataInput(prevInputData.get());
 

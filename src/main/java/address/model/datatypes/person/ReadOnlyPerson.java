@@ -2,11 +2,15 @@ package address.model.datatypes.person;
 
 import address.model.datatypes.ExtractableObservables;
 import address.model.datatypes.tag.Tag;
+import address.util.DateTimeUtil;
 import address.util.collections.UnmodifiableObservableList;
+import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import javafx.beans.Observable;
+import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
@@ -17,19 +21,54 @@ import java.util.Optional;
  */
 public interface ReadOnlyPerson extends ExtractableObservables {
 
+    /**
+     * Remote-assigned (canonical) ids are positive integers.
+     * Locally-assigned temporary ids are negative integers.
+     * 0 is reserved for ID-less Person data containers.
+     */
+    int getID();
+    default String idString() {
+        return hasConfirmedRemoteID() ? "#" + getID() : "#TBD";
+    }
+    /**
+     * @see #getID()
+     */
+    default boolean hasConfirmedRemoteID() {
+        return getID() > 0;
+    }
+
     String getFirstName();
     String getLastName();
     /**
      * @return first-last format full name
      */
-    String fullName();
+    default String fullName() {
+        return getFirstName() + ' ' + getLastName();
+    }
 
     String getGithubUserName();
-    /**
-     * @return github profile url
-     */
-    URL profilePageUrl();
-    Optional<String> githubProfilePicUrl();
+
+    default URL profilePageUrl(){
+        try {
+            return new URL("https://github.com/" + getGithubUserName());
+        } catch (MalformedURLException e) {
+            try {
+                return new URL("https://github.com");
+            } catch (MalformedURLException e1) {
+                assert false;
+            }
+        }
+        return null;
+    }
+    default Optional<String> githubProfilePicUrl() {
+        if (getGithubUserName().length() > 0) {
+            String profilePicUrl = profilePageUrl().toExternalForm() + ".png";
+            if (URLUtil.isURIFormat(profilePicUrl)){
+                return Optional.of(profilePicUrl);
+            }
+        }
+        return Optional.empty();
+    }
 
     String getStreet();
     String getPostalCode();
@@ -39,7 +78,10 @@ public interface ReadOnlyPerson extends ExtractableObservables {
     /**
      * @return birthday date-formatted as string
      */
-    String birthdayString();
+    default String birthdayString() {
+        if (getBirthday() == null) return "";
+        return DateTimeUtil.format(getBirthday());
+    }
 
     /**
      * @return unmodifiable list view of tags.
@@ -48,10 +90,19 @@ public interface ReadOnlyPerson extends ExtractableObservables {
     /**
      * @return string representation of this Person's tags
      */
-    String tagsString();
+    default String tagsString() {
+        final StringBuffer buffer = new StringBuffer();
+        final String separator = ", ";
+        getTagList().forEach(tag -> buffer.append(tag).append(separator));
+        if (buffer.length() == 0) {
+            return "";
+        } else {
+            return buffer.substring(0, buffer.length() - separator.length());
+        }
+    }
 
 //// Operations below are optional; override if they will be needed.
-    
+
     default ReadOnlyStringProperty firstNameProperty() {
         throw new UnsupportedOperationException();
     }

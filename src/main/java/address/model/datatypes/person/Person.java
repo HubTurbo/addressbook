@@ -20,14 +20,12 @@ import javafx.collections.ObservableList;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
  * Data-model implementation class representing the "Person" domain object.
+ * ID is immutable, so this class can be safely used as map keys and set elements.
  *
  * As far as possible, avoid working directly with this class.
  * Instead, use and declare the minimum required superclass/interface.
@@ -36,6 +34,8 @@ import java.util.function.BiConsumer;
  * as an ReadOnlyPerson -- since it does not need the functionality in the other superclasses/interfaces.
  */
 public class Person extends UniqueData implements ReadOnlyPerson {
+
+    private final int ID;
 
     @JsonIgnore private final SimpleStringProperty firstName;
     @JsonIgnore private final SimpleStringProperty lastName;
@@ -61,40 +61,40 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         birthday = new SimpleObjectProperty<>();
 
         tags = FXCollections.observableArrayList();
-    }    
-    
+    }
+
     /**
-     * Create with default values.
-     * All primitive based properties are set to language defaults.
-     * All string based properties are set to the empty string.
-     * All object based properties are set to null.
-     * All collections are set to an empty chosen collection implementation.
+     * ID-less person data container
      */
-    public Person() {}
+    public static Person createPersonDataContainer() {
+        return new Person(0);
+    }
+
+    public Person(int id) {
+        this.ID = id;
+    }
 
     /**
      * Constructor with firstName and lastName parameters.
      * Other parameters are set to defaults.
-     *
-     * @see Person#Person()
      */
-    public Person(String firstName, String lastName) {
+    public Person(String firstName, String lastName, int id) {
+        this(id);
         setFirstName(firstName);
         setLastName(lastName);
     }
 
     /**
-     * Deep copy constructor.
-     *
+     * Deep copy constructor. <strong>Also copies id.</strong>
      * @see Person#update(ReadOnlyPerson)
      */
     public Person(ReadOnlyPerson toBeCopied) {
+        this(toBeCopied.getID());
         update(toBeCopied);
     }
 
     /**
-     * {@inheritDoc}
-     *
+     * Does not update own ID with argument's ID.
      * @return self (calling this from a Person returns a Person instead of just a WritablePerson)
      */
     public Person update(ReadOnlyPerson newDataSource) {
@@ -107,7 +107,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         setGithubUserName(newDataSource.getGithubUserName());
 
         setBirthday(newDataSource.getBirthday());
-        setTags(newDataSource.getObservableTagList());
+        setTags(newDataSource.getTagList());
         return this;
     }
 
@@ -130,6 +130,12 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         action.accept(city, other.city);
 
         action.accept(birthday, other.birthday);
+    }
+
+//// ID
+
+    public int getID() {
+        return ID;
     }
 
 //// NAME
@@ -164,11 +170,6 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         return lastName;
     }
 
-    @Override
-    public String fullName() {
-        return getFirstName() + ' ' + getLastName();
-    }
-
 //// GITHUB USERNAME
 
     @JsonProperty("githubUsername")
@@ -186,33 +187,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         return githubUserName;
     }
 
-    @Override
-    public URL profilePageUrl(){
-        URL url = null;
-
-        try {
-            url = new URL("https://github.com/" + githubUserName.get());
-        } catch (MalformedURLException e) {
-            try {
-                url = new URL("https://github.com");
-            } catch (MalformedURLException e1) {
-                assert false;
-            }
-        }
-        return url;
-    }
-
-    @Override
-    public Optional<String> githubProfilePicUrl() {
-        if (getGithubUserName().length() > 0) {
-            String profilePicUrl = profilePageUrl().toExternalForm() + ".png";
-            if (URLUtil.isURIFormat(profilePicUrl)){
-                return Optional.of(profilePicUrl);
-            }
-        }
-        return Optional.empty();
-    }
-    //// STREET
+//// STREET
 
     @JsonProperty("street")
     @Override
@@ -282,12 +257,6 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         return birthday;
     }
 
-    @Override
-    public String birthdayString() {
-        if (birthday.getValue() == null) return "";
-        return DateTimeUtil.format(birthday.getValue());
-    }
-
 //// TAGS
 
     @Override
@@ -310,43 +279,30 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         this.tags.addAll(tags);
     }
 
-    @Override
-    public String tagsString() {
-        final StringBuffer buffer = new StringBuffer();
-        final String separator = ", ";
-        tags.forEach(tag -> buffer.append(tag).append(separator));
-        if (buffer.length() == 0) {
-            return "";
-        } else {
-            return buffer.substring(0, buffer.length() - separator.length());
-        }
-    }
-
 //// OTHER LOGIC
 
+    /**
+     * Compares id
+     */
     @Override
     public boolean equals(Object other) {
         if (other == this) return true;
         if (other == null) return false;
         if (Person.class.isAssignableFrom(other.getClass())) {
-            final ReadOnlyPerson otherPerson = (ReadOnlyPerson) other;
-            return this.getFirstName().equals(otherPerson.getFirstName())
-                    && this.getLastName().equals(otherPerson.getLastName());
-        }
-        if (ViewablePerson.class.isAssignableFrom(other.getClass())) {
-            return other.equals(this);
+            final ReadOnlyPerson otherP = (ReadOnlyPerson) other;
+            return getID() == otherP.getID();
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return (getFirstName() + getLastName()).hashCode();
+        return ID;
     }
 
     @Override
     public String toString() {
-        return "Person: " + fullName();
+        return "Person #" + ID + ": " + fullName();
     }
 
 }

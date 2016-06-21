@@ -31,11 +31,14 @@ import java.util.List;
  * Dialog to edit details of a person.
  */
 public class PersonEditDialogController extends EditDialogController {
+
     private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialogController.class);
     private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
     private static final String TOOLTIP_TAG_SELECTOR_SHORTCUT = "Shortcut + O";
     private static final String TOOLTIP_LAUNCH_TAG_SELECTOR = "Click to launch tag selector";
 
+    @FXML
+    private Label idLabel;
     @FXML
     private AnchorPane mainPane;
     @FXML
@@ -50,6 +53,7 @@ public class PersonEditDialogController extends EditDialogController {
     private TextField cityField;
     @FXML
     private TextField birthdayField;
+
     @FXML
     private ScrollPane tagList;
     @FXML
@@ -149,6 +153,7 @@ public class PersonEditDialogController extends EditDialogController {
      * Sets the initial placeholder data in the dialog fields
      */
     public void setInitialPersonData(ReadOnlyPerson person) {
+        idLabel.setText("Person " + person.idString());
         firstNameField.setText(person.getFirstName());
         lastNameField.setText(person.getLastName());
         streetField.setText(person.getStreet());
@@ -172,7 +177,7 @@ public class PersonEditDialogController extends EditDialogController {
     @FXML
     protected void handleOk() {
         if (!isInputValid()) return;
-        finalPerson = new Person();
+        finalPerson = Person.createPersonDataContainer();
         finalPerson.setFirstName(firstNameField.getText());
         finalPerson.setLastName(lastNameField.getText());
         finalPerson.setStreet(streetField.getText());

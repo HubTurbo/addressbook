@@ -21,31 +21,10 @@ import static org.junit.Assert.assertEquals;
 public class JsonUtilTest {
 
     @Test
-    /**
-     * Due to updatedAt field, we can check JSON string correct value. As such, we just confirm there is no exception
-     */
-    public void jsonUtil_getJsonStringObjectRepresentation_noExceptionThrown() throws JsonProcessingException {
-        Tag sampleTag = new Tag("Tag");
-        Person samplePerson = new Person("First", "Last");
-        samplePerson.setCity("Singapore");
-        samplePerson.setPostalCode("123456");
-        List<Tag> tag = new ArrayList<>();
-        tag.add(sampleTag);
-        samplePerson.setTags(tag);
-        samplePerson.setBirthday(LocalDate.of(1980, 3, 18));
-        samplePerson.setGithubUserName("FirstLast");
-
-        AddressBook addressBook = new AddressBook();
-        addressBook.setPersons(Arrays.asList(samplePerson));
-        addressBook.setTags(Arrays.asList(sampleTag));
-
-        JsonUtil.toJsonString(addressBook);
-    }
-
-    @Test
     public void jsonUtil_readJsonStringToObjectInstance_correctObject() throws IOException {
         String jsonString = "{\n" +
                 "  \"persons\" : [ {\n" +
+                "    \"id\" : 1,\n" +
                 "    \"firstName\" : \"First\",\n" +
                 "    \"lastName\" : \"Last\",\n" +
                 "    \"street\" : \"\",\n" +
@@ -69,13 +48,13 @@ public class JsonUtilTest {
         Person person = addressBook.getPersons().get(0);
         Tag tag = addressBook.getTags().get(0);
 
-        assertEquals("Tag", tag.getName());
-
+        assertEquals(1, person.getID());
         assertEquals("First", person.getFirstName());
         assertEquals("Last", person.getLastName());
         assertEquals("Singapore", person.getCity());
         assertEquals("123456", person.getPostalCode());
         assertEquals(tag, person.getTagList().get(0));
+        assertEquals("Tag", person.getTagList().get(0).getName());
         assertEquals(LocalDate.of(1980, 3, 18), person.getBirthday());
         assertEquals("FirstLast", person.getGithubUserName());
     }
@@ -84,7 +63,7 @@ public class JsonUtilTest {
     public void jsonUtil_writeThenReadObjectToJson_correctObject() throws IOException {
         // Write
         Tag sampleTag = new Tag("Tag");
-        Person samplePerson = new Person("First", "Last");
+        Person samplePerson = new Person("First", "Last", 1);
         samplePerson.setCity("Singapore");
         samplePerson.setPostalCode("123456");
         List<Tag> tag = new ArrayList<>();
@@ -107,13 +86,13 @@ public class JsonUtilTest {
         Person person = addressBookRead.getPersons().get(0);
         Tag tagRead = addressBookRead.getTags().get(0);
 
-        assertEquals("Tag", tagRead.getName());
-
+        assertEquals(1, person.getID());
         assertEquals("First", person.getFirstName());
         assertEquals("Last", person.getLastName());
         assertEquals("Singapore", person.getCity());
         assertEquals("123456", person.getPostalCode());
         assertEquals(tagRead, person.getTagList().get(0));
+        assertEquals("Tag", person.getTagList().get(0).getName());
         assertEquals(LocalDate.of(1980, 3, 18), person.getBirthday());
         assertEquals("FirstLast", person.getGithubUserName());
     }

@@ -15,7 +15,7 @@ import java.util.function.Function;
  *
  * Note: these status data fields should not be directly edited by users.
  */
-public abstract class ViewableDataType<D extends UniqueData> extends UniqueData implements ReadOnlyViewableDataType {
+public abstract class Viewable<D extends UniqueData> extends UniqueData implements ReadOnlyViewableDataType {
 
     protected final D visible;
     protected D backing;
@@ -32,16 +32,31 @@ public abstract class ViewableDataType<D extends UniqueData> extends UniqueData 
     }
 
     /**
-     * Create a new ViewableDataType based on a backing object.
+     * Create a new Viewable based on a backing object.
+     * @see #Viewable(UniqueData)
      * @param backingObject used as {@link #backing}.
      * @param visibleObjectGenerator used to generate {@link #visible} with {@code backingObject} as the argument.
      */
-    protected ViewableDataType(D backingObject, Function<D, D> visibleObjectGenerator) {
-        backing = backingObject;
-        visible = visibleObjectGenerator.apply(backingObject);
-        conditionallyBindVisibleToBacking();
-        isSyncingWithBackingObject = true;
+    protected Viewable(D backingObject, Function<D, D> visibleObjectGenerator) {
+        this(visibleObjectGenerator.apply(backingObject));
+        connectBackingObject(backingObject);
     }
+
+    /**
+     * Create a new Viewable without a backing object.
+     * @see #connectBackingObject(UniqueData)
+     * @param visibleObject
+     */
+    protected Viewable(D visibleObject) {
+        visible = visibleObject;
+    }
+
+    /**
+     * Connect a backing object to the visible object only if there isn't one already
+     * @see #Viewable(UniqueData)
+     * @param backingObject
+     */
+    public abstract void connectBackingObject(D backingObject);
 
     /**
      * Make every relevant data field inside the {@link #visible} object track and mirror the {@link #backing} object,

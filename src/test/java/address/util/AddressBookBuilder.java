@@ -12,6 +12,7 @@ import address.model.datatypes.tag.Tag;
 public class AddressBookBuilder {
 
     private AddressBook addressBook;
+    private int idCounter = -1;
 
     public AddressBookBuilder(){
         addressBook = new AddressBook();
@@ -22,7 +23,7 @@ public class AddressBookBuilder {
     }
 
     public AddressBookBuilder withPerson(String firstName, String lastName){
-        addressBook.addPerson(new Person(firstName, lastName));
+        addressBook.addPerson(new Person(firstName, lastName, idCounter++));
         return this;
     }
 

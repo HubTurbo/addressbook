@@ -1,7 +1,9 @@
 package address.controller;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 
 import address.image.ImageManager;
@@ -25,6 +27,8 @@ public class PersonCardController {
     private HBox cardPane;
     @FXML
     private ImageView profileImage;
+    @FXML
+    private Label idLabel;
     @FXML
     private Label firstName;
     @FXML
@@ -64,8 +68,10 @@ public class PersonCardController {
         double xyPositionAndRadius = profileImage.getFitHeight() / 2.0;
         profileImage.setClip(new Circle(xyPositionAndRadius, xyPositionAndRadius, xyPositionAndRadius));
 
+        initIdLabel();
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
+
         address.textProperty().bind(new StringBinding(){
             {
                 bind(person.streetProperty());
@@ -118,6 +124,17 @@ public class PersonCardController {
         person.githubUserNameProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.length() > 0){
                 setProfileImage();
+            }
+        });
+    }
+
+    private void initIdLabel() {
+        idLabel.setText(person.idString());
+        person.onRemoteIdConfirmed(id -> {
+            if (Platform.isFxApplicationThread()) {
+                idLabel.setText(person.idString());
+            } else {
+                Platform.runLater(() -> idLabel.setText(person.idString()));
             }
         });
     }

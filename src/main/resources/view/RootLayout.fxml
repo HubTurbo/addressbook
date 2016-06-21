@@ -16,7 +16,6 @@
                   <MenuItem fx:id="menuFileOpen" mnemonicParsing="false" onAction="#handleOpen" text="Open..." />
                   <MenuItem fx:id="menuFileSave" mnemonicParsing="false" onAction="#handleSave" text="[Local] Save" />
                   <MenuItem fx:id="menuFileSaveAs" mnemonicParsing="false" onAction="#handleSaveAs" text="[Local] Save As..." />
-                  <MenuItem mnemonicParsing="false" onAction="#handleResetWithSampleData" text="Reset with Sample Data" />
                   <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
                </items>
             </Menu>

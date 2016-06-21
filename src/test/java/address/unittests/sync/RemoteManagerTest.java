@@ -51,7 +51,7 @@ public class RemoteManagerTest {
         int noOfPersons = 1000;
         List<Person> personsToReturn = new ArrayList<>();
         for (int i = 0; i < noOfPersons; i++) {
-            personsToReturn.add(new Person("firstName" + i, "lastName" + i));
+            personsToReturn.add(new Person("firstName" + i, "lastName" + i, i));
         }
 
         when(remoteService.getPersons(anyString(), anyInt())).thenAnswer((invocation) -> {
@@ -87,6 +87,7 @@ public class RemoteManagerTest {
         assertTrue(result.isPresent());
         assertEquals(noOfPersons, result.get().size());
         for (int i = 0; i < noOfPersons; i++) {
+            assertEquals(i, result.get().get(i).getID());
             assertEquals("firstName" + i, result.get().get(i).getFirstName());
             assertEquals("lastName" + i, result.get().get(i).getLastName());
         }
