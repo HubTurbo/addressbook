@@ -6,6 +6,7 @@ import address.model.ModelManager;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Side;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
@@ -26,6 +27,40 @@ public class TagCardController {
     private MainController mainController;
     private ModelManager modelManager;
     private TagListController tagListController;
+
+    private static boolean isAddSuccessful(MainController mainController, ModelManager modelManager, Tag newTag) {
+        try {
+            modelManager.addTag(newTag);
+            return true;
+        } catch (DuplicateTagException e) {
+            mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag",
+                    e.toString());
+            return false;
+        }
+    }
+
+    public static VBox getDummyTagCard(TagListController tagListController, MainController mainController, ModelManager  modelManager) {
+        VBox vBox = new VBox();
+        vBox.getChildren().add(new Label("Click to add new tag"));
+        vBox.setPadding(new Insets(10, 10, 10, 10));
+        ContextMenu contextMenu = new ContextMenu();
+
+
+        vBox.setOnMouseClicked(mouseEv -> {
+            switch (mouseEv.getButton()) {
+                case PRIMARY :
+                    if (mouseEv.getClickCount() == 1) {
+                        Optional<Tag> newTag = Optional.of(new Tag());
+                        do {
+                            newTag = mainController.getTagDataInput(newTag.get());
+                        } while (newTag.isPresent() && !isAddSuccessful(mainController, modelManager, newTag.get()));
+                        tagListController.refreshList();
+                    }
+                    break;
+            }
+        });
+        return vBox;
+    }
 
     public TagCardController(Tag tag, MainController mainController, ModelManager modelManager, TagListController tagListController) {
         this.mainController = mainController;

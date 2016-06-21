@@ -47,6 +47,10 @@ public class TagListController {
                             ModelManager modelManager) {
         VBox vBox = new VBox();
 
+        if (tagList.size() == 0) {
+            vBox.getChildren().add(TagCardController.getDummyTagCard(this, mainController, modelManager));
+            return vBox;
+        }
         tagList.stream()
                 .forEach(tag -> {
                     TagCardController tagCardController = new TagCardController(tag, mainController, modelManager, this);
