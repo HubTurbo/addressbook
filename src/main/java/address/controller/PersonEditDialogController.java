@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class PersonEditDialogController extends EditDialogController {
     private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialogController.class);
-    public static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
+    private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
 
     @FXML
     private AnchorPane mainPane;
@@ -90,7 +90,6 @@ public class PersonEditDialogController extends EditDialogController {
         try {
             AnchorPane pane = loader.load();
 
-
             // Create the dialog Stage.
             Stage dialogStage = new Stage();
             dialogStage.initModality(Modality.WINDOW_MODAL);
@@ -108,8 +107,9 @@ public class PersonEditDialogController extends EditDialogController {
 
             if (controller.isOkClicked()) finalAssignedTags = controller.getFinalAssignedTags();
             tagList.setContent(getTagsVBox(finalAssignedTags));
-        } catch (IOException e1) {
-            logger.warn("Error launching tag selection dialog.");
+        } catch (IOException e) {
+            logger.warn("Error launching tag selection dialog: {}", e);
+
             Alert alert = new Alert(AlertType.ERROR);
             alert.initOwner(dialogStage);
             alert.setTitle("FXML Load Error");

@@ -120,7 +120,7 @@ public class TagSelectionEditDialogController extends EditDialogController {
     /**
      * Returns a VBox containing the list of tags' labels
      *
-     * Each label might be blue (selected) depending on the respective tag's isSelected() property
+     * Each of the labels might be blue (selected) depending on the respective tag's isSelected() property
      *
      * @param contactTagList
      * @return
@@ -134,12 +134,9 @@ public class TagSelectionEditDialogController extends EditDialogController {
     }
 
     private void addListeners() {
-        tagSearch.textProperty().addListener((observableValue, oldValue, newValue) -> {
-            handleTagInput(newValue);
-        });
+        tagSearch.textProperty().addListener((observableValue, oldValue, newValue) -> handleTagInput(newValue));
         tagSearch.setOnKeyTyped(e -> {
             if (!e.getCharacter().equals(" ")) return;
-
             e.consume();
             model.toggleSelection();
             tagSearch.clear();
