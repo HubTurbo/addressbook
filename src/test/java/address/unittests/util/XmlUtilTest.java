@@ -52,9 +52,9 @@ public class XmlUtilTest {
 
     @Test
     public void getDataFromFile_validFile_validResult() throws Exception {
-        AddressBook dataFromFile = XmlUtil.getDataFromFile(VALID_FILE, AddressBook.class);
-        assertEquals(2, dataFromFile.getPersons().size());
-        assertEquals(1, dataFromFile.getTags().size());
+        StorageAddressBook dataFromFile = XmlUtil.getDataFromFile(VALID_FILE, StorageAddressBook.class);
+        assertEquals(2, dataFromFile.getPersonList().size());
+        assertEquals(1, dataFromFile.getTagList().size());
     }
 
     @Test

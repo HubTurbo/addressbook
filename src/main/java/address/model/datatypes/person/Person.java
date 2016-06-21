@@ -293,7 +293,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 
     @Override
     public String toString() {
-        return "Person #" + ID + ": " + fullName();
+        return "Person " + idString() + ": " + fullName();
     }
 
 }

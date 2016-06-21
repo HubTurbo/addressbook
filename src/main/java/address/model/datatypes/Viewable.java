@@ -39,7 +39,10 @@ public abstract class Viewable<D extends UniqueData> extends UniqueData implemen
      */
     protected Viewable(D backingObject, Function<D, D> visibleObjectGenerator) {
         this(visibleObjectGenerator.apply(backingObject));
-        connectBackingObject(backingObject);
+        backing = backingObject;
+        conditionallyBindVisibleToBacking();
+        isSyncingWithBackingObject = true;
+        forceSyncFromBacking();
     }
 
     /**

@@ -52,6 +52,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
      */
     private ViewablePerson(Person backingPerson, Function<Person, Person> visibleFactory) {
         super(backingPerson, visibleFactory);
+        id = backingPerson.getID();
     }
 
     /**
@@ -100,7 +101,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
 
     @Override
     public void connectBackingObject(Person backingPerson) {
-        if (backingPerson != null) {
+        if (backingPerson == null) {
             throw new NullPointerException();
         }
         if (backing != null) {
