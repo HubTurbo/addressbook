@@ -2,6 +2,7 @@ package address.browser.page;
 
 import address.browser.embeddedbrowser.*;
 import address.browser.jxbrowser.JxDomEventListenerAdapter;
+import javafx.application.Platform;
 
 /**
  * A github profile page
@@ -31,24 +32,28 @@ public class GithubProfilePage implements PageInterface{
      * Automates clicking on the Repositories tab and scrolling to the bottom of the page.
      */
     public void automateClickingAndScrolling() {
-        try {
-            EbElement repoContainer = browser.getDomElement().findElementById("js-pjax-container");
-            EbElement repoLink = browser.getDomElement().findElementByClass("octicon octicon-repo");
-            EbElement userRepoList = browser.getDomElement().findElementByClass("repo-list js-repo-list");
-            EbElement organizationRepoList = browser.getDomElement().findElementById("org-repositories");
+        synchronized (this) {
+            try {
+                EbElement repoContainer = browser.getDomElement().findElementById("js-pjax-container");
+                EbElement repoLink = browser.getDomElement().findElementByClass("octicon octicon-repo");
+                EbElement userRepoList = browser.getDomElement().findElementByClass("repo-list js-repo-list");
+                EbElement organizationRepoList = browser.getDomElement().findElementById("org-repositories");
 
-            if (isRepoElementExist(userRepoList, organizationRepoList)) {
-                browser.executeCommand(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT);
-                return;
-            }
+                if (isRepoElementExist(userRepoList, organizationRepoList)) {
+                    browser.executeCommand(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT);
+                    return;
+                }
 
-            if (isElementFoundToNavigateToRepoPage(repoContainer, repoLink)) {
-                repoContainer.addEventListener(EbDomEventType.ON_LOAD, new JxDomEventListenerAdapter(e ->
-                        browser.executeCommand(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT)), true);
-                repoLink.click();
+                if (isElementFoundToNavigateToRepoPage(repoContainer, repoLink)) {
+                    repoContainer.addEventListener(EbDomEventType.ON_LOAD, new JxDomEventListenerAdapter(e ->
+                            Platform.runLater(() -> browser.executeCommand(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT))), true);
+                    repoLink.click();
+                }
+            } catch (NullPointerException e) {
+                //Page not supported as element not found in the page. Fail silently
+            } catch (IllegalStateException e) {
+                //Element not found. Fail silently.
             }
-        } catch (NullPointerException e){
-            //Page not supported as element not found in the page. Fail silently
         }
     }
 

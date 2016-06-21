@@ -2,13 +2,15 @@ package address.browser;
 
 import address.browser.embeddedbrowser.EmbeddedBrowser;
 import address.browser.javabrowser.WebViewBrowserAdapter;
+import address.browser.jxbrowser.JxBrowser;
 import address.browser.jxbrowser.JxBrowserAdapter;
 import address.browser.page.Page;
 import address.util.AppLogger;
 import address.util.FxViewUtil;
 import address.util.LoggerManager;
 import address.util.UrlUtil;
-import com.teamdev.jxbrowser.chromium.Browser;
+import com.teamdev.jxbrowser.chromium.BrowserContext;
+import com.teamdev.jxbrowser.chromium.BrowserContextParams;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebView;
@@ -74,7 +76,9 @@ public class HyperBrowser {
         for (int i = 0; i < noOfPages; i++){
             EmbeddedBrowser browser;
             if (browserType == FULL_FEATURE_BROWSER){
-                browser = new JxBrowserAdapter(new Browser());
+                //In the event of deadlocking again, try uncommenting the line below and passed to jxBrowser constructor
+                //BrowserContext context = new BrowserContext(new BrowserContextParams("tmpTab" + i));
+                browser = new JxBrowserAdapter(new JxBrowser());
             } else if (browserType == LIMITED_FEATURE_BROWSER){
                 browser = new WebViewBrowserAdapter(new WebView());
             } else {
@@ -102,7 +106,7 @@ public class HyperBrowser {
     public synchronized void clearPage(URL url) {
         Optional<Page> page = pages.stream().filter(p -> {
             try {
-                return UrlUtil.compareBaseUrls(url, p.getBrowser().getUrl());
+                return UrlUtil.compareBaseUrls(url, p.getBrowser().getOriginUrl());
             } catch (MalformedURLException e) {
                 return false;
             }
@@ -164,7 +168,7 @@ public class HyperBrowser {
     private synchronized Page loadPage(URL url) {
         Optional<Page> foundPage = pages.stream().filter(page -> {
             try {
-                return UrlUtil.compareBaseUrls(url, page.getBrowser().getUrl());
+                return UrlUtil.compareBaseUrls(url, page.getBrowser().getOriginUrl());
             } catch (MalformedURLException e) {
                 return false;
             }
@@ -173,7 +177,6 @@ public class HyperBrowser {
         if (foundPage.isPresent()) {
             return foundPage.get();
         }
-
         assert !inActiveBrowserStack.isEmpty();
         EmbeddedBrowser browser = inActiveBrowserStack.pop();
 
@@ -194,7 +197,7 @@ public class HyperBrowser {
         Deque<Page> listOfNotRequiredPage = pages.stream().filter(page -> {
             for (URL url: urlsToLoad) {
                 try {
-                    if (UrlUtil.compareBaseUrls(url, page.getBrowser().getUrl())) {
+                    if (UrlUtil.compareBaseUrls(url, page.getBrowser().getOriginUrl())) {
                         return false;
                     }
                 } catch (MalformedURLException e) {
@@ -207,7 +210,7 @@ public class HyperBrowser {
 
         Optional<Page> currDisplayedPage = listOfNotRequiredPage.stream().filter(page -> {
             try {
-                return UrlUtil.compareBaseUrls(page.getBrowser().getUrl(), displayedUrl);
+                return UrlUtil.compareBaseUrls(page.getBrowser().getOriginUrl(), displayedUrl);
             } catch (MalformedURLException e) {
                 return false;
             }

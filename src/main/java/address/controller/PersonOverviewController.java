@@ -15,7 +15,7 @@ import address.status.PersonCreatedStatus;
 import address.status.PersonDeletedStatus;
 import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
-import address.util.ReorderedList;
+import address.util.OrderedList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
@@ -43,11 +43,8 @@ public class PersonOverviewController {
     private MainController mainController;
     private ModelManager modelManager;
 
-    private ReorderedList reorderedList;
-
     public PersonOverviewController() {
         EventManager.getInstance().registerHandler(this);
-
     }
 
     /**
@@ -59,14 +56,14 @@ public class PersonOverviewController {
         personListView.setContextMenu(createContextMenu());
     }
 
-    public void setConnections(MainController mainController, ModelManager modelManager, ReorderedList reorderedList) {
+    public void setConnections(MainController mainController, ModelManager modelManager, OrderedList<ReadOnlyViewablePerson> orderedList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
-        this.reorderedList = reorderedList;
 
         // Add observable list data to the list
-        personListView.setItems(reorderedList.getDisplayedList());
-        personListView.setCellFactory(listView -> new PersonListViewCell(reorderedList));
+        personListView.setItems(orderedList);
+        personListView.setCellFactory(listView -> new PersonListViewCell(orderedList));
+
         personListView.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
                 if (newValue != null) {
@@ -191,7 +188,6 @@ public class PersonOverviewController {
      * @param targetIndex starts from 1. To jump to 1st item, targetIndex should be 1.
      *                    To jump to bottom, should be -1.
      */
-
 
     private void jumpToListItem(int targetIndex) {
         int listSize = personListView.getItems().size();

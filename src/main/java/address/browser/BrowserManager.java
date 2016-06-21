@@ -12,6 +12,7 @@ import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -79,7 +80,7 @@ public class BrowserManager {
         if (!hyperBrowser.isPresent()) return;
 
         selectedPersonUsername.removeListener(listener);
-
+        
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
         ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture =
@@ -90,11 +91,7 @@ public class BrowserManager {
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
-
-            if (!gPage.isPageLoading()) {
-                gPage.automateClickingAndScrolling();
-            }
-            gPage.setPageLoadFinishListener(b -> gPage.automateClickingAndScrolling());
+            gPage.setPageLoadFinishListener(b -> Platform.runLater(() -> gPage.automateClickingAndScrolling()));
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();

@@ -3,21 +3,27 @@ package address.ui;
 import address.controller.PersonCardController;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
-import address.util.ReorderedList;
+import address.util.FxViewUtil;
+import address.util.OrderedList;
+import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import javafx.collections.ObservableList;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.*;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
+
+import java.util.Optional;
 
 public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
+    public static final int SCROLL_AREA = 15;
     private HBox cellGraphic;
 
-    ReorderedList sortedList;
+    private OrderedList orderedList;
 
-    public PersonListViewCell(ReorderedList sortedList) {
-        this.sortedList = sortedList;
+    public PersonListViewCell(OrderedList<ReadOnlyViewablePerson> orderedList) {
+        this.orderedList = orderedList;
+
         setOnDragDetected(event -> {
             if (getItem() == null) {
                 return;
@@ -32,23 +38,42 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         });
 
         setOnDragOver(event -> {
+
+            if (getItem() == null) {
+                return;
+            }
+
             if (event.getGestureSource() != this &&
                     event.getDragboard().hasString()) {
                 event.acceptTransferModes(TransferMode.MOVE);
+                showDropLocationIndicator(event);
+
             }
+            scrollIfPointerAtScrollArea(event);
+
             event.consume();
         });
 
         setOnDragEntered(event -> {
+
+            if (getItem() == null) {
+                return;
+            }
+
             if (event.getGestureSource() != this &&
                     event.getDragboard().hasString()) {
-                setOpacity(0.1);
+                setOpacity(0.6);
             }
         });
 
         setOnDragExited(event -> {
+            if (getItem() == null) {
+                return;
+            }
+
             if (event.getGestureSource() != this &&
                     event.getDragboard().hasString()) {
+                clearDropLocationIndicator();
                 setOpacity(1);
             }
         });
@@ -57,13 +82,13 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             if (getItem() == null) {
                 return;
             }
-
+            clearDropLocationIndicator();
             Dragboard dragboard = event.getDragboard();
 
             if (dragboard.hasString()) {
-                ObservableList<ReadOnlyViewablePerson> list = getListView().getItems();
-                sortedList.moveElement(Integer.valueOf(dragboard.getString()), list.indexOf(getItem()));
+                moveCell(orderedList, event.getSceneY(), Integer.valueOf(dragboard.getString()));
             }
+
             event.setDropCompleted(true);
             event.consume();
         });
@@ -72,8 +97,77 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     }
 
+    /**
+     * Moves the cell from the drag source to the edge of the nearest cell .
+     * @param sortedList The OrderedList.
+     * @param currentYPosition  The current Y position relative to the attached scene.
+     * @param indexOfSourceCell The index of the cell to be moved to the new location.
+     */
+    private void moveCell(OrderedList sortedList, double currentYPosition, int indexOfSourceCell) {
+        ObservableList<ReadOnlyViewablePerson> list = getListView().getItems();
+
+        ReadOnlyViewablePerson personToMove = list.get(indexOfSourceCell);
+        int moveToIndex;
+        double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
+
+        if (currentYPosition < midPoint) {
+            moveToIndex = list.indexOf(getItem());
+        } else {
+            moveToIndex = list.indexOf(getItem()) + 1;
+        }
+
+        int moveFromIndex = list.indexOf(personToMove);
+        if (moveFromIndex != moveToIndex && moveFromIndex + 1 != moveToIndex) {
+            sortedList.moveElement(moveFromIndex, moveToIndex);
+            getListView().getSelectionModel().select(list.indexOf(personToMove));
+        }
+    }
+
+    /**
+     * Shows where the drag cell will be placed by showing an indicator on the listview.
+     * @param event
+     */
+    private void showDropLocationIndicator(DragEvent event) {
+        double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
+        double pointerY = event.getSceneY();
+        if (pointerY < midPoint) {
+            setDropLocationIndicator("top");
+        } else {
+            setDropLocationIndicator("bottom");
+        }
+    }
+
+    /**
+     * Scrolls up or down if pointer reaches the edge(top and bottom) of the listview.
+     * @param event
+     */
+    private void scrollIfPointerAtScrollArea(DragEvent event) {
+        double maxY = getListView().localToScene(getListView().getBoundsInLocal()).getMaxY();
+        double minY = getListView().localToScene(getListView().getBoundsInLocal()).getMinY();
+        Optional<VirtualScrollBar> scrollbar = FxViewUtil.getScrollBarFromListView(getListView());
+        if (scrollbar.isPresent()) {
+            if (event.getSceneY() > maxY - SCROLL_AREA && event.getSceneY() < maxY) {
+                scrollbar.get().increment();
+            } else if (event.getSceneY() < minY + SCROLL_AREA && event.getSceneY() > minY) {
+                scrollbar.get().decrement();
+            }
+        }
+    }
+
+    private void setDropLocationIndicator(String location) {
+        if (location.equals("top")) {
+            this.setStyle(this.getGraphic().getStyle() + " -fx-border-color: #0645AD; -fx-border-width: 2.0 0.0 0.0 0.0;");
+        } else if (location.equals("bottom")) {
+            this.setStyle(this.getGraphic().getStyle() + "-fx-border-color: #0645AD; -fx-border-width: 0.0 0.0 2.0 0.0;");
+        }
+    }
+
+    private void clearDropLocationIndicator() {
+        this.setStyle("");
+    }
+
     @Override
-    public void updateItem(ReadOnlyViewablePerson person, boolean empty) {
+    protected void updateItem(ReadOnlyViewablePerson person, boolean empty) {
         super.updateItem(person, empty);
 
         if (empty || person == null) {
