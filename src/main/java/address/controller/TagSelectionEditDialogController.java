@@ -7,23 +7,20 @@ import address.model.TagSelectionEditDialogModel;
 import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
 import com.google.common.eventbus.Subscribe;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.ScaleTransition;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TagSelectionEditDialogController extends EditDialogController {
@@ -31,7 +28,7 @@ public class TagSelectionEditDialogController extends EditDialogController {
     AnchorPane mainPane;
 
     @FXML
-    ScrollPane tagList;
+    FlowPane tagList;
 
     @FXML
     ScrollPane tagResults;
@@ -64,12 +61,13 @@ public class TagSelectionEditDialogController extends EditDialogController {
 
     @Subscribe
     public void handleTagSearchResultsChangedEvent(TagSearchResultsChangedEvent e) {
-        tagResults.setContent(getTagsVBox(e.getSelectableTags(), true));
+        tagResults.setContent(getTagsVBox(e.getSelectableTags()));
     }
 
     @Subscribe
     public void handleTagsChangedEvent(TagsChangedEvent e) {
-        tagList.setContent(getTagsVBox(e.getResultTag(), false));
+        tagList.getChildren().clear();
+        tagList.getChildren().addAll(getTagListNodes(e.getResultTag()));
     }
 
     /**
@@ -81,15 +79,27 @@ public class TagSelectionEditDialogController extends EditDialogController {
         this.dialogStage = dialogStage;
     }
 
-    private VBox getTagsVBox(List<SelectableTag> contactTagList, boolean isSelectable) {
+    private List<Node> getTagListNodes(List<SelectableTag> contactTagList) {
+        List<Node> tagList = new ArrayList<>();
+        contactTagList.stream()
+                .forEach(contactTag -> {
+                    Label newLabel = new Label(contactTag.getName());
+                    newLabel.setPrefWidth(235);
+                    tagList.add(newLabel);
+                });
+
+        return tagList;
+    }
+
+    private VBox getTagsVBox(List<SelectableTag> contactTagList) {
         VBox content = new VBox();
         contactTagList.stream()
                 .forEach(contactTag -> {
                     Label newLabel = new Label(contactTag.getName());
-                    if (isSelectable && contactTag.isSelected()) {
+                    if (contactTag.isSelected()) {
                         newLabel.setStyle("-fx-background-color: blue;");
                     }
-                    newLabel.setPrefWidth(261);
+                    newLabel.setPrefWidth(235);
                     content.getChildren().add(newLabel);
                 });
 
