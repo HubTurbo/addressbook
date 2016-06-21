@@ -12,7 +12,6 @@ import address.browser.BrowserManager;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

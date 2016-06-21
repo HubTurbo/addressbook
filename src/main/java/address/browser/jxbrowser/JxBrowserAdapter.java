@@ -3,7 +3,6 @@ package address.browser.jxbrowser;
 import address.browser.embeddedbrowser.EbLoadListener;
 import address.browser.embeddedbrowser.EmbeddedBrowser;
 import address.browser.embeddedbrowser.EbDocument;
-import com.teamdev.jxbrowser.chromium.Browser;
 import com.teamdev.jxbrowser.chromium.events.*;
 import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 import javafx.scene.Node;
@@ -55,13 +54,13 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
     }
 
     @Override
-    public String getOriginalUrlString() {
+    public String getOriginUrlString() {
         return ((JxBrowser)browserView.getBrowser()).getOriginUrl();
     }
 
     @Override
-    public URL getOriginalUrl() throws MalformedURLException {
-        return new URL(getOriginalUrlString());
+    public URL getOriginUrl() throws MalformedURLException {
+        return new URL(getOriginUrlString());
     }
 
     @Override

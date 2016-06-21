@@ -105,7 +105,7 @@ public class HyperBrowser {
     public synchronized void clearPage(URL url) {
         Optional<Page> page = pages.stream().filter(p -> {
             try {
-                return UrlUtil.compareBaseUrls(url, p.getBrowser().getOriginalUrl());
+                return UrlUtil.compareBaseUrls(url, p.getBrowser().getOriginUrl());
             } catch (MalformedURLException e) {
                 return false;
             }
@@ -167,7 +167,7 @@ public class HyperBrowser {
     private synchronized Page loadPage(URL url) {
         Optional<Page> foundPage = pages.stream().filter(page -> {
             try {
-                return UrlUtil.compareBaseUrls(url, page.getBrowser().getOriginalUrl());
+                return UrlUtil.compareBaseUrls(url, page.getBrowser().getOriginUrl());
             } catch (MalformedURLException e) {
                 return false;
             }
@@ -196,7 +196,7 @@ public class HyperBrowser {
         Deque<Page> listOfNotRequiredPage = pages.stream().filter(page -> {
             for (URL url: urlsToLoad) {
                 try {
-                    if (UrlUtil.compareBaseUrls(url, page.getBrowser().getOriginalUrl())) {
+                    if (UrlUtil.compareBaseUrls(url, page.getBrowser().getOriginUrl())) {
                         return false;
                     }
                 } catch (MalformedURLException e) {
@@ -209,7 +209,7 @@ public class HyperBrowser {
 
         Optional<Page> currDisplayedPage = listOfNotRequiredPage.stream().filter(page -> {
             try {
-                return UrlUtil.compareBaseUrls(page.getBrowser().getOriginalUrl(), displayedUrl);
+                return UrlUtil.compareBaseUrls(page.getBrowser().getOriginUrl(), displayedUrl);
             } catch (MalformedURLException e) {
                 return false;
             }

@@ -18,7 +18,5 @@ public class UrlUtil {
                                 && url1.getPath().replaceAll("/", "").toLowerCase()
                                    .equals(url2.getPath().replaceAll("/", "").toLowerCase());
         return isSameBaseUrl;
-
-        //return url1.getHost().equals(url2.getHost()) && url1.getPath().equals(url2.getPath());
     }
 }

@@ -61,13 +61,13 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
     }
 
     @Override
-    public String getOriginalUrlString() {
+    public String getOriginUrlString() {
         return getUrlString();
     }
 
     @Override
-    public URL getOriginalUrl() throws MalformedURLException {
-        return new URL(getOriginalUrlString());
+    public URL getOriginUrl() throws MalformedURLException {
+        return new URL(getOriginUrlString());
     }
 
     @Override

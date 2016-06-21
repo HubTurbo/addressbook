@@ -16,8 +16,8 @@ public interface EmbeddedBrowser {
     void dispose();
     URL getUrl() throws MalformedURLException;
     String getUrlString();
-    String getOriginalUrlString();
-    URL getOriginalUrl() throws MalformedURLException;
+    String getOriginUrlString();
+    URL getOriginUrl() throws MalformedURLException;
     EbDocument getDomElement();
     void executeCommand(int command);
     void addLoadListener(EbLoadListener listener);
