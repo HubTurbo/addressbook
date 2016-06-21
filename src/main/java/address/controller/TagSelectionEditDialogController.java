@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -80,15 +81,11 @@ public class TagSelectionEditDialogController extends EditDialogController {
             handleTagInput(newValue);
         });
         tagSearch.setOnKeyTyped(e -> {
-            switch (e.getCharacter()) {
-                case " ":
-                    e.consume();
-                    model.toggleSelection();
-                    tagSearch.clear();
-                    break;
-                default:
-                    break;
-            }
+            if (!e.getCharacter().equals(" ")) return;
+
+            e.consume();
+            model.toggleSelection();
+            tagSearch.clear();
         });
         tagSearch.setOnKeyPressed(e -> {
             switch (e.getCode()) {

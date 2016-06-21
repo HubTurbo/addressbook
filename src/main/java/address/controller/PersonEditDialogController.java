@@ -4,8 +4,10 @@ import address.MainApp;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
+import address.util.AppLogger;
 import address.util.DateTimeUtil;
 
+import address.util.LoggerManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -27,7 +30,11 @@ import java.util.List;
  * Dialog to edit details of a person.
  */
 public class PersonEditDialogController extends EditDialogController {
+    private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialogController.class);
+    public static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
 
+    @FXML
+    private AnchorPane mainPane;
     @FXML
     private TextField firstNameField;
     @FXML
@@ -40,7 +47,6 @@ public class PersonEditDialogController extends EditDialogController {
     private TextField cityField;
     @FXML
     private TextField birthdayField;
-
     @FXML
     private ScrollPane tagList;
     @FXML
@@ -67,39 +73,52 @@ public class PersonEditDialogController extends EditDialogController {
     }
 
     private void addListeners() {
-        tagList.setOnContextMenuRequested(e -> {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("/view/TagSelectionEditDialog.fxml"));
-            try {
-                AnchorPane pane = loader.load();
-                // Create the dialog Stage.
-                Stage dialogStage = new Stage();
-                dialogStage.setTitle("Edit Person");
-                dialogStage.initModality(Modality.WINDOW_MODAL);
-                //dialogStage.initOwner(primaryStage);
-                Scene scene = new Scene(pane);
-                scene.setOnKeyPressed(event -> {
-                    if (event.getCode() == KeyCode.ESCAPE) {
-                        dialogStage.close();
-                    }
-                });
-                dialogStage.setScene(scene);
-
-                TagSelectionEditDialogController controller = loader.getController();
-                controller.setTags(fullTagList, initialAssignedTags);
-                controller.setDialogStage(dialogStage);
-
-                //dialogStage.getIcons().add(getImage(ICON_EDIT));
-                dialogStage.showAndWait();
-
-                if (controller.isOkClicked()) finalAssignedTags = controller.getFinalAssignedTags();
-                tagList.setContent(getTagsVBox(finalAssignedTags));
-            } catch (IOException e1) {
-                e1.printStackTrace();
+        tagList.setOnMouseClicked(e -> launchTagSelectionEditDialog());
+        mainPane.setOnKeyPressed(e -> {
+            if (e.isShortcutDown() && e.getCode() == KeyCode.O) {
+                e.consume();
+                launchTagSelectionEditDialog();
             }
         });
     }
 
+    private void launchTagSelectionEditDialog() {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
+        try {
+            AnchorPane pane = loader.load();
+            // Create the dialog Stage.
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Choose tags");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(this.dialogStage);
+            Scene scene = new Scene(pane);
+            scene.setOnKeyPressed(event -> {
+                if (event.getCode() == KeyCode.ESCAPE) {
+                    dialogStage.close();
+                }
+            });
+            dialogStage.setScene(scene);
+
+            TagSelectionEditDialogController controller = loader.getController();
+            controller.setTags(fullTagList, initialAssignedTags);
+            controller.setDialogStage(dialogStage);
+
+            dialogStage.showAndWait();
+
+            if (controller.isOkClicked()) finalAssignedTags = controller.getFinalAssignedTags();
+            tagList.setContent(getTagsVBox(finalAssignedTags));
+        } catch (IOException e1) {
+            logger.warn("Error launching tag selection dialog.");
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.initOwner(dialogStage);
+            alert.setTitle("FXML Load Error");
+            alert.setHeaderText("Cannot load dialog for tag selection dialog");
+            alert.setContentText("IOException when trying to load " + FXML_TAG_SELECTION_EDIT_DIALOG);
+
+            alert.showAndWait();
+        }
+    }
 
     /**
      * Sets the initial placeholder data in the dialog fields
@@ -118,6 +137,7 @@ public class PersonEditDialogController extends EditDialogController {
     public void setTags(List<Tag> tags, List<Tag> assignedTags) {
         this.fullTagList = tags;
         this.initialAssignedTags = assignedTags;
+        this.finalAssignedTags = assignedTags;
         tagList.setContent(getTagsVBox(assignedTags));
     }
 
