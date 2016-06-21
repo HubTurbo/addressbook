@@ -1,5 +1,6 @@
 package address.updater;
 
+import address.MainApp;
 import address.events.EventManager;
 import address.events.UpdaterFinishedEvent;
 import address.events.UpdaterInProgressEvent;
@@ -34,13 +35,16 @@ public class UpdateManager {
     private static final String MSG_NO_UPDATE = "There is no update";
     private static final String MSG_NO_VERSION_AVAILABLE = "No version to be downloaded";
     private static final String MSG_NO_NEWER_VERSION = "Version has been downloaded before; will not download again";
+    private static final String MSG_DIFF_CHANNEL = "UpdateData is not for this release channel";
     // --- End of Messages
 
     private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
     private static final String JAR_UPDATER_APP_PATH = UPDATE_DIR + File.separator + "jarUpdater.jar";
     private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
-    private static final String UPDATE_DATA_ON_SERVER =
-            "https://raw.githubusercontent.com/HubTurbo/addressbook/master/UpdateData.json";
+    private static final String UPDATE_DATA_ON_SERVER_STABLE =
+            "https://raw.githubusercontent.com/HubTurbo/addressbook/stable/UpdateData.json";
+    private static final String UPDATE_DATA_ON_SERVER_EARLY =
+            "https://raw.githubusercontent.com/HubTurbo/addressbook/early-access/UpdateData.json";
     private static final File UPDATE_DATA_FILE = new File(UPDATE_DIR + File.separator + "UpdateData.json");
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
@@ -90,6 +94,12 @@ public class UpdateManager {
         if (!latestVersion.isPresent()) {
             EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_VERSION_AVAILABLE));
             logger.debug(MSG_NO_VERSION_AVAILABLE);
+            return;
+        }
+
+        if (latestVersion.get().isEarlyAccess() != MainApp.IS_EARLY_ACCESS) {
+            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_DIFF_CHANNEL));
+            logger.debug(MSG_DIFF_CHANNEL);
             return;
         }
 
@@ -155,14 +165,23 @@ public class UpdateManager {
      * Get update data
      */
     private Optional<UpdateData> getUpdateDataFromServer() {
+        URL updateDataUrl;
+
         try {
-            downloadFile(UPDATE_DATA_FILE, new URL(UPDATE_DATA_ON_SERVER));
+            if (MainApp.IS_EARLY_ACCESS) {
+                updateDataUrl = new URL(UPDATE_DATA_ON_SERVER_EARLY);
+            } else {
+                updateDataUrl = new URL(UPDATE_DATA_ON_SERVER_STABLE);
+            }
         } catch (MalformedURLException e) {
             e.printStackTrace();
             logger.debug("Update data URL is invalid");
             return Optional.empty();
+        }
+
+        try {
+            downloadFile(UPDATE_DATA_FILE, updateDataUrl);
         } catch (IOException e) {
-            e.printStackTrace();
             logger.debug("Failed to download update data");
             return Optional.empty();
         }
