@@ -11,3 +11,6 @@
     -fx-background-radius: 3;
 }
 
+.tooltip-text {
+    -fx-text-fill: white;
+}

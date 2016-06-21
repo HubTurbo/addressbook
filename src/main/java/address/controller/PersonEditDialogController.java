@@ -8,7 +8,6 @@ import address.util.AppLogger;
 import address.util.DateTimeUtil;
 
 import address.util.LoggerManager;
-import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,7 +15,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -35,6 +33,8 @@ import java.util.List;
 public class PersonEditDialogController extends EditDialogController {
     private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialogController.class);
     private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
+    private static final String TOOLTIP_TAG_SELECTOR_SHORTCUT = "Shortcut + O";
+    private static final String TOOLTIP_LAUNCH_TAG_SELECTOR = "Click to launch tag selector";
 
     @FXML
     private AnchorPane mainPane;
@@ -71,17 +71,42 @@ public class PersonEditDialogController extends EditDialogController {
     @FXML
     private void initialize() {
         addListeners();
+        modifyInteractionsWithComponents();
         Platform.runLater(() -> firstNameField.requestFocus());
+    }
+
+    private void modifyInteractionsWithComponents() {
+        tagList.setFocusTraversable(true);
+        tagList.setTooltip(getTooltip());
     }
 
     private void addListeners() {
         tagList.setOnMouseClicked(e -> launchTagSelectionEditDialog());
+        tagList.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.SPACE || e.getCode() == KeyCode.ENTER) {
+                e.consume();
+                launchTagSelectionEditDialog();
+            }
+        });
         mainPane.setOnKeyPressed(e -> {
             if (e.isShortcutDown() && e.getCode() == KeyCode.O) {
                 e.consume();
                 launchTagSelectionEditDialog();
             }
         });
+    }
+
+    private Tooltip getTooltip() {
+        Tooltip tooltip = new Tooltip(TOOLTIP_TAG_SELECTOR_SHORTCUT);
+        tooltip.setGraphic(getTooltipLabel());
+        tooltip.setContentDisplay(ContentDisplay.TOP);
+        return tooltip;
+    }
+
+    private Label getTooltipLabel() {
+        Label label = new Label(TOOLTIP_LAUNCH_TAG_SELECTOR);
+        label.getStyleClass().add("tooltip-text");
+        return label;
     }
 
     private void launchTagSelectionEditDialog() {

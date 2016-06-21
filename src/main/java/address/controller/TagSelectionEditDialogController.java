@@ -27,6 +27,7 @@ import java.util.List;
 public class TagSelectionEditDialogController extends EditDialogController {
     private static final String TRANSITION_END = "end";
     private static final int TAG_LABEL_WIDTH = 235;
+    private static final String SELECTED_BACKGROUND = "-fx-background-color: blue;";
 
     @FXML
     AnchorPane mainPane;
@@ -108,7 +109,7 @@ public class TagSelectionEditDialogController extends EditDialogController {
                 .forEach(contactTag -> {
                     Label newLabel = new Label(contactTag.getName());
                     if (!shouldIgnoreSelectedProperty && contactTag.isSelected()) {
-                        newLabel.setStyle("-fx-background-color: blue;");
+                        newLabel.setStyle(SELECTED_BACKGROUND);
                     }
                     newLabel.setPrefWidth(TAG_LABEL_WIDTH);
                     tagList.add(newLabel);
