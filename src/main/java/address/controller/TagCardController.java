@@ -25,11 +25,13 @@ public class TagCardController {
     private Tag tag;
     private MainController mainController;
     private ModelManager modelManager;
+    private TagListController tagListController;
 
-    public TagCardController(Tag tag, MainController mainController, ModelManager modelManager) {
+    public TagCardController(Tag tag, MainController mainController, ModelManager modelManager, TagListController tagListController) {
         this.mainController = mainController;
         this.modelManager = modelManager;
         this.tag = tag;
+        this.tagListController = tagListController;
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/TagListCard.fxml"));
         loader.setController(this);
@@ -51,25 +53,11 @@ public class TagCardController {
         ContextMenu contextMenu = new ContextMenu();
 
         MenuItem newTagItem = new MenuItem("New");
-        newTagItem.setOnAction(event -> {
-            Optional<Tag> newTag = Optional.of(new Tag());
-            while (true) { // keep re-asking until user provides valid input or cancels operation.
-                newTag = mainController.getTagDataInput(newTag.get());
-                if (!newTag.isPresent()) break;
-                try {
-                    modelManager.addTag(newTag.get());
-                    break;
-                } catch (DuplicateTagException e) {
-                    mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                                                          "Cannot have duplicate tags", e.toString());
-                }
-            }
-        });
+        newTagItem.setOnAction(event -> handleAddTagAction());
         MenuItem editTag = new MenuItem("Edit");
         editTag.setOnAction(event -> handleEditTagAction());
         MenuItem removeTag = new MenuItem("Remove");
-        removeTag.setOnAction(e -> modelManager.deleteTag(tag));
-
+        removeTag.setOnAction(event -> handleDeleteTagAction());
 
         contextMenu.getItems().addAll(newTagItem, editTag, removeTag);
 
@@ -93,20 +81,59 @@ public class TagCardController {
         });
     }
 
+    private void handleAddTagAction() {
+        Optional<Tag> newTag = Optional.of(new Tag());
+        do {
+            newTag = mainController.getTagDataInput(newTag.get());
+        } while (newTag.isPresent() && !isAddSuccessful(newTag.get()));
+        tagListController.refreshList();
+    }
+
     private void handleEditTagAction() {
-        Optional<Tag> updated = Optional.of(new Tag(tag));
-        while (true) { // keep re-asking until user provides valid input or cancels operation.
-            updated = mainController.getTagDataInput(updated.get());
+        Optional<Tag> updatedTag = Optional.of(new Tag(tag));
+        do {
+            updatedTag = mainController.getTagDataInput(updatedTag.get());
+        } while (updatedTag.isPresent() && !isUpdateSuccessful(tag, updatedTag.get()));
+        tagListController.refreshList();
+    }
 
-            if (!updated.isPresent()) break;
+    private void handleDeleteTagAction() {
+        modelManager.deleteTag(tag);
+        tagListController.refreshList();
+    }
 
-            try {
-                modelManager.updateTag(tag, updated.get());
-                break;
-            } catch (DuplicateTagException e) {
-                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag",
-                                                      e.toString());
-            }
+    /**
+     * Attempts to update the model with the given new tag, and returns the result
+     *
+     * @param oldTag
+     * @param newTag
+     * @return true if successful
+     */
+    private boolean isUpdateSuccessful(Tag oldTag, Tag newTag) {
+        try {
+            modelManager.updateTag(oldTag, newTag);
+            return true;
+        } catch (DuplicateTagException e) {
+            mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag",
+                    e.toString());
+            return false;
+        }
+    }
+
+    /**
+     * Attempts to add the given new tag to the model, and returns the result
+     *
+     * @param newTag
+     * @return true if successful
+     */
+    private boolean isAddSuccessful(Tag newTag) {
+        try {
+            modelManager.addTag(newTag);
+            return true;
+        } catch (DuplicateTagException e) {
+            mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag",
+                    e.toString());
+            return false;
         }
     }
 

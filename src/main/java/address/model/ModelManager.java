@@ -263,7 +263,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @param tagToDelete
      * @return true if there was a successful removal
      */
-    public synchronized boolean deleteTag(Tag tagToDelete){
+    public synchronized boolean deleteTag(Tag tagToDelete) {
         return backingTagList().remove(tagToDelete);
     }
 

@@ -300,7 +300,10 @@ public class MainController {
 
             // Set the tag into the controller.
             TagListController tagListController = loader.getController();
-            tagListController.setTags(tags, this, modelManager);
+            tagListController.setMainController(this);
+            tagListController.setModelManager(modelManager);
+            tagListController.setTags(tags);
+            tagListController.setStage(dialogStage);
 
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
