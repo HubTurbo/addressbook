@@ -1,7 +1,7 @@
-package address.browser.javabrowser;
+package hubturbo.fxbrowser;
 
-import address.browser.embeddedbrowser.EbDocument;
-import address.browser.embeddedbrowser.EbElement;
+import hubturbo.embeddedbrowser.EbDocument;
+import hubturbo.embeddedbrowser.EbElement;
 import org.w3c.dom.Document;
 
 /**

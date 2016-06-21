@@ -1,13 +1,16 @@
 package address.browser.page;
 
-import address.browser.embeddedbrowser.*;
-import address.browser.jxbrowser.JxDomEventListenerAdapter;
+import hubturbo.EmbeddedBrowser;
+import hubturbo.embeddedbrowser.*;
+import hubturbo.jxbrowser.JxDomEventListenerAdapter;
+import hubturbo.page.Page;
+import hubturbo.page.PageInterface;
 import javafx.application.Platform;
 
 /**
  * A github profile page
  */
-public class GithubProfilePage implements PageInterface{
+public class GithubProfilePage implements PageInterface {
     //TODO: some code in this class can be generalized to utility methods and pushed to the Page class
 
     Page page;
@@ -19,16 +22,7 @@ public class GithubProfilePage implements PageInterface{
     }
 
     public boolean isValidGithubProfilePage(){
-        EbElement repoContainer = browser.getDomElement().findElementByClass("js-pjax-container");
-        EbElement repoLink = browser.getDomElement().findElementByClass("octicon octicon-repo");
-
-        EbElement userRepoList = browser.getDomElement().findElementByClass("repo-list js-repo-list");
-        EbElement organizationRepoList = browser.getDomElement().findElementByClass("org-repositories");
-
-        //TODO: Page can have methods like called isElementPresent getElementByClass verifyPresence(String... classnames)
-
-        return isElementFoundToNavigateToRepoPage(repoContainer, repoLink)
-                || isRepoElementExist(userRepoList, organizationRepoList);
+        return page.verifyPresenceByClassNames(new String[]{"js-pjax-container", "octicon octicon-repo", "repo-list js-repo-list","org-repositories" });
     }
 
     /**
@@ -38,21 +32,15 @@ public class GithubProfilePage implements PageInterface{
         //TODO: click and scrollTo should be two methods in the Page class?
         synchronized (this) {
             try {
-                EbElement repoContainer = browser.getDomElement().findElementById("js-pjax-container");
-                EbElement repoLink = browser.getDomElement().findElementByClass("octicon octicon-repo");
-                EbElement userRepoList = browser.getDomElement().findElementByClass("repo-list js-repo-list");
-                EbElement organizationRepoList = browser.getDomElement().findElementById("org-repositories");
-
-
-                if (isRepoElementExist(userRepoList, organizationRepoList)) {
-                    browser.executeCommand(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT);
+                if (page.verifyPresenceByClassNames("repo-list js-repo-list") || page.verifyPresenceByIds("org-repositories")) {
+                    page.scrollTo(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT);
                     return;
                 }
 
-                if (isElementFoundToNavigateToRepoPage(repoContainer, repoLink)) {
-                    repoContainer.addEventListener(EbDomEventType.ON_LOAD, new JxDomEventListenerAdapter(e ->
-                            Platform.runLater(() -> browser.executeCommand(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT))), true);
-                    repoLink.click();
+                if (page.verifyPresence(new String[]{"js-pjax-container", "octicon octicon-repo"})) {
+                    page.getElementById("js-pjax-container").addEventListener(EbDomEventType.ON_LOAD, new JxDomEventListenerAdapter(e ->
+                            Platform.runLater(() -> page.scrollTo(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT))), true);
+                    page.clickOnElement(page.getElementByClass("octicon octicon-repo"));
                 }
             } catch (NullPointerException e) {
                 //Page not supported as element not found in the page. Fail silently
@@ -62,21 +50,13 @@ public class GithubProfilePage implements PageInterface{
         }
     }
 
-    private static boolean isRepoElementExist(EbElement userRepoList, EbElement organizationRepoList) {
-        return userRepoList != null || organizationRepoList != null;
-    }
-
-    private static boolean isElementFoundToNavigateToRepoPage(EbElement container, EbElement link) {
-        return link != null && container != null;
-    }
-
     @Override
     public boolean isPageLoading() {
         return page.isPageLoading();
     }
 
-    public void setPageLoadFinishListener(EbLoadListener listener){
-        this.browser.addLoadListener(listener);
+    @Override
+    public void setPageLoadFinishListener(EbLoadListener listener) {
+        page.setPageLoadFinishListener(listener);
     }
-
 }

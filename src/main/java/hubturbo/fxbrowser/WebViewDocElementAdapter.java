@@ -1,8 +1,7 @@
-package address.browser.javabrowser;
+package hubturbo.fxbrowser;
 
-import address.browser.embeddedbrowser.EbDomEventListener;
-import address.browser.embeddedbrowser.EbDomEventType;
-import address.browser.embeddedbrowser.EbElement;
+import hubturbo.embeddedbrowser.EbDomEventListener;
+import hubturbo.embeddedbrowser.EbElement;
 import org.w3c.dom.Element;
 
 /**

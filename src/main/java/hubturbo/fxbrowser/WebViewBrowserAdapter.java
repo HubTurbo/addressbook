@@ -1,14 +1,14 @@
-package address.browser.javabrowser;
-//TODO: javabrowser --> fxbrowser?
+package hubturbo.fxbrowser;
 
-import address.browser.embeddedbrowser.EbLoadListener;
-import address.browser.embeddedbrowser.EmbeddedBrowser;
-import address.browser.embeddedbrowser.EbDocument;
+import hubturbo.embeddedbrowser.EbLoadListener;
+import hubturbo.EmbeddedBrowser;
+import hubturbo.embeddedbrowser.EbDocument;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.scene.Node;
 import javafx.scene.web.WebView;
+import org.omg.SendingContext.RunTime;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -81,7 +81,7 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
 
     @Override
     public void executeCommand(int command) {
-        //TODO: fail assertion or throw runtime error if not implemented yet
+        throw new RuntimeException("executeCommand() is not supported by WebViewBrowserAdapter");
     }
 
     @Override

@@ -1,16 +1,13 @@
-package address.browser;
+package hubturbo;
 
-import address.browser.embeddedbrowser.EmbeddedBrowser;
-import address.browser.javabrowser.WebViewBrowserAdapter;
-import address.browser.jxbrowser.JxBrowser;
-import address.browser.jxbrowser.JxBrowserAdapter;
-import address.browser.page.Page;
+import hubturbo.fxbrowser.WebViewBrowserAdapter;
+import hubturbo.jxbrowser.JxBrowser;
+import hubturbo.jxbrowser.JxBrowserAdapter;
+import hubturbo.page.Page;
 import address.util.AppLogger;
 import address.util.FxViewUtil;
 import address.util.LoggerManager;
 import address.util.UrlUtil;
-import com.teamdev.jxbrowser.chromium.BrowserContext;
-import com.teamdev.jxbrowser.chromium.BrowserContextParams;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebView;
