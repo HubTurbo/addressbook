@@ -16,6 +16,11 @@ public class TagEditDialogController extends EditDialogController {
         EventManager.getInstance().registerHandler(this);
     }
 
+    @FXML
+    public void initialize() {
+        
+    }
+
     public void setInitialTagData(Tag tag) {
         tagNameField.setText(tag.getName());
     }
