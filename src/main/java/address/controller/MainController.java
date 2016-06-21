@@ -6,15 +6,13 @@ import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.model.ModelManager;
-import address.util.AppLogger;
-import address.util.Config;
+import address.util.*;
 import address.browser.BrowserManager;
 
-import address.util.LoggerManager;
-import address.util.ReorderedList;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -57,14 +55,14 @@ public class MainController {
 
     private StatusBarHeaderController statusBarHeaderController;
 
-    private ReorderedList reorderedList;
+    private OrderedList<ReadOnlyViewablePerson> orderedList;
 
     public MainController(MainApp mainApp, ModelManager modelManager) {
         EventManager.getInstance().registerHandler(this);
         this.modelManager = modelManager;
         this.mainApp = mainApp;
-        this.reorderedList = new ReorderedList(modelManager.getAllViewablePersonsReadOnly());
-        this.browserManager = new BrowserManager(reorderedList.getDisplayedList());
+        this.orderedList = new OrderedList<>(modelManager.getAllViewablePersonsReadOnly());
+        this.browserManager = new BrowserManager(orderedList);
     }
 
     public void start(Stage primaryStage) {
@@ -138,7 +136,7 @@ public class MainController {
             pane.getItems().add(personOverview);
             // Give the personOverviewController access to the main app and modelManager.
             PersonOverviewController personOverviewController = loader.getController();
-            personOverviewController.setConnections(this, modelManager, reorderedList);
+            personOverviewController.setConnections(this, modelManager, orderedList);
 
         } catch (IOException e) {
             logger.warn("Error loading person overview: {}", e);

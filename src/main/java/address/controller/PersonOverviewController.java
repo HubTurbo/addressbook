@@ -15,7 +15,7 @@ import address.status.PersonCreatedStatus;
 import address.status.PersonDeletedStatus;
 import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
-import address.util.ReorderedList;
+import address.util.OrderedList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
@@ -57,13 +57,13 @@ public class PersonOverviewController {
         personListView.setContextMenu(createContextMenu());
     }
 
-    public void setConnections(MainController mainController, ModelManager modelManager, ReorderedList reorderedList) {
+    public void setConnections(MainController mainController, ModelManager modelManager, OrderedList<ReadOnlyViewablePerson> orderedList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
 
         // Add observable list data to the list
-        personListView.setItems(reorderedList.getDisplayedList());
-        personListView.setCellFactory(listView -> new PersonListViewCell(reorderedList));
+        personListView.setItems(orderedList);
+        personListView.setCellFactory(listView -> new PersonListViewCell(orderedList));
 
         personListView.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {

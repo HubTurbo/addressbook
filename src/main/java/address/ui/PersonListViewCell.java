@@ -4,7 +4,7 @@ import address.controller.PersonCardController;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import address.util.FxViewUtil;
-import address.util.ReorderedList;
+import address.util.OrderedList;
 import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import javafx.collections.ObservableList;
 import javafx.scene.SnapshotParameters;
@@ -18,10 +18,10 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     private HBox cellGraphic;
 
-    private ReorderedList sortedList;
+    private OrderedList orderedList;
 
-    public PersonListViewCell(ReorderedList sortedList) {
-        this.sortedList = sortedList;
+    public PersonListViewCell(OrderedList<ReadOnlyViewablePerson> orderedList) {
+        this.orderedList = orderedList;
 
         setOnDragDetected(event -> {
             if (getItem() == null) {
@@ -85,7 +85,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             Dragboard dragboard = event.getDragboard();
 
             if (dragboard.hasString()) {
-                moveCell(sortedList, event.getSceneY(), Integer.valueOf(dragboard.getString()));
+                moveCell(orderedList, event.getSceneY(), Integer.valueOf(dragboard.getString()));
             }
 
             event.setDropCompleted(true);
@@ -98,11 +98,11 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     /**
      * Moves the cell from the drag source to the edge of the nearest cell .
-     * @param sortedList The ReorderedList.
+     * @param sortedList The OrderedList.
      * @param currentYPosition  The current Y position relative to the attached scene.
      * @param indexOfSourceCell The index of the cell to be moved to the new location.
      */
-    private void moveCell(ReorderedList sortedList, double currentYPosition, int indexOfSourceCell) {
+    private void moveCell(OrderedList sortedList, double currentYPosition, int indexOfSourceCell) {
         ObservableList<ReadOnlyViewablePerson> list = getListView().getItems();
 
         ReadOnlyViewablePerson personToMove = list.get(indexOfSourceCell);
@@ -167,7 +167,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
     }
 
     @Override
-    public void updateItem(ReadOnlyViewablePerson person, boolean empty) {
+    protected void updateItem(ReadOnlyViewablePerson person, boolean empty) {
         super.updateItem(person, empty);
 
         if (empty || person == null) {
