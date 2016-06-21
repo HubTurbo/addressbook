@@ -2,6 +2,7 @@ package address.controller;
 
 import address.events.EventManager;
 import address.model.datatypes.tag.Tag;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
@@ -14,6 +15,11 @@ public class TagEditDialogController extends EditDialogController {
 
     public TagEditDialogController() {
         EventManager.getInstance().registerHandler(this);
+    }
+
+    @FXML
+    public void initialize() {
+        Platform.runLater(() -> tagNameField.requestFocus());
     }
 
     public void setInitialTagData(Tag tag) {
