@@ -2,9 +2,8 @@ package address.model.datatypes.person;
 
 import address.model.datatypes.UniqueData;
 import address.model.datatypes.tag.Tag;
-import address.util.DateTimeUtil;
 
-import address.util.XmlLocalDateAdapter;
+import address.util.XmlUtil.LocalDateAdapter;
 import address.util.collections.UnmodifiableObservableList;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,13 +12,10 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -245,7 +241,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 //// BIRTHDAY
 
     @JsonProperty("birthday")
-    @XmlJavaTypeAdapter(XmlLocalDateAdapter.class)
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     @Override
     public LocalDate getBirthday() {
         return birthday.get();
