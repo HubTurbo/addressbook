@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import address.events.EventManager;
 import address.events.TagSearchResultsChangedEvent;
-import address.events.TagsChangedEvent;
+import address.events.TagListChangedEvent;
 import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
 
@@ -29,7 +29,7 @@ public class TagSelectionEditDialogModel {
                         .filter(tag -> tag.getName().equals(assignedTag.getName()))
                         .collect(Collectors.toList())));
 
-        EventManager.getInstance().post(new TagsChangedEvent(this.assignedTags));
+        EventManager.getInstance().post(new TagListChangedEvent(this.assignedTags));
         setFilter("");
     }
 
@@ -49,7 +49,7 @@ public class TagSelectionEditDialogModel {
             assignedTags.add(selection.get());
         }
 
-        EventManager.getInstance().post(new TagsChangedEvent(assignedTags));
+        EventManager.getInstance().post(new TagListChangedEvent(assignedTags));
     }
 
     private void selectIndex(int index) {

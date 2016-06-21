@@ -83,7 +83,7 @@ public class PersonEditDialogController extends EditDialogController {
     private void addListeners() {
         tagList.setOnMouseClicked(e -> launchTagSelectionEditDialog());
         tagList.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.SPACE || e.getCode() == KeyCode.ENTER) {
+            if (e.getCode() == KeyCode.SPACE) {
                 e.consume();
                 launchTagSelectionEditDialog();
             }

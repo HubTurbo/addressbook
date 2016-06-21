@@ -2,7 +2,7 @@ package address.controller;
 
 import address.events.EventManager;
 import address.events.TagSearchResultsChangedEvent;
-import address.events.TagsChangedEvent;
+import address.events.TagListChangedEvent;
 import address.model.TagSelectionEditDialogModel;
 import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
@@ -77,7 +77,7 @@ public class TagSelectionEditDialogController extends EditDialogController {
     }
 
     @Subscribe
-    public void handleTagsChangedEvent(TagsChangedEvent e) {
+    public void handleTagListChangedEvent(TagListChangedEvent e) {
         tagList.getChildren().clear();
         tagList.getChildren().addAll(getTagListNodes(e.getResultTag(), true));
     }
