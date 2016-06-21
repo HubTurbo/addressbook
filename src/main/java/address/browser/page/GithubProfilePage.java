@@ -2,6 +2,7 @@ package address.browser.page;
 
 import address.browser.embeddedbrowser.*;
 import address.browser.jxbrowser.JxDomEventListenerAdapter;
+import javafx.application.Platform;
 
 /**
  * A github profile page
@@ -45,7 +46,7 @@ public class GithubProfilePage implements PageInterface{
 
                 if (isElementFoundToNavigateToRepoPage(repoContainer, repoLink)) {
                     repoContainer.addEventListener(EbDomEventType.ON_LOAD, new JxDomEventListenerAdapter(e ->
-                            browser.executeCommand(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT)), true);
+                            Platform.runLater(() -> browser.executeCommand(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT))), true);
                     repoLink.click();
                 }
             } catch (NullPointerException e) {

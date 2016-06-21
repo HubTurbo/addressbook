@@ -12,6 +12,7 @@ import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -53,12 +54,11 @@ public class BrowserManager {
         this.filteredPersons = filteredPersons;
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
-        //if (true){
             logger.info("Headless mode detected, not initializing HyperBrowser.");
             hyperBrowser = Optional.empty();
         } else {
             logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
-            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.LIMITED_FEATURE_BROWSER,
+            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER,
                                        HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
                                        BrowserManagerUtil.getBrowserInitialScreen()));
         }
@@ -77,11 +77,10 @@ public class BrowserManager {
      * PreCondition: filteredModelPersons.size() >= 1
      */
     public synchronized void loadProfilePage(ReadOnlyViewablePerson person) {
-        System.out.println("Load profile page");
         if (!hyperBrowser.isPresent()) return;
 
         selectedPersonUsername.removeListener(listener);
-
+        
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
         ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture =
@@ -92,12 +91,7 @@ public class BrowserManager {
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
-
-            if (!gPage.isPageLoading()) {
-                gPage.automateClickingAndScrolling();
-            }
-            gPage.setPageLoadFinishListener(b -> gPage.automateClickingAndScrolling());
-
+            gPage.setPageLoadFinishListener(b -> Platform.runLater(() -> gPage.automateClickingAndScrolling()));
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
