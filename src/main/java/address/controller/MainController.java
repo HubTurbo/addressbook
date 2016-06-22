@@ -146,7 +146,12 @@ public class MainController {
 
     private void showHeaderStatusBar() {
         statusBarHeaderController = new StatusBarHeaderController();
-        rootLayout.getChildren().add(2, statusBarHeaderController.getFooterStatusBarView());
+        AnchorPane sbPlaceHolder = (AnchorPane) rootLayout.lookup("#headerStatusbarPlaceholder");
+
+        assert sbPlaceHolder != null : "footerStatusbarPlaceHolder node not found in rootLayout";
+
+        FxViewUtil.applyAnchorBoundaryParameters(statusBarHeaderController.getHeaderStatusBarView(), 0.0, 0.0, 0.0, 0.0);
+        sbPlaceHolder.getChildren().add(statusBarHeaderController.getHeaderStatusBarView());
     }
 
     private void showFooterStatusBar() {

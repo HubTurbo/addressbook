@@ -30,9 +30,6 @@ import javafx.stage.FileChooser;
 public class RootLayoutController {
     private static AppLogger logger = LoggerManager.getLogger(RootLayoutController.class);
 
-    private static final String SAVE_LOC_TEXT_PREFIX = "Save File: ";
-    private static final String LOC_TEXT_NOT_SET = "[NOT SET]";
-
     private MainController mainController;
     private ModelManager modelManager;
     private MainApp mainApp;
@@ -46,18 +43,9 @@ public class RootLayoutController {
     @FXML
     private MenuItem menuFileSaveAs;
 
-    @FXML
-    private Text saveLocText;
-
     public RootLayoutController() {
         EventManager.getInstance().registerHandler(this);
     }
-
-    @FXML
-    private void initialize() {
-        updateSaveLocationDisplay();
-    }
-
 
     public void setConnections(MainApp mainApp, MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
@@ -70,16 +58,6 @@ public class RootLayoutController {
         menuFileOpen.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("FILE_OPEN_ACCELERATOR").get());
         menuFileSave.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("FILE_SAVE_ACCELERATOR").get());
         menuFileSaveAs.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("FILE_SAVE_AS_ACCELERATOR").get());
-    }
-
-    @Subscribe
-    private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
-        updateSaveLocationDisplay();
-    }
-
-    private void updateSaveLocationDisplay() {
-        saveLocText.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
-                PrefsManager.getInstance().getPrefs().getSaveLocation().getName() : LOC_TEXT_NOT_SET));
     }
 
     /**
