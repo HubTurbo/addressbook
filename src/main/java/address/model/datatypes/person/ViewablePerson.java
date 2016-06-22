@@ -1,5 +1,6 @@
 package address.model.datatypes.person;
 
+import address.model.datatypes.UniqueData;
 import address.model.datatypes.Viewable;
 import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
@@ -38,17 +39,16 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
     }
 
     /**
-     * Factory method: creates a new ViewablePerson from an existing backing Person
-     * @param backingPerson
-     * @return
+     * Factory method: creates a new ViewablePerson using the argument Person as the backing object
+     * @see super#Viewable(UniqueData, Function)
      */
-    public static ViewablePerson createViewableFrom(Person backingPerson) {
+    public static ViewablePerson fromBacking(Person backingPerson) {
         return new ViewablePerson(backingPerson, Person::new);
     }
 
     /**
-     *
-     * @see #createViewableFrom(Person)
+     * @see #fromBacking(Person)
+     * @see super#Viewable(UniqueData, Function)
      */
     private ViewablePerson(Person backingPerson, Function<Person, Person> visibleFactory) {
         super(backingPerson, visibleFactory);
@@ -56,9 +56,21 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
     }
 
     /**
+     * Factory method: creates a new ViewablePerson using the argument Person as the visible object.
+     * The returned ViewablePerson will have no backing person.
      *
+     * @see super#Viewable(UniqueData)
+     * @see #connectBackingObject(Person)
      */
-    public ViewablePerson(Person visiblePerson) {
+    public static ViewablePerson withoutBacking(Person visiblePerson) {
+        return new ViewablePerson(visiblePerson);
+    }
+
+    /**
+     * @see #withoutBacking(Person)
+     * @see super#Viewable(UniqueData)
+     */
+    private ViewablePerson(Person visiblePerson) {
         super(visiblePerson);
         assignTempId();
     }
@@ -258,8 +270,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
         if (other == null) return false;
         if (ViewablePerson.class.isAssignableFrom(other.getClass())) {
             final ViewablePerson otherVP = (ViewablePerson) other;
-            return this.existsOnRemote() == otherVP.existsOnRemote()
-                    && this.getID() == otherVP.getID();
+            return this.getID() == otherVP.getID();
         }
         return false;
     }

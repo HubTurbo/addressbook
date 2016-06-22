@@ -29,6 +29,6 @@ public class TestUtil {
     }
 
     public static List<ViewablePerson> generateSampleViewablePersonData() {
-        return generateSamplePersonData().stream().map(ViewablePerson::createViewableFrom).collect(Collectors.toList());
+        return generateSamplePersonData().stream().map(ViewablePerson::fromBacking).collect(Collectors.toList());
     }
 }

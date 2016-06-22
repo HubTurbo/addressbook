@@ -12,13 +12,45 @@ import javafx.beans.property.ReadOnlyStringProperty;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Allows read-only access to the Person domain object's data.
  */
 public interface ReadOnlyPerson extends ExtractableObservables {
+
+    /**
+     * @see Collection#removeAll(Collection)
+     * @see #removeAllUsingIDs(Collection, Collection)
+     * @param col collection to remove from
+     * @param toRemove collection of ReadOnlyPersons with the IDs of the those you wish to remove from {@code col}
+     * @return whether {@code col} was changed as a result of this operation
+     */
+    static boolean removeAll(Collection<? extends ReadOnlyPerson> col,
+                             Collection<? extends ReadOnlyPerson> toRemove) {
+        return removeAllUsingIDs(col, toRemove.stream().map(e -> e.getID()).collect(Collectors.toList()));
+    }
+
+    /**
+     * @see Collection#removeAll(Collection)
+     * @param col collection to remove from
+     * @param idsToRemove collection of IDs of the persons you wish to remove from {@code col}
+     * @return whether {@code col} was changed as a result of this operation
+     */
+    static boolean removeAllUsingIDs(Collection<? extends ReadOnlyPerson> col,
+                                     Collection<Integer> idsToRemove) {
+        final Set<Integer> idSet = new HashSet<>(idsToRemove);
+        final Iterator<? extends ReadOnlyPerson> iter = col.iterator();
+        boolean changed = false;
+        while (iter.hasNext()) {
+            if (idSet.contains(iter.next().getID())) {
+                iter.remove();
+                changed = true;
+            }
+        }
+        return changed;
+    }
 
     /**
      * Remote-assigned (canonical) ids are positive integers.

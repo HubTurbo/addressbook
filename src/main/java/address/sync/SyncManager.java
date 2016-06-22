@@ -148,11 +148,13 @@ public class SyncManager {
         }
     }
 
+    // TODO: remove
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
         requestExecutor.execute(new CloudUpdateTask(this.remoteManager, lmce.data));
     }
 
+    // TODO: remove
     // To be removed after working out specification on saving and syncing behaviour
     @Subscribe
     public void handleSaveRequestEvent(SaveRequestEvent sre) {

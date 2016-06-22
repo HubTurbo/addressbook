@@ -12,7 +12,6 @@ import javafx.scene.Node;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,11 +35,11 @@ public class BrowserManagerTest {
 
     public BrowserManagerTest() {
         this.filteredPersons = FXCollections.observableArrayList();
-        this.filteredPersons.add(ViewablePerson.createViewableFrom(new Person("John", "Smith", -1)));
-        this.filteredPersons.add(ViewablePerson.createViewableFrom(new Person("John", "Peter", -2)));
-        this.filteredPersons.add(ViewablePerson.createViewableFrom(new Person("Obama", "Smith", -3)));
-        this.filteredPersons.add(ViewablePerson.createViewableFrom(new Person("Lala", "Lol", -4)));
-        this.filteredPersons.add(ViewablePerson.createViewableFrom(new Person("Hehe", "Lala", -5)));
+        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("John", "Smith", -1)));
+        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("John", "Peter", -2)));
+        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Obama", "Smith", -3)));
+        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Lala", "Lol", -4)));
+        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lala", -5)));
     }
 
     @Test
