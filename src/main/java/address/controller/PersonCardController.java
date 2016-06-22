@@ -141,7 +141,7 @@ public class PersonCardController {
         }
     }
 
-    public void handleDeletedPerson(){
+    public void handleDeletedPerson() {
         Platform.runLater(() -> {
             FadeTransition ft = new FadeTransition(Duration.millis(1000), cardPane);
             ft.setFromValue(1.0);

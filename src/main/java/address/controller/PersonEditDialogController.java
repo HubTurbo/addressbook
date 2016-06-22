@@ -29,6 +29,8 @@ import java.util.List;
 
 /**
  * Dialog to edit details of a person.
+ *
+ * Stage, initial person and available & assigned tags should be set before showing stage
  */
 public class PersonEditDialogController extends EditDialogController {
     private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialogController.class);

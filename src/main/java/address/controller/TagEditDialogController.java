@@ -8,6 +8,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
+/**
+ * Dialog to handle editing of a tag
+ *
+ * Stage and initial tag should be set before showing stage
+ */
 public class TagEditDialogController extends EditDialogController {
     @FXML
     private TextField tagNameField;

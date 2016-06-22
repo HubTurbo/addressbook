@@ -128,11 +128,11 @@ public class MainController {
             AnchorPane personOverview = loader.load();
             SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
             SplitPane.setResizableWithParent(personOverview, false);
-            pane.getItems().add(personOverview);
             // Give the personOverviewController access to the main app and modelManager.
             PersonOverviewController personOverviewController = loader.getController();
             personOverviewController.setConnections(this, modelManager, orderedList);
 
+            pane.getItems().add(personOverview);
         } catch (IOException e) {
             logger.warn("Error loading person overview: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for person overview.",

@@ -10,6 +10,11 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * Dialog to show the list of available tags
+ *
+ * Stage, tags, mainController and modelManager should be set before showing stage
+ */
 public class TagListController {
     Stage stage;
     MainController mainController;
@@ -19,10 +24,6 @@ public class TagListController {
     private AnchorPane mainPane;
     @FXML
     private ScrollPane tags;
-
-    @FXML
-    private void initialize() {
-    }
 
     public void setStage(Stage stage) {
         stage.getScene().setOnKeyPressed(e -> {

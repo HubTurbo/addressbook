@@ -25,6 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Dialog to select a subset of tags from an available list of tags
+ *
+ * Stage, initially selected and full list of tags should be set before showing stage
+ */
 public class TagSelectionEditDialogController extends EditDialogController {
     private static final String TRANSITION_END = "end";
     private static final int TAG_LABEL_WIDTH = 235;

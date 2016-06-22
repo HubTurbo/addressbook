@@ -31,6 +31,11 @@ import javafx.scene.control.TextField;
 import java.util.Optional;
 import java.util.concurrent.*;
 
+/**
+ * Dialog to view the list of persons and their details
+ *
+ * setConnections should be set before showing stage
+ */
 public class PersonOverviewController {
     private static AppLogger logger = LoggerManager.getLogger(PersonOverviewController.class);
 
@@ -46,7 +51,8 @@ public class PersonOverviewController {
         EventManager.getInstance().registerHandler(this);
     }
 
-    public void setConnections(MainController mainController, ModelManager modelManager, OrderedList<ReadOnlyViewablePerson> orderedList) {
+    public void setConnections(MainController mainController, ModelManager modelManager,
+                               OrderedList<ReadOnlyViewablePerson> orderedList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
 

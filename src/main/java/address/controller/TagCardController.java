@@ -23,6 +23,21 @@ public class TagCardController {
     private MainController mainController;
     private TagListController tagListController;
 
+    public TagCardController(Tag tag, MainController mainController, TagListController tagListController) {
+        this.mainController = mainController;
+        this.tag = tag;
+        this.tagListController = tagListController;
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/TagListCard.fxml"));
+        loader.setController(this);
+
+        try {
+            loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static VBox getDummyTagCard(TagListController tagListController, MainController mainController) {
         VBox vBox = new VBox();
         Label label = new Label("Click to add new tag");
@@ -43,25 +58,33 @@ public class TagCardController {
         return vBox;
     }
 
-    public TagCardController(Tag tag, MainController mainController, TagListController tagListController) {
-        this.mainController = mainController;
-        this.tag = tag;
-        this.tagListController = tagListController;
-
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/TagListCard.fxml"));
-        loader.setController(this);
-
-        try {
-            loader.load();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @FXML
     public void initialize() {
         tagName.setText(tag.getName());
         setListeners();
+    }
+
+    public void setListeners() {
+        box.setOnMouseClicked(mouseEv -> {
+            switch (mouseEv.getButton()) {
+                case PRIMARY :
+                    if (mouseEv.getClickCount() >= 2) {
+                        handleEditTagAction();
+                    }
+                    break;
+                case SECONDARY :
+                    if (mouseEv.getClickCount() == 1) {
+                        getContextMenu().show(tagName, Side.BOTTOM, 0, 0);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+    }
+
+    public VBox getLayout() {
+        return box;
     }
 
     private ContextMenu getContextMenu() {
@@ -79,23 +102,6 @@ public class TagCardController {
         return contextMenu;
     }
 
-    public void setListeners() {
-        box.setOnMouseClicked(mouseEv -> {
-            switch (mouseEv.getButton()) {
-            case PRIMARY :
-                if (mouseEv.getClickCount() >= 2) {
-                    handleEditTagAction();
-                }
-                break;
-            case SECONDARY :
-                if (mouseEv.getClickCount() == 1) {
-                    getContextMenu().show(tagName, Side.BOTTOM, 0, 0);
-                }
-                break;
-            }
-        });
-    }
-
     private void handleAddTagAction() {
         mainController.addTagData();
         tagListController.refreshList();
@@ -109,9 +115,5 @@ public class TagCardController {
     private void handleDeleteTagAction() {
         mainController.deleteTagData(tag);
         tagListController.refreshList();
-    }
-
-    public VBox getLayout() {
-        return box;
     }
 }
