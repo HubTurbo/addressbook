@@ -12,3 +12,4 @@ lib/*
 update/
 src/main/resources/updater/jarUpdater.jar
 src/test/data/sandbox/
+pref
