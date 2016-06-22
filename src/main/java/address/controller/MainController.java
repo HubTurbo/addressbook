@@ -173,25 +173,15 @@ public class MainController {
     }
 
     /**
-     * Get user input for defining a Person object.
-     *
-     * @param defaultData default data shown for user input
-     * @return a defensively copied optional containing the input data from user, or an empty optional if the
-     *          operation is to be cancelled.
-     */
-    public Optional<ReadOnlyPerson> getPersonDataInput(ReadOnlyPerson defaultData) {
-        return showPersonEditDialog(defaultData);
-    }
-
-    /**
      * Opens a dialog to edit details for a Person object. If the user
      * clicks OK, the input data is recorded in a new Person object and returned.
      *
      * @param initialData the person object determining the initial data in the input fields
+     * @param dialogTitle the title of the dialog shown
      * @return an optional containing the new data, or an empty optional if there was an error
      *         creating the dialog or the user clicked cancel
      */
-    private Optional<ReadOnlyPerson> showPersonEditDialog(ReadOnlyPerson initialData) {
+    public Optional<ReadOnlyPerson> getPersonDataInput(ReadOnlyPerson initialData, String dialogTitle) {
         logger.debug("Loading dialog for person edit.");
         final String fxmlResourcePath = FXML_PERSON_EDIT_DIALOG;
         try {
@@ -200,7 +190,7 @@ public class MainController {
             AnchorPane page = loader.load();
 
             Scene scene = new Scene(page);
-            Stage dialogStage = loadDialogStage("Edit Person", primaryStage, scene);
+            Stage dialogStage = loadDialogStage(dialogTitle, primaryStage, scene);
             dialogStage.getIcons().add(getImage(ICON_EDIT));
 
             scene.setOnKeyPressed(event -> {
@@ -258,7 +248,7 @@ public class MainController {
     public boolean addTagData() {
         Optional<Tag> newTag = Optional.of(new Tag());
         do {
-            newTag = getTagDataInput(newTag.get());
+            newTag = getTagDataInput(newTag.get(), "New Tag");
         } while (newTag.isPresent() && !isAddSuccessful(newTag.get()));
 
         return newTag.isPresent();
@@ -274,7 +264,7 @@ public class MainController {
     public boolean editTagData(Tag tag) {
         Optional<Tag> editedTag = Optional.of(tag);
         do {
-            editedTag = getTagDataInput(editedTag.get());
+            editedTag = getTagDataInput(editedTag.get(), "Edit Tag");
         } while (editedTag.isPresent() && !isUpdateSuccessful(tag, editedTag.get()));
 
         return editedTag.isPresent();
@@ -317,10 +307,11 @@ public class MainController {
      * clicks OK, the changes are recorded in a new Tag and returned.
      *
      * @param tag the tag object determining the initial data in the input fields
+     * @param dialogTitle the title of the dialog to be shown
      * @return an optional containing the new data, or an empty optional if there was an error
      *         creating the dialog or the user clicked cancel
      */
-    public Optional<Tag> getTagDataInput(Tag tag) {
+    public Optional<Tag> getTagDataInput(Tag tag, String dialogTitle) {
         logger.debug("Loading dialog for tag edit.");
         final String fxmlResourcePath = FXML_TAG_EDIT_DIALOG;
         try {
@@ -329,7 +320,7 @@ public class MainController {
             AnchorPane page = loader.load();
 
             Scene scene = new Scene(page);
-            Stage dialogStage = loadDialogStage("Edit Tag", primaryStage, scene);
+            Stage dialogStage = loadDialogStage(dialogTitle, primaryStage, scene);
             dialogStage.getIcons().add(getImage(ICON_EDIT));
 
             // Pass relevant data to the controller.

@@ -98,7 +98,7 @@ public class PersonOverviewController {
     private void handleNewPerson() {
         Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person());
         do {
-            prevInputData = mainController.getPersonDataInput(prevInputData.get());
+            prevInputData = mainController.getPersonDataInput(prevInputData.get(), "New Person");
         } while (prevInputData.isPresent() && !isAddSuccessful(prevInputData.get()));
     }
 
@@ -129,7 +129,7 @@ public class PersonOverviewController {
 
         Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person(editTarget));
         do {
-            prevInputData = mainController.getPersonDataInput(prevInputData.get());
+            prevInputData = mainController.getPersonDataInput(prevInputData.get(), "Edit Person");
         } while (prevInputData.isPresent() && !isEditSuccessful(editTarget, prevInputData.get()));
     }
 
