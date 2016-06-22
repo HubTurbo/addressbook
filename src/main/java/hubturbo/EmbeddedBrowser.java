@@ -19,6 +19,12 @@ public interface EmbeddedBrowser {
     void loadUrl(String url);
 
     /**
+     * Loads HTML content directly to the browser.
+     * @param htmlCode The HTML markup code to be dispalyed on the browser.
+     */
+    void loadHTML(String htmlCode);
+
+    /**
      * Gets graphical view of the browser.
      * @return The graphical view of the browser casted in Node form.
      */

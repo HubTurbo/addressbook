@@ -27,9 +27,9 @@ public class HyperBrowser {
 
     public static final int RECOMMENDED_NUMBER_OF_PAGES = 3;
 
-    // TODO: Change to ENUM
-    public static final int FULL_FEATURE_BROWSER = 1;
-    public static final int LIMITED_FEATURE_BROWSER = 2;
+    public enum Type {
+        FULL_FEATURE_BROWSER, LIMITED_FEATURE_BROWSER;
+    }
 
     private final int noOfPages;
 
@@ -45,7 +45,7 @@ public class HyperBrowser {
 
     private URL displayedUrl;
 
-    private int browserType;
+    private Type browserType;
 
     /**
      * @param browserType The type of browser. e.g. HyperBrowser.FULL_FEATURE_BROWSER
@@ -53,7 +53,7 @@ public class HyperBrowser {
      *                  Recommended Value: HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES
      * @param initialScreen The initial screen of HyperBrowser view.
      */
-    public HyperBrowser(int browserType, int noOfPages, Optional<Node> initialScreen){
+    public HyperBrowser(Type browserType, int noOfPages, Optional<Node> initialScreen){
         this.browserType = browserType;
         this.noOfPages = noOfPages;
         this.initialScreen = initialScreen;
@@ -72,11 +72,11 @@ public class HyperBrowser {
 
         for (int i = 0; i < noOfPages; i++){
             EmbeddedBrowser browser;
-            if (browserType == FULL_FEATURE_BROWSER){
+            if (browserType == Type.FULL_FEATURE_BROWSER){
                 //In the event of deadlocking again, try uncommenting the line below and passed to jxBrowser constructor
                 //BrowserContext context = new BrowserContext(new BrowserContextParams("tmpTab" + i));
                 browser = new JxBrowserAdapter(new JxBrowser());
-            } else if (browserType == LIMITED_FEATURE_BROWSER){
+            } else if (browserType ==Type.LIMITED_FEATURE_BROWSER){
                 browser = new WebViewBrowserAdapter(new WebView());
             } else {
                 throw new IllegalArgumentException("No such browser type");
@@ -117,6 +117,20 @@ public class HyperBrowser {
             pages.remove(page.get());
         }
         assert pages.size() + inActiveBrowserStack.size() == noOfPages;
+    }
+
+    public Page loadHTML(String htmlCode) {
+        Optional<Page> page = pages.stream().filter(p -> {
+            try {
+                return p.getBrowser().getOriginUrl().equals(displayedUrl);
+            } catch (MalformedURLException e) {
+                return false;
+            }
+        }).findAny();
+
+        assert page.isPresent();
+        page.get().getBrowser().loadHTML(htmlCode);
+        return page.get();
     }
 
     public synchronized Page loadUrl(URL url) throws IllegalArgumentException {

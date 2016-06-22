@@ -46,7 +46,9 @@ public class BrowserManager {
             }
         } catch (MalformedURLException e) {
             logger.warn("Malformed URL obtained, not attempting to load.");
-            // TODO handle instead of simply logging a message
+            if (!newValue.equals("")) {
+                hyperBrowser.get().loadHTML("Unparsable GitHub Username.");
+            }
         }
     };
 
@@ -59,7 +61,7 @@ public class BrowserManager {
             hyperBrowser = Optional.empty();
         } else {
             logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
-            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER,
+            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.Type.FULL_FEATURE_BROWSER,
                                        HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
                                        BrowserManagerUtil.getBrowserInitialScreen()));
         }
@@ -92,7 +94,7 @@ public class BrowserManager {
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
-            gPage.setPageLoadFinishListener(b -> Platform.runLater(() -> gPage.automateClickingAndScrolling()));
+            gPage.setPageLoadFinishListener(b -> Platform.runLater(() -> gPage.activateAutomateClickingAndScrolling()));
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();

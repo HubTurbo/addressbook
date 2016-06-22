@@ -29,6 +29,11 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
     }
 
     @Override
+    public void loadHTML(String htmlCode) {
+        this.browserView.getBrowser().loadHTML(htmlCode);
+    }
+
+    @Override
     public Node getBrowserView() {
         return this.browserView;
     }

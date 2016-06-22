@@ -8,7 +8,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.scene.Node;
 import javafx.scene.web.WebView;
-import org.omg.SendingContext.RunTime;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,6 +33,11 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
     @Override
     public void loadUrl(String url) {
         webView.getEngine().load(url);
+    }
+
+    @Override
+    public void loadHTML(String htmlCode) {
+        webView.getEngine().loadContent(htmlCode);
     }
 
     @Override

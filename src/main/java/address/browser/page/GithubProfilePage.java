@@ -11,10 +11,14 @@ import javafx.application.Platform;
  * A github profile page
  */
 public class GithubProfilePage implements PageInterface {
-    //TODO: some code in this class can be generalized to utility methods and pushed to the Page class
 
-    Page page;
-    EmbeddedBrowser browser;
+    private static final String REPO_LIST_CLASS_NAME = "repo-list js-repo-list";
+    private static final String ORGANIZATION_REPO_ID = "org-repositories";
+    private static final String JS_PJAX_CONTAINER_ID = "js-pjax-container";
+    private static final String OCTICON_REPO_CLASS_NAME = "octicon octicon-repo";
+
+    private Page page;
+    private EmbeddedBrowser browser;
 
     public GithubProfilePage(Page page) {
         this.page = page;
@@ -22,31 +26,29 @@ public class GithubProfilePage implements PageInterface {
     }
 
     public boolean isValidGithubProfilePage(){
-        return page.verifyPresenceByClassNames(new String[]{"js-pjax-container", "octicon octicon-repo", "repo-list js-repo-list","org-repositories" });
+        return page.verifyPresence(new String[]{JS_PJAX_CONTAINER_ID, OCTICON_REPO_CLASS_NAME, REPO_LIST_CLASS_NAME,
+                                                ORGANIZATION_REPO_ID });
     }
 
     /**
      * Automates clicking on the Repositories tab and scrolling to the bottom of the page.
      */
-    public void automateClickingAndScrolling() {
-        //TODO: click and scrollTo should be two methods in the Page class?
-        synchronized (this) {
-            try {
-                if (page.verifyPresenceByClassNames("repo-list js-repo-list") || page.verifyPresenceByIds("org-repositories")) {
-                    page.scrollTo(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT);
-                    return;
-                }
-
-                if (page.verifyPresence(new String[]{"js-pjax-container", "octicon octicon-repo"})) {
-                    page.getElementById("js-pjax-container").addEventListener(EbDomEventType.ON_LOAD, new JxDomEventListenerAdapter(e ->
-                            Platform.runLater(() -> page.scrollTo(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT))), true);
-                    page.clickOnElement(page.getElementByClass("octicon octicon-repo"));
-                }
-            } catch (NullPointerException e) {
-                //Page not supported as element not found in the page. Fail silently
-            } catch (IllegalStateException e) {
-                //Element not found. Fail silently.
+    public void activateAutomateClickingAndScrolling() {
+        try {
+            if (page.verifyPresenceByClassNames(REPO_LIST_CLASS_NAME) || page.verifyPresenceByIds(ORGANIZATION_REPO_ID)) {
+                page.scrollTo(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT);
+                return;
             }
+
+            if (page.verifyPresence(new String[]{JS_PJAX_CONTAINER_ID, OCTICON_REPO_CLASS_NAME})) {
+                page.getElementById(JS_PJAX_CONTAINER_ID).addEventListener(EbDomEventType.ON_LOAD, new JxDomEventListenerAdapter(e ->
+                        Platform.runLater(() -> page.scrollTo(EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT))), true);
+                page.clickOnElement(page.getElementByClass(OCTICON_REPO_CLASS_NAME));
+            }
+        } catch (NullPointerException e) {
+            //Page not supported as element not found in the page. Fail silently
+        } catch (IllegalStateException e) {
+            //Element not found. Fail silently.
         }
     }
 
