@@ -1,7 +1,7 @@
 package address.unittests;
 
 import address.events.EventManager;
-import address.events.TagSearchResultsChangedEvent;
+import address.events.TagSelectionSearchResultsChangedEvent;
 import address.model.datatypes.tag.Tag;
 import address.model.TagSelectionEditDialogModel;
 import com.google.common.eventbus.Subscribe;
@@ -27,7 +27,7 @@ public class PersonEditDialogModelTest {
     ArrayList<Tag> eventData;
 
     @Subscribe
-    public void handleTagSearchResultsChangedEvent(TagSearchResultsChangedEvent e) {
+    public void handleTagSearchResultsChangedEvent(TagSelectionSearchResultsChangedEvent e) {
         eventCounter++;
         eventData.clear();
         eventData.addAll(e.getSelectableTags());

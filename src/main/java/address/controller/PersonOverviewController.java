@@ -31,12 +31,16 @@ import javafx.scene.control.TextField;
 import java.util.Optional;
 import java.util.concurrent.*;
 
+/**
+ * Dialog to view the list of persons and their details
+ *
+ * setConnections should be set before showing stage
+ */
 public class PersonOverviewController {
     private static AppLogger logger = LoggerManager.getLogger(PersonOverviewController.class);
 
     @FXML
     private ListView<ReadOnlyViewablePerson> personListView;
-
     @FXML
     private TextField filterField;
 
@@ -47,16 +51,8 @@ public class PersonOverviewController {
         EventManager.getInstance().registerHandler(this);
     }
 
-    /**
-     * Initializes the controller class. This method is automatically called
-     * after the fxml file has been loaded.
-     */
-    @FXML
-    private void initialize() {
-        personListView.setContextMenu(createContextMenu());
-    }
-
-    public void setConnections(MainController mainController, ModelManager modelManager, OrderedList<ReadOnlyViewablePerson> orderedList) {
+    public void setConnections(MainController mainController, ModelManager modelManager,
+                               OrderedList<ReadOnlyViewablePerson> orderedList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
 
@@ -71,6 +67,15 @@ public class PersonOverviewController {
                     mainController.loadGithubProfilePage(newValue);
                 }
             });
+    }
+
+    /**
+     * Initializes the controller class. This method is automatically called
+     * after the fxml file has been loaded.
+     */
+    @FXML
+    private void initialize() {
+        personListView.setContextMenu(createContextMenu());
     }
 
     /**
@@ -98,18 +103,20 @@ public class PersonOverviewController {
     @FXML
     private void handleNewPerson() {
         Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person());
-        while (true) { // keep re-asking until user provides valid input or cancels operation.
-            prevInputData = mainController.getPersonDataInput(prevInputData.get());
+        do {
+            prevInputData = mainController.getPersonDataInput(prevInputData.get(), "New Person");
+        } while (prevInputData.isPresent() && !isAddSuccessful(prevInputData.get()));
+    }
 
-            if (!prevInputData.isPresent()) break;
-            try {
-                modelManager.addPerson(new Person(prevInputData.get()));
-                mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(prevInputData.get()));
-                break;
-            } catch (DuplicatePersonException e) {
-                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                        "Cannot have duplicate person", e.toString());
-            }
+    private boolean isAddSuccessful(ReadOnlyPerson newData) {
+        try {
+            modelManager.addPerson(new Person(newData));
+            mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(newData));
+            return true;
+        } catch (DuplicatePersonException e) {
+            mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate person",
+                                                  e.toString());
+            return false;
         }
     }
 
@@ -127,18 +134,21 @@ public class PersonOverviewController {
         }
 
         Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person(editTarget));
-        while (true) { // keep re-asking until user provides valid input or cancels operation.
-            prevInputData = mainController.getPersonDataInput(prevInputData.get());
-            if (!prevInputData.isPresent()) break;
-            try {
-                modelManager.updatePerson(editTarget, prevInputData.get());
-                mainController.getStatusBarHeaderController().postStatus(
-                        new PersonEditedStatus(new Person(editTarget), prevInputData.get()));
-                break;
-            } catch (DuplicatePersonException e) {
-                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate person",
-                                                      e.toString());
-            }
+        do {
+            prevInputData = mainController.getPersonDataInput(prevInputData.get(), "Edit Person");
+        } while (prevInputData.isPresent() && !isEditSuccessful(editTarget, prevInputData.get()));
+    }
+
+    private boolean isEditSuccessful(ReadOnlyPerson oldPerson, ReadOnlyPerson newPerson) {
+        try {
+            modelManager.updatePerson(oldPerson, newPerson);
+            mainController.getStatusBarHeaderController().postStatus(
+                    new PersonEditedStatus(new Person(oldPerson), newPerson));
+            return true;
+        } catch (DuplicatePersonException e) {
+            mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate person",
+                    e.toString());
+            return false;
         }
     }
 
@@ -160,7 +170,7 @@ public class PersonOverviewController {
         EventManager.getInstance().post(new FilterCommittedEvent(filterExpression));
     }
 
-    private ContextMenu createContextMenu(){
+    private ContextMenu createContextMenu() {
         final ContextMenu contextMenu = new ContextMenu();
 
         MenuItem editMenuItem = new MenuItem("Edit");
@@ -195,7 +205,7 @@ public class PersonOverviewController {
             return;
         }
         int indexOfItem;
-        if (targetIndex == -1){  // if the target is the bottom of the list
+        if (targetIndex == -1) {  // if the target is the bottom of the list
             indexOfItem = listSize - 1;
         } else {
             indexOfItem = targetIndex - 1; //to account for list indexes starting from 0
