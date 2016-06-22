@@ -1,7 +1,10 @@
 package address.browser;
 
 import address.browser.page.GithubProfilePage;
-import address.browser.page.Page;
+import hubturbo.embeddedbrowser.BrowserType;
+import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;
+import hubturbo.embeddedbrowser.HyperBrowser;
+import hubturbo.embeddedbrowser.page.Page;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.AppLogger;
@@ -29,6 +32,10 @@ import java.util.stream.Collectors;
  * Manages the AddressBook browser.
  */
 public class BrowserManager {
+
+    private static final String GITHUB_ROOT_URL = "https://github.com/";
+    private static final String INVALID_GITHUB_USERNAME_MESSAGE = "Unparsable GitHub Username.";
+
     private static AppLogger logger = LoggerManager.getLogger(BrowserManager.class);
 
     private ObservableList<ReadOnlyViewablePerson> filteredPersons;
@@ -39,13 +46,15 @@ public class BrowserManager {
 
     private ChangeListener<String> listener = (observable,  oldValue,  newValue) -> {
         try {
-            URL url = new URL("https://github.com/" + newValue);
+            URL url = new URL(GITHUB_ROOT_URL + newValue);
             if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
                 hyperBrowser.get().loadUrl(url);
             }
         } catch (MalformedURLException e) {
             logger.warn("Malformed URL obtained, not attempting to load.");
-            // TODO handle instead of simply logging a message
+            if (!newValue.equals("")) {
+                hyperBrowser.get().loadHTML(INVALID_GITHUB_USERNAME_MESSAGE);
+            }
         }
     };
 
@@ -58,7 +67,8 @@ public class BrowserManager {
             hyperBrowser = Optional.empty();
         } else {
             logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
-            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER,
+            hyperBrowser = Optional.of(new HyperBrowser(
+                                       BrowserType.FULL_FEATURE_BROWSER,
                                        HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
                                        BrowserManagerUtil.getBrowserInitialScreen()));
         }
@@ -91,11 +101,11 @@ public class BrowserManager {
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
-            gPage.setPageLoadFinishListener(b -> Platform.runLater(() -> gPage.automateClickingAndScrolling()));
+            gPage.setPageLoadFinishListener(b -> Platform.runLater(() -> gPage.activateAutomateClickingAndScrolling()));
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
+            assert false : "Preconditions of loadUrls is not fulfilled.";
         }
 
         selectedPersonUsername.unbind();

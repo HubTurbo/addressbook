@@ -1,19 +1,13 @@
-package address.browser;
+package hubturbo.embeddedbrowser;
 
-import address.browser.embeddedbrowser.EmbeddedBrowser;
-import address.browser.javabrowser.WebViewBrowserAdapter;
-import address.browser.jxbrowser.JxBrowser;
-import address.browser.jxbrowser.JxBrowserAdapter;
-import address.browser.page.Page;
+import hubturbo.EmbeddedBrowser;
+import hubturbo.embeddedbrowser.page.Page;
 import address.util.AppLogger;
 import address.util.FxViewUtil;
 import address.util.LoggerManager;
 import address.util.UrlUtil;
-import com.teamdev.jxbrowser.chromium.BrowserContext;
-import com.teamdev.jxbrowser.chromium.BrowserContextParams;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.web.WebView;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,10 +24,6 @@ public class HyperBrowser {
 
     public static final int RECOMMENDED_NUMBER_OF_PAGES = 3;
 
-    // TODO: Change to ENUM
-    public static final int FULL_FEATURE_BROWSER = 1;
-    public static final int LIMITED_FEATURE_BROWSER = 2;
-
     private final int noOfPages;
 
     private List<Page> pages;
@@ -48,15 +38,15 @@ public class HyperBrowser {
 
     private URL displayedUrl;
 
-    private int browserType;
+    private BrowserType browserType;
 
     /**
-     * @param browserType The type of browser. e.g. HyperBrowser.FULL_FEATURE_BROWSER
+     * @param browserType The type of browser
      * @param noOfPages The cache configuration setting of the HyperBrowser.
      *                  Recommended Value: HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES
      * @param initialScreen The initial screen of HyperBrowser view.
      */
-    public HyperBrowser(int browserType, int noOfPages, Optional<Node> initialScreen){
+    public HyperBrowser(BrowserType browserType, int noOfPages, Optional<Node> initialScreen){
         this.browserType = browserType;
         this.noOfPages = noOfPages;
         this.initialScreen = initialScreen;
@@ -74,17 +64,7 @@ public class HyperBrowser {
         inActiveBrowserStack = new Stack<>();
 
         for (int i = 0; i < noOfPages; i++){
-            EmbeddedBrowser browser;
-            if (browserType == FULL_FEATURE_BROWSER){
-                //In the event of deadlocking again, try uncommenting the line below and passed to jxBrowser constructor
-                //BrowserContext context = new BrowserContext(new BrowserContextParams("tmpTab" + i));
-                browser = new JxBrowserAdapter(new JxBrowser());
-            } else if (browserType == LIMITED_FEATURE_BROWSER){
-                browser = new WebViewBrowserAdapter(new WebView());
-            } else {
-                throw new IllegalArgumentException("No such browser type");
-            }
-
+            EmbeddedBrowser browser = EmbeddedBrowserFactory.createBrowser(browserType);
             FxViewUtil.applyAnchorBoundaryParameters(browser.getBrowserView(), 0.0, 0.0, 0.0, 0.0);
             inActiveBrowserStack.push(browser);
         }
@@ -120,6 +100,32 @@ public class HyperBrowser {
             pages.remove(page.get());
         }
         assert pages.size() + inActiveBrowserStack.size() == noOfPages;
+    }
+
+    /**
+     * Loads the HTML content.
+     * @param htmlCode The HTML Content
+     * @return The page containing the HTML content.
+     */
+    public Page loadHTML(String htmlCode) {
+        Optional<Page> page = pages.stream().filter(p -> {
+            try {
+                return p.getBrowser().getOriginUrl().equals(displayedUrl);
+            } catch (MalformedURLException e) {
+                return false;
+            }
+        }).findAny();
+
+        if (page.isPresent()) {
+            page.get().getBrowser().loadHTML(htmlCode);
+            replaceBrowserView(page.get().getBrowser().getBrowserView());
+            return page.get();
+        } else {
+            Page sparePage = pages.get(0);
+            sparePage.getBrowser().loadHTML(htmlCode);
+            replaceBrowserView(sparePage.getBrowser().getBrowserView());
+            return sparePage;
+        }
     }
 
     public synchronized Page loadUrl(URL url) throws IllegalArgumentException {

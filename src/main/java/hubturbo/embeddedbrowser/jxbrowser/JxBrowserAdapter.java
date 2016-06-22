@@ -1,8 +1,8 @@
-package address.browser.jxbrowser;
+package hubturbo.embeddedbrowser.jxbrowser;
 
-import address.browser.embeddedbrowser.EbLoadListener;
-import address.browser.embeddedbrowser.EmbeddedBrowser;
-import address.browser.embeddedbrowser.EbDocument;
+import hubturbo.embeddedbrowser.EbLoadListener;
+import hubturbo.EmbeddedBrowser;
+import hubturbo.embeddedbrowser.EbDocument;
 import com.teamdev.jxbrowser.chromium.events.*;
 import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 import javafx.scene.Node;
@@ -26,6 +26,11 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
     @Override
     public void loadUrl(String url) {
         this.browserView.getBrowser().loadURL(url);
+    }
+
+    @Override
+    public void loadHTML(String htmlCode) {
+        this.browserView.getBrowser().loadHTML(htmlCode);
     }
 
     @Override
