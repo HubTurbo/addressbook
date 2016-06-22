@@ -1,7 +1,7 @@
-package hubturbo.fxbrowser;
+package hubturbo.browser.fxbrowser;
 
-import hubturbo.embeddedbrowser.EbDocument;
-import hubturbo.embeddedbrowser.EbElement;
+import hubturbo.browser.embeddedbrowser.EbDocument;
+import hubturbo.browser.embeddedbrowser.EbElement;
 import org.w3c.dom.Document;
 
 /**

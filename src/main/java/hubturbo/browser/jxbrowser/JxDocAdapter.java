@@ -1,7 +1,7 @@
-package hubturbo.jxbrowser;
+package hubturbo.browser.jxbrowser;
 
-import hubturbo.embeddedbrowser.EbDocument;
-import hubturbo.embeddedbrowser.EbElement;
+import hubturbo.browser.embeddedbrowser.EbDocument;
+import hubturbo.browser.embeddedbrowser.EbElement;
 import com.teamdev.jxbrowser.chromium.dom.By;
 import com.teamdev.jxbrowser.chromium.dom.DOMDocument;
 

@@ -1,7 +1,7 @@
-package hubturbo.jxbrowser;
+package hubturbo.browser.jxbrowser;
 
-import hubturbo.embeddedbrowser.EbDomEventListener;
-import hubturbo.embeddedbrowser.EbElement;
+import hubturbo.browser.embeddedbrowser.EbDomEventListener;
+import hubturbo.browser.embeddedbrowser.EbElement;
 import com.teamdev.jxbrowser.chromium.dom.DOMElement;
 import com.teamdev.jxbrowser.chromium.dom.events.DOMEventListener;
 

@@ -1,7 +1,7 @@
 package hubturbo;
 
-import hubturbo.embeddedbrowser.EbDocument;
-import hubturbo.embeddedbrowser.EbLoadListener;
+import hubturbo.browser.embeddedbrowser.EbDocument;
+import hubturbo.browser.embeddedbrowser.EbLoadListener;
 import javafx.scene.Node;
 
 import java.net.MalformedURLException;

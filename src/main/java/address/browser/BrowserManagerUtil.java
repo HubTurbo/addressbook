@@ -2,7 +2,7 @@ package address.browser;
 
 import address.MainApp;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
-import hubturbo.HyperBrowser;
+import hubturbo.browser.HyperBrowser;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 

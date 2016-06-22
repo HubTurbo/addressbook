@@ -1,9 +1,10 @@
-package hubturbo;
+package hubturbo.browser;
 
-import hubturbo.fxbrowser.WebViewBrowserAdapter;
-import hubturbo.jxbrowser.JxBrowser;
-import hubturbo.jxbrowser.JxBrowserAdapter;
-import hubturbo.page.Page;
+import hubturbo.EmbeddedBrowser;
+import hubturbo.browser.fxbrowser.WebViewBrowserAdapter;
+import hubturbo.browser.jxbrowser.JxBrowser;
+import hubturbo.browser.jxbrowser.JxBrowserAdapter;
+import hubturbo.browser.page.Page;
 import address.util.AppLogger;
 import address.util.FxViewUtil;
 import address.util.LoggerManager;
@@ -48,7 +49,7 @@ public class HyperBrowser {
     private Type browserType;
 
     /**
-     * @param browserType The type of browser. e.g. HyperBrowser.FULL_FEATURE_BROWSER
+     * @param browserType The type of browser. e.g. HyperBrowser.Type.FULL_FEATURE_BROWSER
      * @param noOfPages The cache configuration setting of the HyperBrowser.
      *                  Recommended Value: HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES
      * @param initialScreen The initial screen of HyperBrowser view.

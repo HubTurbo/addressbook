@@ -1,8 +1,8 @@
-package hubturbo.fxbrowser;
+package hubturbo.browser.fxbrowser;
 
-import hubturbo.embeddedbrowser.EbLoadListener;
+import hubturbo.browser.embeddedbrowser.EbLoadListener;
 import hubturbo.EmbeddedBrowser;
-import hubturbo.embeddedbrowser.EbDocument;
+import hubturbo.browser.embeddedbrowser.EbDocument;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;

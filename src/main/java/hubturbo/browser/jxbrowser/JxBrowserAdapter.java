@@ -1,8 +1,8 @@
-package hubturbo.jxbrowser;
+package hubturbo.browser.jxbrowser;
 
-import hubturbo.embeddedbrowser.EbLoadListener;
+import hubturbo.browser.embeddedbrowser.EbLoadListener;
 import hubturbo.EmbeddedBrowser;
-import hubturbo.embeddedbrowser.EbDocument;
+import hubturbo.browser.embeddedbrowser.EbDocument;
 import com.teamdev.jxbrowser.chromium.events.*;
 import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
 import javafx.scene.Node;

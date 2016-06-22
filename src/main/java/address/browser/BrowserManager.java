@@ -1,8 +1,8 @@
 package address.browser;
 
 import address.browser.page.GithubProfilePage;
-import hubturbo.HyperBrowser;
-import hubturbo.page.Page;
+import hubturbo.browser.HyperBrowser;
+import hubturbo.browser.page.Page;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.AppLogger;

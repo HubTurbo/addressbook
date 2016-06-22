@@ -1,7 +1,7 @@
 package address.unittests.browser;
 
-import hubturbo.embeddedbrowser.EbEditorCommand;
-import hubturbo.jxbrowser.EmbeddedBrowserObjectMapper;
+import hubturbo.browser.embeddedbrowser.EbEditorCommand;
+import hubturbo.browser.jxbrowser.EmbeddedBrowserObjectMapper;
 import com.teamdev.jxbrowser.chromium.EditorCommand;
 import org.junit.Test;
 

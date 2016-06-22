@@ -1,7 +1,7 @@
-package hubturbo.jxbrowser;
+package hubturbo.browser.jxbrowser;
 
-import hubturbo.embeddedbrowser.EbDomEventType;
-import hubturbo.embeddedbrowser.EbEditorCommand;
+import hubturbo.browser.embeddedbrowser.EbDomEventType;
+import hubturbo.browser.embeddedbrowser.EbEditorCommand;
 import com.teamdev.jxbrowser.chromium.EditorCommand;
 import com.teamdev.jxbrowser.chromium.dom.events.DOMEventType;
 

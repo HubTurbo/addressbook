@@ -1,4 +1,4 @@
-package hubturbo.embeddedbrowser;
+package hubturbo.browser.embeddedbrowser;
 
 /**
  *

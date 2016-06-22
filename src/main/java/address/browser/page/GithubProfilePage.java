@@ -1,10 +1,10 @@
 package address.browser.page;
 
 import hubturbo.EmbeddedBrowser;
-import hubturbo.embeddedbrowser.*;
-import hubturbo.jxbrowser.JxDomEventListenerAdapter;
-import hubturbo.page.Page;
-import hubturbo.page.PageInterface;
+import hubturbo.browser.embeddedbrowser.*;
+import hubturbo.browser.jxbrowser.JxDomEventListenerAdapter;
+import hubturbo.browser.page.Page;
+import hubturbo.browser.page.PageInterface;
 import javafx.application.Platform;
 
 /**

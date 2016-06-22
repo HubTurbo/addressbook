@@ -1,4 +1,4 @@
-package hubturbo.jxbrowser;
+package hubturbo.browser.jxbrowser;
 
 import com.teamdev.jxbrowser.chromium.Browser;
 import com.teamdev.jxbrowser.chromium.BrowserContext;
