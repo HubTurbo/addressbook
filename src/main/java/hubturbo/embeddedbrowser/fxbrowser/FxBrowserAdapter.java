@@ -1,8 +1,8 @@
-package address.browser.javabrowser;
+package hubturbo.embeddedbrowser.fxbrowser;
 
-import address.browser.embeddedbrowser.EbLoadListener;
-import address.browser.embeddedbrowser.EmbeddedBrowser;
-import address.browser.embeddedbrowser.EbDocument;
+import hubturbo.embeddedbrowser.EbLoadListener;
+import hubturbo.EmbeddedBrowser;
+import hubturbo.embeddedbrowser.EbDocument;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
@@ -15,7 +15,7 @@ import java.net.URL;
 /**
  * An EmbeddedBrowser adapter for the Java WebView browser.
  */
-public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Worker.State> {
+public class FxBrowserAdapter implements EmbeddedBrowser, ChangeListener<Worker.State> {
 
     private WebView webView;
 
@@ -23,7 +23,7 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
 
     private EbLoadListener listener;
 
-    public WebViewBrowserAdapter(WebView webview) {
+    public FxBrowserAdapter(WebView webview) {
         webView = webview;
         webView.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
             state = newValue;
@@ -33,6 +33,11 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
     @Override
     public void loadUrl(String url) {
         webView.getEngine().load(url);
+    }
+
+    @Override
+    public void loadHTML(String htmlCode) {
+        webView.getEngine().loadContent(htmlCode);
     }
 
     @Override
@@ -75,11 +80,12 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
         if (this.webView.getEngine().getDocument() == null) {
             return null;
         }
-        return new WebViewDocAdapter(this.webView.getEngine().getDocument());
+        return new FxBrowserDocAdapter(this.webView.getEngine().getDocument());
     }
 
     @Override
     public void executeCommand(int command) {
+        throw new RuntimeException("executeCommand() not supported by FxBrowserAdapter");
     }
 
     @Override
