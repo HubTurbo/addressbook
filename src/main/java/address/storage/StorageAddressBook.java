@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Serialisable address book class for local storage
+ * Serialisable immutable address book class for local storage
  */
 @XmlRootElement(name = "addressbook")
 public class StorageAddressBook implements ReadOnlyAddressBook {
@@ -34,8 +34,14 @@ public class StorageAddressBook implements ReadOnlyAddressBook {
         tags = new ArrayList<>();
     }
 
+    /**
+     * for marshalling 
+     */
     public StorageAddressBook() {}
 
+    /**
+     * Conversion
+     */
     public StorageAddressBook(ReadOnlyAddressBook src) {
         persons.addAll(src.getPersonList().stream().map(StoragePerson::new).collect(Collectors.toList()));
         tags = src.getTagList();

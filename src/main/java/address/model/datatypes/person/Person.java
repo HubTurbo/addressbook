@@ -81,7 +81,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
      * @see Person#update(ReadOnlyPerson)
      */
     public Person(ReadOnlyPerson toBeCopied) {
-        this(toBeCopied.getID());
+        this(toBeCopied.getId());
         update(toBeCopied);
     }
 
@@ -128,7 +128,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 
     @JsonProperty("id")
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
@@ -281,7 +281,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         if (other == null) return false;
         if (Person.class.isAssignableFrom(other.getClass())) {
             final ReadOnlyPerson otherP = (ReadOnlyPerson) other;
-            return getID() == otherP.getID();
+            return getId() == otherP.getId();
         }
         return false;
     }

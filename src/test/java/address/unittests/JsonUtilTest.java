@@ -50,7 +50,7 @@ public class JsonUtilTest {
         ReadOnlyPerson person = addressBook.getPersonList().get(0);
         Tag tag = addressBook.getTagList().get(0);
 
-        assertEquals(1, person.getID());
+        assertEquals(1, person.getId());
         assertEquals("First", person.getFirstName());
         assertEquals("Last", person.getLastName());
         assertEquals("Singapore", person.getCity());
@@ -89,7 +89,7 @@ public class JsonUtilTest {
         ReadOnlyPerson person = addressBookRead.getPersonList().get(0);
         Tag tagRead = addressBookRead.getTagList().get(0);
 
-        assertEquals(1, person.getID());
+        assertEquals(1, person.getId());
         assertEquals("First", person.getFirstName());
         assertEquals("Last", person.getLastName());
         assertEquals("Singapore", person.getCity());

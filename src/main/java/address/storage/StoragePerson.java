@@ -5,7 +5,6 @@ import address.model.datatypes.tag.Tag;
 import address.util.XmlUtil;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
@@ -54,7 +53,7 @@ public class StoragePerson implements ReadOnlyPerson {
      * for conversion
      */
     public StoragePerson(ReadOnlyPerson src) {
-        id = src.getID();
+        id = src.getId();
         firstName = src.getFirstName();
         lastName = src.getLastName();
         githubUsername = src.getGithubUsername();
@@ -66,7 +65,7 @@ public class StoragePerson implements ReadOnlyPerson {
     }
     
     @Override
-    public int getID() {
+    public int getId() {
         return id;
     }
 

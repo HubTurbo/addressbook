@@ -120,7 +120,7 @@ public class PersonCardController {
             }
         });
         person.githubUsernameProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.length() > 0){
+            if (newValue.length() > 0) {
                 setProfileImage();
             }
         });

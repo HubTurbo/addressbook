@@ -52,7 +52,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
      */
     private ViewablePerson(Person backingPerson, Function<Person, Person> visibleFactory) {
         super(backingPerson, visibleFactory);
-        id = backingPerson.getID();
+        id = backingPerson.getId();
     }
 
     /**
@@ -119,7 +119,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
         if (backing != null) {
             throw new IllegalStateException("Cannot override backing object");
         }
-        id = backingPerson.getID();
+        id = backingPerson.getId();
         remoteIdConfirmationHandlers.forEach(cb -> cb.accept(id));
         remoteIdConfirmationHandlers.clear();
 
@@ -143,7 +143,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
 // PERSON ACCESSORS
 
     @Override
-    public int getID() {
+    public int getId() {
         return id;
     }
 
@@ -270,14 +270,14 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
         if (other == null) return false;
         if (ViewablePerson.class.isAssignableFrom(other.getClass())) {
             final ViewablePerson otherVP = (ViewablePerson) other;
-            return this.getID() == otherVP.getID();
+            return this.getId() == otherVP.getId();
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return getID();
+        return getId();
     }
 
     @Override

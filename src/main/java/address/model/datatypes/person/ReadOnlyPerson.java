@@ -29,7 +29,7 @@ public interface ReadOnlyPerson extends ExtractableObservables {
      */
     static boolean removeAll(Collection<? extends ReadOnlyPerson> col,
                              Collection<? extends ReadOnlyPerson> toRemove) {
-        return removeAllUsingIDs(col, toRemove.stream().map(e -> e.getID()).collect(Collectors.toList()));
+        return removeAllUsingIDs(col, toRemove.stream().map(e -> e.getId()).collect(Collectors.toList()));
     }
 
     /**
@@ -44,7 +44,7 @@ public interface ReadOnlyPerson extends ExtractableObservables {
         final Iterator<? extends ReadOnlyPerson> iter = col.iterator();
         boolean changed = false;
         while (iter.hasNext()) {
-            if (idSet.contains(iter.next().getID())) {
+            if (idSet.contains(iter.next().getId())) {
                 iter.remove();
                 changed = true;
             }
@@ -57,15 +57,15 @@ public interface ReadOnlyPerson extends ExtractableObservables {
      * Locally-assigned temporary ids are negative integers.
      * 0 is reserved for ID-less Person data containers.
      */
-    int getID();
+    int getId();
     default String idString() {
-        return hasConfirmedRemoteID() ? "#" + getID() : "#TBD";
+        return hasConfirmedRemoteID() ? "#" + getId() : "#TBD";
     }
     /**
-     * @see #getID()
+     * @see #getId()
      */
     default boolean hasConfirmedRemoteID() {
-        return getID() > 0;
+        return getId() > 0;
     }
 
     String getFirstName();

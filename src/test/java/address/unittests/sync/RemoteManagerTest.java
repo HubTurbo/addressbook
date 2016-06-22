@@ -87,7 +87,7 @@ public class RemoteManagerTest {
         assertTrue(result.isPresent());
         assertEquals(noOfPersons, result.get().size());
         for (int i = 0; i < noOfPersons; i++) {
-            assertEquals(i, result.get().get(i).getID());
+            assertEquals(i, result.get().get(i).getId());
             assertEquals("firstName" + i, result.get().get(i).getFirstName());
             assertEquals("lastName" + i, result.get().get(i).getLastName());
         }

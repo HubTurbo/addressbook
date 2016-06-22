@@ -4,7 +4,6 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,7 +12,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Wraps all data at the address-book level
@@ -82,7 +80,7 @@ public class AddressBook implements ReadOnlyAddressBook {
 
     public Optional<Person> findPerson(ReadOnlyPerson personToFind) {
         for (Person p : persons) {
-            if (p.getID() == personToFind.getID()) {
+            if (p.getId() == personToFind.getId()) {
                 return Optional.of(p);
             }
         }
