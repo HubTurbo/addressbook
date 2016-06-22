@@ -11,7 +11,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,23 +31,24 @@ public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
         tags = backingModel.getTags(); // change when viewabletag is implemented
 
         persons.setAll(backingModel.getPersons().stream()
-                        .map(ViewablePerson::new)
-                        .collect(Collectors.toList()));
+                .map(ViewablePerson::fromBacking)
+                .collect(Collectors.toList()));
 
-        bindPersonsToBacking();
+        bindViewablePersonListToBackingList();
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
-    private void bindPersonsToBacking() {
+    private void bindViewablePersonListToBackingList() {
         backingModel.getPersons().addListener((ListChangeListener<? super Person>) change -> {
 
             // ignore permutations (order doesn't matter) and updates (ViewableDataType wrapper handles it)
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
                     // removed
-                    persons.removeAll(new HashSet<>(change.getRemoved()));
+                    ReadOnlyPerson.removeAll(persons, change.getRemoved());
                     // newly added
-                    persons.addAll(change.getAddedSubList().stream().map(ViewablePerson::new)
+                    persons.addAll(change.getAddedSubList().stream()
+                            .map(ViewablePerson::fromBacking)
                             .collect(Collectors.toList()));
                 }
             }

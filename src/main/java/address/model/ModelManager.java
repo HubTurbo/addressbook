@@ -58,7 +58,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         final ListChangeListener<Object> modelChangeListener = change -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
-                    EventManager.getInstance().post(new LocalModelChangedEvent(backingPersonList(), backingTagList()));
+                    EventManager.getInstance().post(new LocalModelChangedEvent(this));
                     return;
                 }
             }
@@ -71,10 +71,6 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
 
     public ModelManager() {
         this(new AddressBook());
-    }
-
-    public synchronized void resetWithSampleData() throws DuplicateDataException {
-        resetData(AddressBook.generateSampleData());
     }
 
     /**
@@ -147,24 +143,13 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * Adds a person to the model
      * @throws DuplicatePersonException when this operation would cause duplicates
      */
-    public synchronized void addPerson(ReadOnlyPerson personToAdd) throws DuplicatePersonException {
-        final Person toAdd = new Person(personToAdd);
-        if (backingPersonList().contains(toAdd)) {
-            throw new DuplicatePersonException(personToAdd);
-        }
+    public synchronized void addPerson(ReadOnlyPerson data) throws DuplicatePersonException {
+        Person toAdd;
+        do { // make sure no id clashes.
+            toAdd = new Person(Math.abs(UUID.randomUUID().hashCode()));
+        } while (backingPersonList().contains(toAdd));
+        toAdd.update(data);
         backingPersonList().add(toAdd);
-    }
-
-    /**
-     * Adds multiple persons to the model as an atomic action (triggers only 1 ModelChangedEvent)
-     * @param toAdd
-     * @throws DuplicateDataException when this operation would cause duplicates
-     */
-    public synchronized void addPersons(Collection<Person> toAdd) throws DuplicateDataException {
-        if (!UniqueData.canCombineWithoutDuplicates(backingPersonList(), toAdd)) {
-            throw new DuplicateDataException("Adding these " + toAdd.size() + " new people");
-        }
-        backingPersonList().addAll(toAdd);
     }
 
     /**
@@ -211,7 +196,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         }
 
         backingModel.findPerson(target).get().update(updatedData);
-        EventManager.getInstance().post(new LocalModelChangedEvent(backingPersonList(), backingTagList()));
+        EventManager.getInstance().post(new LocalModelChangedEvent(this));
     }
 
     /**
@@ -227,7 +212,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
             throw new DuplicateTagException(updated);
         }
         original.update(updated);
-        EventManager.getInstance().post(new LocalModelChangedEvent(backingPersonList(), backingTagList()));
+        EventManager.getInstance().post(new LocalModelChangedEvent(this));
     }
 
 //// DELETE
@@ -237,7 +222,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @param personToDelete
      * @return true if there was a successful removal
      */
-    public synchronized boolean deletePerson(ReadOnlyPerson personToDelete){
+    public synchronized boolean deletePerson(Person personToDelete){
         return backingPersonList().remove(personToDelete);
     }
 
@@ -246,7 +231,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         final Optional<ViewablePerson> deleteTarget = visibleModel.findPerson(toDelete);
         assert deleteTarget.isPresent();
         deleteTarget.get().setIsDeleted(true);
-        scheduler.schedule(()-> Platform.runLater(()->deletePerson(toDelete)), delay, step);
+        scheduler.schedule(()-> Platform.runLater(()->deletePerson(new Person(toDelete))), delay, step);
     }
 
     /**
@@ -255,7 +240,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @return true if there was at least one successful removal
      */
     public synchronized boolean deletePersons(Collection<? extends ReadOnlyPerson> toDelete) {
-        return backingPersonList().removeAll(new HashSet<>(toDelete));
+        return ReadOnlyPerson.removeAll(backingPersonList(), toDelete);
     }
 
     /**
@@ -291,12 +276,13 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * Diffs extData with the current model and updates the current model with minimal change.
      * @param extData data from an external canonical source
      */
-    public synchronized void updateUsingExternalData(AddressBook extData) {
-        assert !extData.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
-        boolean hasPersonsUpdates = diffUpdate(backingPersonList(), extData.getPersons());
-        boolean hasTagsUpdates = diffUpdate(backingTagList(), extData.getTags());
+    public synchronized void updateUsingExternalData(ReadOnlyAddressBook extData) {
+        final AddressBook data = new AddressBook(extData);
+        assert !data.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
+        boolean hasPersonsUpdates = diffUpdate(backingPersonList(), data.getPersons());
+        boolean hasTagsUpdates = diffUpdate(backingTagList(), data.getTags());
         if (hasPersonsUpdates || hasTagsUpdates) {
-            EventManager.getInstance().post(new LocalModelChangedEvent(backingPersonList(), backingTagList()));
+            EventManager.getInstance().post(new LocalModelChangedEvent(this));
         }
     }
 

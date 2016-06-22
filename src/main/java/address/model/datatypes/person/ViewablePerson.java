@@ -1,6 +1,7 @@
 package address.model.datatypes.person;
 
-import address.model.datatypes.ViewableDataType;
+import address.model.datatypes.UniqueData;
+import address.model.datatypes.Viewable;
 import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
 import javafx.beans.property.*;
@@ -9,23 +10,81 @@ import javafx.collections.ListChangeListener;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
- * Extends {@link ViewableDataType} for the Person domain object.
- * @see ViewableDataType
+ * Extends {@link Viewable} for the Person domain object.
+ * ID IS MUTABLE AND AFFECTS {@code .equals}, TAKE CARE WHEN USING THIS AS MAP KEY OR SET ELEMENT.
+ * However, ID is functionally immutable after a backing Person exists.
+ *
+ * @see Viewable
  */
-public class ViewablePerson extends ViewableDataType<Person> implements ReadOnlyViewablePerson {
+public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewablePerson {
 
+    private static final AtomicInteger tempIdCounter = new AtomicInteger(-1);
+    private final List<Consumer<Integer>> remoteIdConfirmationHandlers;
 
-    public ViewablePerson(Person backingPerson) {
-        super(backingPerson, Person::new);
+    /**
+     * can only be changed by {@link #connectBackingObject}
+     */
+    private int id;
+
+    {
+        remoteIdConfirmationHandlers = new ArrayList<>();
+    }
+
+    /**
+     * Factory method: creates a new ViewablePerson using the argument Person as the backing object
+     * @see super#Viewable(UniqueData, Function)
+     */
+    public static ViewablePerson fromBacking(Person backingPerson) {
+        return new ViewablePerson(backingPerson, Person::new);
+    }
+
+    /**
+     * @see #fromBacking(Person)
+     * @see super#Viewable(UniqueData, Function)
+     */
+    private ViewablePerson(Person backingPerson, Function<Person, Person> visibleFactory) {
+        super(backingPerson, visibleFactory);
+        id = backingPerson.getId();
+    }
+
+    /**
+     * Factory method: creates a new ViewablePerson using the argument Person as the visible object.
+     * The returned ViewablePerson will have no backing person.
+     *
+     * @see super#Viewable(UniqueData)
+     * @see #connectBackingObject(Person)
+     */
+    public static ViewablePerson withoutBacking(Person visiblePerson) {
+        return new ViewablePerson(visiblePerson);
+    }
+
+    /**
+     * @see #withoutBacking(Person)
+     * @see super#Viewable(UniqueData)
+     */
+    private ViewablePerson(Person visiblePerson) {
+        super(visiblePerson);
+        assignTempId();
+    }
+
+    /**
+     * Assigns a temporary ID for this viewableperson. Real IDs (remote-assigned) are positive integers, so temp IDs
+     * are negative integers to avoid overlap.
+     */
+    private void assignTempId() {
+        id = tempIdCounter.getAndIncrement();
     }
 
     @Override
     protected void conditionallyBindVisibleToBacking() {
-        forceSyncFromBacking();
         backing.forEachPropertyFieldPairWith(visible, this::conditionallyBindValue);
 
         // all changes here result in removal of affected list elements and (re)adding of any updated/new elements
@@ -44,6 +103,7 @@ public class ViewablePerson extends ViewableDataType<Person> implements ReadOnly
                 }
             }
         });
+        forceSyncFromBacking();
     }
 
     @Override
@@ -51,10 +111,41 @@ public class ViewablePerson extends ViewableDataType<Person> implements ReadOnly
         visible.update(backing);
     }
 
-// APPLICATION STATE ACCESSORS
+    @Override
+    public void connectBackingObject(Person backingPerson) {
+        if (backingPerson == null) {
+            throw new NullPointerException();
+        }
+        if (backing != null) {
+            throw new IllegalStateException("Cannot override backing object");
+        }
+        id = backingPerson.getId();
+        remoteIdConfirmationHandlers.forEach(cb -> cb.accept(id));
+        remoteIdConfirmationHandlers.clear();
 
+        backing = backingPerson;
+        conditionallyBindVisibleToBacking();
+        isSyncingWithBackingObject = true;
+        forceSyncFromBacking();
+    }
+
+// APPLICATION STATE METHODS
+
+    @Override
+    public void onRemoteIdConfirmed(Consumer<Integer> callback) {
+        if (existsOnRemote()) {
+            callback.accept(id);
+        } else {
+            remoteIdConfirmationHandlers.add(callback);
+        }
+    }
 
 // PERSON ACCESSORS
+
+    @Override
+    public int getId() {
+        return id;
+    }
 
     @Override
     public ReadOnlyStringProperty firstNameProperty() {
@@ -66,9 +157,8 @@ public class ViewablePerson extends ViewableDataType<Person> implements ReadOnly
         return visible.lastNameProperty();
     }
 
-    @Override
-    public ReadOnlyStringProperty githubUserNameProperty() {
-        return visible.githubUserNameProperty();
+    public ReadOnlyStringProperty githubUsernameProperty() {
+        return visible.githubUsernameProperty();
     }
 
     @Override
@@ -106,25 +196,22 @@ public class ViewablePerson extends ViewableDataType<Person> implements ReadOnly
         return visible.fullName();
     }
 
-    @Override
-    public String getGithubUserName() {
-        return visible.getGithubUserName();
+    public String getGithubUsername() {
+        return visible.getGithubUsername();
     }
 
     @Override
     public URL profilePageUrl() {
-        URL url = null;
-
         try {
-            url = new URL("https://github.com/" + getGithubUserName());
+            return new URL("https://github.com/" + getGithubUsername());
         } catch (MalformedURLException e) {
             try {
-                url = new URL("https://github.com");
+                return new URL("https://github.com");
             } catch (MalformedURLException e1) {
                 assert false;
             }
         }
-        return url;
+        return null;
     }
 
 
@@ -182,18 +269,19 @@ public class ViewablePerson extends ViewableDataType<Person> implements ReadOnly
         if (other == this) return true;
         if (other == null) return false;
         if (ViewablePerson.class.isAssignableFrom(other.getClass())) {
-            return backing.equals(((ViewablePerson) other).backing);
+            final ViewablePerson otherVP = (ViewablePerson) other;
+            return this.getId() == otherVP.getId();
         }
-        return Person.class.isAssignableFrom(other.getClass()) && backing.equals(other);
+        return false;
     }
 
     @Override
     public int hashCode() {
-        return backing.hashCode();
+        return getId();
     }
 
     @Override
     public String toString() {
-        return visible.toString();
+        return backing != null ? backing.toString() : "Pending Person: " + visible.fullName();
     }
 }

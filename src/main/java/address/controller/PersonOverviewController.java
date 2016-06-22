@@ -102,7 +102,7 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleNewPerson() {
-        Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person());
+        Optional<ReadOnlyPerson> prevInputData = Optional.of(Person.createPersonDataContainer());
         do {
             prevInputData = mainController.getPersonDataInput(prevInputData.get(), "New Person");
         } while (prevInputData.isPresent() && !isAddSuccessful(prevInputData.get()));

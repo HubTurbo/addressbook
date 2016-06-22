@@ -26,6 +26,8 @@ public class PersonCardController {
     @FXML
     private ImageView profileImage;
     @FXML
+    private Label idLabel;
+    @FXML
     private Label firstName;
     @FXML
     private Label lastName;
@@ -52,7 +54,8 @@ public class PersonCardController {
 
     @FXML
     public void initialize() {
-        if (person.getGithubUserName().length() > 0) {
+
+        if (person.getGithubUsername().length() > 0) {
             setProfileImage();
         }
 
@@ -63,8 +66,10 @@ public class PersonCardController {
         double xyPositionAndRadius = profileImage.getFitHeight() / 2.0;
         profileImage.setClip(new Circle(xyPositionAndRadius, xyPositionAndRadius, xyPositionAndRadius));
 
+        initIdLabel();
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
+
         address.textProperty().bind(new StringBinding(){
             {
                 bind(person.streetProperty());
@@ -114,9 +119,20 @@ public class PersonCardController {
                 handleDeletedPerson();
             }
         });
-        person.githubUserNameProperty().addListener((observable, oldValue, newValue) -> {
+        person.githubUsernameProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.length() > 0) {
                 setProfileImage();
+            }
+        });
+    }
+
+    private void initIdLabel() {
+        idLabel.setText(person.idString());
+        person.onRemoteIdConfirmed(id -> {
+            if (Platform.isFxApplicationThread()) {
+                idLabel.setText(person.idString());
+            } else {
+                Platform.runLater(() -> idLabel.setText(person.idString()));
             }
         });
     }

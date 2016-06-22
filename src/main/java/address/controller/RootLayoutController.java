@@ -129,8 +129,7 @@ public class RootLayoutController {
     private void handleSave() {
         final File saveFile = PrefsManager.getInstance().getPrefs().getSaveLocation();
         logger.debug("Requesting save to: {}.", saveFile);
-        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.backingPersonList(),
-                                                             modelManager.getTagList()));
+        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager));
     }
 
     /**
@@ -150,24 +149,7 @@ public class RootLayoutController {
         }
 
         PrefsManager.getInstance().setSaveLocation(file);
-        EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.backingPersonList(),
-                                        modelManager.getTagList()));
-    }
-
-    /**
-     * Clears existing data and appends dummy data
-     */
-    @FXML
-    private void handleResetWithSampleData() {
-        logger.debug("Resetting with sample data.");
-        try {
-            modelManager.resetWithSampleData();
-        } catch (DuplicateDataException e) {
-            logger.warn("Error resetting sample data: {}", e);
-            mainController.showAlertDialogAndWait(AlertType.INFORMATION, "Duplicate data found",
-                    "Sample data has duplicates",
-                    "Verify that the sample data is valid and does not contain duplicates before adding");
-        }
+        EventManager.getInstance().post(new SaveRequestEvent(file, modelManager));
     }
 
     /**

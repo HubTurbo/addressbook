@@ -410,14 +410,14 @@ public class RemoteService implements IRemoteService {
         return convertedList;
     }
 
-    private Person convertToPerson(CloudPerson CloudPerson) {
+    private Person convertToPerson(CloudPerson cloudPerson) {
         // TODO: Copy CloudPerson's ID once person ID is implemented
-        Person person = new Person(CloudPerson.getFirstName(), CloudPerson.getLastName());
-        person.setStreet(CloudPerson.getStreet());
-        person.setCity(CloudPerson.getCity());
-        person.setPostalCode(CloudPerson.getPostalCode());
-        person.setTags(convertToTagList(CloudPerson.getTags()));
-        person.setBirthday(CloudPerson.getBirthday());
+        Person person = new Person(cloudPerson.getFirstName(), cloudPerson.getLastName(), cloudPerson.getId());
+        person.setStreet(cloudPerson.getStreet());
+        person.setCity(cloudPerson.getCity());
+        person.setPostalCode(cloudPerson.getPostalCode());
+        person.setTags(convertToTagList(cloudPerson.getTags()));
+        person.setBirthday(cloudPerson.getBirthday());
         return person;
     }
 

@@ -2,32 +2,22 @@ package address.model.datatypes.person;
 
 import address.model.datatypes.UniqueData;
 import address.model.datatypes.tag.Tag;
-import address.util.DateTimeUtil;
-
-import address.util.XmlLocalDateAdapter;
 import address.util.collections.UnmodifiableObservableList;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
  * Data-model implementation class representing the "Person" domain object.
+ * ID is immutable, so this class can be safely used as map keys and set elements.
  *
  * As far as possible, avoid working directly with this class.
  * Instead, use and declare the minimum required superclass/interface.
@@ -37,16 +27,18 @@ import java.util.function.BiConsumer;
  */
 public class Person extends UniqueData implements ReadOnlyPerson {
 
-    @JsonIgnore private final SimpleStringProperty firstName;
-    @JsonIgnore private final SimpleStringProperty lastName;
+    private final int ID;
 
-    @JsonIgnore private final SimpleStringProperty street;
-    @JsonIgnore private final SimpleStringProperty postalCode;
-    @JsonIgnore private final SimpleStringProperty city;
-    @JsonIgnore private final SimpleStringProperty githubUserName;
+    private final StringProperty firstName;
+    private final StringProperty lastName;
 
-    @JsonIgnore private final SimpleObjectProperty<LocalDate> birthday;
-    @JsonIgnore private final ObservableList<Tag> tags;
+    private final StringProperty githubUsername;
+    private final StringProperty street;
+    private final StringProperty postalCode;
+    private final StringProperty city;
+
+    private final SimpleObjectProperty<LocalDate> birthday;
+    private final ObservableList<Tag> tags;
 
     // defaults
     {
@@ -56,45 +48,45 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         street = new SimpleStringProperty("");
         postalCode = new SimpleStringProperty("");
         city = new SimpleStringProperty("");
-        githubUserName = new SimpleStringProperty("");
+        githubUsername = new SimpleStringProperty("");
 
         birthday = new SimpleObjectProperty<>();
 
         tags = FXCollections.observableArrayList();
-    }    
-    
+    }
+
     /**
-     * Create with default values.
-     * All primitive based properties are set to language defaults.
-     * All string based properties are set to the empty string.
-     * All object based properties are set to null.
-     * All collections are set to an empty chosen collection implementation.
+     * ID-less person data container
      */
-    public Person() {}
+    public static Person createPersonDataContainer() {
+        return new Person(0);
+    }
+
+    public Person(int id) {
+        this.ID = id;
+    }
 
     /**
      * Constructor with firstName and lastName parameters.
      * Other parameters are set to defaults.
-     *
-     * @see Person#Person()
      */
-    public Person(String firstName, String lastName) {
+    public Person(String firstName, String lastName, int id) {
+        this(id);
         setFirstName(firstName);
         setLastName(lastName);
     }
 
     /**
-     * Deep copy constructor.
-     *
+     * Deep copy constructor. <strong>Also copies id.</strong>
      * @see Person#update(ReadOnlyPerson)
      */
     public Person(ReadOnlyPerson toBeCopied) {
+        this(toBeCopied.getId());
         update(toBeCopied);
     }
 
     /**
-     * {@inheritDoc}
-     *
+     * Does not update own ID with argument's ID.
      * @return self (calling this from a Person returns a Person instead of just a WritablePerson)
      */
     public Person update(ReadOnlyPerson newDataSource) {
@@ -104,10 +96,10 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         setStreet(newDataSource.getStreet());
         setPostalCode(newDataSource.getPostalCode());
         setCity(newDataSource.getCity());
-        setGithubUserName(newDataSource.getGithubUserName());
+        setGithubUsername(newDataSource.getGithubUsername());
 
         setBirthday(newDataSource.getBirthday());
-        setTags(newDataSource.getObservableTagList());
+        setTags(newDataSource.getTagList());
         return this;
     }
 
@@ -123,13 +115,21 @@ public class Person extends UniqueData implements ReadOnlyPerson {
     public void forEachPropertyFieldPairWith(Person other, BiConsumer<? super Property, ? super Property> action) {
         action.accept(firstName, other.firstName);
         action.accept(lastName, other.lastName);
-        action.accept(githubUserName, other.githubUserName);
+        action.accept(githubUsername, other.githubUsername);
 
         action.accept(street, other.street);
         action.accept(postalCode, other.postalCode);
         action.accept(city, other.city);
 
         action.accept(birthday, other.birthday);
+    }
+
+//// ID
+
+    @JsonProperty("id")
+    @Override
+    public int getId() {
+        return ID;
     }
 
 //// NAME
@@ -164,55 +164,22 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         return lastName;
     }
 
-    @Override
-    public String fullName() {
-        return getFirstName() + ' ' + getLastName();
-    }
-
 //// GITHUB USERNAME
 
     @JsonProperty("githubUsername")
-    @Override
-    public String getGithubUserName() {
-        return githubUserName.get();
+    public String getGithubUsername() {
+        return githubUsername.get();
     }
 
-    public void setGithubUserName(String githubUserName) {
-        this.githubUserName.set(githubUserName);
+    public void setGithubUsername(String githubUsername) {
+        this.githubUsername.set(githubUsername);
     }
 
-    @Override
-    public ReadOnlyStringProperty githubUserNameProperty() {
-        return githubUserName;
+    public ReadOnlyStringProperty githubUsernameProperty() {
+        return githubUsername;
     }
 
-    @Override
-    public URL profilePageUrl(){
-        URL url = null;
-
-        try {
-            url = new URL("https://github.com/" + githubUserName.get());
-        } catch (MalformedURLException e) {
-            try {
-                url = new URL("https://github.com");
-            } catch (MalformedURLException e1) {
-                assert false;
-            }
-        }
-        return url;
-    }
-
-    @Override
-    public Optional<String> githubProfilePicUrl() {
-        if (getGithubUserName().length() > 0) {
-            String profilePicUrl = profilePageUrl().toExternalForm() + ".png";
-            if (URLUtil.isURIFormat(profilePicUrl)){
-                return Optional.of(profilePicUrl);
-            }
-        }
-        return Optional.empty();
-    }
-    //// STREET
+//// STREET
 
     @JsonProperty("street")
     @Override
@@ -266,7 +233,6 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 //// BIRTHDAY
 
     @JsonProperty("birthday")
-    @XmlJavaTypeAdapter(XmlLocalDateAdapter.class)
     @Override
     public LocalDate getBirthday() {
         return birthday.get();
@@ -280,12 +246,6 @@ public class Person extends UniqueData implements ReadOnlyPerson {
     @Override
     public ReadOnlyObjectProperty<LocalDate> birthdayProperty() {
         return birthday;
-    }
-
-    @Override
-    public String birthdayString() {
-        if (birthday.getValue() == null) return "";
-        return DateTimeUtil.format(birthday.getValue());
     }
 
 //// TAGS
@@ -310,43 +270,30 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         this.tags.addAll(tags);
     }
 
-    @Override
-    public String tagsString() {
-        final StringBuffer buffer = new StringBuffer();
-        final String separator = ", ";
-        tags.forEach(tag -> buffer.append(tag).append(separator));
-        if (buffer.length() == 0) {
-            return "";
-        } else {
-            return buffer.substring(0, buffer.length() - separator.length());
-        }
-    }
-
 //// OTHER LOGIC
 
+    /**
+     * Compares id
+     */
     @Override
     public boolean equals(Object other) {
         if (other == this) return true;
         if (other == null) return false;
         if (Person.class.isAssignableFrom(other.getClass())) {
-            final ReadOnlyPerson otherPerson = (ReadOnlyPerson) other;
-            return this.getFirstName().equals(otherPerson.getFirstName())
-                    && this.getLastName().equals(otherPerson.getLastName());
-        }
-        if (ViewablePerson.class.isAssignableFrom(other.getClass())) {
-            return other.equals(this);
+            final ReadOnlyPerson otherP = (ReadOnlyPerson) other;
+            return getId() == otherP.getId();
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return (getFirstName() + getLastName()).hashCode();
+        return ID;
     }
 
     @Override
     public String toString() {
-        return "Person: " + fullName();
+        return "Person " + idString() + ": " + fullName();
     }
 
 }

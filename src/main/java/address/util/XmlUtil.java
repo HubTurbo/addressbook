@@ -1,13 +1,22 @@
 package address.util;
 
 import address.exceptions.DataConversionException;
+import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyPerson;
+import address.model.datatypes.tag.Tag;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Helps with reading from and writing to XML files.
@@ -23,6 +32,7 @@ public class XmlUtil {
      * @throws FileNotFoundException Thrown if the file is missing.
      * @throws DataConversionException Thrown if the file is empty or does not have the correct format.
      */
+    @SuppressWarnings("unchecked")
     public static <T> T getDataFromFile(File file, Class<T> classToConvert)
             throws DataConversionException, FileNotFoundException {
 
@@ -71,4 +81,37 @@ public class XmlUtil {
         }
     }
 
+
+    public static class UuidAdapter extends XmlAdapter<String, UUID> {
+        @Override
+        public UUID unmarshal(String v) {
+            return UUID.fromString(v);
+        }
+        @Override
+        public String marshal(UUID v) {
+            return v.toString();
+        }
+    }
+
+    public static class LocalDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
+        @Override
+        public LocalDateTime unmarshal(String v) throws Exception {
+            return LocalDateTime.parse(v);
+        }
+        @Override
+        public String marshal(LocalDateTime v) throws Exception {
+            return v.toString();
+        }
+    }
+
+    public static class LocalDateAdapter extends XmlAdapter<String, LocalDate> {
+        @Override
+        public LocalDate unmarshal(String v) {
+            return LocalDate.parse(v);
+        }
+        @Override
+        public String marshal(LocalDate v) {
+            return v.toString();
+        }
+    }
 }

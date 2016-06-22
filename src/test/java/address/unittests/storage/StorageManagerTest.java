@@ -4,6 +4,8 @@ import address.events.*;
 import address.exceptions.DataConversionException;
 import address.model.datatypes.AddressBook;
 import address.model.ModelManager;
+import address.prefs.PrefsManager;
+import address.storage.StorageAddressBook;
 import address.prefs.UserPrefs;
 import address.storage.StorageManager;
 import address.storage.XmlFileStorage;
@@ -27,7 +29,7 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 public class StorageManagerTest {
 
     private static final File DUMMY_FILE = new File(TestUtil.appendToSandboxPath("dummy.xml"));
-    private static final AddressBook EMPTY_ADDRESSBOOK = new AddressBook();
+    private static final StorageAddressBook EMPTY_ADDRESSBOOK = new StorageAddressBook(new AddressBook());
     ModelManager modelManagerMock;
     EventManager eventManagerMock;
     UserPrefs userPrefsMock;
@@ -54,60 +56,11 @@ public class StorageManagerTest {
     }
 
     @Test
-    public void saveDataToFile_valid_noEvents() throws DataConversionException, FileNotFoundException {
-
-        //invoke method under test
-        storageManager.saveDataToFile(DUMMY_FILE,EMPTY_ADDRESSBOOK);
-
-        //verify the dependent method was called correctly
-        PowerMockito.verifyStatic();
-        XmlFileStorage.saveDataToFile(DUMMY_FILE, EMPTY_ADDRESSBOOK);
-    }
-
-    @Test
-    public void saveDataToFile_fileNotFound_exceptionEvenRaised() throws DataConversionException, FileNotFoundException {
-        verifyExceptionEventRaised(new FileNotFoundException("dummy file not found error"));
-    }
-
-    @Test
-    public void saveDataToFile_dataConversionError_exceptionEvenRaised() throws DataConversionException, FileNotFoundException {
-        verifyExceptionEventRaised(new DataConversionException(new Exception("dummy data conversion error")));
-    }
-
-    /**
-     * Verifies the given FileSavingExceptionEvent is raised when the dependent method throws the given exception.
-     * @param exceptionToExpect The exception that will be thrown by the dependent method.
-     */
-    private void verifyExceptionEventRaised(Exception exceptionToExpect) throws DataConversionException, FileNotFoundException {
-        // set up to throw exception from the collaborating method XmlFileStorage.saveDataToFile
-        PowerMockito.doThrow(exceptionToExpect).when(XmlFileStorage.class);
-        XmlFileStorage.saveDataToFile(DUMMY_FILE, EMPTY_ADDRESSBOOK);
-
-        //invoke the method under test
-        storageManager.saveDataToFile(DUMMY_FILE,EMPTY_ADDRESSBOOK);
-
-        //verify the relevant event was raised
-        verify(eventManagerMock, times(1)).post(Mockito.any(FileSavingExceptionEvent.class));
-    }
-
-    @Test
     public void handleSaveRequestEvent(){
 
         //mock dependent method of same object (that method is tested elsewhere)
         storageManagerSpy.handleSaveRequestEvent(
-                new SaveRequestEvent(DUMMY_FILE,EMPTY_ADDRESSBOOK.getPersons(),EMPTY_ADDRESSBOOK.getTags()));
-
-        //verify that method is called correctly
-        verify(storageManagerSpy, times(1)).saveDataToFile(any(File.class), any(AddressBook.class));
-        //TODO: make the above verification stronger by comparing actual parameters instead of 'any'
-    }
-
-    @Test
-    public void handleLocalModelSyncedFromCloudEvent(){
-
-        //mock dependent method of same object (that method is tested elsewhere)
-        storageManagerSpy.handleLocalModelSyncedFromCloudEvent(
-                new LocalModelSyncedFromCloudEvent(EMPTY_ADDRESSBOOK.getPersons(),EMPTY_ADDRESSBOOK.getTags()));
+                new SaveRequestEvent(DUMMY_FILE,EMPTY_ADDRESSBOOK));
 
         //verify that method is called correctly
         verify(storageManagerSpy, times(1)).saveDataToFile(any(File.class), any(AddressBook.class));
@@ -118,8 +71,7 @@ public class StorageManagerTest {
     public void handleLocalModelChangedEvent(){
 
         //mock dependent method of same object (that method is tested elsewhere)
-        storageManagerSpy.handleLocalModelChangedEvent(
-                new LocalModelChangedEvent(EMPTY_ADDRESSBOOK.getPersons(),EMPTY_ADDRESSBOOK.getTags()));
+        storageManagerSpy.handleLocalModelChangedEvent(new LocalModelChangedEvent(EMPTY_ADDRESSBOOK));
 
         //verify that method is called correctly
         verify(storageManagerSpy, times(1)).saveDataToFile(any(File.class), any(AddressBook.class));

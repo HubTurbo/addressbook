@@ -1,5 +1,6 @@
 package address.sync.task;
 
+import address.model.datatypes.ReadOnlyAddressBook;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.UniqueData;
@@ -14,24 +15,16 @@ import java.util.List;
 public class CloudUpdateTask implements Runnable {
     private static final AppLogger logger = LoggerManager.getLogger(CloudUpdateTask.class);
     private final RemoteManager remoteManager;
-    private final List<Person> personsData;
-    private final List<Tag> tagsData;
+    private final ReadOnlyAddressBook data;
 
-    public CloudUpdateTask(RemoteManager remoteManager, List<Person> personsData,
-                           List<Tag> tagsData) {
+    public CloudUpdateTask(RemoteManager remoteManager, ReadOnlyAddressBook data) {
         this.remoteManager = remoteManager;
-        this.personsData = personsData;
-        this.tagsData = tagsData;
+        this.data = data;
     }
 
     @Override
     public void run() {
-        logger.info("Requesting changes to the cloud.");
-
-        List<UniqueData> allData = new ArrayList<>();
-        allData.addAll(personsData);
-        allData.addAll(tagsData);
-
+        logger.info("Requesting changes to the cloud. (INCOMPLETE IMPLEMENTATION)");
         // TODO: Determine what calls should be made
     }
 }

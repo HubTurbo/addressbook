@@ -109,7 +109,7 @@ public class BrowserManager {
         }
 
         selectedPersonUsername.unbind();
-        selectedPersonUsername.bind(person.githubUserNameProperty());
+        selectedPersonUsername.bind(person.githubUsernameProperty());
         selectedPersonUsername.addListener(listener);
     }
 

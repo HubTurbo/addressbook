@@ -2,6 +2,7 @@ package address.storage;
 
 import address.exceptions.DataConversionException;
 import address.model.datatypes.AddressBook;
+import address.model.datatypes.ReadOnlyAddressBook;
 import address.util.XmlUtil;
 
 import java.io.File;
@@ -14,7 +15,7 @@ public class XmlFileStorage {
     /**
      * Saves the given addressbook data to the specified file.
      */
-    public static void saveDataToFile(File file, AddressBook addressBook)
+    public static void saveDataToFile(File file, StorageAddressBook addressBook)
             throws DataConversionException, FileNotFoundException {
         XmlUtil.saveDataToFile(file, addressBook);
     }
@@ -22,9 +23,8 @@ public class XmlFileStorage {
     /**
      * Returns address book in the file or an empty address book
      */
-    //TODO: rename to getData...
-    public static AddressBook loadDataFromSaveFile(File file) throws DataConversionException, FileNotFoundException {
-        return XmlUtil.getDataFromFile(file, AddressBook.class);
+    public static StorageAddressBook loadDataFromSaveFile(File file) throws DataConversionException, FileNotFoundException {
+        return XmlUtil.getDataFromFile(file, StorageAddressBook.class);
     }
 
 }
