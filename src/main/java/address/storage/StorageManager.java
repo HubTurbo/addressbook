@@ -4,8 +4,8 @@ import address.events.*;
 import address.exceptions.DataConversionException;
 import address.main.ComponentManager;
 import address.model.ModelManager;
+import address.model.UserPrefs;
 import address.model.datatypes.ReadOnlyAddressBook;
-import address.prefs.UserPrefs;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
 
@@ -21,13 +21,15 @@ public class StorageManager extends ComponentManager {
     private static final AppLogger logger = LoggerManager.getLogger(StorageManager.class);
     private static final String CONFIG_FILE = "config.json";
 
-    private ModelManager modelManager;
-    private UserPrefs userPrefs;
+    public static final File DEFAULT_USER_PREF_FILE = new File("preferences.json");
 
-    public StorageManager(ModelManager modelManager, UserPrefs userPrefs) {
+    private ModelManager modelManager;
+    private UserPrefs prefs;
+
+    public StorageManager(ModelManager modelManager, UserPrefs prefs) {
         super();
         this.modelManager = modelManager;
-        this.userPrefs = userPrefs;
+        this.prefs = prefs;
     }
 
     public static Config getConfig() {
@@ -109,16 +111,16 @@ public class StorageManager extends ComponentManager {
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
         logger.info("Local data changed, saving to primary data file");
-        saveDataToFile(userPrefs.getSaveLocation(), lmce.data);
+        saveDataToFile(prefs.getSaveLocation(), lmce.data);
     }
 
     /**
      * Raises FileSavingExceptionEvent (similar to {@link #saveDataToFile(File, ReadOnlyAddressBook)})
      */
     @Subscribe
-    public void handleSaveRequestEvent(SaveRequestEvent sre) {
-        logger.info("Save data request received: {}", sre.data);
-        saveDataToFile(sre.file, sre.data);
+    public void handleSaveDataRequestEvent(SaveDataRequestEvent sdre) {
+        logger.info("Save data request received: {}", sdre.data);
+        saveDataToFile(sdre.file, sdre.data);
     }
 
     /**
@@ -136,11 +138,49 @@ public class StorageManager extends ComponentManager {
     }
 
     /**
+     * Raises FileSavingExceptionEvent
+     */
+    @Subscribe
+    public void handleSavePrefsRequestEvent(SavePrefsRequestEvent spre) {
+        logger.info("Save prefs request received: {}", spre.prefs);
+        savePrefsToFile(spre.file, spre.prefs);
+    }
+
+    /**
+     * Raises FileSavingExceptionEvent if there was an error during saving or data conversion.
+     */
+    public void savePrefsToFile(File file, UserPrefs prefs) {
+        try {
+            FileUtil.writeToFile(file, JsonUtil.toJsonString(prefs));
+        } catch (IOException e) {
+            raise(new FileSavingExceptionEvent(e, file));
+        }
+    }
+
+    public static UserPrefs loadPrefsFromFile(File prefsFile) {
+        UserPrefs prefs = new UserPrefs();
+
+        if (!FileUtil.isFileExists(prefsFile)) {
+            return prefs;
+        }
+
+        try {
+            logger.debug("Attempting to load prefs from file: " + prefsFile);
+            prefs = JsonUtil.fromJsonString(FileUtil.readFromFile(prefsFile), UserPrefs.class);
+        } catch (IOException e) {
+            logger.debug("Error loading prefs from file: {}", e);
+        }
+
+        return prefs;
+    }
+
+    /**
      * Loads the data from the local data file (based on user preferences).
      */
     public void start() {
         logger.info("Starting storage manager.");
-        loadDataFromFile(userPrefs.getSaveLocation());
+        loadDataFromFile(prefs.getSaveLocation());
+        raise(new SaveLocationChangedEvent(prefs.getSaveLocation()));
     }
 
     protected void loadDataFromFile(File dataFile) {

@@ -9,6 +9,7 @@ import address.model.datatypes.*;
 import address.model.datatypes.person.*;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.UniqueData;
+import address.storage.StorageManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.collections.UnmodifiableObservableList;
@@ -18,6 +19,7 @@ import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,6 +36,8 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
     private final AddressBook backingModel;
     private final ViewableAddressBook visibleModel;
     private final ScheduledExecutorService scheduler;
+
+    private UserPrefs prefs;
 
     {
         scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -67,6 +71,8 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         backingTagList().addListener(modelChangeListener);
 
         EventManager.getInstance().registerHandler(this);
+
+        this.prefs = StorageManager.loadPrefsFromFile(StorageManager.DEFAULT_USER_PREF_FILE);
     }
 
     public ModelManager() {
@@ -356,6 +362,21 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
             return;
         }
         assert false : "need to add logic for any new UniqueData classes";
+    }
+
+    public UserPrefs getPrefs() {
+        return prefs;
+    }
+
+    public void setPrefsSaveLocation(String saveLocation) {
+        prefs.setSaveLocation(saveLocation);
+
+        EventManager.getInstance().post(new SaveLocationChangedEvent(new File(saveLocation)));
+        EventManager.getInstance().post(new SavePrefsRequestEvent(StorageManager.DEFAULT_USER_PREF_FILE, prefs));
+    }
+
+    public void clearPrefsSaveLocation() {
+        setPrefsSaveLocation(null);
     }
 
 }

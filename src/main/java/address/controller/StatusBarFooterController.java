@@ -1,7 +1,7 @@
 package address.controller;
 
 import address.events.*;
-import address.prefs.PrefsManager;
+import address.model.UserPrefs;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
@@ -12,6 +12,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.StatusBar;
 
+import java.io.File;
 import java.util.concurrent.*;
 
 public class StatusBarFooterController {
@@ -85,11 +86,6 @@ public class StatusBarFooterController {
         label.setTooltip(tp);
     }
 
-    @FXML
-    private void initialize() {
-        updateSaveLocationDisplay();
-    }
-
     @Subscribe
     public void handleSyncingStartedEvent(SyncStartedEvent sse) {
         Platform.runLater(() -> syncStatusBar.setText(sse.toString()));
@@ -141,11 +137,10 @@ public class StatusBarFooterController {
 
     @Subscribe
     private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
-        updateSaveLocationDisplay();
+        updateSaveLocationDisplay(e.saveFile);
     }
 
-    private void updateSaveLocationDisplay() {
-        saveLocationLabel.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
-                PrefsManager.getInstance().getPrefs().getSaveLocation().getName() : LOC_TEXT_NOT_SET));
+    private void updateSaveLocationDisplay(File saveFile) {
+        saveLocationLabel.setText(SAVE_LOC_TEXT_PREFIX + ((saveFile != null) ? saveFile.getName() : LOC_TEXT_NOT_SET));
     }
 }
