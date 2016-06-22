@@ -22,11 +22,11 @@ public class FxBrowserDocAdapter implements EbDocument {
 
     @Override
     public EbElement findElementByTag(String tag) {
-        return null;
+        throw new RuntimeException("findElementByTag() not supported in FxBrowser");
     }
 
     @Override
     public EbElement findElementByClass(String className) {
-        return null;
+        throw new RuntimeException("findElementByClass() not supported in FxBrowser");
     }
 }

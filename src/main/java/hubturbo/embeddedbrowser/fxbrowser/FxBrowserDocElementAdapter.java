@@ -17,11 +17,11 @@ public class FxBrowserDocElementAdapter implements EbElement {
 
     @Override
     public void click() {
-
+        throw new RuntimeException("click() not supported in FxBrowser");
     }
 
     @Override
     public void addEventListener(int type, EbDomEventListener listener, boolean b) {
-
+        throw new RuntimeException("addEventListener() not supported in FxBrowser");
     }
 }

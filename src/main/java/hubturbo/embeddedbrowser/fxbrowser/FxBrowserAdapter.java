@@ -85,7 +85,7 @@ public class FxBrowserAdapter implements EmbeddedBrowser, ChangeListener<Worker.
 
     @Override
     public void executeCommand(int command) {
-        throw new RuntimeException("executeCommand() is not supported by FxBrowserAdapter");
+        throw new RuntimeException("executeCommand() not supported by FxBrowserAdapter");
     }
 
     @Override

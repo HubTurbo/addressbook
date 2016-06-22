@@ -31,6 +31,10 @@ import java.util.stream.Collectors;
  * Manages the AddressBook browser.
  */
 public class BrowserManager {
+
+    private static final String GITHUB_ROOT_URL = "https://github.com/";
+    private static final String INVALID_GITHUB_USERNAME_MESSAGE = "Unparsable GitHub Username.";
+
     private static AppLogger logger = LoggerManager.getLogger(BrowserManager.class);
 
     private ObservableList<ReadOnlyViewablePerson> filteredPersons;
@@ -41,14 +45,14 @@ public class BrowserManager {
 
     private ChangeListener<String> listener = (observable,  oldValue,  newValue) -> {
         try {
-            URL url = new URL("https://github.com/" + newValue);
+            URL url = new URL(GITHUB_ROOT_URL + newValue);
             if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
                 hyperBrowser.get().loadUrl(url);
             }
         } catch (MalformedURLException e) {
             logger.warn("Malformed URL obtained, not attempting to load.");
             if (!newValue.equals("")) {
-                hyperBrowser.get().loadHTML("Unparsable GitHub Username.");
+                hyperBrowser.get().loadHTML(INVALID_GITHUB_USERNAME_MESSAGE);
             }
         }
     };
@@ -100,7 +104,7 @@ public class BrowserManager {
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
+            assert false : "Preconditions of loadUrls is not fulfilled.";
         }
 
         selectedPersonUsername.unbind();
