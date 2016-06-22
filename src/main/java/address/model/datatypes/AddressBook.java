@@ -131,4 +131,23 @@ public class AddressBook implements ReadOnlyAddressBook {
     public UnmodifiableObservableList<Tag> getTagsAsReadOnlyObservableList() {
         return new UnmodifiableObservableList<>(tags);
     }
+
+    public static AddressBook generateSampleData(){
+        final Person[] samplePersonData = {
+                new Person("Hans", "Muster"),
+                new Person("Ruth", "Mueller"),
+                new Person("Heinz", "Kurz"),
+                new Person("Cornelia", "Meier"),
+                new Person("Werner", "Meyer"),
+                new Person("Lydia", "Kunz"),
+                new Person("Anna", "Best"),
+                new Person("Stefan", "Meier"),
+                new Person("Martin", "Mueller")
+        };
+        final Tag[] sampleTagData = {
+                new Tag("relatives"),
+                new Tag("friends")
+        };
+        return new AddressBook(Arrays.asList(samplePersonData), Arrays.asList(sampleTagData));
+    }
 }

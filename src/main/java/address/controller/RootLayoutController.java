@@ -79,7 +79,7 @@ public class RootLayoutController {
 
     private void updateSaveLocationDisplay() {
         saveLocText.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
-                PrefsManager.getInstance().getSaveLocation().getName() : LOC_TEXT_NOT_SET));
+                PrefsManager.getInstance().getPrefs().getSaveLocation().getName() : LOC_TEXT_NOT_SET));
     }
 
     /**
@@ -92,7 +92,7 @@ public class RootLayoutController {
         final FileChooser fileChooser = new FileChooser();
 
         fileChooser.getExtensionFilters().add(extFilter);
-        final File currentFile = PrefsManager.getInstance().getSaveLocation();
+        final File currentFile = PrefsManager.getInstance().getPrefs().getSaveLocation();
         fileChooser.setInitialDirectory(currentFile.getParentFile());
         return fileChooser;
     }
@@ -127,7 +127,7 @@ public class RootLayoutController {
      */
     @FXML
     private void handleSave() {
-        final File saveFile = PrefsManager.getInstance().getSaveLocation();
+        final File saveFile = PrefsManager.getInstance().getPrefs().getSaveLocation();
         logger.debug("Requesting save to: {}.", saveFile);
         EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.backingPersonList(),
                                                              modelManager.getTagList()));

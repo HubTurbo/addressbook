@@ -6,13 +6,15 @@ import address.exceptions.FileContainsDuplicatesException;
 import address.main.ComponentManager;
 import address.model.datatypes.AddressBook;
 import address.model.ModelManager;
-import address.prefs.PrefsManager;
+import address.prefs.UserPrefs;
 import address.util.AppLogger;
+import address.util.FileUtil;
 import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * Manages storage of addressbook data in local disk.
@@ -22,14 +24,14 @@ public class StorageManager extends ComponentManager {
     private static final AppLogger logger = LoggerManager.getLogger(StorageManager.class);
 
     private ModelManager modelManager;
-    private PrefsManager prefsManager;
+    private UserPrefs userPrefs;
 
     public StorageManager(ModelManager modelManager,
-                          PrefsManager prefsManager) {
+                          UserPrefs userPrefs) {
 
         super();
         this.modelManager = modelManager;
-        this.prefsManager = prefsManager;
+        this.userPrefs = userPrefs;
     }
 
     /**
@@ -38,20 +40,25 @@ public class StorageManager extends ComponentManager {
      */
     @Subscribe
     public void handleLoadDataRequestEvent(LoadDataRequestEvent ldre) {
-        logger.info("Load data request received: " + ldre.file);
+        File dataFile = ldre.file;
+        logger.info("Handling load data request received: " + dataFile);
+        loadDataFromFile(dataFile);
+    }
+
+    protected void loadDataFromFile(File dataFile) {
         AddressBook data;
 
         try {
-            logger.debug("Attempting to load data from file: " + ldre.file);
-            data = XmlFileStorage.loadDataFromSaveFile(ldre.file);
+            logger.debug("Attempting to load data from file: " + dataFile);
+            data = XmlFileStorage.loadDataFromSaveFile(dataFile);
         } catch (FileNotFoundException | DataConversionException e) {
             logger.debug("Error loading data from file: {}", e);
-            raise(new FileOpeningExceptionEvent(e, ldre.file));
+            raise(new FileOpeningExceptionEvent(e, dataFile));
             return;
         }
 
         if (data.containsDuplicates()) {
-            raise(new FileOpeningExceptionEvent(new FileContainsDuplicatesException(ldre.file), ldre.file));
+            raise(new FileOpeningExceptionEvent(new FileContainsDuplicatesException(dataFile), dataFile));
             return;
         }
         //TODO: move duplication detection out of this class
@@ -65,7 +72,7 @@ public class StorageManager extends ComponentManager {
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
         logger.info("Local data changed, saving to primary data file");
-        saveDataToFile(prefsManager.getSaveLocation(), new AddressBook(lmce.personData, lmce.tagData));
+        saveDataToFile(userPrefs.getSaveLocation(), new AddressBook(lmce.personData, lmce.tagData));
     }
 
     /**
@@ -74,7 +81,7 @@ public class StorageManager extends ComponentManager {
     @Subscribe
     public void handleLocalModelSyncedFromCloudEvent(LocalModelSyncedFromCloudEvent msfce) {
         logger.info("Local data synced, saving to primary data file");
-        saveDataToFile(prefsManager.getSaveLocation(), new AddressBook(msfce.personData, msfce.tagData));
+        saveDataToFile(userPrefs.getSaveLocation(), new AddressBook(msfce.personData, msfce.tagData));
     }
 
     /**
@@ -88,14 +95,23 @@ public class StorageManager extends ComponentManager {
     }
 
     /**
-     * Raises FileSavingExceptionEvent if the file is not found or if there was an error during data conversion.
+     * Creates the file if it is missing before saving.
+     * Raises FileSavingExceptionEvent if the file is not found or if there was an error during
+     *   saving or data conversion.
      */
     public void saveDataToFile(File file, AddressBook addressBook){
         try {
+            FileUtil.createIfMissing(file);
             XmlFileStorage.saveDataToFile(file, addressBook);
-        } catch (FileNotFoundException | DataConversionException e) {
+        } catch (IOException | DataConversionException e) {
             raise(new FileSavingExceptionEvent(e, file));
         }
     }
 
+    /**
+     * Loads the data from the local data file (based on user preferences).
+     */
+    public void start() {
+        loadDataFromFile(userPrefs.getSaveLocation());
+    }
 }
