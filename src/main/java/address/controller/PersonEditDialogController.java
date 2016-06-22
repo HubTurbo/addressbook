@@ -56,13 +56,8 @@ public class PersonEditDialogController extends EditDialogController {
     private TextField githubUserNameField;
 
     private List<Tag> finalAssignedTags;
-
     private Person finalPerson;
     private List<Tag> fullTagList;
-
-
-    public PersonEditDialogController() {
-    }
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -197,7 +192,7 @@ public class PersonEditDialogController extends EditDialogController {
         return content;
     }
 
-    public Person getFinalInput() {
+    public Person getEditedPerson() {
         return finalPerson;
     }
 

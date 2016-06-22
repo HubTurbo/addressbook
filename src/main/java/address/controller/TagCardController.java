@@ -1,14 +1,11 @@
 package address.controller;
 
 import address.model.datatypes.tag.Tag;
-import address.exceptions.DuplicateTagException;
-import address.model.ModelManager;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Side;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -28,7 +25,9 @@ public class TagCardController {
 
     public static VBox getDummyTagCard(TagListController tagListController, MainController mainController) {
         VBox vBox = new VBox();
-        vBox.getChildren().add(new Label("Click to add new tag"));
+        Label label = new Label("Click to add new tag");
+        label.setPrefWidth(280);
+        vBox.getChildren().add(label);
         vBox.setPadding(new Insets(10, 10, 10, 10));
 
         vBox.setOnMouseClicked(mouseEv -> {

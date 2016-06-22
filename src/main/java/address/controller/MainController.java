@@ -88,17 +88,14 @@ public class MainController {
         final String fxmlResourcePath = FXML_ROOT_LAYOUT;
         try {
             // Load root layout from fxml file.
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            FXMLLoader loader = loadFxml(fxmlResourcePath);
             rootLayout = loader.load();
             SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
             pane.setDividerPositions(0.3f);
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
-            scene.setOnKeyPressed(event -> {
-                EventManager.getInstance().postPotentialEvent(new KeyBindingEvent(event));
-            });
+            scene.setOnKeyPressed(event -> EventManager.getInstance().postPotentialEvent(new KeyBindingEvent(event)));
             primaryStage.setMinHeight(400);
             primaryStage.setMinWidth(740);
             primaryStage.setHeight(600);
@@ -127,13 +124,10 @@ public class MainController {
         final String fxmlResourcePath = FXML_PERSON_OVERVIEW;
         try {
             // Load person overview.
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            FXMLLoader loader = loadFxml(fxmlResourcePath);
             AnchorPane personOverview = loader.load();
-            personOverview.setMinWidth(340);
-            personOverview.setPrefWidth(340);
             SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-            pane.setResizableWithParent(personOverview, false);
+            SplitPane.setResizableWithParent(personOverview, false);
             pane.getItems().add(personOverview);
             // Give the personOverviewController access to the main app and modelManager.
             PersonOverviewController personOverviewController = loader.getController();
@@ -159,19 +153,23 @@ public class MainController {
         logger.debug("Loading footer status bar.");
         final String fxmlResourcePath = FXML_STATUS_BAR_FOOTER;
         try {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
-            GridPane gPane = loader.load();
-            gPane.getStyleClass().add("grid-pane");
+            FXMLLoader loader = loadFxml(fxmlResourcePath);
+            GridPane gridPane = loader.load();
+            gridPane.getStyleClass().add("grid-pane");
             StatusBarFooterController controller = loader.getController();
             controller.initStatusBar();
-            rootLayout.getChildren().add(gPane);
-
+            rootLayout.getChildren().add(gridPane);
         } catch (IOException e) {
             logger.warn("Error Loading footer status bar: {}", e);
             showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for footer status bar.",
                     "IOException when trying to load " + fxmlResourcePath);
         }
+    }
+
+    private FXMLLoader loadFxml(String fxmlResourcePath) {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+        return loader;
     }
 
     /**
@@ -198,23 +196,18 @@ public class MainController {
         final String fxmlResourcePath = FXML_PERSON_EDIT_DIALOG;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            FXMLLoader loader = loadFxml(fxmlResourcePath);
             AnchorPane page = loader.load();
 
-            // Create the dialog Stage.
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Edit Person");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(primaryStage);
             Scene scene = new Scene(page);
+            Stage dialogStage = loadDialogStage("Edit Person", primaryStage, scene);
+            dialogStage.getIcons().add(getImage(ICON_EDIT));
+
             scene.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.ESCAPE) {
                     dialogStage.close();
                 }
             });
-            dialogStage.setScene(scene);
-            dialogStage.getIcons().add(getImage(ICON_EDIT));
 
             // Pass relevant data into the controller.
             PersonEditDialogController controller = loader.getController();
@@ -225,7 +218,7 @@ public class MainController {
 
             dialogStage.showAndWait();
             if (controller.isOkClicked()) {
-                return Optional.of(controller.getFinalInput());
+                return Optional.of(controller.getEditedPerson());
             } else {
                 return Optional.empty();
             }
@@ -237,12 +230,23 @@ public class MainController {
         }
     }
 
+    private Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle(value);
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        dialogStage.initOwner(primaryStage);
+        dialogStage.setScene(scene);
+        return dialogStage;
+    }
+
     /**
      * Attempts to delete tag data from the model
+     *
      * @param tag
+     * @return true if successful
      */
-    public void deleteTagData(Tag tag) {
-        modelManager.deleteTag(tag);
+    public boolean deleteTagData(Tag tag) {
+        return modelManager.deleteTag(tag);
     }
 
     /**
@@ -251,13 +255,13 @@ public class MainController {
      * Tag data is obtained from prompting the user repeatedly until a valid tag is given or until the user cancels
      * @return
      */
-    public Optional<Tag> addTagData() {
+    public boolean addTagData() {
         Optional<Tag> newTag = Optional.of(new Tag());
         do {
             newTag = getTagDataInput(newTag.get());
         } while (newTag.isPresent() && !isAddSuccessful(newTag.get()));
 
-        return newTag;
+        return newTag.isPresent();
     }
 
     /**
@@ -267,20 +271,20 @@ public class MainController {
      * @param tag
      * @return
      */
-    public Optional<Tag> editTagData(Tag tag) {
+    public boolean editTagData(Tag tag) {
         Optional<Tag> editedTag = Optional.of(tag);
         do {
             editedTag = getTagDataInput(editedTag.get());
         } while (editedTag.isPresent() && !isUpdateSuccessful(tag, editedTag.get()));
 
-        return editedTag;
+        return editedTag.isPresent();
     }
 
     /**
      * Attempts to add the given new tag to the model, and returns the result
      *
      * @param newTag
-     * @return true if successful
+     * @return true if add is successful
      */
     private boolean isAddSuccessful(Tag newTag) {
         try {
@@ -296,7 +300,7 @@ public class MainController {
      * Attempts to update the given tag in the model, and returns the result
      *
      * @param newTag
-     * @return true if successful
+     * @return true if update is successful
      */
     private boolean isUpdateSuccessful(Tag originalTag, Tag newTag) {
         try {
@@ -321,17 +325,11 @@ public class MainController {
         final String fxmlResourcePath = FXML_TAG_EDIT_DIALOG;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            FXMLLoader loader = loadFxml(fxmlResourcePath);
             AnchorPane page = loader.load();
 
-            // Create the dialog Stage.
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Edit Tag");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(primaryStage);
             Scene scene = new Scene(page);
-            dialogStage.setScene(scene);
+            Stage dialogStage = loadDialogStage("Edit Tag", primaryStage, scene);
             dialogStage.getIcons().add(getImage(ICON_EDIT));
 
             // Pass relevant data to the controller.
@@ -341,7 +339,7 @@ public class MainController {
 
             dialogStage.showAndWait();
             if (controller.isOkClicked()) {
-                return Optional.of(controller.getFinalInput());
+                return Optional.of(controller.getEditedTag());
             } else {
                 return Optional.empty();
             }
@@ -358,17 +356,11 @@ public class MainController {
         final String fxmlResourcePath = FXML_TAG_LIST;
         try {
             // Load the fxml file and create a new stage for the popup dialog.
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            FXMLLoader loader = loadFxml(fxmlResourcePath);
             AnchorPane page = loader.load();
 
-            // Create the dialog Stage.
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("List of Tags");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(primaryStage);
             Scene scene = new Scene(page);
-            dialogStage.setScene(scene);
+            Stage dialogStage = loadDialogStage("List of Tags", primaryStage, scene);
 
             // Set the tag into the controller.
             TagListController tagListController = loader.getController();
@@ -394,15 +386,11 @@ public class MainController {
         final String fxmlResourcePath = FXML_BIRTHDAY_STATISTICS;
         try {
             // Load the fxml file and create a new stage for the popup.
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
-            AnchorPane page = (AnchorPane) loader.load();
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Birthday Statistics");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(primaryStage);
+            FXMLLoader loader = loadFxml(fxmlResourcePath);
+            AnchorPane page = loader.load();
+
             Scene scene = new Scene(page);
-            dialogStage.setScene(scene);
+            Stage dialogStage = loadDialogStage("Birthday Statistics", primaryStage, scene);
             dialogStage.getIcons().add(getImage(ICON_CALENDAR));
 
             // Set the persons into the controller.
@@ -439,7 +427,7 @@ public class MainController {
     private void showFileOperationAlertAndWait(String description, String details, File file, Throwable cause) {
         final String content = details + ":\n" + (file == null ? "none" : file.getPath()) + "\n\nDetails:\n======\n"
                                 + cause.toString();
-        showAlertDialogAndWait(AlertType.ERROR, "File Op Error", description, content.toString());
+        showAlertDialogAndWait(AlertType.ERROR, "File Op Error", description, content);
     }
 
     private Image getImage(String imagePath) {
@@ -481,13 +469,13 @@ public class MainController {
     @Subscribe
     private void handleMaximizeAppRequestEvent(MaximizeAppRequestEvent event){
         logger.debug("Handling the maximize app window request");
-        Platform.runLater(() -> maximizeWindow());
+        Platform.runLater(this::maximizeWindow);
     }
 
     @Subscribe
     private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event){
         logger.debug("Handling the minimize app window request");
-        Platform.runLater(() -> minimizeWindow());
+        Platform.runLater(this::minimizeWindow);
     }
 
 

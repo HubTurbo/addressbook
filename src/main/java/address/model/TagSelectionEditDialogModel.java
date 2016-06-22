@@ -12,11 +12,10 @@ import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
 
 public class TagSelectionEditDialogModel {
-    List<SelectableTag> tags = new ArrayList<>();
-    List<SelectableTag> filteredTags = new ArrayList<>();
-    Optional<Integer> selectedTagIndex = Optional.empty();
-
-    List<SelectableTag> assignedTags = new ArrayList<>();
+    private List<SelectableTag> tags = new ArrayList<>();
+    private List<SelectableTag> filteredTags = new ArrayList<>();
+    private Optional<Integer> selectedTagIndex = Optional.empty();
+    private List<SelectableTag> assignedTags = new ArrayList<>();
 
     public TagSelectionEditDialogModel(List<Tag> tags, List<Tag> assignedTags) {
         List<SelectableTag> selectableTargets = tags.stream()
@@ -25,12 +24,16 @@ public class TagSelectionEditDialogModel {
         this.tags.addAll(selectableTargets);
 
         assignedTags.stream()
-                .forEach(assignedTag -> this.assignedTags.addAll(this.tags.stream()
-                        .filter(tag -> tag.getName().equals(assignedTag.getName()))
-                        .collect(Collectors.toList())));
+                .forEach(assignedTag -> this.assignedTags.addAll(getMatchingTags(assignedTag)));
 
         EventManager.getInstance().post(new TagListChangedEvent(this.assignedTags));
         setFilter("");
+    }
+
+    private List<SelectableTag> getMatchingTags(Tag assignedTag) {
+        return this.tags.stream()
+                .filter(tag -> tag.getName().equals(assignedTag.getName()))
+                .collect(Collectors.toList());
     }
 
     private Optional<SelectableTag> getSelection() {
@@ -60,13 +63,17 @@ public class TagSelectionEditDialogModel {
     }
 
     private void clearSelection() {
+        filteredTags.stream()
+                .filter(SelectableTag::isSelected)
+                .forEach(tag -> tag.setSelected(false));
+        /*
         for (int i = 0; i < filteredTags.size(); i++) {
             if (filteredTags.get(i).isSelected()) {
                 SelectableTag tag = filteredTags.remove(i);
                 tag.setSelected(false);
                 filteredTags.add(i, tag);
             }
-        }
+        }*/
     }
 
     public void selectNext() {

@@ -199,18 +199,8 @@ public class RootLayoutController {
 
     @FXML
     private void handleNewTag() {
-        Optional<Tag> newTag = Optional.of(new Tag());
-        while (true) { // keep re-asking until user provides valid input or cancels operation.
-            newTag = mainController.getTagDataInput(newTag.get());
-            if (!newTag.isPresent()) break;
-            try {
-                modelManager.addTag(newTag.get());
-                break;
-            } catch (DuplicateTagException e) {
-                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tags",
-                                                      e.toString());
-            }
-        }
+        logger.debug("Adding a new tag from the root layout.");
+        mainController.addTagData();
     }
 
     @FXML

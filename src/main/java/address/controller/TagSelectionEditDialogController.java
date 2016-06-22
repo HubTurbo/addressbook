@@ -23,21 +23,19 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TagSelectionEditDialogController extends EditDialogController {
     private static final String TRANSITION_END = "end";
     private static final int TAG_LABEL_WIDTH = 235;
-    private static final String SELECTED_BACKGROUND = "-fx-background-color: blue;";
+    private static final String STYLE_SELECTED_BACKGROUND = "-fx-background-color: blue;";
 
     @FXML
     AnchorPane mainPane;
-
     @FXML
     FlowPane tagList;
-
     @FXML
     ScrollPane tagResults;
-
     @FXML
     TextField tagSearch;
 
@@ -55,18 +53,6 @@ public class TagSelectionEditDialogController extends EditDialogController {
         Platform.runLater(() -> tagSearch.requestFocus());
     }
 
-    private ScaleTransition getPaneTransition(AnchorPane pane) {
-        ScaleTransition transition = new ScaleTransition(Duration.millis(200), pane);
-        transition.setAutoReverse(true);
-        transition.setFromX(0);
-        transition.setFromY(0);
-        transition.setFromZ(0);
-        transition.setToX(1);
-        transition.setToY(1);
-        transition.setToZ(1);
-        return transition;
-    }
-
     public void setTags(List<Tag> tags, List<Tag> assignedTags) {
         this.model = new TagSelectionEditDialogModel(tags, assignedTags);
     }
@@ -79,7 +65,7 @@ public class TagSelectionEditDialogController extends EditDialogController {
     @Subscribe
     public void handleTagListChangedEvent(TagListChangedEvent e) {
         tagList.getChildren().clear();
-        tagList.getChildren().addAll(getTagListNodes(e.getResultTag(), true));
+        tagList.getChildren().addAll(getTagListNodes(e.getResultTag(), false));
     }
 
     /**
@@ -95,27 +81,42 @@ public class TagSelectionEditDialogController extends EditDialogController {
         this.dialogStage = dialogStage;
     }
 
+    public List<Tag> getFinalAssignedTags() {
+        return model.getAssignedTags();
+    }
+
+    private ScaleTransition getPaneTransition(AnchorPane pane) {
+        ScaleTransition transition = new ScaleTransition(Duration.millis(200), pane);
+        transition.setFromX(0);
+        transition.setFromY(0);
+        transition.setFromZ(0);
+        transition.setToX(1);
+        transition.setToY(1);
+        transition.setToZ(1);
+        return transition;
+    }
+
     /**
      * Returns the list of nodes that represent the given list of tags
      *
      * @param contactTagList
-     * @param shouldIgnoreSelectedProperty if false, then the label may have a blue background
+     * @param shouldConsiderSelectedProperty if true, then the label may have a blue background
      *                                     depending on its selected status
      * @return
      */
-    private List<Node> getTagListNodes(List<SelectableTag> contactTagList, boolean shouldIgnoreSelectedProperty) {
-        List<Node> tagList = new ArrayList<>();
-        contactTagList.stream()
-                .forEach(contactTag -> {
-                    Label newLabel = new Label(contactTag.getName());
-                    if (!shouldIgnoreSelectedProperty && contactTag.isSelected()) {
-                        newLabel.setStyle(SELECTED_BACKGROUND);
-                    }
-                    newLabel.setPrefWidth(TAG_LABEL_WIDTH);
-                    tagList.add(newLabel);
-                });
+    private List<Node> getTagListNodes(List<SelectableTag> contactTagList, boolean shouldConsiderSelectedProperty) {
+        return contactTagList.stream()
+                .map(tag -> getNodeForTag(shouldConsiderSelectedProperty, tag))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
 
-        return tagList;
+    private Label getNodeForTag(boolean shouldConsiderSelectedProperty, SelectableTag contactTag) {
+        Label newLabel = new Label(contactTag.getName());
+        if (shouldConsiderSelectedProperty && contactTag.isSelected()) {
+            newLabel.setStyle(STYLE_SELECTED_BACKGROUND);
+        }
+        newLabel.setPrefWidth(TAG_LABEL_WIDTH);
+        return newLabel;
     }
 
     /**
@@ -127,10 +128,9 @@ public class TagSelectionEditDialogController extends EditDialogController {
      * @return
      */
     private VBox getTagsVBox(List<SelectableTag> contactTagList) {
-        List<Node> tagNodes = getTagListNodes(contactTagList, false);
+        List<Node> tagNodes = getTagListNodes(contactTagList, true);
         VBox content = new VBox();
-        tagNodes.stream()
-                .forEach(tagNode -> content.getChildren().add(tagNode));
+        content.getChildren().addAll(tagNodes);
         return content;
     }
 
@@ -158,12 +158,16 @@ public class TagSelectionEditDialogController extends EditDialogController {
         });
     }
 
-    public List<Tag> getFinalAssignedTags() {
-        return model.getAssignedTags();
+    private void playReversedTransition() {
+        transition.setOnFinished((e) -> dialogStage.close());
+        transition.setRate(-1);
+        transition.playFrom(TRANSITION_END);
     }
 
-
-    @FXML
+    /**
+     * Handles when the text in the tag search field has changed
+     * @param newTags
+     */
     protected void handleTagInput(String newTags) {
         model.setFilter(newTags);
     }
@@ -185,11 +189,5 @@ public class TagSelectionEditDialogController extends EditDialogController {
      */
     protected void handleCancel() {
         playReversedTransition();
-    }
-
-    private void playReversedTransition() {
-        transition.setOnFinished((e) -> dialogStage.close());
-        transition.setRate(-1);
-        transition.playFrom(TRANSITION_END);
     }
 }
