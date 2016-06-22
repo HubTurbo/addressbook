@@ -7,7 +7,7 @@ import hubturbo.embeddedbrowser.jxbrowser.JxBrowserAdapter;
 import javafx.scene.web.WebView;
 
 /**
- * A factory class to creates embeddedBrowser instances.
+ * A factory class to create different concrete implementation of EmbeddedBrowser.
  */
 public class EmbeddedBrowserFactory {
 
