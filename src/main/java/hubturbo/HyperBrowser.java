@@ -76,7 +76,7 @@ public class HyperBrowser {
                 //In the event of deadlocking again, try uncommenting the line below and passed to jxBrowser constructor
                 //BrowserContext context = new BrowserContext(new BrowserContextParams("tmpTab" + i));
                 browser = new JxBrowserAdapter(new JxBrowser());
-            } else if (browserType ==Type.LIMITED_FEATURE_BROWSER){
+            } else if (browserType == Type.LIMITED_FEATURE_BROWSER){
                 browser = new WebViewBrowserAdapter(new WebView());
             } else {
                 throw new IllegalArgumentException("No such browser type");
@@ -119,6 +119,11 @@ public class HyperBrowser {
         assert pages.size() + inActiveBrowserStack.size() == noOfPages;
     }
 
+    /**
+     * Loads the HTML content.
+     * @param htmlCode The HTML Content
+     * @return The page containing the HTML content.
+     */
     public Page loadHTML(String htmlCode) {
         Optional<Page> page = pages.stream().filter(p -> {
             try {
@@ -128,9 +133,17 @@ public class HyperBrowser {
             }
         }).findAny();
 
-        assert page.isPresent();
-        page.get().getBrowser().loadHTML(htmlCode);
-        return page.get();
+        if (page.isPresent()) {
+            page.get().getBrowser().loadHTML(htmlCode);
+            replaceBrowserView(page.get().getBrowser().getBrowserView());
+            return page.get();
+        }
+        else {
+            Page sparePage = pages.get(0);
+            sparePage.getBrowser().loadHTML(htmlCode);
+            replaceBrowserView(sparePage.getBrowser().getBrowserView());
+            return sparePage;
+        }
     }
 
     public synchronized Page loadUrl(URL url) throws IllegalArgumentException {

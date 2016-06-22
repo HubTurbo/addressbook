@@ -74,7 +74,6 @@ public class Page implements PageInterface{
         return this.getElementById(id) != null;
     }
 
-
     @Override
     public void setPageLoadFinishListener(EbLoadListener listener){
         this.browser.addLoadListener(listener);
