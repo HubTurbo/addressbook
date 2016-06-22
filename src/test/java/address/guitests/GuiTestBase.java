@@ -25,6 +25,7 @@ public class GuiTestBase extends FxRobot {
     public void setup() throws Exception {
         EventManager.clearSubscribers();
         FxToolkit.setupApplication(TestApp.class);
+        FxToolkit.showStage();
     }
 
     @After
