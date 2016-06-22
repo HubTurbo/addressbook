@@ -1,23 +1,23 @@
-package hubturbo.browser.fxbrowser;
+package hubturbo.embeddedbrowser.fxbrowser;
 
-import hubturbo.browser.embeddedbrowser.EbDocument;
-import hubturbo.browser.embeddedbrowser.EbElement;
+import hubturbo.embeddedbrowser.EbDocument;
+import hubturbo.embeddedbrowser.EbElement;
 import org.w3c.dom.Document;
 
 /**
  *
  */
-public class WebViewDocAdapter implements EbDocument {
+public class FxBrowserDocAdapter implements EbDocument {
 
     private Document doc;
-    public WebViewDocAdapter(Document doc) {
+    public FxBrowserDocAdapter(Document doc) {
         this.doc = doc;
     }
 
 
     @Override
     public EbElement findElementById(String id) {
-        return new WebViewDocElementAdapter(doc.getElementById(id));
+        return new FxBrowserDocElementAdapter(doc.getElementById(id));
     }
 
     @Override

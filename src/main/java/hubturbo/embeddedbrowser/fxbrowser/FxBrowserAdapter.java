@@ -1,8 +1,8 @@
-package hubturbo.browser.fxbrowser;
+package hubturbo.embeddedbrowser.fxbrowser;
 
-import hubturbo.browser.embeddedbrowser.EbLoadListener;
+import hubturbo.embeddedbrowser.EbLoadListener;
 import hubturbo.EmbeddedBrowser;
-import hubturbo.browser.embeddedbrowser.EbDocument;
+import hubturbo.embeddedbrowser.EbDocument;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
@@ -15,7 +15,7 @@ import java.net.URL;
 /**
  * An EmbeddedBrowser adapter for the Java WebView browser.
  */
-public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Worker.State> {
+public class FxBrowserAdapter implements EmbeddedBrowser, ChangeListener<Worker.State> {
 
     private WebView webView;
 
@@ -23,7 +23,7 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
 
     private EbLoadListener listener;
 
-    public WebViewBrowserAdapter(WebView webview) {
+    public FxBrowserAdapter(WebView webview) {
         webView = webview;
         webView.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
             state = newValue;
@@ -80,12 +80,12 @@ public class WebViewBrowserAdapter implements EmbeddedBrowser, ChangeListener<Wo
         if (this.webView.getEngine().getDocument() == null) {
             return null;
         }
-        return new WebViewDocAdapter(this.webView.getEngine().getDocument());
+        return new FxBrowserDocAdapter(this.webView.getEngine().getDocument());
     }
 
     @Override
     public void executeCommand(int command) {
-        throw new RuntimeException("executeCommand() is not supported by WebViewBrowserAdapter");
+        throw new RuntimeException("executeCommand() is not supported by FxBrowserAdapter");
     }
 
     @Override

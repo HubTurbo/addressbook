@@ -1,7 +1,7 @@
 package address.unittests.browser;
 
-import hubturbo.browser.HyperBrowser;
-import hubturbo.browser.page.Page;
+import hubturbo.embeddedbrowser.HyperBrowser;
+import hubturbo.embeddedbrowser.page.Page;
 import address.util.JavafxThreadingRule;
 import address.util.UrlUtil;
 import org.junit.Test;

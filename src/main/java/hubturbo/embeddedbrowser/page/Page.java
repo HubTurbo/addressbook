@@ -1,8 +1,8 @@
-package hubturbo.browser.page;
+package hubturbo.embeddedbrowser.page;
 
 import hubturbo.EmbeddedBrowser;
-import hubturbo.browser.embeddedbrowser.EbElement;
-import hubturbo.browser.embeddedbrowser.EbLoadListener;
+import hubturbo.embeddedbrowser.EbElement;
+import hubturbo.embeddedbrowser.EbLoadListener;
 
 import java.util.Arrays;
 import java.util.Optional;

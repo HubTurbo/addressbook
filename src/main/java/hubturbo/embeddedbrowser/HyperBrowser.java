@@ -1,17 +1,13 @@
-package hubturbo.browser;
+package hubturbo.embeddedbrowser;
 
 import hubturbo.EmbeddedBrowser;
-import hubturbo.browser.fxbrowser.WebViewBrowserAdapter;
-import hubturbo.browser.jxbrowser.JxBrowser;
-import hubturbo.browser.jxbrowser.JxBrowserAdapter;
-import hubturbo.browser.page.Page;
+import hubturbo.embeddedbrowser.page.Page;
 import address.util.AppLogger;
 import address.util.FxViewUtil;
 import address.util.LoggerManager;
 import address.util.UrlUtil;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.web.WebView;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,10 +24,6 @@ public class HyperBrowser {
 
     public static final int RECOMMENDED_NUMBER_OF_PAGES = 3;
 
-    public enum Type {
-        FULL_FEATURE_BROWSER, LIMITED_FEATURE_BROWSER;
-    }
-
     private final int noOfPages;
 
     private List<Page> pages;
@@ -46,16 +38,16 @@ public class HyperBrowser {
 
     private URL displayedUrl;
 
-    private Type browserType;
+    private EmbeddedBrowserFactory factory;
 
     /**
-     * @param browserType The type of browser. e.g. HyperBrowser.Type.FULL_FEATURE_BROWSER
+     * @param factory The EmbeddedBrowserFactory instance to create EmbeddedBrowser.
      * @param noOfPages The cache configuration setting of the HyperBrowser.
      *                  Recommended Value: HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES
      * @param initialScreen The initial screen of HyperBrowser view.
      */
-    public HyperBrowser(Type browserType, int noOfPages, Optional<Node> initialScreen){
-        this.browserType = browserType;
+    public HyperBrowser(EmbeddedBrowserFactory factory, int noOfPages, Optional<Node> initialScreen){
+        this.factory = factory;
         this.noOfPages = noOfPages;
         this.initialScreen = initialScreen;
         initialiseHyperBrowser();
@@ -72,17 +64,7 @@ public class HyperBrowser {
         inActiveBrowserStack = new Stack<>();
 
         for (int i = 0; i < noOfPages; i++){
-            EmbeddedBrowser browser;
-            if (browserType == Type.FULL_FEATURE_BROWSER){
-                //In the event of deadlocking again, try uncommenting the line below and passed to jxBrowser constructor
-                //BrowserContext context = new BrowserContext(new BrowserContextParams("tmpTab" + i));
-                browser = new JxBrowserAdapter(new JxBrowser());
-            } else if (browserType == Type.LIMITED_FEATURE_BROWSER){
-                browser = new WebViewBrowserAdapter(new WebView());
-            } else {
-                throw new IllegalArgumentException("No such browser type");
-            }
-
+            EmbeddedBrowser browser = factory.createBrowser();
             FxViewUtil.applyAnchorBoundaryParameters(browser.getBrowserView(), 0.0, 0.0, 0.0, 0.0);
             inActiveBrowserStack.push(browser);
         }

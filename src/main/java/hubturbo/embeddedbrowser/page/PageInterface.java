@@ -1,6 +1,6 @@
-package hubturbo.browser.page;
+package hubturbo.embeddedbrowser.page;
 
-import hubturbo.browser.embeddedbrowser.EbLoadListener;
+import hubturbo.embeddedbrowser.EbLoadListener;
 
 /**
  * An interface to specify the default page methods.
