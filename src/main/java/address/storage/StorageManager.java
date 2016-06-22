@@ -7,6 +7,7 @@ import address.model.ModelManager;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.prefs.UserPrefs;
 import address.util.AppLogger;
+import address.util.Config;
 import address.util.FileUtil;
 import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
@@ -24,6 +25,7 @@ public class StorageManager extends ComponentManager {
 
     private ModelManager modelManager;
     private UserPrefs userPrefs;
+    private Config config;
 
     public StorageManager(ModelManager modelManager,
                           UserPrefs userPrefs) {
@@ -31,6 +33,26 @@ public class StorageManager extends ComponentManager {
         super();
         this.modelManager = modelManager;
         this.userPrefs = userPrefs;
+    }
+
+    public void initialize() {
+        initializeConfig();
+    }
+
+    private void initializeConfig() {
+        config = new Config();
+        config.readFromConfigFile();
+    }
+
+    public Config getConfig() {
+        if (config == null) {
+            initializeConfig();
+        }
+        return config;
+    }
+
+    public void setConfig(Config config) {
+        this.config = config;
     }
 
     /**
@@ -90,6 +112,7 @@ public class StorageManager extends ComponentManager {
      * Loads the data from the local data file (based on user preferences).
      */
     public void start() {
+        logger.info("Starting storage manager.");
         loadDataFromFile(userPrefs.getSaveLocation());
     }
 }

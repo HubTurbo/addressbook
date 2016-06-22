@@ -7,6 +7,7 @@ import address.sync.cloud.RemoteResponse;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
 import address.util.AppLogger;
+import address.util.Config;
 import address.util.JsonUtil;
 import address.util.LoggerManager;
 
@@ -27,8 +28,8 @@ public class RemoteService implements IRemoteService {
 
     private final CloudSimulator remote;
 
-    public RemoteService() {
-        remote = new CloudSimulator();
+    public RemoteService(Config config) {
+        remote = new CloudSimulator(config);
     }
 
     public RemoteService(CloudSimulator cloudSimulator) {

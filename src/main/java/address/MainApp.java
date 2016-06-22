@@ -41,6 +41,7 @@ public class MainApp extends Application {
     protected UpdateManager updateManager;
     protected MainController mainController;
     protected KeyBindingsManager keyBindingsManager;
+    protected Config config;
 
     public MainApp() {}
 
@@ -48,16 +49,16 @@ public class MainApp extends Application {
     public void init() throws Exception {
         logger.info("Initializing app ...");
         super.init();
+        initComponents();
         initConfig();
-        Config.setConfig(Config.getConfig());
         initPrefs();
         BrowserManager.initializeJxBrowserEnvironment();
         //TODO: should this be here? looks out of place
-        initComponents();
     }
 
     protected void initConfig() {
         // For sub classes to override
+        config = storageManager.getConfig();
     }
 
     protected void initPrefs() {
@@ -65,10 +66,13 @@ public class MainApp extends Application {
     }
 
     protected void initComponents() {
-        modelManager = new ModelManager();
         storageManager = new StorageManager(modelManager, PrefsManager.getInstance().getPrefs());
-        mainController = new MainController(this, modelManager);
-        syncManager = new SyncManager();
+        initConfig();
+        LoggerManager.updateWithConfig(config);
+
+        modelManager = new ModelManager();
+        mainController = new MainController(this, modelManager, config);
+        syncManager = new SyncManager(config);
         keyBindingsManager = new KeyBindingsManager();
         updateManager = new UpdateManager();
         alertMissingDependencies();
@@ -81,7 +85,7 @@ public class MainApp extends Application {
         mainController.start(primaryStage);
         updateManager.start();
         storageManager.start();
-        syncManager.start(Config.getConfig().updateInterval);
+        syncManager.start();
     }
 
     //TODO: this method is out of place

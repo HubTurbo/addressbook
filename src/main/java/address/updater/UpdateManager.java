@@ -72,6 +72,7 @@ public class UpdateManager extends ComponentManager {
     }
 
     public void start() {
+        logger.info("Starting update manager.");
         pool.execute(backupManager::cleanupBackups);
         pool.execute(this::checkForUpdate);
     }

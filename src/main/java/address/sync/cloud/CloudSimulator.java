@@ -54,10 +54,10 @@ public class CloudSimulator implements ICloudSimulator {
         this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
     }
 
-    public CloudSimulator() {
+    public CloudSimulator(Config config) {
         fileHandler = new CloudFileHandler();
         cloudRateLimitStatus = new CloudRateLimitStatus(API_QUOTA_PER_HOUR);
-        this.shouldSimulateUnreliableNetwork = Config.getConfig().simulateUnreliableNetwork;
+        this.shouldSimulateUnreliableNetwork = config.simulateUnreliableNetwork;
         cloudRateLimitStatus.restartQuotaTimer();
     }
 

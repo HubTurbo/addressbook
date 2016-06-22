@@ -52,23 +52,26 @@ public class MainController {
     private ModelManager modelManager;
     private BrowserManager browserManager;
     private MainApp mainApp;
+    private Config config;
 
     private StatusBarHeaderController statusBarHeaderController;
 
     private OrderedList<ReadOnlyViewablePerson> orderedList;
 
-    public MainController(MainApp mainApp, ModelManager modelManager) {
+    public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
         EventManager.getInstance().registerHandler(this);
-        this.modelManager = modelManager;
         this.mainApp = mainApp;
+        this.modelManager = modelManager;
+        this.config = config;
         this.orderedList = new OrderedList<>(modelManager.getAllViewablePersonsReadOnly());
         this.browserManager = new BrowserManager(orderedList);
     }
 
     public void start(Stage primaryStage) {
+        logger.info("Starting main controller.");
         this.primaryStage = primaryStage;
         this.browserManager.initializeBrowser();
-        primaryStage.setTitle(Config.getConfig().appTitle);
+        primaryStage.setTitle(config.appTitle);
 
         // Set the application icon.
         this.primaryStage.getIcons().add(getImage(ICON_APPLICATION));
@@ -163,7 +166,7 @@ public class MainController {
             GridPane gridPane = loader.load();
             gridPane.getStyleClass().add("grid-pane");
             StatusBarFooterController controller = loader.getController();
-            controller.initStatusBar();
+            controller.initStatusBar(config);
             rootLayout.getChildren().add(gridPane);
         } catch (IOException e) {
             logger.warn("Error Loading footer status bar: {}", e);

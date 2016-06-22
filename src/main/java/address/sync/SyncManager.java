@@ -8,6 +8,7 @@ import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 import address.sync.task.CloudUpdateTask;
 import address.util.AppLogger;
+import address.util.Config;
 import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 
@@ -24,18 +25,20 @@ public class SyncManager extends ComponentManager{
 
     private final ScheduledExecutorService scheduler;
     private final ExecutorService requestExecutor;
+    private Config config;
     private Optional<String> activeAddressBook;
 
     private RemoteManager remoteManager;
 
-    public SyncManager() {
-        this(null, Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
+    public SyncManager(Config config) {
+        this(config, null, Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
     }
 
-    public SyncManager(RemoteManager remoteManager, ExecutorService executorService,
+    public SyncManager(Config config, RemoteManager remoteManager, ExecutorService executorService,
                        ScheduledExecutorService scheduledExecutorService) {
         super();
         activeAddressBook = Optional.empty();
+        this.config = config;
         this.remoteManager = remoteManager;
         this.scheduler = scheduledExecutorService;
         this.requestExecutor = executorService;
@@ -56,18 +59,13 @@ public class SyncManager extends ComponentManager{
      * Initializes the remote service, if it hasn't been
      *
      * Starts getting periodic updates from the cloud
-     *
-     * @param interval should be a positive integer
      */
-    public void start(long interval) {
-        if (interval <= 0) {
-            logger.warn("Update interval specified is not positive: {}", interval);
-            return;
-        }
+    public void start() {
+        logger.info("Starting sync manager.");
         if (remoteManager == null) {
-            this.remoteManager = new RemoteManager();
+            this.remoteManager = new RemoteManager(config);
         }
-        updatePeriodically(interval);
+        updatePeriodically(config.updateInterval);
     }
 
     /**

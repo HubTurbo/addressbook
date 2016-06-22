@@ -48,23 +48,10 @@ public class Config {
 
     private final AppLogger logger = LoggerManager.getLogger(Config.class);
 
-    /**
-     * Lazy initialization of global config object
-     * <p>
-     * During initialization:
-     * Updates its fields based on values read from the config file if it exists
-     * Else creates a new config file and/or uses default values
-     *
-     * @return
-     */
-    public static Config getConfig() {
-        if (config == null) {
-            config = new Config();
-            if (!config.hasExistingConfigFile() || !config.setConfigFileValues()) {
-                config.initializeConfigFile();
-            }
+    public void readFromConfigFile() {
+        if (!hasExistingConfigFile() || !setConfigFileValues()) {
+            initializeConfigFile();
         }
-        return config;
     }
 
     public static void setConfig(Config configToSet) {
