@@ -2,7 +2,10 @@ package address.prefs;
 
 import address.events.EventManager;
 import address.events.SaveLocationChangedEvent;
+import address.util.AppLogger;
+import address.util.LoggerManager;
 
+import java.io.IOException;
 import java.util.prefs.Preferences;
 import java.io.File;
 
@@ -11,12 +14,9 @@ import java.io.File;
  * Publicly accessible singleton class.
  */
 public class PrefsManager {
-
-    public static final String SAVE_LOC_PREF_KEY = "save-location";
-
+    private static final AppLogger logger = LoggerManager.getLogger(PrefsManager.class);
 
     private static PrefsManager instance;
-    private static Preferences prefStorage = Preferences.userNodeForPackage(PrefsManager.class);
 
     private UserPrefs prefs;
 
@@ -28,8 +28,12 @@ public class PrefsManager {
     }
 
     private PrefsManager() {
-        prefs = new UserPrefs();
-        prefs.saveLocation = prefStorage.get(SAVE_LOC_PREF_KEY, null);
+        try {
+            prefs = UserPrefs.readPrefFromFile();
+        } catch (IOException e) {
+            logger.info("Failed to read UserPrefs from file; using empty UserPrefs.", e);
+            prefs = new UserPrefs();
+        }
     }
 
     public UserPrefs getPrefs(){
@@ -37,7 +41,7 @@ public class PrefsManager {
     }
 
     public boolean isSaveLocationSet() {
-        return prefStorage.get(SAVE_LOC_PREF_KEY, null) != null;
+        return prefs.getSaveLocation() != null;
     }
 
     /**
@@ -47,8 +51,7 @@ public class PrefsManager {
      */
     public void setSaveLocation(File save) {
         assert save != null;
-        prefStorage.put(SAVE_LOC_PREF_KEY, save.getPath());
-        prefs.saveLocation = save.getPath();
+        prefs.setSaveLocation(save.getPath());
         EventManager.getInstance().post(new SaveLocationChangedEvent(prefs.getSaveLocation()));
     }
 
@@ -56,8 +59,7 @@ public class PrefsManager {
      * Clears the current preferred save file path.
      */
     public void clearSaveLocation() {
-        prefStorage.remove(SAVE_LOC_PREF_KEY);
-        prefs.saveLocation = null;
+        prefs.setSaveLocation(null);
         EventManager.getInstance().post(new SaveLocationChangedEvent(null));
     }
 }
