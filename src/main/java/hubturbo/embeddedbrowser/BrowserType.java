@@ -1,7 +1,7 @@
 package hubturbo.embeddedbrowser;
 
 /**
- * Created by YL Lim on 22/6/2016.
+ * An enum class that contains the different types of browser.
  */
 public enum BrowserType {
     FULL_FEATURE_BROWSER, LIMITED_FEATURE_BROWSER;
