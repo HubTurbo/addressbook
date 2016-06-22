@@ -38,16 +38,16 @@ public class HyperBrowser {
 
     private URL displayedUrl;
 
-    private EmbeddedBrowserFactory factory;
+    private BrowserType browserType;
 
     /**
-     * @param factory The EmbeddedBrowserFactory instance to create EmbeddedBrowser.
+     * @param browserType The type of browser
      * @param noOfPages The cache configuration setting of the HyperBrowser.
      *                  Recommended Value: HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES
      * @param initialScreen The initial screen of HyperBrowser view.
      */
-    public HyperBrowser(EmbeddedBrowserFactory factory, int noOfPages, Optional<Node> initialScreen){
-        this.factory = factory;
+    public HyperBrowser(BrowserType browserType, int noOfPages, Optional<Node> initialScreen){
+        this.browserType = browserType;
         this.noOfPages = noOfPages;
         this.initialScreen = initialScreen;
         initialiseHyperBrowser();
@@ -64,7 +64,7 @@ public class HyperBrowser {
         inActiveBrowserStack = new Stack<>();
 
         for (int i = 0; i < noOfPages; i++){
-            EmbeddedBrowser browser = factory.createBrowser();
+            EmbeddedBrowser browser = EmbeddedBrowserFactory.createBrowser(browserType);
             FxViewUtil.applyAnchorBoundaryParameters(browser.getBrowserView(), 0.0, 0.0, 0.0, 0.0);
             inActiveBrowserStack.push(browser);
         }

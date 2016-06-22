@@ -11,25 +11,13 @@ import javafx.scene.web.WebView;
  */
 public class EmbeddedBrowserFactory {
 
-    public enum Type {
-        FULL_FEATURE_BROWSER, LIMITED_FEATURE_BROWSER;
-    }
 
-    private Type type;
-
-    /**
-     * @param type The type of browser. e.g. HyperBrowser.Type.FULL_FEATURE_BROWSER
-     */
-    public EmbeddedBrowserFactory(Type type){
-        this.type = type;
-    }
-
-    public EmbeddedBrowser createBrowser(){
-        if (type == Type.FULL_FEATURE_BROWSER) {
+    public static EmbeddedBrowser createBrowser(BrowserType type){
+        if (type == BrowserType.FULL_FEATURE_BROWSER) {
             //In the event of deadlocking again, try uncommenting the line below and passed to jxBrowser constructor
             //BrowserContext context = new BrowserContext(new BrowserContextParams("tmpTab" + i));
             return new JxBrowserAdapter(new JxBrowser());
-        } else if (type == Type.LIMITED_FEATURE_BROWSER) {
+        } else if (type == BrowserType.LIMITED_FEATURE_BROWSER) {
             return new FxBrowserAdapter(new WebView());
         } else {
             throw new IllegalArgumentException("No such browser type");

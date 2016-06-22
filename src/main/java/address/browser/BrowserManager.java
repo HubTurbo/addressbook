@@ -1,6 +1,7 @@
 package address.browser;
 
 import address.browser.page.GithubProfilePage;
+import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;
 import hubturbo.embeddedbrowser.HyperBrowser;
 import hubturbo.embeddedbrowser.page.Page;
@@ -67,7 +68,7 @@ public class BrowserManager {
         } else {
             logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
             hyperBrowser = Optional.of(new HyperBrowser(
-                                       new EmbeddedBrowserFactory(EmbeddedBrowserFactory.Type.FULL_FEATURE_BROWSER),
+                                       BrowserType.FULL_FEATURE_BROWSER,
                                        HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
                                        BrowserManagerUtil.getBrowserInitialScreen()));
         }
