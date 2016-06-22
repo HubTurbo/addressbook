@@ -25,10 +25,6 @@ public class GuiTestBase extends FxRobot {
     public void setup() throws Exception {
         EventManager.clearSubscribers();
         FxToolkit.setupApplication(TestApp.class);
-
-        // since we cannot handle custom test data files
-        // we assume that the default data file exists, and we append data to it
-        clickOn("File").clickOn("Reset with Sample Data");
     }
 
     @After

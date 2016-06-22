@@ -29,6 +29,8 @@ import java.util.List;
 
 /**
  * Dialog to edit details of a person.
+ *
+ * Stage, initial person and available & assigned tags should be set before showing stage
  */
 public class PersonEditDialogController extends EditDialogController {
 
@@ -60,13 +62,8 @@ public class PersonEditDialogController extends EditDialogController {
     private TextField githubUserNameField;
 
     private List<Tag> finalAssignedTags;
-
     private Person finalPerson;
     private List<Tag> fullTagList;
-
-
-    public PersonEditDialogController() {
-    }
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -87,7 +84,7 @@ public class PersonEditDialogController extends EditDialogController {
     private void addListeners() {
         tagList.setOnMouseClicked(e -> launchTagSelectionEditDialog());
         tagList.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.SPACE || e.getCode() == KeyCode.ENTER) {
+            if (e.getCode() == KeyCode.SPACE) {
                 e.consume();
                 launchTagSelectionEditDialog();
             }
@@ -202,7 +199,7 @@ public class PersonEditDialogController extends EditDialogController {
         return content;
     }
 
-    public Person getFinalInput() {
+    public Person getEditedPerson() {
         return finalPerson;
     }
 

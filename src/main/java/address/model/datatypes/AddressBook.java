@@ -82,7 +82,7 @@ public class AddressBook implements ReadOnlyAddressBook {
 
     public Optional<Person> findPerson(ReadOnlyPerson personToFind) {
         for (Person p : persons) {
-            if (p.equals(personToFind)) {
+            if (p.getID() == personToFind.getID()) {
                 return Optional.of(p);
             }
         }
@@ -129,4 +129,5 @@ public class AddressBook implements ReadOnlyAddressBook {
     public UnmodifiableObservableList<Tag> getTagsAsReadOnlyObservableList() {
         return new UnmodifiableObservableList<>(tags);
     }
+
 }

@@ -1,17 +1,33 @@
 package address;
 
 
+import address.prefs.PrefsManager;
 import address.util.Config;
-import com.google.common.util.concurrent.SettableFuture;
-import javafx.stage.Stage;
+import address.util.TestUtil;
+
+import java.io.File;
 
 public class TestApp extends MainApp {
 
+    String saveLocationForTesting = TestUtil.appendToSandboxPath("sampleData.xml");
+
+    public TestApp(){
+        super();
+        stageTestScenario();
+    }
+
+    protected void stageTestScenario() {
+        TestUtil.createDataFileWithSampleData(saveLocationForTesting);
+    }
+
     @Override
-    protected Config getConfig() {
-        Config testConfig = new Config();
-        testConfig.appTitle = "Test App";
-        return testConfig;
+    protected void initConfig() {
+        Config.getConfig().appTitle = "Test App";
+    }
+
+    @Override
+    protected void initPrefs() {
+        PrefsManager.getInstance().setSaveLocation(new File(saveLocationForTesting));
     }
 
     public static void main(String[] args) {

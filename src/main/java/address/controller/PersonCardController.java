@@ -59,7 +59,7 @@ public class PersonCardController {
             setProfileImage();
         }
 
-        if (person.isDeleted()){
+        if (person.isDeleted()) {
             Platform.runLater(() -> cardPane.setOpacity(0.1f));
         }
 
@@ -80,10 +80,10 @@ public class PersonCardController {
             protected String computeValue() {
                 StringBuilder sb = new StringBuilder();
                 if (person.getStreet().length() > 0){
-                    sb.append(person.getStreet() + "\n");
+                    sb.append(person.getStreet()).append("\n");
                 }
                 if (person.getCity().length() > 0){
-                    sb.append(person.getCity() + "\n");
+                    sb.append(person.getCity()).append("\n");
                 }
                 if (person.getPostalCode().length() > 0){
                     sb.append(person.getPostalCode());
@@ -91,7 +91,7 @@ public class PersonCardController {
                 return sb.toString();
             }
         });
-        birthday.textProperty().bind(new StringBinding(){
+        birthday.textProperty().bind(new StringBinding() {
             {
                 bind(person.birthdayProperty()); //Bind property at instance initializer
             }
@@ -104,7 +104,7 @@ public class PersonCardController {
                 return "";
             }
         });
-        tags.textProperty().bind(new StringBinding(){
+        tags.textProperty().bind(new StringBinding() {
             {
                 bind(person.getObservableTagList()); //Bind property at instance initializer
             }
@@ -115,7 +115,7 @@ public class PersonCardController {
             }
         });
         person.isDeletedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue){
+            if (newValue) {
                 handleDeletedPerson();
             }
         });
@@ -157,7 +157,7 @@ public class PersonCardController {
         }
     }
 
-    public void handleDeletedPerson(){
+    public void handleDeletedPerson() {
         Platform.runLater(() -> {
             FadeTransition ft = new FadeTransition(Duration.millis(1000), cardPane);
             ft.setFromValue(1.0);

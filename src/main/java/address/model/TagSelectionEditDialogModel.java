@@ -6,37 +6,26 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import address.events.EventManager;
-import address.events.TagSearchResultsChangedEvent;
-import address.events.TagsChangedEvent;
+import address.events.TagSelectionSearchResultsChangedEvent;
+import address.events.TagSelectionListChangedEvent;
 import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
 
 public class TagSelectionEditDialogModel {
-    List<SelectableTag> tags = new ArrayList<>();
-    List<SelectableTag> filteredTags = new ArrayList<>();
-    Optional<Integer> selectedTagIndex = Optional.empty();
+    private List<SelectableTag> allTags = new ArrayList<>();
+    private List<SelectableTag> filteredTags = new ArrayList<>();
+    private Optional<Integer> selectedTagIndex = Optional.empty();
+    private List<SelectableTag> assignedTags = new ArrayList<>();
 
-    List<SelectableTag> assignedTags = new ArrayList<>();
-
-    public TagSelectionEditDialogModel(List<Tag> tags, List<Tag> assignedTags) {
-        List<SelectableTag> selectableTargets = tags.stream()
-                                                    .map(SelectableTag::new)
-                                                    .collect(Collectors.toList());
-        this.tags.addAll(selectableTargets);
+    public TagSelectionEditDialogModel(List<Tag> allTags, List<Tag> assignedTags) {
+        List<SelectableTag> selectableTags = convertToSelectableTags(allTags);
+        this.allTags.addAll(selectableTags);
 
         assignedTags.stream()
-                .forEach(assignedTag -> this.assignedTags.addAll(this.tags.stream()
-                        .filter(tag -> tag.getName().equals(assignedTag.getName()))
-                        .collect(Collectors.toList())));
+                .forEach(assignedTag -> this.assignedTags.add(getSelectableTag(assignedTag).get()));
 
-        EventManager.getInstance().post(new TagsChangedEvent(this.assignedTags));
+        EventManager.getInstance().post(new TagSelectionListChangedEvent(this.assignedTags));
         setFilter("");
-    }
-
-    private Optional<SelectableTag> getSelection() {
-        return filteredTags.stream()
-                .filter(SelectableTag::isSelected)
-                .findFirst();
     }
 
     public void toggleSelection() {
@@ -49,39 +38,77 @@ public class TagSelectionEditDialogModel {
             assignedTags.add(selection.get());
         }
 
-        EventManager.getInstance().post(new TagsChangedEvent(assignedTags));
-    }
-
-    private void selectIndex(int index) {
-        clearSelection();
-        SelectableTag tag = filteredTags.remove(index);
-        tag.setSelected(true);
-        filteredTags.add(index, tag);
-    }
-
-    private void clearSelection() {
-        for (int i = 0; i < filteredTags.size(); i++) {
-            if (filteredTags.get(i).isSelected()) {
-                SelectableTag tag = filteredTags.remove(i);
-                tag.setSelected(false);
-                filteredTags.add(i, tag);
-            }
-        }
+        EventManager.getInstance().post(new TagSelectionListChangedEvent(assignedTags));
     }
 
     public void selectNext() {
         if (!canIncreaseIndex()) return;
         selectedTagIndex = Optional.of(selectedTagIndex.orElse(-1) + 1);
         updateSelection();
-        EventManager.getInstance().post(new TagSearchResultsChangedEvent(filteredTags));
+        EventManager.getInstance().post(new TagSelectionSearchResultsChangedEvent(filteredTags));
+    }
+
+    public void selectPrevious() {
+        if (!canDecreaseIndex()) return;
+        selectedTagIndex = Optional.of(selectedTagIndex.get() - 1);
+        updateSelection();
+        EventManager.getInstance().post(new TagSelectionSearchResultsChangedEvent(filteredTags));
+    }
+
+    public void setFilter(String filter) {
+        List<SelectableTag> newContactTags = allTags.stream()
+                                                .filter(tag -> tag.getName().contains(filter))
+                                                .collect(Collectors.toList());
+
+        List<SelectableTag> toBeAdded = getNewMatchingTags(filteredTags, newContactTags);
+        List<SelectableTag> toBeRemoved = getNewMatchingTags(newContactTags, filteredTags);
+
+        filteredTags.removeAll(toBeRemoved);
+        filteredTags.addAll(toBeAdded);
+
+        updateSelectedTagIndexAfterFilter(filter);
+        updateSelection();
+
+        EventManager.getInstance().post(new TagSelectionSearchResultsChangedEvent(filteredTags));
+    }
+
+    public List<Tag> getAssignedTags() {
+        return assignedTags.stream()
+                .map(assignedTag -> new Tag(assignedTag.getName()))
+                .collect(Collectors.toList());
+    }
+
+    private List<SelectableTag> convertToSelectableTags(List<Tag> allTags) {
+        return allTags.stream()
+                .map(SelectableTag::new)
+                .collect(Collectors.toList());
+    }
+
+    private Optional<SelectableTag> getSelectableTag(Tag assignedTag) {
+        return this.allTags.stream()
+                .filter(tag -> tag.getName().equals(assignedTag.getName()))
+                .findFirst();
+    }
+
+    private Optional<SelectableTag> getSelection() {
+        return filteredTags.stream()
+                .filter(SelectableTag::isSelected)
+                .findFirst();
     }
 
     private void updateSelection() {
-        if (selectedTagIndex.isPresent()) {
-            selectIndex(selectedTagIndex.get());
-        } else {
-            clearSelection();
-        }
+        clearSelection();
+        if (!selectedTagIndex.isPresent()) return;
+        int tagIndexToSelect = selectedTagIndex.get();
+        SelectableTag tag = filteredTags.remove(tagIndexToSelect);
+        tag.setSelected(true);
+        filteredTags.add(tagIndexToSelect, tag);
+    }
+
+    private void clearSelection() {
+        filteredTags.stream()
+                .filter(SelectableTag::isSelected)
+                .forEach(tag -> tag.setSelected(false));
     }
 
     private boolean canIncreaseIndex() {
@@ -89,47 +116,24 @@ public class TagSelectionEditDialogModel {
                 && (!selectedTagIndex.isPresent() || selectedTagIndex.get() < filteredTags.size() - 1);
     }
 
-    public void selectPrevious() {
-        if (!canDecreaseIndex()) return;
-        selectedTagIndex = Optional.of(selectedTagIndex.get() - 1);
-        updateSelection();
-        EventManager.getInstance().post(new TagSearchResultsChangedEvent(filteredTags));
-    }
-
     private boolean canDecreaseIndex() {
         return selectedTagIndex.isPresent() && selectedTagIndex.get() > 0;
     }
 
-    public void setFilter(String filter) {
-        List<SelectableTag> newContactTags = tags.stream()
-                .filter(tag -> tag.getName().contains(filter))
-                .collect(Collectors.toList());
-
-        List<SelectableTag> toBeAdded = newContactTags.stream()
-                .filter(newContactTag -> !filteredTags.contains(newContactTag))
-                .collect(Collectors.toList());
-        List<SelectableTag> toBeRemoved = filteredTags.stream()
-                .filter(oldContactTag -> !newContactTags.contains(oldContactTag))
-                .collect(Collectors.toList());
-
-        toBeRemoved.stream()
-                .forEach(toRemove -> filteredTags.remove(toRemove));
-        toBeAdded.stream()
-                .forEach(toAdd -> filteredTags.add(toAdd));
-
+    private void updateSelectedTagIndexAfterFilter(String filter) {
         if (!filter.isEmpty() && !filteredTags.isEmpty()) {
             selectedTagIndex = Optional.of(0);
         } else {
             selectedTagIndex = Optional.empty();
         }
-        updateSelection();
-
-        EventManager.getInstance().post(new TagSearchResultsChangedEvent(filteredTags));
     }
 
-    public List<Tag> getAssignedTags() {
-        return assignedTags.stream()
-                .map(assignedTag -> new Tag(assignedTag.getName()))
+    /**
+     * Gets the list of tags that appears in newContactTags but not in originalTags
+     */
+    private List<SelectableTag> getNewMatchingTags(List<SelectableTag> originalTags, List<SelectableTag> updatedTags) {
+        return updatedTags.stream()
+                .filter(newContactTag -> !originalTags.contains(newContactTag))
                 .collect(Collectors.toList());
     }
 }

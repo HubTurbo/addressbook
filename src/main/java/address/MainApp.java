@@ -3,11 +3,10 @@ package address;
 import address.browser.BrowserManager;
 
 import address.controller.MainController;
-import address.events.EventManager;
-import address.events.LoadDataRequestEvent;
 import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
 import address.prefs.PrefsManager;
+import address.prefs.UserPrefs;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
 import address.updater.UpdateManager;
@@ -32,6 +31,7 @@ public class MainApp extends Application {
     public static final int VERSION_MINOR = 0;
     public static final int VERSION_PATCH = 2;
     public static final boolean IS_EARLY_ACCESS = false;
+    //TODO: encapsulate these into a Version object?
 
     private static final AppLogger logger = LoggerManager.getLogger(MainApp.class);
 
@@ -39,45 +39,52 @@ public class MainApp extends Application {
     protected ModelManager modelManager;
     protected SyncManager syncManager;
     protected UpdateManager updateManager;
-    private MainController mainController;
-    private KeyBindingsManager keyBindingsManager;
+    protected MainController mainController;
+    protected KeyBindingsManager keyBindingsManager;
 
     public MainApp() {}
 
-    protected Config getConfig() {
-        return new Config();
-    }
-
     @Override
     public void init() throws Exception {
+        logger.info("Initializing app ...");
         super.init();
+        initConfig();
+        Config.setConfig(Config.getConfig());
+        initPrefs();
         BrowserManager.initializeBrowser();
+        //TODO: should this be here? looks out of place
+        initComponents();
+    }
+
+    protected void initConfig() {
+        // For sub classes to override
+    }
+
+    protected void initPrefs() {
+        // For sub classes to override
+    }
+
+    protected void initComponents() {
+        modelManager = new ModelManager();
+        storageManager = new StorageManager(modelManager, PrefsManager.getInstance().getPrefs());
+        mainController = new MainController(this, modelManager);
+        syncManager = new SyncManager();
+        keyBindingsManager = new KeyBindingsManager();
+        updateManager = new UpdateManager();
+        alertMissingDependencies();
+        //TODO: should this be here? looks out of place
     }
 
     @Override
     public void start(Stage primaryStage) {
         logger.info("Starting application: {}", Version.getCurrentVersion());
-        setupComponents();
         mainController.start(primaryStage);
-        updateManager.run();
-        // initial load (precondition: mainController has been started.)
-        EventManager.getInstance().post(new LoadDataRequestEvent(PrefsManager.getInstance().getSaveLocation()));
-        syncManager.startSyncingData(Config.getConfig().updateInterval);
+        updateManager.start();
+        storageManager.start();
+        syncManager.start(Config.getConfig().updateInterval);
     }
 
-    protected void setupComponents() {
-        Config.setConfig(getConfig());
-        modelManager = new ModelManager();
-        storageManager = new StorageManager(modelManager, PrefsManager.getInstance());
-        mainController = new MainController(this, modelManager);
-        syncManager = new SyncManager();
-
-        keyBindingsManager = new KeyBindingsManager();
-
-        updateManager = new UpdateManager();
-        alertMissingDependencies();
-    }
-
+    //TODO: this method is out of place
     private void alertMissingDependencies() {
         List<String> missingDependencies = updateManager.getMissingDependencies();
 
@@ -100,10 +107,9 @@ public class MainApp extends Application {
     @Override
     public void stop() {
         logger.info("Stopping application.");
-        mainController.getPrimaryStage().hide();
-        mainController.releaseResourcesForAppTermination();
-        updateManager.applyUpdate();
-        keyBindingsManager.clear();
+        mainController.stop();
+        updateManager.stop();
+        keyBindingsManager.stop();
         Platform.exit();
         System.exit(0);
     }
