@@ -38,7 +38,7 @@
             </Menu>
          </menus>
       </MenuBar>
-      <AnchorPane fx:id="footerStatusbarPlaceHolder" styleClass="anchor-pane-with-border">
+      <AnchorPane fx:id="headerStatusbarPlaceholder" styleClass="anchor-pane-with-border">
       </AnchorPane>
       <SplitPane id="splitPane" fx:id="splitPane" prefHeight="295.0" prefWidth="209.0" VBox.vgrow="ALWAYS" />
    </children>
