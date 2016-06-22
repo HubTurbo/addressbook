@@ -56,32 +56,6 @@ public class StorageManagerTest {
     }
 
     @Test
-    public void saveDataToFile_fileNotFound_exceptionEvenRaised() throws DataConversionException, FileNotFoundException {
-        verifyExceptionEventRaised(new FileNotFoundException("dummy file not found error"));
-    }
-
-    @Test
-    public void saveDataToFile_dataConversionError_exceptionEvenRaised() throws DataConversionException, FileNotFoundException {
-        verifyExceptionEventRaised(new DataConversionException(new Exception("dummy data conversion error")));
-    }
-
-    /**
-     * Verifies the given FileSavingExceptionEvent is raised when the dependent method throws the given exception.
-     * @param exceptionToExpect The exception that will be thrown by the dependent method.
-     */
-    private void verifyExceptionEventRaised(Exception exceptionToExpect) throws DataConversionException, FileNotFoundException {
-        // set up to throw exception from the collaborating method XmlFileStorage.saveDataToFile
-        PowerMockito.doThrow(exceptionToExpect).when(XmlFileStorage.class);
-        XmlFileStorage.saveDataToFile(DUMMY_FILE, EMPTY_ADDRESSBOOK);
-
-        //invoke the method under test
-        storageManager.saveDataToFile(DUMMY_FILE,EMPTY_ADDRESSBOOK);
-
-        //verify the relevant event was raised
-        verify(eventManagerMock, times(1)).post(Mockito.any(FileSavingExceptionEvent.class));
-    }
-
-    @Test
     public void handleSaveRequestEvent(){
 
         //mock dependent method of same object (that method is tested elsewhere)
