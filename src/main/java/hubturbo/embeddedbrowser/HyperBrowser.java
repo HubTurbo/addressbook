@@ -120,8 +120,7 @@ public class HyperBrowser {
             page.get().getBrowser().loadHTML(htmlCode);
             replaceBrowserView(page.get().getBrowser().getBrowserView());
             return page.get();
-        }
-        else {
+        } else {
             Page sparePage = pages.get(0);
             sparePage.getBrowser().loadHTML(htmlCode);
             replaceBrowserView(sparePage.getBrowser().getBrowserView());
