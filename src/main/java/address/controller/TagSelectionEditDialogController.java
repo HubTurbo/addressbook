@@ -1,8 +1,8 @@
 package address.controller;
 
 import address.events.EventManager;
-import address.events.TagSearchResultsChangedEvent;
-import address.events.TagListChangedEvent;
+import address.events.TagSelectionSearchResultsChangedEvent;
+import address.events.TagSelectionListChangedEvent;
 import address.model.TagSelectionEditDialogModel;
 import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
@@ -58,12 +58,12 @@ public class TagSelectionEditDialogController extends EditDialogController {
     }
 
     @Subscribe
-    public void handleTagSearchResultsChangedEvent(TagSearchResultsChangedEvent e) {
+    public void handleTagSearchResultsChangedEvent(TagSelectionSearchResultsChangedEvent e) {
         tagResults.setContent(getTagsVBox(e.getSelectableTags()));
     }
 
     @Subscribe
-    public void handleTagListChangedEvent(TagListChangedEvent e) {
+    public void handleTagListChangedEvent(TagSelectionListChangedEvent e) {
         tagList.getChildren().clear();
         tagList.getChildren().addAll(getTagListNodes(e.getResultTag(), false));
     }
@@ -75,8 +75,14 @@ public class TagSelectionEditDialogController extends EditDialogController {
      */
     public void setDialogStage(Stage dialogStage) {
         dialogStage.getScene().setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.ESCAPE) handleCancel();
-            if (e.getCode() == KeyCode.ENTER) handleOk();
+            if (e.getCode() == KeyCode.ESCAPE) {
+                e.consume();
+                handleCancel();
+            }
+            if (e.getCode() == KeyCode.ENTER) {
+                e.consume();
+                handleOk();
+            }
         });
         this.dialogStage = dialogStage;
     }
@@ -106,11 +112,11 @@ public class TagSelectionEditDialogController extends EditDialogController {
      */
     private List<Node> getTagListNodes(List<SelectableTag> contactTagList, boolean shouldConsiderSelectedProperty) {
         return contactTagList.stream()
-                .map(tag -> getNodeForTag(shouldConsiderSelectedProperty, tag))
+                .map(tag -> getNodeForTag(tag, shouldConsiderSelectedProperty))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private Label getNodeForTag(boolean shouldConsiderSelectedProperty, SelectableTag contactTag) {
+    private Label getNodeForTag(SelectableTag contactTag, boolean shouldConsiderSelectedProperty) {
         Label newLabel = new Label(contactTag.getName());
         if (shouldConsiderSelectedProperty && contactTag.isSelected()) {
             newLabel.setStyle(STYLE_SELECTED_BACKGROUND);

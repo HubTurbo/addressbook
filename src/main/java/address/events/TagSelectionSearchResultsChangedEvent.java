@@ -4,10 +4,10 @@ import address.model.datatypes.tag.SelectableTag;
 
 import java.util.List;
 
-public class TagSearchResultsChangedEvent extends BaseEvent {
+public class TagSelectionSearchResultsChangedEvent extends BaseEvent {
     List<SelectableTag> selectableContactTags;
 
-    public TagSearchResultsChangedEvent(List<SelectableTag> selectableContactTags) {
+    public TagSelectionSearchResultsChangedEvent(List<SelectableTag> selectableContactTags) {
         this.selectableContactTags = selectableContactTags;
     }
 
