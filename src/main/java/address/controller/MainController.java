@@ -146,7 +146,13 @@ public class MainController {
 
     private void showHeaderStatusBar() {
         statusBarHeaderController = new StatusBarHeaderController();
-        rootLayout.getChildren().add(2, statusBarHeaderController.getFooterStatusBarView());
+        AnchorPane sbPlaceHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceHolder");
+        if (sbPlaceHolder == null) {
+            logger.warn("Error finding layout node");
+            showAlertDialogAndWait(AlertType.ERROR, "Error loading layout resources", "", "");
+        }
+        FxViewUtil.applyAnchorBoundaryParameters(statusBarHeaderController.getFooterStatusBarView(), 0.0, 0.0, 0.0, 0.0);
+        sbPlaceHolder.getChildren().add(statusBarHeaderController.getFooterStatusBarView());
     }
 
     private void showFooterStatusBar() {

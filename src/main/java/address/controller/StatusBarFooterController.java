@@ -1,6 +1,7 @@
 package address.controller;
 
 import address.events.*;
+import address.prefs.PrefsManager;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
@@ -20,6 +21,9 @@ public class StatusBarFooterController {
     @FXML
     private AnchorPane syncStatusBarPane;
 
+    private static final String SAVE_LOC_TEXT_PREFIX = "Save File: ";
+    private static final String LOC_TEXT_NOT_SET = "[NOT SET]";
+
     public static StatusBar syncStatusBar;
     public static StatusBar updaterStatusBar;
 
@@ -27,8 +31,11 @@ public class StatusBarFooterController {
 
     private final long updateIntervalInSecs;
 
+    private final Label saveLocText;
+
     public StatusBarFooterController() {
         EventManager.getInstance().registerHandler(this);
+        this.saveLocText = new Label();
         Config config = Config.getConfig();
         updateIntervalInSecs = (int) DateTimeUtil.millisecsToSecs(config.updateInterval);
         timer = new TickingTimer("Sync timer", (int) updateIntervalInSecs,
@@ -48,12 +55,18 @@ public class StatusBarFooterController {
     public void initStatusBar() {
         this.syncStatusBar = new StatusBar();
         this.updaterStatusBar = new StatusBar();
+        this.updaterStatusBar.getLeftItems().add(saveLocText);
 
         FxViewUtil.applyAnchorBoundaryParameters(syncStatusBar, 0.0, 0.0, 0.0, 0.0);
         FxViewUtil.applyAnchorBoundaryParameters(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
 
         syncStatusBarPane.getChildren().add(syncStatusBar);
         updaterStatusBarPane.getChildren().add(updaterStatusBar);
+    }
+
+    @FXML
+    private void initialize() {
+        updateSaveLocationDisplay();
     }
 
     @Subscribe
@@ -93,5 +106,15 @@ public class StatusBarFooterController {
             updaterStatusBar.setText("");
             updaterStatusBar.getRightItems().add(versionLabel);
         });
+    }
+
+    @Subscribe
+    private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
+        updateSaveLocationDisplay();
+    }
+
+    private void updateSaveLocationDisplay() {
+        saveLocText.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
+                PrefsManager.getInstance().getPrefs().getSaveLocation().getName() : LOC_TEXT_NOT_SET));
     }
 }
