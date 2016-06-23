@@ -6,11 +6,17 @@ import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.HPos;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.StatusBar;
 
+import javax.swing.*;
 import java.util.concurrent.*;
 
 public class StatusBarFooterController {
@@ -55,8 +61,12 @@ public class StatusBarFooterController {
     public void initStatusBar() {
         this.syncStatusBar = new StatusBar();
         this.updaterStatusBar = new StatusBar();
-        this.updaterStatusBar.getLeftItems().add(saveLocText);
-
+        saveLocText.setTextAlignment(TextAlignment.LEFT);
+        Tooltip tp = new Tooltip();
+        tp.textProperty().bind(saveLocText.textProperty());
+        saveLocText.setTooltip(tp);
+        this.updaterStatusBar.getRightItems().add(saveLocText);
+        saveLocText.setVisible(false);
         FxViewUtil.applyAnchorBoundaryParameters(syncStatusBar, 0.0, 0.0, 0.0, 0.0);
         FxViewUtil.applyAnchorBoundaryParameters(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
 
@@ -113,13 +123,8 @@ public class StatusBarFooterController {
         Platform.runLater(() -> {
             updaterStatusBar.setText(ufe.toString());
             updaterStatusBar.setProgress(0.0);
-
-            // TODO make it wait for a while before showing version so update status can be read
-
-            Label versionLabel = new Label(Version.getCurrentVersion().toString());
-            versionLabel.setTextAlignment(TextAlignment.RIGHT);
             updaterStatusBar.setText("");
-            updaterStatusBar.getRightItems().add(versionLabel);
+            saveLocText.setVisible(true);
         });
     }
 

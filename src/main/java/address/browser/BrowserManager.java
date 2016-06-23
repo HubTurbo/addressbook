@@ -61,6 +61,7 @@ public class BrowserManager {
     public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
         this.selectedPersonUsername = new SimpleStringProperty();
         this.filteredPersons = filteredPersons;
+
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
             logger.info("Headless mode detected, not initializing HyperBrowser.");
