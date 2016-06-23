@@ -6,17 +6,12 @@ import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.geometry.HPos;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.StatusBar;
 
-import javax.swing.*;
 import java.util.concurrent.*;
 
 public class StatusBarFooterController {
