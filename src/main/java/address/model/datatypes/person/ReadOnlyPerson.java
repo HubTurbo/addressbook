@@ -180,4 +180,15 @@ public interface ReadOnlyPerson extends ExtractableObservables {
                 getObservableTagList()
         };
     }
+
+    static List<Tag> getSelectedPersonsAssignedTag(List<ReadOnlyViewablePerson> persons) {
+        Set<Tag> tags = new HashSet<>();
+        persons.stream().forEach(p -> tags.addAll(p.getObservableTagList()));
+        List<Tag> assignedTags = tags.stream().filter(tag ->
+                persons.stream()
+                        .filter(p -> p.getObservableTagList().contains(tag))
+                        .count() == persons.size())
+                .collect(Collectors.toCollection(ArrayList::new));
+        return assignedTags;
+    }
 }

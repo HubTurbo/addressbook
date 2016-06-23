@@ -265,7 +265,8 @@ public class MainController {
             dialogStage.setScene(scene);
 
             TagSelectionEditDialogController controller = loader.getController();
-            controller.setTags(modelManager.getTagsAsReadOnlyObservableList(), getSelectedPersonsAssignedTag(persons));
+            controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
+                               ReadOnlyPerson.getSelectedPersonsAssignedTag(persons));
             controller.setDialogStage(dialogStage);
 
             dialogStage.showAndWait();
@@ -279,17 +280,6 @@ public class MainController {
             assert false : "Error loading fxml : " + FXML_TAG_SELECTION_EDIT_DIALOG;
         }
         return Collections.emptyList();
-    }
-
-    private List<Tag> getSelectedPersonsAssignedTag(List<ReadOnlyViewablePerson> persons) {
-        List<Tag> tags = modelManager.getTagsAsReadOnlyObservableList();
-        List<Tag> assignedTags = tags.stream().filter(tag ->
-                persons.stream()
-                        .filter(p -> p.getObservableTagList().contains(tag))
-                        .count() == persons.size())
-                .collect(Collectors.toCollection(ArrayList::new));
-        return assignedTags;
-
     }
 
     private Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {
