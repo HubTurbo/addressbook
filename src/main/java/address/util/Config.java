@@ -18,6 +18,7 @@ public class Config {
     private static final AppLogger logger = LoggerManager.getLogger(Config.class);
 
     private static final String CONFIG_FILE = "config.ini";
+    private static final String MISSING_FIELD = "Missing field from {}: {}";
     private static final String EMPTY_VALUE = "";
 
     // Config variables grouped by sections
@@ -35,7 +36,6 @@ public class Config {
     private static final Level DEFAULT_LOGGING_LEVEL = Level.INFO;
     private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
     private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVELS = new HashMap<>();
-    private static final String MISSING_FIELD = "Missing field from {}: {}";
 
     // Config values
     public String appTitle = "Address App";
@@ -80,7 +80,7 @@ public class Config {
         try {
             File configFile = new File(CONFIG_FILE);
             Ini iniFile = new Ini(configFile);
-            boolean hasAllFields = setValues(iniFile);
+            boolean hasAllFields = updateValuesReadFromIniFile(iniFile);
             if (hasAllFields) {
                 logger.info("Config values successfully read: '{}'", CONFIG_FILE);
             } else {
@@ -94,31 +94,31 @@ public class Config {
     }
 
     /**
-     * Sets values read from iniFile
+     * Updates this instance's values using values found in iniFile
      *
-     * Missing fields in iniFile will not be set, and its default value will be used instead
+     * Missing fields in iniFile will not be updated
      *
      * @param iniFile
      * @return false if there are missing fields
      * @throws IOException
      */
-    private boolean setValues(Ini iniFile) throws IOException {
+    private boolean updateValuesReadFromIniFile(Ini iniFile) throws IOException {
         boolean hasAllFields = true;
 
-        if (!setMainSectionValues(iniFile.get(MAIN_SECTION))) hasAllFields = false;
-        if (!setLoggingSectionValues(iniFile.get(LOGGING_SECTION))) hasAllFields = false;
-        if (!setCloudSectionValues(iniFile.get(CLOUD_SECTION))) hasAllFields = false;
+        if (!updateMainSectionValues(iniFile.get(MAIN_SECTION))) hasAllFields = false;
+        if (!updateLoggingSectionValues(iniFile.get(LOGGING_SECTION))) hasAllFields = false;
+        if (!updateCloudSectionValues(iniFile.get(CLOUD_SECTION))) hasAllFields = false;
 
         return hasAllFields;
     }
 
     /**
-     * Sets the config public variables according to the values read from the given logging section
-     * Empty fields in specialLogLevels are treated as blank
+     * Sets the config special logging classes' variables according to the values read from the given logging section
+     * Empty fields in specialLogLevels are assumed to be blank rather than omitting the field entirely
      *
      * @param loggingSection
      */
-    private boolean setLoggingSectionValues(Profile.Section loggingSection) {
+    private boolean updateLoggingSectionValues(Profile.Section loggingSection) {
         boolean hasAllFields = true;
         try {
             currentLogLevel = getLoggingLevel(getFieldValue(loggingSection, LOGGING_LEVEL));
@@ -142,7 +142,7 @@ public class Config {
         return hasAllFields;
     }
 
-    private boolean setMainSectionValues(Profile.Section mainSection) {
+    private boolean updateMainSectionValues(Profile.Section mainSection) {
         boolean hasAllFields = true;
         try {
             updateInterval = Long.parseLong(getFieldValue(mainSection, UPDATE_INTERVAL));
@@ -153,7 +153,7 @@ public class Config {
         return hasAllFields;
     }
 
-    private boolean setCloudSectionValues(Profile.Section cloudSection) {
+    private boolean updateCloudSectionValues(Profile.Section cloudSection) {
         boolean hasAllFields = true;
         try {
             simulateUnreliableNetwork = Boolean.parseBoolean(getFieldValue(cloudSection, UNRELIABLE_NETWORK));
@@ -180,7 +180,7 @@ public class Config {
      * Deletes any existing config file, then creates a new config file and
      * writes the current config values of this object into the config file
      *
-     * @param configFile
+     * @param configFile file to check for and/or to create
      * @throws IOException
      */
     private void recreateConfigFile(File configFile) throws IOException {
@@ -188,18 +188,18 @@ public class Config {
         if (!configFile.createNewFile()) throw new IOException("Error creating new config file.");
         Ini ini = new Ini(configFile);
 
-        putMainSection(ini);
-        putLoggingSection(ini);
-        putCloudSection(ini);
+        fillMainSection(ini);
+        fillLoggingSection(ini);
+        fillCloudSection(ini);
 
         ini.store();
     }
 
-    private void putCloudSection(Ini ini) {
+    private void fillCloudSection(Ini ini) {
         ini.put(CLOUD_SECTION, UNRELIABLE_NETWORK, simulateUnreliableNetwork);
     }
 
-    private void putLoggingSection(Ini ini) {
+    private void fillLoggingSection(Ini ini) {
         ini.put(LOGGING_SECTION, LOGGING_LEVEL, currentLogLevel);
 
         for (Level level : Level.values()) {
@@ -220,7 +220,7 @@ public class Config {
                 .collect(Collectors.toList());
     }
 
-    private void putMainSection(Ini ini) {
+    private void fillMainSection(Ini ini) {
         ini.put(MAIN_SECTION, UPDATE_INTERVAL, updateInterval);
     }
 
