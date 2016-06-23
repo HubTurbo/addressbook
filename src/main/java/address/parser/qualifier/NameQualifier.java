@@ -4,8 +4,7 @@ import address.model.datatypes.person.Person;
 import address.util.StringUtil;
 
 public class NameQualifier implements Qualifier {
-
-    public final String name;
+    private final String name;
 
     public NameQualifier(String name) {
         this.name = name;
@@ -13,7 +12,9 @@ public class NameQualifier implements Qualifier {
 
     @Override
     public boolean run(Person person) {
-        return StringUtil.containsIgnoreCase(person.getFirstName(), name) ||
-            StringUtil.containsIgnoreCase(person.getLastName(), name);
+        Qualifier firstNameQualifier = new FirstNameQualifier(name);
+        Qualifier lastNameQualifier = new LastNameQualifier(name);
+
+        return firstNameQualifier.run(person) || lastNameQualifier.run(person);
     }
 }
