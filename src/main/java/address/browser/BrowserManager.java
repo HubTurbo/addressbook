@@ -101,6 +101,7 @@ public class BrowserManager {
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
+            gPage.activateAutomateClickingAndScrolling();
             gPage.setPageLoadFinishListener(b -> Platform.runLater(() -> gPage.activateAutomateClickingAndScrolling()));
 
         } catch (IllegalArgumentException e) {
