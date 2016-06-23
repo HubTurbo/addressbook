@@ -45,6 +45,7 @@ public class BrowserManagerTest {
     @Test
     public void testNecessaryBrowserResources_resourcesNotNull() {
         BrowserManager manager = new BrowserManager(filteredPersons);
+        manager.initializeBrowser();
         assertNotNull(manager.getHyperBrowserView());
         Optional<Node> node = BrowserManagerUtil.getBrowserInitialScreen();
         assertTrue(node.isPresent());
