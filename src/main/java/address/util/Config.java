@@ -44,7 +44,7 @@ public class Config {
     public boolean simulateUnreliableNetwork = DEFAULT_NETWORK_UNRELIABLE_MODE;
     public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
     public HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
-    
+
     public void readFromConfigFile() {
         if (!hasExistingConfigFile() || !setConfigFileValues()) {
             initializeConfigFile();

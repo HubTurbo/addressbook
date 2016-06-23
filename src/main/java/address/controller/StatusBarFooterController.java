@@ -54,6 +54,13 @@ public class StatusBarFooterController {
         timer.pause();
     }
 
+    /**
+     * Initializes the status bar
+     *
+     * The given config object should have set updatedInterval
+     *
+     * @param config
+     */
     public void initStatusBar(Config config) {
         setConfig(config);
         this.syncStatusBar = new StatusBar();

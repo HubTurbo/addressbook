@@ -30,18 +30,33 @@ public class SyncManager extends ComponentManager{
 
     private RemoteManager remoteManager;
 
+    /**
+     * Constructor for SyncManager
+     *
+     * @param config should have updateInterval and simulateUnreliableNetwork set
+     */
     public SyncManager(Config config) {
         this(config, null, Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
     }
 
+    /**
+     * Constructor for SyncManager
+     *
+     * @param config
+     * @param remoteManager
+     * @param executorService
+     * @param scheduledExecutorService
+     * @param config should have updateInterval and simulateUnreliableNetwork set
+     */
     public SyncManager(Config config, RemoteManager remoteManager, ExecutorService executorService,
                        ScheduledExecutorService scheduledExecutorService) {
         super();
         activeAddressBook = Optional.empty();
         this.config = config;
         this.remoteManager = remoteManager;
-        this.scheduler = scheduledExecutorService;
         this.requestExecutor = executorService;
+        this.scheduler = scheduledExecutorService;
+
     }
 
     // TODO: setActiveAddressBook should be called by the model instead
@@ -56,15 +71,10 @@ public class SyncManager extends ComponentManager{
     }
 
     /**
-     * Initializes the remote service, if it hasn't been
-     *
      * Starts getting periodic updates from the cloud
      */
     public void start() {
         logger.info("Starting sync manager.");
-        if (remoteManager == null) {
-            this.remoteManager = new RemoteManager(config);
-        }
         updatePeriodically(config.updateInterval);
     }
 

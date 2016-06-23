@@ -58,6 +58,13 @@ public class MainController {
 
     private OrderedList<ReadOnlyViewablePerson> orderedList;
 
+    /**
+     * Constructor for mainController
+     *
+     * @param mainApp
+     * @param modelManager
+     * @param config should have appTitle and updateInterval set
+     */
     public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
         EventManager.getInstance().registerHandler(this);
         this.mainApp = mainApp;
