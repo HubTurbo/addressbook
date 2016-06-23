@@ -32,11 +32,11 @@ public class StatusBarFooterController {
 
     private final long updateIntervalInSecs;
 
-    private final Label saveLocText;
+    private final Label saveLocationLabel;
 
     public StatusBarFooterController() {
         EventManager.getInstance().registerHandler(this);
-        this.saveLocText = new Label();
+        this.saveLocationLabel = new Label();
         Config config = Config.getConfig();
         updateIntervalInSecs = (int) DateTimeUtil.millisecsToSecs(config.updateInterval);
         timer = new TickingTimer("Sync timer", (int) updateIntervalInSecs,
@@ -56,17 +56,24 @@ public class StatusBarFooterController {
     public void initStatusBar() {
         this.syncStatusBar = new StatusBar();
         this.updaterStatusBar = new StatusBar();
-        saveLocText.setTextAlignment(TextAlignment.LEFT);
-        Tooltip tp = new Tooltip();
-        tp.textProperty().bind(saveLocText.textProperty());
-        saveLocText.setTooltip(tp);
-        this.updaterStatusBar.getRightItems().add(saveLocText);
-        saveLocText.setVisible(false);
         FxViewUtil.applyAnchorBoundaryParameters(syncStatusBar, 0.0, 0.0, 0.0, 0.0);
         FxViewUtil.applyAnchorBoundaryParameters(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
-
         syncStatusBarPane.getChildren().add(syncStatusBar);
         updaterStatusBarPane.getChildren().add(updaterStatusBar);
+        initSaveLocationLabel();
+    }
+
+    private void initSaveLocationLabel() {
+        saveLocationLabel.setTextAlignment(TextAlignment.LEFT);
+        setTooltip(saveLocationLabel);
+        this.updaterStatusBar.getRightItems().add(saveLocationLabel);
+        saveLocationLabel.setVisible(false);
+    }
+
+    private void setTooltip(Label label) {
+        Tooltip tp = new Tooltip();
+        tp.textProperty().bind(label.textProperty());
+        label.setTooltip(tp);
     }
 
     @FXML
@@ -119,7 +126,7 @@ public class StatusBarFooterController {
             updaterStatusBar.setText(ufe.toString());
             updaterStatusBar.setProgress(0.0);
             updaterStatusBar.setText("");
-            saveLocText.setVisible(true);
+            saveLocationLabel.setVisible(true);
         });
     }
 
@@ -129,7 +136,7 @@ public class StatusBarFooterController {
     }
 
     private void updateSaveLocationDisplay() {
-        saveLocText.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
+        saveLocationLabel.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
                 PrefsManager.getInstance().getPrefs().getSaveLocation().getName() : LOC_TEXT_NOT_SET));
     }
 }
