@@ -14,6 +14,7 @@ import address.prefs.PrefsManager;
 
 import address.util.AppLogger;
 import address.util.LoggerManager;
+import address.util.Version;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.fxml.FXML;
@@ -137,7 +138,7 @@ public class RootLayoutController {
     private void handleAbout() {
         logger.debug("Showing information about the application.");
         mainController.showAlertDialogAndWait(AlertType.INFORMATION, "AddressApp", "About",
-                "Some code adapted from http://code.makery.ch");
+                "Version " + Version.getCurrentVersion().toString() + "\nSome code adapted from http://code.makery.ch");
     }
 
     /**
