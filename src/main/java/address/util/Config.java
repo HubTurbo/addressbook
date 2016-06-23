@@ -51,7 +51,6 @@ public class Config {
     // Customizable through config file
     public long updateInterval = DEFAULT_UPDATE_INTERVAL;
     public boolean simulateUnreliableNetwork = DEFAULT_NETWORK_UNRELIABLE_MODE;
-    @JsonSerialize(using = ToStringSerializer.class)
     public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
     public HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
 
@@ -74,15 +73,6 @@ public class Config {
         this.simulateUnreliableNetwork = simulateUnreliableNetwork;
     }
 
-    @JsonProperty("currentLogLevel")
-    public String getCurrentLogLevelString() {
-        return currentLogLevel.toString();
-    }
-
-    public void setCurrentLogLevelString(String logLevelString) {
-        this.currentLogLevel = getLoggingLevel(logLevelString);
-    }
-
     public Level getCurrentLogLevel() {
         return currentLogLevel;
     }
@@ -98,7 +88,6 @@ public class Config {
     public void setSpecialLogLevels(HashMap<String, Level> specialLogLevels) {
         this.specialLogLevels = specialLogLevels;
     }
-
 
     public void readFromConfigFile() {
         if (!hasExistingConfigFile() || !setConfigFileValues()) {
