@@ -8,6 +8,7 @@ import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 import address.sync.task.CloudUpdateTask;
 import address.util.AppLogger;
+import address.util.Config;
 import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 
@@ -24,21 +25,38 @@ public class SyncManager extends ComponentManager{
 
     private final ScheduledExecutorService scheduler;
     private final ExecutorService requestExecutor;
+    private Config config;
     private Optional<String> activeAddressBook;
 
     private RemoteManager remoteManager;
 
-    public SyncManager() {
-        this(null, Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
+    /**
+     * Constructor for SyncManager
+     *
+     * @param config should have updateInterval and simulateUnreliableNetwork set
+     */
+    public SyncManager(Config config) {
+        this(config, null, Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
     }
 
-    public SyncManager(RemoteManager remoteManager, ExecutorService executorService,
+    /**
+     * Constructor for SyncManager
+     *
+     * @param config
+     * @param remoteManager
+     * @param executorService
+     * @param scheduledExecutorService
+     * @param config should have updateInterval and simulateUnreliableNetwork set
+     */
+    public SyncManager(Config config, RemoteManager remoteManager, ExecutorService executorService,
                        ScheduledExecutorService scheduledExecutorService) {
         super();
         activeAddressBook = Optional.empty();
+        this.config = config;
         this.remoteManager = remoteManager;
-        this.scheduler = scheduledExecutorService;
         this.requestExecutor = executorService;
+        this.scheduler = scheduledExecutorService;
+
     }
 
     // TODO: setActiveAddressBook should be called by the model instead
@@ -53,21 +71,11 @@ public class SyncManager extends ComponentManager{
     }
 
     /**
-     * Initializes the remote service, if it hasn't been
-     *
      * Starts getting periodic updates from the cloud
-     *
-     * @param interval should be a positive integer
      */
-    public void start(long interval) {
-        if (interval <= 0) {
-            logger.warn("Update interval specified is not positive: {}", interval);
-            return;
-        }
-        if (remoteManager == null) {
-            this.remoteManager = new RemoteManager();
-        }
-        updatePeriodically(interval);
+    public void start() {
+        logger.info("Starting sync manager.");
+        updatePeriodically(config.updateInterval);
     }
 
     /**

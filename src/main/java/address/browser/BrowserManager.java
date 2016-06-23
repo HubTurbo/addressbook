@@ -58,6 +58,7 @@ public class BrowserManager {
     };
 
     public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
+        initializeBrowser();
         this.selectedPersonUsername = new SimpleStringProperty();
         this.filteredPersons = filteredPersons;
     }

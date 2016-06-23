@@ -51,7 +51,7 @@ public class DependencyTracker {
         while (it.hasNext()) {
             Map.Entry<Version, List<String>> entry = it.next();
             if (dependenciesOfUnusedVersions.contains(entry.getKey())) {
-                logger.debug("Removing " + entry.getKey());
+                logger.debug("Removing {}", entry.getKey());
                 it.remove();
             }
         }

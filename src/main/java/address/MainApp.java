@@ -1,12 +1,10 @@
 package address;
 
 import address.browser.BrowserManager;
-
 import address.controller.MainController;
 import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
 import address.prefs.PrefsManager;
-import address.prefs.UserPrefs;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
 import address.updater.UpdateManager;
@@ -20,6 +18,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -41,6 +40,7 @@ public class MainApp extends Application {
     protected UpdateManager updateManager;
     protected MainController mainController;
     protected KeyBindingsManager keyBindingsManager;
+    protected Config config;
 
     public MainApp() {}
 
@@ -49,15 +49,15 @@ public class MainApp extends Application {
         logger.info("Initializing app ...");
         super.init();
         initConfig();
-        Config.setConfig(Config.getConfig());
         initPrefs();
         BrowserManager.initializeJxBrowserEnvironment();
-        //TODO: should this be here? looks out of place
         initComponents();
     }
 
     protected void initConfig() {
         // For sub classes to override
+        config = StorageManager.getConfig();
+        logger.info("Config successfully obtained from StorageManager");
     }
 
     protected void initPrefs() {
@@ -65,10 +65,12 @@ public class MainApp extends Application {
     }
 
     protected void initComponents() {
+        LoggerManager.updateWithConfig(config);
+
         modelManager = new ModelManager();
         storageManager = new StorageManager(modelManager, PrefsManager.getInstance().getPrefs());
-        mainController = new MainController(this, modelManager);
-        syncManager = new SyncManager();
+        mainController = new MainController(this, modelManager, config);
+        syncManager = new SyncManager(config);
         keyBindingsManager = new KeyBindingsManager();
         updateManager = new UpdateManager();
         alertMissingDependencies();
@@ -81,7 +83,7 @@ public class MainApp extends Application {
         mainController.start(primaryStage);
         updateManager.start();
         storageManager.start();
-        syncManager.start(Config.getConfig().updateInterval);
+        syncManager.start();
     }
 
     //TODO: this method is out of place
@@ -93,7 +95,7 @@ public class MainApp extends Application {
         } else {
             StringBuilder message = new StringBuilder("Missing dependencies:\n");
             for (String missingDependency : missingDependencies) {
-                message.append("- " + missingDependency + "\n");
+                message.append("- ").append(missingDependency).append("\n");
             }
             String missingDependenciesMessage = message.toString().trim();
             logger.warn(missingDependenciesMessage);

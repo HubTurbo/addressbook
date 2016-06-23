@@ -22,7 +22,8 @@ public class TestApp extends MainApp {
 
     @Override
     protected void initConfig() {
-        Config.getConfig().appTitle = "Test App";
+        super.initConfig();
+        config.appTitle = "Test App";
     }
 
     @Override
