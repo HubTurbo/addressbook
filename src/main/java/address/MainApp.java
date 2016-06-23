@@ -49,16 +49,16 @@ public class MainApp extends Application {
     public void init() throws Exception {
         logger.info("Initializing app ...");
         super.init();
-        initComponents();
         initConfig();
         initPrefs();
         BrowserManager.initializeJxBrowserEnvironment();
-        //TODO: should this be here? looks out of place
+        initComponents();
     }
 
     protected void initConfig() {
         // For sub classes to override
-        config = storageManager.getConfig();
+        config = new Config();
+        config.readFromConfigFile();
     }
 
     protected void initPrefs() {
@@ -66,11 +66,10 @@ public class MainApp extends Application {
     }
 
     protected void initComponents() {
-        storageManager = new StorageManager(modelManager, PrefsManager.getInstance().getPrefs());
-        initConfig();
         LoggerManager.updateWithConfig(config);
 
         modelManager = new ModelManager();
+        storageManager = new StorageManager(modelManager, PrefsManager.getInstance().getPrefs());
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager(config);
         keyBindingsManager = new KeyBindingsManager();
@@ -81,11 +80,17 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        logger.info("Starting application: {}", Version.getCurrentVersion());
-        mainController.start(primaryStage);
-        updateManager.start();
-        storageManager.start();
-        syncManager.start();
+            logger.info("Starting application: {}", Version.getCurrentVersion());
+            mainController.start(primaryStage);
+            updateManager.start();
+
+        try {
+            storageManager.start();
+
+        } catch (Exception e) {
+            logger.fatal("Error: {}", e);
+        }
+            syncManager.start();
     }
 
     //TODO: this method is out of place

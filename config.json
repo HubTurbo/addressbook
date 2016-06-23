@@ -1,0 +1,9 @@
+{
+  "appTitle" : "Address App",
+  "updateInterval" : 10000,
+  "simulateUnreliableNetwork" : true,
+  "currentLogLevel" : "DEBUG",
+  "specialLogLevels" : {
+    "SyncManager" : "TRACE"
+  }
+}

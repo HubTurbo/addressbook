@@ -35,8 +35,6 @@ public class Config {
     private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
     private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVELS = new HashMap<>();
     private static final String MISSING_FIELD = "Missing field from {}: {}";
-    
-    private static Config config;
 
     // Config values
     public String appTitle = "Address App";
@@ -52,10 +50,6 @@ public class Config {
         if (!hasExistingConfigFile() || !setConfigFileValues()) {
             initializeConfigFile();
         }
-    }
-
-    public static void setConfig(Config configToSet) {
-        config = configToSet;
     }
 
     private void initializeConfigFile() {
