@@ -1,19 +1,24 @@
 package address.updater;
 
 import address.MainApp;
-import address.events.EventManager;
 import address.events.UpdaterFinishedEvent;
 import address.events.UpdaterInProgressEvent;
+import address.main.ComponentManager;
 import address.updater.model.UpdateData;
 import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -21,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * Checks for update to application
  */
-public class UpdateManager {
+public class UpdateManager extends ComponentManager {
     public static final String UPDATE_DIR = "update";
     private static final AppLogger logger = LoggerManager.getLogger(UpdateManager.class);
 
@@ -55,6 +60,7 @@ public class UpdateManager {
     private boolean isUpdateApplicable;
 
     public UpdateManager() {
+        super();
         this.isUpdateApplicable = false;
         dependencyTracker = new DependencyTracker();
         backupManager = new BackupManager(dependencyTracker);
@@ -71,20 +77,20 @@ public class UpdateManager {
     }
 
     private void checkForUpdate() {
-        EventManager.getInstance().post(new UpdaterInProgressEvent("Clearing local update specification file", -1));
+        raise(new UpdaterInProgressEvent("Clearing local update specification file", -1));
         try {
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
-            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_DELETE_UPDATE_SPEC));
+            raise(new UpdaterFinishedEvent(MSG_FAIL_DELETE_UPDATE_SPEC));
             logger.debug(MSG_FAIL_DELETE_UPDATE_SPEC);
             return;
         }
 
-        EventManager.getInstance().post(new UpdaterInProgressEvent("Getting data from server", -1));
+        raise(new UpdaterInProgressEvent("Getting data from server", -1));
         Optional<UpdateData> updateData = getUpdateDataFromServer();
 
         if (!updateData.isPresent()) {
-            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_UPDATE_DATA));
+            raise(new UpdaterFinishedEvent(MSG_NO_UPDATE_DATA));
             logger.debug(MSG_NO_UPDATE_DATA);
             return;
         }
@@ -92,57 +98,57 @@ public class UpdateManager {
         Optional<Version> latestVersion = getLatestVersion(updateData.get());
 
         if (!latestVersion.isPresent()) {
-            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_VERSION_AVAILABLE));
+            raise(new UpdaterFinishedEvent(MSG_NO_VERSION_AVAILABLE));
             logger.debug(MSG_NO_VERSION_AVAILABLE);
             return;
         }
 
         if (latestVersion.get().isEarlyAccess() != MainApp.IS_EARLY_ACCESS) {
-            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_DIFF_CHANNEL));
+            raise(new UpdaterFinishedEvent(MSG_DIFF_CHANNEL));
             logger.debug(MSG_DIFF_CHANNEL);
             return;
         }
 
         if (downloadedVersions.contains(latestVersion.get()) ||
                 Version.getCurrentVersion().equals(latestVersion.get())) {
-            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
+            raise(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
             logger.debug(MSG_NO_NEWER_VERSION);
             return;
         }
 
-        EventManager.getInstance().post(new UpdaterInProgressEvent(
+        raise(new UpdaterInProgressEvent(
                 "Collecting all update files that are to be downloaded", -1));
         HashMap<String, URL> filesToBeUpdated;
         try {
             filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(updateData.get());
         } catch (MalformedURLException e) {
-            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_MAIN_APP_URL));
+            raise(new UpdaterFinishedEvent(MSG_FAIL_MAIN_APP_URL));
             logger.debug(MSG_FAIL_MAIN_APP_URL);
             return;
         }
 
 
         if (filesToBeUpdated.isEmpty()) {
-            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_NO_UPDATE));
+            raise(new UpdaterFinishedEvent(MSG_NO_UPDATE));
             logger.debug(MSG_NO_UPDATE);
             return;
         }
 
-        EventManager.getInstance().post(new UpdaterInProgressEvent("Downloading updates", 0.5));
+        raise(new UpdaterInProgressEvent("Downloading updates", 0.5));
         try {
             downloadAllFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
         } catch (IOException e) {
-            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
+            raise(new UpdaterFinishedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
             logger.debug(MSG_FAIL_DOWNLOAD_UPDATE);
             return;
         }
 
-        EventManager.getInstance().post(new UpdaterInProgressEvent("Finalizing updates", 0.85));
+        raise(new UpdaterInProgressEvent("Finalizing updates", 0.85));
 
         try {
             createUpdateSpecification(filesToBeUpdated);
         } catch (IOException e) {
-            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_CREATE_UPDATE_SPEC));
+            raise(new UpdaterFinishedEvent(MSG_FAIL_CREATE_UPDATE_SPEC));
             logger.debug(MSG_FAIL_CREATE_UPDATE_SPEC);
             return;
         }
@@ -150,12 +156,12 @@ public class UpdateManager {
         try {
             extractJarUpdater();
         } catch (IOException e) {
-            EventManager.getInstance().post(new UpdaterFinishedEvent(MSG_FAIL_EXTRACT_JAR_UPDATER));
+            raise(new UpdaterFinishedEvent(MSG_FAIL_EXTRACT_JAR_UPDATER));
             logger.debug(MSG_FAIL_EXTRACT_JAR_UPDATER);
             return;
         }
 
-        EventManager.getInstance().post(new UpdaterFinishedEvent("Update will be applied on next launch"));
+        raise(new UpdaterFinishedEvent("Update will be applied on next launch"));
         this.isUpdateApplicable = true;
 
         updateDownloadedVersionsData(latestVersion.get());
@@ -316,7 +322,6 @@ public class UpdateManager {
             return JsonUtil.fromJsonStringToList(FileUtil.readFromFile(DOWNLOADED_VERSIONS_FILE), Version.class);
         } catch (IOException e) {
             logger.warn("Failed to read downloaded version from file: {}", e);
-            //TODO: do better logging instead of printing stacktrace
         }
 
         return new ArrayList<>();
