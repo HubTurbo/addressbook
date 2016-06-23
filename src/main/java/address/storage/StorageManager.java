@@ -19,16 +19,77 @@ import java.io.IOException;
  */
 public class StorageManager extends ComponentManager {
     private static final AppLogger logger = LoggerManager.getLogger(StorageManager.class);
+    private static final String CONFIG_FILE = "config.json";
 
     private ModelManager modelManager;
     private UserPrefs userPrefs;
 
-    public StorageManager(ModelManager modelManager,
-                          UserPrefs userPrefs) {
-
+    public StorageManager(ModelManager modelManager, UserPrefs userPrefs) {
         super();
         this.modelManager = modelManager;
         this.userPrefs = userPrefs;
+    }
+
+    public static Config getConfig() {
+        File configFile = new File(CONFIG_FILE);
+
+        Config config;
+        if (configFile.exists()) {
+            logger.info("Config file {} found, attempting to read.", configFile);
+            config = readFromConfigFile(configFile);
+        } else {
+            logger.info("Config file {} not found, using default config.", configFile);
+            config = new Config();
+        }
+        // Recreate the file so that any missing fields will be restored
+        recreateFile(configFile, config);
+        return config;
+    }
+
+    private static void recreateFile(File configFile, Config config) {
+        if (!deleteConfigFileIfExists(configFile)) return;
+        createAndWriteToConfigFile(configFile, config);
+    }
+
+    private static void createAndWriteToConfigFile(File configFile, Config config) {
+        try {
+            FileUtil.writeToFile(configFile, JsonUtil.toJsonString(config));
+        } catch (IOException e) {
+            logger.warn("Error writing to config file {}.", configFile);
+        }
+    }
+
+    /**
+     * Attempts to delete configFile if it exists
+     *
+     * @param configFile
+     * @return false if exception is thrown
+     */
+    private static boolean deleteConfigFileIfExists(File configFile) {
+        if (!FileUtil.isFileExists(configFile)) return true;
+
+        try {
+            FileUtil.deleteFile(configFile);
+            return true;
+        } catch (IOException e) {
+            logger.warn("Error removing previous config file {}.", configFile);
+            return false;
+        }
+    }
+
+    /**
+     * Attempts to read config values from the given file
+     *
+     * @param configFile
+     * @return default config object if reading fails
+     */
+    private static Config readFromConfigFile(File configFile) {
+        try {
+            return JsonUtil.fromJsonString(FileUtil.readFromFile(configFile), Config.class);
+        } catch (IOException e) {
+            logger.warn("Error reading from config file {}: {}", configFile, e);
+            return new Config();
+        }
     }
 
     /**
@@ -40,33 +101,6 @@ public class StorageManager extends ComponentManager {
         File dataFile = ldre.file;
         logger.info("Handling load data request received: {}", dataFile);
         loadDataFromFile(dataFile);
-    }
-
-    public static Config getConfig() throws IOException {
-        File configFile = new File("config.json");
-
-        Config config;
-        if (configFile.exists()) {
-            config = JsonUtil.fromJsonString(FileUtil.readFromFile(configFile), Config.class);
-        } else {
-            config = new Config();
-        }
-        if (FileUtil.isFileExists(configFile)) {
-            FileUtil.deleteFile(configFile);
-        }
-        FileUtil.writeToFile(configFile, JsonUtil.toJsonString(config));
-        return config;
-    }
-
-
-    protected void loadDataFromFile(File dataFile) {
-        try {
-            logger.debug("Attempting to load data from file: {}", dataFile);
-            modelManager.updateUsingExternalData(XmlFileStorage.loadDataFromSaveFile(dataFile));
-        } catch (FileNotFoundException | DataConversionException e) {
-            logger.debug("Error loading data from file: {}", e);
-            raise(new FileOpeningExceptionEvent(e, dataFile));
-        }
     }
 
     /**
@@ -107,5 +141,15 @@ public class StorageManager extends ComponentManager {
     public void start() {
         logger.info("Starting storage manager.");
         loadDataFromFile(userPrefs.getSaveLocation());
+    }
+
+    protected void loadDataFromFile(File dataFile) {
+        try {
+            logger.debug("Attempting to load data from file: {}", dataFile);
+            modelManager.updateUsingExternalData(XmlFileStorage.loadDataFromSaveFile(dataFile));
+        } catch (FileNotFoundException | DataConversionException e) {
+            logger.debug("Error loading data from file: {}", e);
+            raise(new FileOpeningExceptionEvent(e, dataFile));
+        }
     }
 }

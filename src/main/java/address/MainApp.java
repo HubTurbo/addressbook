@@ -56,12 +56,8 @@ public class MainApp extends Application {
 
     protected void initConfig() {
         // For sub classes to override
-        try {
-            config = StorageManager.getConfig();
-            logger.info("Config successfully obtained from StorageManager");
-        } catch (IOException e) {
-            logger.warn("Error reading from config: {}", e);
-        }
+        config = StorageManager.getConfig();
+        logger.info("Config successfully obtained from StorageManager");
     }
 
     protected void initPrefs() {
