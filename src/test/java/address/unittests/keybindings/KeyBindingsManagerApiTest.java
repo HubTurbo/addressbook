@@ -53,6 +53,7 @@ public class KeyBindingsManagerApiTest {
         verifyAccelerator("FILE_NEW_ACCELERATOR", "SHORTCUT + N");
         verifyAccelerator("FILE_OPEN_ACCELERATOR", "SHORTCUT + O");
         verifyAccelerator("FILE_SAVE_ACCELERATOR", "SHORTCUT + S");
+        verifyAccelerator("PERSON_TAG_ACCELERATOR", "T");
         verifyAccelerator("FILE_SAVE_AS_ACCELERATOR", "SHORTCUT + ALT + S");
 
         verifyHotkey(new MinimizeAppRequestEvent(), "CTRL + ALT + X");
