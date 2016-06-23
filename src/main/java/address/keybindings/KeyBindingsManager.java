@@ -47,7 +47,7 @@ public class KeyBindingsManager extends ComponentManager{
             return;
         }
 
-        logger.info("Handling {} " + kb.get());
+        logger.info("Handling {} ", kb.get());
         BaseEvent event = kb.get().getEventToRaise();
         raise (event);
 

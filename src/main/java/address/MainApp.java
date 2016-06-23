@@ -1,12 +1,9 @@
 package address;
 
-import address.browser.BrowserManager;
-
 import address.controller.MainController;
 import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
 import address.prefs.PrefsManager;
-import address.prefs.UserPrefs;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
 import address.updater.UpdateManager;
@@ -80,17 +77,11 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-            logger.info("Starting application: {}", Version.getCurrentVersion());
-            mainController.start(primaryStage);
-            updateManager.start();
-
-        try {
-            storageManager.start();
-
-        } catch (Exception e) {
-            logger.fatal("Error: {}", e);
-        }
-            syncManager.start();
+        logger.info("Starting application: {}", Version.getCurrentVersion());
+        mainController.start(primaryStage);
+        updateManager.start();
+        storageManager.start();
+        syncManager.start();
     }
 
     //TODO: this method is out of place
@@ -102,7 +93,7 @@ public class MainApp extends Application {
         } else {
             StringBuilder message = new StringBuilder("Missing dependencies:\n");
             for (String missingDependency : missingDependencies) {
-                message.append("- " + missingDependency + "\n");
+                message.append("- ").append(missingDependency).append("\n");
             }
             String missingDependenciesMessage = message.toString().trim();
             logger.warn(missingDependenciesMessage);

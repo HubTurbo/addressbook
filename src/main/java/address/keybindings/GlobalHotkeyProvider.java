@@ -37,7 +37,7 @@ public class GlobalHotkeyProvider {
         for (GlobalHotkey hk: hotkeys){
             provider.register(hk.getKeyStroke(),
                 (hotkey) -> {
-                    logger.debug("Global hotkey detected by jkeyMaster : " + hk);
+                    logger.debug("Global hotkey detected by jkeyMaster : {}", hk);
                     eventManager.post(new GlobalHotkeyEvent(hk.keyCombination));
                 });
         }
@@ -50,7 +50,7 @@ public class GlobalHotkeyProvider {
      */
     @Subscribe
     public void handleGlobalHotkeyEvent(GlobalHotkeyEvent globalHotkeyEvent){
-        logger.debug("Converting global hotkey to normal key event : " + globalHotkeyEvent);
+        logger.debug("Converting global hotkey to normal key event : {}", globalHotkeyEvent);
         eventManager.post(globalHotkeyEvent.keyBindingEvent);
     }
 

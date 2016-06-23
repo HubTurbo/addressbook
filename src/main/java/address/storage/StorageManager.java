@@ -40,13 +40,13 @@ public class StorageManager extends ComponentManager {
     @Subscribe
     public void handleLoadDataRequestEvent(LoadDataRequestEvent ldre) {
         File dataFile = ldre.file;
-        logger.info("Handling load data request received: " + dataFile);
+        logger.info("Handling load data request received: {}", dataFile);
         loadDataFromFile(dataFile);
     }
 
     protected void loadDataFromFile(File dataFile) {
         try {
-            logger.debug("Attempting to load data from file: " + dataFile);
+            logger.debug("Attempting to load data from file: {}", dataFile);
             modelManager.updateUsingExternalData(XmlFileStorage.loadDataFromSaveFile(dataFile));
         } catch (FileNotFoundException | DataConversionException e) {
             logger.debug("Error loading data from file: {}", e);
@@ -68,7 +68,7 @@ public class StorageManager extends ComponentManager {
      */
     @Subscribe
     public void handleSaveRequestEvent(SaveRequestEvent sre) {
-        logger.info("Save data request received: ", sre.data);
+        logger.info("Save data request received: {}", sre.data);
         saveDataToFile(sre.file, sre.data);
     }
 
