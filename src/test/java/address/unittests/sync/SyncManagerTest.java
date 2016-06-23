@@ -40,7 +40,7 @@ public class SyncManagerTest {
         executorService = mock(ExecutorService.class);
         scheduledExecutorService = mock(ScheduledExecutorService.class);
         config = mock(Config.class);
-        syncManager = new SyncManager(remoteManager, executorService, scheduledExecutorService, config);
+        syncManager = new SyncManager(config, remoteManager, executorService, scheduledExecutorService);
 
         config.simulateUnreliableNetwork = false;
     }
