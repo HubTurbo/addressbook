@@ -143,12 +143,15 @@ public class PersonOverviewController {
      */
     private void handleEditTagPersons() {
         List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
-        List<Tag> listOfFinalTags = mainController.getPersonsTagsInput(selectedPersons);
-        selectedPersons.stream().forEach(p -> {
-            Person editedPerson = new Person(p);
-            editedPerson.setTags(listOfFinalTags);
-            modelManager.updatePerson(p, editedPerson);
-        });
+        Optional<List<Tag>> listOfFinalTags = mainController.getPersonsTagsInput(selectedPersons);
+
+        if (listOfFinalTags.isPresent()) {
+            selectedPersons.stream().forEach(p -> {
+                Person editedPerson = new Person(p);
+                editedPerson.setTags(listOfFinalTags.get());
+                modelManager.updatePerson(p, editedPerson);
+            });
+        }
     }
 
     private boolean isAddSuccessful(ReadOnlyPerson newData) {

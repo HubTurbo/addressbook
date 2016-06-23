@@ -249,7 +249,7 @@ public class MainController {
         }
     }
 
-    public List<Tag> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
+    public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
         try {
@@ -272,14 +272,14 @@ public class MainController {
             dialogStage.showAndWait();
 
             if (controller.isOkClicked()) {
-                return controller.getFinalAssignedTags();
+                return Optional.of(controller.getFinalAssignedTags());
             }
 
         } catch (IOException e) {
             logger.warn("Error launching tag selection dialog: {}", e);
             assert false : "Error loading fxml : " + FXML_TAG_SELECTION_EDIT_DIALOG;
         }
-        return Collections.emptyList();
+        return Optional.empty();
     }
 
     private Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {
