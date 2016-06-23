@@ -38,7 +38,7 @@ public class JavafxThreadingRule implements TestRule {
 
     public JavafxThreadingRule() {
         ExecutorService executor = Executors.newFixedThreadPool(1);
-        Runnable task = () -> BrowserManager.initializeBrowser();
+        Runnable task = () -> BrowserManager.initializeJxBrowserEnvironment();
         Future<?> future = executor.submit(task);
         try {
             future.get();
