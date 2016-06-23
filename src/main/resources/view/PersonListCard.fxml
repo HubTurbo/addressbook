@@ -7,13 +7,13 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <HBox fx:id="cardPane"  xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-    <GridPane HBox.hgrow="ALWAYS">
+    <GridPane minHeight="110.0" prefHeight="110.0" maxHeight="110.0" HBox.hgrow="ALWAYS">
         <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" maxWidth="100.0"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="150.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" prefWidth="100.0" maxWidth="100.0"/>
         </columnConstraints>
         <children>
-            <VBox GridPane.columnIndex="0">
+            <VBox  minHeight="110.0" prefHeight="110.0" maxHeight="110.0" GridPane.columnIndex="0">
                 <stylesheets>
                     <URL value="@DarkTheme.css" />
                     <URL value="@Extensions.css" />
@@ -35,12 +35,12 @@
                     <Label fx:id="tags"  styleClass="cell_small_label"/>
                 </children>
             </VBox>
-            <ImageView fx:id="profileImage" fitHeight="60.0" fitWidth="100.0" preserveRatio="true" GridPane.columnIndex="1">
+            <ImageView fx:id="profileImage" fitHeight="90.0" fitWidth="90.0" preserveRatio="true" GridPane.columnIndex="1">
                 <image>
                     <Image url="@../images/default_profile_picture.png" />
                 </image>
                 <HBox.margin>
-                    <Insets bottom="10" left="10" right="10" top="10"/>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
                 </HBox.margin>
             </ImageView>
         </children>
