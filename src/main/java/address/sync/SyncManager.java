@@ -162,7 +162,7 @@ public class SyncManager extends ComponentManager{
     // TODO: remove
     // To be removed after working out specification on saving and syncing behaviour
     @Subscribe
-    public void handleSaveRequestEvent(SaveRequestEvent sre) {
+    public void handleSaveRequestEvent(SaveDataRequestEvent sre) {
         requestExecutor.execute(new CloudUpdateTask(this.remoteManager, sre.data));
     }
 }

@@ -1,27 +1,20 @@
 package address.controller;
 
-import java.io.File;
-import java.util.Optional;
-
 import address.MainApp;
-import address.events.*;
-import address.exceptions.DuplicateDataException;
-import address.exceptions.DuplicateTagException;
-import address.model.datatypes.tag.Tag;
-import address.model.ModelManager;
+import address.events.EventManager;
+import address.events.LoadDataRequestEvent;
+import address.events.SaveDataRequestEvent;
 import address.keybindings.KeyBindingsManager;
-import address.prefs.PrefsManager;
-
+import address.model.ModelManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.Version;
-import com.google.common.eventbus.Subscribe;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.text.Text;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
+
+import java.io.File;
 
 /**
  * The controller for the root layout. The root layout provides the basic
@@ -71,7 +64,7 @@ public class RootLayoutController {
         final FileChooser fileChooser = new FileChooser();
 
         fileChooser.getExtensionFilters().add(extFilter);
-        final File currentFile = PrefsManager.getInstance().getPrefs().getSaveLocation();
+        final File currentFile = modelManager.getPrefs().getSaveLocation();
         fileChooser.setInitialDirectory(currentFile.getParentFile());
         return fileChooser;
     }
@@ -83,7 +76,7 @@ public class RootLayoutController {
     @FXML
     private void handleNew() {
         logger.debug("Wiping current model data.");
-        PrefsManager.getInstance().clearSaveLocation();
+        modelManager.clearPrefsSaveLocation(); // so as not to overwrite previous addressbook file
         modelManager.clearModel();
     }
 
@@ -96,7 +89,7 @@ public class RootLayoutController {
         // Show open file dialog
         File toOpen = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
         if (toOpen == null) return;
-        PrefsManager.getInstance().setSaveLocation(toOpen);
+        modelManager.setPrefsSaveLocation(toOpen.getPath());
         EventManager.getInstance().post(new LoadDataRequestEvent(toOpen));
     }
 
@@ -106,9 +99,9 @@ public class RootLayoutController {
      */
     @FXML
     private void handleSave() {
-        final File saveFile = PrefsManager.getInstance().getPrefs().getSaveLocation();
+        final File saveFile = modelManager.getPrefs().getSaveLocation();
         logger.debug("Requesting save to: {}.", saveFile);
-        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager));
+        EventManager.getInstance().post(new SaveDataRequestEvent(saveFile, modelManager));
     }
 
     /**
@@ -127,8 +120,8 @@ public class RootLayoutController {
             file = new File(file.getPath() + ".xml");
         }
 
-        PrefsManager.getInstance().setSaveLocation(file);
-        EventManager.getInstance().post(new SaveRequestEvent(file, modelManager));
+        modelManager.setPrefsSaveLocation(file.getPath());
+        EventManager.getInstance().post(new SaveDataRequestEvent(file, modelManager));
     }
 
     /**

@@ -4,7 +4,6 @@ import address.browser.BrowserManager;
 import address.controller.MainController;
 import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
-import address.prefs.PrefsManager;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
 import address.updater.UpdateManager;
@@ -18,7 +17,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -49,9 +47,9 @@ public class MainApp extends Application {
         logger.info("Initializing app ...");
         super.init();
         initConfig();
-        initPrefs();
         BrowserManager.initializeJxBrowserEnvironment();
         initComponents();
+        initPrefs();
     }
 
     protected void initConfig() {
@@ -68,7 +66,7 @@ public class MainApp extends Application {
         LoggerManager.updateWithConfig(config);
 
         modelManager = new ModelManager();
-        storageManager = new StorageManager(modelManager, PrefsManager.getInstance().getPrefs());
+        storageManager = new StorageManager(modelManager, modelManager.getPrefs());
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager(config);
         keyBindingsManager = new KeyBindingsManager();

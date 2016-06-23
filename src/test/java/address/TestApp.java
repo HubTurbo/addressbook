@@ -1,7 +1,5 @@
 package address;
 
-
-import address.prefs.PrefsManager;
 import address.util.Config;
 import address.util.TestUtil;
 
@@ -28,7 +26,7 @@ public class TestApp extends MainApp {
 
     @Override
     protected void initPrefs() {
-        PrefsManager.getInstance().setSaveLocation(new File(saveLocationForTesting));
+        modelManager.setPrefsSaveLocation(saveLocationForTesting);
     }
 
     public static void main(String[] args) {
