@@ -3,6 +3,7 @@ package address.sync;
 
 import address.events.*;
 import address.exceptions.SyncErrorException;
+import address.main.ComponentManager;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 import address.sync.task.CloudUpdateTask;
@@ -18,7 +19,7 @@ import java.util.concurrent.*;
 /**
  * Syncs data between the cloud and the primary data file
  */
-public class SyncManager {
+public class SyncManager extends ComponentManager{
     private static final AppLogger logger = LoggerManager.getLogger(SyncManager.class);
 
     private final ScheduledExecutorService scheduler;
@@ -28,18 +29,16 @@ public class SyncManager {
     private RemoteManager remoteManager;
 
     public SyncManager() {
-        activeAddressBook = Optional.empty();
-        scheduler = Executors.newScheduledThreadPool(1);
-        requestExecutor = Executors.newCachedThreadPool();
-        EventManager.getInstance().registerHandler(this);
+        this(null, Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
     }
+
     public SyncManager(RemoteManager remoteManager, ExecutorService executorService,
                        ScheduledExecutorService scheduledExecutorService) {
+        super();
+        activeAddressBook = Optional.empty();
         this.remoteManager = remoteManager;
         this.scheduler = scheduledExecutorService;
         this.requestExecutor = executorService;
-        activeAddressBook = Optional.empty();
-        EventManager.getInstance().registerHandler(this);
     }
 
     // TODO: setActiveAddressBook should be called by the model instead
@@ -82,27 +81,25 @@ public class SyncManager {
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
             logger.info("Attempting to run periodic update.");
-            EventManager.getInstance().post(new SyncStartedEvent());
+            raise(new SyncStartedEvent());
 
             if (!activeAddressBook.isPresent()) {
-                EventManager.getInstance().post(new SyncFailedEvent("No active addressbook sync found."));
+                raise(new SyncFailedEvent("No active addressbook sync found."));
                 return;
             }
             try {
                 List<Person> updatedPersons = getUpdatedPersons(activeAddressBook.get());
                 logger.logList("Found updated persons: {}", updatedPersons);
-                EventManager.getInstance().post(
-                        new UpdateCompletedEvent<>(updatedPersons, "Person updates completed."));
+                raise(new UpdateCompletedEvent<>(updatedPersons, "Person updates completed."));
 
                 List<Tag> updatedTagList = getUpdatedTags(activeAddressBook.get());
-                EventManager.getInstance().post(new UpdateCompletedEvent<>(updatedTagList, "Tag updates completed."));
+                raise(new UpdateCompletedEvent<>(updatedTagList, "Tag updates completed."));
 
-                EventManager.getInstance().post(new SyncCompletedEvent());
+                raise(new SyncCompletedEvent());
             } catch (SyncErrorException e) {
                 logger.warn("Error obtaining updates.");
-                EventManager.getInstance().post(new SyncFailedEvent(e.getMessage()));
+                raise(new SyncFailedEvent(e.getMessage()));
             } catch (Exception e) {e.printStackTrace();
-
                 logger.warn("{}", e);
             }
         };
