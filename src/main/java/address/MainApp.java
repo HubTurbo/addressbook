@@ -1,5 +1,6 @@
 package address;
 
+import address.browser.BrowserManager;
 import address.controller.MainController;
 import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
