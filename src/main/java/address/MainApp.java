@@ -17,6 +17,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -54,8 +55,12 @@ public class MainApp extends Application {
 
     protected void initConfig() {
         // For sub classes to override
-        config = new Config();
-        config.readFromConfigFile();
+        try {
+            config = StorageManager.getConfig();
+            logger.info("Config successfully obtained from StorageManager");
+        } catch (IOException e) {
+            logger.warn("Error reading from config: {}", e);
+        }
     }
 
     protected void initPrefs() {

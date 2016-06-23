@@ -6,9 +6,7 @@ import address.main.ComponentManager;
 import address.model.ModelManager;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.prefs.UserPrefs;
-import address.util.AppLogger;
-import address.util.FileUtil;
-import address.util.LoggerManager;
+import address.util.*;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
@@ -43,6 +41,23 @@ public class StorageManager extends ComponentManager {
         logger.info("Handling load data request received: {}", dataFile);
         loadDataFromFile(dataFile);
     }
+
+    public static Config getConfig() throws IOException {
+        File configFile = new File("config.json");
+
+        Config config;
+        if (configFile.exists()) {
+            config = JsonUtil.fromJsonString(FileUtil.readFromFile(configFile), Config.class);
+        } else {
+            config = new Config();
+        }
+        if (FileUtil.isFileExists(configFile)) {
+            FileUtil.deleteFile(configFile);
+        }
+        FileUtil.writeToFile(configFile, JsonUtil.toJsonString(config));
+        return config;
+    }
+
 
     protected void loadDataFromFile(File dataFile) {
         try {

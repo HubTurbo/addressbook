@@ -1,5 +1,13 @@
 package address.util;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.apache.logging.log4j.Level;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
@@ -15,6 +23,7 @@ import java.util.stream.Collectors;
  * Config values used by the app
  */
 public class Config {
+
     private static final AppLogger logger = LoggerManager.getLogger(Config.class);
 
     private static final String CONFIG_FILE = "config.ini";
@@ -42,8 +51,54 @@ public class Config {
     // Customizable through config file
     public long updateInterval = DEFAULT_UPDATE_INTERVAL;
     public boolean simulateUnreliableNetwork = DEFAULT_NETWORK_UNRELIABLE_MODE;
+    @JsonSerialize(using = ToStringSerializer.class)
     public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
     public HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
+
+    public Config() {
+    }
+
+    public long getUpdateInterval() {
+        return updateInterval;
+    }
+
+    public void setUpdateInterval(long updateInterval) {
+        this.updateInterval = updateInterval;
+    }
+
+    public boolean isSimulateUnreliableNetwork() {
+        return simulateUnreliableNetwork;
+    }
+
+    public void setSimulateUnreliableNetwork(boolean simulateUnreliableNetwork) {
+        this.simulateUnreliableNetwork = simulateUnreliableNetwork;
+    }
+
+    @JsonProperty("currentLogLevel")
+    public String getCurrentLogLevelString() {
+        return currentLogLevel.toString();
+    }
+
+    public void setCurrentLogLevelString(String logLevelString) {
+        this.currentLogLevel = getLoggingLevel(logLevelString);
+    }
+
+    public Level getCurrentLogLevel() {
+        return currentLogLevel;
+    }
+
+    public void setCurrentLogLevel(Level currentLogLevel) {
+        this.currentLogLevel = currentLogLevel;
+    }
+
+    public HashMap<String, Level> getSpecialLogLevels() {
+        return specialLogLevels;
+    }
+
+    public void setSpecialLogLevels(HashMap<String, Level> specialLogLevels) {
+        this.specialLogLevels = specialLogLevels;
+    }
+
 
     public void readFromConfigFile() {
         if (!hasExistingConfigFile() || !setConfigFileValues()) {

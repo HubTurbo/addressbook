@@ -38,7 +38,7 @@ public class StatusBarFooterController {
         this.saveLocationLabel = new Label();
     }
 
-    private void setConfig(Config config) {
+    private void updateWithConfigValues(Config config) {
         updateIntervalInSecs = (int) DateTimeUtil.millisecsToSecs(config.updateInterval);
         timer = new TickingTimer("Sync timer", (int) updateIntervalInSecs,
                 this::syncSchedulerOntick, this::syncSchedulerOnTimeOut, TimeUnit.SECONDS);
@@ -62,7 +62,7 @@ public class StatusBarFooterController {
      * @param config
      */
     public void initStatusBar(Config config) {
-        setConfig(config);
+        updateWithConfigValues(config);
         this.syncStatusBar = new StatusBar();
         this.updaterStatusBar = new StatusBar();
         FxViewUtil.applyAnchorBoundaryParameters(syncStatusBar, 0.0, 0.0, 0.0, 0.0);

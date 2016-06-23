@@ -8,6 +8,7 @@ lib/*
 *.log
 *.csv
 *.ini
+config.json
 /*.xml
 update/
 src/main/resources/updater/jarUpdater.jar
