@@ -37,7 +37,6 @@ public class ReorderedList<T> extends TransformationList<T, T> {
                 mappingList.removeAll(c.getRemoved());
             }
         }
-        endChange();
         fireChange(new SourceAdapterChange<>(this, c));
     }
 

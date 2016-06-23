@@ -9,7 +9,7 @@ import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.*;
-import address.util.collections.ReorderedList;
+import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -61,7 +61,7 @@ public class MainController {
 
     private StatusBarHeaderController statusBarHeaderController;
 
-    private ReorderedList<ReadOnlyViewablePerson> reorderedList;
+    private UnmodifiableObservableList<ReadOnlyViewablePerson> personList;
 
     /**
      * Constructor for mainController
@@ -75,8 +75,8 @@ public class MainController {
         this.mainApp = mainApp;
         this.modelManager = modelManager;
         this.config = config;
-        this.reorderedList = new ReorderedList<>(modelManager.getAllViewablePersonsReadOnly());
-        this.browserManager = new BrowserManager(reorderedList);
+        this.personList = modelManager.getAllViewablePersonsReadOnly();
+        this.browserManager = new BrowserManager(personList);
     }
 
     public void start(Stage primaryStage) {
@@ -152,7 +152,7 @@ public class MainController {
             SplitPane.setResizableWithParent(personOverview, false);
             // Give the personOverviewController access to the main app and modelManager.
             PersonOverviewController personOverviewController = loader.getController();
-            personOverviewController.setConnections(this, modelManager, reorderedList);
+            personOverviewController.setConnections(this, modelManager, personList);
 
             pane.getItems().add(personOverview);
         } catch (IOException e) {

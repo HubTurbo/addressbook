@@ -20,6 +20,7 @@ import address.util.FilteredList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.collections.ReorderedList;
+import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
@@ -84,10 +85,12 @@ public class PersonOverviewController {
     }
 
     public void setConnections(MainController mainController, ModelManager modelManager,
-                               ReorderedList<ReadOnlyViewablePerson> reorderedList) {
+                               UnmodifiableObservableList<ReadOnlyViewablePerson> personList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
-        filteredPersonList = new FilteredList<>(reorderedList);
+        filteredPersonList = new FilteredList<>(personList);
+        filteredPersonList.setPredicate(person -> true);
+        ReorderedList<ReadOnlyViewablePerson> reorderedList = new ReorderedList<>(filteredPersonList);
         // Add observable list data to the list
         personListView.setItems(reorderedList);
         personListView.setCellFactory(listView -> new PersonListViewCell(reorderedList));

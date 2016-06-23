@@ -7,6 +7,7 @@ import address.util.FxViewUtil;
 import address.util.collections.ReorderedList;
 import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.*;
@@ -19,6 +20,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
     public static final int SCROLL_AREA = 15;
     private HBox cellGraphic;
 
+<<<<<<< 1e1c275adfcdda64888ca99659acfaf2e9574505
     public PersonListViewCell(ReorderedList<ReadOnlyViewablePerson> reorderedList) {
 
         setOnMouseClicked(event -> {
@@ -27,6 +29,9 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             }
         });
 
+=======
+    public PersonListViewCell(OrderedList<ReadOnlyViewablePerson> orderedList) {
+>>>>>>> Implemented custom filteredlist. Seems to work well with ordered list. Needs more debugging, testing and refactoring.
         setOnDragDetected(event -> {
             if (getItem() == null) {
                 return;
