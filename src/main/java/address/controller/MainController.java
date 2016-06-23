@@ -30,10 +30,8 @@ import javafx.stage.StageStyle;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * The controller that creates the other controllers
@@ -266,7 +264,7 @@ public class MainController {
 
             TagSelectionEditDialogController controller = loader.getController();
             controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
-                               ReadOnlyPerson.getSelectedPersonsAssignedTag(persons));
+                               ReadOnlyPerson.getCommonTags(persons));
             controller.setDialogStage(dialogStage);
 
             dialogStage.showAndWait();

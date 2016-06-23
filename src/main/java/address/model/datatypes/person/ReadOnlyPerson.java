@@ -181,9 +181,9 @@ public interface ReadOnlyPerson extends ExtractableObservables {
         };
     }
 
-    static List<Tag> getSelectedPersonsAssignedTag(List<ReadOnlyViewablePerson> persons) {
+    static List<Tag> getCommonTags(List<ReadOnlyViewablePerson> persons) {
         Set<Tag> tags = new HashSet<>();
-        persons.stream().forEach(p -> tags.addAll(p.getObservableTagList()));
+        persons.stream().forEach(p -> tags.addAll(p.getTagList()));
         List<Tag> assignedTags = tags.stream().filter(tag ->
                 persons.stream()
                         .filter(p -> p.getObservableTagList().contains(tag))

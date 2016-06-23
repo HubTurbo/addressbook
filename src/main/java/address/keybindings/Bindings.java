@@ -63,8 +63,8 @@ public class Bindings {
         FILE_NEW_ACCELERATOR = setAccelerator("FILE_NEW_ACCELERATOR", "SHORTCUT + N");
         FILE_OPEN_ACCELERATOR = setAccelerator("FILE_OPEN_ACCELERATOR", "SHORTCUT + O");
         FILE_SAVE_ACCELERATOR = setAccelerator("FILE_SAVE_ACCELERATOR", "SHORTCUT + S");
-        PERSON_TAG_ACCELERATOR = setAccelerator("PERSON_TAG_ACCELERATOR", "T");
         FILE_SAVE_AS_ACCELERATOR = setAccelerator("FILE_SAVE_AS_ACCELERATOR", "SHORTCUT + ALT + S");
+        PERSON_TAG_ACCELERATOR = setAccelerator("PERSON_TAG_ACCELERATOR", "T");
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "CTRL + ALT + X", new MinimizeAppRequestEvent()));
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "META + ALT + X", new MinimizeAppRequestEvent()));
         APP_MAXIMIZE_HOTKEY.add(setHotkey("APP_MAXIMIZE_HOTKEY", "CTRL + SHIFT + X", new MaximizeAppRequestEvent()));
