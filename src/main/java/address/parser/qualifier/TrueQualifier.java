@@ -1,6 +1,6 @@
 package address.parser.qualifier;
 
-import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 public class TrueQualifier implements Qualifier {
 
@@ -8,7 +8,7 @@ public class TrueQualifier implements Qualifier {
     }
 
     @Override
-    public boolean run(Person person) {
+    public boolean run(ReadOnlyViewablePerson person) {
         return true;
     }
 }

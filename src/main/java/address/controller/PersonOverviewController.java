@@ -16,9 +16,10 @@ import address.status.PersonCreatedStatus;
 import address.status.PersonDeletedStatus;
 import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
-import address.util.collections.ReorderedList;
+import address.util.FilteredList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
+import address.util.collections.ReorderedList;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
@@ -57,6 +58,7 @@ public class PersonOverviewController {
 
     private MainController mainController;
     private ModelManager modelManager;
+    private FilteredList<ReadOnlyViewablePerson> filteredPersonList;
 
     /**
      * When the user selected multiple item in the listview. The edit feature will be
@@ -76,11 +78,16 @@ public class PersonOverviewController {
         EventManager.getInstance().registerHandler(this);
     }
 
+    @Subscribe
+    private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
+        filteredPersonList.setPredicate(fce.filterExpression::satisfies);
+    }
+
     public void setConnections(MainController mainController, ModelManager modelManager,
                                ReorderedList<ReadOnlyViewablePerson> reorderedList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
-
+        filteredPersonList = new FilteredList<>(reorderedList);
         // Add observable list data to the list
         personListView.setItems(reorderedList);
         personListView.setCellFactory(listView -> new PersonListViewCell(reorderedList));

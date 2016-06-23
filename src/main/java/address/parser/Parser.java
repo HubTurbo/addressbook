@@ -6,14 +6,13 @@ import java.util.regex.Pattern;
 import address.parser.expr.AndExpr;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
-import address.parser.qualifier.NameQualifier;
+import address.parser.qualifier.*;
 
 public class Parser {
 
     private Parser() {}
 
     public static Expr parse(String input) throws ParseException {
-
         Expr result = null;
 
         Pattern pattern = Pattern.compile("\\s*(\\w+)\\s*:\\s*(\\w+)", Pattern.CASE_INSENSITIVE);
@@ -36,11 +35,21 @@ public class Parser {
     }
 
     private static Expr createPredicate(String type, String content) throws ParseException {
+        return new PredExpr(getQualifier(type, content));
+    }
+
+    private static Qualifier getQualifier(String type, String content) throws ParseException {
         switch (type) {
-        case "name":
-            return new PredExpr(new NameQualifier(content));
-        default:
-            throw new ParseException("Unrecognised qualifier " + type);
+            case "city":
+                return new CityQualifier(content);
+            case "lastName":
+                return new LastNameQualifier(content);
+            case "firstName":
+                return new FirstNameQualifier(content);
+            case "name":
+                return new NameQualifier(content);
+            default:
+                throw new ParseException("Unrecognised qualifier " + type);
         }
     }
 }

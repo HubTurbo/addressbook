@@ -1,6 +1,6 @@
 package address.parser.qualifier;
 
-import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.StringUtil;
 
 public class FirstNameQualifier implements Qualifier {
@@ -11,7 +11,7 @@ public class FirstNameQualifier implements Qualifier {
     }
 
     @Override
-    public boolean run(Person person) {
+    public boolean run(ReadOnlyViewablePerson person) {
         return StringUtil.containsIgnoreCase(person.getFirstName(), firstName);
     }
 }

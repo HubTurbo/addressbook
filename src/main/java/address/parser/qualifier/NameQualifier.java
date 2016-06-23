@@ -1,7 +1,6 @@
 package address.parser.qualifier;
 
-import address.model.datatypes.person.Person;
-import address.util.StringUtil;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 public class NameQualifier implements Qualifier {
     private final String name;
@@ -11,7 +10,7 @@ public class NameQualifier implements Qualifier {
     }
 
     @Override
-    public boolean run(Person person) {
+    public boolean run(ReadOnlyViewablePerson person) {
         Qualifier firstNameQualifier = new FirstNameQualifier(name);
         Qualifier lastNameQualifier = new LastNameQualifier(name);
 

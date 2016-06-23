@@ -1,6 +1,6 @@
 package address.parser.expr;
 
-import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.parser.qualifier.Qualifier;
 import address.parser.qualifier.TrueQualifier;
 
@@ -15,7 +15,7 @@ public class PredExpr implements Expr {
     }
 
     @Override
-    public boolean satisfies(Person person) {
+    public boolean satisfies(ReadOnlyViewablePerson person) {
         return qualifier.run(person);
     }
 }
