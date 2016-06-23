@@ -2,7 +2,6 @@ package address.browser;
 
 import address.browser.page.GithubProfilePage;
 import hubturbo.embeddedbrowser.BrowserType;
-import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;
 import hubturbo.embeddedbrowser.HyperBrowser;
 import hubturbo.embeddedbrowser.page.Page;
 
@@ -108,7 +107,8 @@ public class BrowserManager {
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
-            gPage.setPageLoadFinishListener(b -> Platform.runLater(() -> gPage.activateAutomateClickingAndScrolling()));
+            gPage.executePageLoadedTasks();
+            gPage.setPageLoadFinishListener(b -> Platform.runLater(() -> gPage.executePageLoadedTasks()));
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();

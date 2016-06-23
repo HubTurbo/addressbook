@@ -31,9 +31,11 @@ public class GithubProfilePage implements PageInterface {
     }
 
     /**
-     * Automates clicking on the Repositories tab and scrolling to the bottom of the page.
+     * Executes Page loaded tasks
+     * Tasks:
+     * 1 ) Automates clicking on the Repositories tab and scrolling to the bottom of the page.
      */
-    public void activateAutomateClickingAndScrolling() {
+    public void executePageLoadedTasks() {
         try {
             if (page.verifyPresenceByClassNames(REPO_LIST_CLASS_NAME) || page.verifyPresenceByIds(ORGANIZATION_REPO_ID)) {
                 page.scrollTo(Page.SCROLL_TO_END);
