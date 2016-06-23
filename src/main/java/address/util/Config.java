@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
  * Config values used by the app
  */
 public class Config {
+    private static final AppLogger logger = LoggerManager.getLogger(Config.class);
 
     private static final String CONFIG_FILE = "config.ini";
     private static final String EMPTY_VALUE = "";
@@ -43,9 +44,7 @@ public class Config {
     public boolean simulateUnreliableNetwork = DEFAULT_NETWORK_UNRELIABLE_MODE;
     public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
     public HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
-
-    private final AppLogger logger = LoggerManager.getLogger(Config.class);
-
+    
     public void readFromConfigFile() {
         if (!hasExistingConfigFile() || !setConfigFileValues()) {
             initializeConfigFile();
@@ -96,6 +95,8 @@ public class Config {
 
     /**
      * Sets values read from iniFile
+     *
+     * Missing fields in iniFile will not be set, and its default value will be used instead
      *
      * @param iniFile
      * @return false if there are missing fields
@@ -237,7 +238,7 @@ public class Config {
                 return level;
             }
         }
-        logger.warn("Invalid logging level. Using default: " + DEFAULT_LOGGING_LEVEL);
+        logger.warn("Invalid logging level: {}. Using default: {}", loggingLevelString, DEFAULT_LOGGING_LEVEL);
         return DEFAULT_LOGGING_LEVEL;
     }
 }
