@@ -119,6 +119,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         int moveFromIndex = list.indexOf(personToMove);
         if (moveFromIndex != moveToIndex && moveFromIndex + 1 != moveToIndex) {
             sortedList.moveElement(moveFromIndex, moveToIndex);
+            getListView().getSelectionModel().clearSelection();
             getListView().getSelectionModel().select(list.indexOf(personToMove));
         }
     }

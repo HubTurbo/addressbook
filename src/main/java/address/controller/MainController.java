@@ -22,13 +22,18 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * The controller that creates the other controllers
@@ -42,6 +47,7 @@ public class MainController {
     private static final String FXML_TAG_LIST = "/view/TagList.fxml";
     private static final String FXML_BIRTHDAY_STATISTICS = "/view/BirthdayStatistics.fxml";
     private static final String FXML_ROOT_LAYOUT = "/view/RootLayout.fxml";
+    private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
     private static final String ICON_APPLICATION = "/images/address_book_32.png";
     private static final String ICON_EDIT = "/images/edit.png";
     private static final String ICON_CALENDAR = "/images/calendar.png";
@@ -241,6 +247,49 @@ public class MainController {
                                    "IOException when trying to load " + fxmlResourcePath);
             return Optional.empty();
         }
+    }
+
+    public List<Tag> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
+        try {
+            AnchorPane pane = loader.load();
+
+            // Create the dialog Stage.
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(primaryStage);
+            dialogStage.initStyle(StageStyle.TRANSPARENT);
+
+            Scene scene = new Scene(pane, Color.TRANSPARENT);
+            dialogStage.setScene(scene);
+
+            TagSelectionEditDialogController controller = loader.getController();
+            controller.setTags(modelManager.getTagsAsReadOnlyObservableList(), getSelectedPersonsAssignedTag(persons));
+            controller.setDialogStage(dialogStage);
+
+            dialogStage.showAndWait();
+
+            if (controller.isOkClicked()) {
+                return controller.getFinalAssignedTags();
+            }
+
+        } catch (IOException e) {
+            logger.warn("Error launching tag selection dialog: {}", e);
+            assert false : "Error loading fxml : " + FXML_TAG_SELECTION_EDIT_DIALOG;
+        }
+        return Collections.emptyList();
+    }
+
+    private List<Tag> getSelectedPersonsAssignedTag(List<ReadOnlyViewablePerson> persons) {
+        List<Tag> tags = modelManager.getTagsAsReadOnlyObservableList();
+        List<Tag> assignedTags = tags.stream().filter(tag ->
+                persons.stream()
+                        .filter(p -> p.getObservableTagList().contains(tag))
+                        .count() == persons.size())
+                .collect(Collectors.toCollection(ArrayList::new));
+        return assignedTags;
+
     }
 
     private Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {

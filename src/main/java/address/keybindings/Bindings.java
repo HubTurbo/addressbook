@@ -45,6 +45,7 @@ public class Bindings {
     public Shortcut LIST_ENTER_SHORTCUT;
     public Accelerator PERSON_DELETE_ACCELERATOR;
     public Accelerator PERSON_EDIT_ACCELERATOR;
+    public Accelerator PERSON_TAG_ACCELERATOR;
 
 
     public Bindings(){
@@ -62,6 +63,7 @@ public class Bindings {
         FILE_NEW_ACCELERATOR = setAccelerator("FILE_NEW_ACCELERATOR", "SHORTCUT + N");
         FILE_OPEN_ACCELERATOR = setAccelerator("FILE_OPEN_ACCELERATOR", "SHORTCUT + O");
         FILE_SAVE_ACCELERATOR = setAccelerator("FILE_SAVE_ACCELERATOR", "SHORTCUT + S");
+        PERSON_TAG_ACCELERATOR = setAccelerator("PERSON_TAG_ACCELERATOR", "T");
         FILE_SAVE_AS_ACCELERATOR = setAccelerator("FILE_SAVE_AS_ACCELERATOR", "SHORTCUT + ALT + S");
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "CTRL + ALT + X", new MinimizeAppRequestEvent()));
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "META + ALT + X", new MinimizeAppRequestEvent()));
