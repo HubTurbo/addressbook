@@ -67,6 +67,7 @@ public class MainController {
 
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        this.browserManager.initializeBrowser();
         primaryStage.setTitle(Config.getConfig().appTitle);
 
         // Set the application icon.

@@ -7,6 +7,7 @@ import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.StatusBar;
@@ -31,11 +32,11 @@ public class StatusBarFooterController {
 
     private final long updateIntervalInSecs;
 
-    private final Label saveLocText;
+    private final Label saveLocationLabel;
 
     public StatusBarFooterController() {
         EventManager.getInstance().registerHandler(this);
-        this.saveLocText = new Label();
+        this.saveLocationLabel = new Label();
         Config config = Config.getConfig();
         updateIntervalInSecs = (int) DateTimeUtil.millisecsToSecs(config.updateInterval);
         timer = new TickingTimer("Sync timer", (int) updateIntervalInSecs,
@@ -55,13 +56,24 @@ public class StatusBarFooterController {
     public void initStatusBar() {
         this.syncStatusBar = new StatusBar();
         this.updaterStatusBar = new StatusBar();
-        this.updaterStatusBar.getLeftItems().add(saveLocText);
-
         FxViewUtil.applyAnchorBoundaryParameters(syncStatusBar, 0.0, 0.0, 0.0, 0.0);
         FxViewUtil.applyAnchorBoundaryParameters(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
-
         syncStatusBarPane.getChildren().add(syncStatusBar);
         updaterStatusBarPane.getChildren().add(updaterStatusBar);
+        initSaveLocationLabel();
+    }
+
+    private void initSaveLocationLabel() {
+        saveLocationLabel.setTextAlignment(TextAlignment.LEFT);
+        setTooltip(saveLocationLabel);
+        this.updaterStatusBar.getRightItems().add(saveLocationLabel);
+        saveLocationLabel.setVisible(false);
+    }
+
+    private void setTooltip(Label label) {
+        Tooltip tp = new Tooltip();
+        tp.textProperty().bind(label.textProperty());
+        label.setTooltip(tp);
     }
 
     @FXML
@@ -113,13 +125,8 @@ public class StatusBarFooterController {
         Platform.runLater(() -> {
             updaterStatusBar.setText(ufe.toString());
             updaterStatusBar.setProgress(0.0);
-
-            // TODO make it wait for a while before showing version so update status can be read
-
-            Label versionLabel = new Label(Version.getCurrentVersion().toString());
-            versionLabel.setTextAlignment(TextAlignment.RIGHT);
             updaterStatusBar.setText("");
-            updaterStatusBar.getRightItems().add(versionLabel);
+            saveLocationLabel.setVisible(true);
         });
     }
 
@@ -129,7 +136,7 @@ public class StatusBarFooterController {
     }
 
     private void updateSaveLocationDisplay() {
-        saveLocText.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
+        saveLocationLabel.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
                 PrefsManager.getInstance().getPrefs().getSaveLocation().getName() : LOC_TEXT_NOT_SET));
     }
 }

@@ -51,7 +51,7 @@ public class MainApp extends Application {
         initConfig();
         Config.setConfig(Config.getConfig());
         initPrefs();
-        BrowserManager.initializeBrowser();
+        BrowserManager.initializeJxBrowserEnvironment();
         //TODO: should this be here? looks out of place
         initComponents();
     }
