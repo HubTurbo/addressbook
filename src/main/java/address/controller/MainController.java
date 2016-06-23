@@ -62,12 +62,12 @@ public class MainController {
         this.modelManager = modelManager;
         this.mainApp = mainApp;
         this.orderedList = new OrderedList<>(modelManager.getAllViewablePersonsReadOnly());
-
+        this.browserManager = new BrowserManager(orderedList);
     }
 
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        this.browserManager = new BrowserManager(orderedList);
+        this.browserManager.initializeBrowser();
         primaryStage.setTitle(Config.getConfig().appTitle);
 
         // Set the application icon.

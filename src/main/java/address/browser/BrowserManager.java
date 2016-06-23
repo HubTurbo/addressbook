@@ -61,7 +61,21 @@ public class BrowserManager {
     public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
         this.selectedPersonUsername = new SimpleStringProperty();
         this.filteredPersons = filteredPersons;
+    }
 
+    /**
+     * Initialize the application to use jxBrowser.
+     * This must be called in a non-ui thread.
+     */
+    public static void initializeJxBrowserEnvironment(){
+        if (Environment.isMac()) {
+            BrowserCore.initialize();
+        }
+        logger.debug("Suppressing browser logs");
+        LoggerProvider.setLevel(Level.SEVERE);
+    }
+
+    public void initializeBrowser() {
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
             logger.info("Headless mode detected, not initializing HyperBrowser.");
@@ -69,18 +83,10 @@ public class BrowserManager {
         } else {
             logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
             hyperBrowser = Optional.of(new HyperBrowser(
-                                       BrowserType.FULL_FEATURE_BROWSER,
-                                       HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
-                                       BrowserManagerUtil.getBrowserInitialScreen()));
+                    BrowserType.FULL_FEATURE_BROWSER,
+                    HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
+                    BrowserManagerUtil.getBrowserInitialScreen()));
         }
-    }
-
-    public static void initializeBrowser() {
-        if (Environment.isMac()) {
-            BrowserCore.initialize();
-        }
-        logger.debug("Suppressing browser logs");
-        LoggerProvider.setLevel(Level.SEVERE);
     }
 
     /**
