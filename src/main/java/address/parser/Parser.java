@@ -67,8 +67,18 @@ public class Parser {
                 return new StreetQualifier(content);
             case "tag":
                 return new TagQualifier(content);
+            case "id":
+                return new IdQualifier(parseInt(content));
             default:
                 throw new ParseException("Unrecognised qualifier " + type);
+        }
+    }
+
+    private static Integer parseInt(String content) throws ParseException {
+        try {
+            return Integer.valueOf(content);
+        } catch (NumberFormatException e) {
+            throw new ParseException("Invalid integer: " + content);
         }
     }
 }
