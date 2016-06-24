@@ -1,6 +1,8 @@
 package address.util;
 
 import org.apache.logging.log4j.Level;
+
+import java.io.File;
 import java.util.HashMap;
 
 /**
@@ -22,6 +24,8 @@ public class Config {
     public boolean simulateUnreliableNetwork = DEFAULT_NETWORK_UNRELIABLE_MODE;
     public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
     public HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
+    private File prefsFileLocation = new File("preferences.json"); //Default user preferences file
+
 
     public Config() {
     }
@@ -56,5 +60,9 @@ public class Config {
 
     public void setSpecialLogLevels(HashMap<String, Level> specialLogLevels) {
         this.specialLogLevels = specialLogLevels;
+    }
+
+    public File getPrefsFileLocation() {
+        return prefsFileLocation;
     }
 }

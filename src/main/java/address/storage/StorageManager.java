@@ -20,16 +20,17 @@ import java.io.IOException;
 public class StorageManager extends ComponentManager {
     private static final AppLogger logger = LoggerManager.getLogger(StorageManager.class);
     private static final String CONFIG_FILE = "config.json";
+    private Config config;
 
-    public static final File DEFAULT_USER_PREF_FILE = new File("preferences.json");
 
     private ModelManager modelManager;
     private UserPrefs prefs;
 
-    public StorageManager(ModelManager modelManager, UserPrefs prefs) {
+    public StorageManager(ModelManager modelManager, Config config, UserPrefs prefs) {
         super();
         this.modelManager = modelManager;
         this.prefs = prefs;
+        this.config = config;
     }
 
     public static Config getConfig() {
@@ -143,21 +144,21 @@ public class StorageManager extends ComponentManager {
     @Subscribe
     public void handleSavePrefsRequestEvent(SavePrefsRequestEvent spre) {
         logger.info("Save prefs request received: {}", spre.prefs);
-        savePrefsToFile(DEFAULT_USER_PREF_FILE, spre.prefs);
+        savePrefsToFile(spre.prefs);
     }
 
     /**
      * Raises FileSavingExceptionEvent if there was an error during saving or data conversion.
      */
-    public void savePrefsToFile(File file, UserPrefs prefs) {
+    public void savePrefsToFile(UserPrefs prefs) {
         try {
-            FileUtil.writeToFile(file, JsonUtil.toJsonString(prefs));
+            FileUtil.writeToFile(config.getPrefsFileLocation(), JsonUtil.toJsonString(prefs));
         } catch (IOException e) {
-            raise(new FileSavingExceptionEvent(e, file));
+            raise(new FileSavingExceptionEvent(e, config.getPrefsFileLocation()));
         }
     }
 
-    public static UserPrefs loadPrefsFromFile(File prefsFile) {
+    public static UserPrefs getUserPrefs(File prefsFile) {
         UserPrefs prefs = new UserPrefs();
 
         if (!FileUtil.isFileExists(prefsFile)) {

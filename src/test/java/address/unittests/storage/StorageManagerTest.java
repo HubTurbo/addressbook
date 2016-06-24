@@ -8,6 +8,7 @@ import address.storage.StorageAddressBook;
 import address.model.UserPrefs;
 import address.storage.StorageManager;
 import address.storage.XmlFileStorage;
+import address.util.Config;
 import address.util.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +20,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -28,12 +28,13 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 @PrepareForTest(XmlFileStorage.class)
 public class StorageManagerTest {
 
-    private static final File DUMMY_DATA_FILE = new File(TestUtil.appendToSandboxPath("dummy.xml"));
-    private static final File DUMMY_PREFS_FILE = new File(TestUtil.appendToSandboxPath("dummy.json"));
+    private static final File DUMMY_DATA_FILE = new File(TestUtil.appendToSandboxPath("dummyAddressBook.xml"));
+    private static final File DUMMY_PREFS_FILE = new File(TestUtil.appendToSandboxPath("dummyUserPrefs.json"));
     private static final StorageAddressBook EMPTY_ADDRESSBOOK = new StorageAddressBook(new AddressBook());
     private static final UserPrefs EMPTY_USERPREFS = new UserPrefs();
     ModelManager modelManagerMock;
     EventManager eventManagerMock;
+    Config configMock;
     UserPrefs userPrefsMock;
     StorageManager storageManager;
     StorageManager storageManagerSpy;
@@ -50,7 +51,9 @@ public class StorageManagerTest {
         modelManagerMock = Mockito.mock(ModelManager.class);
         when(modelManagerMock.getPrefs()).thenReturn(userPrefsMock);
         eventManagerMock = Mockito.mock(EventManager.class);
-        storageManager = new StorageManager(modelManagerMock, userPrefsMock);
+        configMock = Mockito.mock(Config.class);
+        when(configMock.getPrefsFileLocation()).thenReturn(DUMMY_PREFS_FILE);
+        storageManager = new StorageManager(modelManagerMock, configMock, userPrefsMock);
         storageManager.setEventManager(eventManagerMock);
 
         // This spy will be used to mock only one method of the object under test
@@ -136,6 +139,6 @@ public class StorageManagerTest {
                 new SavePrefsRequestEvent(EMPTY_USERPREFS));
 
         //verify that method is called correctly
-        verify(storageManagerSpy, times(1)).savePrefsToFile(StorageManager.DEFAULT_USER_PREF_FILE, EMPTY_USERPREFS);
+        verify(storageManagerSpy, times(1)).savePrefsToFile(EMPTY_USERPREFS);
     }
 }
