@@ -3,22 +3,26 @@ package address.ui;
 import address.controller.PersonCardController;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
+import address.util.DragContainer;
 import address.util.FxViewUtil;
 import address.util.collections.ReorderedList;
 import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
+
+import javafx.geometry.Rectangle2D;
+
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.*;
-import javafx.scene.layout.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     public static final int SCROLL_AREA = 15;
-    private HBox cellGraphic;
 
     public PersonListViewCell(ReorderedList<ReadOnlyViewablePerson> reorderedList) {
 
@@ -34,8 +38,17 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
             Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
             ClipboardContent content = new ClipboardContent();
-            content.putString(String.valueOf(getListView().getItems().indexOf(getItem())));
-            dragBoard.setDragView(getGraphic().snapshot(new SnapshotParameters(), null));
+            DragContainer container = new DragContainer();
+            container.addAllData(getListView().getSelectionModel().getSelectedItems().stream().map(p
+                                                        -> p.getId()).collect(Collectors.toCollection(ArrayList::new)));
+            content.put(DragContainer.ADDRESS_BOOK_PERSON_UUID, container);
+            SnapshotParameters para = new SnapshotParameters();
+            double lvOffset = this.getListView().localToParent(this.getListView().getBoundsInLocal()).getMinY();
+            double cardOffset = this.localToParent(this.getBoundsInLocal()).getMinY();
+            double snapShotWidth = this.getWidth();
+            double snapShotHeight = this.getHeight() * getListView().getSelectionModel().getSelectedIndices().size();
+            para.setViewport(new Rectangle2D(0, lvOffset + cardOffset, snapShotWidth, snapShotHeight));
+            dragBoard.setDragView(this.getListView().snapshot(para, null));
             dragBoard.setContent(content);
             event.consume();
         });
@@ -47,10 +60,9 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             }
 
             if (event.getGestureSource() != this &&
-                    event.getDragboard().hasString()) {
+                    event.getDragboard().hasContent(DragContainer.ADDRESS_BOOK_PERSON_UUID)) {
                 event.acceptTransferModes(TransferMode.MOVE);
                 showDropLocationIndicator(event);
-
             }
             scrollIfPointerAtScrollArea(event);
 
@@ -64,7 +76,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             }
 
             if (event.getGestureSource() != this &&
-                    event.getDragboard().hasString()) {
+                    event.getDragboard().hasContent(DragContainer.ADDRESS_BOOK_PERSON_UUID)) {
                 setOpacity(0.6);
             }
         });
@@ -75,7 +87,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             }
 
             if (event.getGestureSource() != this &&
-                    event.getDragboard().hasString()) {
+                    event.getDragboard().hasContent(DragContainer.ADDRESS_BOOK_PERSON_UUID)) {
                 clearDropLocationIndicator();
                 setOpacity(1);
             }
@@ -87,11 +99,12 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             }
             clearDropLocationIndicator();
             Dragboard dragboard = event.getDragboard();
-
-            if (dragboard.hasString()) {
-                moveCell(reorderedList, event.getSceneY(), Integer.valueOf(dragboard.getString()));
+            if (dragboard.hasContent(DragContainer.ADDRESS_BOOK_PERSON_UUID)) {
+                DragContainer container = (DragContainer) dragboard.getContent(DragContainer.ADDRESS_BOOK_PERSON_UUID);
+                ObservableList<ReadOnlyViewablePerson> listsOfPerson = getListView().getItems();
+                List<ReadOnlyViewablePerson> listOfDragPersons = listsOfPerson.stream().filter(p -> container.getData().contains(p.getId())).collect(Collectors.toCollection(ArrayList::new));
+                moveCell(reorderedList, event.getSceneY(), listOfDragPersons);
             }
-
             event.setDropCompleted(true);
             event.consume();
         });
@@ -104,26 +117,29 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
      * Moves the cell from the drag source to the edge of the nearest cell .
      * @param sortedList The ReorderedList.
      * @param currentYPosition  The current Y position relative to the attached scene.
-     * @param indexOfSourceCell The index of the cell to be moved to the new location.
      */
-    private void moveCell(ReorderedList sortedList, double currentYPosition, int indexOfSourceCell) {
+    private void moveCell(ReorderedList sortedList, double currentYPosition, List<ReadOnlyViewablePerson> listOfDragPersons) {
         ObservableList<ReadOnlyViewablePerson> list = getListView().getItems();
 
-        ReadOnlyViewablePerson personToMove = list.get(indexOfSourceCell);
-        int moveToIndex;
-        double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
+        //TODO: rewrite moveElement to handle multiple item moves.
+        // Just collect a list of item(order matters) to move, then call the moveElements().
+        listOfDragPersons.stream().forEach(personToMove -> {
+            int moveToIndex;
+            double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
 
-        if (currentYPosition < midPoint) {
-            moveToIndex = list.indexOf(getItem());
-        } else {
-            moveToIndex = list.indexOf(getItem()) + 1;
-        }
+            if (currentYPosition < midPoint) {
+                moveToIndex = list.indexOf(getItem());
+            } else {
+                moveToIndex = list.indexOf(getItem()) + 1;
+            }
 
-        int moveFromIndex = list.indexOf(personToMove);
-        if (moveFromIndex != moveToIndex && moveFromIndex + 1 != moveToIndex) {
-            sortedList.moveElement(moveFromIndex, moveToIndex);
-            getListView().getSelectionModel().clearAndSelect(list.indexOf(personToMove));
-        }
+            int moveFromIndex = list.indexOf(personToMove);
+            if (moveFromIndex != moveToIndex && moveFromIndex + 1 != moveToIndex) {
+                sortedList.moveElement(moveFromIndex, moveToIndex);
+                getListView().getSelectionModel().clearAndSelect(list.indexOf(personToMove));
+            }
+        });
+
     }
 
     /**
