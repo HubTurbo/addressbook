@@ -24,6 +24,12 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
     public PersonListViewCell(OrderedList<ReadOnlyViewablePerson> orderedList) {
         this.orderedList = orderedList;
 
+        setOnMouseClicked(event -> {
+            if (getItem() == null) {
+                getListView().getSelectionModel().clearSelection();
+            }
+        });
+
         setOnDragDetected(event -> {
             if (getItem() == null) {
                 return;
