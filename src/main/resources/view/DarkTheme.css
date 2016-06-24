@@ -90,10 +90,6 @@
     -fx-text-fill: #010504;
 }
 
-.list-cell:focused {
-     -fx-background-color: -fx-focus-color;
-}
-
 .cell_big_label {
     -fx-font-size: 16px;
     -fx-text-fill: #010504;
