@@ -2,13 +2,15 @@ package address.parser.qualifier;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
-public class TrueQualifier implements Qualifier {
+public class IdQualifier implements Qualifier {
+    private final int id;
 
-    public TrueQualifier() {
+    public IdQualifier(int id) {
+        this.id = id;
     }
 
     @Override
     public boolean run(ReadOnlyViewablePerson person) {
-        return true;
+        return person.getId() == id;
     }
 }

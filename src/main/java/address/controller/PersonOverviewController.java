@@ -12,13 +12,16 @@ import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.keybindings.KeyBindingsManager;
+import address.parser.qualifier.TrueQualifier;
 import address.status.PersonCreatedStatus;
 import address.status.PersonDeletedStatus;
 import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
-import address.util.collections.ReorderedList;
+import address.util.FilteredList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
+import address.util.collections.ReorderedList;
+import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
@@ -57,6 +60,7 @@ public class PersonOverviewController {
 
     private MainController mainController;
     private ModelManager modelManager;
+    private FilteredList<ReadOnlyViewablePerson> filteredPersonList;
 
     /**
      * When the user selected multiple item in the listview. The edit feature will be
@@ -76,15 +80,20 @@ public class PersonOverviewController {
         EventManager.getInstance().registerHandler(this);
     }
 
+    @Subscribe
+    private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
+        filteredPersonList.setPredicate(fce.filterExpression::satisfies);
+    }
+
     public void setConnections(MainController mainController, ModelManager modelManager,
-                               ReorderedList<ReadOnlyViewablePerson> reorderedList) {
+                               UnmodifiableObservableList<ReadOnlyViewablePerson> personList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
+        filteredPersonList = new FilteredList<>(personList, new PredExpr(new TrueQualifier())::satisfies);
 
-        // Add observable list data to the list
-        personListView.setItems(reorderedList);
-        personListView.setCellFactory(listView -> new PersonListViewCell(reorderedList));
-
+        ReorderedList<ReadOnlyViewablePerson> orderedList = new ReorderedList<>(filteredPersonList);
+        personListView.setItems(orderedList);
+        personListView.setCellFactory(listView -> new PersonListViewCell(orderedList));
         personListView.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
                 if (newValue != null) {
@@ -199,14 +208,15 @@ public class PersonOverviewController {
         boolean isFilterValid = true;
         try {
             filterExpression = Parser.parse(filterField.getText());
-        } catch (ParseException ignored) {
+        } catch (ParseException e) {
+            logger.debug("Invalid filter found: {}", e);
             isFilterValid = false;
         }
 
         if (isFilterValid || filterField.getText().isEmpty()) {
-            filterField.getStyleClass().remove("error");
+            if (filterField.getStyleClass().contains("error")) filterField.getStyleClass().remove("error");
         } else {
-            filterField.getStyleClass().add("error");
+            if (!filterField.getStyleClass().contains("error")) filterField.getStyleClass().add("error");
         }
         EventManager.getInstance().post(new FilterCommittedEvent(filterExpression));
     }

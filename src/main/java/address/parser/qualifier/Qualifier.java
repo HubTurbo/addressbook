@@ -1,7 +1,7 @@
 package address.parser.qualifier;
 
-import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 public interface Qualifier {
-    boolean run(Person person);
+    boolean run(ReadOnlyViewablePerson person);
 }

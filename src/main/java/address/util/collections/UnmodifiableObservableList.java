@@ -82,7 +82,7 @@ public class UnmodifiableObservableList<E> implements ObservableList<E> {
         throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
     }
 
-    
+
     @Override
     public final FilteredList<E> filtered(Predicate<E> predicate) {
         return new FilteredList<>(this, predicate);

@@ -1,6 +1,7 @@
 package address.parser.expr;
 
 import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 public class AndExpr implements Expr {
 
@@ -13,7 +14,7 @@ public class AndExpr implements Expr {
     }
 
     @Override
-    public boolean satisfies(Person person) {
+    public boolean satisfies(ReadOnlyViewablePerson person) {
         return left.satisfies(person) && right.satisfies(person);
     }
 }

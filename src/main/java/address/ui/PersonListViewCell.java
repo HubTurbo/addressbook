@@ -7,6 +7,7 @@ import address.util.FxViewUtil;
 import address.util.collections.ReorderedList;
 import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.*;
@@ -26,7 +27,6 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
                 getListView().getSelectionModel().clearSelection();
             }
         });
-
         setOnDragDetected(event -> {
             if (getItem() == null) {
                 return;
