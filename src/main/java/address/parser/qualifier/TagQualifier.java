@@ -4,7 +4,6 @@ import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.StringUtil;
 
 public class TagQualifier implements Qualifier {
-
     private final String tagName;
 
     public TagQualifier(String tagName) {

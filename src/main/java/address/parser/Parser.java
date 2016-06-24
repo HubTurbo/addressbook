@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import address.parser.expr.AndExpr;
 import address.parser.expr.Expr;
+import address.parser.expr.NotExpr;
 import address.parser.expr.PredExpr;
 import address.parser.qualifier.*;
 
@@ -15,7 +16,7 @@ public class Parser {
     public static Expr parse(String input) throws ParseException {
         Expr result = null;
 
-        Pattern pattern = Pattern.compile("\\s*(\\w+)\\s*:\\s*(\\w+)", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("\\s*(!*\\w+)\\s*:\\s*(\\w+)\\s*", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(input);
 
         while (!matcher.hitEnd()) {
@@ -36,7 +37,15 @@ public class Parser {
     }
 
     private static Expr createPredicate(String type, String content) throws ParseException {
-        return new PredExpr(getQualifier(type, content));
+        Pattern pattern = Pattern.compile("!(\\w+)", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(type);
+
+        boolean isNegation = matcher.matches();
+
+        String typeToUse = isNegation ? matcher.group(1) : type;
+        Qualifier qualifier = getQualifier(typeToUse, content);
+        Expr pred = new PredExpr(qualifier);
+        return isNegation ? new NotExpr(pred) : pred;
     }
 
     private static Qualifier getQualifier(String type, String content) throws ParseException {

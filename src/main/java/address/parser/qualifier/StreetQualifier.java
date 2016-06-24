@@ -4,7 +4,6 @@ import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.StringUtil;
 
 public class StreetQualifier implements Qualifier {
-
     private final String street;
 
     public StreetQualifier(String street) {
