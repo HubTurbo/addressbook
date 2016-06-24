@@ -44,52 +44,64 @@ public class FilteredList<E> extends TransformationList<E, E> {
         this.predicate = predicate;
         ObservableList<E> newFilteredList = filterList(predicate);
 
-        fireRemoveChanges(filteredList, newFilteredList);
-        fireAddChanges(filteredList, newFilteredList);
+        ObservableList<E> removedList = getRemovedList(filteredList, newFilteredList);
+        ObservableList<E> addedList = getAddedList(filteredList, newFilteredList);
 
+        fireRemoveChanges(removedList, filteredList);
+        filteredList = newFilteredList;
+        fireAddChanges(addedList, newFilteredList);
     }
 
-    private void fireAddChanges(ObservableList<E> oldList, ObservableList<E> newList) {
-        ObservableList<E> addedList = sourceCopy.stream()
+    private ObservableList<E> getAddedList(ObservableList<E> oldList, ObservableList<E> newList) {
+        return sourceCopy.stream()
                 .filter(e -> !oldList.contains(e))
                 .filter(newList::contains)
                 .collect(Collectors.toCollection(FXCollections::observableArrayList));
-
-
-        filteredList = newList;
-                addedList.forEach(e -> {
-                    beginChange();
-                    System.out.println("Adding to filtered list since filter has changed: " + e + " Index: " + newList.indexOf(e));
-                    nextAdd(newList.indexOf(e), newList.indexOf(e) + 1);
-                    endChange();
-                });
     }
 
-    private void fireRemoveChanges(ObservableList<E> oldList, ObservableList<E> newList) {
-        sourceCopy.stream()
+    private ObservableList<E> getRemovedList(ObservableList<E> oldList, ObservableList<E> newList) {
+        return sourceCopy.stream()
                 .filter(e -> !newList.contains(e))
                 .filter(oldList::contains)
-                .forEach(e -> {
-                    beginChange();
-                    System.out.println("Removing from filtered list since filter has changed: " + e + " Index: " + oldList.indexOf(e));
-                    nextRemove(oldList.indexOf(e), e);
-                    endChange();
-                });
+                .collect(Collectors.toCollection(FXCollections::observableArrayList));
+    }
+
+    /**
+     * Fires add change notifications for any observers
+     *
+     * @param addedList list of added elements
+     * @param updatedList list after the add changes have been made
+     */
+    private void fireAddChanges(ObservableList<E> addedList, ObservableList<E> updatedList) {
+        beginChange();
+        addedList.forEach(e -> nextAdd(updatedList.indexOf(e), updatedList.indexOf(e) + 1));
+        endChange();
+    }
+
+    /**
+     * Fires remove change notifications for any observers
+     *
+     * @param removedList list of removed elements
+     * @param originalList list before the remove changes have been made
+     */
+    private void fireRemoveChanges(ObservableList<E> removedList, ObservableList<E> originalList) {
+        beginChange();
+        removedList.forEach(e -> nextRemove(originalList.indexOf(e), e));
+        endChange();
     }
 
     @Override
     protected void sourceChanged(ListChangeListener.Change<? extends E> c) {
+        beginChange();
         while (c.next()) {
             if (c.wasAdded() || c.wasRemoved()) {
                 sourceCopy.addAll(c.getAddedSubList());
                 c.getAddedSubList().stream()
                         .filter(predicate)
                         .forEach(e -> {
+                            // added to the end of the list to preserve order of old data
                             filteredList.add(e);
-                            beginChange();
-                            System.out.println("Adding to filtered list since source has changed: " + e);
                             nextAdd(filteredList.indexOf(e), filteredList.indexOf(e) + 1);
-                            endChange();
                         });
 
 
@@ -98,14 +110,11 @@ public class FilteredList<E> extends TransformationList<E, E> {
                         .filter(predicate)
                         .forEach(e -> {
                             filteredList.remove(e);
-                            beginChange();
-
-                            System.out.println("Removing from filtered list since source has changed: " + e);
                             nextRemove(filteredList.indexOf(e), e);
-                            endChange();
                         });
             }
         }
+        endChange();
     }
 
     @Override

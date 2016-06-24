@@ -10,8 +10,6 @@ import javafx.collections.transformation.TransformationList;
  *
  */
 public class ReorderedList<T> extends TransformationList<T, T> {
-
-
     private ObservableList<T> mappingList;
 
     /**
@@ -29,12 +27,12 @@ public class ReorderedList<T> extends TransformationList<T, T> {
 
         beginChange();
         while (c.next()) {
-            if (c.wasAdded()) {
-                mappingList.addAll(c.getAddedSubList());
-            }
-
             if (c.wasRemoved()) {
                 mappingList.removeAll(c.getRemoved());
+            }
+
+            if (c.wasAdded()) {
+                mappingList.addAll(c.getAddedSubList());
             }
         }
         fireChange(new SourceAdapterChange<>(this, c));
