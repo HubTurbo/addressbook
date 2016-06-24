@@ -46,7 +46,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * AddressBook and its variables should not be null.
      * @param src
      */
-    public ModelManager(AddressBook src, UserPrefs prefs) {
+    public ModelManager(AddressBook src, UserPrefs userPrefs) {
         if (src == null) {
             logger.fatal("Attempted to initialize with a null AddressBook");
             assert false;
@@ -68,13 +68,16 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         backingPersonList().addListener(modelChangeListener);
         backingTagList().addListener(modelChangeListener);
 
-        this.prefs = prefs;
         EventManager.getInstance().registerHandler(this);
+
+        this.prefs = userPrefs;
     }
 
-    public ModelManager(UserPrefs prefs) {
-        this(new AddressBook(), prefs);
+
+    public ModelManager(UserPrefs userPrefs) {
+        this(new AddressBook(), userPrefs);
     }
+
 
     /**
      * Clears existing backing model and replaces with the provided new data.

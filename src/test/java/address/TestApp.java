@@ -1,5 +1,6 @@
 package address;
 
+import address.model.UserPrefs;
 import address.util.Config;
 import address.util.TestUtil;
 
@@ -19,14 +20,17 @@ public class TestApp extends MainApp {
     }
 
     @Override
-    protected void initConfig() {
-        super.initConfig();
+    protected Config initConfig() {
+        Config config = super.initConfig();
         config.appTitle = "Test App";
+        return config;
     }
 
     @Override
-    protected void initPrefs() {
-        modelManager.setPrefsSaveLocation(saveLocationForTesting);
+    protected UserPrefs initPrefs(Config config) {
+        UserPrefs userPrefs = super.initPrefs(config);
+        userPrefs.setSaveLocation(saveLocationForTesting);
+        return userPrefs;
     }
 
     public static void main(String[] args) {

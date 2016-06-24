@@ -4,6 +4,7 @@ import address.browser.BrowserManager;
 import address.controller.MainController;
 import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
+import address.model.UserPrefs;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
 import address.updater.UpdateManager;
@@ -39,6 +40,7 @@ public class MainApp extends Application {
     protected MainController mainController;
     protected KeyBindingsManager keyBindingsManager;
     protected Config config;
+    protected UserPrefs userPrefs;
 
     public MainApp() {}
 
@@ -46,27 +48,28 @@ public class MainApp extends Application {
     public void init() throws Exception {
         logger.info("Initializing app ...");
         super.init();
-        initConfig();
+        config = initConfig();
+        userPrefs = initPrefs(config);
         BrowserManager.initializeJxBrowserEnvironment();
-        initComponents();
-        initPrefs();
+        initComponents(config, userPrefs);
     }
 
-    protected void initConfig() {
-        // For sub classes to override
-        config = StorageManager.getConfig();
+    protected Config initConfig() {
+        Config config = StorageManager.getConfig();
         logger.info("Config successfully obtained from StorageManager");
+        return config;
     }
 
-    protected void initPrefs() {
-        // For sub classes to override
+    protected UserPrefs initPrefs(Config config) {
+        UserPrefs userPrefs = StorageManager.getUserPrefs(config.getPrefsFileLocation());
+        return userPrefs;
     }
 
-    protected void initComponents() {
-        LoggerManager.updateWithConfig(config);
+    protected void initComponents(Config config, UserPrefs userPrefs) {
+        LoggerManager.init(config);
 
-        modelManager = new ModelManager(StorageManager.loadPrefsFromFile(StorageManager.DEFAULT_USER_PREF_FILE));
-        storageManager = new StorageManager(modelManager, modelManager.getPrefs());
+        modelManager = new ModelManager(userPrefs);
+        storageManager = new StorageManager(modelManager, config, userPrefs);
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager(config);
         keyBindingsManager = new KeyBindingsManager();

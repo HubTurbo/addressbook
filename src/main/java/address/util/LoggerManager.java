@@ -13,7 +13,7 @@ public class LoggerManager {
     public static Level currentLogLevel = Level.INFO;
     public static HashMap<String, Level> specialLogLevel = new HashMap<>();
 
-    public static void updateWithConfig(Config config) {
+    public static void init(Config config) {
         logger.info("currentLogLevel: {}", config.currentLogLevel);
         logger.info("specialLogLevels: {}", config.specialLogLevels);
         currentLogLevel = config.currentLogLevel;

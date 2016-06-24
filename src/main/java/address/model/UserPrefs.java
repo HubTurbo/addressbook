@@ -16,7 +16,7 @@ public class UserPrefs {
      */
     private volatile String saveLocation;
 
-    synchronized void setSaveLocation(String saveLocation) {
+    public synchronized void setSaveLocation(String saveLocation) {
         this.saveLocation = saveLocation;
     }
 
