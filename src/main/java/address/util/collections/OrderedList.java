@@ -25,7 +25,8 @@ public class OrderedList<T> extends TransformationList<T, T> {
     }
 
     @Override
-    protected void sourceChanged(ListChangeListener.Change<? extends T> c) {
+    protected synchronized void sourceChanged(ListChangeListener.Change<? extends T> c) {
+
         beginChange();
         while (c.next()) {
             if (c.wasAdded()) {
@@ -41,17 +42,17 @@ public class OrderedList<T> extends TransformationList<T, T> {
     }
 
     @Override
-    public int getSourceIndex(int index) {
+    public synchronized int getSourceIndex(int index) {
         return this.getSource().indexOf(mappingList.get(index));
     }
 
     @Override
-    public T get(int index) {
+    public synchronized T get(int index) {
         return this.getSource().get(getSourceIndex(index));
     }
 
     @Override
-    public int size() {
+    public synchronized int size() {
         return this.getSource().size();
     }
 
@@ -60,7 +61,7 @@ public class OrderedList<T> extends TransformationList<T, T> {
      * @param from The index(before shifting occurred) of the element to be shifted(before shift).
      * @param to The index(before shifting occurred) of the list where element is to be shifted to.
      */
-    public void moveElement(int from, int to) {
+    public synchronized void moveElement(int from, int to) {
 
         if (from < to) {
             //Element to be shifted is below the index where the element need to be shifted to.
