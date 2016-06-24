@@ -1,8 +1,7 @@
 package address.controller;
 
 import address.MainApp;
-import address.util.AppLogger;
-import address.util.LoggerManager;
+import address.util.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -16,7 +15,9 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Controls what, when and how to show tip of the day
@@ -25,6 +26,7 @@ public class TipOfTheDayController {
     private static final AppLogger logger = LoggerManager.getLogger(TipOfTheDayController.class);
 
     private static final String FXML_TIP_OF_THE_DAY = "/view/TipOfTheDay.fxml";
+    private static final String TIPS_OF_THE_DAY_RESOURCE = "/tipsOfTheDay.json";
 
     private static final double POS_Y_OFFSET = 100;
     private static final double ANIM_SLIDE_IN_DISTANCE = 300;
@@ -38,7 +40,7 @@ public class TipOfTheDayController {
 
     public void start() {
         // TODO put scheduling of showing tip of the day here
-        displayTipOfTheDay(getTipOfTheDay());
+        getTipOfTheDay().ifPresent(totd -> displayTipOfTheDay(totd));
     }
 
     private void displayTipOfTheDay(String tipOfTheDay) {
@@ -87,7 +89,16 @@ public class TipOfTheDayController {
         }
     }
 
-    private String getTipOfTheDay() {
-        return "Dummy tip";
+    private Optional<String> getTipOfTheDay() {
+        try {
+            TipsOfTheDay tipsOfTheDay = JsonUtil.fromJsonString(
+                    FileUtil.readFromInputStream(this.getClass().getResourceAsStream(TIPS_OF_THE_DAY_RESOURCE)),
+                    TipsOfTheDay.class);
+            return tipsOfTheDay.getATipOfTheDay();
+        } catch (IOException e) {
+            logger.debug("Failed to get tip of the day", e);
+        }
+
+        return Optional.empty();
     }
 }
