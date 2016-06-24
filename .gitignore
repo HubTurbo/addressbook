@@ -7,7 +7,6 @@ lib/*
 *.iml
 *.log
 *.csv
-*.ini
 config.json
 /*.xml
 update/

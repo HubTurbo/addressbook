@@ -120,7 +120,6 @@ allprojects {
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
         compile fileTree(dir: 'lib', include: 'licence.jar')
-        compile "org.ini4j:ini4j:0.5.4"
 
         testCompile "junit:junit:$junitVersion"
         testCompile "org.testfx:testfx-core:4.0.+"
@@ -138,7 +137,6 @@ allprojects {
         installerCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         installerCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         installerCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-        installerCompile "org.ini4j:ini4j:0.5.4"
     }
 
     configurations {
