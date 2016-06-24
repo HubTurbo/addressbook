@@ -4,7 +4,7 @@ import address.controller.PersonCardController;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import address.util.FxViewUtil;
-import address.util.OrderedList;
+import address.util.collections.OrderedList;
 import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import javafx.collections.ObservableList;
 import javafx.scene.SnapshotParameters;

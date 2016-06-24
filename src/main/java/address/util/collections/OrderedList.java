@@ -1,6 +1,5 @@
-package address.util;
+package address.util.collections;
 
-import address.model.datatypes.person.ReadOnlyViewablePerson;
 import com.sun.javafx.collections.SourceAdapterChange;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -13,7 +12,7 @@ import javafx.collections.transformation.TransformationList;
 public class OrderedList<T> extends TransformationList<T, T> {
 
 
-    private ObservableList<T> orderedList;
+    private ObservableList<T> mappingList;
 
     /**
      * Creates a new Transformation list wrapped around the source list.
@@ -22,7 +21,7 @@ public class OrderedList<T> extends TransformationList<T, T> {
      */
     public OrderedList(ObservableList<T> source) {
         super(source);
-        orderedList = FXCollections.observableArrayList(source);
+        mappingList = FXCollections.observableArrayList(source);
     }
 
     @Override
@@ -30,13 +29,11 @@ public class OrderedList<T> extends TransformationList<T, T> {
         beginChange();
         while (c.next()) {
             if (c.wasAdded()) {
-                orderedList.addAll(c.getAddedSubList());
-                continue;
+                mappingList.addAll(c.getAddedSubList());
             }
 
             if (c.wasRemoved()) {
-                orderedList.removeAll(c.getRemoved());
-                continue;
+                mappingList.removeAll(c.getRemoved());
             }
         }
         endChange();
@@ -45,17 +42,17 @@ public class OrderedList<T> extends TransformationList<T, T> {
 
     @Override
     public int getSourceIndex(int index) {
-        return index;
+        return this.getSource().indexOf(mappingList.get(index));
     }
 
     @Override
     public T get(int index) {
-        return orderedList.get(index);
+        return this.getSource().get(getSourceIndex(index));
     }
 
     @Override
     public int size() {
-        return orderedList.size();
+        return this.getSource().size();
     }
 
     /**
@@ -69,12 +66,12 @@ public class OrderedList<T> extends TransformationList<T, T> {
             //Element to be shifted is below the index where the element need to be shifted to.
             //Removing the element first will shift every element down.
             //Therefore, only remove the element after shifting finished.
-            T tmpPerson = orderedList.get(from);
-            orderedList.add(to, tmpPerson);
-            orderedList.remove(from);
+            T tmpPerson = mappingList.get(from);
+            mappingList.add(to, tmpPerson);
+            mappingList.remove(from);
         } else if (from > to) {
-            T tmpPerson = orderedList.remove(from);
-            orderedList.add(to, tmpPerson);
+            T tmpPerson = mappingList.remove(from);
+            mappingList.add(to, tmpPerson);
         }
     }
 
