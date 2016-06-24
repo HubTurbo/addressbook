@@ -4,7 +4,7 @@ import address.controller.PersonCardController;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import address.util.FxViewUtil;
-import address.util.collections.OrderedList;
+import address.util.collections.ReorderedList;
 import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import javafx.collections.ObservableList;
 import javafx.scene.SnapshotParameters;
@@ -19,10 +19,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
     public static final int SCROLL_AREA = 15;
     private HBox cellGraphic;
 
-    private OrderedList orderedList;
-
-    public PersonListViewCell(OrderedList<ReadOnlyViewablePerson> orderedList) {
-        this.orderedList = orderedList;
+    public PersonListViewCell(ReorderedList<ReadOnlyViewablePerson> reorderedList) {
 
         setOnMouseClicked(event -> {
             if (getItem() == null) {
@@ -38,7 +35,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
             ClipboardContent content = new ClipboardContent();
             content.putString(String.valueOf(getListView().getItems().indexOf(getItem())));
-            dragBoard.setDragView(cellGraphic.snapshot(new SnapshotParameters(), null));
+            dragBoard.setDragView(getGraphic().snapshot(new SnapshotParameters(), null));
             dragBoard.setContent(content);
             event.consume();
         });
@@ -92,7 +89,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             Dragboard dragboard = event.getDragboard();
 
             if (dragboard.hasString()) {
-                moveCell(orderedList, event.getSceneY(), Integer.valueOf(dragboard.getString()));
+                moveCell(reorderedList, event.getSceneY(), Integer.valueOf(dragboard.getString()));
             }
 
             event.setDropCompleted(true);
@@ -105,11 +102,11 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     /**
      * Moves the cell from the drag source to the edge of the nearest cell .
-     * @param sortedList The OrderedList.
+     * @param sortedList The ReorderedList.
      * @param currentYPosition  The current Y position relative to the attached scene.
      * @param indexOfSourceCell The index of the cell to be moved to the new location.
      */
-    private void moveCell(OrderedList sortedList, double currentYPosition, int indexOfSourceCell) {
+    private void moveCell(ReorderedList sortedList, double currentYPosition, int indexOfSourceCell) {
         ObservableList<ReadOnlyViewablePerson> list = getListView().getItems();
 
         ReadOnlyViewablePerson personToMove = list.get(indexOfSourceCell);
@@ -180,8 +177,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             setGraphic(null);
             setText(null);
         } else {
-            cellGraphic = new PersonCardController(person).getLayout();
-            setGraphic(cellGraphic);
+            setGraphic(new PersonCardController(person).getLayout());
         }
     }
 }

@@ -9,7 +9,7 @@ import javafx.collections.transformation.TransformationList;
 /**
  *
  */
-public class OrderedList<T> extends TransformationList<T, T> {
+public class ReorderedList<T> extends TransformationList<T, T> {
 
 
     private ObservableList<T> mappingList;
@@ -19,7 +19,7 @@ public class OrderedList<T> extends TransformationList<T, T> {
      *
      * @param source the wrapped list
      */
-    public OrderedList(ObservableList<T> source) {
+    public ReorderedList(ObservableList<T> source) {
         super(source);
         mappingList = FXCollections.observableArrayList(source);
     }

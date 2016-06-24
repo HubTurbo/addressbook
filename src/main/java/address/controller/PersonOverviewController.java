@@ -16,7 +16,7 @@ import address.status.PersonCreatedStatus;
 import address.status.PersonDeletedStatus;
 import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
-import address.util.collections.OrderedList;
+import address.util.collections.ReorderedList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
@@ -58,6 +58,10 @@ public class PersonOverviewController {
     private MainController mainController;
     private ModelManager modelManager;
 
+    /**
+     * When the user selected multiple item in the listview. The edit feature will be
+     * disabled. Features related to edit will be bind to this property.
+     */
     private BooleanProperty isEditDisabled = new SimpleBooleanProperty(false);
 
     private ListChangeListener<Integer> multipleSelectListener = c -> {
@@ -73,13 +77,13 @@ public class PersonOverviewController {
     }
 
     public void setConnections(MainController mainController, ModelManager modelManager,
-                               OrderedList<ReadOnlyViewablePerson> orderedList) {
+                               ReorderedList<ReadOnlyViewablePerson> reorderedList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
 
         // Add observable list data to the list
-        personListView.setItems(orderedList);
-        personListView.setCellFactory(listView -> new PersonListViewCell(orderedList));
+        personListView.setItems(reorderedList);
+        personListView.setCellFactory(listView -> new PersonListViewCell(reorderedList));
 
         personListView.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
@@ -138,7 +142,7 @@ public class PersonOverviewController {
     /**
      * Called when the context menu edit is clicked.
      */
-    private void handleEditTagPersons() {
+    private void handleRetagPersons() {
         List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
         Optional<List<Tag>> listOfFinalAssignedTags = mainController.getPersonsTagsInput(selectedPersons);
 
@@ -179,10 +183,10 @@ public class PersonOverviewController {
         Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person(editTarget));
         do {
             prevInputData = mainController.getPersonDataInput(prevInputData.get(), "Edit Person");
-        } while (prevInputData.isPresent() && !isEditSuccessful(editTarget, prevInputData.get()));
+        } while (prevInputData.isPresent() && !updatePerson(editTarget, prevInputData.get()));
     }
 
-    private boolean isEditSuccessful(ReadOnlyPerson oldPerson, ReadOnlyPerson newPerson) {
+    private boolean updatePerson(ReadOnlyPerson oldPerson, ReadOnlyPerson newPerson) {
         modelManager.updatePerson(oldPerson, newPerson);
         mainController.getStatusBarHeaderController().postStatus(
                 new PersonEditedStatus(new Person(oldPerson), newPerson));
@@ -219,7 +223,7 @@ public class PersonOverviewController {
         deleteMenuItem.setOnAction(e -> handleDeletePersons());
         MenuItem tagMenuItem = new MenuItem("Tag");
         tagMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("PERSON_TAG_ACCELERATOR").get());
-        tagMenuItem.setOnAction(e -> handleEditTagPersons());
+        tagMenuItem.setOnAction(e -> handleRetagPersons());
 
         contextMenu.getItems().addAll(editMenuItem, deleteMenuItem, tagMenuItem);
         contextMenu.setId("personListContextMenu");

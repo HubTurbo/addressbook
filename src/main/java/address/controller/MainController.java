@@ -9,7 +9,7 @@ import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.*;
-import address.util.collections.OrderedList;
+import address.util.collections.ReorderedList;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -61,7 +61,7 @@ public class MainController {
 
     private StatusBarHeaderController statusBarHeaderController;
 
-    private OrderedList<ReadOnlyViewablePerson> orderedList;
+    private ReorderedList<ReadOnlyViewablePerson> reorderedList;
 
     /**
      * Constructor for mainController
@@ -75,8 +75,8 @@ public class MainController {
         this.mainApp = mainApp;
         this.modelManager = modelManager;
         this.config = config;
-        this.orderedList = new OrderedList<>(modelManager.getAllViewablePersonsReadOnly());
-        this.browserManager = new BrowserManager(orderedList);
+        this.reorderedList = new ReorderedList<>(modelManager.getAllViewablePersonsReadOnly());
+        this.browserManager = new BrowserManager(reorderedList);
     }
 
     public void start(Stage primaryStage) {
@@ -152,7 +152,7 @@ public class MainController {
             SplitPane.setResizableWithParent(personOverview, false);
             // Give the personOverviewController access to the main app and modelManager.
             PersonOverviewController personOverviewController = loader.getController();
-            personOverviewController.setConnections(this, modelManager, orderedList);
+            personOverviewController.setConnections(this, modelManager, reorderedList);
 
             pane.getItems().add(personOverview);
         } catch (IOException e) {
@@ -251,32 +251,33 @@ public class MainController {
     public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
+        AnchorPane pane = null;
         try {
-            AnchorPane pane = loader.load();
-
-            // Create the dialog Stage.
-            Stage dialogStage = new Stage();
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(primaryStage);
-            dialogStage.initStyle(StageStyle.TRANSPARENT);
-
-            Scene scene = new Scene(pane, Color.TRANSPARENT);
-            dialogStage.setScene(scene);
-
-            TagSelectionEditDialogController controller = loader.getController();
-            controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
-                               ReadOnlyPerson.getCommonTags(persons));
-            controller.setDialogStage(dialogStage);
-
-            dialogStage.showAndWait();
-
-            if (controller.isOkClicked()) {
-                return Optional.of(controller.getFinalAssignedTags());
-            }
+            pane = loader.load();
 
         } catch (IOException e) {
             logger.warn("Error launching tag selection dialog: {}", e);
             assert false : "Error loading fxml : " + FXML_TAG_SELECTION_EDIT_DIALOG;
+        }
+
+        // Create the dialog Stage.
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        dialogStage.initOwner(primaryStage);
+        dialogStage.initStyle(StageStyle.TRANSPARENT);
+
+        Scene scene = new Scene(pane, Color.TRANSPARENT);
+        dialogStage.setScene(scene);
+
+        TagSelectionEditDialogController controller = loader.getController();
+        controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
+                ReadOnlyPerson.getCommonTags(persons));
+        controller.setDialogStage(dialogStage);
+
+        dialogStage.showAndWait();
+
+        if (controller.isOkClicked()) {
+            return Optional.of(controller.getFinalAssignedTags());
         }
         return Optional.empty();
     }

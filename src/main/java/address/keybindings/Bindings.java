@@ -56,6 +56,7 @@ public class Bindings {
 
         /*====== bindings A-Z keys (in alphabetical order of main key =====================*/
 
+        PERSON_TAG_ACCELERATOR = setAccelerator("PERSON_TAG_ACCELERATOR", "A");
         PERSON_DELETE_ACCELERATOR = setAccelerator("PERSON_DELETE_ACCELERATOR", "D");
         PERSON_EDIT_ACCELERATOR = setAccelerator("PERSON_EDIT_ACCELERATOR", "E");
         LIST_GOTO_BOTTOM_SEQUENCE = setSequence("LIST_GOTO_BOTTOM_SEQUENCE", "G", "B", new JumpToListRequestEvent(-1));
@@ -64,7 +65,6 @@ public class Bindings {
         FILE_OPEN_ACCELERATOR = setAccelerator("FILE_OPEN_ACCELERATOR", "SHORTCUT + O");
         FILE_SAVE_ACCELERATOR = setAccelerator("FILE_SAVE_ACCELERATOR", "SHORTCUT + S");
         FILE_SAVE_AS_ACCELERATOR = setAccelerator("FILE_SAVE_AS_ACCELERATOR", "SHORTCUT + ALT + S");
-        PERSON_TAG_ACCELERATOR = setAccelerator("PERSON_TAG_ACCELERATOR", "T");
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "CTRL + ALT + X", new MinimizeAppRequestEvent()));
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "META + ALT + X", new MinimizeAppRequestEvent()));
         APP_MAXIMIZE_HOTKEY.add(setHotkey("APP_MAXIMIZE_HOTKEY", "CTRL + SHIFT + X", new MaximizeAppRequestEvent()));
