@@ -1,17 +1,15 @@
 package address.controller;
 
 import address.MainApp;
+import address.browser.BrowserManager;
 import address.events.*;
 import address.exceptions.DuplicateTagException;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
-import address.model.ModelManager;
 import address.util.*;
-import address.browser.BrowserManager;
-
 import com.google.common.eventbus.Subscribe;
-
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -21,7 +19,9 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -88,6 +88,12 @@ public class MainController {
         showPersonWebPage();
         showFooterStatusBar();
         showHeaderStatusBar();
+        showTipOfTheDay();
+    }
+
+    private void showTipOfTheDay() {
+        TipOfTheDayController tipOfTheDayController = new TipOfTheDayController(primaryStage);
+        tipOfTheDayController.start();
     }
 
     /**
