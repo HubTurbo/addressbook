@@ -9,7 +9,6 @@ import address.model.datatypes.*;
 import address.model.datatypes.person.*;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.UniqueData;
-import address.storage.StorageManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.collections.UnmodifiableObservableList;
@@ -19,7 +18,6 @@ import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -48,7 +46,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * AddressBook and its variables should not be null.
      * @param src
      */
-    public ModelManager(AddressBook src) {
+    public ModelManager(AddressBook src, UserPrefs prefs) {
         if (src == null) {
             logger.fatal("Attempted to initialize with a null AddressBook");
             assert false;
@@ -70,13 +68,12 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         backingPersonList().addListener(modelChangeListener);
         backingTagList().addListener(modelChangeListener);
 
+        this.prefs = prefs;
         EventManager.getInstance().registerHandler(this);
-
-        this.prefs = StorageManager.loadPrefsFromFile(StorageManager.DEFAULT_USER_PREF_FILE);
     }
 
-    public ModelManager() {
-        this(new AddressBook());
+    public ModelManager(UserPrefs prefs) {
+        this(new AddressBook(), prefs);
     }
 
     /**
@@ -371,8 +368,8 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
     public void setPrefsSaveLocation(String saveLocation) {
         prefs.setSaveLocation(saveLocation);
 
-        EventManager.getInstance().post(new SaveLocationChangedEvent(new File(saveLocation)));
-        EventManager.getInstance().post(new SavePrefsRequestEvent(StorageManager.DEFAULT_USER_PREF_FILE, prefs));
+        EventManager.getInstance().post(new SaveLocationChangedEvent(saveLocation));
+        EventManager.getInstance().post(new SavePrefsRequestEvent(prefs));
     }
 
     public void clearPrefsSaveLocation() {

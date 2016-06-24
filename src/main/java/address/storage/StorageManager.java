@@ -143,7 +143,7 @@ public class StorageManager extends ComponentManager {
     @Subscribe
     public void handleSavePrefsRequestEvent(SavePrefsRequestEvent spre) {
         logger.info("Save prefs request received: {}", spre.prefs);
-        savePrefsToFile(spre.file, spre.prefs);
+        savePrefsToFile(DEFAULT_USER_PREF_FILE, spre.prefs);
     }
 
     /**

@@ -65,7 +65,7 @@ public class MainApp extends Application {
     protected void initComponents() {
         LoggerManager.updateWithConfig(config);
 
-        modelManager = new ModelManager();
+        modelManager = new ModelManager(StorageManager.loadPrefsFromFile(StorageManager.DEFAULT_USER_PREF_FILE));
         storageManager = new StorageManager(modelManager, modelManager.getPrefs());
         mainController = new MainController(this, modelManager, config);
         syncManager = new SyncManager(config);

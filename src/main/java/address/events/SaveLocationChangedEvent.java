@@ -14,6 +14,10 @@ public class SaveLocationChangedEvent extends BaseEvent {
         this.saveFile = file;
     }
 
+    public SaveLocationChangedEvent(String filePath){
+        this.saveFile = new File(filePath);
+    }
+
     @Override
     public String toString(){
         return saveFile == null ? "Save file location cleared." : "New save file location is: " + saveFile;
