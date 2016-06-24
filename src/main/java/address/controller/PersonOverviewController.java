@@ -12,6 +12,7 @@ import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.keybindings.KeyBindingsManager;
+import address.parser.qualifier.TrueQualifier;
 import address.status.PersonCreatedStatus;
 import address.status.PersonDeletedStatus;
 import address.status.PersonEditedStatus;
@@ -88,13 +89,11 @@ public class PersonOverviewController {
                                UnmodifiableObservableList<ReadOnlyViewablePerson> personList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
-        filteredPersonList = new FilteredList<>(personList);
-        filteredPersonList.setPredicate(person -> true);
-        ReorderedList<ReadOnlyViewablePerson> reorderedList = new ReorderedList<>(filteredPersonList);
-        // Add observable list data to the list
-        personListView.setItems(reorderedList);
-        personListView.setCellFactory(listView -> new PersonListViewCell(reorderedList));
+        filteredPersonList = new FilteredList<>(personList, new PredExpr(new TrueQualifier())::satisfies);
 
+        ReorderedList<ReadOnlyViewablePerson> orderedList = new ReorderedList<>(filteredPersonList);
+        personListView.setItems(orderedList);
+        personListView.setCellFactory(listView -> new PersonListViewCell(orderedList));
         personListView.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
                 if (newValue != null) {
@@ -209,14 +208,15 @@ public class PersonOverviewController {
         boolean isFilterValid = true;
         try {
             filterExpression = Parser.parse(filterField.getText());
-        } catch (ParseException ignored) {
+        } catch (ParseException e) {
+            logger.debug("Invalid filter found: {}", e);
             isFilterValid = false;
         }
 
         if (isFilterValid || filterField.getText().isEmpty()) {
-            filterField.getStyleClass().remove("error");
+            if (filterField.getStyleClass().contains("error")) filterField.getStyleClass().remove("error");
         } else {
-            filterField.getStyleClass().add("error");
+            if (!filterField.getStyleClass().contains("error")) filterField.getStyleClass().add("error");
         }
         EventManager.getInstance().post(new FilterCommittedEvent(filterExpression));
     }

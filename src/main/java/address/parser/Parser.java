@@ -18,7 +18,8 @@ public class Parser {
         Pattern pattern = Pattern.compile("\\s*(\\w+)\\s*:\\s*(\\w+)", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(input);
 
-        while (matcher.find()) {
+        while (!matcher.hitEnd()) {
+            if (!matcher.find()) throw new ParseException("Part of input invalid '" + input + "'");
             Expr intermediate = createPredicate(matcher.group(1), matcher.group(2));
             if (result == null) {
                 result = intermediate;
@@ -48,6 +49,10 @@ public class Parser {
                 return new FirstNameQualifier(content);
             case "name":
                 return new NameQualifier(content);
+            case "street":
+                return new StreetQualifier(content);
+            case "tag":
+                return new TagQualifier(content);
             default:
                 throw new ParseException("Unrecognised qualifier " + type);
         }

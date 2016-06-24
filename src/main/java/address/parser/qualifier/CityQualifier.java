@@ -1,6 +1,7 @@
 package address.parser.qualifier;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.util.StringUtil;
 
 public class CityQualifier implements Qualifier {
     private String city;
@@ -11,6 +12,6 @@ public class CityQualifier implements Qualifier {
 
     @Override
     public boolean run(ReadOnlyViewablePerson person) {
-        return person.getCity().equalsIgnoreCase(city);
+        return StringUtil.containsIgnoreCase(person.getCity(), city);
     }
 }
