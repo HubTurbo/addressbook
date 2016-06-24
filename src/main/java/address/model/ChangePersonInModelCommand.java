@@ -1,7 +1,7 @@
 package address.model;
 
+import address.events.EventManager;
 import address.model.datatypes.person.ReadOnlyPerson;
-import address.model.datatypes.person.ViewablePerson;
 import address.util.PlatformExecUtil;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
@@ -22,15 +22,20 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
     protected ReadOnlyPerson input;
 
     /**
-     *
-     * @param inputRetriever Will run on execution {@link #run()} thread. This should handle external thread execution
+     * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
      *                       logic (eg. {@link PlatformExecUtil#callLater(Callable)} within itself.
      *                       If the returned Optional is empty, the command will be cancelled.
      */
     protected ChangePersonInModelCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever,
                                          int gracePeriodDurationInSeconds) {
         super(gracePeriodDurationInSeconds);
+        this.inputRetriever = inputRetriever;
     }
+
+    /**
+     * @return ID of the target (viewable) person of this command
+     */
+    public abstract int getTargetPersonId();
 
     @Override
     protected State retrieveInput() {

@@ -17,7 +17,9 @@ public final class PlatformExecUtil {
     }
 
     public static <R> Future<R> callLater(Callable<R> callback) {
-        return new FutureTask<>(callback);
+        final FutureTask<R> task = new FutureTask<>(callback);
+        Platform.runLater(task);
+        return task;
     }
 
     public static void runLaterDelayed(Runnable action, long delay, TimeUnit unit) {

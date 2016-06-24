@@ -4,14 +4,11 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Wraps all data at the address-book level
@@ -51,14 +48,10 @@ public class AddressBook implements ReadOnlyAddressBook {
 
 //// list overwrite operations
 
-    @XmlElement(name = "persons")
-    @JsonProperty("persons")
     public ObservableList<Person> getPersons() {
         return persons;
     }
 
-    @XmlElement(name = "tags")
-    @JsonProperty("tags")
     public ObservableList<Tag> getTags() {
         return tags;
     }

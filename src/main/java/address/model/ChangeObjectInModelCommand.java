@@ -96,7 +96,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
 
         // Runs FSM till one of terminal states is reached.
         while (!isTerminal(getState())) {
-            setState(handleAndTransitionState(state.get()));
+            setState(handleAndTransitionState(getState()));
         }
 
         // handle terminal states

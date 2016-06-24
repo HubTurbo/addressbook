@@ -1,5 +1,6 @@
 package address;
 
+import address.events.EventManager;
 import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
 import address.model.UserPrefs;
@@ -66,7 +67,7 @@ public class MainApp extends Application {
     protected void initComponents(Config config, UserPrefs userPrefs) {
         LoggerManager.init(config);
 
-        modelManager = new ModelManager(userPrefs);
+        modelManager = new ModelManager(EventManager.getInstance(), userPrefs);
         storageManager = new StorageManager(modelManager, config, userPrefs);
         ui = new Ui(this, modelManager, config);
         syncManager = new SyncManager(config);

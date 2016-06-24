@@ -1,5 +1,6 @@
 package address.model.datatypes.person;
 
+import address.model.ChangePersonInModelCommand;
 import address.model.datatypes.UniqueData;
 import address.model.datatypes.Viewable;
 import address.model.datatypes.tag.Tag;
@@ -80,7 +81,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
      * are negative integers to avoid overlap.
      */
     private void assignTempId() {
-        id = tempIdCounter.getAndIncrement();
+        id = tempIdCounter.getAndDecrement();
     }
 
     @Override
@@ -131,6 +132,9 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
 
 //// OPTIMISTIC UPDATING
 
+    /**
+     * Updates the visible data, backing data remains untouched.
+     */
     public void simulateUpdate(ReadOnlyPerson data) {
         visible.update(data);
     }

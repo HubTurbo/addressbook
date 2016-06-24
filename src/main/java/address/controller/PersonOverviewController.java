@@ -20,13 +20,13 @@ import address.util.FilteredList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.collections.ReorderedList;
-import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
@@ -85,7 +85,7 @@ public class PersonOverviewController extends UiController{
     }
 
     public void setConnections(MainController mainController, ModelManager modelManager,
-                               UnmodifiableObservableList<ReadOnlyViewablePerson> personList) {
+                               ObservableList<ReadOnlyViewablePerson> personList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
         filteredPersonList = new FilteredList<>(personList, new PredExpr(new TrueQualifier())::satisfies);
@@ -132,7 +132,6 @@ public class PersonOverviewController extends UiController{
                         "No Selection", "No Person Selected", "Please select a person in the list.");
             }
         });
-
     }
 
     /**
@@ -141,11 +140,8 @@ public class PersonOverviewController extends UiController{
      */
     @FXML
     private void handleNewPerson() {
-        Optional<ReadOnlyPerson> inputData = mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person");
-        if (inputData.isPresent()) {
-            ReadOnlyPerson added = modelManager.addPerson(new Person(inputData.get()));
-            mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(added));
-        }
+        modelManager.createPersonFromUI(() ->
+                mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person"));
     }
 
     /**
