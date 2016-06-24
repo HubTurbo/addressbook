@@ -60,8 +60,6 @@ public class PersonOverviewController {
 
     private BooleanProperty isEditDisabled = new SimpleBooleanProperty(false);
 
-
-
     private ListChangeListener<Integer> multipleSelectListener = c -> {
         if (c.getList().size() > 1) {
             isEditDisabled.set(true);
@@ -109,7 +107,6 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleDeletePersons() {
-        //int selectedIndex = personListView.getSelectionModel().getSelectedIndex();
         List<Integer> selectedIndexes = personListView.getSelectionModel().getSelectedIndices();
         selectedIndexes.stream().forEach(selectedIndex -> {
             if (selectedIndex >= 0) {
@@ -143,12 +140,12 @@ public class PersonOverviewController {
      */
     private void handleEditTagPersons() {
         List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
-        Optional<List<Tag>> listOfFinalTags = mainController.getPersonsTagsInput(selectedPersons);
+        Optional<List<Tag>> listOfFinalAssignedTags = mainController.getPersonsTagsInput(selectedPersons);
 
-        if (listOfFinalTags.isPresent()) {
+        if (listOfFinalAssignedTags.isPresent()) {
             selectedPersons.stream().forEach(p -> {
                 Person editedPerson = new Person(p);
-                editedPerson.setTags(listOfFinalTags.get());
+                editedPerson.setTags(listOfFinalAssignedTags.get());
                 modelManager.updatePerson(p, editedPerson);
             });
         }
@@ -264,8 +261,7 @@ public class PersonOverviewController {
      * @param indexOfItem
      */
     private void selectItem(int indexOfItem) {
-        personListView.getSelectionModel().clearSelection();
-        personListView.getSelectionModel().select(indexOfItem);
+        personListView.getSelectionModel().clearAndSelect(indexOfItem);
         personListView.getFocusModel().focus(indexOfItem);
         personListView.requestFocus();
     }
