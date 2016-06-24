@@ -15,7 +15,11 @@ public class SaveLocationChangedEvent extends BaseEvent {
     }
 
     public SaveLocationChangedEvent(String filePath){
-        this.saveFile = new File(filePath);
+        if (filePath == null) {
+            this.saveFile = null;
+        } else {
+            this.saveFile = new File(filePath);
+        }
     }
 
     @Override

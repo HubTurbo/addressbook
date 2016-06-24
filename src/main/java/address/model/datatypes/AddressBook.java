@@ -15,34 +15,41 @@ import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Wraps all data at the address-book level
- *
  * Duplicates are not allowed (by .equals comparison)
- * TODO: truly enforce set property through code (Sets, XML Schemas)
  */
 public class AddressBook implements ReadOnlyAddressBook {
 
     private final ObservableList<Person> persons;
+    private final List<Person> personBackingList;
     private final ObservableList<Tag> tags;
 
     {
-        persons = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
-        tags = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
+        personBackingList = new ArrayList<>();
+        persons = FXCollections.observableList(personBackingList);
+        tags = FXCollections.observableArrayList();
     }
 
     public AddressBook() {}
 
+    /**
+     * Persons and Tags are copied into this addressbook
+     */
     public AddressBook(ReadOnlyAddressBook toBeCopied) {
         this(toBeCopied.getPersonList(), toBeCopied.getTagList());
     }
 
-    public AddressBook(List<ReadOnlyPerson> persons, List<Tag> tags) {
-        setPersons(persons.stream().map(Person::new).collect(Collectors.toList()));
-        setTags(tags);
+    /**
+     * Persons and Tags are copied into this addressbook
+     */
+    public AddressBook(List<? extends ReadOnlyPerson> persons, List<Tag> tags) {
+        resetData(persons, tags);
     }
 
     public ViewableAddressBook createVisibleAddressBook() {
         return new ViewableAddressBook(this);
     }
+
+//// list overwrite operations
 
     @XmlElement(name = "persons")
     @JsonProperty("persons")
@@ -56,46 +63,90 @@ public class AddressBook implements ReadOnlyAddressBook {
         return tags;
     }
 
+    public void setPersons(List<Person> persons) {
+        this.persons.setAll(persons);
+    }
+
+    public void setTags(Collection<Tag> tags) {
+        this.tags.setAll(tags);
+    }
+
     public void clearData() {
         persons.clear();
         tags.clear();
     }
 
-    public void resetData(Collection<Person> ps, Collection<Tag> ts) {
-        persons.setAll(ps);
-        tags.setAll(ts);
+    public void resetData(Collection<? extends ReadOnlyPerson> newPersons, Collection<Tag> newTags) {
+        setPersons(newPersons.stream().map(Person::new).collect(Collectors.toList()));
+        setTags(newTags);
     }
 
-    public void resetData(AddressBook newData) {
-        resetData(newData.getPersons(), newData.getTags());
+    public void resetData(ReadOnlyAddressBook newData) {
+        resetData(newData.getPersonList(), newData.getTagList());
     }
 
-    public void setPersons(List<Person> persons) {
-        this.persons.setAll(persons);
+//// person-level operations
+
+    public boolean containsPerson(ReadOnlyPerson key) {
+        return ReadOnlyPerson.containsById(persons, key);
     }
 
-    public void setTags(List<Tag> tags) {
-        this.tags.setAll(tags);
+    public boolean containsPerson(int id) {
+        return ReadOnlyPerson.containsById(persons, id);
     }
 
-    public Optional<Person> findPerson(ReadOnlyPerson personToFind) {
-        for (Person p : persons) {
-            if (p.getId() == personToFind.getId()) {
-                return Optional.of(p);
-            }
-        }
-        return Optional.empty();
+    public Optional<Person> findPerson(ReadOnlyPerson key) {
+        return ReadOnlyPerson.findById(persons, key);
     }
 
-    //TODO: refine later
+    public Optional<Person> findPerson(int id) {
+        return ReadOnlyPerson.findById(persons, id);
+    }
+
     public void addPerson(Person p){
         persons.add(p);
     }
 
-    //TODO: refine later
+    /**
+     * Does not trigger any listeners on the person observablelist
+     */
+    public void addPersonSilently(Person p) {
+        personBackingList.add(p);
+    }
+
+    public boolean removePerson(ReadOnlyPerson key) {
+        return ReadOnlyPerson.removeOneById(persons, key);
+    }
+
+    public boolean removePerson(int id) {
+        return ReadOnlyPerson.removeOneById(persons, id);
+    }
+
+    /**
+     * Does not trigger any listeners on the person observablelist
+     */
+    public boolean removePersonSilently(ReadOnlyPerson key) {
+        return ReadOnlyPerson.removeOneById(personBackingList, key);
+    }
+
+    /**
+     * Does not trigger any listeners on the person observablelist
+     */
+    public boolean removePersonSilently(int id) {
+        return ReadOnlyPerson.removeOneById(personBackingList, id);
+    }
+
+//// tag-level operations
+
     public void addTag(Tag t){
         tags.add(t);
     }
+
+    public boolean removeTag(Tag t) {
+        return tags.remove(t);
+    }
+
+//// util methods
 
     // Deprecated (to be removed when no-dupe property is properly enforced
     public boolean containsDuplicates() {

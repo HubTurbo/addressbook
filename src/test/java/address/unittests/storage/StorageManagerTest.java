@@ -98,7 +98,7 @@ public class StorageManagerTest {
         XmlFileStorage.loadDataFromSaveFile(DUMMY_DATA_FILE);
 
         //verify modelManager was updated with correct data
-        verify(modelManagerMock, times(1)).updateUsingExternalData(EMPTY_ADDRESSBOOK);
+        verify(modelManagerMock, times(1)).resetData(EMPTY_ADDRESSBOOK);
     }
 
     @Test

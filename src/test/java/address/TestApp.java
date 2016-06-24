@@ -4,11 +4,9 @@ import address.model.UserPrefs;
 import address.util.Config;
 import address.util.TestUtil;
 
-import java.io.File;
-
 public class TestApp extends MainApp {
 
-    String saveLocationForTesting = TestUtil.appendToSandboxPath("sampleData.xml");
+    public static final String SAVE_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleData.xml");
 
     public TestApp(){
         super();
@@ -16,7 +14,7 @@ public class TestApp extends MainApp {
     }
 
     protected void stageTestScenario() {
-        TestUtil.createDataFileWithSampleData(saveLocationForTesting);
+        TestUtil.createDataFileWithSampleData(SAVE_LOCATION_FOR_TESTING);
     }
 
     @Override
@@ -29,7 +27,7 @@ public class TestApp extends MainApp {
     @Override
     protected UserPrefs initPrefs(Config config) {
         UserPrefs userPrefs = super.initPrefs(config);
-        userPrefs.setSaveLocation(saveLocationForTesting);
+        userPrefs.setSaveLocation(SAVE_LOCATION_FOR_TESTING);
         return userPrefs;
     }
 

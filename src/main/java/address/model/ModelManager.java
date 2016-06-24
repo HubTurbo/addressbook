@@ -2,9 +2,7 @@ package address.model;
 
 import address.events.*;
 
-import address.exceptions.DuplicateDataException;
 import address.exceptions.DuplicateTagException;
-import address.exceptions.DuplicatePersonException;
 import address.model.datatypes.*;
 import address.model.datatypes.person.*;
 import address.model.datatypes.tag.Tag;
@@ -26,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Represents the in-memory model of the address book data.
- * All changes to any model should be synchronized. (FX and sync thread may clash).
+ * All changes to any model should be synchronized.
  */
 public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddressBook {
     private static final AppLogger logger = LoggerManager.getLogger(ModelManager.class);
@@ -43,8 +41,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
 
     /**
      * Initializes a ModelManager with the given AddressBook
-     * AddressBook and its variables should not be null.
-     * @param src
+     * AddressBook and its variables should not be null
      */
     public ModelManager(AddressBook src, UserPrefs userPrefs) {
         if (src == null) {
@@ -65,7 +62,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
                 }
             }
         };
-        backingPersonList().addListener(modelChangeListener);
+        backingModel.getPersons().addListener(modelChangeListener);
         backingTagList().addListener(modelChangeListener);
 
         EventManager.getInstance().registerHandler(this);
@@ -82,7 +79,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
     /**
      * Clears existing backing model and replaces with the provided new data.
      */
-    public void resetData(AddressBook newData) {
+    public void resetData(ReadOnlyAddressBook newData) {
         backingModel.resetData(newData);
     }
 
@@ -129,33 +126,35 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
     }
 
     /**
-     * @return persons list in backing model
+     * @return reference to the tags list inside backing model
      */
-    public ObservableList<Person> backingPersonList() {
-        return backingModel.getPersons();
-    }
-
-    /**
-     * @return tags list in backing model
-     */
-    public ObservableList<Tag> backingTagList() {
+    private ObservableList<Tag> backingTagList() {
         return backingModel.getTags();
     }
 
+    AddressBook backingModel() {
+        return backingModel;
+    }
+
+    ViewableAddressBook visibleModel() {
+        return visibleModel;
+    }
 
 //// CREATE
 
-    /**
-     * Adds a person to the model
-     * @throws DuplicatePersonException when this operation would cause duplicates
-     */
-    public synchronized void addPerson(ReadOnlyPerson data) throws DuplicatePersonException {
-        Person toAdd;
-        do { // make sure no id clashes.
-            toAdd = new Person(Math.abs(UUID.randomUUID().hashCode()));
-        } while (backingPersonList().contains(toAdd));
+    public synchronized ReadOnlyPerson addPerson(ReadOnlyPerson data) {
+        Person toAdd = new Person(generatePersonId());
         toAdd.update(data);
-        backingPersonList().add(toAdd);
+        backingModel().addPerson(toAdd);
+        return toAdd;
+    }
+    // deprecated, to replace by remote assignment
+    public int generatePersonId() {
+        int id;
+        do {
+            id = Math.abs(UUID.randomUUID().hashCode());
+        } while (id == 0 || backingModel.containsPerson(id));
+        return id;
     }
 
     /**
@@ -163,28 +162,15 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @param tagToAdd
      * @throws DuplicateTagException when this operation would cause duplicates
      */
-    public synchronized void addTag(Tag tagToAdd) throws DuplicateTagException {
+    public synchronized void addTagToBackingModel(Tag tagToAdd) throws DuplicateTagException {
         if (backingTagList().contains(tagToAdd)) {
             throw new DuplicateTagException(tagToAdd);
         }
         backingTagList().add(tagToAdd);
     }
 
-    /**
-     * Adds multiple tags to the model as an atomic action (triggers only 1 ModelChangedEvent)
-     * @param toAdd
-     * @throws DuplicateDataException when this operation would cause duplicates
-     */
-    public synchronized void addTag(Collection<Tag> toAdd) throws DuplicateDataException {
-        if (!UniqueData.canCombineWithoutDuplicates(backingTagList(), toAdd)) {
-            throw new DuplicateDataException("Adding these " + toAdd.size() + " new tags");
-        }
-        backingTagList().addAll(toAdd);
-    }
-
 //// READ
 
-    // todo
 
 //// UPDATE
 
@@ -224,24 +210,14 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @return true if there was a successful removal
      */
     public synchronized boolean deletePerson(Person personToDelete){
-        return backingPersonList().remove(personToDelete);
+        return backingModel.removePerson(personToDelete);
     }
-
 
     public void delayedDeletePerson(ReadOnlyPerson toDelete, int delay, TimeUnit step) {
         final Optional<ViewablePerson> deleteTarget = visibleModel.findPerson(toDelete);
         assert deleteTarget.isPresent();
         deleteTarget.get().setIsDeleted(true);
         scheduler.schedule(()-> Platform.runLater(()->deletePerson(new Person(toDelete))), delay, step);
-    }
-
-    /**
-     * Deletes multiple persons from the model as an atomic action (triggers only 1 ModelChangedEvent)
-     * @param toDelete
-     * @return true if there was at least one successful removal
-     */
-    public synchronized boolean deletePersons(Collection<? extends ReadOnlyPerson> toDelete) {
-        return ReadOnlyPerson.removeAll(backingPersonList(), toDelete);
     }
 
     /**
@@ -253,22 +229,13 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         return backingTagList().remove(tagToDelete);
     }
 
-    /**
-     * Deletes multiple persons from the model as an atomic action (triggers only 1 ModelChangedEvent)
-     * @param toDelete
-     * @return true if there was at least one successful removal
-     */
-    public synchronized boolean deleteTags(Collection<Tag> toDelete) {
-        return backingTagList().removeAll(new HashSet<>(toDelete)); // O(1) .contains boosts performance
-    }
-
 //// EVENT HANDLERS
 
     @Subscribe
     private <T> void handleUpdateCompletedEvent(UpdateCompletedEvent<T> uce) {
         // Sync is done outside FX Application thread
         // TODO: Decide how incoming updates should be handled
-        //PlatformEx.runLaterAndWait(() -> updateUsingExternalData(uce.getData()));
+
     }
 
 //// DIFFERENTIAL UPDATE ENGINE todo shift this logic to sync component (with conditional requests to remote)
@@ -280,7 +247,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
     public synchronized void updateUsingExternalData(ReadOnlyAddressBook extData) {
         final AddressBook data = new AddressBook(extData);
         assert !data.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
-        boolean hasPersonsUpdates = diffUpdate(backingPersonList(), data.getPersons());
+        boolean hasPersonsUpdates = diffUpdate(backingModel.getPersons(), data.getPersons());
         boolean hasTagsUpdates = diffUpdate(backingTagList(), data.getTags());
         if (hasPersonsUpdates || hasTagsUpdates) {
             EventManager.getInstance().post(new LocalModelChangedEvent(this));
@@ -331,7 +298,6 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
 
         final Set<E> toBeAdded = remaining.keySet();
 
-        // .removeAll time complexity: O(n * complexity of argument's .contains call). Use a HashSet for O(n) time.
         target.removeAll(toBeRemoved);
         target.addAll(toBeAdded);
 

@@ -187,7 +187,7 @@ public class StorageManager extends ComponentManager {
     protected void loadDataFromFile(File dataFile) {
         try {
             logger.debug("Attempting to load data from file: {}", dataFile);
-            modelManager.updateUsingExternalData(XmlFileStorage.loadDataFromSaveFile(dataFile));
+            modelManager.resetData(XmlFileStorage.loadDataFromSaveFile(dataFile));
         } catch (FileNotFoundException | DataConversionException e) {
             logger.debug("Error loading data from file: {}", e);
             raise(new FileOpeningExceptionEvent(e, dataFile));

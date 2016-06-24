@@ -1,5 +1,6 @@
 package address.util;
 
+import address.TestApp;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ViewablePerson;
@@ -62,6 +63,11 @@ public class TestUtil {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void main(String... s) {
+        StorageAddressBook sa = generateSampleStorageAddressBook();
+        createDataFileWithSampleData(TestApp.SAVE_LOCATION_FOR_TESTING);
     }
 
     public static AddressBook generateSampleAddressBook(){

@@ -340,7 +340,7 @@ public class MainController {
      */
     private boolean isAddSuccessful(Tag newTag) {
         try {
-            modelManager.addTag(newTag);
+            modelManager.addTagToBackingModel(newTag);
             return true;
         } catch (DuplicateTagException e) {
             showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag", e.toString());

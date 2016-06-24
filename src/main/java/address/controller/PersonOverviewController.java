@@ -1,7 +1,6 @@
 package address.controller;
 
 import address.events.*;
-import address.exceptions.DuplicatePersonException;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.Person;
@@ -142,10 +141,11 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleNewPerson() {
-        Optional<ReadOnlyPerson> prevInputData = Optional.of(Person.createPersonDataContainer());
-        do {
-            prevInputData = mainController.getPersonDataInput(prevInputData.get(), "New Person");
-        } while (prevInputData.isPresent() && !isAddSuccessful(prevInputData.get()));
+        Optional<ReadOnlyPerson> inputData = Optional.of(Person.createPersonDataContainer());
+        if (inputData.isPresent()) {
+            ReadOnlyPerson added = modelManager.addPerson(new Person(inputData.get()));
+            mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(added));
+        }
     }
 
     /**
@@ -161,18 +161,6 @@ public class PersonOverviewController {
                 editedPerson.setTags(listOfFinalAssignedTags.get());
                 modelManager.updatePerson(p, editedPerson);
             });
-        }
-    }
-
-    private boolean isAddSuccessful(ReadOnlyPerson newData) {
-        try {
-            modelManager.addPerson(new Person(newData));
-            mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(newData));
-            return true;
-        } catch (DuplicatePersonException e) {
-            mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate person",
-                                                  e.toString());
-            return false;
         }
     }
 
