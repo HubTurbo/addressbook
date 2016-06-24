@@ -28,4 +28,14 @@ public class KeySequence extends KeyBinding{
     public String toString(){
         return "Key sequence " + getDisplayText() + ", " + secondKeyCombination.getDisplayText();
     }
+
+    /**
+     * Returns true of the {@code otherKeyCombination} is exactly same as one of the key combinations
+     *     in this key sequence.
+     */
+    public boolean isIncluded(KeyCombination otherKeyCombination) {
+        return keyCombination.toString().equals(otherKeyCombination.toString())
+                || secondKeyCombination.toString().equals(otherKeyCombination.toString());
+        //TODO: make the comparison smarter so that it can detect a match between CTRL+X and SHORTCUT+X
+    }
 }

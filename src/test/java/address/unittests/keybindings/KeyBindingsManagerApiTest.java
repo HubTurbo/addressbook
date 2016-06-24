@@ -202,6 +202,20 @@ public class KeyBindingsManagerApiTest {
         assertFalse(keyBindingsManager.getAcceleratorKeyCombo("LIST_ENTER_SHORTCUT").isPresent());
     }
 
+    @Test
+    public void ensureNoClashBetweenSequencesAndAccelerators(){
+        Bindings bindings = new Bindings();
+        List<KeySequence> sequences = bindings.getSequences();
+        bindings.getAccelerators().stream()
+                .forEach(accelerator -> verifyNotInSequences(sequences, accelerator));
+    }
+
+    private void verifyNotInSequences(List<KeySequence> sequences, Accelerator a) {
+        Optional<KeySequence> matchingSequence = sequences.stream()
+                .filter(s -> s.isIncluded(a.getKeyCombination())).findFirst();
+        assertFalse("Clash between " + matchingSequence + " and " + a, matchingSequence.isPresent());
+    }
+
     /**
      * A custom argument matcher used to compare two events to see if they have the same intention.
      */

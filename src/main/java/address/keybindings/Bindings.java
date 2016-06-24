@@ -215,7 +215,9 @@ public class Bindings {
         return hotkeys;
     }
 
-    protected List<Accelerator> getAccelerators() {return accelerators;}
+    public List<Accelerator> getAccelerators() {return accelerators; }
+
+    public List<KeySequence> getSequences() { return sequences; }
 
     /**
      * Returns a list of all {@link KeyBinding} objects being managed.
