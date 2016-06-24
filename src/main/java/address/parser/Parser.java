@@ -36,16 +36,21 @@ public class Parser {
         return result;
     }
 
-    private static Expr createPredicate(String type, String content) throws ParseException {
-        Pattern pattern = Pattern.compile("!(\\w+)", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(type);
+    private static Expr createPredicate(String qualifierName, String qualifierContent) throws ParseException {
+        Matcher matcher = getNegativeMatcher(qualifierName);
+        if (matcher.matches()) {
+            return new NotExpr(createPredicate(matcher.group(1), qualifierContent));
+        }
+        return getRawPredicate(qualifierName, qualifierContent);
+    }
 
-        boolean isNegation = matcher.matches();
+    private static Expr getRawPredicate(String qualifierName, String content) throws ParseException {
+        return new PredExpr(getQualifier(qualifierName, content));
+    }
 
-        String typeToUse = isNegation ? matcher.group(1) : type;
-        Qualifier qualifier = getQualifier(typeToUse, content);
-        Expr pred = new PredExpr(qualifier);
-        return isNegation ? new NotExpr(pred) : pred;
+    private static Matcher getNegativeMatcher(String type) {
+        Pattern pattern = Pattern.compile("!(!*\\w+)", Pattern.CASE_INSENSITIVE);
+        return pattern.matcher(type);
     }
 
     private static Qualifier getQualifier(String type, String content) throws ParseException {
