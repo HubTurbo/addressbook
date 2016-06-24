@@ -8,6 +8,12 @@ import javafx.collections.transformation.TransformationList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * This class is meant to handle filtering the given list of elements given a predicate
+ *
+ * Elements not affected by the filter change will not be sent in the changes, unlike
+ * javafx.collections.transformation.FilteredList which removes all elements and adds the matching ones back
+ */
 public class FilteredList<E> extends TransformationList<E, E> {
     private ObservableList<E> sourceCopy;
     private Predicate<E> predicate;
@@ -21,7 +27,7 @@ public class FilteredList<E> extends TransformationList<E, E> {
     public FilteredList(ObservableList<E> source) {
         super(source);
         this.sourceCopy = FXCollections.observableArrayList(source);
-        this.filteredList = source;
+        this.filteredList = FXCollections.observableArrayList(source);
     }
 
     @Override
@@ -40,6 +46,11 @@ public class FilteredList<E> extends TransformationList<E, E> {
                 .collect(Collectors.toCollection(FXCollections::observableArrayList));
     }
 
+    /**
+     * Sets the predicate filter for the list
+     *
+     * @param predicate should not be null
+     */
     public void setPredicate(Predicate<E> predicate) {
         this.predicate = predicate;
         ObservableList<E> newFilteredList = filterList(predicate);
@@ -47,9 +58,10 @@ public class FilteredList<E> extends TransformationList<E, E> {
         ObservableList<E> removedList = getRemovedList(filteredList, newFilteredList);
         ObservableList<E> addedList = getAddedList(filteredList, newFilteredList);
 
+        beginChange();
         fireRemoveChanges(removedList, filteredList);
-        filteredList = newFilteredList;
-        fireAddChanges(addedList, newFilteredList);
+        fireAddChanges(addedList, filteredList);
+        endChange();
     }
 
     private ObservableList<E> getAddedList(ObservableList<E> oldList, ObservableList<E> newList) {
@@ -60,10 +72,7 @@ public class FilteredList<E> extends TransformationList<E, E> {
     }
 
     private ObservableList<E> getRemovedList(ObservableList<E> oldList, ObservableList<E> newList) {
-        return sourceCopy.stream()
-                .filter(e -> !newList.contains(e))
-                .filter(oldList::contains)
-                .collect(Collectors.toCollection(FXCollections::observableArrayList));
+        return getAddedList(newList, oldList);
     }
 
     /**
@@ -73,9 +82,10 @@ public class FilteredList<E> extends TransformationList<E, E> {
      * @param updatedList list after the add changes have been made
      */
     private void fireAddChanges(ObservableList<E> addedList, ObservableList<E> updatedList) {
-        beginChange();
-        addedList.forEach(e -> nextAdd(updatedList.indexOf(e), updatedList.indexOf(e) + 1));
-        endChange();
+        addedList.forEach(e -> {
+            updatedList.add(e);
+            nextAdd(updatedList.indexOf(e), updatedList.indexOf(e) + 1);
+        });
     }
 
     /**
@@ -85,9 +95,10 @@ public class FilteredList<E> extends TransformationList<E, E> {
      * @param originalList list before the remove changes have been made
      */
     private void fireRemoveChanges(ObservableList<E> removedList, ObservableList<E> originalList) {
-        beginChange();
-        removedList.forEach(e -> nextRemove(originalList.indexOf(e), e));
-        endChange();
+        removedList.forEach(e -> {
+            originalList.remove(e);
+            nextRemove(originalList.indexOf(e), e);
+        });
     }
 
     @Override
@@ -95,22 +106,20 @@ public class FilteredList<E> extends TransformationList<E, E> {
         beginChange();
         while (c.next()) {
             if (c.wasAdded() || c.wasRemoved()) {
-                sourceCopy.addAll(c.getAddedSubList());
-                c.getAddedSubList().stream()
-                        .filter(predicate)
-                        .forEach(e -> {
-                            // added to the end of the list to preserve order of old data
-                            filteredList.add(e);
-                            nextAdd(filteredList.indexOf(e), filteredList.indexOf(e) + 1);
-                        });
-
-
                 sourceCopy.removeAll(c.getRemoved());
                 c.getRemoved().stream()
                         .filter(predicate)
                         .forEach(e -> {
                             filteredList.remove(e);
                             nextRemove(filteredList.indexOf(e), e);
+                        });
+
+                sourceCopy.addAll(c.getAddedSubList());
+                c.getAddedSubList().stream()
+                        .filter(predicate)
+                        .forEach(e -> {
+                            filteredList.add(e);
+                            nextAdd(filteredList.indexOf(e), filteredList.indexOf(e) + 1);
                         });
             }
         }
