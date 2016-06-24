@@ -36,7 +36,7 @@ public class StatusBarFooterController {
 
     public StatusBarFooterController() {
         EventManager.getInstance().registerHandler(this);
-        this.saveLocationLabel = new Label();
+        this.saveLocationLabel = new Label("");
     }
 
     private void updateWithConfigValues(Config config) {

@@ -192,12 +192,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * @param target The Person object to be changed.
      * @param updatedData The temporary Person object containing new values.
      */
-    public synchronized void updatePerson(ReadOnlyPerson target, ReadOnlyPerson updatedData)
-            throws DuplicatePersonException {
-        if (!target.equals(updatedData) && backingPersonList().contains(updatedData)) {
-            throw new DuplicatePersonException(updatedData);
-        }
-
+    public synchronized void updatePerson(ReadOnlyPerson target, ReadOnlyPerson updatedData) {
         backingModel.findPerson(target).get().update(updatedData);
         EventManager.getInstance().post(new LocalModelChangedEvent(this));
     }

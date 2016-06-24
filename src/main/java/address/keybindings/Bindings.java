@@ -45,6 +45,7 @@ public class Bindings {
     public Shortcut LIST_ENTER_SHORTCUT;
     public Accelerator PERSON_DELETE_ACCELERATOR;
     public Accelerator PERSON_EDIT_ACCELERATOR;
+    public Accelerator PERSON_TAG_ACCELERATOR;
 
 
     public Bindings(){
@@ -55,6 +56,7 @@ public class Bindings {
 
         /*====== bindings A-Z keys (in alphabetical order of main key =====================*/
 
+        PERSON_TAG_ACCELERATOR = setAccelerator("PERSON_TAG_ACCELERATOR", "A");
         PERSON_DELETE_ACCELERATOR = setAccelerator("PERSON_DELETE_ACCELERATOR", "D");
         PERSON_EDIT_ACCELERATOR = setAccelerator("PERSON_EDIT_ACCELERATOR", "E");
         LIST_GOTO_BOTTOM_SEQUENCE = setSequence("LIST_GOTO_BOTTOM_SEQUENCE", "G", "B", new JumpToListRequestEvent(-1));

@@ -46,6 +46,7 @@ public class KeyBindingsManagerApiTest {
 
         /*====== bindings A-Z keys (in alphabetical order of main key =====================*/
 
+        verifyAccelerator("PERSON_TAG_ACCELERATOR", "A");
         verifyAccelerator("PERSON_DELETE_ACCELERATOR", "D");
         verifyAccelerator("PERSON_EDIT_ACCELERATOR", "E");
         verifySequence(new JumpToListRequestEvent(-1), "G", "B");
@@ -74,8 +75,6 @@ public class KeyBindingsManagerApiTest {
 
     @Test
     public void keyEventDetected_undefinedBinding_ignored(){
-        verifyIgnored("A");
-        verifyIgnored("G", "A");
         verifyIgnored("ALT + A");
         verifyIgnored("CTRL + ALT + A");
         verifyIgnored("SHORTCUT + SHIFT + A");
@@ -184,6 +183,10 @@ public class KeyBindingsManagerApiTest {
 
     @Test
     public void getAcceleratorKeyCombo(){
+        //check one existing accelerator
+        Assert.assertEquals(keyBindingsManager.getAcceleratorKeyCombo("PERSON_TAG_ACCELERATOR").get(),
+                KeyCombination.valueOf("A"));
+
         //check one existing accelerator
         Assert.assertEquals(keyBindingsManager.getAcceleratorKeyCombo("PERSON_DELETE_ACCELERATOR").get(),
                 KeyCombination.valueOf("D"));

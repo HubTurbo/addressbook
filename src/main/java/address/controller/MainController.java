@@ -9,6 +9,7 @@ import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.*;
+import address.util.collections.ReorderedList;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -22,12 +23,15 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -42,6 +46,7 @@ public class MainController {
     private static final String FXML_TAG_LIST = "/view/TagList.fxml";
     private static final String FXML_BIRTHDAY_STATISTICS = "/view/BirthdayStatistics.fxml";
     private static final String FXML_ROOT_LAYOUT = "/view/RootLayout.fxml";
+    private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
     private static final String ICON_APPLICATION = "/images/address_book_32.png";
     private static final String ICON_EDIT = "/images/edit.png";
     private static final String ICON_CALENDAR = "/images/calendar.png";
@@ -56,7 +61,7 @@ public class MainController {
 
     private StatusBarHeaderController statusBarHeaderController;
 
-    private OrderedList<ReadOnlyViewablePerson> orderedList;
+    private ReorderedList<ReadOnlyViewablePerson> reorderedList;
 
     /**
      * Constructor for mainController
@@ -70,8 +75,8 @@ public class MainController {
         this.mainApp = mainApp;
         this.modelManager = modelManager;
         this.config = config;
-        this.orderedList = new OrderedList<>(modelManager.getAllViewablePersonsReadOnly());
-        this.browserManager = new BrowserManager(orderedList);
+        this.reorderedList = new ReorderedList<>(modelManager.getAllViewablePersonsReadOnly());
+        this.browserManager = new BrowserManager(reorderedList);
     }
 
     public void start(Stage primaryStage) {
@@ -147,7 +152,7 @@ public class MainController {
             SplitPane.setResizableWithParent(personOverview, false);
             // Give the personOverviewController access to the main app and modelManager.
             PersonOverviewController personOverviewController = loader.getController();
-            personOverviewController.setConnections(this, modelManager, orderedList);
+            personOverviewController.setConnections(this, modelManager, reorderedList);
 
             pane.getItems().add(personOverview);
         } catch (IOException e) {
@@ -241,6 +246,40 @@ public class MainController {
                                    "IOException when trying to load " + fxmlResourcePath);
             return Optional.empty();
         }
+    }
+
+    public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
+        AnchorPane pane = null;
+        try {
+            pane = loader.load();
+
+        } catch (IOException e) {
+            logger.warn("Error launching tag selection dialog: {}", e);
+            assert false : "Error loading fxml : " + FXML_TAG_SELECTION_EDIT_DIALOG;
+        }
+
+        // Create the dialog Stage.
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        dialogStage.initOwner(primaryStage);
+        dialogStage.initStyle(StageStyle.TRANSPARENT);
+
+        Scene scene = new Scene(pane, Color.TRANSPARENT);
+        dialogStage.setScene(scene);
+
+        TagSelectionEditDialogController controller = loader.getController();
+        controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
+                ReadOnlyPerson.getCommonTags(persons));
+        controller.setDialogStage(dialogStage);
+
+        dialogStage.showAndWait();
+
+        if (controller.isOkClicked()) {
+            return Optional.of(controller.getFinalAssignedTags());
+        }
+        return Optional.empty();
     }
 
     private Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {

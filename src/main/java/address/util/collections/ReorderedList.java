@@ -1,6 +1,5 @@
-package address.util;
+package address.util.collections;
 
-import address.model.datatypes.person.ReadOnlyViewablePerson;
 import com.sun.javafx.collections.SourceAdapterChange;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -10,33 +9,32 @@ import javafx.collections.transformation.TransformationList;
 /**
  *
  */
-public class OrderedList<T> extends TransformationList<T, T> {
+public class ReorderedList<T> extends TransformationList<T, T> {
 
 
-    private ObservableList<T> orderedList;
+    private ObservableList<T> mappingList;
 
     /**
      * Creates a new Transformation list wrapped around the source list.
      *
      * @param source the wrapped list
      */
-    public OrderedList(ObservableList<T> source) {
+    public ReorderedList(ObservableList<T> source) {
         super(source);
-        orderedList = FXCollections.observableArrayList(source);
+        mappingList = FXCollections.observableArrayList(source);
     }
 
     @Override
-    protected void sourceChanged(ListChangeListener.Change<? extends T> c) {
+    protected synchronized void sourceChanged(ListChangeListener.Change<? extends T> c) {
+
         beginChange();
         while (c.next()) {
             if (c.wasAdded()) {
-                orderedList.addAll(c.getAddedSubList());
-                continue;
+                mappingList.addAll(c.getAddedSubList());
             }
 
             if (c.wasRemoved()) {
-                orderedList.removeAll(c.getRemoved());
-                continue;
+                mappingList.removeAll(c.getRemoved());
             }
         }
         endChange();
@@ -44,18 +42,18 @@ public class OrderedList<T> extends TransformationList<T, T> {
     }
 
     @Override
-    public int getSourceIndex(int index) {
-        return index;
+    public synchronized int getSourceIndex(int index) {
+        return this.getSource().indexOf(mappingList.get(index));
     }
 
     @Override
-    public T get(int index) {
-        return orderedList.get(index);
+    public synchronized T get(int index) {
+        return this.getSource().get(getSourceIndex(index));
     }
 
     @Override
-    public int size() {
-        return orderedList.size();
+    public synchronized int size() {
+        return this.getSource().size();
     }
 
     /**
@@ -63,18 +61,18 @@ public class OrderedList<T> extends TransformationList<T, T> {
      * @param from The index(before shifting occurred) of the element to be shifted(before shift).
      * @param to The index(before shifting occurred) of the list where element is to be shifted to.
      */
-    public void moveElement(int from, int to) {
+    public synchronized void moveElement(int from, int to) {
 
         if (from < to) {
             //Element to be shifted is below the index where the element need to be shifted to.
             //Removing the element first will shift every element down.
             //Therefore, only remove the element after shifting finished.
-            T tmpPerson = orderedList.get(from);
-            orderedList.add(to, tmpPerson);
-            orderedList.remove(from);
+            T tmpPerson = mappingList.get(from);
+            mappingList.add(to, tmpPerson);
+            mappingList.remove(from);
         } else if (from > to) {
-            T tmpPerson = orderedList.remove(from);
-            orderedList.add(to, tmpPerson);
+            T tmpPerson = mappingList.remove(from);
+            mappingList.add(to, tmpPerson);
         }
     }
 
