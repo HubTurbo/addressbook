@@ -133,9 +133,9 @@ public class StorageManagerTest {
 
         //mock dependent method of same object (that method is tested elsewhere)
         storageManagerSpy.handleSavePrefsRequestEvent(
-                new SavePrefsRequestEvent(DUMMY_DATA_FILE, EMPTY_USERPREFS));
+                new SavePrefsRequestEvent(EMPTY_USERPREFS));
 
         //verify that method is called correctly
-        verify(storageManagerSpy, times(1)).savePrefsToFile(DUMMY_DATA_FILE, EMPTY_USERPREFS);
+        verify(storageManagerSpy, times(1)).savePrefsToFile(StorageManager.DEFAULT_USER_PREF_FILE, EMPTY_USERPREFS);
     }
 }
