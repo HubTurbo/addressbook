@@ -20,7 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
-public class PersonCardController {
+public class PersonCardController extends UiController{
     @FXML
     private HBox cardPane;
     @FXML

@@ -13,7 +13,7 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 
-public class TagCardController {
+public class TagCardController extends UiController{
     @FXML
     private VBox box;
     @FXML

@@ -6,7 +6,7 @@ import address.status.PersonEditedStatus;
 import javafx.application.Platform;
 import org.controlsfx.control.StatusBar;
 
-public class StatusBarHeaderController {
+public class StatusBarHeaderController extends UiController{
 
     private StatusBar headerStatusBar;
 

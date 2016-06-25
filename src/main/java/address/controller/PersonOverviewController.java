@@ -40,7 +40,7 @@ import java.util.concurrent.*;
  *
  * setConnections should be set before showing stage
  */
-public class PersonOverviewController {
+public class PersonOverviewController extends UiController{
     private static AppLogger logger = LoggerManager.getLogger(PersonOverviewController.class);
 
     @FXML
@@ -76,7 +76,7 @@ public class PersonOverviewController {
     };
 
     public PersonOverviewController() {
-        EventManager.getInstance().registerHandler(this);
+        super();
     }
 
     @Subscribe
@@ -206,7 +206,7 @@ public class PersonOverviewController {
         } else {
             if (!filterField.getStyleClass().contains("error")) filterField.getStyleClass().add("error");
         }
-        EventManager.getInstance().post(new FilterCommittedEvent(filterExpression));
+        raise(new FilterCommittedEvent(filterExpression));
     }
 
     private ContextMenu createContextMenu() {

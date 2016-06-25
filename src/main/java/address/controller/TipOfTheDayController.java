@@ -22,7 +22,7 @@ import java.util.Optional;
 /**
  * Controls what, when and how to show tip of the day
  */
-public class TipOfTheDayController {
+public class TipOfTheDayController extends UiController{
     private static final AppLogger logger = LoggerManager.getLogger(TipOfTheDayController.class);
 
     private static final String FXML_TIP_OF_THE_DAY = "/view/TipOfTheDay.fxml";

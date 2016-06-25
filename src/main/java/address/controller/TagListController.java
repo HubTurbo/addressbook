@@ -15,7 +15,7 @@ import javafx.stage.Stage;
  *
  * Stage, tags, mainController and modelManager should be set before showing stage
  */
-public class TagListController {
+public class TagListController extends UiController{
     Stage stage;
     MainController mainController;
     ModelManager modelManager;

@@ -37,7 +37,7 @@ import java.util.Optional;
 /**
  * The controller that creates the other controllers
  */
-public class MainController {
+public class MainController extends UiController{
     private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
@@ -71,7 +71,7 @@ public class MainController {
      * @param config should have appTitle and updateInterval set
      */
     public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
-        EventManager.getInstance().registerHandler(this);
+        super();
         this.mainApp = mainApp;
         this.modelManager = modelManager;
         this.config = config;
@@ -117,7 +117,7 @@ public class MainController {
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
-            scene.setOnKeyPressed(event -> EventManager.getInstance().postPotentialEvent(new KeyBindingEvent(event)));
+            scene.setOnKeyPressed(event -> raisePotentialEvent(new KeyBindingEvent(event)));
             primaryStage.setMinHeight(400);
             primaryStage.setMinWidth(740);
             primaryStage.setHeight(600);

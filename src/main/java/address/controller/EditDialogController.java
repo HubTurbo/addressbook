@@ -3,7 +3,7 @@ package address.controller;
 import javafx.stage.Stage;
 
 // deprecated, 
-abstract class EditDialogController {
+abstract class EditDialogController extends UiController{
     protected Stage dialogStage;
     protected boolean isOkClicked = false;
 
