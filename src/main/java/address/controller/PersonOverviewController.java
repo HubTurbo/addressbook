@@ -259,12 +259,13 @@ public class PersonOverviewController {
     }
 
     /**
-     * Selects the item in the list
+     * Selects the item in the list and scrolls to it if it is out of view.
      * @param indexOfItem
      */
     private void selectItem(int indexOfItem) {
         personListView.getSelectionModel().clearAndSelect(indexOfItem);
         personListView.getFocusModel().focus(indexOfItem);
         personListView.requestFocus();
+        personListView.scrollTo(indexOfItem);
     }
 }
