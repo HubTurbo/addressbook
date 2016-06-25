@@ -19,6 +19,9 @@ import java.util.concurrent.*;
 
 /**
  * Syncs data between the cloud and the primary data file
+ *
+ * All requests to the cloud will be based on the currently-active addressbook
+ * which can be set via setActiveAddressBook
  */
 public class SyncManager extends ComponentManager{
     private static final AppLogger logger = LoggerManager.getLogger(SyncManager.class);
