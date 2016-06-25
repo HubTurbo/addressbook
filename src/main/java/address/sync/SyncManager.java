@@ -36,7 +36,7 @@ public class SyncManager extends ComponentManager{
      * @param config should have updateInterval and simulateUnreliableNetwork set
      */
     public SyncManager(Config config) {
-        this(config, null, Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
+        this(config, new RemoteManager(config), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
     }
 
     /**
@@ -61,8 +61,8 @@ public class SyncManager extends ComponentManager{
 
     // TODO: setActiveAddressBook should be called by the model instead
     @Subscribe
-    public void handleLoadDataRequestEvent(LoadDataRequestEvent e) {
-        setActiveAddressBook(e.file.getName());
+    public void handleSaveLocationChangedEvent(SaveLocationChangedEvent slce) {
+        setActiveAddressBook(slce.saveFile.getName());
     }
 
     public void setActiveAddressBook(String activeAddressBookName) {
