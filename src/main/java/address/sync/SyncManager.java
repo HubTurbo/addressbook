@@ -19,6 +19,9 @@ import java.util.concurrent.*;
 
 /**
  * Syncs data between the cloud and the primary data file
+ *
+ * All requests to the cloud will be based on the currently-active addressbook
+ * which can be set via setActiveAddressBook
  */
 public class SyncManager extends ComponentManager{
     private static final AppLogger logger = LoggerManager.getLogger(SyncManager.class);
@@ -36,7 +39,7 @@ public class SyncManager extends ComponentManager{
      * @param config should have updateInterval and simulateUnreliableNetwork set
      */
     public SyncManager(Config config) {
-        this(config, null, Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
+        this(config, new RemoteManager(config), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
     }
 
     /**
@@ -61,8 +64,8 @@ public class SyncManager extends ComponentManager{
 
     // TODO: setActiveAddressBook should be called by the model instead
     @Subscribe
-    public void handleLoadDataRequestEvent(LoadDataRequestEvent e) {
-        setActiveAddressBook(e.file.getName());
+    public void handleSaveLocationChangedEvent(SaveLocationChangedEvent slce) {
+        setActiveAddressBook(slce.saveFile.getName());
     }
 
     public void setActiveAddressBook(String activeAddressBookName) {
