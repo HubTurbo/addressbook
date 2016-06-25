@@ -1,4 +1,5 @@
 package installer;
+//TODO: does this need to be a separate package?
 
 import address.updater.model.LibraryDescriptor;
 import address.updater.model.UpdateData;
@@ -97,6 +98,7 @@ public class Installer extends Application {
         } catch (IOException e) {
             System.out.println("Failed to unpack all JARs");
             e.printStackTrace();
+            //TODO: better error handling
             return;
         }
 

@@ -50,6 +50,7 @@ public class JarUpdater extends Application {
                 run();
             } catch (IllegalArgumentException e) {
                 logger.info(e.getMessage());
+                //TODO: is this error handling enough?
             } catch (IOException e) {
                 logger.info(e.getMessage());
                 showErrorOnUpdatingDialog();
@@ -128,6 +129,7 @@ public class JarUpdater extends Application {
      * the process has not ended yet. As such, we will make several tries with wait.
      */
     private void applyUpdate(Path source, Path dest) throws IOException {
+        //TODO: this method is about moving a file rather than applying an update?
         logger.info("Applying update for {}", dest.toString());
 
         if (!FileUtil.isFileExists(dest.toString())) {

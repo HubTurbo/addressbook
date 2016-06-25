@@ -29,7 +29,7 @@ public class MainApp extends Application {
     public static final int VERSION_MINOR = 0;
     public static final int VERSION_PATCH = 2;
     public static final boolean IS_EARLY_ACCESS = false;
-    //TODO: encapsulate these into a Version object?
+    //TODO: Use the Version class instead?
 
     private static final AppLogger logger = LoggerManager.getLogger(MainApp.class);
 
@@ -86,7 +86,8 @@ public class MainApp extends Application {
         syncManager.start();
     }
 
-    //TODO: this method is out of place
+    //TODO: move this method somewhere else?
+    //TODO: are we checking for the java version, which is the most important dependency?
     private void alertMissingDependencies() {
         List<String> missingDependencies = updateManager.getMissingDependencies();
 

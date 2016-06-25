@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  * Deletes backup apps and their dependencies that are no longer used.
  */
 public class BackupManager {
+    //TODO: should not be named a manager as it does not deal with events
     private static final AppLogger logger = LoggerManager.getLogger(BackupManager.class);
     private static final int MAX_BACKUP_JAR_KEPT = 3;
     private static final String BACKUP_MARKER = "_";
@@ -34,8 +35,10 @@ public class BackupManager {
 
     /**
      * @return true if backup is successfully made or if app is run from backup jar hence no backup need to be made
+     * //TODO: use exceptions instead of return values?
      */
     public boolean createBackupOfCurrentApp() {
+        //TODO: this can take the version object as a parameter
         File mainAppJar = FileUtil.getJarFileOfClass(MainApp.class);
 
         if (isRunFromBackupJar(mainAppJar.getName())) {
@@ -50,6 +53,7 @@ public class BackupManager {
         } catch (IOException e) {
             logger.debug("Failed to create backup");
             e.printStackTrace();
+            //TODO: remove unjustified printStackTrace statements
             return false;
         }
 

@@ -1,4 +1,5 @@
 package address.updater.model;
+//TODO: perhaps no need to have a model package here (to avoid confusion with other model packages)
 
 
 import address.util.OsDetector;
@@ -15,6 +16,7 @@ public class LibraryDescriptor {
     private OsDetector.Os os;
 
     public LibraryDescriptor() {}
+    //TODO: not used?
 
     public LibraryDescriptor(String filename, URL downloadLink, OsDetector.Os os) {
         this.filename = filename;

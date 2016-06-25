@@ -74,6 +74,7 @@ public class Version implements Comparable<Version> {
         return new Version(MainApp.VERSION_MAJOR, MainApp.VERSION_MINOR, MainApp.VERSION_PATCH,
                 MainApp.IS_EARLY_ACCESS);
     }
+    //TODO: try to eliminate these global data. Instead, pass the object to those who needs it, making the dependency explicit
 
     @Override
     public int compareTo(Version other) {

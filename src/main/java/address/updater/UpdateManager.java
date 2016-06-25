@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 /**
  * Checks for update to application
+ * //TODO: describe how the updater works (i.e. external behavior)
  */
 public class UpdateManager extends ComponentManager {
     public static final String UPDATE_DIR = "update";
@@ -83,6 +84,7 @@ public class UpdateManager extends ComponentManager {
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
             raise(new UpdaterFinishedEvent(MSG_FAIL_DELETE_UPDATE_SPEC));
+            //TODO: The event used to indicate failure should be different from the one used for success?
             logger.debug(MSG_FAIL_DELETE_UPDATE_SPEC);
             return;
         }
@@ -107,6 +109,7 @@ public class UpdateManager extends ComponentManager {
         if (latestVersion.get().isEarlyAccess() != MainApp.IS_EARLY_ACCESS) {
             raise(new UpdaterFinishedEvent(MSG_DIFF_CHANNEL));
             logger.debug(MSG_DIFF_CHANNEL);
+            //TODO: how could this happen?
             return;
         }
 
@@ -138,6 +141,7 @@ public class UpdateManager extends ComponentManager {
         raise(new UpdaterInProgressEvent("Downloading updates", 0.5));
         try {
             downloadAllFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
+            //TODO: is the progress bar updated after each file
         } catch (IOException e) {
             raise(new UpdaterFinishedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
             logger.debug(MSG_FAIL_DOWNLOAD_UPDATE);

@@ -23,6 +23,8 @@ public class DependencyTracker {
 
     private HashMap<Version, List<String>> dependenciesForVersionsInUse = new HashMap<>();
 
+    //TODO: add header comments to all public methods
+
     public DependencyTracker() {
         readVersionDependency();
 
@@ -30,6 +32,8 @@ public class DependencyTracker {
 
         if (!classPath.isPresent()) {
             logger.debug("Class-path undefined");
+            //TODO: need better error handling
+            //TODO: use early return to avoid else clause
         } else {
             updateVersionDependency(Version.getCurrentVersion(),
                     new ArrayList<>(Arrays.asList(classPath.get().split("\\s+"))));
@@ -37,6 +41,7 @@ public class DependencyTracker {
     }
 
     public void updateVersionDependency(Version version, List<String> verDependencies) {
+        //TODO: updateVersionDependencies?
         dependenciesForVersionsInUse.put(version, verDependencies);
         writeVersionDependency();
     }
@@ -130,6 +135,7 @@ public class DependencyTracker {
 
         try {
             updateData = JsonUtil.fromJsonString(json, UpdateData.class);
+            //TODO: is it possible to have a generic static method in StorageManager to read/write various json files?
         } catch (IOException e) {
             e.printStackTrace();
             return;

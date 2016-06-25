@@ -12,6 +12,7 @@ import java.util.ArrayList;
  */
 @JsonPropertyOrder({ "version", "mainApp", "libraries" })
 public class UpdateData {
+    //TODO: better class name?
     @JsonProperty("version")
     private String versionString;
     @JsonProperty("mainApp")

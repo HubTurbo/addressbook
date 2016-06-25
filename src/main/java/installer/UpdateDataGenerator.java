@@ -84,5 +84,6 @@ public class UpdateDataGenerator {
         currentLibrariesDescriptor.stream().filter(libDesc -> libDesc.getDownloadLink() == null)
                 .forEach(libDesc -> System.out.println(libDesc.getFilename()));
         System.out.println("------------------------------------------------------------");
+        //TODO: improve SLAP in this method?
     }
 }

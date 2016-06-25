@@ -18,6 +18,7 @@ import java.util.List;
  * etc.
  */
 public class LocalUpdateSpecificationHelper {
+    //TODO: separate the object from the helper e.g. LocalUpdateSpecification + LocalUpdateSpecificationHelper
     private static final String LOCAL_UPDATE_DATA_FILE = UpdateManager.UPDATE_DIR + File.separator +
                                                          "UpdateSpecification";
 
