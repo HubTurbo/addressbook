@@ -217,7 +217,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         final Optional<ViewablePerson> deleteTarget = visibleModel.findPerson(toDelete);
         assert deleteTarget.isPresent();
         deleteTarget.get().setIsDeleted(true);
-        scheduler.schedule(()-> Platform.runLater(()->deletePerson(new Person(toDelete))), delay, step);
+        scheduler.schedule(() -> Platform.runLater(() -> deletePerson(new Person(toDelete))), delay, step);
     }
 
     /**

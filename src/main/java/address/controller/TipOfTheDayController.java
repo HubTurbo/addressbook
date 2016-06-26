@@ -40,7 +40,7 @@ public class TipOfTheDayController {
 
     public void start() {
         // TODO put scheduling of showing tip of the day here
-        getTipOfTheDay().ifPresent(totd -> displayTipOfTheDay(totd));
+        getTipOfTheDay().ifPresent(this::displayTipOfTheDay);
     }
 
     private void displayTipOfTheDay(String tipOfTheDay) {

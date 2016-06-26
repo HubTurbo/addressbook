@@ -109,7 +109,8 @@ public class RemoteManager {
         return updateInformation.get(addressBookName).getETagCount();
     }
 
-    private <T> Optional<String> getLastUpdate(HashMap<String, LastUpdate<T>> updateInformation, String addressBookName, Integer pageNo) {
+    private <T> Optional<String> getLastUpdate(HashMap<String, LastUpdate<T>> updateInformation, String addressBookName,
+                                               Integer pageNo) {
         if (!updateInformation.containsKey(addressBookName)) return Optional.empty();
         LastUpdate<T> lastUpdateInformation = updateInformation.get(addressBookName);
         return lastUpdateInformation.getETag(pageNo);

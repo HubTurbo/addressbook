@@ -127,7 +127,7 @@ public class StorageManager extends ComponentManager {
     /**
      * Creates the file if it is missing before saving.
      * Raises FileSavingExceptionEvent if the file is not found or if there was an error during
-     *   saving or data conversion.
+     * saving or data conversion.
      */
     public void saveDataToFile(File file, ReadOnlyAddressBook data){
         try {
@@ -166,7 +166,7 @@ public class StorageManager extends ComponentManager {
         }
 
         try {
-            logger.debug("Attempting to load prefs from file: " + prefsFile);
+            logger.debug("Attempting to load prefs from file: {}", prefsFile);
             prefs = JsonUtil.fromJsonString(FileUtil.readFromFile(prefsFile), UserPrefs.class);
         } catch (IOException e) {
             logger.debug("Error loading prefs from file: {}", e);

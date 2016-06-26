@@ -387,18 +387,18 @@ public class RemoteService implements IRemoteService {
         return Long.parseLong(header.get("X-RateLimit-Reset"));
     }
 
-    private List<Person> convertToPersonList(List<CloudPerson> CloudPersonList) {
+    private List<Person> convertToPersonList(List<CloudPerson> cloudPersonList) {
         List<Person> convertedList = new ArrayList<>();
-        CloudPersonList.stream()
+        cloudPersonList.stream()
                 .forEach(CloudPerson -> convertedList.add(convertToPerson(CloudPerson)));
 
         return convertedList;
     }
 
-    private List<Tag> convertToTagList(List<CloudTag> CloudTagList) {
+    private List<Tag> convertToTagList(List<CloudTag> cloudTagList) {
         List<Tag> convertedList = new ArrayList<>();
-        CloudTagList.stream()
-                .forEach(CloudTag -> convertedList.add(convertToTag(CloudTag)));
+        cloudTagList.stream()
+                .forEach(cloudTag -> convertedList.add(convertToTag(cloudTag)));
 
         return convertedList;
     }
@@ -423,17 +423,17 @@ public class RemoteService implements IRemoteService {
     }
 
     private CloudPerson convertToCloudPerson(Person person) {
-        CloudPerson CloudPerson = new CloudPerson(person.getFirstName(), person.getLastName());
-        CloudPerson.setStreet(person.getStreet());
-        CloudPerson.setCity(person.getCity());
-        CloudPerson.setPostalCode(person.getPostalCode());
-        CloudPerson.setTags(convertToCloudTagList(person.getTags()));
-        CloudPerson.setBirthday(person.getBirthday());
-        return CloudPerson;
+        CloudPerson cloudPerson = new CloudPerson(person.getFirstName(), person.getLastName());
+        cloudPerson.setStreet(person.getStreet());
+        cloudPerson.setCity(person.getCity());
+        cloudPerson.setPostalCode(person.getPostalCode());
+        cloudPerson.setTags(convertToCloudTagList(person.getTags()));
+        cloudPerson.setBirthday(person.getBirthday());
+        return cloudPerson;
     }
 
-    private Tag convertToTag(CloudTag CloudTag) {
-        return new Tag(CloudTag.getName());
+    private Tag convertToTag(CloudTag cloudTag) {
+        return new Tag(cloudTag.getName());
     }
 
     private CloudTag convertToCloudTag(Tag tag) {

@@ -169,12 +169,12 @@ public class Installer extends Application {
                     break;
                 }
             } catch (IOException e) {
-                System.out.println("Failed to get size of library; will proceed to downloading it: " +
+                System.out.println("Failed to get size of library; will proceed to download it: " +
                         platformDependentLibrary.getFilename());
                 e.printStackTrace();
             }
             
-            Platform.runLater(() -> loadingLabel.setText("Initializing. Downloading required components. Please wait."));
+            Platform.runLater(() -> loadingLabel.setText("Downloading required components. Please wait."));
 
             try {
                 downloadFile(libFile, downloadLink);
@@ -185,7 +185,7 @@ public class Installer extends Application {
             }
         }
 
-        System.out.println("Finished downloading platform dependent libraries");
+        System.out.println("Finished downloading platform-dependent libraries");
     }
 
     private void startMainApplication() {

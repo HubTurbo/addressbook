@@ -47,7 +47,7 @@ public class TagCardController {
 
         vBox.setOnMouseClicked(mouseEv -> {
             switch (mouseEv.getButton()) {
-                case PRIMARY :
+                case PRIMARY:
                     if (mouseEv.getClickCount() == 1) {
                         mainController.addTagData();
                         tagListController.refreshList();
@@ -67,12 +67,12 @@ public class TagCardController {
     public void setListeners() {
         box.setOnMouseClicked(mouseEv -> {
             switch (mouseEv.getButton()) {
-                case PRIMARY :
+                case PRIMARY:
                     if (mouseEv.getClickCount() >= 2) {
                         handleEditTagAction();
                     }
                     break;
-                case SECONDARY :
+                case SECONDARY:
                     if (mouseEv.getClickCount() == 1) {
                         getContextMenu().show(tagName, Side.BOTTOM, 0, 0);
                     }
