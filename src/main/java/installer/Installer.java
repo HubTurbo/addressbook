@@ -193,7 +193,7 @@ public class Installer extends Application {
 
         String classPath = File.pathSeparator + "lib" + File.separator + "*";
 
-        String command = String.format("java -cp %s address.MainApp", classPath);
+        String command = String.format("java -ea -cp %s address.MainApp", classPath);
 
         try {
             Runtime.getRuntime().exec(command, null, new File(System.getProperty("user.dir")));
