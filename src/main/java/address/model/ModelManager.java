@@ -83,6 +83,10 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         backingModel.resetData(newData);
     }
 
+    public void initData(ReadOnlyAddressBook initialData) {
+        resetData(initialData);
+    }
+
     public void clearModel() {
         backingModel.clearData();
     }

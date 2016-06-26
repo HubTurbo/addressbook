@@ -3,8 +3,6 @@ package address.keybindings;
 import address.events.BaseEvent;
 import javafx.scene.input.KeyCombination;
 
-import java.util.Optional;
-
 /**
  * Parent class for different key binding types.
  */
