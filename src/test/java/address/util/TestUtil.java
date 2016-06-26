@@ -7,8 +7,13 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ViewablePerson;
 import address.model.datatypes.tag.Tag;
 import address.storage.StorageAddressBook;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -81,5 +86,67 @@ public class TestUtil {
 
     public static StorageAddressBook generateSampleStorageAddressBook() {
         return new StorageAddressBook(generateSampleAddressBook());
+    }
+
+    /**
+     * Tweaks the {@code keyCodeCombination} to convert the {@code KeyCode.SHORTCUT} to
+     * {@code KeyCode.META} on Macs and {@code KeyCode.CONTROL} on other platforms.
+     */
+    public static KeyCode[] scrub(KeyCodeCombination keyCodeCombination) {
+        List<KeyCode> keys = new ArrayList<>();
+        if (keyCodeCombination.getAlt() == KeyCombination.ModifierValue.DOWN) {
+            keys.add(KeyCode.ALT);
+        }
+        if (keyCodeCombination.getShift() == KeyCombination.ModifierValue.DOWN) {
+            keys.add(KeyCode.SHIFT);
+        }
+        if (keyCodeCombination.getMeta() == KeyCombination.ModifierValue.DOWN) {
+            keys.add(KeyCode.META);
+        }
+        if (keyCodeCombination.getControl() == KeyCombination.ModifierValue.DOWN) {
+            keys.add(KeyCode.CONTROL);
+        }
+        if (keyCodeCombination.getShortcut() == KeyCombination.ModifierValue.DOWN) {
+            keys.add(getPlatformSpecificShortcutKey());
+
+        }
+        keys.add(keyCodeCombination.getCode());
+        return keys.toArray(new KeyCode[]{});
+    }
+
+    /**
+     * Returns {@code KeyCode.META} if on a Mac, {@code KeyCode.CONTROL} otherwise.
+     */
+    private static KeyCode getPlatformSpecificShortcutKey() {
+        return OsDetector.isOnMac()? KeyCode.META : KeyCode.CONTROL;
+    }
+
+    /**
+     * Replaces any {@code KeyCode.SHORTCUT} with {@code KeyCode.META} on Macs
+     *     and {@code KeyCode.CONTROL} on other platforms.
+     */
+    public static KeyCode[] scrub(KeyCode[] keyCodes) {
+        for (int i = 0; i < keyCodes.length; i++) {
+            if (keyCodes[i] == KeyCode.META || keyCodes[i] == KeyCode.SHORTCUT) {
+                keyCodes[i] = getPlatformSpecificShortcutKey();
+            }
+        }
+        return keyCodes;
+    }
+
+    /**
+     * Generates a minimal {@link KeyEvent} object that matches the {@code keyCombination}
+     */
+    public static KeyEvent getKeyEvent(String keyCombination){
+        String[] keys = keyCombination.split(" ");
+
+        String key = keys[keys.length - 1];
+        boolean shiftDown = keyCombination.toLowerCase().contains("shift");
+        boolean metaDown = keyCombination.toLowerCase().contains("meta")
+                || (keyCombination.toLowerCase().contains("shortcut") && OsDetector.isOnMac());
+        boolean altDown = keyCombination.toLowerCase().contains("alt");
+        boolean ctrlDown = keyCombination.toLowerCase().contains("ctrl")
+                || keyCombination.toLowerCase().contains("shortcut") && !OsDetector.isOnMac();
+        return new KeyEvent(null, null, null, KeyCode.valueOf(key), shiftDown, ctrlDown, altDown, metaDown);
     }
 }
