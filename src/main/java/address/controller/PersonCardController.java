@@ -167,9 +167,7 @@ public class PersonCardController extends UiController{
                 if (image != null && image.getHeight() > 0) {
                     profileImage.setImage(image);
                 } else {
-                    profileImage.setImage(
-                            ImageManager.getDefaultProfileImage()
-                    );
+                    profileImage.setImage(ImageManager.getDefaultProfileImage());
                 }
             }).start();
         }
