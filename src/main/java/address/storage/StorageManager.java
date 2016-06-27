@@ -131,11 +131,18 @@ public class StorageManager extends ComponentManager {
      */
     public void saveDataToFile(File file, ReadOnlyAddressBook data){
         try {
-            FileUtil.createIfMissing(file);
-            XmlFileStorage.saveDataToFile(file, new StorageAddressBook(data));
+            saveAddressBook(file, data);
         } catch (IOException | DataConversionException e) {
             raise(new FileSavingExceptionEvent(e, file));
         }
+    }
+
+    /**
+     * Saves the address book data in the file specified.
+     */
+    public static void saveAddressBook(File file, ReadOnlyAddressBook data) throws IOException, DataConversionException {
+        FileUtil.createIfMissing(file);
+        XmlFileStorage.saveDataToFile(file, new StorageAddressBook(data));
     }
 
     /**
