@@ -35,7 +35,7 @@ public class DependencyTracker {
             //TODO: need better error handling
             //TODO: use early return to avoid else clause
         } else {
-            updateVersionDependency(Version.getCurrentVersion(),
+            updateVersionDependency(MainApp.VERSION,
                     new ArrayList<>(Arrays.asList(classPath.get().split("\\s+"))));
         }
     }
@@ -167,6 +167,6 @@ public class DependencyTracker {
     }
 
     public List<String> getCurrentVersionDependencies() {
-        return dependenciesForVersionsInUse.get(Version.getCurrentVersion());
+        return dependenciesForVersionsInUse.get(MainApp.VERSION);
     }
 }

@@ -1,5 +1,6 @@
 package installer;
 
+import address.MainApp;
 import address.updater.model.LibraryDescriptor;
 import address.updater.model.UpdateData;
 import address.util.FileUtil;
@@ -46,10 +47,10 @@ public class UpdateDataGenerator {
             return;
         }
 
-        updateData.setVersion(Version.getCurrentVersion().toString());
+        updateData.setVersion(MainApp.VERSION.toString());
 
         String mainAppFilename = arguments.get(0);
-        String mainAppDownloadLinkString = MAIN_APP_BASE_DOWNLOAD_LINK + Version.getCurrentVersion().toString() + "/" +
+        String mainAppDownloadLinkString = MAIN_APP_BASE_DOWNLOAD_LINK + MainApp.VERSION.toString() + "/" +
                 mainAppFilename;
 
         try {

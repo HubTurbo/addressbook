@@ -106,7 +106,7 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        if (latestVersion.get().isEarlyAccess() != MainApp.IS_EARLY_ACCESS) {
+        if (latestVersion.get().isEarlyAccess() != MainApp.VERSION.isEarlyAccess()) {
             raise(new UpdaterFinishedEvent(MSG_DIFF_CHANNEL));
             logger.debug(MSG_DIFF_CHANNEL);
             //TODO: how could this happen?
@@ -114,7 +114,7 @@ public class UpdateManager extends ComponentManager {
         }
 
         if (downloadedVersions.contains(latestVersion.get()) ||
-                Version.getCurrentVersion().equals(latestVersion.get())) {
+                MainApp.VERSION.equals(latestVersion.get())) {
             raise(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
             logger.debug(MSG_NO_NEWER_VERSION);
             return;
@@ -179,7 +179,7 @@ public class UpdateManager extends ComponentManager {
         URL updateDataUrl;
 
         try {
-            if (MainApp.IS_EARLY_ACCESS) {
+            if (MainApp.VERSION.isEarlyAccess()) {
                 updateDataUrl = new URL(UPDATE_DATA_ON_SERVER_EARLY);
             } else {
                 updateDataUrl = new URL(UPDATE_DATA_ON_SERVER_STABLE);

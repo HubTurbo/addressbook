@@ -23,7 +23,7 @@ public class BackupManager {
     private static final int MAX_BACKUP_JAR_KEPT = 3;
     private static final String BACKUP_MARKER = "_";
     private static final String BACKUP_FILENAME_STRING_FORMAT =
-            "addressbook" + BACKUP_MARKER + Version.getCurrentVersion().toString() + ".jar";
+            "addressbook" + BACKUP_MARKER + MainApp.VERSION.toString() + ".jar";
     private static final String BACKUP_FILENAME_PATTERN_STRING =
             "addressbook" + BACKUP_MARKER + "(" + Version.VERSION_PATTERN_STRING + ")\\.(jar|JAR)$";
 
@@ -65,7 +65,7 @@ public class BackupManager {
     }
 
     private String getMainAppBackupFilename() {
-        return "addressbook" + BACKUP_MARKER + Version.getCurrentVersion().toString() + ".jar";
+        return "addressbook" + BACKUP_MARKER + MainApp.VERSION.toString() + ".jar";
     }
 
     /**
@@ -142,7 +142,7 @@ public class BackupManager {
         // Exclude current version in case user is running backup Jar
         return listOfFilesInCurrDirectory.stream()
                 .filter(f ->
-                        !f.getName().equals(String.format(BACKUP_FILENAME_STRING_FORMAT, Version.getCurrentVersion()))
+                        !f.getName().equals(String.format(BACKUP_FILENAME_STRING_FORMAT, MainApp.VERSION))
                         && f.getName().matches(BACKUP_FILENAME_PATTERN_STRING))
                 .map(File::getName)
                 .sorted(getBackupFilenameComparatorByVersion())

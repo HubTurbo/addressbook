@@ -1,6 +1,5 @@
 package address.util;
 
-import address.MainApp;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -69,12 +68,6 @@ public class Version implements Comparable<Version> {
     public String toString() {
         return String.format("V%d.%d.%d%s", major, minor, patch, isEarlyAccess ? "ea" : "");
     }
-
-    public static Version getCurrentVersion() {
-        return new Version(MainApp.VERSION_MAJOR, MainApp.VERSION_MINOR, MainApp.VERSION_PATCH,
-                MainApp.IS_EARLY_ACCESS);
-    }
-    //TODO: try to eliminate these global data. Instead, pass the object to those who needs it, making the dependency explicit
 
     @Override
     public int compareTo(Version other) {

@@ -25,11 +25,13 @@ import java.util.List;
  */
 public class MainApp extends Application {
 
-    public static final int VERSION_MAJOR = 0;
-    public static final int VERSION_MINOR = 0;
-    public static final int VERSION_PATCH = 2;
-    public static final boolean IS_EARLY_ACCESS = false;
-    //TODO: Use the Version class instead?
+    private static final int VERSION_MAJOR = 0;
+    private static final int VERSION_MINOR = 0;
+    private static final int VERSION_PATCH = 2;
+    private static final boolean VERSION_EARLY_ACCESS = false;
+
+    public static final Version VERSION = new Version(
+            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EARLY_ACCESS);
 
     private static final AppLogger logger = LoggerManager.getLogger(MainApp.class);
 
@@ -79,7 +81,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        logger.info("Starting application: {}", Version.getCurrentVersion());
+        logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
         updateManager.start();
         storageManager.start();
