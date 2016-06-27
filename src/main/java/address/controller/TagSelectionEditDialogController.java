@@ -1,7 +1,5 @@
 package address.controller;
 
-import address.events.EventManager;
-import address.events.LocalModelChangedEvent;
 import address.model.TagSelectionEditDialogModel;
 import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
@@ -51,28 +49,14 @@ public class TagSelectionEditDialogController extends EditDialogController {
     public void initialize() {
         transition = getPaneTransition(mainPane);
         transition.play();
+        this.model = new TagSelectionEditDialogModel();
 
         addListeners();
         Platform.runLater(() -> tagSearch.requestFocus());
     }
 
     public void setTags(List<Tag> tags, List<Tag> assignedTags) {
-        this.model = new TagSelectionEditDialogModel();
-        final ListChangeListener<Tag> assignedTagsListener = change -> {
-            while (change.next()) {
-                tagList.getChildren().setAll(getTagListNodes(change.getList()));
-            }
-        };
-
-        final ListChangeListener<SelectableTag> filteredTagsListener = change -> {
-            while (change.next()) {
-                tagResults.setContent(getTagsVBox(change.getList()));
-            }
-        };
-        model.getAssignedTags().addListener(assignedTagsListener);
-        model.getFilteredTags().addListener(filteredTagsListener);
-
-        model.initModel(tags, assignedTags, "");
+        model.init(tags, assignedTags, "");
     }
 
     /**
@@ -129,7 +113,7 @@ public class TagSelectionEditDialogController extends EditDialogController {
      */
     private List<Node> getTagListNodes(List<? extends Tag> contactTagList) {
         return contactTagList.stream()
-                .map(tag -> getNodeForTag(tag))
+                .map(this::getNodeForTag)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -183,6 +167,13 @@ public class TagSelectionEditDialogController extends EditDialogController {
                 default:
                     break;
             }
+        });
+
+        model.getAssignedTags().addListener((ListChangeListener<Tag>) change -> {
+            while (change.next()) tagList.getChildren().setAll(getTagListNodes(change.getList()));
+        });
+        model.getFilteredTags().addListener((ListChangeListener<SelectableTag>) change -> {
+            while (change.next()) tagResults.setContent(getTagsVBox(change.getList()));
         });
     }
 

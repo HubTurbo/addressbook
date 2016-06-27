@@ -1,34 +1,35 @@
 package address.model;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class TagSelectionEditDialogModel {
-    private List<Tag> allTags = FXCollections.observableArrayList();
-    private ObservableList<SelectableTag> filteredTags = FXCollections.observableArrayList();
-    private Optional<Integer> selectedTagIndex = Optional.empty();
-    private ObservableList<Tag> assignedTags = FXCollections.observableArrayList();
+    private List<Tag> allTags;
+    private ObservableList<SelectableTag> filteredTags;
+    private Optional<Integer> selectedTagIndex;
+    private ObservableList<Tag> assignedTags;
 
     public TagSelectionEditDialogModel() {
+        allTags = FXCollections.observableArrayList();
+        filteredTags = FXCollections.observableArrayList();
+        selectedTagIndex = Optional.empty();
+        assignedTags = FXCollections.observableArrayList();
     }
 
-    public void initModel(List<Tag> allTags, List<Tag> assignedTags, String filter) {
+    public void init(List<Tag> allTags, List<Tag> assignedTags, String filter) {
         this.allTags.addAll(allTags);
         this.assignedTags.addAll(assignedTags);
         setFilter(filter);
     }
 
     public void toggleSelection() {
-        Optional<SelectableTag> selection = getSelection();
+        Optional<SelectableTag> selection = getSelection(filteredTags);
         if (!selection.isPresent()) return;
 
         if (assignedTags.contains(selection.get())) {
@@ -51,13 +52,21 @@ public class TagSelectionEditDialogModel {
     }
 
     public void setFilter(String filter) {
-        filteredTags.clear();
-        filteredTags.addAll(allTags.stream()
-                .filter(tag -> tag.getName().contains(filter))
-                .map(SelectableTag::new)
-                .collect(Collectors.toList()));
+        filteredTags.setAll(convertToSelectableTags(getMatchingTags(allTags, filter)));
         selectedTagIndex = getSelectedTagIndexAfterFilter(filteredTags, filter);
         updateSelection(filteredTags, selectedTagIndex);
+    }
+
+    private List<Tag> getMatchingTags(List<Tag> tagList, String filter) {
+        return tagList.stream()
+                .filter(tag -> tag.getName().contains(filter))
+                .collect(Collectors.toList());
+    }
+
+    private List<SelectableTag> convertToSelectableTags(List<Tag> tagList) {
+        return tagList.stream()
+                .map(SelectableTag::new)
+                .collect(Collectors.toList());
     }
 
     public ObservableList<Tag> getAssignedTags() {
@@ -68,14 +77,8 @@ public class TagSelectionEditDialogModel {
         return filteredTags;
     }
 
-    private List<SelectableTag> convertToSelectableTags(List<Tag> allTags) {
-        return allTags.stream()
-                .map(SelectableTag::new)
-                .collect(Collectors.toList());
-    }
-
-    private Optional<SelectableTag> getSelection() {
-        return filteredTags.stream()
+    private Optional<SelectableTag> getSelection(List<SelectableTag> tagList) {
+        return tagList.stream()
                 .filter(SelectableTag::isSelected)
                 .findFirst();
     }
@@ -110,14 +113,5 @@ public class TagSelectionEditDialogModel {
         } else {
             return Optional.empty();
         }
-    }
-
-    /**
-     * Gets the list of tags that appears in newContactTags but not in originalTags
-     */
-    private List<SelectableTag> getNewMatchingTags(List<SelectableTag> originalTags, List<SelectableTag> updatedTags) {
-        return updatedTags.stream()
-                .filter(newContactTag -> !originalTags.contains(newContactTag))
-                .collect(Collectors.toList());
     }
 }
