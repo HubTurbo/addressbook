@@ -12,21 +12,19 @@ import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.keybindings.KeyBindingsManager;
 import address.parser.qualifier.TrueQualifier;
-import address.status.PersonCreatedStatus;
 import address.status.PersonDeletedStatus;
-import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
 import address.util.FilteredList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.collections.ReorderedList;
-import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
@@ -85,7 +83,7 @@ public class PersonOverviewController extends UiController{
     }
 
     public void setConnections(MainController mainController, ModelManager modelManager,
-                               UnmodifiableObservableList<ReadOnlyViewablePerson> personList) {
+                               ObservableList<ReadOnlyViewablePerson> personList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
         filteredPersonList = new FilteredList<>(personList, new PredExpr(new TrueQualifier())::satisfies);
@@ -119,20 +117,16 @@ public class PersonOverviewController extends UiController{
      */
     @FXML
     private void handleDeletePersons() {
-        List<Integer> selectedIndexes = personListView.getSelectionModel().getSelectedIndices();
-        selectedIndexes.stream().forEach(selectedIndex -> {
-            if (selectedIndex >= 0) {
-                final ReadOnlyPerson deleteTarget = personListView.getItems().get(selectedIndex);
-                mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(deleteTarget));
-
-                modelManager.delayedDeletePerson(deleteTarget, 1, TimeUnit.SECONDS);
-            } else {
-                // Nothing selected.
-                mainController.showAlertDialogAndWait(AlertType.WARNING,
-                        "No Selection", "No Person Selected", "Please select a person in the list.");
-            }
-        });
-
+        final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
+        if (selected.isEmpty()) {
+            showNoSelectionAlert();
+        } else {
+            selected.stream()
+                    .forEach(target -> {
+                        mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(target));
+                        modelManager.deletePersonThroughUI(target);
+                    });
+        }
     }
 
     /**
@@ -141,11 +135,8 @@ public class PersonOverviewController extends UiController{
      */
     @FXML
     private void handleNewPerson() {
-        Optional<ReadOnlyPerson> inputData = mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person");
-        if (inputData.isPresent()) {
-            ReadOnlyPerson added = modelManager.addPerson(new Person(inputData.get()));
-            mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(added));
-        }
+        modelManager.createPersonThroughUI(() ->
+                mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person"));
     }
 
     /**
@@ -156,11 +147,12 @@ public class PersonOverviewController extends UiController{
         Optional<List<Tag>> listOfFinalAssignedTags = mainController.getPersonsTagsInput(selectedPersons);
 
         if (listOfFinalAssignedTags.isPresent()) {
-            selectedPersons.stream().forEach(p -> {
-                Person editedPerson = new Person(p);
-                editedPerson.setTags(listOfFinalAssignedTags.get());
-                modelManager.updatePerson(p, editedPerson);
-            });
+            selectedPersons.stream()
+                    .forEach(p -> {
+                        Person editedPerson = new Person(p);
+                        editedPerson.setTags(listOfFinalAssignedTags.get());
+                        modelManager.editPersonThroughUI(p, () -> Optional.of(editedPerson));
+                    });
         }
     }
 
@@ -172,22 +164,23 @@ public class PersonOverviewController extends UiController{
     private void handleEditPerson() {
         final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
         if (editTarget == null) { // no selection
-            mainController.showAlertDialogAndWait(AlertType.WARNING, "No Selection",
-                "No Person Selected", "Please select a person in the list.");
+            showNoSelectionAlert();
             return;
         }
-
-        Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person(editTarget));
-        do {
-            prevInputData = mainController.getPersonDataInput(prevInputData.get(), "Edit Person");
-        } while (prevInputData.isPresent() && !updatePerson(editTarget, prevInputData.get()));
+        modelManager.editPersonThroughUI(editTarget,
+                () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
     }
 
-    private boolean updatePerson(ReadOnlyPerson oldPerson, ReadOnlyPerson newPerson) {
-        modelManager.updatePerson(oldPerson, newPerson);
-        mainController.getStatusBarHeaderController().postStatus(
-                new PersonEditedStatus(new Person(oldPerson), newPerson));
-        return true;
+    private void handleCancelPersonOperations() {
+        final List<Integer> selectedIndexes = personListView.getSelectionModel().getSelectedIndices();
+        selectedIndexes.stream().forEach(selectedIndex -> {
+            if (selectedIndex >= 0) {
+                final ReadOnlyPerson cancelTarget = personListView.getItems().get(selectedIndex);
+                modelManager.cancelPersonChangeCommand(cancelTarget);
+            } else {
+                showNoSelectionAlert(); // Nothing selected.
+            }
+        });
     }
 
     @FXML
@@ -212,18 +205,23 @@ public class PersonOverviewController extends UiController{
     private ContextMenu createContextMenu() {
         final ContextMenu contextMenu = new ContextMenu();
 
-        MenuItem editMenuItem = new MenuItem("Edit");
+        final MenuItem editMenuItem = new MenuItem("Edit");
         editMenuItem.disableProperty().bind(isEditDisabled);
         editMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("PERSON_EDIT_ACCELERATOR").get());
         editMenuItem.setOnAction(e -> handleEditPerson());
-        MenuItem deleteMenuItem = new MenuItem("Delete");
+
+        final MenuItem deleteMenuItem = new MenuItem("Delete");
         deleteMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("PERSON_DELETE_ACCELERATOR").get());
         deleteMenuItem.setOnAction(e -> handleDeletePersons());
-        MenuItem tagMenuItem = new MenuItem("Tag");
+
+        final MenuItem tagMenuItem = new MenuItem("Tag");
         tagMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("PERSON_TAG_ACCELERATOR").get());
         tagMenuItem.setOnAction(e -> handleRetagPersons());
 
-        contextMenu.getItems().addAll(editMenuItem, deleteMenuItem, tagMenuItem);
+        final MenuItem cancelOperationMenuItem = new MenuItem("Cancel");
+        cancelOperationMenuItem.setOnAction(e -> handleCancelPersonOperations());
+
+        contextMenu.getItems().addAll(editMenuItem, deleteMenuItem, tagMenuItem, cancelOperationMenuItem);
         contextMenu.setId("personListContextMenu");
         return contextMenu;
     }
@@ -256,6 +254,11 @@ public class PersonOverviewController extends UiController{
         }
 
         selectItem(indexOfItem);
+    }
+
+    private void showNoSelectionAlert() {
+        mainController.showAlertDialogAndWait(AlertType.WARNING,
+                "No Selection", "No Person Selected", "Please select a person in the list.");
     }
 
     /**

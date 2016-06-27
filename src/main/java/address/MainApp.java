@@ -1,5 +1,6 @@
 package address;
 
+import address.events.EventManager;
 import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
 import address.model.UserPrefs;

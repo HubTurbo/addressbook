@@ -4,14 +4,11 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Wraps all data at the address-book level
@@ -20,12 +17,10 @@ import javax.xml.bind.annotation.XmlElement;
 public class AddressBook implements ReadOnlyAddressBook {
 
     private final ObservableList<Person> persons;
-    private final List<Person> personBackingList;
     private final ObservableList<Tag> tags;
 
     {
-        personBackingList = new ArrayList<>();
-        persons = FXCollections.observableList(personBackingList);
+        persons = FXCollections.observableArrayList();
         tags = FXCollections.observableArrayList();
     }
 
@@ -51,14 +46,10 @@ public class AddressBook implements ReadOnlyAddressBook {
 
 //// list overwrite operations
 
-    @XmlElement(name = "persons")
-    @JsonProperty("persons")
     public ObservableList<Person> getPersons() {
         return persons;
     }
 
-    @XmlElement(name = "tags")
-    @JsonProperty("tags")
     public ObservableList<Tag> getTags() {
         return tags;
     }
@@ -107,33 +98,12 @@ public class AddressBook implements ReadOnlyAddressBook {
         persons.add(p);
     }
 
-    /**
-     * Does not trigger any listeners on the person observablelist
-     */
-    public void addPersonSilently(Person p) {
-        personBackingList.add(p);
-    }
-
     public boolean removePerson(ReadOnlyPerson key) {
         return ReadOnlyPerson.removeOneById(persons, key);
     }
 
     public boolean removePerson(int id) {
         return ReadOnlyPerson.removeOneById(persons, id);
-    }
-
-    /**
-     * Does not trigger any listeners on the person observablelist
-     */
-    public boolean removePersonSilently(ReadOnlyPerson key) {
-        return ReadOnlyPerson.removeOneById(personBackingList, key);
-    }
-
-    /**
-     * Does not trigger any listeners on the person observablelist
-     */
-    public boolean removePersonSilently(int id) {
-        return ReadOnlyPerson.removeOneById(personBackingList, id);
     }
 
 //// tag-level operations

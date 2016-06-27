@@ -34,7 +34,7 @@ public interface ReadOnlyPerson extends ExtractableObservables {
     static <P extends ReadOnlyPerson> boolean removeOneById(Collection<P> col, int id) {
         final Optional<P> toRemove = findById(col, id);
         if (toRemove.isPresent()) {
-            return col.remove(toRemove);
+            return col.remove(toRemove.get());
         } else {
             return false;
         }

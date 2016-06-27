@@ -10,23 +10,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
 
     private final AddressBook backingModel;
+    private final Set<Integer> idsToIgnoreWhenCreatingViewablePersons;
 
     private final ObservableList<ViewablePerson> persons;
-    private final List<ViewablePerson> personBackingList;
     private final ObservableList<Tag> tags; // todo change to viewabletag class
 
     {
-        personBackingList = new ArrayList<>();
-        persons = FXCollections.observableList(personBackingList);
+        idsToIgnoreWhenCreatingViewablePersons = new HashSet<>();
+        persons = FXCollections.observableArrayList();
     }
 
     ViewableAddressBook(AddressBook src) {
@@ -51,6 +48,7 @@ public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
                     ReadOnlyPerson.removeAllWithSameIds(persons, change.getRemoved());
                     // newly added
                     persons.addAll(change.getAddedSubList().stream()
+                            .filter(p -> !idsToIgnoreWhenCreatingViewablePersons.remove(p.getId()))
                             .map(ViewablePerson::fromBacking)
                             .collect(Collectors.toList()));
                 }
@@ -81,13 +79,6 @@ public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
         persons.add(p);
     }
 
-    /**
-     * Does not trigger any listeners on the person observablelist
-     */
-    public void addPersonSilently(ViewablePerson p) {
-        personBackingList.add(p);
-    }
-
     public boolean removePerson(ReadOnlyPerson key) {
         return ReadOnlyPerson.removeOneById(persons, key);
     }
@@ -97,17 +88,12 @@ public class ViewableAddressBook implements ReadOnlyViewableAddressBook {
     }
 
     /**
-     * Does not trigger any listeners on the person observablelist
+     * The ViewableAddressBook will not auto-create a {@link ViewablePerson} the next time a {@link Person} of this id
+     * is added to the backing {@link AddressBook}. Only works once (adding a person of this id to the backing
+     * addressbook for the second time onwards will trigger the auto-creation process)
      */
-    public boolean removePersonSilently(ReadOnlyPerson key) {
-        return ReadOnlyPerson.removeOneById(personBackingList, key);
-    }
-
-    /**
-     * Does not trigger any listeners on the person observablelist
-     */
-    public boolean removePersonSilently(int id) {
-        return ReadOnlyPerson.removeOneById(personBackingList, id);
+    public void specifyViewableAlreadyCreated(int id) {
+        idsToIgnoreWhenCreatingViewablePersons.add(id);
     }
 
 //// .
