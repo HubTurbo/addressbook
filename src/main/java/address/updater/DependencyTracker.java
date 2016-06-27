@@ -22,8 +22,6 @@ public class DependencyTracker {
 
     private HashMap<Version, List<String>> dependenciesForVersionsInUse = new HashMap<>();
 
-    //TODO: add header comments to all public methods
-
     public DependencyTracker() {
         readVersionDependency();
 
@@ -39,21 +37,30 @@ public class DependencyTracker {
         }
     }
 
+    /**
+     * Updates the dependencies of a version of the application
+     */
     public void updateVersionDependencies(Version version, List<String> verDependencies) {
         dependenciesForVersionsInUse.put(version, verDependencies);
         writeVersionDependency();
     }
 
+    /**
+     * Gets dependencies for every version known
+     */
     public HashMap<Version, List<String>> getAllVersionDependency() {
         return dependenciesForVersionsInUse;
     }
 
-    public void cleanUpUnusedDependencyVersions(List<Version> dependenciesOfUnusedVersions) {
+    /**
+     * Deletes dependencies of version which are no longer used
+     */
+    public void cleanUpUnusedDependencyVersions(List<Version> unusedVersions) {
         Iterator<Map.Entry<Version, List<String>>> it = dependenciesForVersionsInUse.entrySet().iterator();
 
         while (it.hasNext()) {
             Map.Entry<Version, List<String>> entry = it.next();
-            if (dependenciesOfUnusedVersions.contains(entry.getKey())) {
+            if (unusedVersions.contains(entry.getKey())) {
                 logger.debug("Removing {}", entry.getKey());
                 it.remove();
             }
@@ -144,7 +151,8 @@ public class DependencyTracker {
     }
 
     /**
-     * @return empty array list if current version is not in dependency list (indicating not run from JAR)
+     * Gets missing dependencies of current version
+     * @return empty list if current version is not in dependency list (indicating not run from JAR)
      */
     public List<String> getMissingDependencies() {
         if (getCurrentVersionDependencies() == null) {
