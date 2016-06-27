@@ -48,7 +48,8 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             double snapShotWidth = this.getWidth();
             double snapShotHeight = this.getHeight() * getListView().getSelectionModel().getSelectedIndices().size();
             para.setViewport(new Rectangle2D(0, lvOffset + cardOffset, snapShotWidth, snapShotHeight));
-            dragBoard.setDragView(this.getListView().snapshot(para, null));
+            //dragBoard.setDragView(this.getListView().snapshot(para, null));
+            dragBoard.setDragView(FxViewUtil.getDragView(this.getListView().getSelectionModel().getSelectedItems()));
             dragBoard.setContent(content);
             event.consume();
         });
