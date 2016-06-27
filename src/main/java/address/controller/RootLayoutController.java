@@ -21,7 +21,7 @@ import java.io.File;
  * application layout containing a menu bar and space where other JavaFX
  * elements can be placed.
  */
-public class RootLayoutController {
+public class RootLayoutController extends UiController{
     private static AppLogger logger = LoggerManager.getLogger(RootLayoutController.class);
 
     private MainController mainController;
@@ -38,7 +38,7 @@ public class RootLayoutController {
     private MenuItem menuFileSaveAs;
 
     public RootLayoutController() {
-        EventManager.getInstance().registerHandler(this);
+        super();
     }
 
     public void setConnections(MainApp mainApp, MainController mainController, ModelManager modelManager) {
@@ -90,7 +90,7 @@ public class RootLayoutController {
         File toOpen = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
         if (toOpen == null) return;
         modelManager.setPrefsSaveLocation(toOpen.getPath());
-        EventManager.getInstance().post(new LoadDataRequestEvent(toOpen));
+        raise(new LoadDataRequestEvent(toOpen));
     }
 
     /**
@@ -101,7 +101,7 @@ public class RootLayoutController {
     private void handleSave() {
         final File saveFile = modelManager.getPrefs().getSaveLocation();
         logger.debug("Requesting save to: {}.", saveFile);
-        EventManager.getInstance().post(new SaveDataRequestEvent(saveFile, modelManager));
+        raise(new SaveDataRequestEvent(saveFile, modelManager));
     }
 
     /**
@@ -121,7 +121,7 @@ public class RootLayoutController {
         }
 
         modelManager.setPrefsSaveLocation(file.getPath());
-        EventManager.getInstance().post(new SaveDataRequestEvent(file, modelManager));
+        raise(new SaveDataRequestEvent(file, modelManager));
     }
 
     /**

@@ -48,13 +48,16 @@ public class TagSelectionEditDialogController extends EditDialogController {
     private Stage dialogStage;
     private ScaleTransition transition;
 
+    public TagSelectionEditDialogController(){
+        super();
+    }
+
     @FXML
     public void initialize() {
         transition = getPaneTransition(mainPane);
         transition.play();
 
         addListeners();
-        EventManager.getInstance().registerHandler(this);
         Platform.runLater(() -> tagSearch.requestFocus());
     }
 

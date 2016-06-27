@@ -15,7 +15,7 @@ import org.controlsfx.control.StatusBar;
 import java.io.File;
 import java.util.concurrent.*;
 
-public class StatusBarFooterController {
+public class StatusBarFooterController extends UiController{
 
     @FXML
     private AnchorPane updaterStatusBarPane;
@@ -35,7 +35,7 @@ public class StatusBarFooterController {
     private final Label saveLocationLabel;
 
     public StatusBarFooterController() {
-        EventManager.getInstance().registerHandler(this);
+        super();
         this.saveLocationLabel = new Label("");
     }
 
