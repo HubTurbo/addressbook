@@ -1,6 +1,7 @@
 package address.updater;
 
 import address.MainApp;
+import address.events.UpdaterFailedEvent;
 import address.events.UpdaterFinishedEvent;
 import address.events.UpdaterInProgressEvent;
 import address.main.ComponentManager;
@@ -82,8 +83,7 @@ public class UpdateManager extends ComponentManager {
         try {
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
-            raise(new UpdaterFinishedEvent(MSG_FAIL_DELETE_UPDATE_SPEC));
-            //TODO: The event used to indicate failure should be different from the one used for success?
+            raise(new UpdaterFailedEvent(MSG_FAIL_DELETE_UPDATE_SPEC));
             logger.debug(MSG_FAIL_DELETE_UPDATE_SPEC);
             return;
         }
@@ -92,7 +92,7 @@ public class UpdateManager extends ComponentManager {
         Optional<UpdateData> updateData = getUpdateDataFromServer();
 
         if (!updateData.isPresent()) {
-            raise(new UpdaterFinishedEvent(MSG_NO_UPDATE_DATA));
+            raise(new UpdaterFailedEvent(MSG_NO_UPDATE_DATA));
             logger.debug(MSG_NO_UPDATE_DATA);
             return;
         }
@@ -100,13 +100,13 @@ public class UpdateManager extends ComponentManager {
         Optional<Version> latestVersion = getLatestVersion(updateData.get());
 
         if (!latestVersion.isPresent()) {
-            raise(new UpdaterFinishedEvent(MSG_NO_VERSION_AVAILABLE));
-            logger.debug(MSG_NO_VERSION_AVAILABLE);
+            raise(new UpdaterFailedEvent(MSG_NO_VERSION_AVAILABLE));
+            logger.fatal(MSG_NO_VERSION_AVAILABLE);
             return;
         }
 
         if (isOnSameUpdateChannel(latestVersion.get())) {
-            raise(new UpdaterFinishedEvent(MSG_DIFF_CHANNEL));
+            raise(new UpdaterFailedEvent(MSG_DIFF_CHANNEL));
             logger.fatal(MSG_DIFF_CHANNEL);
             return;
         }
@@ -124,7 +124,7 @@ public class UpdateManager extends ComponentManager {
         try {
             filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(updateData.get());
         } catch (MalformedURLException e) {
-            raise(new UpdaterFinishedEvent(MSG_FAIL_MAIN_APP_URL));
+            raise(new UpdaterFailedEvent(MSG_FAIL_MAIN_APP_URL));
             logger.debug(MSG_FAIL_MAIN_APP_URL);
             return;
         }
@@ -141,7 +141,7 @@ public class UpdateManager extends ComponentManager {
             downloadAllFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
             //TODO: is the progress bar updated after each file
         } catch (IOException e) {
-            raise(new UpdaterFinishedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
+            raise(new UpdaterFailedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
             logger.debug(MSG_FAIL_DOWNLOAD_UPDATE);
             return;
         }
@@ -151,7 +151,7 @@ public class UpdateManager extends ComponentManager {
         try {
             createUpdateSpecification(filesToBeUpdated);
         } catch (IOException e) {
-            raise(new UpdaterFinishedEvent(MSG_FAIL_CREATE_UPDATE_SPEC));
+            raise(new UpdaterFailedEvent(MSG_FAIL_CREATE_UPDATE_SPEC));
             logger.debug(MSG_FAIL_CREATE_UPDATE_SPEC);
             return;
         }
@@ -159,7 +159,7 @@ public class UpdateManager extends ComponentManager {
         try {
             extractJarUpdater();
         } catch (IOException e) {
-            raise(new UpdaterFinishedEvent(MSG_FAIL_EXTRACT_JAR_UPDATER));
+            raise(new UpdaterFailedEvent(MSG_FAIL_EXTRACT_JAR_UPDATER));
             logger.debug(MSG_FAIL_EXTRACT_JAR_UPDATER);
             return;
         }
