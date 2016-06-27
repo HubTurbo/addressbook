@@ -87,6 +87,7 @@ public class TagSelectionEditDialogModel {
         clearSelection(tagList);
         if (!tagIndex.isPresent()) return;
         int tagIndexToSelect = tagIndex.get();
+        // remove then add back to notify change listener
         SelectableTag tag = tagList.remove(tagIndexToSelect);
         tag.setSelected(true);
         tagList.add(tagIndexToSelect, tag);

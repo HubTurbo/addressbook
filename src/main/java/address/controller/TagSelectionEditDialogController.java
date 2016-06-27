@@ -49,8 +49,8 @@ public class TagSelectionEditDialogController extends EditDialogController {
     public void initialize() {
         transition = getPaneTransition(mainPane);
         transition.play();
-        this.model = new TagSelectionEditDialogModel();
-
+        
+        model = new TagSelectionEditDialogModel();
         addListeners();
         Platform.runLater(() -> tagSearch.requestFocus());
     }
@@ -94,35 +94,32 @@ public class TagSelectionEditDialogController extends EditDialogController {
     }
 
     /**
-     * Returns the list of nodes that represent the given list of tags
+     * Returns the list of nodes that represent the given list of selectable tags
      *
-     * @param contactTagList
+     * @param tagList
      * @return
      */
-    private List<Node> getSelectableTagListNodes(List<? extends SelectableTag> contactTagList) {
-        return contactTagList.stream()
-                .map(tag -> getNodeForSelectableTag(tag))
+    private List<Node> getSelectableTagListNodes(List<? extends SelectableTag> tagList) {
+        return tagList.stream()
+                .map(this::getNodeForSelectableTag)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
      * Returns the list of nodes that represent the given list of tags
      *
-     * @param contactTagList
+     * @param tagList
      * @return
      */
-    private List<Node> getTagListNodes(List<? extends Tag> contactTagList) {
-        return contactTagList.stream()
+    private List<Node> getTagListNodes(List<? extends Tag> tagList) {
+        return tagList.stream()
                 .map(this::getNodeForTag)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private Label getNodeForSelectableTag(SelectableTag contactTag) {
-        Label newLabel = new Label(contactTag.getName());
-        if (contactTag.isSelected()) {
-            newLabel.setStyle(STYLE_SELECTED_BACKGROUND);
-        }
-        newLabel.setPrefWidth(TAG_LABEL_WIDTH);
+        Label newLabel = getNodeForTag(contactTag);
+        if (contactTag.isSelected()) newLabel.setStyle(STYLE_SELECTED_BACKGROUND);
         return newLabel;
     }
     private Label getNodeForTag(Tag contactTag) {
@@ -136,11 +133,11 @@ public class TagSelectionEditDialogController extends EditDialogController {
      *
      * Each of the labels might be blue (selected) depending on the respective tag's isSelected() property
      *
-     * @param contactTagList
+     * @param tagList
      * @return
      */
-    private VBox getTagsVBox(List<? extends SelectableTag> contactTagList) {
-        List<Node> tagNodes = getSelectableTagListNodes(contactTagList);
+    private VBox getTagsVBox(List<? extends SelectableTag> tagList) {
+        List<Node> tagNodes = getSelectableTagListNodes(tagList);
         VBox content = new VBox();
         content.getChildren().addAll(tagNodes);
         return content;
@@ -178,7 +175,7 @@ public class TagSelectionEditDialogController extends EditDialogController {
     }
 
     private void playReversedTransition() {
-        transition.setOnFinished((e) -> dialogStage.close());
+        transition.setOnFinished(e -> dialogStage.close());
         transition.setRate(-1);
         transition.playFrom(TRANSITION_END);
     }
