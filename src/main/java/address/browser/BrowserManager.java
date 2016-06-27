@@ -59,7 +59,6 @@ public class BrowserManager {
     };
 
     public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
-        initializeJxBrowserEnvironment();
         this.selectedPersonUsername = new SimpleStringProperty();
         this.filteredPersons = filteredPersons;
     }
@@ -68,7 +67,7 @@ public class BrowserManager {
      * Initialize the application to use jxBrowser.
      * This must be called in a non-ui thread.
      */
-    private static void initializeJxBrowserEnvironment(){
+    public static void initBrowser(){
         if (Environment.isMac()) {
             BrowserCore.initialize();
         }
