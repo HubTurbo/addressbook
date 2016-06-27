@@ -333,7 +333,10 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        if (!backupHandler.createBackupOfCurrentApp()) {
+        try {
+            backupHandler.createBackupOfApp(MainApp.VERSION);
+        } catch (IOException e) {
+            logger.fatal("Failed to create backup of app; not applying update");
             return;
         }
 

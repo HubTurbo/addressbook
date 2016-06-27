@@ -33,36 +33,33 @@ public class BackupHandler {
     }
 
     /**
-     * @return true if backup is successfully made or if app is run from backup jar hence no backup need to be made
-     * //TODO: use exceptions instead of return values?
+     * Creates backup if app is not run from backup jar.
+     * No backup is made if run from backup jar.
      */
-    public boolean createBackupOfCurrentApp() {
-        //TODO: this can take the version object as a parameter
+    public void createBackupOfApp(Version version) throws IOException {
         File mainAppJar = FileUtil.getJarFileOfClass(MainApp.class);
 
         if (isRunFromBackupJar(mainAppJar.getName())) {
             logger.info("Run from a backup; not creating backup");
-            return true;
+            return;
         }
 
-        String backupFilename = getMainAppBackupFilename();
+        String backupFilename = getBackupFilename(version);
 
         try {
             FileUtil.copyFile(mainAppJar.toPath(), Paths.get(backupFilename), true);
         } catch (IOException e) {
             logger.debug("Failed to create backup", e);
-            return false;
+            throw e;
         }
-
-        return true;
     }
 
     private boolean isRunFromBackupJar(String jarName) {
         return jarName.contains(BACKUP_MARKER);
     }
 
-    private String getMainAppBackupFilename() {
-        return "addressbook" + BACKUP_MARKER + MainApp.VERSION.toString() + ".jar";
+    private String getBackupFilename(Version version) {
+        return "addressbook" + BACKUP_MARKER + version.toString() + ".jar";
     }
 
     /**
