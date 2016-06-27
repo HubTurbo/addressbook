@@ -7,6 +7,7 @@ import java.util.Optional;
 import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
+import address.util.FxViewUtil;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 
@@ -71,8 +72,7 @@ public class PersonCardController extends UiController{
             Platform.runLater(() -> cardPane.setOpacity(0.1f));
         }
 
-        double xyPositionAndRadius = profileImage.getFitHeight() / 2.0;
-        profileImage.setClip(new Circle(xyPositionAndRadius, xyPositionAndRadius, xyPositionAndRadius));
+        profileImage.setClip(FxViewUtil.getCircleClip(profileImage));
 
         initIdLabel();
         firstName.textProperty().bind(person.firstNameProperty());
@@ -170,7 +170,7 @@ public class PersonCardController extends UiController{
                     profileImage.setImage(image);
                 } else {
                     profileImage.setImage(
-                            new Image(this.getClass().getResourceAsStream("/images/default_profile_picture.png"))
+                            FxViewUtil.getDefaultProfileImage()
                     );
                 }
             }).start();

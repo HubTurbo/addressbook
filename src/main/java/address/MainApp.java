@@ -16,6 +16,7 @@ import address.util.Version;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 import java.util.List;
