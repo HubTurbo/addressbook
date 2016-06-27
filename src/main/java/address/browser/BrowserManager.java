@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 /**
  * Manages the AddressBook browser.
+ * After creating the browser manager instance, call the start method first before begin using the browser manager.
  */
 public class BrowserManager {
 
@@ -58,7 +59,7 @@ public class BrowserManager {
     };
 
     public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
-        initializeBrowser();
+        initializeJxBrowserEnvironment();
         this.selectedPersonUsername = new SimpleStringProperty();
         this.filteredPersons = filteredPersons;
     }
@@ -75,7 +76,10 @@ public class BrowserManager {
         LoggerProvider.setLevel(Level.SEVERE);
     }
 
-    public void initializeBrowser() {
+    /**
+     * Starts the browser manager.
+     */
+    public void start() {
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
             logger.info("Headless mode detected, not initializing HyperBrowser.");
