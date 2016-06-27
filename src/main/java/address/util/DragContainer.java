@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- *To contain a list of Integer.
+ *To contains Drag and Drop contents.
  */
 public class DragContainer implements Serializable{
 

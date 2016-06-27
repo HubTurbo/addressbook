@@ -168,7 +168,7 @@ public class PersonCardController extends UiController{
                     profileImage.setImage(image);
                 } else {
                     profileImage.setImage(
-                            FxViewUtil.getDefaultProfileImage()
+                            ImageManager.getDefaultProfileImage()
                     );
                 }
             }).start();

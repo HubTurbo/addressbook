@@ -40,6 +40,7 @@ public class ReorderedList<T> extends TransformationList<T, T> {
                 mappingList.addAll(c.getAddedSubList());
             }
         }
+        endChange();
         fireChange(new SourceAdapterChange<>(this, c));
     }
 
@@ -68,10 +69,11 @@ public class ReorderedList<T> extends TransformationList<T, T> {
 
         List<Integer> movedIndexes = new ArrayList<>();
 
+        //Insert it at the back of the list.
         if (destinationIndex == mappingList.size()){
             mappingList.removeAll(toMove);
             mappingList.addAll(toMove);
-            movedIndexes.addAll(collectMovedIndexes(toMove));
+            movedIndexes.addAll(collectMovedIndices(toMove));
             return movedIndexes;
         }
 
@@ -79,14 +81,15 @@ public class ReorderedList<T> extends TransformationList<T, T> {
             throw new IllegalArgumentException("The object at destinationIndex is not in the list of toMove");
         }
 
+        //Keep an object reference for insertion based on this reference.
         T destElement = mappingList.get(destinationIndex);
         mappingList.removeAll(toMove);
         mappingList.addAll(mappingList.indexOf(destElement), toMove);
-        movedIndexes.addAll(collectMovedIndexes(toMove));
+        movedIndexes.addAll(collectMovedIndices(toMove));
         return movedIndexes;
     }
 
-    private Collection<Integer> collectMovedIndexes(List<T> toMove) {
-        return toMove.stream().map(e -> mappingList.indexOf(e)).collect(Collectors.toCollection(ArrayList::new));
+    private Collection<Integer> collectMovedIndices(List<T> toMove) {
+        return toMove.stream().map(mappingList::indexOf).collect(Collectors.toCollection(ArrayList::new));
     }
 }

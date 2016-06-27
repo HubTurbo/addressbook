@@ -1,6 +1,7 @@
 package address.ui;
 
 import address.controller.PersonCardController;
+import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import address.util.DragContainer;
@@ -9,8 +10,13 @@ import address.util.collections.ReorderedList;
 import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import javafx.collections.ObservableList;
 
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ListCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,7 +48,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
                                               .stream()
                                               .map(p -> p.getId()).collect(Collectors.toCollection(ArrayList::new)));
             content.put(DragContainer.ADDRESS_BOOK_PERSON_UUID, container);
-            dragBoard.setDragView(FxViewUtil.getDragView(this.getListView().getSelectionModel().getSelectedItems()));
+            dragBoard.setDragView(getDragView(this.getListView().getSelectionModel().getSelectedItems()));
             dragBoard.setContent(content);
             event.consume();
         });
@@ -58,7 +64,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
                 event.acceptTransferModes(TransferMode.MOVE);
                 showDragDropIndicator(event);
             }
-            scroll(event);
+            edgeScroll(event);
 
             event.consume();
         });
@@ -111,8 +117,30 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         setOnDragDone(DragEvent::consume);
     }
 
+    private Image getDragView(List<ReadOnlyViewablePerson> draggedPersons) {
+        HBox container = new HBox(5);
+        draggedPersons.stream().forEach(p -> {
+            Optional<String> profilePicUrl = p.githubProfilePicUrl();
+            ImageView imageView;
+
+            if (profilePicUrl.isPresent()) {
+                imageView = new ImageView(ImageManager.getInstance().getImage(profilePicUrl.get()));
+            } else {
+                imageView = new ImageView(ImageManager.getDefaultProfileImage());
+            }
+
+            imageView.setFitHeight(50.0);
+            imageView.setFitWidth(50.0);
+            FxViewUtil.configureCircularImageView(imageView);
+            container.getChildren().add(imageView);
+        });
+        SnapshotParameters para = new SnapshotParameters();
+        para.setFill(Color.TRANSPARENT);
+        return container.snapshot(para, null);
+    }
+
     /**
-     * Select this indexes in the list view selection model.
+     * Select this indices in the list view selection model.
      * @param movedIndexes
      */
     private void selectIndexes(Collection<Integer> movedIndexes) {
@@ -162,7 +190,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
      * Scrolls up or down if pointer reaches the edge(top and bottom) of the listview.
      * @param event
      */
-    private void scroll(DragEvent event) {
+    private void edgeScroll(DragEvent event) {
         double maxY = getListView().localToScene(getListView().getBoundsInLocal()).getMaxY();
         double minY = getListView().localToScene(getListView().getBoundsInLocal()).getMinY();
         Optional<VirtualScrollBar> scrollbar = FxViewUtil.getScrollBarFromListView(getListView());
