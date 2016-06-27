@@ -40,7 +40,7 @@ public class UpdateManager extends ComponentManager {
     private static final String MSG_NO_UPDATE = "There is no update";
     private static final String MSG_NO_VERSION_AVAILABLE = "No version to be downloaded";
     private static final String MSG_NO_NEWER_VERSION = "Version has been downloaded before; will not download again";
-    private static final String MSG_DIFF_CHANNEL = "UpdateData is not for this release channel";
+    private static final String MSG_DIFF_CHANNEL = "UpdateData is for wrong release channel - contact developer";
     // --- End of Messages
 
     private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
@@ -105,10 +105,9 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        if (latestVersion.get().isEarlyAccess() != MainApp.VERSION.isEarlyAccess()) {
+        if (isOnSameUpdateChannel(latestVersion.get())) {
             raise(new UpdaterFinishedEvent(MSG_DIFF_CHANNEL));
-            logger.debug(MSG_DIFF_CHANNEL);
-            //TODO: how could this happen?
+            logger.fatal(MSG_DIFF_CHANNEL);
             return;
         }
 
@@ -212,6 +211,10 @@ public class UpdateManager extends ComponentManager {
         }
 
         return Optional.empty();
+    }
+
+    private boolean isOnSameUpdateChannel(Version version) {
+        return version.isEarlyAccess() != MainApp.VERSION.isEarlyAccess();
     }
 
     private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(UpdateData updateData)
