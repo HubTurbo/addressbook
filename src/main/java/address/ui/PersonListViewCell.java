@@ -9,13 +9,11 @@ import address.util.collections.ReorderedList;
 import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import javafx.collections.ObservableList;
 
-import javafx.geometry.Rectangle2D;
-
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,13 +40,6 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             container.addAllData(getListView().getSelectionModel().getSelectedItems().stream().map(p
                                                         -> p.getId()).collect(Collectors.toCollection(ArrayList::new)));
             content.put(DragContainer.ADDRESS_BOOK_PERSON_UUID, container);
-            SnapshotParameters para = new SnapshotParameters();
-            double lvOffset = this.getListView().localToParent(this.getListView().getBoundsInLocal()).getMinY();
-            double cardOffset = this.localToParent(this.getBoundsInLocal()).getMinY();
-            double snapShotWidth = this.getWidth();
-            double snapShotHeight = this.getHeight() * getListView().getSelectionModel().getSelectedIndices().size();
-            para.setViewport(new Rectangle2D(0, lvOffset + cardOffset, snapShotWidth, snapShotHeight));
-            //dragBoard.setDragView(this.getListView().snapshot(para, null));
             dragBoard.setDragView(FxViewUtil.getDragView(this.getListView().getSelectionModel().getSelectedItems()));
             dragBoard.setContent(content);
             event.consume();
@@ -63,9 +54,9 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             if (event.getGestureSource() != this &&
                     event.getDragboard().hasContent(DragContainer.ADDRESS_BOOK_PERSON_UUID)) {
                 event.acceptTransferModes(TransferMode.MOVE);
-                showDropLocationIndicator(event);
+                showDragDropIndicator(event);
             }
-            scrollIfPointerAtScrollArea(event);
+            scroll(event);
 
             event.consume();
         });
@@ -103,51 +94,54 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             if (dragboard.hasContent(DragContainer.ADDRESS_BOOK_PERSON_UUID)) {
                 DragContainer container = (DragContainer) dragboard.getContent(DragContainer.ADDRESS_BOOK_PERSON_UUID);
                 ObservableList<ReadOnlyViewablePerson> listsOfPerson = getListView().getItems();
-                List<ReadOnlyViewablePerson> listOfDragPersons = listsOfPerson.stream().filter(p -> container.getData().contains(p.getId())).collect(Collectors.toCollection(ArrayList::new));
-                moveCell(reorderedList, event.getSceneY(), listOfDragPersons);
+                List<ReadOnlyViewablePerson> listOfDragPersons =
+                        listsOfPerson.stream()
+                                     .filter(p -> container.getData()
+                                                           .contains(p.getId()))
+                                                           .collect(Collectors.toCollection(ArrayList::new));
+                int moveToIndex = computeMoveToIndex(event.getSceneY(), listOfDragPersons);
+                Collection<Integer> movedIndexes = reorderedList.moveElements(listOfDragPersons, moveToIndex);
+                selectIndexes(movedIndexes);
             }
             event.setDropCompleted(true);
             event.consume();
         });
-
         setOnDragDone(DragEvent::consume);
+    }
 
+    private void selectIndexes(Collection<Integer> movedIndexes) {
+        movedIndexes.stream().forEach(index -> getListView().getSelectionModel().select(index));
     }
 
     /**
-     * Moves the cell from the drag source to the edge of the nearest cell .
-     * @param sortedList The ReorderedList.
-     * @param currentYPosition  The current Y position relative to the attached scene.
+     * Computes the edge index(nearest edge based on the current Y Position)
+     * of the listview to insert the dragged persons.
+     * @param currentYPosition The current Y position relative to the attached scene.
+     * @param listOfDragPersons The list of persons who are currently dragged.
+     * @return
      */
-    private void moveCell(ReorderedList sortedList, double currentYPosition, List<ReadOnlyViewablePerson> listOfDragPersons) {
-        ObservableList<ReadOnlyViewablePerson> list = getListView().getItems();
+    private int computeMoveToIndex(double currentYPosition, List<ReadOnlyViewablePerson> listOfDragPersons) {
+        int moveToIndex;
+        ObservableList<ReadOnlyViewablePerson> list = this.getListView().getItems();
+        double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
+        getListView().getSelectionModel().clearSelection();
+        if (currentYPosition < midPoint) {
+            moveToIndex = list.indexOf(getItem());
+        } else {
+            moveToIndex = list.indexOf(getItem()) + 1;
+        }
 
-        //TODO: rewrite moveElement to handle multiple item moves.
-        // Just collect a list of item(order matters) to move, then call the moveElements().
-        listOfDragPersons.stream().forEach(personToMove -> {
-            int moveToIndex;
-            double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
-
-            if (currentYPosition < midPoint) {
-                moveToIndex = list.indexOf(getItem());
-            } else {
-                moveToIndex = list.indexOf(getItem()) + 1;
-            }
-
-            int moveFromIndex = list.indexOf(personToMove);
-            if (moveFromIndex != moveToIndex && moveFromIndex + 1 != moveToIndex) {
-                sortedList.moveElement(moveFromIndex, moveToIndex);
-                getListView().getSelectionModel().clearAndSelect(list.indexOf(personToMove));
-            }
-        });
-
+        while (moveToIndex < list.size() && listOfDragPersons.contains(list.get(moveToIndex))) {
+            moveToIndex++;
+        }
+        return moveToIndex;
     }
 
     /**
      * Shows where the drag cell will be placed by showing an indicator on the listview.
      * @param event
      */
-    private void showDropLocationIndicator(DragEvent event) {
+    private void showDragDropIndicator(DragEvent event) {
         double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
         double pointerY = event.getSceneY();
         if (pointerY < midPoint) {
@@ -161,7 +155,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
      * Scrolls up or down if pointer reaches the edge(top and bottom) of the listview.
      * @param event
      */
-    private void scrollIfPointerAtScrollArea(DragEvent event) {
+    private void scroll(DragEvent event) {
         double maxY = getListView().localToScene(getListView().getBoundsInLocal()).getMaxY();
         double minY = getListView().localToScene(getListView().getBoundsInLocal()).getMinY();
         Optional<VirtualScrollBar> scrollbar = FxViewUtil.getScrollBarFromListView(getListView());

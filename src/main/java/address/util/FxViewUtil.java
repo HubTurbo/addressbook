@@ -4,18 +4,15 @@ import address.MainApp;
 import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import com.sun.javafx.scene.control.skin.VirtualScrollBar;
-import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import java.util.List;
@@ -53,10 +50,13 @@ public class FxViewUtil {
             imageView.setFitHeight(50.0);
             imageView.setFitWidth(50.0);
             imageView.setClip(getCircleClip(imageView));
-            container.setStyle("-fx-background-color: rgba(0, 0, 0, 0);");
+            imageView.setStyle("-fx-background-color: transparent;");
+            container.setStyle("-fx-background-color: transparent;");
             container.getChildren().add(imageView);
         });
-        return container.snapshot(new SnapshotParameters(), null);
+        SnapshotParameters para = new SnapshotParameters();
+        para.setFill(Color.TRANSPARENT);
+        return container.snapshot(para, null);
     }
 
     public static Image getDefaultProfileImage() {
