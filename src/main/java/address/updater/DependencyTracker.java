@@ -34,13 +34,12 @@ public class DependencyTracker {
             //TODO: need better error handling
             //TODO: use early return to avoid else clause
         } else {
-            updateVersionDependency(MainApp.VERSION,
+            updateVersionDependencies(MainApp.VERSION,
                     new ArrayList<>(Arrays.asList(classPath.get().split("\\s+"))));
         }
     }
 
-    public void updateVersionDependency(Version version, List<String> verDependencies) {
-        //TODO: updateVersionDependencies?
+    public void updateVersionDependencies(Version version, List<String> verDependencies) {
         dependenciesForVersionsInUse.put(version, verDependencies);
         writeVersionDependency();
     }
