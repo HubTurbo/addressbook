@@ -1,8 +1,8 @@
 package installer;
 //TODO: does this need to be a separate package?
 
-import address.updater.model.LibraryDescriptor;
-import address.updater.model.UpdateData;
+import address.updater.LibraryDescriptor;
+import address.updater.UpdateData;
 import address.util.*;
 import javafx.application.Application;
 import javafx.application.Platform;

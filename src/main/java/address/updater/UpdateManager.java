@@ -4,7 +4,6 @@ import address.MainApp;
 import address.events.UpdaterFinishedEvent;
 import address.events.UpdaterInProgressEvent;
 import address.main.ComponentManager;
-import address.updater.model.UpdateData;
 import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 

@@ -1,7 +1,6 @@
 package address.updater;
 
 import address.MainApp;
-import address.updater.model.UpdateData;
 import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

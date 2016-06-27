@@ -1,4 +1,4 @@
-package address.updater.model;
+package address.updater;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

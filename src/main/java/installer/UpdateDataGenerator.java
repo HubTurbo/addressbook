@@ -1,12 +1,11 @@
 package installer;
 
 import address.MainApp;
-import address.updater.model.LibraryDescriptor;
-import address.updater.model.UpdateData;
+import address.updater.LibraryDescriptor;
+import address.updater.UpdateData;
 import address.util.FileUtil;
 import address.util.JsonUtil;
 import address.util.OsDetector;
-import address.util.Version;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,6 +1,4 @@
-package address.updater.model;
-//TODO: perhaps no need to have a model package here (to avoid confusion with other model packages)
-
+package address.updater;
 
 import address.util.OsDetector;
 
