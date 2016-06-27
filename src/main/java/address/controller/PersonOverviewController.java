@@ -141,7 +141,7 @@ public class PersonOverviewController extends UiController{
      */
     @FXML
     private void handleNewPerson() {
-        Optional<ReadOnlyPerson> inputData = Optional.of(Person.createPersonDataContainer());
+        Optional<ReadOnlyPerson> inputData = mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person");
         if (inputData.isPresent()) {
             ReadOnlyPerson added = modelManager.addPerson(new Person(inputData.get()));
             mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(added));
