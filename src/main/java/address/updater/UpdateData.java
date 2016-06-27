@@ -19,7 +19,7 @@ public class UpdateData {
     private URL mainAppDownloadLink;
     private ArrayList<LibraryDescriptor> libraries = new ArrayList<>();
 
-    public UpdateData() {}
+    public UpdateData() {} // required for serialization
 
     public String getVersion() {
         return versionString;

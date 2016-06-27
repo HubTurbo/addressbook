@@ -13,8 +13,7 @@ public class LibraryDescriptor {
     private URL downloadLink;
     private OsDetector.Os os;
 
-    public LibraryDescriptor() {}
-    //TODO: not used?
+    public LibraryDescriptor() {} // required for serialization
 
     public LibraryDescriptor(String filename, URL downloadLink, OsDetector.Os os) {
         this.filename = filename;
