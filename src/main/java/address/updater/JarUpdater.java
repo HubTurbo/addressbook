@@ -35,6 +35,8 @@ public class JarUpdater extends Application {
 
     private static final int MAX_RETRY = 10;
     private static final int WAIT_TIME = 2000;
+    private static final String ERROR_ON_RUNNING_APP_MESSAGE = "Application not called properly, " +
+                                                               " please contact developer.";
     private static final String ERROR_ON_UPDATING_MESSAGE = "There was an error in updating.";
     
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
@@ -51,7 +53,7 @@ public class JarUpdater extends Application {
                 run();
             } catch (IllegalArgumentException e) {
                 logger.info(e.getMessage());
-                //TODO: is this error handling enough?
+                showInvalidProgramArgumentErrorDialog();
             } catch (IOException e) {
                 logger.info(e.getMessage());
                 showErrorOnUpdatingDialog();
@@ -160,12 +162,19 @@ public class JarUpdater extends Application {
         throw new IOException("Jar file cannot be updated. Most likely is in use by another process.");
     }
 
+    private void showInvalidProgramArgumentErrorDialog() {
+        showErrorDialog("Failed to run updater", ERROR_ON_RUNNING_APP_MESSAGE);
+    }
+
     private void showErrorOnUpdatingDialog() {
-        String header = "Failed to update";
+        showErrorDialog("Failed to update", ERROR_ON_UPDATING_MESSAGE);
+    }
+
+    private void showErrorDialog(String header, String message) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText(header);
-            alert.setContentText(ERROR_ON_UPDATING_MESSAGE);
+            alert.setContentText(message);
             alert.showAndWait();
             stop();
         });
