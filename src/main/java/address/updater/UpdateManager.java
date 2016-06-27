@@ -55,7 +55,7 @@ public class UpdateManager extends ComponentManager {
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final DependencyTracker dependencyTracker;
-    private final BackupManager backupManager;
+    private final BackupHandler backupHandler;
     private final List<Version> downloadedVersions;
 
     private boolean isUpdateApplicable;
@@ -64,7 +64,7 @@ public class UpdateManager extends ComponentManager {
         super();
         this.isUpdateApplicable = false;
         dependencyTracker = new DependencyTracker();
-        backupManager = new BackupManager(dependencyTracker);
+        backupHandler = new BackupHandler(dependencyTracker);
         downloadedVersions = readDownloadedVersionsFromFile();
     }
 
@@ -74,7 +74,7 @@ public class UpdateManager extends ComponentManager {
 
     public void start() {
         logger.info("Starting update manager.");
-        pool.execute(backupManager::cleanupBackups);
+        pool.execute(backupHandler::cleanupBackups);
         pool.execute(this::checkForUpdate);
     }
 
@@ -337,7 +337,7 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        if (!backupManager.createBackupOfCurrentApp()) {
+        if (!backupHandler.createBackupOfCurrentApp()) {
             return;
         }
 

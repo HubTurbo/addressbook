@@ -17,9 +17,8 @@ import java.util.stream.Collectors;
 /**
  * Deletes backup apps and their dependencies that are no longer used.
  */
-public class BackupManager {
-    //TODO: should not be named a manager as it does not deal with events
-    private static final AppLogger logger = LoggerManager.getLogger(BackupManager.class);
+public class BackupHandler {
+    private static final AppLogger logger = LoggerManager.getLogger(BackupHandler.class);
     private static final int MAX_BACKUP_JAR_KEPT = 3;
     private static final String BACKUP_MARKER = "_";
     private static final String BACKUP_FILENAME_STRING_FORMAT =
@@ -29,7 +28,7 @@ public class BackupManager {
 
     private DependencyTracker dependencyTracker;
 
-    public BackupManager(DependencyTracker dependencyTracker) {
+    public BackupHandler(DependencyTracker dependencyTracker) {
         this.dependencyTracker = dependencyTracker;
     }
 
