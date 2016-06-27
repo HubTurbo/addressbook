@@ -44,6 +44,8 @@ public class BrowserManager {
 
     private StringProperty selectedPersonUsername;
 
+    private BrowserType type;
+
     private ChangeListener<String> listener = (observable,  oldValue,  newValue) -> {
         try {
             URL url = new URL(GITHUB_ROOT_URL + newValue);
@@ -58,8 +60,9 @@ public class BrowserManager {
         }
     };
 
-    public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
+    public BrowserManager(BrowserType type, ObservableList<ReadOnlyViewablePerson> filteredPersons) {
         this.selectedPersonUsername = new SimpleStringProperty();
+        this.type = type;
         this.filteredPersons = filteredPersons;
     }
 
@@ -67,12 +70,14 @@ public class BrowserManager {
      * Initialize the application to use jxBrowser.
      * This must be called in a non-ui thread.
      */
-    public static void initBrowser(){
-        if (Environment.isMac()) {
-            BrowserCore.initialize();
+    public void initBrowser(){
+        if (type == BrowserType.FULL_FEATURE_BROWSER) {
+            if (Environment.isMac()) {
+                BrowserCore.initialize();
+            }
+            logger.debug("Suppressing browser logs");
+            LoggerProvider.setLevel(Level.SEVERE);
         }
-        logger.debug("Suppressing browser logs");
-        LoggerProvider.setLevel(Level.SEVERE);
     }
 
     /**

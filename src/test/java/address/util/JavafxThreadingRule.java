@@ -1,13 +1,9 @@
 package address.util;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import javax.swing.SwingUtilities;
 
-import address.browser.BrowserManager;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
@@ -37,15 +33,6 @@ public class JavafxThreadingRule implements TestRule {
     private static boolean jfxIsSetup;
 
     public JavafxThreadingRule() {
-        ExecutorService executor = Executors.newFixedThreadPool(1);
-
-        Runnable task = () -> BrowserManager.initBrowser();
-        Future<?> future = executor.submit(task);
-        try {
-            future.get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
