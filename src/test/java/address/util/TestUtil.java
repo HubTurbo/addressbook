@@ -2,6 +2,7 @@ package address.util;
 
 import address.TestApp;
 import address.model.datatypes.AddressBook;
+import address.model.datatypes.ReadOnlyAddressBook;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ViewablePerson;
 import address.model.datatypes.tag.Tag;
@@ -56,10 +57,14 @@ public class TestUtil {
     }
 
     public static void createDataFileWithSampleData(String filePath) {
+        createDataFileWithData(generateSampleStorageAddressBook(), filePath);
+    }
+
+    public static void createDataFileWithData(StorageAddressBook data, String filePath) {
         try {
             File saveFileForTesting = new File(filePath);
             FileUtil.createIfMissing(saveFileForTesting);
-            XmlUtil.saveDataToFile(saveFileForTesting, generateSampleStorageAddressBook());
+            XmlUtil.saveDataToFile(saveFileForTesting, data);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

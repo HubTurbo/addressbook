@@ -24,6 +24,10 @@ public class KeySequence extends KeyBinding{
         this.secondKeyCombination = secondKeyCombination;
     }
 
+    public KeyCombination getSecondKeyCombination(){
+        return secondKeyCombination;
+    }
+
     @Override
     public String toString(){
         return "Key sequence " + getDisplayText() + ", " + secondKeyCombination.getDisplayText();

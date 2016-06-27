@@ -188,16 +188,20 @@ public class StorageManager extends ComponentManager {
     public void start() {
         logger.info("Starting storage manager.");
         loadDataFromFile(prefs.getSaveLocation());
-        raise(new SaveLocationChangedEvent(prefs.getSaveLocation()));
     }
 
     protected void loadDataFromFile(File dataFile) {
         try {
             logger.debug("Attempting to load data from file: {}", dataFile);
-            modelManager.resetData(XmlFileStorage.loadDataFromSaveFile(dataFile));
+            modelManager.resetData(getData());
         } catch (FileNotFoundException | DataConversionException e) {
             logger.debug("Error loading data from file: {}", e);
             raise(new FileOpeningExceptionEvent(e, dataFile));
         }
+    }
+
+    public ReadOnlyAddressBook getData() throws FileNotFoundException, DataConversionException {
+        logger.debug("Attempting to read data from file: {}", prefs.getSaveLocation());
+        return XmlFileStorage.loadDataFromSaveFile(prefs.getSaveLocation());
     }
 }
