@@ -27,7 +27,8 @@ import java.util.concurrent.Executors;
  * If you made any changes to this class, run gradle task compileJarUpdater
  *
  * Options:
- * --update-specification
+ * --update-specification the update specification file on which files to be updated
+ * --source-dir the main directory which files to be updated
  */
 public class JarUpdater extends Application {
     private static final AppLogger logger = LoggerManager.getLogger(JarUpdater.class);
@@ -125,11 +126,14 @@ public class JarUpdater extends Application {
     }
 
     /**
+     * Applies update to a file.
+     *
+     * Technically replaces a file with a newer version with a guard to wait until the file is modifiable.
+     *
      * In some platforms (Windows in particular), JAR file cannot be modified if it was executed and
-     * the process has not ended yet. As such, we will make several tries with wait.
+     * the process it created has not ended yet. As such, we will make several tries with wait.
      */
     private void applyUpdate(Path source, Path dest) throws IOException {
-        //TODO: this method is about moving a file rather than applying an update?
         logger.info("Applying update for {}", dest.toString());
 
         if (!FileUtil.isFileExists(dest.toString())) {
