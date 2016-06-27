@@ -1,12 +1,11 @@
 package address;
 
-import address.browser.BrowserManager;
-import address.controller.MainController;
 import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
 import address.model.UserPrefs;
 import address.storage.StorageManager;
 import address.sync.SyncManager;
+import address.ui.Ui;
 import address.updater.UpdateManager;
 import address.util.AppLogger;
 import address.util.Config;
@@ -37,7 +36,7 @@ public class MainApp extends Application {
     protected ModelManager modelManager;
     protected SyncManager syncManager;
     protected UpdateManager updateManager;
-    protected MainController mainController;
+    protected Ui ui;
     protected KeyBindingsManager keyBindingsManager;
     protected Config config;
     protected UserPrefs userPrefs;
@@ -50,7 +49,6 @@ public class MainApp extends Application {
         super.init();
         config = initConfig();
         userPrefs = initPrefs(config);
-        BrowserManager.initializeJxBrowserEnvironment();
         initComponents(config, userPrefs);
     }
 
@@ -70,7 +68,7 @@ public class MainApp extends Application {
 
         modelManager = new ModelManager(userPrefs);
         storageManager = new StorageManager(modelManager, config, userPrefs);
-        mainController = new MainController(this, modelManager, config);
+        ui = new Ui(this, modelManager, config);
         syncManager = new SyncManager(config);
         keyBindingsManager = new KeyBindingsManager();
         updateManager = new UpdateManager();
@@ -81,7 +79,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         logger.info("Starting application: {}", Version.getCurrentVersion());
-        mainController.start(primaryStage);
+        ui.start(primaryStage);
         updateManager.start();
         storageManager.start();
         syncManager.start();
@@ -101,7 +99,7 @@ public class MainApp extends Application {
             String missingDependenciesMessage = message.toString().trim();
             logger.warn(missingDependenciesMessage);
 
-            mainController.showAlertDialogAndWait(Alert.AlertType.WARNING, "Missing Dependencies",
+            ui.showAlertDialogAndWait(Alert.AlertType.WARNING, "Missing Dependencies",
                     "There are missing dependencies. App may not work properly.",
                     missingDependenciesMessage);
         }
@@ -110,7 +108,7 @@ public class MainApp extends Application {
     @Override
     public void stop() {
         logger.info("Stopping application.");
-        mainController.stop();
+        ui.stop();
         updateManager.stop();
         keyBindingsManager.stop();
         Platform.exit();
