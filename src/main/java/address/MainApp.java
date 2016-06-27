@@ -67,7 +67,7 @@ public class MainApp extends Application {
         LoggerManager.init(config);
 
         modelManager = new ModelManager(userPrefs);
-        storageManager = new StorageManager(modelManager, config, userPrefs);
+        storageManager = new StorageManager(modelManager::resetData, config, userPrefs);
         ui = new Ui(this, modelManager, config);
         syncManager = new SyncManager(config);
         keyBindingsManager = new KeyBindingsManager();

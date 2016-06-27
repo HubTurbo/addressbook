@@ -12,6 +12,7 @@ import com.google.common.eventbus.Subscribe;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
  * Manages storage of addressbook data in local disk.
@@ -22,13 +23,12 @@ public class StorageManager extends ComponentManager {
     private static final String CONFIG_FILE = "config.json";
     private Config config;
 
-
-    private ModelManager modelManager;
+    private final Consumer<ReadOnlyAddressBook> loadedDataCallback;
     private UserPrefs prefs;
 
-    public StorageManager(ModelManager modelManager, Config config, UserPrefs prefs) {
+    public StorageManager(Consumer<ReadOnlyAddressBook> loadedDataCallback, Config config, UserPrefs prefs) {
         super();
-        this.modelManager = modelManager;
+        this.loadedDataCallback = loadedDataCallback;
         this.prefs = prefs;
         this.config = config;
     }
@@ -193,7 +193,7 @@ public class StorageManager extends ComponentManager {
     protected void loadDataFromFile(File dataFile) {
         try {
             logger.debug("Attempting to load data from file: {}", dataFile);
-            modelManager.resetData(getData());
+            loadedDataCallback.accept(getData());
         } catch (FileNotFoundException | DataConversionException e) {
             logger.debug("Error loading data from file: {}", e);
             raise(new FileOpeningExceptionEvent(e, dataFile));

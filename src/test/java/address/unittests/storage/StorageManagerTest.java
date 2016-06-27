@@ -53,7 +53,7 @@ public class StorageManagerTest {
         eventManagerMock = Mockito.mock(EventManager.class);
         configMock = Mockito.mock(Config.class);
         when(configMock.getPrefsFileLocation()).thenReturn(DUMMY_PREFS_FILE);
-        storageManager = new StorageManager(modelManagerMock, configMock, userPrefsMock);
+        storageManager = new StorageManager(modelManagerMock::resetData, configMock, userPrefsMock);
         storageManager.setEventManager(eventManagerMock);
 
         // This spy will be used to mock only one method of the object under test
