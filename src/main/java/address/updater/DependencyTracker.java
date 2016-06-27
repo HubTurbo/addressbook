@@ -28,13 +28,11 @@ public class DependencyTracker {
         Optional<String> classPath = getClassPathAttributeFromManifest();
 
         if (!classPath.isPresent()) {
-            logger.debug("Class-path undefined");
-            //TODO: need better error handling
-            //TODO: use early return to avoid else clause
-        } else {
-            updateVersionDependencies(MainApp.VERSION,
-                    new ArrayList<>(Arrays.asList(classPath.get().split("\\s+"))));
+            logger.debug("Class-path undefined - not running from JAR, will not update version dependencies");
+            return;
         }
+
+        updateVersionDependencies(MainApp.VERSION, new ArrayList<>(Arrays.asList(classPath.get().split("\\s+"))));
     }
 
     /**
