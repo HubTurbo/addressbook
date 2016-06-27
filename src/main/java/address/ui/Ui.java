@@ -15,8 +15,6 @@ public class Ui {
     MainController mainController;
 
     public Ui(MainApp mainApp, ModelManager modelManager, Config config){
-        BrowserManager.initializeJxBrowserEnvironment();
-        //TODO: this should not be here because at this point we are not even sure which browser will be used
         mainController = new MainController(mainApp, modelManager, config);
     }
 

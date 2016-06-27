@@ -82,7 +82,7 @@ public class MainController extends UiController{
     public void start(Stage primaryStage) {
         logger.info("Starting main controller.");
         this.primaryStage = primaryStage;
-        this.browserManager.initializeBrowser();
+        this.browserManager.start();
         primaryStage.setTitle(config.appTitle);
 
         // Set the application icon.
