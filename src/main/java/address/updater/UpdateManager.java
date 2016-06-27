@@ -136,17 +136,15 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        raise(new UpdaterInProgressEvent("Downloading updates", 0.5));
         try {
             downloadAllFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
-            //TODO: is the progress bar updated after each file
         } catch (IOException e) {
             raise(new UpdaterFailedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
             logger.debug(MSG_FAIL_DOWNLOAD_UPDATE);
             return;
         }
 
-        raise(new UpdaterInProgressEvent("Finalizing updates", 0.85));
+        raise(new UpdaterInProgressEvent("Finalizing updates", -1));
 
         try {
             createUpdateSpecification(filesToBeUpdated);
@@ -255,6 +253,9 @@ public class UpdateManager extends ComponentManager {
             }
         }
 
+        int noOfFilesTobeDownloaded = filesToBeUpdated.keySet().size();
+        int noOfFilesDownloaded = 0;
+
         for (String destFile : filesToBeUpdated.keySet()) {
             try {
                 downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
@@ -262,6 +263,10 @@ public class UpdateManager extends ComponentManager {
                 logger.debug("Failed to download an update file, aborting update.");
                 throw e;
             }
+
+            noOfFilesDownloaded++;
+            double progress = (1.0 * noOfFilesDownloaded) / noOfFilesTobeDownloaded;
+            raise(new UpdaterInProgressEvent("Downloading updates", progress));
         }
     }
 
