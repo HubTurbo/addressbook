@@ -12,7 +12,6 @@ import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.keybindings.KeyBindingsManager;
 import address.parser.qualifier.TrueQualifier;
-import address.status.PersonCreatedStatus;
 import address.status.PersonDeletedStatus;
 import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
@@ -119,17 +118,14 @@ public class PersonOverviewController extends UiController{
      */
     @FXML
     private void handleDeletePersons() {
-        List<Integer> selectedIndexes = personListView.getSelectionModel().getSelectedIndices();
+        final List<Integer> selectedIndexes = personListView.getSelectionModel().getSelectedIndices();
         selectedIndexes.stream().forEach(selectedIndex -> {
             if (selectedIndex >= 0) {
                 final ReadOnlyPerson deleteTarget = personListView.getItems().get(selectedIndex);
                 mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(deleteTarget));
-
                 modelManager.delayedDeletePerson(deleteTarget, 1, TimeUnit.SECONDS);
             } else {
-                // Nothing selected.
-                mainController.showAlertDialogAndWait(AlertType.WARNING,
-                        "No Selection", "No Person Selected", "Please select a person in the list.");
+                showNoSelectionAlert(); // Nothing selected.
             }
         });
     }
@@ -155,7 +151,7 @@ public class PersonOverviewController extends UiController{
             selectedPersons.stream().forEach(p -> {
                 Person editedPerson = new Person(p);
                 editedPerson.setTags(listOfFinalAssignedTags.get());
-                modelManager.updatePerson(p, editedPerson);
+                modelManager.updatePersonFromUI(p, () -> Optional.of(editedPerson));
             });
         }
     }
@@ -168,22 +164,22 @@ public class PersonOverviewController extends UiController{
     private void handleEditPerson() {
         final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
         if (editTarget == null) { // no selection
-            mainController.showAlertDialogAndWait(AlertType.WARNING, "No Selection",
-                "No Person Selected", "Please select a person in the list.");
+            showNoSelectionAlert();
             return;
         }
-
-        Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person(editTarget));
-        do {
-            prevInputData = mainController.getPersonDataInput(prevInputData.get(), "Edit Person");
-        } while (prevInputData.isPresent() && !updatePerson(editTarget, prevInputData.get()));
+        modelManager.updatePersonFromUI(editTarget, () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
     }
 
-    private boolean updatePerson(ReadOnlyPerson oldPerson, ReadOnlyPerson newPerson) {
-        modelManager.updatePerson(oldPerson, newPerson);
-        mainController.getStatusBarHeaderController().postStatus(
-                new PersonEditedStatus(new Person(oldPerson), newPerson));
-        return true;
+    private void handleCancelPersonOperations() {
+        final List<Integer> selectedIndexes = personListView.getSelectionModel().getSelectedIndices();
+        selectedIndexes.stream().forEach(selectedIndex -> {
+            if (selectedIndex >= 0) {
+                final ReadOnlyPerson cancelTarget = personListView.getItems().get(selectedIndex);
+                modelManager.cancelPersonChangeCommand(cancelTarget);
+            } else {
+                showNoSelectionAlert(); // Nothing selected.
+            }
+        });
     }
 
     @FXML
@@ -208,18 +204,23 @@ public class PersonOverviewController extends UiController{
     private ContextMenu createContextMenu() {
         final ContextMenu contextMenu = new ContextMenu();
 
-        MenuItem editMenuItem = new MenuItem("Edit");
+        final MenuItem editMenuItem = new MenuItem("Edit");
         editMenuItem.disableProperty().bind(isEditDisabled);
         editMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("PERSON_EDIT_ACCELERATOR").get());
         editMenuItem.setOnAction(e -> handleEditPerson());
-        MenuItem deleteMenuItem = new MenuItem("Delete");
+
+        final MenuItem deleteMenuItem = new MenuItem("Delete");
         deleteMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("PERSON_DELETE_ACCELERATOR").get());
         deleteMenuItem.setOnAction(e -> handleDeletePersons());
-        MenuItem tagMenuItem = new MenuItem("Tag");
+
+        final MenuItem tagMenuItem = new MenuItem("Tag");
         tagMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("PERSON_TAG_ACCELERATOR").get());
         tagMenuItem.setOnAction(e -> handleRetagPersons());
 
-        contextMenu.getItems().addAll(editMenuItem, deleteMenuItem, tagMenuItem);
+        final MenuItem cancelOperationMenuItem = new MenuItem("Cancel");
+        cancelOperationMenuItem.setOnAction(e -> handleCancelPersonOperations());
+
+        contextMenu.getItems().addAll(editMenuItem, deleteMenuItem, tagMenuItem, cancelOperationMenuItem);
         contextMenu.setId("personListContextMenu");
         return contextMenu;
     }
@@ -252,6 +253,11 @@ public class PersonOverviewController extends UiController{
         }
 
         selectItem(indexOfItem);
+    }
+
+    private void showNoSelectionAlert() {
+        mainController.showAlertDialogAndWait(AlertType.WARNING,
+                "No Selection", "No Person Selected", "Please select a person in the list.");
     }
 
     /**

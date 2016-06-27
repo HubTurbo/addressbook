@@ -60,7 +60,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         backingModel = new AddressBook(src);
         visibleModel = backingModel.createVisibleAddressBook();
 
-        // update changes need to go through #updatePerson or #updateTag to trigger the LMCEvent
+        // update changes need to go through #updatePersonFromUI or #updateTag to trigger the LMCEvent
         final ListChangeListener<Object> modelChangeListener = change -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
@@ -156,19 +156,46 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      */
     public synchronized void createPersonFromUI(Callable<Optional<ReadOnlyPerson>> userInputRetriever) {
         final int GRACE_PERIOD_DURATION = 3;
-        final Supplier<Optional<ReadOnlyPerson>> fxThreadedInputRetriever = () -> {
-          try {
-              return PlatformExecUtil.callLater(userInputRetriever).get();
-          } catch (InterruptedException | ExecutionException e) {
-              e.printStackTrace();
-              return Optional.empty(); // execution exception, unable to retrieve data
-          }
-        };
+        final Supplier<Optional<ReadOnlyPerson>> fxThreadedInputRetriever =
+                wrapCallableForFxExecution(userInputRetriever, Optional.empty());
         commandExecutor.execute(new AddPersonCommand(fxThreadedInputRetriever, GRACE_PERIOD_DURATION, eventManager, this));
     }
 
-    public synchronized void cancelPersonChangeCommand(ReadOnlyPerson target) {
+    /**
+     * Updates the details of a Person object. Updates to Person objects should be
+     * done through this method to ensure the proper events are raised to indicate
+     * a change to the model. TODO listen on Person properties and not manually raise events here.e
+     * @param target The Person objct to be changed.
+     * @param userInputRetriever callback to retrieve user's input. Will be run on fx application thread
+     */
+    public synchronized void updatePersonFromUI(ReadOnlyPerson target,
+                                                Callable<Optional<ReadOnlyPerson>> userInputRetriever) {
+        final ChangePersonInModelCommand ongoingCommand = personChangesInProgress.get(target.getId());
+        if (ongoingCommand != null) {
+            ongoingCommand.editInGracePeriod(wrapCallableForFxExecution(userInputRetriever, Optional.empty()));
+        } else {
+            backingModel.findPerson(target).get().update( // todo refactor
+                    wrapCallableForFxExecution(userInputRetriever, Optional.empty()).get().get());
+            raise(new LocalModelChangedEvent(this));
+        }
+    }
 
+    public synchronized void cancelPersonChangeCommand(ReadOnlyPerson target) {
+        final ChangePersonInModelCommand ongoingCommand = personChangesInProgress.get(target.getId());
+        if (ongoingCommand != null) {
+            ongoingCommand.cancelInGracePeriod();
+        }
+    }
+
+    private <T> Supplier<T> wrapCallableForFxExecution(Callable<T> callback, T failValue) {
+        return () -> {
+            try {
+                return PlatformExecUtil.callLater(callback).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                return failValue; // execution exception, unable to retrieve data
+            }
+        };
     }
 
     /**
@@ -193,8 +220,19 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
 //// CREATE
 
+    /**
+     * Manually add a ViewablePerson to the visible model
+     */
     synchronized void addViewablePerson(ViewablePerson vp) {
         visibleModel.addPerson(vp);
+    }
+
+    /**
+     * Manually add person to backing model without auto-creating a {@link ViewablePerson} for it in the visible model.
+     */
+    synchronized void addPersonToBackingModelSilently(Person p) {
+        visibleModel.specifyViewableAlreadyCreated(p.getId());
+        backingModel.addPerson(p);
     }
 
     // deprecated, to replace by remote assignment
@@ -222,18 +260,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
 
 //// UPDATE
-
-    /**
-     * Updates the details of a Person object. Updates to Person objects should be
-     * done through this method to ensure the proper events are raised to indicate
-     * a change to the model. TODO listen on Person properties and not manually raise events here.
-     * @param target The Person object to be changed.
-     * @param updatedData The temporary Person object containing new values.
-     */
-    public synchronized void updatePerson(ReadOnlyPerson target, ReadOnlyPerson updatedData) {
-        backingModel.findPerson(target).get().update(updatedData);
-        raise(new LocalModelChangedEvent(this));
-    }
 
     /**
      * Updates the details of a Tag object. Updates to Tag objects should be

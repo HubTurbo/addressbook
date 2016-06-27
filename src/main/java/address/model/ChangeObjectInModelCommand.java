@@ -237,7 +237,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
                 e.printStackTrace();
             }
         }
-
+        handleChangeToSecondsLeftInGracePeriod(0);
         // default state transition
         return CHECKING_AND_RESOLVING_REMOTE_CONFLICT;
     }

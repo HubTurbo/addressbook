@@ -86,7 +86,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         final Optional<ReadOnlyPerson> editInput = editInputSupplier.get();
         if (editInput.isPresent()) { // update proposed new person's details
             input = editInput.get();
-            targetViewable.simulateUpdate(editInput.get());
+            PlatformExecUtil.runAndWait(() -> targetViewable.simulateUpdate(input));
         }
         return GRACE_PERIOD; // restart grace period
     }
@@ -119,7 +119,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         model.unassignOngoingChangeForPerson(getTargetPersonId()); // removes mapping for old id
         PlatformExecUtil.runAndWait(() -> {
             final Person backingPerson = new Person(model.generatePersonId()).update(targetViewable);
-            model.backingModel().addPersonSilently(backingPerson); // so it wont trigger creation of another VP
+            model.addPersonToBackingModelSilently(backingPerson); // so it wont trigger creation of another VP
             targetViewable.connectBackingObject(backingPerson); // changes id to that of backing person
         });
         model.assignOngoingChangeToPerson(getTargetPersonId(), this); // remap this change for the new id
@@ -129,7 +129,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void finishWithCancel() {
         if (targetViewable != null) {
-            model.visibleModel().removePerson(targetViewable.getId());
+            PlatformExecUtil.runAndWait(() -> model.visibleModel().removePerson(targetViewable.getId()));
         }
     }
 

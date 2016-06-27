@@ -124,6 +124,16 @@ public class PersonCardController extends UiController{
                 setProfileImage();
             }
         });
+        if (person.getSecondsLeftInPendingState() > 0) {
+            cardPane.setStyle("-fx-background-color:yellow");
+        }
+        person.secondsLeftInPendingStateProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.intValue() > 0) {
+                cardPane.setStyle("-fx-background-color:yellow");
+            } else {
+                cardPane.setStyle(null);
+            }
+        });
     }
 
     private void initIdLabel() {

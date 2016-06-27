@@ -17,12 +17,10 @@ import java.util.stream.Collectors;
 public class AddressBook implements ReadOnlyAddressBook {
 
     private final ObservableList<Person> persons;
-    private final List<Person> personBackingList;
     private final ObservableList<Tag> tags;
 
     {
-        personBackingList = new ArrayList<>();
-        persons = FXCollections.observableList(personBackingList);
+        persons = FXCollections.observableArrayList();
         tags = FXCollections.observableArrayList();
     }
 
@@ -100,33 +98,12 @@ public class AddressBook implements ReadOnlyAddressBook {
         persons.add(p);
     }
 
-    /**
-     * Does not trigger any listeners on the person observablelist
-     */
-    public void addPersonSilently(Person p) {
-        personBackingList.add(p);
-    }
-
     public boolean removePerson(ReadOnlyPerson key) {
         return ReadOnlyPerson.removeOneById(persons, key);
     }
 
     public boolean removePerson(int id) {
         return ReadOnlyPerson.removeOneById(persons, id);
-    }
-
-    /**
-     * Does not trigger any listeners on the person observablelist
-     */
-    public boolean removePersonSilently(ReadOnlyPerson key) {
-        return ReadOnlyPerson.removeOneById(personBackingList, key);
-    }
-
-    /**
-     * Does not trigger any listeners on the person observablelist
-     */
-    public boolean removePersonSilently(int id) {
-        return ReadOnlyPerson.removeOneById(personBackingList, id);
     }
 
 //// tag-level operations
