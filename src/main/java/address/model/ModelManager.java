@@ -60,7 +60,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         backingModel = new AddressBook(src);
         visibleModel = backingModel.createVisibleAddressBook();
 
-        // update changes need to go through #updatePersonFromUI or #updateTag to trigger the LMCEvent
+        // update changes need to go through #updatePersonThroughUI or #updateTag to trigger the LMCEvent
         final ListChangeListener<Object> modelChangeListener = change -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
@@ -154,7 +154,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      * period for cancellation, editing, or deleting.
      * @param userInputRetriever a callback to retrieve the user's input. Will be run on fx application thread
      */
-    public synchronized void createPersonFromUI(Callable<Optional<ReadOnlyPerson>> userInputRetriever) {
+    public synchronized void createPersonThroughUI(Callable<Optional<ReadOnlyPerson>> userInputRetriever) {
         final int GRACE_PERIOD_DURATION = 3;
         final Supplier<Optional<ReadOnlyPerson>> fxThreadedInputRetriever =
                 wrapCallableForFxExecution(userInputRetriever, Optional.empty());
@@ -162,24 +162,46 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     }
 
     /**
-     * Updates the details of a Person object. Updates to Person objects should be
-     * done through this method to ensure the proper events are raised to indicate
-     * a change to the model. TODO listen on Person properties and not manually raise events here.e
-     * @param target The Person objct to be changed.
+     * Request to updaate a person. Simulates the change optimistically until remote confirmation, and provides a grace
+     * period for cancellation, editing, or deleting. TODO listen on Person properties and not manually raise events
+     * @param target The Person to be changed.
      * @param userInputRetriever callback to retrieve user's input. Will be run on fx application thread
      */
-    public synchronized void updatePersonFromUI(ReadOnlyPerson target,
-                                                Callable<Optional<ReadOnlyPerson>> userInputRetriever) {
+    public synchronized void updatePersonThroughUI(ReadOnlyPerson target,
+                                                   Callable<Optional<ReadOnlyPerson>> userInputRetriever) {
         final ChangePersonInModelCommand ongoingCommand = personChangesInProgress.get(target.getId());
         if (ongoingCommand != null) {
             ongoingCommand.editInGracePeriod(wrapCallableForFxExecution(userInputRetriever, Optional.empty()));
         } else {
+
             backingModel.findPerson(target).get().update( // todo refactor
                     wrapCallableForFxExecution(userInputRetriever, Optional.empty()).get().get());
             raise(new LocalModelChangedEvent(this));
         }
     }
 
+    /**
+     * Request to delete a person. Simulates the change optimistically until remote confirmation, and provides a grace
+     * period for cancellation, editing, or deleting.
+     * @param target
+     * @param delay
+     * @param step
+     */
+    public synchronized void deletePersonThroughUI(ReadOnlyPerson target, int delay, TimeUnit step) {
+        final ChangePersonInModelCommand ongoingCommand = personChangesInProgress.get(target.getId());
+        if (ongoingCommand != null) {
+            ongoingCommand.deleteInGracePeriod();
+        } else {
+            final Optional<ViewablePerson> toBeDeleted = visibleModel.findPerson(target);
+            toBeDeleted.get().setIsDeleted(true);
+            scheduler.schedule(() -> Platform.runLater(() -> backingModel.removePerson(toBeDeleted.get())), delay, step);
+        }
+    }
+
+    /**
+     * Request to cancel any ongoing commands (add, edit, delete etc.) on the target person. Only works if the
+     * ongoing command is in the pending state.
+     */
     public synchronized void cancelPersonChangeCommand(ReadOnlyPerson target) {
         final ChangePersonInModelCommand ongoingCommand = personChangesInProgress.get(target.getId());
         if (ongoingCommand != null) {
@@ -190,7 +212,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     private <T> Supplier<T> wrapCallableForFxExecution(Callable<T> callback, T failValue) {
         return () -> {
             try {
-                return PlatformExecUtil.callLater(callback).get();
+                return PlatformExecUtil.call(callback).get();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
                 return failValue; // execution exception, unable to retrieve data
@@ -278,24 +300,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     }
 
 //// DELETE
-
-    /**
-     * Deletes the person from the model.
-     * @param personToDelete
-     * @return true if there was a successful removal
-     */
-    public synchronized boolean deletePerson(ReadOnlyPerson personToDelete){
-        boolean b = backingModel.removePerson(personToDelete);
-        return b;
-    }
-
-    public void delayedDeletePerson(ReadOnlyPerson toDelete, int delay, TimeUnit step) {
-        final Optional<ViewablePerson> deleteTarget = visibleModel.findPerson(toDelete);
-        assert deleteTarget.isPresent();
-        deleteTarget.get().setIsDeleted(true);
-        scheduler.schedule(()-> Platform.runLater(() ->
-                deletePerson(deleteTarget.get())), delay, step);
-    }
 
     /**
      * Deletes the tag from the model.

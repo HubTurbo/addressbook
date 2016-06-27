@@ -22,7 +22,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     /**
      * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
-     *                       logic (eg. {@link PlatformExecUtil#callLater(Callable)} within itself.
+     *                       logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
      *                       If the returned Optional is empty, the command will be cancelled.
      * @see super#ChangePersonInModelCommand(Supplier, int)
      */

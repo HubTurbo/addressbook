@@ -1,6 +1,5 @@
 package address.model;
 
-import address.events.EventManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.util.PlatformExecUtil;
 
@@ -23,7 +22,7 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
 
     /**
      * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
-     *                       logic (eg. {@link PlatformExecUtil#callLater(Callable)} within itself.
+     *                       logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
      *                       If the returned Optional is empty, the command will be cancelled.
      */
     protected ChangePersonInModelCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever,

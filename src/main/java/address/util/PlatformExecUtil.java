@@ -16,9 +16,17 @@ public final class PlatformExecUtil {
         Platform.runLater(action);
     }
 
-    public static <R> Future<R> callLater(Callable<R> callback) {
+    /**
+     * If called from FX thread, will run immediately and return completed future.
+     * If called outside FX thread, returns immediately, callback is queued and run asynchronously on FX thread.
+     */
+    public static <R> Future<R> call(Callable<R> callback) {
         final FutureTask<R> task = new FutureTask<>(callback);
-        Platform.runLater(task);
+        if (Platform.isFxApplicationThread()) {
+            task.run();
+        } else {
+            runLater(task);
+        }
         return task;
     }
 

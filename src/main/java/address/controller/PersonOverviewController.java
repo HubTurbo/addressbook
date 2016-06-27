@@ -13,7 +13,6 @@ import address.parser.expr.PredExpr;
 import address.keybindings.KeyBindingsManager;
 import address.parser.qualifier.TrueQualifier;
 import address.status.PersonDeletedStatus;
-import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
 import address.util.FilteredList;
 import address.util.AppLogger;
@@ -118,16 +117,16 @@ public class PersonOverviewController extends UiController{
      */
     @FXML
     private void handleDeletePersons() {
-        final List<Integer> selectedIndexes = personListView.getSelectionModel().getSelectedIndices();
-        selectedIndexes.stream().forEach(selectedIndex -> {
-            if (selectedIndex >= 0) {
-                final ReadOnlyPerson deleteTarget = personListView.getItems().get(selectedIndex);
-                mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(deleteTarget));
-                modelManager.delayedDeletePerson(deleteTarget, 1, TimeUnit.SECONDS);
-            } else {
-                showNoSelectionAlert(); // Nothing selected.
-            }
-        });
+        final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
+        if (selected.isEmpty()) {
+            showNoSelectionAlert();
+        } else {
+            selected.stream()
+                    .forEach(target -> {
+                        mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(target));
+                        modelManager.deletePersonThroughUI(target, 1, TimeUnit.SECONDS);
+                    });
+        }
     }
 
     /**
@@ -136,7 +135,7 @@ public class PersonOverviewController extends UiController{
      */
     @FXML
     private void handleNewPerson() {
-        modelManager.createPersonFromUI(() ->
+        modelManager.createPersonThroughUI(() ->
                 mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person"));
     }
 
@@ -148,11 +147,12 @@ public class PersonOverviewController extends UiController{
         Optional<List<Tag>> listOfFinalAssignedTags = mainController.getPersonsTagsInput(selectedPersons);
 
         if (listOfFinalAssignedTags.isPresent()) {
-            selectedPersons.stream().forEach(p -> {
-                Person editedPerson = new Person(p);
-                editedPerson.setTags(listOfFinalAssignedTags.get());
-                modelManager.updatePersonFromUI(p, () -> Optional.of(editedPerson));
-            });
+            selectedPersons.stream()
+                    .forEach(p -> {
+                        Person editedPerson = new Person(p);
+                        editedPerson.setTags(listOfFinalAssignedTags.get());
+                        modelManager.updatePersonThroughUI(p, () -> Optional.of(editedPerson));
+                    });
         }
     }
 
@@ -167,7 +167,8 @@ public class PersonOverviewController extends UiController{
             showNoSelectionAlert();
             return;
         }
-        modelManager.updatePersonFromUI(editTarget, () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
+        modelManager.updatePersonThroughUI(editTarget,
+                () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
     }
 
     private void handleCancelPersonOperations() {
