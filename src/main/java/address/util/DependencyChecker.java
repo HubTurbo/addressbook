@@ -116,7 +116,6 @@ public class DependencyChecker {
 
         try {
             versionDescriptor = JsonUtil.fromJsonString(json, VersionDescriptor.class);
-            //TODO: is it possible to have a generic static method in StorageManager to read/write various json files?
         } catch (IOException e) {
             logger.warn("Failed to parse JSON data to process platform specific dependencies", e);
             return;

@@ -5,6 +5,7 @@ import address.events.UpdaterFailedEvent;
 import address.events.UpdaterFinishedEvent;
 import address.events.UpdaterInProgressEvent;
 import address.main.ComponentManager;
+import address.storage.StorageManager;
 import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -189,7 +190,8 @@ public class UpdateManager extends ComponentManager {
         }
 
         try {
-            return Optional.of(JsonUtil.fromJsonString(FileUtil.readFromFile(VERSION_DESCRIPTOR_FILE), VersionDescriptor.class));
+            return Optional.of(
+                    StorageManager.deserializeObjectFromJsonFile(VERSION_DESCRIPTOR_FILE, VersionDescriptor.class));
         } catch (IOException e) {
             logger.debug("Failed to parse update data from json file.", e);
         }
@@ -310,7 +312,7 @@ public class UpdateManager extends ComponentManager {
                 FileUtil.createFile(DOWNLOADED_VERSIONS_FILE);
             }
 
-            FileUtil.writeToFile(DOWNLOADED_VERSIONS_FILE, JsonUtil.toJsonString(downloadedVersions));
+            StorageManager.serializeObjectToJsonFile(DOWNLOADED_VERSIONS_FILE, downloadedVersions);
         } catch (JsonProcessingException e) {
             logger.debug("Failed to convert downloaded version to JSON");
             e.printStackTrace();

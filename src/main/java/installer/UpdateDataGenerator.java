@@ -1,6 +1,7 @@
 package installer;
 
 import address.MainApp;
+import address.storage.StorageManager;
 import address.updater.LibraryDescriptor;
 import address.updater.VersionDescriptor;
 import address.util.FileUtil;
@@ -58,7 +59,7 @@ public class UpdateDataGenerator {
         versionDescriptor.setLibraries(currentLibraryDescriptors);
 
         try {
-            FileUtil.writeToFile(UPDATE_DATA_FILE, JsonUtil.toJsonString(versionDescriptor));
+            StorageManager.serializeObjectToJsonFile(UPDATE_DATA_FILE, versionDescriptor);
         } catch (IOException e) {
             System.out.println("Failed to write new update data to file");
             e.printStackTrace();

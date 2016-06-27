@@ -1,6 +1,7 @@
 package address.updater;
 
 import address.MainApp;
+import address.storage.StorageManager;
 import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -80,7 +81,7 @@ public class DependencyHistoryHandler {
         }
 
         try {
-            FileUtil.writeToFile(DEPENDENCY_HISTORY_FILE, JsonUtil.toJsonString(dependenciesForVersionsInUse));
+            StorageManager.serializeObjectToJsonFile(DEPENDENCY_HISTORY_FILE, dependenciesForVersionsInUse);
         } catch (JsonProcessingException e) {
             logger.debug("Failed to convert dependencies to JSON", e);
         } catch (IOException e) {

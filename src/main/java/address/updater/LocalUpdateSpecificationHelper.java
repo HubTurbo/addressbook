@@ -1,5 +1,6 @@
 package address.updater;
 
+import address.storage.StorageManager;
 import address.util.FileUtil;
 import address.util.JsonUtil;
 
@@ -33,14 +34,14 @@ public class LocalUpdateSpecificationHelper {
     public static void saveLocalUpdateSpecFile(List<String> affectedFiles) throws IOException {
         LocalUpdateSpecification localUpdateSpecification = new LocalUpdateSpecification(affectedFiles);
 
-        FileUtil.writeToFile(new File(LOCAL_UPDATE_DATA_FILE), JsonUtil.toJsonString(localUpdateSpecification));
+        StorageManager.serializeObjectToJsonFile(new File(LOCAL_UPDATE_DATA_FILE), localUpdateSpecification);
     }
 
     /**
      * @return first item is destination folder, the rest are affected files
      */
     public static List<String> readLocalUpdateSpecFile(String filepath) throws IOException {
-        return JsonUtil.fromJsonString(FileUtil.readFromFile(new File(filepath)), LocalUpdateSpecification.class)
+        return StorageManager.deserializeObjectFromJsonFile(new File(filepath), LocalUpdateSpecification.class)
                 .getLocalFilesToBeUpdated();
     }
 }
