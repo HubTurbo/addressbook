@@ -54,7 +54,7 @@ public class UpdateManager extends ComponentManager {
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "UpdateData.json");
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
-    private final DependencyTracker dependencyTracker;
+    private final DependencyHistoryHandler dependencyHistoryHandler;
     private final BackupHandler backupHandler;
     private final List<Version> downloadedVersions;
 
@@ -63,13 +63,9 @@ public class UpdateManager extends ComponentManager {
     public UpdateManager() {
         super();
         this.isUpdateApplicable = false;
-        dependencyTracker = new DependencyTracker();
-        backupHandler = new BackupHandler(dependencyTracker);
+        dependencyHistoryHandler = new DependencyHistoryHandler();
+        backupHandler = new BackupHandler(dependencyHistoryHandler);
         downloadedVersions = readDownloadedVersionsFromFile();
-    }
-
-    public List<String> getMissingDependencies() {
-        return dependencyTracker.getMissingDependencies();
     }
 
     public void start() {

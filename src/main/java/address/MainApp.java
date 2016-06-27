@@ -1,6 +1,5 @@
 package address;
 
-import address.events.EventManager;
 import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
 import address.model.UserPrefs;
@@ -8,22 +7,17 @@ import address.storage.StorageManager;
 import address.sync.SyncManager;
 import address.ui.Ui;
 import address.updater.UpdateManager;
-import address.util.AppLogger;
-import address.util.Config;
+import address.util.*;
 
-import address.util.LoggerManager;
-import address.util.Version;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-
-import java.util.List;
 
 /**
  * The main entry point to the application.
  */
 public class MainApp extends Application {
+    private static final AppLogger logger = LoggerManager.getLogger(MainApp.class);
 
     private static final int VERSION_MAJOR = 0;
     private static final int VERSION_MINOR = 0;
@@ -33,7 +27,12 @@ public class MainApp extends Application {
     public static final Version VERSION = new Version(
             VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EARLY_ACCESS);
 
-    private static final AppLogger logger = LoggerManager.getLogger(MainApp.class);
+    /**
+     * Minimum Java Version Required
+     *
+     * Due to usage of ControlsFX 8.40.10, requires minimum Java version of 1.8.0_60.
+     */
+    public static final String REQUIRED_JAVA_VERSION = "1.8.0_60"; // update docs if this is changed
 
     protected StorageManager storageManager;
     protected ModelManager modelManager;
@@ -50,6 +49,7 @@ public class MainApp extends Application {
     public void init() throws Exception {
         logger.info("Initializing app ...");
         super.init();
+        new DependencyChecker(REQUIRED_JAVA_VERSION, this::quit).verify();
         config = initConfig();
         userPrefs = initPrefs(config);
         initComponents(config, userPrefs);
@@ -75,8 +75,6 @@ public class MainApp extends Application {
         syncManager = new SyncManager(config);
         keyBindingsManager = new KeyBindingsManager();
         updateManager = new UpdateManager();
-        alertMissingDependencies();
-        //TODO: should this be here? looks out of place
     }
 
     @Override
@@ -88,33 +86,16 @@ public class MainApp extends Application {
         syncManager.start();
     }
 
-    //TODO: move this method somewhere else?
-    //TODO: are we checking for the java version, which is the most important dependency?
-    private void alertMissingDependencies() {
-        List<String> missingDependencies = updateManager.getMissingDependencies();
-
-        if (missingDependencies.isEmpty()) {
-            logger.info("All dependencies are present");
-        } else {
-            StringBuilder message = new StringBuilder("Missing dependencies:\n");
-            for (String missingDependency : missingDependencies) {
-                message.append("- ").append(missingDependency).append("\n");
-            }
-            String missingDependenciesMessage = message.toString().trim();
-            logger.warn(missingDependenciesMessage);
-
-            ui.showAlertDialogAndWait(Alert.AlertType.WARNING, "Missing Dependencies",
-                    "There are missing dependencies. App may not work properly.",
-                    missingDependenciesMessage);
-        }
-    }
-
     @Override
     public void stop() {
         logger.info("Stopping application.");
         ui.stop();
         updateManager.stop();
         keyBindingsManager.stop();
+        quit();
+    }
+
+    private void quit() {
         Platform.exit();
         System.exit(0);
     }

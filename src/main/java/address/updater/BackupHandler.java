@@ -26,10 +26,10 @@ public class BackupHandler {
     private static final String BACKUP_FILENAME_PATTERN_STRING =
             "addressbook" + BACKUP_MARKER + "(" + Version.VERSION_PATTERN_STRING + ")\\.(jar|JAR)$";
 
-    private DependencyTracker dependencyTracker;
+    private DependencyHistoryHandler dependencyHistoryHandler;
 
-    public BackupHandler(DependencyTracker dependencyTracker) {
-        this.dependencyTracker = dependencyTracker;
+    public BackupHandler(DependencyHistoryHandler dependencyHistoryHandler) {
+        this.dependencyHistoryHandler = dependencyHistoryHandler;
     }
 
     /**
@@ -67,8 +67,8 @@ public class BackupHandler {
      */
     public void cleanupBackups() {
 
-        if (dependencyTracker.getCurrentVersionDependencies() == null ||
-                dependencyTracker.getCurrentVersionDependencies().isEmpty()) {
+        if (dependencyHistoryHandler.getCurrentVersionDependencies() == null ||
+                dependencyHistoryHandler.getCurrentVersionDependencies().isEmpty()) {
             logger.info("Not running from JAR, will not clean backups");
             return;
         }
@@ -93,7 +93,7 @@ public class BackupHandler {
         Set<String> dependenciesOfVersionsInUse = new HashSet<>();
         List<Version> unusedVersions = new ArrayList<>();
 
-        dependencyTracker.getAllVersionDependency().entrySet().stream()
+        dependencyHistoryHandler.getDependenciesOfAllVersion().entrySet().stream()
                 .forEach(e -> {
                     if (deletedVersions.contains(e.getKey())) {
                         dependenciesOfUnusedVersions.addAll(e.getValue());
@@ -113,7 +113,7 @@ public class BackupHandler {
             }
         });
 
-        dependencyTracker.cleanUpUnusedDependencyVersions(unusedVersions);
+        dependencyHistoryHandler.cleanUpUnusedDependencyVersions(unusedVersions);
     }
 
     /**
