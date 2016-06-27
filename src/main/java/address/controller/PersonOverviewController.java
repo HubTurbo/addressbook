@@ -219,6 +219,7 @@ public class PersonOverviewController extends UiController{
         tagMenuItem.setOnAction(e -> handleRetagPersons());
 
         final MenuItem cancelOperationMenuItem = new MenuItem("Cancel");
+        cancelOperationMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("PERSON_CHANGE_CANCEL_ACCELERATOR").get());
         cancelOperationMenuItem.setOnAction(e -> handleCancelPersonOperations());
 
         contextMenu.getItems().addAll(editMenuItem, deleteMenuItem, tagMenuItem, cancelOperationMenuItem);
