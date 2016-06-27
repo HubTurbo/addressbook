@@ -2,7 +2,7 @@ package installer;
 
 import address.MainApp;
 import address.updater.LibraryDescriptor;
-import address.updater.UpdateData;
+import address.updater.VersionDescriptor;
 import address.util.FileUtil;
 import address.util.JsonUtil;
 import address.util.OsDetector;
@@ -26,21 +26,21 @@ public class UpdateDataGenerator {
     public static void main(String[] args) {
         List<String> arguments = Arrays.asList(args);
 
-        UpdateData previousUpdateData;
+        VersionDescriptor previousVersionDescriptor;
 
         try {
-            previousUpdateData = getPreviousUpdateData();
+            previousVersionDescriptor = getPreviousUpdateData();
         } catch (IOException e) {
             System.out.println("Failed to read update data file");
             e.printStackTrace();
             return;
         }
 
-        UpdateData updateData = new UpdateData();
-        updateData.setVersion(MainApp.VERSION.toString());
+        VersionDescriptor versionDescriptor = new VersionDescriptor();
+        versionDescriptor.setVersion(MainApp.VERSION.toString());
 
         try {
-            setUpdateDataMainAppDownloadLink(updateData, arguments.get(0));
+            setUpdateDataMainAppDownloadLink(versionDescriptor, arguments.get(0));
         } catch (MalformedURLException e) {
             System.out.println("MainApp download link is a malformed URL");
             e.printStackTrace();
@@ -52,13 +52,13 @@ public class UpdateDataGenerator {
                 .map(libName -> new LibraryDescriptor(libName, null, OsDetector.Os.ANY))
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        populateCurrLibDescriptorWithExistingDownloadLink(previousUpdateData.getLibraries(),
+        populateCurrLibDescriptorWithExistingDownloadLink(previousVersionDescriptor.getLibraries(),
                 currentLibraryDescriptors);
 
-        updateData.setLibraries(currentLibraryDescriptors);
+        versionDescriptor.setLibraries(currentLibraryDescriptors);
 
         try {
-            FileUtil.writeToFile(new File("UpdateData.json"), JsonUtil.toJsonString(updateData));
+            FileUtil.writeToFile(UPDATE_DATA_FILE, JsonUtil.toJsonString(versionDescriptor));
         } catch (IOException e) {
             System.out.println("Failed to write new update data to file");
             e.printStackTrace();
@@ -68,16 +68,16 @@ public class UpdateDataGenerator {
         notifyOfNewLibrariesToBeGivenMoreInformation(currentLibraryDescriptors);
     }
 
-    private static UpdateData getPreviousUpdateData() throws IOException {
-        return JsonUtil.fromJsonString(FileUtil.readFromFile(UPDATE_DATA_FILE), UpdateData.class);
+    private static VersionDescriptor getPreviousUpdateData() throws IOException {
+        return JsonUtil.fromJsonString(FileUtil.readFromFile(UPDATE_DATA_FILE), VersionDescriptor.class);
     }
 
-    private static void setUpdateDataMainAppDownloadLink(UpdateData updateData, String mainAppFilename)
+    private static void setUpdateDataMainAppDownloadLink(VersionDescriptor versionDescriptor, String mainAppFilename)
             throws MalformedURLException {
         String mainAppDownloadLinkString = MAIN_APP_BASE_DOWNLOAD_LINK + MainApp.VERSION.toString() + "/" +
                 mainAppFilename;
 
-        updateData.setMainAppDownloadLink(mainAppDownloadLinkString);
+        versionDescriptor.setMainAppDownloadLink(mainAppDownloadLinkString);
     }
 
     private static void populateCurrLibDescriptorWithExistingDownloadLink(

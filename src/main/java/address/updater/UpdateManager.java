@@ -41,17 +41,17 @@ public class UpdateManager extends ComponentManager {
     private static final String MSG_NO_UPDATE = "There is no update";
     private static final String MSG_NO_VERSION_AVAILABLE = "No version to be downloaded";
     private static final String MSG_NO_NEWER_VERSION = "Version has been downloaded before; will not download again";
-    private static final String MSG_DIFF_CHANNEL = "UpdateData is for wrong release channel - contact developer";
+    private static final String MSG_DIFF_CHANNEL = "VersionDescriptor is for wrong release channel - contact developer";
     // --- End of Messages
 
     private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
     private static final String JAR_UPDATER_APP_PATH = UPDATE_DIR + File.separator + "jarUpdater.jar";
     private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
-    private static final String UPDATE_DATA_ON_SERVER_STABLE =
+    private static final String VERSION_DESCRIPTOR_ON_SERVER_STABLE =
             "https://raw.githubusercontent.com/HubTurbo/addressbook/stable/UpdateData.json";
-    private static final String UPDATE_DATA_ON_SERVER_EARLY =
+    private static final String VERSION_DESCRIPTOR_ON_SERVER_EARLY =
             "https://raw.githubusercontent.com/HubTurbo/addressbook/early-access/UpdateData.json";
-    private static final File UPDATE_DATA_FILE = new File(UPDATE_DIR + File.separator + "UpdateData.json");
+    private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "UpdateData.json");
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final DependencyTracker dependencyTracker;
@@ -89,7 +89,7 @@ public class UpdateManager extends ComponentManager {
         }
 
         raise(new UpdaterInProgressEvent("Getting data from server", -1));
-        Optional<UpdateData> updateData = getUpdateDataFromServer();
+        Optional<VersionDescriptor> updateData = getUpdateDataFromServer();
 
         if (!updateData.isPresent()) {
             raise(new UpdaterFailedEvent(MSG_NO_UPDATE_DATA));
@@ -171,14 +171,14 @@ public class UpdateManager extends ComponentManager {
     /**
      * Get update data
      */
-    private Optional<UpdateData> getUpdateDataFromServer() {
+    private Optional<VersionDescriptor> getUpdateDataFromServer() {
         URL updateDataUrl;
 
         try {
             if (MainApp.VERSION.isEarlyAccess()) {
-                updateDataUrl = new URL(UPDATE_DATA_ON_SERVER_EARLY);
+                updateDataUrl = new URL(VERSION_DESCRIPTOR_ON_SERVER_EARLY);
             } else {
-                updateDataUrl = new URL(UPDATE_DATA_ON_SERVER_STABLE);
+                updateDataUrl = new URL(VERSION_DESCRIPTOR_ON_SERVER_STABLE);
             }
         } catch (MalformedURLException e) {
             logger.debug("Update data URL is invalid", e);
@@ -186,14 +186,14 @@ public class UpdateManager extends ComponentManager {
         }
 
         try {
-            downloadFile(UPDATE_DATA_FILE, updateDataUrl);
+            downloadFile(VERSION_DESCRIPTOR_FILE, updateDataUrl);
         } catch (IOException e) {
             logger.debug("Failed to download update data");
             return Optional.empty();
         }
 
         try {
-            return Optional.of(JsonUtil.fromJsonString(FileUtil.readFromFile(UPDATE_DATA_FILE), UpdateData.class));
+            return Optional.of(JsonUtil.fromJsonString(FileUtil.readFromFile(VERSION_DESCRIPTOR_FILE), VersionDescriptor.class));
         } catch (IOException e) {
             logger.debug("Failed to parse update data from json file.", e);
         }
@@ -201,9 +201,9 @@ public class UpdateManager extends ComponentManager {
         return Optional.empty();
     }
 
-    private Optional<Version> getLatestVersion(UpdateData updateData) {
+    private Optional<Version> getLatestVersion(VersionDescriptor versionDescriptor) {
         try {
-            return Optional.of(Version.fromString(updateData.getVersion()));
+            return Optional.of(Version.fromString(versionDescriptor.getVersion()));
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to read latest version", e);
         }
@@ -215,7 +215,7 @@ public class UpdateManager extends ComponentManager {
         return version.isEarlyAccess() != MainApp.VERSION.isEarlyAccess();
     }
 
-    private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(UpdateData updateData)
+    private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(VersionDescriptor versionDescriptor)
             throws MalformedURLException {
         OsDetector.Os machineOs = OsDetector.getOs();
 
@@ -228,11 +228,11 @@ public class UpdateManager extends ComponentManager {
 
         URL mainAppDownloadLink;
 
-        mainAppDownloadLink = updateData.getDownloadLinkForMainApp();
+        mainAppDownloadLink = versionDescriptor.getDownloadLinkForMainApp();
 
         filesToBeDownloaded.put("addressbook.jar", mainAppDownloadLink);
 
-        updateData.getLibraries().stream()
+        versionDescriptor.getLibraries().stream()
                 .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == OsDetector.getOs())
                 .filter(libDesc -> !FileUtil.isFileExists("lib/" + libDesc.getFilename()))
                 .forEach(libDesc -> filesToBeDownloaded.put("lib/" + libDesc.getFilename(), libDesc.getDownloadLink()));

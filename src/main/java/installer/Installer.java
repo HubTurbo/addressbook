@@ -2,7 +2,7 @@ package installer;
 //TODO: does this need to be a separate package?
 
 import address.updater.LibraryDescriptor;
-import address.updater.UpdateData;
+import address.updater.VersionDescriptor;
 import address.util.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -142,18 +142,18 @@ public class Installer extends Application {
     private void downloadPlatformSpecificComponents() {
         System.out.println("Getting platform specific components");
 
-        String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream("/UpdateData.json"));
+        String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream("/VersionDescriptor.json"));
 
-        UpdateData updateData;
+        VersionDescriptor versionDescriptor;
 
         try {
-            updateData = JsonUtil.fromJsonString(json, UpdateData.class);
+            versionDescriptor = JsonUtil.fromJsonString(json, VersionDescriptor.class);
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
-        List<LibraryDescriptor> platformDependentLibraries =  updateData.getLibraries().stream()
+        List<LibraryDescriptor> platformDependentLibraries =  versionDescriptor.getLibraries().stream()
                 .filter(libDesc -> libDesc.getOs() == OsDetector.getOs())
                 .collect(Collectors.toList());
 

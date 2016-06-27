@@ -83,7 +83,7 @@ allprojects {
                 include('address/util/OsDetector.java')
                 include('address/util/ProgressAwareInputStream.java')
                 include('address/util/JsonUtil.java')
-                include('address/updater/model/UpdateData.java')
+                include('address/updater/model/VersionDescriptor.java')
                 include('address/updater/model/LibraryDescriptor.java')
                 include('address/util/AppLogger.java')
                 include('address/util/LoggerManager.java')

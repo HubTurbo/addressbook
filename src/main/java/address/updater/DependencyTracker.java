@@ -128,19 +128,19 @@ public class DependencyTracker {
     }
 
     private void excludePlatformSpecificDependencies(List<String> dependencies) {
-        String json = FileUtil.readFromInputStream(MainApp.class.getResourceAsStream("/UpdateData.json"));
+        String json = FileUtil.readFromInputStream(MainApp.class.getResourceAsStream("/VersionDescriptor.json"));
 
-        UpdateData updateData;
+        VersionDescriptor versionDescriptor;
 
         try {
-            updateData = JsonUtil.fromJsonString(json, UpdateData.class);
+            versionDescriptor = JsonUtil.fromJsonString(json, VersionDescriptor.class);
             //TODO: is it possible to have a generic static method in StorageManager to read/write various json files?
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
-        List<String> librariesNotForCurrentMachine =  updateData.getLibraries().stream()
+        List<String> librariesNotForCurrentMachine =  versionDescriptor.getLibraries().stream()
                 .filter(libDesc -> libDesc.getOs() != OsDetector.Os.ANY && libDesc.getOs() != OsDetector.getOs())
                 .map(libDesc -> "lib/" + libDesc.getFilename())
                 .collect(Collectors.toList());
