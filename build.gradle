@@ -256,6 +256,9 @@ allprojects {
 test {
     forkEvery = 1
     systemProperty 'testfx.setup.timeout', '60000'
+    testLogging { 
+        exceptionFormat "full" 
+    }
 }
 
 task jacocoRootReport(type: JacocoReport) {
@@ -304,6 +307,7 @@ task checkStyle {
 
 
 task headless(type: Test) {
+    exclude 'address/guitests/FullSystemTest.class'
     systemProperty 'java.awt.robot', 'true'
     systemProperty 'testfx.robot', 'glass'
     systemProperty 'testfx.headless', 'true'
@@ -316,6 +320,7 @@ task headless(type: Test) {
 
 
 task headful(type: Test) {
+    include 'address/guitests/FullSystemTest.class'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
