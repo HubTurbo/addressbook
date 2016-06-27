@@ -3,6 +3,7 @@ package address.model;
 import address.events.*;
 
 import address.exceptions.DuplicateTagException;
+import address.main.ComponentManager;
 import address.model.datatypes.*;
 import address.model.datatypes.person.*;
 import address.model.datatypes.tag.Tag;
@@ -26,10 +27,9 @@ import java.util.function.Supplier;
  * Represents the in-memory model of the address book data.
  * All changes to any model should be synchronized.
  */
-public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddressBook {
+public class ModelManager extends ComponentManager implements ReadOnlyAddressBook, ReadOnlyViewableAddressBook {
     private static final AppLogger logger = LoggerManager.getLogger(ModelManager.class);
 
-    private final EventManager eventManager;
     private final AddressBook backingModel;
     private final ViewableAddressBook visibleModel;
     private final Map<Integer, ChangePersonInModelCommand> personChangesInProgress;
@@ -49,7 +49,8 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      * Initializes a ModelManager with the given AddressBook
      * AddressBook and its variables should not be null
      */
-    public ModelManager(AddressBook src, EventManager eventManager, UserPrefs prefs) {
+    public ModelManager(AddressBook src, UserPrefs prefs) {
+        super();
         if (src == null) {
             logger.fatal("Attempted to initialize with a null AddressBook");
             assert false;
@@ -63,7 +64,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         final ListChangeListener<Object> modelChangeListener = change -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
-                    EventManager.getInstance().post(new LocalModelChangedEvent(this));
+                    raise(new LocalModelChangedEvent(this));
                     return;
                 }
             }
@@ -71,13 +72,11 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         backingModel.getPersons().addListener(modelChangeListener);
         backingTagList().addListener(modelChangeListener);
 
-        this.eventManager = eventManager;
         this.prefs = prefs;
-        eventManager.registerHandler(this);
     }
 
-    public ModelManager(EventManager eventManager, UserPrefs prefs) {
-        this(new AddressBook(), eventManager, prefs);
+    public ModelManager(UserPrefs prefs) {
+        this(new AddressBook(), prefs);
     }
 
     /**
@@ -168,6 +167,10 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         commandExecutor.execute(new AddPersonCommand(fxThreadedInputRetriever, GRACE_PERIOD_DURATION, eventManager, this));
     }
 
+    public synchronized void cancelPersonChangeCommand(ReadOnlyPerson target) {
+
+    }
+
     /**
      * @param targetPersonId id of person being changed
      * @param changeInProgress the active change command on the person with id {@code targetPersonId}
@@ -229,7 +232,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
      */
     public synchronized void updatePerson(ReadOnlyPerson target, ReadOnlyPerson updatedData) {
         backingModel.findPerson(target).get().update(updatedData);
-        EventManager.getInstance().post(new LocalModelChangedEvent(this));
+        raise(new LocalModelChangedEvent(this));
     }
 
     /**
@@ -245,7 +248,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
             throw new DuplicateTagException(updated);
         }
         original.update(updated);
-        EventManager.getInstance().post(new LocalModelChangedEvent(this));
+        raise(new LocalModelChangedEvent(this));
     }
 
 //// DELETE
@@ -297,7 +300,7 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
         boolean hasPersonsUpdates = diffUpdate(backingModel.getPersons(), data.getPersons());
         boolean hasTagsUpdates = diffUpdate(backingTagList(), data.getTags());
         if (hasPersonsUpdates || hasTagsUpdates) {
-            EventManager.getInstance().post(new LocalModelChangedEvent(this));
+            raise(new LocalModelChangedEvent(this));
         }
     }
 
@@ -378,9 +381,8 @@ public class ModelManager implements ReadOnlyAddressBook, ReadOnlyViewableAddres
 
     public void setPrefsSaveLocation(String saveLocation) {
         prefs.setSaveLocation(saveLocation);
-
-        eventManager.post(new SaveLocationChangedEvent(saveLocation));
-        eventManager.post(new SavePrefsRequestEvent(prefs));
+        raise(new SaveLocationChangedEvent(saveLocation));
+        raise(new SavePrefsRequestEvent(prefs));
     }
 
     public void clearPrefsSaveLocation() {
