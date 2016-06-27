@@ -5,10 +5,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
@@ -38,6 +35,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         CANCELLED, SUCCESSFUL, FAILED,
     }
 
+    private final CountDownLatch completionLatch;
     protected final int gracePeriodDurationInSeconds;
     protected final ObjectProperty<State> state; // current state
 
@@ -45,12 +43,17 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     private CompletableFuture<Supplier<State>> overrideGracePeriod;
     
     {
+        completionLatch = new CountDownLatch(1);
         state = new SimpleObjectProperty<>(NEWLY_CREATED);
         clearGracePeriodOverride();
     }
 
     protected ChangeObjectInModelCommand(int gracePeriodDurationInSeconds) {
         this.gracePeriodDurationInSeconds = gracePeriodDurationInSeconds;
+    }
+
+    public void waitForCompletion() throws InterruptedException {
+        completionLatch.await();
     }
 
     public State getState() {
@@ -114,6 +117,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
             assert false;
         }
         after();
+        completionLatch.countDown();
     }
 
     /**
@@ -228,7 +232,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
                 // Wait for overriding signal issued during grace period; custom state transition
                 final State next = overrideGracePeriod.get(1, TimeUnit.SECONDS).get();
                 overrideGracePeriod = new CompletableFuture<>();
-                handleChangeToSecondsLeftInGracePeriod(0);
+                handleChangeToSecondsLeftInGracePeriod(0); // signify end of grace period
                 return next;
 
             } catch (TimeoutException e) {

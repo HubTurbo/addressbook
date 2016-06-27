@@ -1,7 +1,7 @@
 package address.model;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
-import address.events.EventManager;
+import address.events.BaseEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
@@ -9,16 +9,18 @@ import address.util.PlatformExecUtil;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * Handles optimistic UI updating and consistency logic for adding a person to the addressbook.
+ * Handles optimistic UI updating, cancellation/changing command, and remote consistency logic
+ * for adding a person to the addressbook.
  */
 public class AddPersonCommand extends ChangePersonInModelCommand {
 
-    private final EventManager eventManager;
+    private final Consumer<? extends BaseEvent> eventRaiser;
     private final ModelManager model;
-    private ViewablePerson targetViewable;
+    private ViewablePerson viewableToAdd;
 
     /**
      * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
@@ -27,30 +29,29 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
      * @see super#ChangePersonInModelCommand(Supplier, int)
      */
     protected AddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever, int gracePeriodDurationInSeconds,
-                               EventManager eventManager, ModelManager model) {
+                               Consumer<? extends BaseEvent> eventRaiser, ModelManager model) {
         super(inputRetriever, gracePeriodDurationInSeconds);
         this.model = model;
-        this.eventManager = eventManager;
+        this.eventRaiser = eventRaiser;
     }
 
     @Override
     public int getTargetPersonId() {
-        if (targetViewable == null) {
+        if (viewableToAdd == null) {
             throw new IllegalStateException("Add person command has not created the proposed ViewablePerson yet.");
         }
-        return targetViewable.getId();
+        return viewableToAdd.getId();
     }
 
     @Override
     protected void before() {
-
+        // N/A
     }
 
     @Override
     protected void after() {
-        if (targetViewable != null) {
-            // free target viewable for other commands
-            final ChangePersonInModelCommand removed = model.unassignOngoingChangeForPerson(targetViewable.getId());
+        if (viewableToAdd != null) {
+            model.unassignOngoingChangeForPerson(viewableToAdd.getId());
         }
     }
 
@@ -60,11 +61,12 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
      */
     @Override
     protected State simulateResult() {
+        assert input != null;
         // create VP and add to model
-        targetViewable = ViewablePerson.withoutBacking(new Person(input));
+        viewableToAdd = ViewablePerson.withoutBacking(new Person(input));
         PlatformExecUtil.runAndWait(() -> {
-            model.addViewablePerson(targetViewable);
-            model.assignOngoingChangeToPerson(targetViewable.getId(), this);
+            model.addViewablePerson(viewableToAdd);
+            model.assignOngoingChangeToPerson(viewableToAdd.getId(), this);
         });
         return GRACE_PERIOD;
     }
@@ -76,17 +78,17 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
-        assert targetViewable != null;
-        PlatformExecUtil.runLater(() -> targetViewable.setSecondsLeftInPendingState(secondsLeft));
+        assert viewableToAdd != null;
+        PlatformExecUtil.runLater(() -> viewableToAdd.setSecondsLeftInPendingState(secondsLeft));
     }
 
     @Override
     protected State handleEditInGracePeriod(Supplier<Optional<ReadOnlyPerson>> editInputSupplier) {
         // take details and update viewable, then restart grace period
         final Optional<ReadOnlyPerson> editInput = editInputSupplier.get();
-        if (editInput.isPresent()) { // update proposed new person's details
-            input = editInput.get();
-            PlatformExecUtil.runAndWait(() -> targetViewable.simulateUpdate(input));
+        if (editInput.isPresent()) { // edit request confirmed
+            input = editInput.get(); // update saved input
+            PlatformExecUtil.runAndWait(() -> viewableToAdd.simulateUpdate(input));
         }
         return GRACE_PERIOD; // restart grace period
     }
@@ -115,12 +117,13 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected State requestChangeToRemote() {
+        assert input != null;
         // TODO: update when remote request api is complete
         model.unassignOngoingChangeForPerson(getTargetPersonId()); // removes mapping for old id
         PlatformExecUtil.runAndWait(() -> {
-            final Person backingPerson = new Person(model.generatePersonId()).update(targetViewable);
+            final Person backingPerson = new Person(model.generatePersonId()).update(viewableToAdd);
             model.addPersonToBackingModelSilently(backingPerson); // so it wont trigger creation of another VP
-            targetViewable.connectBackingObject(backingPerson); // changes id to that of backing person
+            viewableToAdd.connectBackingObject(backingPerson); // changes id to that of backing person
         });
         model.assignOngoingChangeToPerson(getTargetPersonId(), this); // remap this change for the new id
         return SUCCESSFUL;
@@ -128,8 +131,8 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithCancel() {
-        if (targetViewable != null) {
-            PlatformExecUtil.runAndWait(() -> model.visibleModel().removePerson(targetViewable.getId()));
+        if (viewableToAdd != null) {
+            PlatformExecUtil.runAndWait(() -> model.visibleModel().removePerson(viewableToAdd.getId()));
         }
     }
 

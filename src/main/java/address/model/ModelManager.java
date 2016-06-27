@@ -34,13 +34,11 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     private final ViewableAddressBook visibleModel;
     private final Map<Integer, ChangePersonInModelCommand> personChangesInProgress;
 
-    private final ScheduledExecutorService scheduler;
-    private final Executor commandExecutor;
+    final Executor commandExecutor;
 
     private UserPrefs prefs;
 
     {
-        scheduler = Executors.newSingleThreadScheduledExecutor();
         personChangesInProgress = new HashMap<>();
         commandExecutor = Executors.newCachedThreadPool();
     }
@@ -60,7 +58,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         backingModel = new AddressBook(src);
         visibleModel = backingModel.createVisibleAddressBook();
 
-        // update changes need to go through #updatePersonThroughUI or #updateTag to trigger the LMCEvent
+        // update changes need to go through #editPersonThroughUI or #updateTag to trigger the LMCEvent
         final ListChangeListener<Object> modelChangeListener = change -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
@@ -147,7 +145,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         return visibleModel;
     }
 
-//// USER COMMANDS
+//// MODEL CHANGE COMMANDS
 
     /**
      * Request to create a person. Simulates the change optimistically until remote confirmation, and provides a grace
@@ -155,10 +153,9 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      * @param userInputRetriever a callback to retrieve the user's input. Will be run on fx application thread
      */
     public synchronized void createPersonThroughUI(Callable<Optional<ReadOnlyPerson>> userInputRetriever) {
-        final int GRACE_PERIOD_DURATION = 3;
-        final Supplier<Optional<ReadOnlyPerson>> fxThreadedInputRetriever =
-                wrapCallableForFxExecution(userInputRetriever, Optional.empty());
-        commandExecutor.execute(new AddPersonCommand(fxThreadedInputRetriever, GRACE_PERIOD_DURATION, eventManager, this));
+        final Supplier<Optional<ReadOnlyPerson>> fxThreadInputRetriever = () ->
+                PlatformExecUtil.callAndWait(userInputRetriever, Optional.empty());
+        execNewAddPersonCommand(fxThreadInputRetriever);
     }
 
     /**
@@ -167,34 +164,29 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      * @param target The Person to be changed.
      * @param userInputRetriever callback to retrieve user's input. Will be run on fx application thread
      */
-    public synchronized void updatePersonThroughUI(ReadOnlyPerson target,
-                                                   Callable<Optional<ReadOnlyPerson>> userInputRetriever) {
-        final ChangePersonInModelCommand ongoingCommand = personChangesInProgress.get(target.getId());
-        if (ongoingCommand != null) {
-            ongoingCommand.editInGracePeriod(wrapCallableForFxExecution(userInputRetriever, Optional.empty()));
-        } else {
+    public synchronized void editPersonThroughUI(ReadOnlyPerson target,
+                                                 Callable<Optional<ReadOnlyPerson>> userInputRetriever) {
+        final Supplier<Optional<ReadOnlyPerson>> fxThreadInputRetriever = () ->
+                PlatformExecUtil.callAndWait(userInputRetriever, Optional.empty());
 
-            backingModel.findPerson(target).get().update( // todo refactor
-                    wrapCallableForFxExecution(userInputRetriever, Optional.empty()).get().get());
-            raise(new LocalModelChangedEvent(this));
+        if (personHasOngoingChange(target)) {
+            getOngoingChangeForPerson(target.getId()).editInGracePeriod(fxThreadInputRetriever);
+        } else {
+            final ViewablePerson toEdit = visibleModel.findPerson(target).get();
+            execNewEditPersonCommand(toEdit, fxThreadInputRetriever);
         }
     }
 
     /**
      * Request to delete a person. Simulates the change optimistically until remote confirmation, and provides a grace
      * period for cancellation, editing, or deleting.
-     * @param target
-     * @param delay
-     * @param step
      */
-    public synchronized void deletePersonThroughUI(ReadOnlyPerson target, int delay, TimeUnit step) {
-        final ChangePersonInModelCommand ongoingCommand = personChangesInProgress.get(target.getId());
-        if (ongoingCommand != null) {
-            ongoingCommand.deleteInGracePeriod();
+    public synchronized void deletePersonThroughUI(ReadOnlyPerson target) {
+        if (personHasOngoingChange(target)) {
+            getOngoingChangeForPerson(target.getId()).deleteInGracePeriod();
         } else {
-            final Optional<ViewablePerson> toBeDeleted = visibleModel.findPerson(target);
-            toBeDeleted.get().setIsDeleted(true);
-            scheduler.schedule(() -> Platform.runLater(() -> backingModel.removePerson(toBeDeleted.get())), delay, step);
+            final ViewablePerson toDelete = visibleModel.findPerson(target).get();
+            execNewDeletePersonCommand(toDelete);
         }
     }
 
@@ -203,41 +195,73 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      * ongoing command is in the pending state.
      */
     public synchronized void cancelPersonChangeCommand(ReadOnlyPerson target) {
-        final ChangePersonInModelCommand ongoingCommand = personChangesInProgress.get(target.getId());
+        final ChangePersonInModelCommand ongoingCommand = getOngoingChangeForPerson(target.getId());
         if (ongoingCommand != null) {
             ongoingCommand.cancelInGracePeriod();
         }
     }
 
-    private <T> Supplier<T> wrapCallableForFxExecution(Callable<T> callback, T failValue) {
-        return () -> {
-            try {
-                return PlatformExecUtil.call(callback).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-                return failValue; // execution exception, unable to retrieve data
-            }
-        };
+    void execNewAddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever) {
+        final int GRACE_PERIOD_DURATION = 3;
+        commandExecutor.execute(new AddPersonCommand(inputRetriever, GRACE_PERIOD_DURATION, this::raise, this));
+    }
+
+    void execNewEditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> editInputRetriever) {
+        final int GRACE_PERIOD_DURATION = 3;
+        commandExecutor.execute(new EditPersonCommand(target, editInputRetriever, GRACE_PERIOD_DURATION,
+                this::raise, this));
+    }
+
+    void execNewDeletePersonCommand(ViewablePerson target) {
+        final int GRACE_PERIOD_DURATION = 3;
+        commandExecutor.execute(new DeletePersonCommand(target, GRACE_PERIOD_DURATION, this::raise, this));
     }
 
     /**
-     * @param targetPersonId id of person being changed
      * @param changeInProgress the active change command on the person with id {@code targetPersonId}
      */
-    synchronized void assignOngoingChangeToPerson(int targetPersonId, ChangePersonInModelCommand changeInProgress) {
-        assert targetPersonId != changeInProgress.getTargetPersonId() : "Must map to correct id";
-        if (personChangesInProgress.containsKey(targetPersonId)) {
+    synchronized void assignOngoingChangeToPerson(ReadOnlyPerson target, ChangePersonInModelCommand changeInProgress) {
+        assignOngoingChangeToPerson(target.getId(), changeInProgress);
+    }
+
+    synchronized void assignOngoingChangeToPerson(int targetId, ChangePersonInModelCommand changeInProgress) {
+        assert targetId == changeInProgress.getTargetPersonId() : "Must map to correct id";
+        if (personChangesInProgress.containsKey(targetId)) {
             throw new IllegalStateException("Only 1 ongoing change allowed per person.");
         }
-        personChangesInProgress.put(targetPersonId, changeInProgress);
+        personChangesInProgress.put(targetId, changeInProgress);
     }
 
     /**
      * Removed the target person's mapped changeInProgress, freeing it for other change commands.
      * @return the removed change command, or null if there was no mapping found
      */
-    synchronized ChangePersonInModelCommand unassignOngoingChangeForPerson(int targetPersonId) {
-        return personChangesInProgress.remove(targetPersonId);
+    synchronized ChangePersonInModelCommand unassignOngoingChangeForPerson(ReadOnlyPerson person) {
+        return personChangesInProgress.remove(person.getId());
+    }
+
+    synchronized ChangePersonInModelCommand unassignOngoingChangeForPerson(int targetId) {
+        return personChangesInProgress.remove(targetId);
+    }
+
+    synchronized ChangePersonInModelCommand getOngoingChangeForPerson(ReadOnlyPerson person) {
+        return getOngoingChangeForPerson(person.getId());
+    }
+
+    synchronized ChangePersonInModelCommand getOngoingChangeForPerson(int targetId) {
+        return personChangesInProgress.get(targetId);
+    }
+
+    boolean personHasOngoingChange(ReadOnlyPerson key) {
+        return personHasOngoingChange(key.getId());
+    }
+
+    boolean personHasOngoingChange(int personId) {
+        return personChangesInProgress.containsKey(personId);
+    }
+
+    void raiseLocalModelChangedEvent() {
+        raise(new LocalModelChangedEvent(this));
     }
 
 //// CREATE
@@ -277,9 +301,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         }
         backingTagList().add(tagToAdd);
     }
-
-//// READ
-
 
 //// UPDATE
 

@@ -124,7 +124,7 @@ public class PersonOverviewController extends UiController{
             selected.stream()
                     .forEach(target -> {
                         mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(target));
-                        modelManager.deletePersonThroughUI(target, 1, TimeUnit.SECONDS);
+                        modelManager.deletePersonThroughUI(target);
                     });
         }
     }
@@ -151,7 +151,7 @@ public class PersonOverviewController extends UiController{
                     .forEach(p -> {
                         Person editedPerson = new Person(p);
                         editedPerson.setTags(listOfFinalAssignedTags.get());
-                        modelManager.updatePersonThroughUI(p, () -> Optional.of(editedPerson));
+                        modelManager.editPersonThroughUI(p, () -> Optional.of(editedPerson));
                     });
         }
     }
@@ -167,7 +167,7 @@ public class PersonOverviewController extends UiController{
             showNoSelectionAlert();
             return;
         }
-        modelManager.updatePersonThroughUI(editTarget,
+        modelManager.editPersonThroughUI(editTarget,
                 () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
     }
 

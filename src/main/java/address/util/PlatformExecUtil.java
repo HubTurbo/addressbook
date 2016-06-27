@@ -3,6 +3,7 @@ package address.util;
 import javafx.application.Platform;
 
 import java.util.concurrent.*;
+import java.util.function.Supplier;
 
 /**
  * Contains utility methods for running code in various ways,
@@ -28,6 +29,21 @@ public final class PlatformExecUtil {
             runLater(task);
         }
         return task;
+    }
+
+    /**
+     * Runs callback on FX thread and wait till the result is returned. Returns custom value if there was any thread
+     * execution exceptions thrown.
+     * @see #call(Callable)
+     * @return {@code failValue} if there was an exception during execution, else result of {@code callback}
+     */
+    public static <T> T callAndWait(Callable<T> callback, T failValue) {
+            try {
+                return call(callback).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                return failValue; // execution exception, unable to retrieve data
+            }
     }
 
     public static void runLaterDelayed(Runnable action, long delay, TimeUnit unit) {

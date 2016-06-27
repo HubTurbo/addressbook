@@ -39,6 +39,14 @@ public class PersonCardController extends UiController{
     private Label tags;
 
     private ReadOnlyViewablePerson person;
+    private FadeTransition deleteTransition;
+
+    {
+        deleteTransition = new FadeTransition(Duration.millis(1000), cardPane);
+        deleteTransition.setFromValue(1.0);
+        deleteTransition.setToValue(0.1);
+        deleteTransition.setCycleCount(1);
+    }
 
     public PersonCardController(ReadOnlyViewablePerson person) {
         this.person = person;
@@ -116,7 +124,9 @@ public class PersonCardController extends UiController{
         });
         person.isDeletedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                handleDeletedPerson();
+                handleDelete();
+            } else {
+//                deleteTransition.stop();
             }
         });
         person.githubUsernameProperty().addListener((observable, oldValue, newValue) -> {
@@ -167,14 +177,8 @@ public class PersonCardController extends UiController{
         }
     }
 
-    public void handleDeletedPerson() {
-        Platform.runLater(() -> {
-            FadeTransition ft = new FadeTransition(Duration.millis(1000), cardPane);
-            ft.setFromValue(1.0);
-            ft.setToValue(0.1);
-            ft.setCycleCount(1);
-            ft.play();
-        });
+    public void handleDelete() {
+        Platform.runLater(() -> deleteTransition.play());
     }
 
     public HBox getLayout() {
