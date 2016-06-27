@@ -37,8 +37,10 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
             ClipboardContent content = new ClipboardContent();
             DragContainer container = new DragContainer();
-            container.addAllData(getListView().getSelectionModel().getSelectedItems().stream().map(p
-                                                        -> p.getId()).collect(Collectors.toCollection(ArrayList::new)));
+            container.addAllData(getListView().getSelectionModel()
+                                              .getSelectedItems()
+                                              .stream()
+                                              .map(p -> p.getId()).collect(Collectors.toCollection(ArrayList::new)));
             content.put(DragContainer.ADDRESS_BOOK_PERSON_UUID, container);
             dragBoard.setDragView(FxViewUtil.getDragView(this.getListView().getSelectionModel().getSelectedItems()));
             dragBoard.setContent(content);
@@ -109,6 +111,10 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         setOnDragDone(DragEvent::consume);
     }
 
+    /**
+     * Select this indexes in the list view selection model.
+     * @param movedIndexes
+     */
     private void selectIndexes(Collection<Integer> movedIndexes) {
         movedIndexes.stream().forEach(index -> getListView().getSelectionModel().select(index));
     }
@@ -125,6 +131,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         ObservableList<ReadOnlyViewablePerson> list = this.getListView().getItems();
         double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
         getListView().getSelectionModel().clearSelection();
+
         if (currentYPosition < midPoint) {
             moveToIndex = list.indexOf(getItem());
         } else {
@@ -132,7 +139,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         }
 
         while (moveToIndex < list.size() && listOfDragPersons.contains(list.get(moveToIndex))) {
-            moveToIndex++;
+            moveToIndex++; //Move to the next index if the current index contains one of the dragged person.
         }
         return moveToIndex;
     }

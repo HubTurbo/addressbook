@@ -18,7 +18,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
 public class PersonCardController extends UiController{
@@ -63,8 +62,7 @@ public class PersonCardController extends UiController{
         if (person.isDeleted()) {
             Platform.runLater(() -> cardPane.setOpacity(0.1f));
         }
-
-        profileImage.setClip(FxViewUtil.getCircleClip(profileImage));
+        FxViewUtil.configureCircularImageView(profileImage);
 
         initIdLabel();
         firstName.textProperty().bind(person.firstNameProperty());

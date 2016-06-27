@@ -59,8 +59,9 @@ public class ReorderedList<T> extends TransformationList<T, T> {
     }
 
     /**
+     * Moves the elements in the list.
      * Precondition: The object at destinationIndex is not in the list of toMove.
-     * @param toMove The list of object to be moved.
+     * @param toMove The list of objects to be moved.
      * @param destinationIndex The index(before shifting) of the list where elements are to be shifted to.
      */
     public synchronized Collection<Integer> moveElements(List<T> toMove, int destinationIndex) {
@@ -75,7 +76,7 @@ public class ReorderedList<T> extends TransformationList<T, T> {
         }
 
         if (toMove.contains(mappingList.get(destinationIndex))) {
-            throw new IllegalArgumentException("destinationIndex object of this list cannot be in the list of toMove");
+            throw new IllegalArgumentException("The object at destinationIndex is not in the list of toMove");
         }
 
         T destElement = mappingList.get(destinationIndex);
@@ -88,5 +89,4 @@ public class ReorderedList<T> extends TransformationList<T, T> {
     private Collection<Integer> collectMovedIndexes(List<T> toMove) {
         return toMove.stream().map(e -> mappingList.indexOf(e)).collect(Collectors.toCollection(ArrayList::new));
     }
-
 }

@@ -49,9 +49,7 @@ public class FxViewUtil {
             }
             imageView.setFitHeight(50.0);
             imageView.setFitWidth(50.0);
-            imageView.setClip(getCircleClip(imageView));
-            imageView.setStyle("-fx-background-color: transparent;");
-            container.setStyle("-fx-background-color: transparent;");
+            configureCircularImageView(imageView);
             container.getChildren().add(imageView);
         });
         SnapshotParameters para = new SnapshotParameters();
@@ -63,9 +61,13 @@ public class FxViewUtil {
         return new Image(MainApp.class.getResourceAsStream("/images/default_profile_picture.png"));
     }
 
-    public static Circle getCircleClip(ImageView profileImage) {
-        double xyPositionAndRadius = profileImage.getFitHeight() / 2.0;
-        return new Circle(xyPositionAndRadius, xyPositionAndRadius, xyPositionAndRadius);
+    /**
+     * Configure the image view to be circular in shape.
+     * @param imageView
+     */
+    public static void configureCircularImageView(ImageView imageView) {
+        double xyPositionAndRadius = imageView.getFitHeight() / 2.0;
+        imageView.setClip(new Circle(xyPositionAndRadius, xyPositionAndRadius, xyPositionAndRadius));
     }
 
 }
