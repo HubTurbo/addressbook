@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
  */
 public class BrowserManager {
 
+    private static final BrowserType type = BrowserType.FULL_FEATURE_BROWSER;
+
     private static final String GITHUB_ROOT_URL = "https://github.com/";
     private static final String INVALID_GITHUB_USERNAME_MESSAGE = "Unparsable GitHub Username.";
 
@@ -43,8 +45,6 @@ public class BrowserManager {
     private Optional<HyperBrowser> hyperBrowser;
 
     private StringProperty selectedPersonUsername;
-
-    private BrowserType type;
 
     private ChangeListener<String> listener = (observable,  oldValue,  newValue) -> {
         try {
@@ -60,17 +60,16 @@ public class BrowserManager {
         }
     };
 
-    public BrowserManager(BrowserType type, ObservableList<ReadOnlyViewablePerson> filteredPersons) {
+    public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
         this.selectedPersonUsername = new SimpleStringProperty();
-        this.type = type;
         this.filteredPersons = filteredPersons;
     }
 
     /**
-     * Initialize the application to use jxBrowser.
+     * Initialize the browser managed by the browser manager.
      * This must be called in a non-ui thread.
      */
-    public void initBrowser(){
+    public static void initBrowser(){
         if (type == BrowserType.FULL_FEATURE_BROWSER) {
             if (Environment.isMac()) {
                 BrowserCore.initialize();
@@ -91,7 +90,7 @@ public class BrowserManager {
         } else {
             logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
             hyperBrowser = Optional.of(new HyperBrowser(
-                    BrowserType.FULL_FEATURE_BROWSER,
+                    type,
                     HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
                     BrowserManagerUtil.getBrowserInitialScreen()));
         }

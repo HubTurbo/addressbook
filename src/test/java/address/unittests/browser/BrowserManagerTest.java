@@ -1,23 +1,39 @@
 package address.unittests.browser;
 
+import address.browser.BrowserManager;
 import address.browser.BrowserManagerUtil;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;
+import address.util.JavafxThreadingRule;
+import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the BrowserManager behaviours and functionality.
  */
 public class BrowserManagerTest {
+
+    @Rule
+    /**
+     * To run test cases on JavaFX thread.
+     */
+    public JavafxThreadingRule javafxRule = new JavafxThreadingRule();
 
     private ObservableList<ReadOnlyViewablePerson> filteredPersons;
 
@@ -28,6 +44,15 @@ public class BrowserManagerTest {
         this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Obama", "Smith", -3)));
         this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Lala", "Lol", -4)));
         this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lala", -5)));
+    }
+
+    @Test
+    public void testNecessaryBrowserResources_resourcesNotNull() {
+        BrowserManager manager = new BrowserManager(filteredPersons);
+        manager.start();
+        assertNotNull(manager.getHyperBrowserView());
+        Optional<Node> node = BrowserManagerUtil.getBrowserInitialScreen();
+        assertTrue(node.isPresent());
     }
 
     @SuppressWarnings("unchecked")
