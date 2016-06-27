@@ -6,6 +6,11 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.TransformationList;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  *
  */
@@ -54,23 +59,34 @@ public class ReorderedList<T> extends TransformationList<T, T> {
     }
 
     /**
-     * Moves the element in the list
-     * @param from The index(before shifting occurred) of the element to be shifted(before shift).
-     * @param to The index(before shifting occurred) of the list where element is to be shifted to.
+     * Precondition: The object at destinationIndex is not in the list of toMove.
+     * @param toMove The list of object to be moved.
+     * @param destinationIndex The index(before shifting) of the list where elements are to be shifted to.
      */
-    public synchronized void moveElement(int from, int to) {
+    public synchronized Collection<Integer> moveElements(List<T> toMove, int destinationIndex) {
 
-        if (from < to) {
-            //Element to be shifted is below the index where the element need to be shifted to.
-            //Removing the element first will shift every element down.
-            //Therefore, only remove the element after shifting finished.
-            T tmpPerson = mappingList.get(from);
-            mappingList.add(to, tmpPerson);
-            mappingList.remove(from);
-        } else if (from > to) {
-            T tmpPerson = mappingList.remove(from);
-            mappingList.add(to, tmpPerson);
+        List<Integer> movedIndexes = new ArrayList<>();
+
+        if (destinationIndex == mappingList.size()){
+            mappingList.removeAll(toMove);
+            mappingList.addAll(toMove);
+            movedIndexes.addAll(collectMovedIndexes(toMove));
+            return movedIndexes;
         }
+
+        if (toMove.contains(mappingList.get(destinationIndex))) {
+            throw new IllegalArgumentException("destinationIndex object of this list cannot be in the list of toMove");
+        }
+
+        T destElement = mappingList.get(destinationIndex);
+        mappingList.removeAll(toMove);
+        mappingList.addAll(mappingList.indexOf(destElement), toMove);
+        movedIndexes.addAll(collectMovedIndexes(toMove));
+        return movedIndexes;
+    }
+
+    private Collection<Integer> collectMovedIndexes(List<T> toMove) {
+        return toMove.stream().map(e -> mappingList.indexOf(e)).collect(Collectors.toCollection(ArrayList::new));
     }
 
 }
