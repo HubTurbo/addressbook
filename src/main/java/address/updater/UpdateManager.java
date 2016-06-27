@@ -185,8 +185,7 @@ public class UpdateManager extends ComponentManager {
                 updateDataUrl = new URL(UPDATE_DATA_ON_SERVER_STABLE);
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
-            logger.debug("Update data URL is invalid");
+            logger.debug("Update data URL is invalid", e);
             return Optional.empty();
         }
 
@@ -200,8 +199,7 @@ public class UpdateManager extends ComponentManager {
         try {
             return Optional.of(JsonUtil.fromJsonString(FileUtil.readFromFile(UPDATE_DATA_FILE), UpdateData.class));
         } catch (IOException e) {
-            logger.debug("Failed to parse update data from json file.");
-            e.printStackTrace();
+            logger.debug("Failed to parse update data from json file.", e);
         }
 
         return Optional.empty();
@@ -211,7 +209,7 @@ public class UpdateManager extends ComponentManager {
         try {
             return Optional.of(Version.fromString(updateData.getVersion()));
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+            logger.warn("Failed to read latest version", e);
         }
 
         return Optional.empty();
@@ -251,8 +249,7 @@ public class UpdateManager extends ComponentManager {
             try {
                 Files.createDirectory(updateDir.toPath());
             } catch (IOException e) {
-                logger.debug("Failed to create update directory");
-                e.printStackTrace();
+                logger.debug("Failed to create update directory", e);
             }
         }
 
@@ -273,9 +270,7 @@ public class UpdateManager extends ComponentManager {
             }
             Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            logger.debug("Failed to download update for {}",
-                    targetFile.toString());
-            e.printStackTrace();
+            logger.debug("Failed to download update for {}", targetFile.toString(), e);
             throw e;
         }
     }
@@ -317,8 +312,7 @@ public class UpdateManager extends ComponentManager {
             logger.debug("Failed to convert downloaded version to JSON");
             e.printStackTrace();
         } catch (IOException e) {
-            logger.debug("Failed to write downloaded version to file");
-            e.printStackTrace();
+            logger.debug("Failed to write downloaded version to file", e);
         }
     }
 
@@ -352,7 +346,7 @@ public class UpdateManager extends ComponentManager {
         try {
             Runtime.getRuntime().exec(command);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.debug("Failed to run JarUpdater", e);
         }
     }
 

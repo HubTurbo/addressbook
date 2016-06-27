@@ -50,9 +50,7 @@ public class BackupHandler {
         try {
             FileUtil.copyFile(mainAppJar.toPath(), Paths.get(backupFilename), true);
         } catch (IOException e) {
-            logger.debug("Failed to create backup");
-            e.printStackTrace();
-            //TODO: remove unjustified printStackTrace statements
+            logger.debug("Failed to create backup", e);
             return false;
         }
 
@@ -114,8 +112,7 @@ public class BackupHandler {
             try {
                 FileUtil.deleteFile(new File(dep));
             } catch (IOException e) {
-                logger.warn("Failed to delete unused dependency: {}", dep);
-                e.printStackTrace();
+                logger.warn("Failed to delete unused dependency: {}", dep, e);
             }
         });
 

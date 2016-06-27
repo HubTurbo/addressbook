@@ -69,19 +69,16 @@ public class DependencyTracker {
             try {
                 FileUtil.createFile(DEPENDENCY_HISTORY_FILE);
             } catch (IOException e) {
-                logger.debug("Failed to create dependency file");
-                e.printStackTrace();
+                logger.debug("Failed to create dependency file", e);
             }
         }
 
         try {
             FileUtil.writeToFile(DEPENDENCY_HISTORY_FILE, JsonUtil.toJsonString(dependenciesForVersionsInUse));
         } catch (JsonProcessingException e) {
-            logger.debug("Failed to convert dependencies to JSON");
-            e.printStackTrace();
+            logger.debug("Failed to convert dependencies to JSON", e);
         } catch (IOException e) {
-            logger.debug("Failed to write dependencies to file");
-            e.printStackTrace();
+            logger.debug("Failed to write dependencies to file", e);
         }
     }
 
@@ -119,8 +116,7 @@ public class DependencyTracker {
         try {
             manifest = new Manifest(new URL(manifestPath).openStream());
         } catch (IOException e) {
-            logger.debug("Manifest can't be read, not running dependency check");
-            e.printStackTrace();
+            logger.debug("Manifest can't be read, not running dependency check", e);
             return Optional.empty();
         }
 
