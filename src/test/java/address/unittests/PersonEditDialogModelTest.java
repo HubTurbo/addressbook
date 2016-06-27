@@ -44,8 +44,8 @@ public class PersonEditDialogModelTest {
     public void filterTags() {
         List<Tag> allTags = getList("friends", "relatives", "colleagues");
         List<Tag> assignedTags = getList("friends");
-        TagSelectionEditDialogModel model = new TagSelectionEditDialogModel(allTags, assignedTags);
-        model.setFilter("ela");
+        TagSelectionEditDialogModel model = new TagSelectionEditDialogModel();
+        model.initModel(allTags, assignedTags, "ela");
 
         assertEquals(2, eventCounter);
         assertEquals(1, eventData.size());

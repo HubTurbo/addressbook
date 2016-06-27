@@ -5,27 +5,26 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import address.events.EventManager;
-import address.events.TagSelectionSearchResultsChangedEvent;
-import address.events.TagSelectionListChangedEvent;
 import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class TagSelectionEditDialogModel {
-    private List<SelectableTag> allTags = new ArrayList<>();
-    private List<SelectableTag> filteredTags = new ArrayList<>();
+    private List<Tag> allTags = FXCollections.observableArrayList();
+    private ObservableList<SelectableTag> filteredTags = FXCollections.observableArrayList();
     private Optional<Integer> selectedTagIndex = Optional.empty();
-    private List<SelectableTag> assignedTags = new ArrayList<>();
+    private ObservableList<Tag> assignedTags = FXCollections.observableArrayList();
 
-    public TagSelectionEditDialogModel(List<Tag> allTags, List<Tag> assignedTags) {
-        List<SelectableTag> selectableTags = convertToSelectableTags(allTags);
-        this.allTags.addAll(selectableTags);
+    public TagSelectionEditDialogModel() {
+    }
 
-        assignedTags.stream()
-                .forEach(assignedTag -> this.assignedTags.add(getSelectableTag(assignedTag).get()));
-
-        EventManager.getInstance().post(new TagSelectionListChangedEvent(this.assignedTags));
-        setFilter("");
+    public void initModel(List<Tag> allTags, List<Tag> assignedTags, String filter) {
+        this.allTags.addAll(allTags);
+        this.assignedTags.addAll(assignedTags);
+        setFilter(filter);
     }
 
     public void toggleSelection() {
@@ -37,45 +36,36 @@ public class TagSelectionEditDialogModel {
         } else {
             assignedTags.add(selection.get());
         }
-
-        EventManager.getInstance().post(new TagSelectionListChangedEvent(assignedTags));
     }
 
     public void selectNext() {
         if (!canIncreaseIndex()) return;
         selectedTagIndex = Optional.of(selectedTagIndex.orElse(-1) + 1);
-        updateSelection();
-        EventManager.getInstance().post(new TagSelectionSearchResultsChangedEvent(filteredTags));
+        updateSelection(filteredTags, selectedTagIndex);
     }
 
     public void selectPrevious() {
         if (!canDecreaseIndex()) return;
         selectedTagIndex = Optional.of(selectedTagIndex.get() - 1);
-        updateSelection();
-        EventManager.getInstance().post(new TagSelectionSearchResultsChangedEvent(filteredTags));
+        updateSelection(filteredTags, selectedTagIndex);
     }
 
     public void setFilter(String filter) {
-        List<SelectableTag> newContactTags = allTags.stream()
-                                                .filter(tag -> tag.getName().contains(filter))
-                                                .collect(Collectors.toList());
-
-        List<SelectableTag> toBeAdded = getNewMatchingTags(filteredTags, newContactTags);
-        List<SelectableTag> toBeRemoved = getNewMatchingTags(newContactTags, filteredTags);
-
-        filteredTags.removeAll(toBeRemoved);
-        filteredTags.addAll(toBeAdded);
-
-        updateSelectedTagIndexAfterFilter(filter);
-        updateSelection();
-
-        EventManager.getInstance().post(new TagSelectionSearchResultsChangedEvent(filteredTags));
+        filteredTags.clear();
+        filteredTags.addAll(allTags.stream()
+                .filter(tag -> tag.getName().contains(filter))
+                .map(SelectableTag::new)
+                .collect(Collectors.toList()));
+        selectedTagIndex = getSelectedTagIndexAfterFilter(filteredTags, filter);
+        updateSelection(filteredTags, selectedTagIndex);
     }
 
-    public List<Tag> getAssignedTags() {
-        return assignedTags.stream()
-                .map(assignedTag -> new Tag(assignedTag.getName()))
-                .collect(Collectors.toList());
+    public ObservableList<Tag> getAssignedTags() {
+        return assignedTags;
+    }
+
+    public ObservableList<SelectableTag> getFilteredTags() {
+        return filteredTags;
     }
 
     private List<SelectableTag> convertToSelectableTags(List<Tag> allTags) {
@@ -84,29 +74,23 @@ public class TagSelectionEditDialogModel {
                 .collect(Collectors.toList());
     }
 
-    private Optional<SelectableTag> getSelectableTag(Tag assignedTag) {
-        return this.allTags.stream()
-                .filter(tag -> tag.getName().equals(assignedTag.getName()))
-                .findFirst();
-    }
-
     private Optional<SelectableTag> getSelection() {
         return filteredTags.stream()
                 .filter(SelectableTag::isSelected)
                 .findFirst();
     }
 
-    private void updateSelection() {
-        clearSelection();
-        if (!selectedTagIndex.isPresent()) return;
-        int tagIndexToSelect = selectedTagIndex.get();
-        SelectableTag tag = filteredTags.remove(tagIndexToSelect);
+    private void updateSelection(List<SelectableTag> tagList, Optional<Integer> tagIndex) {
+        clearSelection(tagList);
+        if (!tagIndex.isPresent()) return;
+        int tagIndexToSelect = tagIndex.get();
+        SelectableTag tag = tagList.remove(tagIndexToSelect);
         tag.setSelected(true);
-        filteredTags.add(tagIndexToSelect, tag);
+        tagList.add(tagIndexToSelect, tag);
     }
 
-    private void clearSelection() {
-        filteredTags.stream()
+    private void clearSelection(List<SelectableTag> tagList) {
+        tagList.stream()
                 .filter(SelectableTag::isSelected)
                 .forEach(tag -> tag.setSelected(false));
     }
@@ -120,11 +104,11 @@ public class TagSelectionEditDialogModel {
         return selectedTagIndex.isPresent() && selectedTagIndex.get() > 0;
     }
 
-    private void updateSelectedTagIndexAfterFilter(String filter) {
-        if (!filter.isEmpty() && !filteredTags.isEmpty()) {
-            selectedTagIndex = Optional.of(0);
+    private Optional<Integer> getSelectedTagIndexAfterFilter(List<SelectableTag> tagList, String filter) {
+        if (!filter.isEmpty() && !tagList.isEmpty()) {
+            return Optional.of(0);
         } else {
-            selectedTagIndex = Optional.empty();
+            return Optional.empty();
         }
     }
 

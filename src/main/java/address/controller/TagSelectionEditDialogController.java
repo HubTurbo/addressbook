@@ -1,14 +1,13 @@
 package address.controller;
 
 import address.events.EventManager;
-import address.events.TagSelectionSearchResultsChangedEvent;
-import address.events.TagSelectionListChangedEvent;
+import address.events.LocalModelChangedEvent;
 import address.model.TagSelectionEditDialogModel;
 import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
-import com.google.common.eventbus.Subscribe;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -54,23 +53,26 @@ public class TagSelectionEditDialogController extends EditDialogController {
         transition.play();
 
         addListeners();
-        EventManager.getInstance().registerHandler(this);
         Platform.runLater(() -> tagSearch.requestFocus());
     }
 
     public void setTags(List<Tag> tags, List<Tag> assignedTags) {
-        this.model = new TagSelectionEditDialogModel(tags, assignedTags);
-    }
+        this.model = new TagSelectionEditDialogModel();
+        final ListChangeListener<Tag> assignedTagsListener = change -> {
+            while (change.next()) {
+                tagList.getChildren().setAll(getTagListNodes(change.getList()));
+            }
+        };
 
-    @Subscribe
-    public void handleTagSearchResultsChangedEvent(TagSelectionSearchResultsChangedEvent e) {
-        tagResults.setContent(getTagsVBox(e.getSelectableTags()));
-    }
+        final ListChangeListener<SelectableTag> filteredTagsListener = change -> {
+            while (change.next()) {
+                tagResults.setContent(getTagsVBox(change.getList()));
+            }
+        };
+        model.getAssignedTags().addListener(assignedTagsListener);
+        model.getFilteredTags().addListener(filteredTagsListener);
 
-    @Subscribe
-    public void handleTagListChangedEvent(TagSelectionListChangedEvent e) {
-        tagList.getChildren().clear();
-        tagList.getChildren().addAll(getTagListNodes(e.getResultTag(), false));
+        model.initModel(tags, assignedTags, "");
     }
 
     /**
@@ -111,21 +113,36 @@ public class TagSelectionEditDialogController extends EditDialogController {
      * Returns the list of nodes that represent the given list of tags
      *
      * @param contactTagList
-     * @param shouldConsiderSelectedProperty if true, then the label may have a blue background
-     *                                     depending on its selected status
      * @return
      */
-    private List<Node> getTagListNodes(List<SelectableTag> contactTagList, boolean shouldConsiderSelectedProperty) {
+    private List<Node> getSelectableTagListNodes(List<? extends SelectableTag> contactTagList) {
         return contactTagList.stream()
-                .map(tag -> getNodeForTag(tag, shouldConsiderSelectedProperty))
+                .map(tag -> getNodeForSelectableTag(tag))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private Label getNodeForTag(SelectableTag contactTag, boolean shouldConsiderSelectedProperty) {
+    /**
+     * Returns the list of nodes that represent the given list of tags
+     *
+     * @param contactTagList
+     * @return
+     */
+    private List<Node> getTagListNodes(List<? extends Tag> contactTagList) {
+        return contactTagList.stream()
+                .map(tag -> getNodeForTag(tag))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private Label getNodeForSelectableTag(SelectableTag contactTag) {
         Label newLabel = new Label(contactTag.getName());
-        if (shouldConsiderSelectedProperty && contactTag.isSelected()) {
+        if (contactTag.isSelected()) {
             newLabel.setStyle(STYLE_SELECTED_BACKGROUND);
         }
+        newLabel.setPrefWidth(TAG_LABEL_WIDTH);
+        return newLabel;
+    }
+    private Label getNodeForTag(Tag contactTag) {
+        Label newLabel = new Label(contactTag.getName());
         newLabel.setPrefWidth(TAG_LABEL_WIDTH);
         return newLabel;
     }
@@ -138,8 +155,8 @@ public class TagSelectionEditDialogController extends EditDialogController {
      * @param contactTagList
      * @return
      */
-    private VBox getTagsVBox(List<SelectableTag> contactTagList) {
-        List<Node> tagNodes = getTagListNodes(contactTagList, true);
+    private VBox getTagsVBox(List<? extends SelectableTag> contactTagList) {
+        List<Node> tagNodes = getSelectableTagListNodes(contactTagList);
         VBox content = new VBox();
         content.getChildren().addAll(tagNodes);
         return content;
