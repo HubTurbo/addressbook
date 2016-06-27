@@ -67,14 +67,14 @@ public class ReorderedList<T> extends TransformationList<T, T> {
      */
     public synchronized Collection<Integer> moveElements(List<T> toMove, int destinationIndex) {
 
-        List<Integer> movedIndexes = new ArrayList<>();
+        List<Integer> movedIndices = new ArrayList<>();
 
         //Insert it at the back of the list.
         if (destinationIndex == mappingList.size()){
             mappingList.removeAll(toMove);
             mappingList.addAll(toMove);
-            movedIndexes.addAll(collectMovedIndices(toMove));
-            return movedIndexes;
+            movedIndices.addAll(collectMovedIndices(toMove));
+            return movedIndices;
         }
 
         if (toMove.contains(mappingList.get(destinationIndex))) {
@@ -85,8 +85,8 @@ public class ReorderedList<T> extends TransformationList<T, T> {
         T destElement = mappingList.get(destinationIndex);
         mappingList.removeAll(toMove);
         mappingList.addAll(mappingList.indexOf(destElement), toMove);
-        movedIndexes.addAll(collectMovedIndices(toMove));
-        return movedIndexes;
+        movedIndices.addAll(collectMovedIndices(toMove));
+        return movedIndices;
     }
 
     private Collection<Integer> collectMovedIndices(List<T> toMove) {

@@ -108,8 +108,8 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
                                                            .contains(p.getId()))
                                                            .collect(Collectors.toCollection(ArrayList::new));
                 int moveToIndex = computeMoveToIndex(event.getSceneY(), listOfDragPersons);
-                Collection<Integer> movedIndexes = reorderedList.moveElements(listOfDragPersons, moveToIndex);
-                selectIndexes(movedIndexes);
+                Collection<Integer> movedIndices = reorderedList.moveElements(listOfDragPersons, moveToIndex);
+                selectIndices(movedIndices);
             }
             event.setDropCompleted(true);
             event.consume();
@@ -141,10 +141,10 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     /**
      * Select this indices in the list view selection model.
-     * @param movedIndexes
+     * @param movedIndices
      */
-    private void selectIndexes(Collection<Integer> movedIndexes) {
-        movedIndexes.stream().forEach(index -> getListView().getSelectionModel().select(index));
+    private void selectIndices(Collection<Integer> movedIndices) {
+        movedIndices.stream().forEach(index -> getListView().getSelectionModel().select(index));
     }
 
     /**
