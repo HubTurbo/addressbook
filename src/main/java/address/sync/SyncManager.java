@@ -20,7 +20,7 @@ import java.util.concurrent.*;
 /**
  * Syncs data between the cloud and the primary data file
  *
- * All requests to the cloud will be based on the currently-active addressbook
+ * Periodic updates to the cloud will be based on the currently-active addressbook
  * which can be set via setActiveAddressBook
  */
 public class SyncManager extends ComponentManager{
@@ -153,6 +153,46 @@ public class SyncManager extends ComponentManager{
             }
         } catch (IOException e) {
             throw new SyncErrorException("Error getting updated persons.");
+        }
+    }
+
+    public Person createPerson(String addressBookName, Person person) throws SyncErrorException {
+        try {
+            Optional<Person> createdPerson = remoteManager.createPerson(addressBookName, person);
+            if (!createdPerson.isPresent()) throw new SyncErrorException("Error creating person");
+            return createdPerson.get();
+        } catch (IOException e) {
+            throw new SyncErrorException("Error creating person");
+        }
+    }
+
+    public Tag createTag(String addressBookName, Tag tag) throws SyncErrorException {
+        try {
+            Optional<Tag> createdTag = remoteManager.createTag(addressBookName, tag);
+            if (!createdTag.isPresent()) throw new SyncErrorException("Error creating tag");
+            return createdTag.get();
+        } catch (IOException e) {
+            throw new SyncErrorException("Error creating tag");
+        }
+    }
+
+    public Tag editTag(String addressBookName, String tagName, Tag tag) throws SyncErrorException {
+        try {
+            Optional<Tag> editedTag = remoteManager.editTag(addressBookName, tagName, tag);
+            if (!editedTag.isPresent()) throw new SyncErrorException("Error editing tag");
+            return editedTag.get();
+        } catch (IOException e) {
+            throw new SyncErrorException("Error editing tag");
+        }
+    }
+
+    public Person updatePerson(String addressBookName, int personId, Person person) throws SyncErrorException {
+        try {
+            Optional<Person> updatedPerson = remoteManager.updatePerson(addressBookName, personId, person);
+            if (!updatedPerson.isPresent()) throw new SyncErrorException("Error updating person");
+            return updatedPerson.get();
+        } catch (IOException e) {
+            throw new SyncErrorException("Error updating person");
         }
     }
 
