@@ -1,4 +1,4 @@
-package address.updater.model;
+package address.updater;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -8,17 +8,17 @@ import java.net.URL;
 import java.util.ArrayList;
 
 /**
- * Lists latest version's version, main app download link and libraries descriptors
+ * Lists latest application's version, main app download link and libraries descriptors
  */
 @JsonPropertyOrder({ "version", "mainApp", "libraries" })
-public class UpdateData {
+public class VersionDescriptor {
     @JsonProperty("version")
     private String versionString;
     @JsonProperty("mainApp")
     private URL mainAppDownloadLink;
     private ArrayList<LibraryDescriptor> libraries = new ArrayList<>();
 
-    public UpdateData() {}
+    public VersionDescriptor() {} // required for serialization
 
     public String getVersion() {
         return versionString;

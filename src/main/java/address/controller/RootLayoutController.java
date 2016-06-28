@@ -1,14 +1,12 @@
 package address.controller;
 
 import address.MainApp;
-import address.events.EventManager;
 import address.events.LoadDataRequestEvent;
 import address.events.SaveDataRequestEvent;
 import address.keybindings.KeyBindingsManager;
 import address.model.ModelManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;
-import address.util.Version;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
@@ -131,7 +129,7 @@ public class RootLayoutController extends UiController{
     private void handleAbout() {
         logger.debug("Showing information about the application.");
         mainController.showAlertDialogAndWait(AlertType.INFORMATION, "AddressApp", "About",
-                "Version " + Version.getCurrentVersion().toString() + "\nSome code adapted from http://code.makery.ch");
+                "Version " + MainApp.VERSION.toString() + "\nSome code adapted from http://code.makery.ch");
     }
 
     /**

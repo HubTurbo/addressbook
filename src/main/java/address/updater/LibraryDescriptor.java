@@ -1,5 +1,4 @@
-package address.updater.model;
-
+package address.updater;
 
 import address.util.OsDetector;
 
@@ -14,7 +13,7 @@ public class LibraryDescriptor {
     private URL downloadLink;
     private OsDetector.Os os;
 
-    public LibraryDescriptor() {}
+    public LibraryDescriptor() {} // required for serialization
 
     public LibraryDescriptor(String filename, URL downloadLink, OsDetector.Os os) {
         this.filename = filename;
@@ -26,11 +25,23 @@ public class LibraryDescriptor {
         return filename;
     }
 
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
     public URL getDownloadLink() {
         return downloadLink;
     }
 
+    public void setDownloadLink(URL downloadLink) {
+        this.downloadLink = downloadLink;
+    }
+
     public OsDetector.Os getOs() {
         return os;
+    }
+
+    public void setOs(OsDetector.Os os) {
+        this.os = os;
     }
 }

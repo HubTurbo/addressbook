@@ -136,6 +136,16 @@ public class StatusBarFooterController extends UiController{
     }
 
     @Subscribe
+    public void handleUpdaterFailedEvent(UpdaterFailedEvent ufe) {
+        Platform.runLater(() -> {
+            updaterStatusBar.setText(ufe.toString());
+            updaterStatusBar.setProgress(0.0);
+            updaterStatusBar.setText("");
+            saveLocationLabel.setVisible(true);
+        });
+    }
+
+    @Subscribe
     private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
         updateSaveLocationDisplay(e.saveFile);
     }

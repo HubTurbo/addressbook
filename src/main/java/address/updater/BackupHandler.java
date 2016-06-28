@@ -17,51 +17,51 @@ import java.util.stream.Collectors;
 /**
  * Deletes backup apps and their dependencies that are no longer used.
  */
-public class BackupManager {
-    private static final AppLogger logger = LoggerManager.getLogger(BackupManager.class);
+public class BackupHandler {
+    private static final AppLogger logger = LoggerManager.getLogger(BackupHandler.class);
     private static final int MAX_BACKUP_JAR_KEPT = 3;
     private static final String BACKUP_MARKER = "_";
-    private static final String BACKUP_FILENAME_STRING_FORMAT =
-            "addressbook" + BACKUP_MARKER + Version.getCurrentVersion().toString() + ".jar";
+    private static final String BACKUP_FILENAME_STRING_FORMAT = "addressbook" + BACKUP_MARKER + "%s.jar";
     private static final String BACKUP_FILENAME_PATTERN_STRING =
             "addressbook" + BACKUP_MARKER + "(" + Version.VERSION_PATTERN_STRING + ")\\.(jar|JAR)$";
 
-    private DependencyTracker dependencyTracker;
+    private final Version currentVersion;
+    private DependencyHistoryHandler dependencyHistoryHandler;
 
-    public BackupManager(DependencyTracker dependencyTracker) {
-        this.dependencyTracker = dependencyTracker;
+    public BackupHandler(Version currentVersion, DependencyHistoryHandler dependencyHistoryHandler) {
+        this.currentVersion = currentVersion;
+        this.dependencyHistoryHandler = dependencyHistoryHandler;
     }
 
     /**
-     * @return true if backup is successfully made or if app is run from backup jar hence no backup need to be made
+     * Creates backup if app is not run from backup JAR.
+     * No backup is made if run from backup JAR.
+     * Assumes app is run from JAR
      */
-    public boolean createBackupOfCurrentApp() {
+    public void createBackupOfApp(Version version) throws IOException {
         File mainAppJar = FileUtil.getJarFileOfClass(MainApp.class);
 
         if (isRunFromBackupJar(mainAppJar.getName())) {
             logger.info("Run from a backup; not creating backup");
-            return true;
+            return;
         }
 
-        String backupFilename = getMainAppBackupFilename();
+        String backupFilename = getBackupFilename(version);
 
         try {
             FileUtil.copyFile(mainAppJar.toPath(), Paths.get(backupFilename), true);
         } catch (IOException e) {
-            logger.debug("Failed to create backup");
-            e.printStackTrace();
-            return false;
+            logger.debug("Failed to create backup", e);
+            throw e;
         }
-
-        return true;
     }
 
     private boolean isRunFromBackupJar(String jarName) {
         return jarName.contains(BACKUP_MARKER);
     }
 
-    private String getMainAppBackupFilename() {
-        return "addressbook" + BACKUP_MARKER + Version.getCurrentVersion().toString() + ".jar";
+    private String getBackupFilename(Version version) {
+        return String.format(BACKUP_FILENAME_STRING_FORMAT, version.toString());
     }
 
     /**
@@ -69,8 +69,8 @@ public class BackupManager {
      */
     public void cleanupBackups() {
 
-        if (dependencyTracker.getCurrentVersionDependencies() == null ||
-                dependencyTracker.getCurrentVersionDependencies().isEmpty()) {
+        if (dependencyHistoryHandler.getCurrentVersionDependencies() == null ||
+                dependencyHistoryHandler.getCurrentVersionDependencies().isEmpty()) {
             logger.info("Not running from JAR, will not clean backups");
             return;
         }
@@ -95,7 +95,7 @@ public class BackupManager {
         Set<String> dependenciesOfVersionsInUse = new HashSet<>();
         List<Version> unusedVersions = new ArrayList<>();
 
-        dependencyTracker.getAllVersionDependency().entrySet().stream()
+        dependencyHistoryHandler.getDependenciesOfAllVersion().entrySet().stream()
                 .forEach(e -> {
                     if (deletedVersions.contains(e.getKey())) {
                         dependenciesOfUnusedVersions.addAll(e.getValue());
@@ -111,12 +111,11 @@ public class BackupManager {
             try {
                 FileUtil.deleteFile(new File(dep));
             } catch (IOException e) {
-                logger.warn("Failed to delete unused dependency: {}", dep);
-                e.printStackTrace();
+                logger.warn("Failed to delete unused dependency: {}", dep, e);
             }
         });
 
-        dependencyTracker.cleanUpUnusedDependencyVersions(unusedVersions);
+        dependencyHistoryHandler.cleanUpUnusedDependencyVersions(unusedVersions);
     }
 
     /**
@@ -138,7 +137,7 @@ public class BackupManager {
         // Exclude current version in case user is running backup Jar
         return listOfFilesInCurrDirectory.stream()
                 .filter(f ->
-                        !f.getName().equals(String.format(BACKUP_FILENAME_STRING_FORMAT, Version.getCurrentVersion()))
+                        !f.getName().equals(getBackupFilename(currentVersion))
                         && f.getName().matches(BACKUP_FILENAME_PATTERN_STRING))
                 .map(File::getName)
                 .sorted(getBackupFilenameComparatorByVersion())

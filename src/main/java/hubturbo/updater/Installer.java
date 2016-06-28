@@ -1,7 +1,7 @@
-package installer;
+package hubturbo.updater;
 
-import address.updater.model.LibraryDescriptor;
-import address.updater.model.UpdateData;
+import address.updater.LibraryDescriptor;
+import address.updater.VersionDescriptor;
 import address.util.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
@@ -38,6 +39,9 @@ import java.util.stream.Collectors;
  * the main application JAR.
  */
 public class Installer extends Application {
+    private static final String ERROR_INSTALL = "Failed to install";
+    private static final String ERROR_RUNNING = "Failed to run application";
+    private static final String ERROR_TRY_AGAIN = "Please try again, or contact developer if it keeps failing.";
     private static final String LIB_DIR = "lib";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
@@ -49,8 +53,11 @@ public class Installer extends Application {
         showWaitingWindow(primaryStage);
 
         pool.execute(() -> {
-            run();
-            stop();
+            try {
+                run();
+            } catch (IOException e) {
+                showErrorDialogAndQuit(ERROR_INSTALL, e.getMessage(), ERROR_TRY_AGAIN);
+            }
         });
     }
 
@@ -83,25 +90,34 @@ public class Installer extends Application {
         System.exit(0);
     }
 
-    private void run() {
+    private void run() throws IOException {
         try {
             createLibDir();
         } catch (IOException e) {
             System.out.println("Can't create lib directory");
-            e.printStackTrace();
-            return;
+            throw new IOException("Failed to create directories", e);
         }
 
         try {
             unpackAllJarsInsideSelf();
         } catch (IOException e) {
             System.out.println("Failed to unpack all JARs");
-            e.printStackTrace();
-            return;
+            throw new IOException("Failed to unpack files.", e);
         }
 
-        downloadPlatformSpecificComponents();
-        startMainApplication();
+        try {
+            downloadPlatformSpecificComponents();
+        } catch (IOException e) {
+            throw new IOException("Failed to download some components.", e);
+        }
+
+        try {
+            startMainApplication();
+        } catch (IOException e) {
+            throw new IOException(ERROR_RUNNING, e);
+        }
+
+        stop();
     }
 
     private void createLibDir() throws IOException {
@@ -137,21 +153,20 @@ public class Installer extends Application {
         return FileUtil.getJarFileOfClass(this.getClass()).getName();
     }
 
-    private void downloadPlatformSpecificComponents() {
+    private void downloadPlatformSpecificComponents() throws IOException {
         System.out.println("Getting platform specific components");
 
         String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream("/UpdateData.json"));
 
-        UpdateData updateData;
+        VersionDescriptor versionDescriptor;
 
         try {
-            updateData = JsonUtil.fromJsonString(json, UpdateData.class);
+            versionDescriptor = JsonUtil.fromJsonString(json, VersionDescriptor.class);
         } catch (IOException e) {
-            e.printStackTrace();
-            return;
+            throw e;
         }
 
-        List<LibraryDescriptor> platformDependentLibraries =  updateData.getLibraries().stream()
+        List<LibraryDescriptor> platformDependentLibraries =  versionDescriptor.getLibraries().stream()
                 .filter(libDesc -> libDesc.getOs() == OsDetector.getOs())
                 .collect(Collectors.toList());
 
@@ -171,7 +186,6 @@ public class Installer extends Application {
             } catch (IOException e) {
                 System.out.println("Failed to get size of library; will proceed to download it: " +
                         platformDependentLibrary.getFilename());
-                e.printStackTrace();
             }
             
             Platform.runLater(() -> loadingLabel.setText("Downloading required components. Please wait."));
@@ -180,26 +194,21 @@ public class Installer extends Application {
                 downloadFile(libFile, downloadLink);
             } catch (IOException e) {
                 System.out.println("Failed to download library " + platformDependentLibrary.getFilename());
-                e.printStackTrace();
-                return;
+                throw e;
             }
         }
 
         System.out.println("Finished downloading platform-dependent libraries");
     }
 
-    private void startMainApplication() {
+    private void startMainApplication() throws IOException {
         System.out.println("Starting main application");
 
         String classPath = File.pathSeparator + "lib" + File.separator + "*";
 
         String command = String.format("java -ea -cp %s address.MainApp", classPath);
 
-        try {
-            Runtime.getRuntime().exec(command, null, new File(System.getProperty("user.dir")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Runtime.getRuntime().exec(command, null, new File(System.getProperty("user.dir")));
 
         System.out.println("Main application launched");
     }
@@ -219,5 +228,17 @@ public class Installer extends Application {
             System.out.println("Failed to download " + targetFile.toString());
             throw e;
         }
+    }
+
+    private void showErrorDialogAndQuit(String title, String headerText, String contentText) {
+        Platform.runLater(() -> {
+            final Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setHeaderText(headerText);
+            alert.setContentText(contentText);
+
+            alert.showAndWait();
+            stop();
+        });
     }
 }
