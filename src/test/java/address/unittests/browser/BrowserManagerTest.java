@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,11 +36,26 @@ public class BrowserManagerTest {
 
     public BrowserManagerTest() {
         this.filteredPersons = FXCollections.observableArrayList();
-        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("John", "Smith", -1)));
-        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("John", "Peter", -2)));
-        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Obama", "Smith", -3)));
-        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Lala", "Lol", -4)));
-        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lala", -5)));
+        this.filteredPersons.add(ViewablePerson.fromBacking(createPersonWithGithubUsername("John", "Smith", -1, "1")));
+        this.filteredPersons.add(ViewablePerson.fromBacking(createPersonWithGithubUsername("John", "Peter", -2, "2")));
+        this.filteredPersons.add(ViewablePerson.fromBacking(createPersonWithGithubUsername("Obama", "Smith", -3, "3")));
+        this.filteredPersons.add(ViewablePerson.fromBacking(createPersonWithGithubUsername("Lala", "Lol", -4, "4")));
+        this.filteredPersons.add(ViewablePerson.fromBacking(createPersonWithGithubUsername("Hehe", "Lala", -5, "5")));
+        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lala1", -6)));
+        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lala2", -7)));
+        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lala3", -8)));
+        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lalaa", -9)));
+        this.filteredPersons.add(ViewablePerson.fromBacking(createPersonWithGithubUsername("Hehe", "Lala4", -10, "a")));
+        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lala5", -11)));
+        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lala6", -12)));
+        this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lala7", -12)));
+
+    }
+
+    private Person createPersonWithGithubUsername(String john, String smith, int id, String username) {
+        Person person = new Person(john, smith, id);
+        person.setGithubUsername(username);
+        return person;
     }
 
     @Test
@@ -54,33 +70,43 @@ public class BrowserManagerTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testGetListOfPersonToLoadInFuture_listMoreThan3Person_nextTwoIndexPersonReturned() {
-        List<ReadOnlyViewablePerson> list = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons, 0);
-        assertTrue(list.contains(filteredPersons.get(1)));
-        assertTrue(list.contains(filteredPersons.get(2)));
+        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons, 0);
+        assertTrue(list.contains(filteredPersons.get(1).profilePageUrl()));
+        assertTrue(list.contains(filteredPersons.get(2).profilePageUrl()));
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testGetListOfPersonToLoadInFuture_NearTheEndOfList_resultOverlappedToLowerIndex() {
-        List<ReadOnlyViewablePerson> list = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons, 3);
-        assertTrue(list.contains(filteredPersons.get(4)));
-        assertTrue(list.contains(filteredPersons.get(0)));
+        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons, 3);
+        assertTrue(list.contains(filteredPersons.get(4).profilePageUrl()));
+        assertTrue(list.contains(filteredPersons.get(0).profilePageUrl()));
     }
 
     @Test
     public void testGetListOfPersonToLoadInFuture_listLessThan3Person_resultSizeBoundedToListSize() {
-        List<ReadOnlyViewablePerson> list = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons.subList(0,2), 0);
-        assertTrue(list.contains(filteredPersons.get(1)));
-        assertFalse(list.contains(filteredPersons.get(0)));
-        assertFalse(list.contains(filteredPersons.get(2)));
-        assertFalse(list.contains(filteredPersons.get(3)));
-        assertFalse(list.contains(filteredPersons.get(4)));
+        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(0,2), 0);
+        assertTrue(list.contains(filteredPersons.get(1).profilePageUrl()));
+        assertFalse(list.contains(filteredPersons.get(0).profilePageUrl()));
+        assertFalse(list.contains(filteredPersons.get(2).profilePageUrl()));
+        assertFalse(list.contains(filteredPersons.get(3).profilePageUrl()));
+        assertFalse(list.contains(filteredPersons.get(4).profilePageUrl()));
     }
 
     @Test
     public void testGetListOfPersonToLoadInFuture_listOnly1Person_resultSizeBoundedToListSize() {
-        List<ReadOnlyViewablePerson> list = BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons.subList(0,1), 0);
+        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(0,1), 0);
         assertEquals(list.size(), 0);
+    }
+
+    @Test
+    public void testGetListOfPersonToLoadInFuture_listWithDuplicateUrls_ignoreDuplicateUrls() {
+        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(5,13), 0);
+        assertEquals(list.size(), 1);
+        assertTrue(list.contains(filteredPersons.get(9).profilePageUrl()));
+        list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(5,13), 4);
+        assertEquals(list.size(), 1);
+        assertTrue(list.contains(filteredPersons.get(8).profilePageUrl()));
     }
 
 }

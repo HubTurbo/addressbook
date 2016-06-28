@@ -24,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 /**
  * Manages the AddressBook browser.
@@ -101,11 +100,8 @@ public class BrowserManager {
         
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
-        ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture =
-                BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons, indexOfPersonInListOfContacts);
-        ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
-                                                                    .map(ReadOnlyViewablePerson::profilePageUrl)
-                                                                    .collect(Collectors.toCollection(ArrayList::new));
+        List<URL> listOfFutureUrl =
+                BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons, indexOfPersonInListOfContacts);
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
