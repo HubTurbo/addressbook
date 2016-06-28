@@ -57,15 +57,17 @@ public class UpdateManager extends ComponentManager {
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final DependencyHistoryHandler dependencyHistoryHandler;
     private final BackupHandler backupHandler;
+    private final Version currentVersion;
     private final List<Version> downloadedVersions;
 
     private boolean isUpdateApplicable;
 
-    public UpdateManager() {
+    public UpdateManager(Version currentVersion) {
         super();
         this.isUpdateApplicable = false;
-        dependencyHistoryHandler = new DependencyHistoryHandler();
-        backupHandler = new BackupHandler(dependencyHistoryHandler);
+        dependencyHistoryHandler = new DependencyHistoryHandler(currentVersion);
+        backupHandler = new BackupHandler(currentVersion, dependencyHistoryHandler);
+        this.currentVersion = currentVersion;
         downloadedVersions = readDownloadedVersionsFromFile();
     }
 
@@ -109,7 +111,7 @@ public class UpdateManager extends ComponentManager {
         }
 
         if (downloadedVersions.contains(latestVersion.get()) ||
-                MainApp.VERSION.equals(latestVersion.get())) {
+                currentVersion.equals(latestVersion.get())) {
             raise(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
             logger.debug(MSG_NO_NEWER_VERSION);
             return;
@@ -172,7 +174,7 @@ public class UpdateManager extends ComponentManager {
         URL updateDataUrl;
 
         try {
-            if (MainApp.VERSION.isEarlyAccess()) {
+            if (currentVersion.isEarlyAccess()) {
                 updateDataUrl = new URL(VERSION_DESCRIPTOR_ON_SERVER_EARLY);
             } else {
                 updateDataUrl = new URL(VERSION_DESCRIPTOR_ON_SERVER_STABLE);
@@ -210,7 +212,7 @@ public class UpdateManager extends ComponentManager {
     }
 
     private boolean isOnSameUpdateChannel(Version version) {
-        return version.isEarlyAccess() != MainApp.VERSION.isEarlyAccess();
+        return version.isEarlyAccess() != currentVersion.isEarlyAccess();
     }
 
     private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(VersionDescriptor versionDescriptor)
@@ -337,7 +339,7 @@ public class UpdateManager extends ComponentManager {
         }
 
         try {
-            backupHandler.createBackupOfApp(MainApp.VERSION);
+            backupHandler.createBackupOfApp(currentVersion);
         } catch (IOException e) {
             logger.fatal("Failed to create backup of app; not applying update");
             return;

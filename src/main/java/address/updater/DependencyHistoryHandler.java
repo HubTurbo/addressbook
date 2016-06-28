@@ -22,9 +22,12 @@ public class DependencyHistoryHandler {
     private static final AppLogger logger = LoggerManager.getLogger(DependencyHistoryHandler.class);
     private static final File DEPENDENCY_HISTORY_FILE = new File("lib/dependency_history");
 
+    private final Version currentVersion;
     private HashMap<Version, List<String>> dependenciesForVersionsInUse = new HashMap<>();
 
-    public DependencyHistoryHandler() {
+    public DependencyHistoryHandler(Version currentVersion) {
+        this.currentVersion = currentVersion;
+
         loadVersionDependencyHistory();
 
         if (!ManifestFileReader.isRunFromJar()) {
@@ -36,7 +39,7 @@ public class DependencyHistoryHandler {
 
         assert libraries.isPresent() : "No libraries being used - should not happen";
 
-        updateVersionDependencies(MainApp.VERSION, libraries.get());
+        updateVersionDependencies(currentVersion, libraries.get());
     }
 
     /**
@@ -106,6 +109,6 @@ public class DependencyHistoryHandler {
     }
 
     public List<String> getCurrentVersionDependencies() {
-        return dependenciesForVersionsInUse.get(MainApp.VERSION);
+        return dependenciesForVersionsInUse.get(currentVersion);
     }
 }

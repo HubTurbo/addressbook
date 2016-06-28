@@ -22,13 +22,15 @@ public class BackupHandler {
     private static final int MAX_BACKUP_JAR_KEPT = 3;
     private static final String BACKUP_MARKER = "_";
     private static final String BACKUP_FILENAME_STRING_FORMAT =
-            "addressbook" + BACKUP_MARKER + MainApp.VERSION.toString() + ".jar";
+            "addressbook" + BACKUP_MARKER + "%s.jar";
     private static final String BACKUP_FILENAME_PATTERN_STRING =
             "addressbook" + BACKUP_MARKER + "(" + Version.VERSION_PATTERN_STRING + ")\\.(jar|JAR)$";
 
+    private final Version currentVersion;
     private DependencyHistoryHandler dependencyHistoryHandler;
 
-    public BackupHandler(DependencyHistoryHandler dependencyHistoryHandler) {
+    public BackupHandler(Version currentVersion, DependencyHistoryHandler dependencyHistoryHandler) {
+        this.currentVersion = currentVersion;
         this.dependencyHistoryHandler = dependencyHistoryHandler;
     }
 
@@ -135,7 +137,7 @@ public class BackupHandler {
         // Exclude current version in case user is running backup Jar
         return listOfFilesInCurrDirectory.stream()
                 .filter(f ->
-                        !f.getName().equals(String.format(BACKUP_FILENAME_STRING_FORMAT, MainApp.VERSION))
+                        !f.getName().equals(String.format(BACKUP_FILENAME_STRING_FORMAT, currentVersion.toString()))
                         && f.getName().matches(BACKUP_FILENAME_PATTERN_STRING))
                 .map(File::getName)
                 .sorted(getBackupFilenameComparatorByVersion())

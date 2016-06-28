@@ -74,7 +74,7 @@ public class MainApp extends Application {
         ui = new Ui(this, modelManager, config);
         syncManager = new SyncManager(config);
         keyBindingsManager = new KeyBindingsManager();
-        updateManager = new UpdateManager();
+        updateManager = new UpdateManager(VERSION);
     }
 
     @Override
