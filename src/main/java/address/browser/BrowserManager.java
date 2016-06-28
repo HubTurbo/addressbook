@@ -14,7 +14,6 @@ import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -108,8 +107,8 @@ public class BrowserManager {
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
-            if (!gPage.wasAutoScrollingSetup()){
-                gPage.setupAutoScrolling();
+            if (!gPage.wasPageAutomationSetup()){
+                gPage.setupPageAutomation();
             }
             //gPage.setPageLoadFinishListener(b -> Platform.runLater(() -> gPage.executePageLoadedTasks()));
 

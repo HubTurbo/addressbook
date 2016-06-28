@@ -97,7 +97,7 @@ public class FxBrowserAdapter implements EmbeddedBrowser, ChangeListener<Worker.
 
     @Override
     public void setAttachListener(EbAttachListener listener) {
-
+        throw new RuntimeException("setAttachListener() not supported by FxBrowserAdapter");
     }
 
     @Override

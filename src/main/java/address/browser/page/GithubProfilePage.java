@@ -39,7 +39,11 @@ public class GithubProfilePage implements PageInterface {
                                                 ORGANIZATION_REPO_ID });
     }
 
-    public Boolean wasAutoScrollingSetup() {
+    /**
+     * Checks if auto scrolling is previously set-up.
+     * @return
+     */
+    public Boolean wasPageAutomationSetup() {
         try{
             wasAutoScrollingSetupLock.readLock().lock();
             return wasAutoScrollingSetup;
@@ -48,7 +52,12 @@ public class GithubProfilePage implements PageInterface {
         }
     }
 
-    public void setupAutoScrolling() {
+    /**
+     * Setup page automation.
+     * Automation tasks: 1) Clicking on the Repositories tab( if not clicked)
+     *                   2) Scrolling to the end of the page when a page is loaded.
+     */
+    public void setupPageAutomation() {
         try {
             wasAutoScrollingSetupLock.writeLock().lock();
             this.setPageLoadFinishListener(e -> Platform.runLater(this::executePageLoadedTasks));
@@ -62,7 +71,9 @@ public class GithubProfilePage implements PageInterface {
     /**
      * Executes Page loaded tasks
      * Tasks:
-     * 1 ) Automates clicking on the Repositories tab and scrolling to the bottom of the page.
+     * 1 ) Verify if page is at repositories page
+     *      - if yes, scroll to the bottom of the page.
+     *      - if no, click on the repositories tab and scroll to the bottom of the page.
      */
     private void executePageLoadedTasks() {
         try {

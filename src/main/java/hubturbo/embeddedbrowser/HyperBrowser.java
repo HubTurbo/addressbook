@@ -7,7 +7,6 @@ import address.util.FxViewUtil;
 import address.util.LoggerManager;
 import address.util.UrlUtil;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 
 import java.net.MalformedURLException;
