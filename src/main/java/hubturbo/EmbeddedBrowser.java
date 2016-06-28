@@ -1,5 +1,6 @@
 package hubturbo;
 
+import hubturbo.embeddedbrowser.EbAttachListener;
 import hubturbo.embeddedbrowser.EbDocument;
 import hubturbo.embeddedbrowser.EbLoadListener;
 import javafx.scene.Node;
@@ -84,8 +85,14 @@ public interface EmbeddedBrowser {
 
     /**
      * Adds a listener to listen to web page loaded successfully.
-     * @param listener An EbLoadListener listener interface.
+     * @param listener An EbLoadListener interface.
      */
-    void addLoadListener(EbLoadListener listener);
+    void setLoadListener(EbLoadListener listener);
+
+    /**
+     * Adds a listener to listen when the browser is (re)attached to a scene.
+     * @param listener An EbAttachListener interface.
+     */
+    void setAttachListener(EbAttachListener listener);
 
 }

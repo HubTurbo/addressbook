@@ -1,6 +1,7 @@
 package hubturbo.embeddedbrowser.page;
 
 import hubturbo.EmbeddedBrowser;
+import hubturbo.embeddedbrowser.EbAttachListener;
 import hubturbo.embeddedbrowser.EbEditorCommand;
 import hubturbo.embeddedbrowser.EbElement;
 import hubturbo.embeddedbrowser.EbLoadListener;
@@ -11,7 +12,7 @@ import java.util.Optional;
 /**
  * An abstract web page of an embedded browser.
  */
-public class Page implements PageInterface{
+        public class Page implements PageInterface{
 
     public static int SCROLL_TO_END = EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT;
 
@@ -107,6 +108,11 @@ public class Page implements PageInterface{
 
     @Override
     public void setPageLoadFinishListener(EbLoadListener listener){
-        this.browser.addLoadListener(listener);
+        this.browser.setLoadListener(listener);
+    }
+
+    @Override
+    public void setPageAttachedToSceneListener(EbAttachListener listener) {
+        browser.setAttachListener(listener);
     }
 }
