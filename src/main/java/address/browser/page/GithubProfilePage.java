@@ -25,11 +25,8 @@ public class GithubProfilePage implements PageInterface {
 
     private Boolean wasAutoScrollingSetup = false;
 
-    private ReadWriteLock wasAutoScrollingSetupLock;
-
     public GithubProfilePage(Page page) {
         this.page = page;
-        this.wasAutoScrollingSetupLock = new ReentrantReadWriteLock();
     }
 
     public boolean isValidGithubProfilePage(){
@@ -39,7 +36,7 @@ public class GithubProfilePage implements PageInterface {
 
     /**
      * Setup page automation.
-     * Automation tasks: 1) Clicking on the Repositories tab(if not clicked)
+     * Automation tasks: 1) Clicking on the Repositories tab(if not clicked).
      *                   2) Scrolling to the end of the page when a page is loaded.
      */
     public void setupPageAutomation() {
