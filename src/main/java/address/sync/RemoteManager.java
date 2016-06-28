@@ -36,6 +36,14 @@ public class RemoteManager {
         this.remoteService = remoteService;
     }
 
+    /**
+     * Attempts to get the list of updated persons since the last update, if it exists
+     * Else simply attempts to get the full list of persons
+     *
+     * @param addressBookName
+     * @return
+     * @throws IOException
+     */
     public Optional<List<Person>> getUpdatedPersons(String addressBookName) throws IOException {
         ExtractedRemoteResponse<List<Person>> response;
 
@@ -102,6 +110,32 @@ public class RemoteManager {
         updateInformation.put(addressBookName, lastUpdateInfo);
         
         return Optional.of(tagList);
+    }
+
+    /**
+     * Attempts to create a person on the cloud
+     *
+     * @param addressBookName
+     * @param person
+     * @return Optional.empty if fail to create person or if there is a network error
+     * @throws IOException
+     */
+    public Optional<Person> createPerson(String addressBookName, Person person) throws IOException {
+        ExtractedRemoteResponse<Person> response = remoteService.createPerson(addressBookName, person);
+        return response.getData();
+    }
+
+    /**
+     * Attempts to create a tag on the cloud
+     *
+     * @param addressBookName
+     * @param tag
+     * @return Optional.empty if fail to create tag or if there is a network error
+     * @throws IOException
+     */
+    public Optional<Tag> createTag(String addressBookName, Tag tag) throws IOException {
+        ExtractedRemoteResponse<Tag> response = remoteService.createTag(addressBookName, tag);
+        return response.getData();
     }
 
     private <T> int getLastUpdatedPageCount(HashMap<String, LastUpdate<T>> updateInformation, String addressBookName) {
