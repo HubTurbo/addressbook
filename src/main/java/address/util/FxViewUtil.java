@@ -4,7 +4,9 @@ import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.shape.Circle;
 
 import java.util.Optional;
 
@@ -24,7 +26,16 @@ public class FxViewUtil {
         return listView.lookupAll(".scroll-bar")
                 .stream()
                 .filter(foundSb -> ((VirtualScrollBar) foundSb).getOrientation() == Orientation.VERTICAL)
-                .map(obj -> (VirtualScrollBar)obj).findAny();
+                .map(obj -> (VirtualScrollBar) obj).findAny();
+    }
+
+    /**
+     * Configure the image view to be circular in shape.
+     * @param imageView
+     */
+    public static void configureCircularImageView(ImageView imageView) {
+        double xyPositionAndRadius = imageView.getFitHeight() / 2.0;
+        imageView.setClip(new Circle(xyPositionAndRadius, xyPositionAndRadius, xyPositionAndRadius));
     }
 
 }

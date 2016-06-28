@@ -7,6 +7,7 @@ import java.util.Optional;
 import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
+import address.util.FxViewUtil;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 
@@ -17,7 +18,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
 public class PersonCardController extends UiController{
@@ -70,9 +70,7 @@ public class PersonCardController extends UiController{
         if (person.isDeleted()) {
             Platform.runLater(() -> cardPane.setOpacity(0.1f));
         }
-
-        double xyPositionAndRadius = profileImage.getFitHeight() / 2.0;
-        profileImage.setClip(new Circle(xyPositionAndRadius, xyPositionAndRadius, xyPositionAndRadius));
+        FxViewUtil.configureCircularImageView(profileImage);
 
         initIdLabel();
         firstName.textProperty().bind(person.firstNameProperty());
@@ -169,9 +167,7 @@ public class PersonCardController extends UiController{
                 if (image != null && image.getHeight() > 0) {
                     profileImage.setImage(image);
                 } else {
-                    profileImage.setImage(
-                            new Image(this.getClass().getResourceAsStream("/images/default_profile_picture.png"))
-                    );
+                    profileImage.setImage(ImageManager.getDefaultProfileImage());
                 }
             }).start();
         }
