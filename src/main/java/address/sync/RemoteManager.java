@@ -7,6 +7,7 @@ import address.util.Config;
 import address.util.LoggerManager;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,7 +114,7 @@ public class RemoteManager {
     }
 
     /**
-     * Attempts to create a person on the cloud
+     * Attempts to create a person on the remote
      *
      * @param addressBookName
      * @param person
@@ -126,7 +127,7 @@ public class RemoteManager {
     }
 
     /**
-     * Attempts to create a tag on the cloud
+     * Attempts to create a tag on the remote
      *
      * @param addressBookName
      * @param tag
@@ -139,7 +140,7 @@ public class RemoteManager {
     }
 
     /**
-     * Attempts to update a person on the cloud
+     * Attempts to update a person on the remote
      * @param addressBookName
      * @param personId id of the person to be updated
      * @param updatedPerson updated person
@@ -152,7 +153,7 @@ public class RemoteManager {
     }
 
     /**
-     * Attempts to edit a tag on the cloud
+     * Attempts to edit a tag on the remote
      * @param addressBookName
      * @param tagName name of the tag
      * @param editedTag edited tag
@@ -162,6 +163,30 @@ public class RemoteManager {
     public Optional<Tag> editTag(String addressBookName, String tagName, Tag editedTag) throws IOException {
         ExtractedRemoteResponse<Tag> response = remoteService.editTag(addressBookName, tagName, editedTag);
         return response.getData();
+    }
+
+    /**
+     * Attempts to delete a tag on the remote
+     * @param addressBookName
+     * @param tagName
+     * @return true if successful
+     * @throws IOException
+     */
+    public boolean deleteTag(String addressBookName, String tagName) throws IOException {
+        ExtractedRemoteResponse<Void> response = remoteService.deleteTag(addressBookName, tagName);
+        return response.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT;
+    }
+
+    /**
+     * Attempts to delete a person on the remote
+     * @param addressBookName
+     * @param personId
+     * @return true if successful
+     * @throws IOException
+     */
+    public boolean deletePerson(String addressBookName, int personId) throws IOException {
+        ExtractedRemoteResponse<Void> response = remoteService.deletePerson(addressBookName, personId);
+        return response.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT;
     }
 
     private <T> int getLastUpdatedPageCount(HashMap<String, LastUpdate<T>> updateInformation, String addressBookName) {
