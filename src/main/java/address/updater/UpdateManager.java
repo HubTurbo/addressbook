@@ -24,8 +24,8 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
- * Checks for update to application
- * //TODO: describe how the updater works (i.e. external behavior)
+ * Checks for update to application and download and apply it if it is available
+ * For more details, see documentation
  */
 public class UpdateManager extends ComponentManager {
     public static final String UPDATE_DIR = "update";
