@@ -59,7 +59,7 @@ public interface ReadOnlyPerson extends ExtractableObservables {
     static boolean removeAllById(Collection<? extends ReadOnlyPerson> col,
                                  Collection<Integer> ids) {
         final Set<Integer> idSet = new HashSet<>(ids);
-        return col.removeIf(e -> idSet.contains(e.getId()));
+        return col.removeAll(col.stream().filter(p -> idSet.contains(p.getId())).collect(Collectors.toList()));
     }
 
     /**
