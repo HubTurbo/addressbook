@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * An abstract web page of an embedded browser.
  */
-        public class Page implements PageInterface{
+public class Page implements PageInterface{
 
     public static int SCROLL_TO_END = EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT;
 

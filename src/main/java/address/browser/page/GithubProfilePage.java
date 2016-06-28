@@ -4,6 +4,7 @@ import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.*;
 import hubturbo.embeddedbrowser.jxbrowser.JxDomEventListenerAdapter;
 import hubturbo.embeddedbrowser.page.Page;
+import hubturbo.embeddedbrowser.EbAttachListener;
 import hubturbo.embeddedbrowser.page.PageInterface;
 import javafx.application.Platform;
 
@@ -51,8 +52,7 @@ public class GithubProfilePage implements PageInterface {
         try {
             wasAutoScrollingSetupLock.writeLock().lock();
             this.setPageLoadFinishListener(e -> Platform.runLater(this::executePageLoadedTasks));
-            this.setPageAttachedToSceneListener(() -> System.out.println("OnAttach"));
-            this.browser.add
+            this.setPageAttachedToSceneListener(() -> Platform.runLater(this::executePageLoadedTasks));
             this.wasAutoScrollingSetup = true;
         } finally {
             wasAutoScrollingSetupLock.writeLock().unlock();

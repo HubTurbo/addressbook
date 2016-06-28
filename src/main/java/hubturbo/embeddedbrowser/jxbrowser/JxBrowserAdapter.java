@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 /**
  * An EmbeddedBrowser adapter for the jxBrowser Browser.
@@ -20,16 +21,17 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
 
     private BrowserView browserView;
 
-    private EbLoadListener loadListener;
-    private EbAttachListener attachListener;
+    private Optional<EbLoadListener> loadListener = Optional.empty();
+    private Optional<EbAttachListener> attachListener = Optional.empty();
     private ChangeListener<Scene> sceneChangeListener = (observable, oldValue, newValue) -> {
         if (oldValue == null && newValue != null) {
-            attachListener.onAttach();
+            attachListener.ifPresent(EbAttachListener::onAttach);
         }
     };
 
     public JxBrowserAdapter(JxBrowser browser) {
         this.browserView = new BrowserView(browser);
+        this.browserView.sceneProperty().addListener(sceneChangeListener);
     }
 
     @Override
@@ -89,19 +91,14 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
 
     @Override
     public void setLoadListener(EbLoadListener listener) {
-        this.loadListener = listener;
+        this.loadListener = Optional.ofNullable(listener);
+        this.browserView.getBrowser().removeLoadListener(this);
         this.browserView.getBrowser().addLoadListener(this);
     }
 
     @Override
     public void setAttachListener(EbAttachListener listener) {
-        this.attachListener = listener;
-        try {
-            this.browserView.sceneProperty().removeListener(sceneChangeListener);
-        } catch (NullPointerException e) {
-            //First time adding listener.
-        }
-        this.browserView.sceneProperty().addListener(sceneChangeListener);
+        this.attachListener = Optional.ofNullable(listener);
     }
 
     @Override
@@ -115,7 +112,9 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
 
     @Override
     public void onFinishLoadingFrame(FinishLoadingEvent finishLoadingEvent) {
-        loadListener.onFinishLoadingFrame(finishLoadingEvent.isMainFrame());
+        if (loadListener.isPresent()) {
+            loadListener.get().onFinishLoadingFrame(finishLoadingEvent.isMainFrame());
+        }
     }
 
     @Override
