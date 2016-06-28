@@ -6,6 +6,7 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.JavafxThreadingRule;
+import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -14,6 +15,9 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
@@ -45,7 +49,7 @@ public class BrowserManagerTest {
     @Test
     public void testNecessaryBrowserResources_resourcesNotNull() {
         BrowserManager manager = new BrowserManager(filteredPersons);
-        manager.initializeBrowser();
+        manager.start();
         assertNotNull(manager.getHyperBrowserView());
         Optional<Node> node = BrowserManagerUtil.getBrowserInitialScreen();
         assertTrue(node.isPresent());

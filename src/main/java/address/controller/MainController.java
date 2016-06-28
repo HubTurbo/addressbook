@@ -77,12 +77,13 @@ public class MainController extends UiController{
         this.config = config;
         this.personList = modelManager.getAllViewablePersonsReadOnly();
         this.browserManager = new BrowserManager(personList);
+        this.browserManager.initBrowser();
     }
 
     public void start(Stage primaryStage) {
         logger.info("Starting main controller.");
         this.primaryStage = primaryStage;
-        this.browserManager.initializeBrowser();
+        this.browserManager.start();
         primaryStage.setTitle(config.appTitle);
 
         // Set the application icon.

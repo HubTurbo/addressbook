@@ -29,8 +29,11 @@ import java.util.stream.Collectors;
 
 /**
  * Manages the AddressBook browser.
+ * To begin using this class: call start() once.
  */
 public class BrowserManager {
+
+    private static final BrowserType type = BrowserType.FULL_FEATURE_BROWSER;
 
     private static final String GITHUB_ROOT_URL = "https://github.com/";
     private static final String INVALID_GITHUB_USERNAME_MESSAGE = "Unparsable GitHub Username.";
@@ -58,24 +61,28 @@ public class BrowserManager {
     };
 
     public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
-        initializeBrowser();
         this.selectedPersonUsername = new SimpleStringProperty();
         this.filteredPersons = filteredPersons;
     }
 
     /**
-     * Initialize the application to use jxBrowser.
+     * Initialize the browser managed by the browser manager.
      * This must be called in a non-ui thread.
      */
-    public static void initializeJxBrowserEnvironment(){
-        if (Environment.isMac()) {
-            BrowserCore.initialize();
+    public static void initBrowser(){
+        if (type == BrowserType.FULL_FEATURE_BROWSER) {
+            if (Environment.isMac()) {
+                BrowserCore.initialize();
+            }
+            logger.debug("Suppressing browser logs");
+            LoggerProvider.setLevel(Level.SEVERE);
         }
-        logger.debug("Suppressing browser logs");
-        LoggerProvider.setLevel(Level.SEVERE);
     }
 
-    public void initializeBrowser() {
+    /**
+     * Starts the browser manager.
+     */
+    public void start() {
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
             logger.info("Headless mode detected, not initializing HyperBrowser.");
@@ -83,7 +90,7 @@ public class BrowserManager {
         } else {
             logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
             hyperBrowser = Optional.of(new HyperBrowser(
-                    BrowserType.FULL_FEATURE_BROWSER,
+                    type,
                     HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
                     BrowserManagerUtil.getBrowserInitialScreen()));
         }
