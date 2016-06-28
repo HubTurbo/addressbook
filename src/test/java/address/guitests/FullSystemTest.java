@@ -17,7 +17,7 @@ public class FullSystemTest extends GuiTestBase {
     public void scenarioOne() {
         clickOn("Tags").clickOn("New Tag")
                 .clickOn("#tagNameField").write("colleagues").clickOn("OK")//type(KeyCode.ENTER)
-                .clickOn("Muster").type(KeyCode.E).clickOn("#firstNameField").push(shortcut(KeyCode.A)).eraseText(4).write("John")
+                .clickOn("Muster").type(KeyCode.E).sleep(1000).clickOn("#firstNameField").push(shortcut(KeyCode.A)).eraseText(4).write("John")
                 .clickOn("#lastNameField").eraseText(6).write("Tan")
                 .clickOn("#cityField").write("Singapore")
                 .clickOn("#githubUserNameField").write("john123")
