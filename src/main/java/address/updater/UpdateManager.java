@@ -1,6 +1,5 @@
 package address.updater;
 
-import address.MainApp;
 import address.events.UpdaterFailedEvent;
 import address.events.UpdaterFinishedEvent;
 import address.events.UpdaterInProgressEvent;
@@ -110,15 +109,13 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        if (downloadedVersions.contains(latestVersion.get()) ||
-                currentVersion.equals(latestVersion.get())) {
+        if (downloadedVersions.contains(latestVersion.get()) || currentVersion.equals(latestVersion.get())) {
             raise(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
             logger.debug(MSG_NO_NEWER_VERSION);
             return;
         }
 
-        raise(new UpdaterInProgressEvent(
-                "Collecting all update files that are to be downloaded", -1));
+        raise(new UpdaterInProgressEvent("Collecting all update files that are to be downloaded", -1));
         HashMap<String, URL> filesToBeUpdated;
         try {
             filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(updateData.get());
@@ -127,7 +124,6 @@ public class UpdateManager extends ComponentManager {
             logger.debug(MSG_FAIL_MAIN_APP_URL);
             return;
         }
-
 
         if (filesToBeUpdated.isEmpty()) {
             raise(new UpdaterFinishedEvent(MSG_NO_UPDATE));
@@ -243,8 +239,7 @@ public class UpdateManager extends ComponentManager {
     /**
      * @param updateDir directory to store downloaded updates
      */
-    private void downloadAllFilesToBeUpdated(File updateDir, HashMap<String, URL> filesToBeUpdated)
-            throws IOException {
+    private void downloadAllFilesToBeUpdated(File updateDir, HashMap<String, URL> filesToBeUpdated) throws IOException {
         if (!FileUtil.isDirExists(updateDir)) {
             try {
                 Files.createDirectory(updateDir.toPath());
@@ -334,6 +329,10 @@ public class UpdateManager extends ComponentManager {
     }
 
     public void applyUpdate() {
+        if (!ManifestFileReader.isRunFromJar()) {
+            return;
+        }
+
         if (!this.isUpdateApplicable) {
             return;
         }

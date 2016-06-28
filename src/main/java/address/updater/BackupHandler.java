@@ -21,8 +21,7 @@ public class BackupHandler {
     private static final AppLogger logger = LoggerManager.getLogger(BackupHandler.class);
     private static final int MAX_BACKUP_JAR_KEPT = 3;
     private static final String BACKUP_MARKER = "_";
-    private static final String BACKUP_FILENAME_STRING_FORMAT =
-            "addressbook" + BACKUP_MARKER + "%s.jar";
+    private static final String BACKUP_FILENAME_STRING_FORMAT = "addressbook" + BACKUP_MARKER + "%s.jar";
     private static final String BACKUP_FILENAME_PATTERN_STRING =
             "addressbook" + BACKUP_MARKER + "(" + Version.VERSION_PATTERN_STRING + ")\\.(jar|JAR)$";
 
@@ -35,8 +34,9 @@ public class BackupHandler {
     }
 
     /**
-     * Creates backup if app is not run from backup jar.
-     * No backup is made if run from backup jar.
+     * Creates backup if app is not run from backup JAR.
+     * No backup is made if run from backup JAR.
+     * Assumes app is run from JAR
      */
     public void createBackupOfApp(Version version) throws IOException {
         File mainAppJar = FileUtil.getJarFileOfClass(MainApp.class);
@@ -61,7 +61,7 @@ public class BackupHandler {
     }
 
     private String getBackupFilename(Version version) {
-        return "addressbook" + BACKUP_MARKER + version.toString() + ".jar";
+        return String.format(BACKUP_FILENAME_STRING_FORMAT, version.toString());
     }
 
     /**
@@ -137,7 +137,7 @@ public class BackupHandler {
         // Exclude current version in case user is running backup Jar
         return listOfFilesInCurrDirectory.stream()
                 .filter(f ->
-                        !f.getName().equals(String.format(BACKUP_FILENAME_STRING_FORMAT, currentVersion.toString()))
+                        !f.getName().equals(getBackupFilename(currentVersion))
                         && f.getName().matches(BACKUP_FILENAME_PATTERN_STRING))
                 .map(File::getName)
                 .sorted(getBackupFilenameComparatorByVersion())

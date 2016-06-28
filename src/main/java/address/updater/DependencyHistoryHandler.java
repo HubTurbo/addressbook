@@ -1,6 +1,5 @@
 package address.updater;
 
-import address.MainApp;
 import address.storage.StorageManager;
 import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -8,11 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 
 /**
  * Tracks dependencies used by current version and backup versions of the application
