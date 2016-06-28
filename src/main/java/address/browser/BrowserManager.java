@@ -110,7 +110,6 @@ public class BrowserManager {
             if (!gPage.wasPageAutomationSetup()){
                 gPage.setupPageAutomation();
             }
-            //gPage.setPageLoadFinishListener(b -> Platform.runLater(() -> gPage.executePageLoadedTasks()));
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();

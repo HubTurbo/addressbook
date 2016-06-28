@@ -1,7 +1,7 @@
 package address.browser.page;
 
-import hubturbo.EmbeddedBrowser;
-import hubturbo.embeddedbrowser.*;
+import hubturbo.embeddedbrowser.EbDomEventType;
+import hubturbo.embeddedbrowser.EbLoadListener;
 import hubturbo.embeddedbrowser.jxbrowser.JxDomEventListenerAdapter;
 import hubturbo.embeddedbrowser.page.Page;
 import hubturbo.embeddedbrowser.EbAttachListener;
@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * A github profile page
+ * A GitHub profile page
  */
 public class GithubProfilePage implements PageInterface {
 
@@ -22,7 +22,6 @@ public class GithubProfilePage implements PageInterface {
     private static final String OCTICON_REPO_CLASS_NAME = "octicon octicon-repo";
 
     private Page page;
-    private EmbeddedBrowser browser;
 
     private Boolean wasAutoScrollingSetup = false;
 
@@ -30,7 +29,6 @@ public class GithubProfilePage implements PageInterface {
 
     public GithubProfilePage(Page page) {
         this.page = page;
-        this.browser = page.getBrowser();
         this.wasAutoScrollingSetupLock = new ReentrantReadWriteLock();
     }
 
@@ -54,7 +52,7 @@ public class GithubProfilePage implements PageInterface {
 
     /**
      * Setup page automation.
-     * Automation tasks: 1) Clicking on the Repositories tab( if not clicked)
+     * Automation tasks: 1) Clicking on the Repositories tab(if not clicked)
      *                   2) Scrolling to the end of the page when a page is loaded.
      */
     public void setupPageAutomation() {
