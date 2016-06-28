@@ -1,16 +1,22 @@
 package address.guitests;
 
 import javafx.scene.input.KeyCode;
-import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 public class FullSystemTest extends GuiTestBase {
+    @Before
+    public void cleanup() {
+        File file = new File("src/test/data/sandbox/s.xml");
+        file.delete();
+    }
+
     @Test
     public void scenarioOne() {
         clickOn("Tags").clickOn("New Tag")
-                .clickOn("#tagNameField").write("colleagues").type(KeyCode.ENTER)
+                .clickOn("#tagNameField").write("colleagues").clickOn("OK")//type(KeyCode.ENTER)
                 .clickOn("Muster").type(KeyCode.E).clickOn("#firstNameField").push(shortcut(KeyCode.A)).eraseText(4).write("John")
                 .clickOn("#lastNameField").eraseText(6).write("Tan")
                 .clickOn("#cityField").write("Singapore")
@@ -39,11 +45,5 @@ public class FullSystemTest extends GuiTestBase {
                 .clickOn("#lastNameField").write("Lee").clickOn("OK")
         .clickOn("File").clickOn("[Local] Save As...").sleep(1000).type(KeyCode.S).type(KeyCode.ENTER)
         .clickOn("File").clickOn("[Local] Save").clickOn("File").clickOn("Exit");
-    }
-
-    @After
-    public void cleanup() {
-        File file = new File("src/test/data/sandbox/s.xml");
-        file.delete();
     }
 }

@@ -256,9 +256,6 @@ allprojects {
 test {
     forkEvery = 1
     systemProperty 'testfx.setup.timeout', '60000'
-    testLogging { 
-        exceptionFormat "full" 
-    }
 }
 
 task jacocoRootReport(type: JacocoReport) {
