@@ -101,6 +101,11 @@ public class FxBrowserAdapter implements EmbeddedBrowser, ChangeListener<Worker.
     }
 
     @Override
+    public void reset() {
+        throw new RuntimeException("reset() not supported by FxBrowserAdapter");
+    }
+
+    @Override
     public void changed(ObservableValue<? extends Worker.State> observable, Worker.State oldValue,
                         Worker.State newValue) {
         if (newValue == Worker.State.SUCCEEDED) {

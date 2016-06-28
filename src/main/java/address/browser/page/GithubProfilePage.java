@@ -38,31 +38,20 @@ public class GithubProfilePage implements PageInterface {
     }
 
     /**
-     * Checks if auto scrolling is previously set-up.
-     * @return
-     */
-    public Boolean wasPageAutomationSetup() {
-        try{
-            wasAutoScrollingSetupLock.readLock().lock();
-            return wasAutoScrollingSetup;
-        } finally {
-            wasAutoScrollingSetupLock.readLock().unlock();
-        }
-    }
-
-    /**
      * Setup page automation.
      * Automation tasks: 1) Clicking on the Repositories tab(if not clicked)
      *                   2) Scrolling to the end of the page when a page is loaded.
      */
     public void setupPageAutomation() {
-        try {
-            wasAutoScrollingSetupLock.writeLock().lock();
+        if (!wasAutoScrollingSetup) {
             this.setPageLoadFinishListener(e -> Platform.runLater(this::executePageLoadedTasks));
             this.setPageAttachedToSceneListener(() -> Platform.runLater(this::executePageLoadedTasks));
             this.wasAutoScrollingSetup = true;
-        } finally {
-            wasAutoScrollingSetupLock.writeLock().unlock();
+            //If page has already been loaded at the point of setting up page automation.
+            //Trigger initial automation.
+            if (!page.isPageLoading()) {
+                this.executePageLoadedTasks();
+            }
         }
     }
 

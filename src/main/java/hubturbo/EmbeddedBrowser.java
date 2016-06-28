@@ -95,4 +95,9 @@ public interface EmbeddedBrowser {
      */
     void setAttachListener(EbAttachListener listener);
 
+    /**
+     * Resets the browser to its initial state.
+     */
+    void reset();
+
 }

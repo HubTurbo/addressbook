@@ -46,7 +46,9 @@ public class BrowserManager {
         try {
             URL url = new URL(GITHUB_ROOT_URL + newValue);
             if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
-                hyperBrowser.get().loadUrl(url);
+                Page page = hyperBrowser.get().loadUrl(url);
+                GithubProfilePage gPage = new GithubProfilePage(page);
+                gPage.setupPageAutomation();
             }
         } catch (MalformedURLException e) {
             logger.warn("Malformed URL obtained, not attempting to load.");
@@ -107,10 +109,7 @@ public class BrowserManager {
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
-            if (!gPage.wasPageAutomationSetup()){
-                gPage.setupPageAutomation();
-            }
-
+            gPage.setupPageAutomation();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             assert false : "Preconditions of loadUrls is not fulfilled.";
