@@ -93,7 +93,7 @@ public class MainController extends UiController{
         showPersonWebPage();
         showFooterStatusBar();
         showHeaderStatusBar();
-        showTipOfTheDay();
+        //showTipOfTheDay(); TODO: enable this later
     }
 
     private void showTipOfTheDay() {

@@ -34,8 +34,6 @@ public class KeyBindingsGuiTest extends GuiTestBase {
     @Test
     public void keyBindings(){
 
-        pressEsc(); //TODO: remove this when MOTD does not interfere anymore
-
         //======= shortcuts =======================
 
         pressKeyCombo(bindings.LIST_ENTER_SHORTCUT);
