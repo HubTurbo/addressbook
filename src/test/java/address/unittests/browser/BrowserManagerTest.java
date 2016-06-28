@@ -78,7 +78,7 @@ public class BrowserManagerTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testGetListOfPersonToLoadInFuture_NearTheEndOfList_resultOverlappedToLowerIndex() {
-        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons, 3);
+        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(0, 5), 3);
         assertTrue(list.contains(filteredPersons.get(4).profilePageUrl()));
         assertTrue(list.contains(filteredPersons.get(0).profilePageUrl()));
     }
