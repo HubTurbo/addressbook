@@ -43,6 +43,7 @@ public class Bindings {
     public KeySequence LIST_GOTO_TOP_SEQUENCE;
     public KeySequence LIST_GOTO_BOTTOM_SEQUENCE;
     public Shortcut LIST_ENTER_SHORTCUT;
+    public Accelerator PERSON_CHANGE_CANCEL_ACCELERATOR;
     public Accelerator PERSON_DELETE_ACCELERATOR;
     public Accelerator PERSON_EDIT_ACCELERATOR;
     public Accelerator PERSON_TAG_ACCELERATOR;
@@ -69,6 +70,7 @@ public class Bindings {
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "META + ALT + X", new MinimizeAppRequestEvent()));
         APP_MAXIMIZE_HOTKEY.add(setHotkey("APP_MAXIMIZE_HOTKEY", "CTRL + SHIFT + X", new MaximizeAppRequestEvent()));
         APP_MAXIMIZE_HOTKEY.add(setHotkey("APP_MAXIMIZE_HOTKEY", "META + SHIFT + X", new MaximizeAppRequestEvent()));
+        PERSON_CHANGE_CANCEL_ACCELERATOR = setAccelerator("PERSON_CHANGE_CANCEL_ACCELERATOR", "SHORTCUT + Z");
 
         /*====== other keys ======================================================*/
 

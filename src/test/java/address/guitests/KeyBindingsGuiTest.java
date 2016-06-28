@@ -62,7 +62,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         pressKeyCombo(bindings.PERSON_DELETE_ACCELERATOR);
         verifyPersonDeleted("Person3", "Lastname3");
 
-        //TODO: test tag, file open, new, save, save as
+        //TODO: test tag, file open, new, save, save as, cancel
 
         //======== others ============================
 

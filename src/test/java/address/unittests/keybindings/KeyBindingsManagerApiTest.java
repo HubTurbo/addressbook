@@ -61,6 +61,7 @@ public class KeyBindingsManagerApiTest {
         verifyHotkey(new MaximizeAppRequestEvent(), "CTRL + SHIFT + X");
         verifyHotkey(new MaximizeAppRequestEvent(), "META + SHIFT + X");
 
+        verifyAccelerator("PERSON_CHANGE_CANCEL_ACCELERATOR", "SHORTCUT + Z");
          /*====== other keys ======================================================*/
 
         verifyShortcut(new JumpToListRequestEvent(1), "SHORTCUT DOWN");
