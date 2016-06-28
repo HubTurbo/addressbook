@@ -1,5 +1,4 @@
-package installer;
-//TODO: does this need to be a separate package?
+package hubturbo.updater;
 
 import address.updater.LibraryDescriptor;
 import address.updater.VersionDescriptor;

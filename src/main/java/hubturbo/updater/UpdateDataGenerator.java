@@ -1,4 +1,4 @@
-package installer;
+package hubturbo.updater;
 
 import address.MainApp;
 import address.storage.StorageManager;

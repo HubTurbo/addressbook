@@ -68,7 +68,7 @@ allprojects {
         main {
             java {
                 srcDir 'src/main/java'
-                exclude('installer/**/*')
+                exclude('hubturbo/updater/**/*')
             }
             resources {
                 srcDir 'src/main/resources'
@@ -77,8 +77,8 @@ allprojects {
         installer {
             java {
                 srcDir 'src/main/java/'
-                include('installer/**/*')
-                exclude('installer/UpdateDataGenerator.java')
+                include('hubturbo/updater/**/*')
+                exclude('hubturbo/updater/UpdateDataGenerator.java')
                 include('address/util/FileUtil.java')
                 include('address/util/OsDetector.java')
                 include('address/util/ProgressAwareInputStream.java')
@@ -153,7 +153,7 @@ allprojects {
 
         classpath = sourceSets.generateUpdateData.runtimeClasspath
 
-        main = 'installer.UpdateDataGenerator'
+        main = 'hubturbo.updater.UpdateDataGenerator'
 
         args arguments.split()
     }
@@ -239,7 +239,7 @@ allprojects {
         manifest {
             attributes 'Implementation-Title': 'Addressbook',
                     'Implementation-Version': '1.0',
-                    'Main-Class': 'installer.Installer',
+                    'Main-Class': 'hubturbo.updater.Installer',
                     'Class-Path': configurations.installerRuntime.files.collect { "lib/${it.name}" }.join(" ")
         }
 
