@@ -6,6 +6,9 @@ import org.junit.Test;
 
 import java.io.File;
 
+import static org.testfx.api.FxAssert.verifyThat;
+import static org.testfx.matcher.base.NodeMatchers.hasText;
+
 public class FullSystemTest extends GuiTestBase {
     @Before
     public void cleanup() {
@@ -16,7 +19,11 @@ public class FullSystemTest extends GuiTestBase {
     @Test
     public void scenarioOne() {
         clickOn("Tags").clickOn("New Tag")
-                .clickOn("#tagNameField").write("colleagues").clickOn("OK")//type(KeyCode.ENTER)
+                .clickOn("#tagNameField").write("colleagues");
+
+        verifyThat("#tagNameField", hasText("colleagues"));
+
+        clickOn("OK")//type(KeyCode.ENTER)
                 .clickOn("Muster").type(KeyCode.E).sleep(1000).clickOn("#firstNameField").push(shortcut(KeyCode.A)).eraseText(4).write("John")
                 .clickOn("#lastNameField").eraseText(6).write("Tan")
                 .clickOn("#cityField").write("Singapore")
