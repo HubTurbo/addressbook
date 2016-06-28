@@ -36,7 +36,7 @@ public class JarUpdater extends Application {
     private static final int MAX_RETRY = 10;
     private static final int WAIT_TIME = 2000;
     private static final String ERROR_ON_RUNNING_APP_MESSAGE = "Application not called properly, " +
-                                                               " please contact developer.";
+                                                               "please contact developer.";
     private static final String ERROR_ON_UPDATING_MESSAGE = "There was an error in updating.";
     
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
@@ -58,8 +58,6 @@ public class JarUpdater extends Application {
                 logger.info(e.getMessage());
                 showErrorOnUpdatingDialog();
             }
-
-            stop();
         });
     }
 

@@ -351,6 +351,8 @@ public class UpdateManager extends ComponentManager {
 
         String command = String.format("java -jar %1$s %2$s", restarterAppPath, cmdArg);
 
+        logger.info("Restarting with command " + command);
+
         try {
             Runtime.getRuntime().exec(command);
         } catch (IOException e) {

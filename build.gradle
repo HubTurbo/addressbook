@@ -173,11 +173,13 @@ allprojects {
         destinationDir = file('src/main/resources/updater')
 
         // Specify classes needed for Jar Updater
+        from(sourceSets.main.output.resourcesDir) {
+            include 'log4j2.json'
+        }
         from sourceSets.main.output
-        include('address/updater/JarUpdater.class')
-        include('address/util/FileUtil.class')
-        include('address/updater/LocalUpdateSpecificationHelper.class')
     }
+
+    createJarUpdater.dependsOn clean
 
     task copyDependencyLibrariesToReleaseDir(type: Copy) {
         group = "Release"
