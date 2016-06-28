@@ -1,5 +1,6 @@
 package hubturbo.embeddedbrowser.fxbrowser;
 
+import hubturbo.embeddedbrowser.EbAttachListener;
 import hubturbo.embeddedbrowser.EbLoadListener;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.EbDocument;
@@ -89,9 +90,19 @@ public class FxBrowserAdapter implements EmbeddedBrowser, ChangeListener<Worker.
     }
 
     @Override
-    public void addLoadListener(EbLoadListener listener) {
+    public void setLoadListener(EbLoadListener listener) {
         this.listener = listener;
         this.webView.getEngine().getLoadWorker().stateProperty().addListener(this);
+    }
+
+    @Override
+    public void setAttachListener(EbAttachListener listener) {
+        throw new RuntimeException("setAttachListener() not supported by FxBrowserAdapter");
+    }
+
+    @Override
+    public void reset() {
+        throw new RuntimeException("reset() not supported by FxBrowserAdapter");
     }
 
     @Override

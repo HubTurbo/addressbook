@@ -1,14 +1,18 @@
 package hubturbo.embeddedbrowser.jxbrowser;
 
+import hubturbo.embeddedbrowser.EbAttachListener;
 import hubturbo.embeddedbrowser.EbLoadListener;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.EbDocument;
 import com.teamdev.jxbrowser.chromium.events.*;
 import com.teamdev.jxbrowser.chromium.javafx.BrowserView;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 /**
  * An EmbeddedBrowser adapter for the jxBrowser Browser.
@@ -17,10 +21,17 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
 
     private BrowserView browserView;
 
-    private EbLoadListener listener;
+    private Optional<EbLoadListener> loadListener = Optional.empty();
+    private Optional<EbAttachListener> attachListener = Optional.empty();
+    private ChangeListener<Scene> sceneChangeListener = (observable, oldValue, newValue) -> {
+        if (oldValue == null && newValue != null) {
+            attachListener.ifPresent(EbAttachListener::onAttach);
+        }
+    };
 
     public JxBrowserAdapter(JxBrowser browser) {
         this.browserView = new BrowserView(browser);
+        this.browserView.sceneProperty().addListener(sceneChangeListener);
     }
 
     @Override
@@ -79,9 +90,22 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
     }
 
     @Override
-    public void addLoadListener(EbLoadListener listener) {
-        this.listener = listener;
+    public void setLoadListener(EbLoadListener listener) {
+        this.loadListener = Optional.ofNullable(listener);
         this.browserView.getBrowser().addLoadListener(this);
+    }
+
+    @Override
+    public void setAttachListener(EbAttachListener listener) {
+        this.attachListener = Optional.ofNullable(listener);
+    }
+
+    @Override
+    public void reset() {
+        this.browserView.getBrowser()
+                        .getLoadListeners()
+                        .stream().forEach(listener -> browserView.getBrowser().removeLoadListener(listener));
+        this.browserView.sceneProperty().removeListener(sceneChangeListener);
     }
 
     @Override
@@ -95,7 +119,9 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
 
     @Override
     public void onFinishLoadingFrame(FinishLoadingEvent finishLoadingEvent) {
-        listener.onFinishLoadingFrame(finishLoadingEvent.isMainFrame());
+        if (loadListener.isPresent()) {
+            loadListener.get().onFinishLoadingFrame(finishLoadingEvent.isMainFrame());
+        }
     }
 
     @Override

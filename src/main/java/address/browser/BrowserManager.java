@@ -14,7 +14,6 @@ import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -25,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 /**
  * Manages the AddressBook browser.
@@ -50,7 +48,9 @@ public class BrowserManager {
         try {
             URL url = new URL(GITHUB_ROOT_URL + newValue);
             if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
-                hyperBrowser.get().loadUrl(url);
+                Page page = hyperBrowser.get().loadUrl(url);
+                GithubProfilePage gPage = new GithubProfilePage(page);
+                gPage.setupPageAutomation();
             }
         } catch (MalformedURLException e) {
             logger.warn("Malformed URL obtained, not attempting to load.");
@@ -107,16 +107,12 @@ public class BrowserManager {
         
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
-        ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture =
-                BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons, indexOfPersonInListOfContacts);
-        ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
-                                                                    .map(ReadOnlyViewablePerson::profilePageUrl)
-                                                                    .collect(Collectors.toCollection(ArrayList::new));
+        List<URL> listOfFutureUrl =
+                BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons, indexOfPersonInListOfContacts);
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
-            gPage.setPageLoadFinishListener(b -> Platform.runLater(() -> gPage.executePageLoadedTasks()));
-
+            gPage.setupPageAutomation();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             assert false : "Preconditions of loadUrls is not fulfilled.";

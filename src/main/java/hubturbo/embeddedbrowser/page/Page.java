@@ -1,6 +1,7 @@
 package hubturbo.embeddedbrowser.page;
 
 import hubturbo.EmbeddedBrowser;
+import hubturbo.embeddedbrowser.EbAttachListener;
 import hubturbo.embeddedbrowser.EbEditorCommand;
 import hubturbo.embeddedbrowser.EbElement;
 import hubturbo.embeddedbrowser.EbLoadListener;
@@ -107,6 +108,11 @@ public class Page implements PageInterface{
 
     @Override
     public void setPageLoadFinishListener(EbLoadListener listener){
-        this.browser.addLoadListener(listener);
+        this.browser.setLoadListener(listener);
+    }
+
+    @Override
+    public void setPageAttachedToSceneListener(EbAttachListener listener) {
+        browser.setAttachListener(listener);
     }
 }

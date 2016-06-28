@@ -1,14 +1,18 @@
 package address.browser.page;
 
-import hubturbo.EmbeddedBrowser;
-import hubturbo.embeddedbrowser.*;
+import hubturbo.embeddedbrowser.EbDomEventType;
+import hubturbo.embeddedbrowser.EbLoadListener;
 import hubturbo.embeddedbrowser.jxbrowser.JxDomEventListenerAdapter;
 import hubturbo.embeddedbrowser.page.Page;
+import hubturbo.embeddedbrowser.EbAttachListener;
 import hubturbo.embeddedbrowser.page.PageInterface;
 import javafx.application.Platform;
 
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 /**
- * A github profile page
+ * A GitHub profile page
  */
 public class GithubProfilePage implements PageInterface {
 
@@ -18,11 +22,11 @@ public class GithubProfilePage implements PageInterface {
     private static final String OCTICON_REPO_CLASS_NAME = "octicon octicon-repo";
 
     private Page page;
-    private EmbeddedBrowser browser;
+
+    private Boolean wasAutoScrollingSetup = false;
 
     public GithubProfilePage(Page page) {
         this.page = page;
-        this.browser = page.getBrowser();
     }
 
     public boolean isValidGithubProfilePage(){
@@ -31,11 +35,31 @@ public class GithubProfilePage implements PageInterface {
     }
 
     /**
+     * Setup page automation.
+     * Automation tasks: 1) Clicking on the Repositories tab(if not clicked).
+     *                   2) Scrolling to the end of the page when a page is loaded.
+     */
+    public void setupPageAutomation() {
+        if (!wasAutoScrollingSetup) {
+            this.setPageLoadFinishListener(e -> Platform.runLater(this::executePageLoadedTasks));
+            this.setPageAttachedToSceneListener(() -> Platform.runLater(this::executePageLoadedTasks));
+            this.wasAutoScrollingSetup = true;
+            //If page has already been loaded at the point of setting up page automation.
+            //Trigger initial automation.
+            if (!page.isPageLoading()) {
+                this.executePageLoadedTasks();
+            }
+        }
+    }
+
+    /**
      * Executes Page loaded tasks
      * Tasks:
-     * 1 ) Automates clicking on the Repositories tab and scrolling to the bottom of the page.
+     * 1 ) Verify if page is at repositories page
+     *      - if yes, scroll to the bottom of the page.
+     *      - if no, click on the repositories tab and scroll to the bottom of the page.
      */
-    public void executePageLoadedTasks() {
+    private void executePageLoadedTasks() {
         try {
             if (page.verifyPresenceByClassNames(REPO_LIST_CLASS_NAME) || page.verifyPresenceByIds(ORGANIZATION_REPO_ID)) {
                 page.scrollTo(Page.SCROLL_TO_END);
@@ -62,5 +86,10 @@ public class GithubProfilePage implements PageInterface {
     @Override
     public void setPageLoadFinishListener(EbLoadListener listener) {
         page.setPageLoadFinishListener(listener);
+    }
+
+    @Override
+    public void setPageAttachedToSceneListener(EbAttachListener listener) {
+        page.setPageAttachedToSceneListener(listener);
     }
 }

@@ -1,5 +1,6 @@
 package hubturbo.embeddedbrowser.page;
 
+import hubturbo.embeddedbrowser.EbAttachListener;
 import hubturbo.embeddedbrowser.EbLoadListener;
 
 /**
@@ -10,4 +11,9 @@ public interface PageInterface {
     boolean isPageLoading();
     void setPageLoadFinishListener(EbLoadListener listener);
 
+    /**
+     * Adds a listener to listen when the page is (re)attached to a scene.
+     * @param listener An EbAttachListener interface.
+     */
+    void setPageAttachedToSceneListener(EbAttachListener listener);
 }

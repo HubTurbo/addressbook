@@ -96,10 +96,15 @@ public class HyperBrowser {
             if (hyperBrowserView.getChildren().contains(page.get().getBrowser().getBrowserView())){
                 hyperBrowserView.getChildren().remove(0);
             }
-            inActiveBrowserStack.push(page.get().getBrowser());
+            reclaimBrowser(page.get());
             pages.remove(page.get());
         }
         assert pages.size() + inActiveBrowserStack.size() == noOfPages;
+    }
+
+    private void reclaimBrowser(Page page) {
+        page.getBrowser().reset();
+        inActiveBrowserStack.push(page.getBrowser());
     }
 
     /**
@@ -230,7 +235,7 @@ public class HyperBrowser {
         int popCount = 0;
         while (!listOfNotRequiredPage.isEmpty() && popCount < urlsToLoad.size()) {
             Page page = listOfNotRequiredPage.poll();
-            inActiveBrowserStack.push(page.getBrowser());
+            reclaimBrowser(page);
             pages.remove(page);
             popCount++;
         }
