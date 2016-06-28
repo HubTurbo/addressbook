@@ -117,7 +117,7 @@ public class RemoteManager {
      *
      * @param addressBookName
      * @param person
-     * @return Optional.empty if fail to create person or if there is a network error
+     * @return Empty optional if fail to create person or if there is a network error
      * @throws IOException
      */
     public Optional<Person> createPerson(String addressBookName, Person person) throws IOException {
@@ -130,11 +130,37 @@ public class RemoteManager {
      *
      * @param addressBookName
      * @param tag
-     * @return Optional.empty if fail to create tag or if there is a network error
+     * @return Empty optional if fail to create tag or if there is a network error
      * @throws IOException
      */
     public Optional<Tag> createTag(String addressBookName, Tag tag) throws IOException {
         ExtractedRemoteResponse<Tag> response = remoteService.createTag(addressBookName, tag);
+        return response.getData();
+    }
+
+    /**
+     * Attempts to update a person on the cloud
+     * @param addressBookName
+     * @param personId id of the person to be updated
+     * @param updatedPerson updated person
+     * @return Empty optional if fail to update person or if there is a network error
+     * @throws IOException
+     */
+    public Optional<Person> updatePerson(String addressBookName, int personId, Person updatedPerson) throws IOException {
+        ExtractedRemoteResponse<Person> response = remoteService.updatePerson(addressBookName, personId, updatedPerson);
+        return response.getData();
+    }
+
+    /**
+     * Attempts to edit a tag on the cloud
+     * @param addressBookName
+     * @param tagName name of the tag
+     * @param editedTag edited tag
+     * @return Empty optional if fail to edit tag or if there is a network error
+     * @throws IOException
+     */
+    public Optional<Tag> editTag(String addressBookName, String tagName, Tag editedTag) throws IOException {
+        ExtractedRemoteResponse<Tag> response = remoteService.editTag(addressBookName, tagName, editedTag);
         return response.getData();
     }
 
