@@ -16,9 +16,9 @@ import java.util.Optional;
 import java.util.concurrent.*;
 
 /**
- * Syncs data between the cloud and the primary data file
+ * Syncs data between the local model and remote
  *
- * Attempts to synchronize with the remote periodically
+ * Once started, attempts to synchronize with the remote periodically
  * Synchronization will be based on the currently-active address book which can be set via setActiveAddressBook
  */
 public class SyncManager extends ComponentManager {
@@ -100,6 +100,12 @@ public class SyncManager extends ComponentManager {
         scheduler.scheduleWithFixedDelay(syncTask, initialDelay, config.updateInterval, TimeUnit.MILLISECONDS);
     }
 
+    public void stop() {
+        logger.info("Stopping sync manager.");
+        scheduler.shutdown();
+        requestExecutor.shutdown();
+    }
+
     public Future<Person> createPerson(String addressBookName, Person createdPerson) throws SyncErrorException {
         return executeTask(new CreatePersonOnRemoteTask(remoteManager, addressBookName, createdPerson));
     }
@@ -108,8 +114,8 @@ public class SyncManager extends ComponentManager {
         return executeTask(new CreateTagOnRemoteTask(remoteManager, addressBookName, createdTag));
     }
 
-    public Future<Tag> editTag(String addressBookName, String tagName, Tag editedtag) throws SyncErrorException {
-        return executeTask(new EditTagOnRemoteTask(remoteManager, addressBookName, tagName, editedtag));
+    public Future<Tag> editTag(String addressBookName, String tagName, Tag editedTag) throws SyncErrorException {
+        return executeTask(new EditTagOnRemoteTask(remoteManager, addressBookName, tagName, editedTag));
     }
 
     public Future<Person> updatePerson(String addressBookName, int personId, Person updatedPerson)
