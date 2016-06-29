@@ -113,8 +113,6 @@ public class MainController extends UiController{
             // Load root layout from fxml file.
             FXMLLoader loader = loadFxml(fxmlResourcePath);
             rootLayout = loader.load();
-            SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-            pane.setDividerPositions(0.3f);
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
