@@ -48,8 +48,9 @@ public class CloudRateLimitStatus {
 
     private long getNextResetTime() {
         LocalDateTime curTime = LocalDateTime.now();
+        LocalDateTime nextHour = curTime.plusHours(1);
         LocalDateTime nearestHour = LocalDateTime.of(
-                curTime.getYear(), curTime.getMonth(), curTime.getDayOfMonth(), curTime.getHour() + 1,
+                nextHour.getYear(), nextHour.getMonth(), nextHour.getDayOfMonth(), nextHour.getHour(),
                 0, 0, 0);
 
         return nearestHour.toEpochSecond(getSystemTimezone());
