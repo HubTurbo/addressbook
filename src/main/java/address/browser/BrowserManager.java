@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Manages the AddressBook browser.
@@ -48,9 +49,8 @@ public class BrowserManager {
         try {
             URL url = new URL(GITHUB_ROOT_URL + newValue);
             if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
-                Page page = hyperBrowser.get().loadUrl(url);
-                GithubProfilePage gPage = new GithubProfilePage(page);
-                gPage.setupPageAutomation();
+                List<Page> pages = hyperBrowser.get().loadUrl(url);
+                configureGithubPageTasks(pages);
             }
         } catch (MalformedURLException e) {
             logger.warn("Malformed URL obtained, not attempting to load.");
@@ -110,9 +110,8 @@ public class BrowserManager {
         List<URL> listOfFutureUrl =
                 BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons, indexOfPersonInListOfContacts);
         try {
-            Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
-            GithubProfilePage gPage = new GithubProfilePage(page);
-            gPage.setupPageAutomation();
+            List<Page> pages = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
+            configureGithubPageTasks(pages);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             assert false : "Preconditions of loadUrls is not fulfilled.";
@@ -121,6 +120,12 @@ public class BrowserManager {
         selectedPersonUsername.unbind();
         selectedPersonUsername.bind(person.githubUsernameProperty());
         selectedPersonUsername.addListener(listener);
+    }
+
+    private void configureGithubPageTasks(List<Page> pages) {
+        List<GithubProfilePage> githubProfilePages = pages.stream().map(p
+                -> new GithubProfilePage(p)).collect(Collectors.toCollection(ArrayList::new));
+        githubProfilePages.stream().forEach(GithubProfilePage::setupPageAutomation);
     }
 
     /**

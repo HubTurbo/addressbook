@@ -133,7 +133,7 @@ public class HyperBrowser {
         }
     }
 
-    public synchronized Page loadUrl(URL url) throws IllegalArgumentException {
+    public synchronized List<Page> loadUrl(URL url) throws IllegalArgumentException {
         return this.loadUrls(url, Collections.emptyList());
     }
 
@@ -141,11 +141,11 @@ public class HyperBrowser {
      * Loads the URLs to the browser.
      * @param url The URL of the content to load.
      * @param futureUrl The non-nullable list of URLs that may be called to load in the next T time.
-     * @return The page of the URL content.
+     * @return The pages of the url and futureUrl contents. The url page is located at index 0.
      * @throws IllegalArgumentException When the amount of URLs to load is more than no of pages the paging system
      *                                      of the HyperBrowser has.
      */
-    public synchronized Page loadUrls(URL url, List<URL> futureUrl) throws IllegalArgumentException {
+    public synchronized List<Page> loadUrls(URL url, List<URL> futureUrl) throws IllegalArgumentException {
         if (url == null || futureUrl == null) {
             throw new NullPointerException();
         }
@@ -159,9 +159,12 @@ public class HyperBrowser {
         Page page = loadPage(url);
         replaceBrowserView(page.getBrowser().getBrowserView());
         displayedUrl = url;
-        futureUrl.forEach(this::loadPage);
 
-        return page;
+        List<Page> pages = new ArrayList<>();
+        pages.add(page);
+        futureUrl.forEach(p -> pages.add(this.loadPage(p)));
+
+        return pages;
     }
 
     private List<URL> getListOfUrlToBeLoaded(URL url, List<URL> futureUrl) {

@@ -24,7 +24,7 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
     private Optional<EbLoadListener> loadListener = Optional.empty();
     private Optional<EbAttachListener> attachListener = Optional.empty();
     private ChangeListener<Scene> sceneChangeListener = (observable, oldValue, newValue) -> {
-        if (oldValue == null && newValue != null) {
+        if (newValue != null) {
             attachListener.ifPresent(EbAttachListener::onAttach);
         }
     };
@@ -105,7 +105,7 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
         this.browserView.getBrowser()
                         .getLoadListeners()
                         .stream().forEach(listener -> browserView.getBrowser().removeLoadListener(listener));
-        this.browserView.sceneProperty().removeListener(sceneChangeListener);
+        this.attachListener = Optional.empty();
     }
 
     @Override
