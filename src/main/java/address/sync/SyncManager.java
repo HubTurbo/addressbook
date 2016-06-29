@@ -106,6 +106,29 @@ public class SyncManager extends ComponentManager {
         requestExecutor.shutdown();
     }
 
+    @Subscribe
+    public void handleCreatePersonOnRemoteRequestEvent(CreatePersonOnRemoteRequestEvent event) {
+        CompletableFuture<Person> futureContainer = event.getFutureContainer();
+        try {
+            Person returnedPerson = new CreatePersonOnRemoteTask(remoteManager, event.getAddressBookName(),
+                                                                 event.getCreatedPerson()).call();
+            futureContainer.complete(returnedPerson);
+        } catch (Exception e) {
+            futureContainer.completeExceptionally(e);
+        }
+    }
+
+    @Subscribe
+    public void handleCreateTagOnRemoteRequestEvent(CreateTagOnRemoteRequestEvent event) {
+        CompletableFuture<Tag> futureContainer = event.getFutureContainer();
+        try {
+            Tag returnedTag = new CreateTagOnRemoteTask(remoteManager, event.getAddressBookName(),
+                                                        event.getCreatedTag()).call();
+            futureContainer.complete(returnedTag);
+        } catch (Exception e) {
+            futureContainer.completeExceptionally(e);
+        }
+    }
     public Future<Person> createPerson(String addressBookName, Person createdPerson) throws SyncErrorException {
         return executeTask(new CreatePersonOnRemoteTask(remoteManager, addressBookName, createdPerson));
     }
