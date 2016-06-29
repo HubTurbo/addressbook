@@ -108,43 +108,46 @@ public class SyncManager extends ComponentManager {
 
     @Subscribe
     public void handleCreatePersonOnRemoteRequestEvent(CreatePersonOnRemoteRequestEvent event) {
-        CompletableFuture<Person> futureContainer = event.getFutureContainer();
-        try {
-            Person returnedPerson = new CreatePersonOnRemoteTask(remoteManager, event.getAddressBookName(),
-                                                                 event.getCreatedPerson()).call();
-            futureContainer.complete(returnedPerson);
-        } catch (Exception e) {
-            futureContainer.completeExceptionally(e);
-        }
+        CompletableFuture<Person> resultContainer = event.getReturnedPersonContainer();
+        RemoteTaskWithResult<Person> taskToCall = new CreatePersonOnRemoteTask(remoteManager,
+                                                                               event.getAddressBookName(),
+                                                                               event.getCreatedPerson());
+        callTask(taskToCall, resultContainer);
     }
 
     @Subscribe
     public void handleCreateTagOnRemoteRequestEvent(CreateTagOnRemoteRequestEvent event) {
-        CompletableFuture<Tag> futureContainer = event.getFutureContainer();
+        CompletableFuture<Tag> resultContainer = event.getReturnedTagContainer();
+        RemoteTaskWithResult<Tag> taskToCall = new CreateTagOnRemoteTask(remoteManager, event.getAddressBookName(),
+                                                                         event.getCreatedTag());
+        callTask(taskToCall, resultContainer);
+    }
+
+    @Subscribe
+    public void handleUpdatePersonOnRemoteRequestEvent(UpdatePersonOnRemoteRequestEvent event) {
+        CompletableFuture<Person> resultContainer = event.getReturnedPersonContainer();
+        RemoteTaskWithResult<Person> taskToCall = new UpdatePersonOnRemoteTask(remoteManager,
+                                                                               event.getAddressBookName(),
+                                                                               event.getPersonId(),
+                                                                               event.getUpdatedPerson());
+        callTask(taskToCall, resultContainer);
+    }
+
+    @Subscribe
+    public void handleEditTagOnRemoteRequestEvent(EditTagOnRemoteRequestEvent event) {
+        CompletableFuture<Tag> resultContainer = event.getReturnedTagContainer();
+        RemoteTaskWithResult<Tag> taskToCall = new EditTagOnRemoteTask(remoteManager, event.getAddressBookName(),
+                                                                       event.getTagName(), event.getEditedTag());
+
+        callTask(taskToCall, resultContainer);
+    }
+
+    private <T> void callTask(RemoteTaskWithResult<T> taskToCall, CompletableFuture<T> resultContainer) {
         try {
-            Tag returnedTag = new CreateTagOnRemoteTask(remoteManager, event.getAddressBookName(),
-                                                        event.getCreatedTag()).call();
-            futureContainer.complete(returnedTag);
+            resultContainer.complete(taskToCall.call());
         } catch (Exception e) {
-            futureContainer.completeExceptionally(e);
+            resultContainer.completeExceptionally(e);
         }
-    }
-    public Future<Person> createPerson(String addressBookName, Person createdPerson) throws SyncErrorException {
-        return executeTask(new CreatePersonOnRemoteTask(remoteManager, addressBookName, createdPerson));
-    }
-
-    public Future<Tag> createTag(String addressBookName, Tag createdTag) throws SyncErrorException {
-        return executeTask(new CreateTagOnRemoteTask(remoteManager, addressBookName, createdTag));
-    }
-
-    public Future<Tag> editTag(String addressBookName, String tagName, Tag editedTag) throws SyncErrorException {
-        return executeTask(new EditTagOnRemoteTask(remoteManager, addressBookName, tagName, editedTag));
-    }
-
-    public Future<Person> updatePerson(String addressBookName, int personId, Person updatedPerson)
-            throws SyncErrorException {
-        return executeTask(new UpdatePersonOnRemoteTask(remoteManager, addressBookName, personId,
-                                                        updatedPerson));
     }
 
     public Future<Boolean> deletePerson(String addressBookName, int personId) throws SyncErrorException {

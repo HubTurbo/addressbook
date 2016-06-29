@@ -5,18 +5,19 @@ import address.model.datatypes.tag.Tag;
 import java.util.concurrent.CompletableFuture;
 
 public class CreateTagOnRemoteRequestEvent extends BaseEvent {
-    private CompletableFuture<Tag> returnedTag;
+    private CompletableFuture<Tag> returnedTagContainer;
     private String addressBookName;
     private Tag createdTag;
 
-    public CreateTagOnRemoteRequestEvent(CompletableFuture<Tag> returnedTag, String addressBookName, Tag createdTag) {
-        this.returnedTag = returnedTag;
+    public CreateTagOnRemoteRequestEvent(CompletableFuture<Tag> returnedTagContainer, String addressBookName,
+                                         Tag createdTag) {
+        this.returnedTagContainer = returnedTagContainer;
         this.addressBookName = addressBookName;
         this.createdTag = createdTag;
     }
 
-    public CompletableFuture<Tag> getFutureContainer() {
-        return returnedTag;
+    public CompletableFuture<Tag> getReturnedTagContainer() {
+        return returnedTagContainer;
     }
 
     public String getAddressBookName() {
