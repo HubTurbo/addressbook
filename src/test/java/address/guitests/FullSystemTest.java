@@ -24,7 +24,7 @@ public class FullSystemTest extends GuiTestBase {
         clickOn("#tagNameField").write("colleagues");
         verifyThat("#tagNameField", hasText("colleagues"));
 
-        clickOn("OK")//type(KeyCode.ENTER)
+        type(KeyCode.ENTER)
                 .clickOn("Muster").type(KeyCode.E).sleep(1000).clickOn("#firstNameField").push(shortcut(KeyCode.A)).eraseText(4).write("John")
                 .clickOn("#lastNameField").eraseText(6).write("Tan")
                 .clickOn("#cityField").write("Singapore")
