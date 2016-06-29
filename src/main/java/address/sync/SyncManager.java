@@ -6,7 +6,7 @@ import address.exceptions.SyncErrorException;
 import address.main.ComponentManager;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
-import address.sync.task.CloudUpdateTask;
+import address.sync.task.*;
 import address.util.AppLogger;
 import address.util.Config;
 import address.util.LoggerManager;
@@ -23,20 +23,20 @@ import java.util.concurrent.*;
  * Periodic updates to the cloud will be based on the currently-active addressbook
  * which can be set via setActiveAddressBook
  */
-public class SyncManager extends ComponentManager{
+public class SyncManager extends ComponentManager {
     private static final AppLogger logger = LoggerManager.getLogger(SyncManager.class);
 
     private final ScheduledExecutorService scheduler;
     private final ExecutorService requestExecutor;
-    private Config config;
+    private final RemoteManager remoteManager;
+    private final Config config;
     private Optional<String> activeAddressBook;
 
-    private RemoteManager remoteManager;
 
     /**
      * Constructor for SyncManager
      *
-     * @param config should have updateInterval and simulateUnreliableNetwork set
+     * @param config should have updateInterval (milliseconds) and simulateUnreliableNetwork set
      */
     public SyncManager(Config config) {
         this(config, new RemoteManager(config), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
@@ -45,11 +45,10 @@ public class SyncManager extends ComponentManager{
     /**
      * Constructor for SyncManager
      *
-     * @param config
+     * @param config should have updateInterval and simulateUnreliableNetwork set
      * @param remoteManager
      * @param executorService
      * @param scheduledExecutorService
-     * @param config should have updateInterval and simulateUnreliableNetwork set
      */
     public SyncManager(Config config, RemoteManager remoteManager, ExecutorService executorService,
                        ScheduledExecutorService scheduledExecutorService) {
@@ -63,149 +62,60 @@ public class SyncManager extends ComponentManager{
     }
 
     // TODO: setActiveAddressBook should be called by the model instead
+    // For now, assume that the address book's save file name is the name of the addressbook
     @Subscribe
     public void handleSaveLocationChangedEvent(SaveLocationChangedEvent slce) {
+        if (slce.saveFile == null) {
+            setActiveAddressBook(null);
+            return;
+        }
         setActiveAddressBook(slce.saveFile.getName());
     }
 
+    /**
+     * Sets the currently active addressbook for periodic updates
+     *
+     * @param activeAddressBookName if null, subsequent updates will fail until re-set to a valid address book
+     */
     public void setActiveAddressBook(String activeAddressBookName) {
         logger.info("Active addressbook set to {}", activeAddressBookName);
-        activeAddressBook = Optional.of(activeAddressBookName);
+        activeAddressBook = Optional.ofNullable(activeAddressBookName);
+    }
+
+    public Optional<String> getActiveAddressBook() {
+        return activeAddressBook;
     }
 
     /**
-     * Starts getting periodic updates from the cloud
+     * Starts getting periodic updates from the cloud, after every updateInterval milliseconds
+     * specified in the config.
+     * Periodic updates will fail if active address book is not set or is invalid.
+     *
+     * Raises a SyncStartedEvent at the beginning, and SyncFailedEvent or SyncCompletedEvent at the end of the task
+     * Raises SyncUpdateCompletedEvent after each resource update is finished successfully
      */
     public void start() {
         logger.info("Starting sync manager.");
-        updatePeriodically(config.updateInterval);
-    }
-
-    /**
-     * Runs an update task periodically every interval milliseconds
-     *
-     * Raises a SyncStartedEvent at the beginning, and SyncFailedEvent or SyncCompletedEvent at the end of the task
-     * Raises UpdateCompletedEvent after each resource update is finished successfully
-     *
-     * @param interval number of milliseconds to wait
-     */
-    public void updatePeriodically(long interval) {
-        Runnable task = () -> {
-            logger.info("Attempting to run periodic update.");
-            raise(new SyncStartedEvent());
-
-            if (!activeAddressBook.isPresent()) {
-                raise(new SyncFailedEvent("No active addressbook sync found."));
-                return;
-            }
-            try {
-                List<Person> updatedPersons = getUpdatedPersons(activeAddressBook.get());
-                logger.logList("Found updated persons: {}", updatedPersons);
-                raise(new UpdateCompletedEvent<>(updatedPersons, "Person updates completed."));
-
-                List<Tag> updatedTagList = getUpdatedTags(activeAddressBook.get());
-                raise(new UpdateCompletedEvent<>(updatedTagList, "Tag updates completed."));
-
-                raise(new SyncCompletedEvent());
-            } catch (SyncErrorException e) {
-                logger.warn("Error obtaining updates.");
-                raise(new SyncFailedEvent(e.getMessage()));
-            } catch (Exception e) {e.printStackTrace();
-                logger.warn("{}", e);
-            }
-        };
-
         long initialDelay = 300; // temp fix for issue #66
-        scheduler.scheduleWithFixedDelay(task, initialDelay, interval, TimeUnit.MILLISECONDS);
+        Runnable updateTask = new GetUpdatesFromRemoteTask(remoteManager, this::raise, this::getActiveAddressBook);
+        scheduler.scheduleWithFixedDelay(updateTask, initialDelay, config.updateInterval, TimeUnit.MILLISECONDS);
     }
 
-    /**
-     * Gets the list of persons that have been updated since the last request
-     *
-     * @param addressBookName
-     * @return
-     * @throws SyncErrorException if bad response code, missing data or network error
-     */
-    private List<Person> getUpdatedPersons(String addressBookName) throws SyncErrorException {
-        try {
-            Optional<List<Person>> updatedPersons;
-            updatedPersons = remoteManager.getUpdatedPersons(addressBookName);
-
-            if (!updatedPersons.isPresent()) throw new SyncErrorException("getUpdatedPersons failed.");
-
-            logger.debug("Updated persons retrieved.");
-            return updatedPersons.get();
-        } catch (IOException e) {
-            throw new SyncErrorException("Error getting updated persons.");
-        }
+    public Future<Person> createPerson(String addressBookName, Person createdPerson) throws SyncErrorException {
+        return requestExecutor.submit(new CreatePersonOnRemoteTask(remoteManager, addressBookName, createdPerson));
     }
 
-    private List<Tag> getUpdatedTags(String addressBookName) throws SyncErrorException {
-        try {
-            Optional<List<Tag>> updatedTags = remoteManager.getUpdatedTagList(addressBookName);
-
-            if (!updatedTags.isPresent()) {
-                logger.info("No updates to tags.");
-                return null;
-            } else {
-                logger.info("Updated tags: {}", updatedTags);
-                return updatedTags.get();
-            }
-        } catch (IOException e) {
-            throw new SyncErrorException("Error getting updated persons.");
-        }
+    public Future<Tag> createTag(String addressBookName, Tag createdTag) throws SyncErrorException {
+        return requestExecutor.submit(new CreateTagOnRemoteTask(remoteManager, addressBookName, createdTag));
     }
 
-    public Person createPerson(String addressBookName, Person person) throws SyncErrorException {
-        try {
-            Optional<Person> createdPerson = remoteManager.createPerson(addressBookName, person);
-            if (!createdPerson.isPresent()) throw new SyncErrorException("Error creating person");
-            return createdPerson.get();
-        } catch (IOException e) {
-            throw new SyncErrorException("Error creating person");
-        }
+    public Future<Tag> editTag(String addressBookName, String tagName, Tag editedtag) throws SyncErrorException {
+        return requestExecutor.submit(new EditTagOnRemoteTask(remoteManager, addressBookName, tagName, editedtag));
     }
 
-    public Tag createTag(String addressBookName, Tag tag) throws SyncErrorException {
-        try {
-            Optional<Tag> createdTag = remoteManager.createTag(addressBookName, tag);
-            if (!createdTag.isPresent()) throw new SyncErrorException("Error creating tag");
-            return createdTag.get();
-        } catch (IOException e) {
-            throw new SyncErrorException("Error creating tag");
-        }
-    }
-
-    public Tag editTag(String addressBookName, String tagName, Tag tag) throws SyncErrorException {
-        try {
-            Optional<Tag> editedTag = remoteManager.editTag(addressBookName, tagName, tag);
-            if (!editedTag.isPresent()) throw new SyncErrorException("Error editing tag");
-            return editedTag.get();
-        } catch (IOException e) {
-            throw new SyncErrorException("Error editing tag");
-        }
-    }
-
-    public Person updatePerson(String addressBookName, int personId, Person person) throws SyncErrorException {
-        try {
-            Optional<Person> updatedPerson = remoteManager.updatePerson(addressBookName, personId, person);
-            if (!updatedPerson.isPresent()) throw new SyncErrorException("Error updating person");
-            return updatedPerson.get();
-        } catch (IOException e) {
-            throw new SyncErrorException("Error updating person");
-        }
-    }
-
-    // TODO: remove
-    @Subscribe
-    public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
-        requestExecutor.execute(new CloudUpdateTask(this.remoteManager, lmce.data));
-    }
-
-    // TODO: remove
-    // To be removed after working out specification on saving and syncing behaviour
-    @Subscribe
-    public void handleSaveRequestEvent(SaveDataRequestEvent sre) {
-        requestExecutor.execute(new CloudUpdateTask(this.remoteManager, sre.data));
+    public Future<Person> updatePerson(String addressBookName, int personId, Person updatedPerson)
+            throws SyncErrorException {
+        return requestExecutor.submit(new UpdatePersonOnRemoteTask(remoteManager, addressBookName, personId,
+                                                                   updatedPerson));
     }
 }

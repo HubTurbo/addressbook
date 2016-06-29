@@ -3,11 +3,11 @@ package address.events;
 /**
  * An event triggered when an update is completed.
  */
-public class UpdateCompletedEvent<T> extends BaseEvent {
+public class SyncUpdateCompletedEvent<T> extends BaseEvent {
     private T data;
     private String message;
 
-    public UpdateCompletedEvent(T data, String message) {
+    public SyncUpdateCompletedEvent(T data, String message) {
         this.data = data;
         this.message = message;
     }
