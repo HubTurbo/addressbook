@@ -5,6 +5,7 @@ import address.events.EventManager;
 import address.keybindings.KeyBinding;
 import address.keybindings.KeySequence;
 import address.model.datatypes.ReadOnlyAddressBook;
+import address.util.OsDetector;
 import address.util.TestUtil;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -106,7 +107,20 @@ public class GuiTestBase extends FxRobot {
         return keys;
     }
 
+    public KeyCodeCombination shortcut(KeyCode keyCode) {
+        return new KeyCodeCombination(keyCode, KeyCodeCombination.SHORTCUT_DOWN);
+    }
 
+    public FxRobot push(KeyCodeCombination keys) {
+        return super.push(getPlatformSpecificKeyCombination(keys));
+    }
+
+    private KeyCodeCombination getPlatformSpecificKeyCombination(KeyCodeCombination keys) {
+        if (keys.getShortcut() != KeyCodeCombination.ModifierValue.DOWN) return keys;
+        KeyCodeCombination.Modifier shortcut = OsDetector.isOnMac() ? KeyCodeCombination.META_DOWN
+                                                                    : KeyCodeCombination.CONTROL_DOWN;
+        return new KeyCodeCombination(keys.getCode(), shortcut);
+    }
 
     protected void delay(int milliseconds) {
         try {
