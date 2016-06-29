@@ -29,9 +29,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * Dialog to view the list of persons and their details
@@ -172,14 +174,14 @@ public class PersonOverviewController extends UiController{
     }
 
     private void handleCancelPersonOperations() {
-        final List<Integer> selectedIndexes = personListView.getSelectionModel().getSelectedIndices();
-        selectedIndexes.stream().forEach(selectedIndex -> {
-            if (selectedIndex >= 0) {
-                final ReadOnlyPerson cancelTarget = personListView.getItems().get(selectedIndex);
-                modelManager.cancelPersonChangeCommand(cancelTarget);
-            } else {
-                showNoSelectionAlert(); // Nothing selected.
-            }
+        final List<ReadOnlyViewablePerson> selectedPersons = new ArrayList<>(personListView.getSelectionModel().getSelectedItems());
+        selectedPersons.removeIf(p -> !(p instanceof ReadOnlyViewablePerson));
+        if (selectedPersons.size() == 0) {
+            showNoSelectionAlert();
+            return;
+        }
+        selectedPersons.stream().forEach(selectedPerson -> {
+                modelManager.cancelPersonChangeCommand(selectedPerson);
         });
     }
 
