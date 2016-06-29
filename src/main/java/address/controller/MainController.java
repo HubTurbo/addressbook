@@ -185,6 +185,7 @@ public class MainController extends UiController{
             GridPane gridPane = loader.load();
             gridPane.getStyleClass().add("grid-pane");
             StatusBarFooterController controller = loader.getController();
+            controller.setConnections(modelManager.getPrefs());
             controller.initStatusBar(config);
             rootLayout.getChildren().add(gridPane);
         } catch (IOException e) {
