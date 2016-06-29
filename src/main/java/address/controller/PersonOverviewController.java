@@ -29,7 +29,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -118,8 +120,8 @@ public class PersonOverviewController extends UiController{
     private void handleDeletePersons() {
         final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
         
-        if (selected.isEmpty() || isListContainingNullObject(selected)) {
-            showNoSelectionAlert();
+        if (isSelectionValid()) {
+            showInvalidSelectionAlert();
         } else {
             selected.stream()
                     .forEach(target -> {
@@ -129,13 +131,9 @@ public class PersonOverviewController extends UiController{
         }
     }
 
-    private boolean isListContainingNullObject(List<ReadOnlyViewablePerson> selected) {
-        for (Object obj : selected) {
-            if (obj == null){
-                return true;
-            }
-        }
-        return false;
+    private boolean isSelectionValid() {
+        final List<?> selected = personListView.getSelectionModel().getSelectedItems();
+        return selected.isEmpty() || selected.stream().anyMatch(Objects::isNull);
     }
 
     /**
@@ -154,8 +152,8 @@ public class PersonOverviewController extends UiController{
     private void handleRetagPersons() {
         List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
 
-        if (selectedPersons.isEmpty() || isListContainingNullObject(selectedPersons)) {
-            showNoSelectionAlert();
+        if (isSelectionValid()) {
+            showInvalidSelectionAlert();
             return;
         }
 
@@ -179,7 +177,7 @@ public class PersonOverviewController extends UiController{
     private void handleEditPerson() {
         final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
         if (editTarget == null) { // no selection
-            showNoSelectionAlert();
+            showInvalidSelectionAlert();
             return;
         }
         modelManager.editPersonThroughUI(editTarget,
@@ -188,8 +186,8 @@ public class PersonOverviewController extends UiController{
 
     private void handleCancelPersonOperations() {
         final List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
-        if (selectedPersons.isEmpty() || isListContainingNullObject(selectedPersons)) {
-            showNoSelectionAlert();
+        if (isSelectionValid()) {
+            showInvalidSelectionAlert();
             return;
         }
         selectedPersons.stream().forEach(selectedPerson -> {
@@ -271,9 +269,9 @@ public class PersonOverviewController extends UiController{
         selectItem(indexOfItem);
     }
 
-    private void showNoSelectionAlert() {
+    private void showInvalidSelectionAlert() {
         mainController.showAlertDialogAndWait(AlertType.WARNING,
-                "No Selection", "No Person Selected", "Please select a person in the list.");
+                "Invalid Selection", "No Person Selected", "Please select a person in the list.");
     }
 
     /**
