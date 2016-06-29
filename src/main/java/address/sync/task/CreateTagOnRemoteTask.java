@@ -27,10 +27,10 @@ public class CreateTagOnRemoteTask implements Callable<Tag> {
         logger.info("Creating {} in {} on remote", tag, addressBookName);
         try {
             Optional<Tag> createdTag = remoteManager.createTag(addressBookName, tag);
-            if (!createdTag.isPresent()) throw new SyncErrorException("Error creating tag");
+            if (!createdTag.isPresent()) throw new SyncErrorException("Error creating tag " + tag);
             return createdTag.get();
         } catch (IOException e) {
-            throw new SyncErrorException("Error creating tag");
+            throw new SyncErrorException("Error creating tag " + tag);
         }
     }
 }

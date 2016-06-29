@@ -27,10 +27,10 @@ public class CreatePersonOnRemoteTask implements Callable<Person> {
         logger.info("Creating {} in {} on remote", person, addressBookName);
         try {
             Optional<Person> createdPerson = remoteManager.createPerson(addressBookName, person);
-            if (!createdPerson.isPresent()) throw new SyncErrorException("Error creating person");
+            if (!createdPerson.isPresent()) throw new SyncErrorException("Error creating person " + person);
             return createdPerson.get();
         } catch (IOException e) {
-            throw new SyncErrorException("Error creating person");
+            throw new SyncErrorException("Error creating person" + person);
         }
     }
 }

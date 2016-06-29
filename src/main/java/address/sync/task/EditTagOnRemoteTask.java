@@ -29,10 +29,12 @@ public class EditTagOnRemoteTask implements Callable<Tag> {
         logger.info("Editing tag {} with {} in {} on remote", tagName, editedTag, addressBookName);
         try {
             Optional<Tag> editedTag = remoteManager.editTag(addressBookName, tagName, this.editedTag);
-            if (!editedTag.isPresent()) throw new SyncErrorException("Error editing tag");
+            if (!editedTag.isPresent()) throw new SyncErrorException("Error editing tag " + tagName + " to "
+                    + this.editedTag);
             return editedTag.get();
         } catch (IOException e) {
-            throw new SyncErrorException("Error editing tag");
+            throw new SyncErrorException("Error editing tag " + tagName + " to "
+                    + this.editedTag);
         }
     }
 }

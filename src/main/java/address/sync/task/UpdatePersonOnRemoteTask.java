@@ -27,7 +27,7 @@ public class UpdatePersonOnRemoteTask implements Callable<Person> {
 
     @Override
     public Person call() throws Exception {
-        logger.info("Updating person with id {} with person {} in {} on remote", personId, updatedPerson, addressBookName);
+        logger.info("Updating person id {} with person {} in {} on remote", personId, updatedPerson, addressBookName);
         try {
             Optional<Person> updatedPerson = remoteManager.updatePerson(addressBookName, personId, this.updatedPerson);
             if (!updatedPerson.isPresent()) throw new SyncErrorException("Error updating person");
