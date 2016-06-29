@@ -119,7 +119,10 @@ public class PersonOverviewController extends UiController{
      */
     @FXML
     private void handleDeletePersons() {
-        final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
+        final List<ReadOnlyViewablePerson> selected = new ArrayList<>(personListView.getSelectionModel()
+                                                                                    .getSelectedItems());
+        selected.removeIf(p -> !(p instanceof  ReadOnlyViewablePerson));
+
         if (selected.isEmpty()) {
             showNoSelectionAlert();
         } else {
@@ -145,7 +148,8 @@ public class PersonOverviewController extends UiController{
      * Called when the context menu edit is clicked.
      */
     private void handleRetagPersons() {
-        List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
+        List<ReadOnlyViewablePerson> selectedPersons = new ArrayList<>(personListView.getSelectionModel().getSelectedItems());
+        selectedPersons.removeIf(p -> !(p instanceof  ReadOnlyViewablePerson));
         Optional<List<Tag>> listOfFinalAssignedTags = mainController.getPersonsTagsInput(selectedPersons);
 
         if (listOfFinalAssignedTags.isPresent()) {
