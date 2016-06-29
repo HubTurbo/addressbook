@@ -20,8 +20,8 @@ public class FullSystemTest extends GuiTestBase {
     public void scenarioOne() {
         clickOn("Tags").clickOn("New Tag");
         verifyThat("#tagNameField", hasText(""));
-        clickOn("#tagNameField").write("colleagues");
 
+        clickOn("#tagNameField").write("colleagues");
         verifyThat("#tagNameField", hasText("colleagues"));
 
         clickOn("OK")//type(KeyCode.ENTER)
