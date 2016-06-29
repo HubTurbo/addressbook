@@ -19,6 +19,7 @@ public class FullSystemTest extends GuiTestBase {
     @Test
     public void scenarioOne() {
         clickOn("Tags").clickOn("New Tag");
+        verifyThat("#tagNameField", hasText(""));
         clickOn("#tagNameField").write("colleagues");
 
         verifyThat("#tagNameField", hasText("colleagues"));
