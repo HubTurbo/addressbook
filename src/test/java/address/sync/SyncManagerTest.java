@@ -1,9 +1,7 @@
-package address.unittests.sync;
+package address.sync;
 
 import address.events.EventManager;
 import address.events.SyncFailedEvent;
-import address.sync.RemoteManager;
-import address.sync.SyncManager;
 import address.util.Config;
 import com.google.common.eventbus.Subscribe;
 import org.junit.After;

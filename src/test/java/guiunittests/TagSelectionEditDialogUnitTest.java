@@ -1,4 +1,4 @@
-package address.guiunittests;
+package guiunittests;
 
 import address.TestApp;
 import address.controller.TagSelectionEditDialogController;

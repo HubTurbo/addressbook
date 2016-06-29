@@ -1,8 +1,7 @@
-package address.unittests.keybindings;
+package address.keybindings;
 
 
 import address.events.*;
-import address.keybindings.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;

@@ -1,12 +1,10 @@
-package address.guitests;
+package guitests;
 
 import address.keybindings.Bindings;
-import address.keybindings.KeySequence;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.model.datatypes.person.Person;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
 import org.junit.Test;
 
 import static org.testfx.api.FxAssert.verifyThat;

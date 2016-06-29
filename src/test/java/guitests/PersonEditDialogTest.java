@@ -1,4 +1,4 @@
-package address.guitests;
+package guitests;
 
 import javafx.scene.input.KeyCode;
 import org.junit.Test;

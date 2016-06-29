@@ -1,12 +1,9 @@
-package address.unittests.browser;
+package address.browser;
 
-import address.browser.BrowserManager;
-import address.browser.BrowserManagerUtil;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.JavafxThreadingRule;
-import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -16,9 +13,6 @@ import org.junit.Test;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
