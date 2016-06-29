@@ -119,14 +119,29 @@ public class GuiTestBase extends FxRobot {
     }
 
     public FxRobot push(KeyCode... keys) {
-        if (!OsDetector.isOnMac()) return super.push(keys);
+        return super.push(getPlatformSpecificKeyCodes(keys));
+    }
 
+    private KeyCode[] getPlatformSpecificKeyCodes(KeyCode[] keys) {
+        if (!OsDetector.isOnMac()) return keys;
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] == KeyCode.META || keys[i] == KeyCode.SHORTCUT) {
                 keys[i] = KeyCode.COMMAND;
             }
         }
-        return super.push(keys);
+        return keys;
+    }
+
+    public FxRobot press(KeyCode... keys) {
+        return super.press(getPlatformSpecificKeyCodes(keys));
+    }
+
+    public FxRobot release(KeyCode... keys) {
+        return super.release(getPlatformSpecificKeyCodes(keys));
+    }
+
+    public FxRobot type(KeyCode... keys) {
+        return super.type(getPlatformSpecificKeyCodes(keys));
     }
 
     protected void delay(int milliseconds) {
