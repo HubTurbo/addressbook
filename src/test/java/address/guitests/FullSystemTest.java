@@ -35,7 +35,7 @@ public class FullSystemTest extends GuiTestBase {
                 .type(KeyCode.ENTER).sleep(200)//wait for closing animation
                 .type(KeyCode.ENTER)
         .clickOn("#filterField").write("tag:colleagues").type(KeyCode.ENTER)
-                .sleep(1000)
+                //.sleep(1000)
         .clickOn("John")
                 .type(KeyCode.D)
                 .sleep(1000)
