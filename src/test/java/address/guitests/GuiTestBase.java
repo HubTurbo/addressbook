@@ -115,7 +115,7 @@ public class GuiTestBase extends FxRobot {
         if (!OsDetector.isOnMac()) return super.push(keys);
         if (keys.getShortcut() != KeyCodeCombination.ModifierValue.DOWN
                 && keys.getMeta() != KeyCodeCombination.ModifierValue.DOWN) return super.push(keys);
-        return push(KeyCode.COMMAND, KeyCode.A);
+        return push(KeyCode.COMMAND, keys.getCode());
     }
 
     public FxRobot push(KeyCode... keys) {
