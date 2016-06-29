@@ -18,9 +18,8 @@ public class FullSystemTest extends GuiTestBase {
 
     @Test
     public void scenarioOne() {
-        clickOn("Tags").clickOn("New Tag")
-                //.clickOn("#tagNameField")
-        .type(KeyCode.C).type(KeyCode.O).type(KeyCode.L).type(KeyCode.L).type(KeyCode.E).type(KeyCode.A).type(KeyCode.G).type(KeyCode.U).type(KeyCode.E).type(KeyCode.S);
+        clickOn("Tags").clickOn("New Tag");
+        clickOn("#tagNameField").write("colleagues");
 
         verifyThat("#tagNameField", hasText("colleagues"));
 
