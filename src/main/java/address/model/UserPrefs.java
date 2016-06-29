@@ -1,10 +1,5 @@
 package address.model;
 
-import address.util.AppLogger;
-import address.util.LoggerManager;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-
 import java.io.File;
 
 /**
