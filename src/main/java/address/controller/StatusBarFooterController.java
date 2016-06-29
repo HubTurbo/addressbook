@@ -5,7 +5,6 @@ import address.model.UserPrefs;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
-import javafx.beans.binding.StringBinding;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
@@ -14,7 +13,6 @@ import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.StatusBar;
 
 import java.io.File;
-import java.util.Optional;
 import java.util.concurrent.*;
 
 public class StatusBarFooterController extends UiController{
@@ -34,30 +32,11 @@ public class StatusBarFooterController extends UiController{
     private TickingTimer timer;
     private long updateIntervalInSecs;
 
-    private UserPrefs prefs = null;
-
-    private final Label secondaryStatusbarLabel;
+    private final Label saveLocationLabel;
 
     public StatusBarFooterController() {
         super();
-        this.secondaryStatusbarLabel = new Label("");
-    }
-
-    private void bindSecondaryStatusBarLabel() {
-        this.secondaryStatusbarLabel.textProperty().bind(new StringBinding() {
-            {
-                bind(prefs.saveLocationProperty());
-            }
-            @Override
-            protected String computeValue() {
-                return SAVE_LOC_TEXT_PREFIX + prefs.saveLocationProperty().get();
-            }
-        });
-    }
-
-    public void setConnections(UserPrefs prefs) {
-        this.prefs = prefs;
-       // bindSecondaryStatusBarLabel();
+        this.saveLocationLabel = new Label("");
     }
 
     private void updateWithConfigValues(Config config) {
@@ -83,7 +62,7 @@ public class StatusBarFooterController extends UiController{
      *
      * @param config
      */
-    public void initStatusBar(Config config) {
+    public void initStatusBar(Config config, UserPrefs prefs) {
         updateWithConfigValues(config);
         this.syncStatusBar = new StatusBar();
         this.updaterStatusBar = new StatusBar();
@@ -91,14 +70,11 @@ public class StatusBarFooterController extends UiController{
         FxViewUtil.applyAnchorBoundaryParameters(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
         syncStatusBarPane.getChildren().add(syncStatusBar);
         updaterStatusBarPane.getChildren().add(updaterStatusBar);
-        initSaveLocationLabel();
-    }
-
-    private void initSaveLocationLabel() {
-        secondaryStatusbarLabel.setTextAlignment(TextAlignment.LEFT);
-        setTooltip(secondaryStatusbarLabel);
-        this.updaterStatusBar.getRightItems().add(secondaryStatusbarLabel);
-        secondaryStatusbarLabel.setVisible(false);
+        saveLocationLabel.setVisible(false);
+        saveLocationLabel.setText(SAVE_LOC_TEXT_PREFIX + prefs.getSaveLocationString());
+        saveLocationLabel.setTextAlignment(TextAlignment.LEFT);
+        setTooltip(saveLocationLabel);
+        this.updaterStatusBar.getRightItems().add(saveLocationLabel);
     }
 
     private void setTooltip(Label label) {
@@ -152,7 +128,7 @@ public class StatusBarFooterController extends UiController{
             updaterStatusBar.setText(ufe.toString());
             updaterStatusBar.setProgress(0.0);
             updaterStatusBar.setText("");
-            secondaryStatusbarLabel.setVisible(true);
+            saveLocationLabel.setVisible(true);
         });
     }
 
@@ -162,7 +138,16 @@ public class StatusBarFooterController extends UiController{
             updaterStatusBar.setText(ufe.toString());
             updaterStatusBar.setProgress(0.0);
             updaterStatusBar.setText("");
-            secondaryStatusbarLabel.setVisible(true);
+            saveLocationLabel.setVisible(true);
         });
+    }
+
+    @Subscribe
+    private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
+        updateSaveLocationDisplay(e.saveFile);
+    }
+
+    private void updateSaveLocationDisplay(File saveFile) {
+        saveLocationLabel.setText(SAVE_LOC_TEXT_PREFIX + ((saveFile != null) ? saveFile.getName() : LOC_TEXT_NOT_SET));
     }
 }

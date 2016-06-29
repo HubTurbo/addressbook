@@ -16,24 +16,20 @@ public class UserPrefs {
     /**
      * Full path (including file name) of the data file to be used for local storage
      */
-    private volatile StringProperty saveLocation;
-
-    public UserPrefs() {
-        saveLocation = new SimpleStringProperty("");
-    }
+    private volatile String saveLocation;
 
     public synchronized void setSaveLocation(String saveLocation) {
-        this.saveLocation.set(saveLocation);
+        this.saveLocation = saveLocation;
     }
 
     /**
      * @return the current save file location or the default temp file location if there is no recorded preference.
      */
     public synchronized File getSaveLocation() {
-        return saveLocation == null ? new File(DEFAULT_TEMP_FILE_PATH) : new File(saveLocation.get());
+        return saveLocation == null ? new File(DEFAULT_TEMP_FILE_PATH) : new File(saveLocation);
     }
 
-    public StringProperty saveLocationProperty() {
+    public String getSaveLocationString() {
         return saveLocation;
     }
 

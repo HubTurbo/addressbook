@@ -113,8 +113,6 @@ public class MainController extends UiController{
             // Load root layout from fxml file.
             FXMLLoader loader = loadFxml(fxmlResourcePath);
             rootLayout = loader.load();
-            SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-            pane.setDividerPositions(0.3f);
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
@@ -185,8 +183,7 @@ public class MainController extends UiController{
             GridPane gridPane = loader.load();
             gridPane.getStyleClass().add("grid-pane");
             StatusBarFooterController controller = loader.getController();
-            controller.setConnections(modelManager.getPrefs());
-            controller.initStatusBar(config);
+            controller.initStatusBar(config, modelManager.getPrefs());
             rootLayout.getChildren().add(gridPane);
         } catch (IOException e) {
             logger.warn("Error Loading footer status bar: {}", e);
