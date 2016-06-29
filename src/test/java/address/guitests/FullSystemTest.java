@@ -29,11 +29,13 @@ public class FullSystemTest extends GuiTestBase {
                 .clickOn("#lastNameField").eraseText(6).write("Tan")
                 .clickOn("#cityField").write("Singapore")
                 .clickOn("#githubUserNameField").write("john123")
-                .clickOn("#tagList").write("coll").type(KeyCode.SPACE)
-                .type(KeyCode.ENTER).sleep(2000)//wait for closing animation
+                .clickOn("#tagList")
+                .sleep(200)
+                .clickOn("#tagSearch").write("coll").type(KeyCode.SPACE)
+                .type(KeyCode.ENTER).sleep(200)//wait for closing animation
                 .type(KeyCode.ENTER)
         .clickOn("#filterField").write("tag:colleagues").type(KeyCode.ENTER)
-//                .sleep(1000)
+                .sleep(1000)
         .clickOn("John")
                 .type(KeyCode.D)
                 .sleep(1000)
