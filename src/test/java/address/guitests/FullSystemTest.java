@@ -25,36 +25,30 @@ public class FullSystemTest extends GuiTestBase {
         clickOn("#tagNameField").write("colleagues");
         verifyThat("#tagNameField", hasText("colleagues"));
 
-        //type(KeyCode.ENTER)
-        clickOn("OK")
+        type(KeyCode.ENTER)
                 .clickOn("Muster").type(KeyCode.E).sleep(1000).clickOn("#firstNameField")
-
-                .push(shortcut(KeyCode.A))
-
-                .eraseText(1).write("John")
+                .push(shortcut(KeyCode.A)).eraseText(1).write("John")
                 .clickOn("#lastNameField").eraseText(6).write("Tan")
                 .clickOn("#cityField").write("Singapore")
                 .clickOn("#githubUserNameField").write("john123");
-
 
         verifyThat("#firstNameField", hasText("John"));
         verifyThat("#lastNameField", hasText("Tan"));
         verifyThat("#cityField", hasText("Singapore"));
         verifyThat("#githubUserNameField", hasText("john123"));
 
-
                 clickOn("#tagList")
-                .sleep(200)
-                .clickOn("#tagSearch")
-                .write("coll").type(KeyCode.SPACE)
-                .type(KeyCode.ENTER).sleep(200)//wait for closing animation
+                .sleep(200) // wait for opening animation
+                    .clickOn("#tagSearch")
+                    .write("coll").type(KeyCode.SPACE)
+                    .type(KeyCode.ENTER)
+                .sleep(200)// wait for closing animation
                 .type(KeyCode.ENTER)
         .clickOn("#filterField").write("tag:colleagues").type(KeyCode.ENTER);
 
         verifyThat("#filterField", hasText("tag:colleagues"));
 
-                sleep(1000)
-        .clickOn("John")
+        clickOn("John")
                 .type(KeyCode.D)
                 .sleep(1000)
                 //.clickOn("Tags").clickOn("Manage Tags").rightClickOn("colleagues").clickOn("New").write("company")
