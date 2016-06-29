@@ -1,7 +1,6 @@
-package address.unittests.util;
+package address.util;
 
 import address.MainApp;
-import address.util.JavaVersion;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

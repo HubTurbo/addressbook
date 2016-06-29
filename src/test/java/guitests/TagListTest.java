@@ -1,4 +1,4 @@
-package address.guitests;
+package guitests;
 
 import org.junit.Test;
 

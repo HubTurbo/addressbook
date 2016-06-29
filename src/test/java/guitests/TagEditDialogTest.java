@@ -1,6 +1,5 @@
-package address.guitests;
+package guitests;
 
-import javafx.scene.control.TextField;
 import org.junit.Test;
 
 import static org.testfx.api.FxAssert.verifyThat;

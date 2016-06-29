@@ -1,4 +1,4 @@
-package address.unittests.browser;
+package address.browser;
 
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.HyperBrowser;

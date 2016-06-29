@@ -1,11 +1,9 @@
-package address.unittests.sync;
+package address.sync;
 
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
 import address.sync.cloud.RemoteResponse;
-import address.sync.RemoteService;
 import address.sync.cloud.CloudSimulator;
-import address.sync.ExtractedRemoteResponse;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
 import org.junit.Before;

@@ -1,8 +1,6 @@
-package address.unittests.keybindings;
+package address.keybindings;
 
 import address.events.KeyBindingEvent;
-import address.keybindings.KeyBinding;
-import address.keybindings.KeyBindingsManager;
 
 import java.util.List;
 import java.util.Optional;

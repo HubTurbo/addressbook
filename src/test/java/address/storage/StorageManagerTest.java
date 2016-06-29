@@ -1,13 +1,10 @@
-package address.unittests.storage;
+package address.storage;
 
 import address.events.*;
 import address.exceptions.DataConversionException;
 import address.model.datatypes.AddressBook;
 import address.model.ModelManager;
-import address.storage.StorageAddressBook;
 import address.model.UserPrefs;
-import address.storage.StorageManager;
-import address.storage.XmlFileStorage;
 import address.util.Config;
 import address.util.TestUtil;
 import org.junit.Before;
