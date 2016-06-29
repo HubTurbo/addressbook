@@ -1,4 +1,4 @@
-package address.unittests;
+package address;
 
 import address.model.datatypes.tag.Tag;
 import address.model.TagSelectionEditDialogModel;

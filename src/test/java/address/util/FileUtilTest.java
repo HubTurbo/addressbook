@@ -1,7 +1,6 @@
-package address.unittests.util;
+package address.util;
 
 
-import address.util.FileUtil;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

@@ -1,7 +1,7 @@
-package address.unittests.util;
+package address.util;
 
-import address.util.UrlUtil;
 import junit.framework.TestCase;
+
 import org.junit.Test;
 
 import java.net.MalformedURLException;

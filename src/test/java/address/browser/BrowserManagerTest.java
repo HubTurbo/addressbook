@@ -1,6 +1,5 @@
-package address.unittests.browser;
+package address.browser;
 
-import address.browser.BrowserManager;
 import address.util.JavafxThreadingRule;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
@@ -10,10 +9,8 @@ import org.junit.Test;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+
 
 /**
  * Tests the BrowserManager behaviours and functionality.
