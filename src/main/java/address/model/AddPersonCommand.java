@@ -36,7 +36,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
      *                       If the returned Optional is empty, the command will be cancelled.
      * @see super#ChangePersonInModelCommand(Supplier, int)
      */
-    protected AddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever, int gracePeriodDurationInSeconds,
+    public AddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever, int gracePeriodDurationInSeconds,
                                Consumer<BaseEvent> eventRaiser, ModelManager model) {
         super(inputRetriever, gracePeriodDurationInSeconds);
         this.model = model;

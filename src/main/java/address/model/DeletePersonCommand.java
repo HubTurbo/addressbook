@@ -28,7 +28,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     /**
      * @see super#ChangePersonInModelCommand(Supplier, int)
      */
-    protected DeletePersonCommand(ViewablePerson target, int gracePeriodDurationInSeconds,
+    public DeletePersonCommand(ViewablePerson target, int gracePeriodDurationInSeconds,
                                   Consumer<BaseEvent> eventRaiser, ModelManager model) {
         // no input needed for delete commands
         super(() -> Optional.of(target), gracePeriodDurationInSeconds);

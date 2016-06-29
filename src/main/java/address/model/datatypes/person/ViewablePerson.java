@@ -63,12 +63,12 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
      * @see super#Viewable(UniqueData)
      * @see #connectBackingObject(Person)
      */
-    public static ViewablePerson withoutBacking(Person visiblePerson) {
-        return new ViewablePerson(visiblePerson);
+    public static ViewablePerson withoutBacking(ReadOnlyPerson personData) {
+        return new ViewablePerson(new Person(personData));
     }
 
     /**
-     * @see #withoutBacking(Person)
+     * @see #withoutBacking(ReadOnlyPerson)
      * @see super#Viewable(UniqueData)
      */
     private ViewablePerson(Person visiblePerson) {
