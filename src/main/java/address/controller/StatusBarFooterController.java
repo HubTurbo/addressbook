@@ -32,11 +32,11 @@ public class StatusBarFooterController extends UiController{
     private TickingTimer timer;
     private long updateIntervalInSecs;
 
-    private final Label saveLocationLabel;
+    private final Label secondaryStatusBarLabel;
 
     public StatusBarFooterController() {
         super();
-        this.saveLocationLabel = new Label("");
+        this.secondaryStatusBarLabel = new Label("");
     }
 
     private void updateWithConfigValues(Config config) {
@@ -70,11 +70,13 @@ public class StatusBarFooterController extends UiController{
         FxViewUtil.applyAnchorBoundaryParameters(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
         syncStatusBarPane.getChildren().add(syncStatusBar);
         updaterStatusBarPane.getChildren().add(updaterStatusBar);
-        saveLocationLabel.setVisible(false);
-        saveLocationLabel.setText(SAVE_LOC_TEXT_PREFIX + prefs.getSaveLocationString());
-        saveLocationLabel.setTextAlignment(TextAlignment.LEFT);
-        setTooltip(saveLocationLabel);
-        this.updaterStatusBar.getRightItems().add(saveLocationLabel);
+        secondaryStatusBarLabel.setVisible(false);
+        secondaryStatusBarLabel.setMinWidth(0.0);
+        secondaryStatusBarLabel.setMaxWidth(0.0);
+        secondaryStatusBarLabel.setText(SAVE_LOC_TEXT_PREFIX + prefs.getSaveLocationString());
+        secondaryStatusBarLabel.setTextAlignment(TextAlignment.LEFT);
+        setTooltip(secondaryStatusBarLabel);
+        this.updaterStatusBar.getRightItems().add(secondaryStatusBarLabel);
     }
 
     private void setTooltip(Label label) {
@@ -128,7 +130,9 @@ public class StatusBarFooterController extends UiController{
             updaterStatusBar.setText(ufe.toString());
             updaterStatusBar.setProgress(0.0);
             updaterStatusBar.setText("");
-            saveLocationLabel.setVisible(true);
+            secondaryStatusBarLabel.setVisible(true);
+            secondaryStatusBarLabel.setMinWidth(50.0);
+            secondaryStatusBarLabel.setMaxWidth(50.0);
         });
     }
 
@@ -138,7 +142,9 @@ public class StatusBarFooterController extends UiController{
             updaterStatusBar.setText(ufe.toString());
             updaterStatusBar.setProgress(0.0);
             updaterStatusBar.setText("");
-            saveLocationLabel.setVisible(true);
+            secondaryStatusBarLabel.setVisible(true);
+            secondaryStatusBarLabel.setMinWidth(50.0);
+            secondaryStatusBarLabel.setMaxWidth(50.0);
         });
     }
 
@@ -148,6 +154,6 @@ public class StatusBarFooterController extends UiController{
     }
 
     private void updateSaveLocationDisplay(File saveFile) {
-        saveLocationLabel.setText(SAVE_LOC_TEXT_PREFIX + ((saveFile != null) ? saveFile.getName() : LOC_TEXT_NOT_SET));
+        secondaryStatusBarLabel.setText(SAVE_LOC_TEXT_PREFIX + ((saveFile != null) ? saveFile.getName() : LOC_TEXT_NOT_SET));
     }
 }
