@@ -127,9 +127,7 @@ public class StatusBarFooterController extends UiController{
             updaterStatusBar.setProgress(0.0);
             updaterStatusBar.setText("");
             secondaryStatusBarLabel.setVisible(true);
-            if (!updaterStatusBar.getRightItems().contains(secondaryStatusBarLabel)) {
-                this.updaterStatusBar.getRightItems().add(secondaryStatusBarLabel);
-            }
+            this.updaterStatusBar.getRightItems().add(secondaryStatusBarLabel);
         });
     }
 
@@ -140,9 +138,7 @@ public class StatusBarFooterController extends UiController{
             updaterStatusBar.setProgress(0.0);
             updaterStatusBar.setText("");
             secondaryStatusBarLabel.setVisible(true);
-            if (!updaterStatusBar.getRightItems().contains(secondaryStatusBarLabel)) {
-                this.updaterStatusBar.getRightItems().add(secondaryStatusBarLabel);
-            }
+            this.updaterStatusBar.getRightItems().add(secondaryStatusBarLabel);
         });
     }
 
