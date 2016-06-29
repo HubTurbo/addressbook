@@ -29,11 +29,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 /**
  * Dialog to view the list of persons and their details
@@ -119,11 +116,9 @@ public class PersonOverviewController extends UiController{
      */
     @FXML
     private void handleDeletePersons() {
-        final List<ReadOnlyViewablePerson> selected = new ArrayList<>(personListView.getSelectionModel()
-                                                                                    .getSelectedItems());
-        selected.removeIf(p -> !(p instanceof  ReadOnlyViewablePerson));
-
-        if (selected.isEmpty()) {
+        final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
+        
+        if (selected.isEmpty() || isListContainingNullObject(selected)) {
             showNoSelectionAlert();
         } else {
             selected.stream()
@@ -132,6 +127,15 @@ public class PersonOverviewController extends UiController{
                         modelManager.deletePersonThroughUI(target);
                     });
         }
+    }
+
+    private boolean isListContainingNullObject(List<ReadOnlyViewablePerson> selected) {
+        for (Object obj : selected) {
+            if (obj == null){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -148,8 +152,13 @@ public class PersonOverviewController extends UiController{
      * Called when the context menu edit is clicked.
      */
     private void handleRetagPersons() {
-        List<ReadOnlyViewablePerson> selectedPersons = new ArrayList<>(personListView.getSelectionModel().getSelectedItems());
-        selectedPersons.removeIf(p -> !(p instanceof  ReadOnlyViewablePerson));
+        List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
+
+        if (selectedPersons.isEmpty() || isListContainingNullObject(selectedPersons)) {
+            showNoSelectionAlert();
+            return;
+        }
+
         Optional<List<Tag>> listOfFinalAssignedTags = mainController.getPersonsTagsInput(selectedPersons);
 
         if (listOfFinalAssignedTags.isPresent()) {
@@ -178,9 +187,8 @@ public class PersonOverviewController extends UiController{
     }
 
     private void handleCancelPersonOperations() {
-        final List<ReadOnlyViewablePerson> selectedPersons = new ArrayList<>(personListView.getSelectionModel().getSelectedItems());
-        selectedPersons.removeIf(p -> !(p instanceof ReadOnlyViewablePerson));
-        if (selectedPersons.isEmpty()) {
+        final List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
+        if (selectedPersons.isEmpty() || isListContainingNullObject(selectedPersons)) {
             showNoSelectionAlert();
             return;
         }
