@@ -6,16 +6,14 @@ import address.util.AppLogger;
 import address.util.LoggerManager;
 
 import java.io.IOException;
-import java.util.concurrent.Callable;
 
-public class DeleteTagOnRemoteTask implements Callable<Boolean> {
+public class DeleteTagOnRemoteTask extends RemoteTaskWithResult<Boolean> {
     private static final AppLogger logger = LoggerManager.getLogger(DeleteTagOnRemoteTask.class);
-    private final RemoteManager remoteManager;
     private final String addressBookName;
     private final String tagName;
 
     public DeleteTagOnRemoteTask(RemoteManager remoteManager, String addressBookName, String tagName) {
-        this.remoteManager = remoteManager;
+        super(remoteManager);
         this.addressBookName = addressBookName;
         this.tagName = tagName;
     }

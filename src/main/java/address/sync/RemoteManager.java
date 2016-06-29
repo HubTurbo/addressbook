@@ -16,16 +16,16 @@ import java.util.Optional;
 
 /**
  * This class is meant to abstract away the details for making requests to the remote
- * Manages RemoteService to obtain the make the appropriate requests, and keeps track of
+ * Manages RemoteService to make the appropriate requests, and keeps track of
  * update information to reduce usage of API quota given by the remote
  */
 public class RemoteManager {
     private static final AppLogger logger = LoggerManager.getLogger(RemoteManager.class);
 
-    RemoteService remoteService;
+    private final RemoteService remoteService;
 
-    HashMap<String, LastUpdate<Tag>> updateInformation;
-    LocalDateTime personLastUpdatedAt;
+    private HashMap<String, LastUpdate<Tag>> updateInformation;
+    private LocalDateTime personLastUpdatedAt;
 
     public RemoteManager(Config config) {
         updateInformation = new HashMap<>();
@@ -42,7 +42,7 @@ public class RemoteManager {
      * Else simply attempts to get the full list of persons
      *
      * @param addressBookName
-     * @return
+     * @return full list of persons since the last known request if request was successful
      * @throws IOException
      */
     public Optional<List<Person>> getUpdatedPersons(String addressBookName) throws IOException {
@@ -74,7 +74,7 @@ public class RemoteManager {
      * Returns the full list of updated tags
      *
      * @param addressBookName
-     * @return empty optional if there are no updates or if there are other errors
+     * @return full list of tags if request was successful and there were updates
      * @throws IOException
      */
     public Optional<List<Tag>> getUpdatedTagList(String addressBookName) throws IOException {
@@ -118,7 +118,7 @@ public class RemoteManager {
      *
      * @param addressBookName
      * @param person
-     * @return Empty optional if fail to create person or if there is a network error
+     * @return Resulting person if creation is successful
      * @throws IOException
      */
     public Optional<Person> createPerson(String addressBookName, Person person) throws IOException {
@@ -131,7 +131,7 @@ public class RemoteManager {
      *
      * @param addressBookName
      * @param tag
-     * @return Empty optional if fail to create tag or if there is a network error
+     * @return Resulting tag if creation is successful
      * @throws IOException
      */
     public Optional<Tag> createTag(String addressBookName, Tag tag) throws IOException {
@@ -144,7 +144,7 @@ public class RemoteManager {
      * @param addressBookName
      * @param personId id of the person to be updated
      * @param updatedPerson updated person
-     * @return Empty optional if fail to update person or if there is a network error
+     * @return Resulting person if update is successful
      * @throws IOException
      */
     public Optional<Person> updatePerson(String addressBookName, int personId, Person updatedPerson) throws IOException {
@@ -157,7 +157,7 @@ public class RemoteManager {
      * @param addressBookName
      * @param tagName name of the tag
      * @param editedTag edited tag
-     * @return Empty optional if fail to edit tag or if there is a network error
+     * @return Resulting tag if edit is successful
      * @throws IOException
      */
     public Optional<Tag> editTag(String addressBookName, String tagName, Tag editedTag) throws IOException {

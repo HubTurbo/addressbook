@@ -4,15 +4,12 @@ import address.sync.RemoteManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 
-import java.util.concurrent.Callable;
-
-public class CreateAddressBookOnRemote implements Callable<Boolean> {
+public class CreateAddressBookOnRemote extends RemoteTaskWithResult<Boolean> {
     private static final AppLogger logger = LoggerManager.getLogger(CreateAddressBookOnRemote.class);
-    private final RemoteManager remoteManager;
     private final String addressBookName;
 
     public CreateAddressBookOnRemote(RemoteManager remoteManager, String addressBookName) {
-        this.remoteManager = remoteManager;
+        super(remoteManager);
         this.addressBookName = addressBookName;
     }
 

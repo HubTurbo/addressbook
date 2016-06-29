@@ -1,13 +1,13 @@
 package address.events;
 
 /**
- * An event triggered when an update is completed.
+ * An event triggered when an update for a particular resource is completed.
  */
-public class SyncUpdateCompletedEvent<T> extends BaseEvent {
+public class SyncUpdateResourceCompletedEvent<T> extends BaseEvent {
     private T data;
     private String message;
 
-    public SyncUpdateCompletedEvent(T data, String message) {
+    public SyncUpdateResourceCompletedEvent(T data, String message) {
         this.data = data;
         this.message = message;
     }

@@ -8,18 +8,16 @@ import address.util.LoggerManager;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 
-public class UpdatePersonOnRemoteTask implements Callable<Person> {
+public class UpdatePersonOnRemoteTask extends RemoteTaskWithResult<Person> {
     private static final AppLogger logger = LoggerManager.getLogger(UpdatePersonOnRemoteTask.class);
-    private final RemoteManager remoteManager;
     private final String addressBookName;
     private final int personId;
     private final Person updatedPerson;
 
     public UpdatePersonOnRemoteTask(RemoteManager remoteManager, String addressBookName, int personId,
                                     Person updatedPerson) {
-        this.remoteManager = remoteManager;
+        super(remoteManager);
         this.addressBookName = addressBookName;
         this.personId = personId;
         this.updatedPerson = updatedPerson;

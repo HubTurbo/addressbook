@@ -8,16 +8,14 @@ import address.util.LoggerManager;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 
-public class CreateTagOnRemoteTask implements Callable<Tag> {
+public class CreateTagOnRemoteTask extends RemoteTaskWithResult<Tag> {
     private static final AppLogger logger = LoggerManager.getLogger(CreateTagOnRemoteTask.class);
-    private final RemoteManager remoteManager;
     private final String addressBookName;
     private final Tag tag;
 
     public CreateTagOnRemoteTask(RemoteManager remoteManager, String addressBookName, Tag tag) {
-        this.remoteManager = remoteManager;
+        super(remoteManager);
         this.addressBookName = addressBookName;
         this.tag = tag;
     }
