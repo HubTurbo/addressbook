@@ -43,6 +43,7 @@ public class SyncManagerTest {
         syncManager = new SyncManager(config, remoteManager, executorService, scheduledExecutorService);
 
         config.simulateUnreliableNetwork = false;
+        config.updateInterval = 1;
     }
 
     @Test
@@ -53,7 +54,7 @@ public class SyncManagerTest {
             task.run();
             return null;
         });
-        syncManager.updatePeriodically(1);
+        syncManager.start();
         assertEquals(1, syncFailedEventCount);
     }
 

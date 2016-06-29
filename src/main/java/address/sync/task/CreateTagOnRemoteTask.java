@@ -24,6 +24,7 @@ public class CreateTagOnRemoteTask implements Callable<Tag> {
 
     @Override
     public Tag call() throws Exception {
+        logger.info("Creating {} in {} on remote", tag, addressBookName);
         try {
             Optional<Tag> createdTag = remoteManager.createTag(addressBookName, tag);
             if (!createdTag.isPresent()) throw new SyncErrorException("Error creating tag");

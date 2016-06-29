@@ -32,7 +32,6 @@ public class SyncManager extends ComponentManager {
     private final Config config;
     private Optional<String> activeAddressBook;
 
-
     /**
      * Constructor for SyncManager
      *
@@ -72,6 +71,10 @@ public class SyncManager extends ComponentManager {
         setActiveAddressBook(slce.saveFile.getName());
     }
 
+    public Optional<String> getActiveAddressBook() {
+        return activeAddressBook;
+    }
+
     /**
      * Sets the currently active addressbook for periodic updates
      *
@@ -80,10 +83,6 @@ public class SyncManager extends ComponentManager {
     public void setActiveAddressBook(String activeAddressBookName) {
         logger.info("Active addressbook set to {}", activeAddressBookName);
         activeAddressBook = Optional.ofNullable(activeAddressBookName);
-    }
-
-    public Optional<String> getActiveAddressBook() {
-        return activeAddressBook;
     }
 
     /**
@@ -98,6 +97,7 @@ public class SyncManager extends ComponentManager {
         logger.info("Starting sync manager.");
         long initialDelay = 300; // temp fix for issue #66
         Runnable updateTask = new GetUpdatesFromRemoteTask(remoteManager, this::raise, this::getActiveAddressBook);
+        logger.debug("Scheduling periodic update with interval of {} milliseconds", config.updateInterval);
         scheduler.scheduleWithFixedDelay(updateTask, initialDelay, config.updateInterval, TimeUnit.MILLISECONDS);
     }
 
@@ -117,5 +117,17 @@ public class SyncManager extends ComponentManager {
             throws SyncErrorException {
         return requestExecutor.submit(new UpdatePersonOnRemoteTask(remoteManager, addressBookName, personId,
                                                                    updatedPerson));
+    }
+
+    public Future<Boolean> deletePerson(String addressBookName, int personId) throws SyncErrorException {
+        return requestExecutor.submit(new DeletePersonOnRemoteTask(remoteManager, addressBookName, personId));
+    }
+
+    public Future<Boolean> deleteTag(String addressBookName, String tagName) throws SyncErrorException {
+        return requestExecutor.submit(new DeleteTagOnRemoteTask(remoteManager, addressBookName, tagName));
+    }
+
+    public Future<Boolean> createAddressBook(String addressBookName) throws SyncErrorException {
+        return requestExecutor.submit(new CreateAddressBookOnRemote(remoteManager, addressBookName));
     }
 }

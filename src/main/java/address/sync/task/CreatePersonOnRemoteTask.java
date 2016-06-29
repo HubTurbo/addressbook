@@ -24,7 +24,7 @@ public class CreatePersonOnRemoteTask implements Callable<Person> {
 
     @Override
     public Person call() throws Exception {
-        logger.info("Attempting to create {} on the remote", person);
+        logger.info("Creating {} in {} on remote", person, addressBookName);
         try {
             Optional<Person> createdPerson = remoteManager.createPerson(addressBookName, person);
             if (!createdPerson.isPresent()) throw new SyncErrorException("Error creating person");

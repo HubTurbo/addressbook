@@ -3,16 +3,19 @@ package address.sync.task;
 import address.exceptions.SyncErrorException;
 import address.model.datatypes.person.Person;
 import address.sync.RemoteManager;
+import address.util.AppLogger;
+import address.util.LoggerManager;
 
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
 public class UpdatePersonOnRemoteTask implements Callable<Person> {
-    private RemoteManager remoteManager;
-    private String addressBookName;
-    private int personId;
-    private Person updatedPerson;
+    private static final AppLogger logger = LoggerManager.getLogger(UpdatePersonOnRemoteTask.class);
+    private final RemoteManager remoteManager;
+    private final String addressBookName;
+    private final int personId;
+    private final Person updatedPerson;
 
     public UpdatePersonOnRemoteTask(RemoteManager remoteManager, String addressBookName, int personId,
                                     Person updatedPerson) {
@@ -24,6 +27,7 @@ public class UpdatePersonOnRemoteTask implements Callable<Person> {
 
     @Override
     public Person call() throws Exception {
+        logger.info("Updating person with id {} with person {} in {} on remote", personId, updatedPerson, addressBookName);
         try {
             Optional<Person> updatedPerson = remoteManager.updatePerson(addressBookName, personId, this.updatedPerson);
             if (!updatedPerson.isPresent()) throw new SyncErrorException("Error updating person");
