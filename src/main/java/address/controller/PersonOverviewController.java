@@ -180,7 +180,7 @@ public class PersonOverviewController extends UiController{
     private void handleCancelPersonOperations() {
         final List<ReadOnlyViewablePerson> selectedPersons = new ArrayList<>(personListView.getSelectionModel().getSelectedItems());
         selectedPersons.removeIf(p -> !(p instanceof ReadOnlyViewablePerson));
-        if (selectedPersons.size() == 0) {
+        if (selectedPersons.isEmpty()) {
             showNoSelectionAlert();
             return;
         }
