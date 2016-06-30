@@ -115,11 +115,6 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected State handleCancelInGracePeriod() {
-        return CANCELLED;
-    }
-
-    @Override
     protected Optional<ReadOnlyPerson> getRemoteConflict() {
         return Optional.empty(); // no possible conflict for add command
     }

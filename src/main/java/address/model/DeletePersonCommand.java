@@ -95,11 +95,6 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected State handleCancelInGracePeriod() {
-        return CANCELLED;
-    }
-
-    @Override
     protected Optional<ReadOnlyPerson> getRemoteConflict() {
         return Optional.empty(); // TODO add after cloud individual check implemented
     }

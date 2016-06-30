@@ -98,6 +98,11 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
     protected abstract State handleDeleteInGracePeriod();
 
     @Override
+    protected State handleCancelInGracePeriod() {
+        return CANCELLED;
+    }
+
+    @Override
     protected State checkAndHandleRemoteConflict() {
         final Optional<ReadOnlyPerson> conflict = getRemoteConflict();
         if (conflict.isPresent()) {
