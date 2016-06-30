@@ -1,6 +1,7 @@
 package address.image;
 
 
+import address.MainApp;
 import javafx.scene.image.Image;
 
 import java.util.HashMap;
@@ -26,6 +27,10 @@ public class ImageManager {
             instance = new ImageManager();
         }
         return instance;
+    }
+
+    public static Image getDefaultProfileImage() {
+        return new Image(MainApp.class.getResourceAsStream("/images/default_profile_picture.png"));
     }
 
     /**

@@ -4,6 +4,7 @@ import address.events.EventManager;
 import address.events.SyncFailedEvent;
 import address.sync.RemoteManager;
 import address.sync.SyncManager;
+import address.util.Config;
 import com.google.common.eventbus.Subscribe;
 import org.junit.After;
 import org.junit.Before;
@@ -22,6 +23,7 @@ public class SyncManagerTest {
     SyncManager syncManager;
     ExecutorService executorService;
     ScheduledExecutorService scheduledExecutorService;
+    Config config;
 
     private int syncFailedEventCount;
 
@@ -37,7 +39,10 @@ public class SyncManagerTest {
         RemoteManager remoteManager = mock(RemoteManager.class);
         executorService = mock(ExecutorService.class);
         scheduledExecutorService = mock(ScheduledExecutorService.class);
-        syncManager = new SyncManager(remoteManager, executorService, scheduledExecutorService);
+        config = mock(Config.class);
+        syncManager = new SyncManager(config, remoteManager, executorService, scheduledExecutorService);
+
+        config.simulateUnreliableNetwork = false;
     }
 
     @Test

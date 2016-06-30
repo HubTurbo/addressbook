@@ -1,21 +1,14 @@
 package address.updater;
 
-import address.util.FileUtil;
+import address.storage.StorageManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
- * Stores data of update to be applied locally
- *
- * File Format:
- * line 1 | [path of affected file 1]
- * line 2 | [path of affected file 2]
- * etc.
+ * Accesses LocalUpdateSpecification
  */
 public class LocalUpdateSpecificationHelper {
     private static final String LOCAL_UPDATE_DATA_FILE = UpdateManager.UPDATE_DIR + File.separator +
@@ -35,21 +28,16 @@ public class LocalUpdateSpecificationHelper {
     }
 
     public static void saveLocalUpdateSpecFile(List<String> affectedFiles) throws IOException {
-        StringBuilder fileContent = new StringBuilder();
+        LocalUpdateSpecification localUpdateSpecification = new LocalUpdateSpecification(affectedFiles);
 
-        for (String line : affectedFiles) {
-            fileContent.append(line).append(String.format("%n"));
-        }
-
-        FileUtil.writeToFile(new File(LOCAL_UPDATE_DATA_FILE), fileContent.toString().trim());
+        StorageManager.serializeObjectToJsonFile(new File(LOCAL_UPDATE_DATA_FILE), localUpdateSpecification);
     }
 
     /**
      * @return first item is destination folder, the rest are affected files
      */
     public static List<String> readLocalUpdateSpecFile(String filepath) throws IOException {
-        String fileContent = FileUtil.readFromFile(new File(filepath));
-
-        return new ArrayList<>(Arrays.asList(fileContent.split("\\s+")));
+        return StorageManager.deserializeObjectFromJsonFile(new File(filepath), LocalUpdateSpecification.class)
+                .getLocalFilesToBeUpdated();
     }
 }

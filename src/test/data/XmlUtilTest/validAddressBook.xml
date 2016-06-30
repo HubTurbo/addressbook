@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addressbook>
     <persons>
+        <id>1</id>
         <city></city>
         <firstName>Cornelia</firstName>
         <githubUserName></githubUserName>
@@ -9,6 +10,7 @@
         <street></street>
     </persons>
     <persons>
+        <id>2</id>
         <city></city>
         <firstName>Werner</firstName>
         <githubUserName>damithc</githubUserName>

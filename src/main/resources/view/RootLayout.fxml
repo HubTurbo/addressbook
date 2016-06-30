@@ -16,7 +16,6 @@
                   <MenuItem fx:id="menuFileOpen" mnemonicParsing="false" onAction="#handleOpen" text="Open..." />
                   <MenuItem fx:id="menuFileSave" mnemonicParsing="false" onAction="#handleSave" text="[Local] Save" />
                   <MenuItem fx:id="menuFileSaveAs" mnemonicParsing="false" onAction="#handleSaveAs" text="[Local] Save As..." />
-                  <MenuItem mnemonicParsing="false" onAction="#handleResetWithSampleData" text="Reset with Sample Data" />
                   <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
                </items>
             </Menu>
@@ -38,13 +37,7 @@
             </Menu>
          </menus>
       </MenuBar>
-      <AnchorPane styleClass="anchor-pane-with-border">
-         <children>
-            <Text fx:id="saveLocText" fill="WHITE" layoutX="14.0" layoutY="15.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" AnchorPane.leftAnchor="10.0" />
-         </children>
-         <VBox.margin>
-            <Insets />
-         </VBox.margin>
+      <AnchorPane fx:id="headerStatusbarPlaceholder" styleClass="anchor-pane-with-border">
       </AnchorPane>
       <SplitPane id="splitPane" fx:id="splitPane" prefHeight="295.0" prefWidth="209.0" VBox.vgrow="ALWAYS" />
    </children>

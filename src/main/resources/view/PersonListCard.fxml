@@ -6,42 +6,48 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<HBox fx:id="cardPane"  xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-    <GridPane HBox.hgrow="ALWAYS">
-        <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" maxWidth="100.0"/>
-        </columnConstraints>
-        <children>
-            <VBox fx:id="contactDetails" GridPane.columnIndex="0">
-                <stylesheets>
-                    <URL value="@DarkTheme.css" />
-                    <URL value="@Extensions.css" />
-                </stylesheets>
-                <padding>
-                    <Insets bottom="5" left="15" right="5" top="5" />
-                </padding>
 
-                <children>
-                    <HBox spacing="5" >
-                        <Label fx:id="firstName" />
-                        <Label fx:id="lastName"  />
-                    </HBox>
-                    <Label fx:id="address"  styleClass="cell_small_label" >
+<HBox fx:id="cardPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+       <GridPane HBox.hgrow="ALWAYS">
+           <columnConstraints>
+               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+               <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="10.0" prefWidth="100.0" />
+           </columnConstraints>
+           <children>
+               <VBox minHeight="110.0" prefHeight="110.0" maxHeight="110.0" GridPane.columnIndex="0">
+                   <stylesheets>
+                       <URL value="@DarkTheme.css" />
+                       <URL value="@Extensions.css" />
+                   </stylesheets>
+                   <padding>
+                       <Insets bottom="5" left="15" right="5" top="5" />
+                   </padding>
+
+                   <children>
+                       <HBox spacing="5">
+                          <children>
+                              <Label fx:id="idLabel" text="\$id" />
+                              <Label fx:id="firstName" text="\$first" />
+                              <Label fx:id="lastName" text="\$last" />
+                          </children>
+                       </HBox>
+                       <Label fx:id="address" styleClass="cell_small_label" text="\$address">
                     </Label>
-                    <Label fx:id="birthday"  styleClass="cell_small_label"/>
+                       <Label fx:id="birthday" styleClass="cell_small_label" text="\$birthday" />
 
-                    <Label fx:id="tags"  styleClass="cell_small_label"/>
-                </children>
-            </VBox>
-            <ImageView fx:id="profileImage" fitHeight="60.0" fitWidth="100.0" preserveRatio="true" GridPane.columnIndex="1">
-                <image>
-                    <Image url="@../images/default_profile_picture.png" />
-                </image>
-                <HBox.margin>
-                    <Insets bottom="10" left="10" right="10" top="10"/>
-                </HBox.margin>
-            </ImageView>
-        </children>
-    </GridPane>
+                       <Label fx:id="tags" styleClass="cell_small_label" text="\$tags" />
+                   </children>
+               </VBox>
+               <ImageView fx:id="profileImage" fitHeight="90.0" fitWidth="90.0" preserveRatio="true" GridPane.columnIndex="1">
+                   <image>
+                       <Image url="@../images/default_profile_picture.png" />
+                   </image>
+                   <HBox.margin>
+                       <Insets bottom="10" left="10" right="10" top="10" />
+                   </HBox.margin>
+               </ImageView>
+           </children>
+       </GridPane>
+   </children>
 </HBox>

@@ -2,34 +2,142 @@ package address.model.datatypes.person;
 
 import address.model.datatypes.ExtractableObservables;
 import address.model.datatypes.tag.Tag;
+import address.util.DateTimeUtil;
 import address.util.collections.UnmodifiableObservableList;
+import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Allows read-only access to the Person domain object's data.
  */
 public interface ReadOnlyPerson extends ExtractableObservables {
 
+    /**
+     * @param key ReadOnlyPerson with ID of the element you wish to remove from {@code col}
+     * @return whether {@code col} was changed as a result of this operation
+     */
+    static boolean removeOneById(Collection<? extends ReadOnlyPerson> col, ReadOnlyPerson key) {
+        return removeOneById(col, key.getId());
+    }
+
+    /**
+     * @return whether {@code col} was changed as a result of this operation
+     */
+    static <P extends ReadOnlyPerson> boolean removeOneById(Collection<P> col, int id) {
+        final Optional<P> toRemove = findById(col, id);
+        if (toRemove.isPresent()) {
+            return col.remove(toRemove.get());
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @see #removeAllById(Collection, Collection)
+     * @param col collection to remove from
+     * @param keys collection of ReadOnlyPersons with the IDs of the those you wish to remove from {@code col}
+     * @return whether {@code col} was changed as a result of this operation
+     */
+    static boolean removeAllWithSameIds(Collection<? extends ReadOnlyPerson> col,
+                                        Collection<? extends ReadOnlyPerson> keys) {
+        return removeAllById(col, keys.stream().map(e -> e.getId()).collect(Collectors.toList()));
+    }
+
+    /**
+     * @see Collection#removeAll(Collection)
+     * @param ids collection of IDs of the persons you wish to remove from {@code col}
+     * @return whether {@code col} was changed as a result of this operation
+     */
+    static boolean removeAllById(Collection<? extends ReadOnlyPerson> col,
+                                 Collection<Integer> ids) {
+        final Set<Integer> idSet = new HashSet<>(ids);
+        return col.removeAll(col.stream().filter(p -> idSet.contains(p.getId())).collect(Collectors.toList()));
+    }
+
+    /**
+     * @return the first element found in {@code col} with same id as {@code key}
+     */
+    static <P extends ReadOnlyPerson> Optional<P> findById(Collection<P> col, ReadOnlyPerson key) {
+        return findById(col, key.getId());
+    }
+
+    /**
+     * @return the first element found in {@code col} with same id as {@code id}
+     */
+    static <P extends ReadOnlyPerson> Optional<P> findById(Collection<P> col, int id) {
+        return col.stream().filter(p -> id == p.getId()).findFirst();
+    }
+
+    /**
+     * @see #containsById(Collection, int)
+     */
+    static boolean containsById(Collection<? extends ReadOnlyPerson> col, ReadOnlyPerson key) {
+        return containsById(col, key.getId());
+    }
+
+    /**
+     * @see Collection#contains(Object)
+     */
+    static boolean containsById(Collection<? extends ReadOnlyPerson> col, int id) {
+        return col.stream().anyMatch(e -> id == e.getId());
+    }
+
+    /**
+     * Remote-assigned (canonical) ids are positive integers.
+     * Locally-assigned temporary ids are negative integers.
+     * 0 is reserved for ID-less Person data containers.
+     */
+    int getId();
+    default String idString() {
+        return hasConfirmedRemoteID() ? "#" + getId() : "#TBD";
+    }
+    /**
+     * @see #getId()
+     */
+    default boolean hasConfirmedRemoteID() {
+        return getId() > 0;
+    }
+
     String getFirstName();
     String getLastName();
     /**
      * @return first-last format full name
      */
-    String fullName();
+    default String fullName() {
+        return getFirstName() + ' ' + getLastName();
+    }
 
-    String getGithubUserName();
-    /**
-     * @return github profile url
-     */
-    URL profilePageUrl();
-    Optional<String> githubProfilePicUrl();
+    String getGithubUsername();
+
+    default URL profilePageUrl(){
+        try {
+            return new URL("https://github.com/" + getGithubUsername());
+        } catch (MalformedURLException e) {
+            try {
+                return new URL("https://github.com");
+            } catch (MalformedURLException e1) {
+                assert false;
+            }
+        }
+        return null;
+    }
+    default Optional<String> githubProfilePicUrl() {
+        if (getGithubUsername().length() > 0) {
+            String profilePicUrl = profilePageUrl().toExternalForm() + ".png";
+            if (URLUtil.isURIFormat(profilePicUrl)){
+                return Optional.of(profilePicUrl);
+            }
+        }
+        return Optional.empty();
+    }
 
     String getStreet();
     String getPostalCode();
@@ -39,7 +147,10 @@ public interface ReadOnlyPerson extends ExtractableObservables {
     /**
      * @return birthday date-formatted as string
      */
-    String birthdayString();
+    default String birthdayString() {
+        if (getBirthday() == null) return "";
+        return DateTimeUtil.format(getBirthday());
+    }
 
     /**
      * @return unmodifiable list view of tags.
@@ -48,17 +159,28 @@ public interface ReadOnlyPerson extends ExtractableObservables {
     /**
      * @return string representation of this Person's tags
      */
-    String tagsString();
+    default String tagsString() {
+        final StringBuffer buffer = new StringBuffer();
+        final String separator = ", ";
+        getTagList().forEach(tag -> buffer.append(tag).append(separator));
+        if (buffer.length() == 0) {
+            return "";
+        } else {
+            return buffer.substring(0, buffer.length() - separator.length());
+        }
+    }
 
 //// Operations below are optional; override if they will be needed.
-    
+//// Eg. implementing a simple person data object should not require using javafx classes like Property, so the
+//// below methods make no sense for that context.
+
     default ReadOnlyStringProperty firstNameProperty() {
         throw new UnsupportedOperationException();
     }
     default ReadOnlyStringProperty lastNameProperty() {
         throw new UnsupportedOperationException();
     }
-    default ReadOnlyStringProperty githubUserNameProperty() {
+    default ReadOnlyStringProperty githubUsernameProperty() {
         throw new UnsupportedOperationException();
     }
 
@@ -88,7 +210,7 @@ public interface ReadOnlyPerson extends ExtractableObservables {
         return new Observable[] {
                 firstNameProperty(),
                 lastNameProperty(),
-                githubUserNameProperty(),
+                githubUsernameProperty(),
 
                 streetProperty(),
                 postalCodeProperty(),
@@ -97,5 +219,16 @@ public interface ReadOnlyPerson extends ExtractableObservables {
                 birthdayProperty(),
                 getObservableTagList()
         };
+    }
+
+    static List<Tag> getCommonTags(Collection<ReadOnlyViewablePerson> persons) {
+        Set<Tag> tags = new HashSet<>();
+        persons.stream().forEach(p -> tags.addAll(p.getTagList()));
+        List<Tag> assignedTags = tags.stream().filter(tag ->
+                persons.stream()
+                        .filter(p -> p.getObservableTagList().contains(tag))
+                        .count() == persons.size())
+                .collect(Collectors.toCollection(ArrayList::new));
+        return assignedTags;
     }
 }

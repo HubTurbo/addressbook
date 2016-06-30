@@ -70,9 +70,9 @@ as `true` and add `ea` at the end of version in `build.gradle`.
   - Put the link to download the new libraries. For now, we upload it to the new release we are going to create after this
   but the URL will follow GitHub release download link - `https://github.com/HubTurbo/addressbook/releases/download/<release version>/<filename>`.
   - Change the OS compatibility of the new libraries to ensure that only the libraries relevant to an OS will be loaded and checked
-4. Commit and push the  files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>`
+4. Commit and push the  files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>` (with suffix `ea` if it's an early access version)
   - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `UpdateData.json`
-5. Create a release in [GitHub](https://github.com/HubTurbo/addressbook/releases)
+5. Create a release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
 6. Run `gradle` task `createInstallerJar` under `release` category (this must be run again to use the updated `UpdateData.json`)
 7. Upload the following as binaries to the latest release:
   - addressbook.jar

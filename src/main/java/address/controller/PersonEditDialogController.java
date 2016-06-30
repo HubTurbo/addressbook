@@ -29,13 +29,18 @@ import java.util.List;
 
 /**
  * Dialog to edit details of a person.
+ *
+ * Stage, initial person and available & assigned tags should be set before showing stage
  */
 public class PersonEditDialogController extends EditDialogController {
+
     private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialogController.class);
     private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
     private static final String TOOLTIP_TAG_SELECTOR_SHORTCUT = "Shortcut + O";
     private static final String TOOLTIP_LAUNCH_TAG_SELECTOR = "Click to launch tag selector";
 
+    @FXML
+    private Label idLabel;
     @FXML
     private AnchorPane mainPane;
     @FXML
@@ -50,19 +55,15 @@ public class PersonEditDialogController extends EditDialogController {
     private TextField cityField;
     @FXML
     private TextField birthdayField;
+
     @FXML
     private ScrollPane tagList;
     @FXML
     private TextField githubUserNameField;
 
     private List<Tag> finalAssignedTags;
-
     private Person finalPerson;
     private List<Tag> fullTagList;
-
-
-    public PersonEditDialogController() {
-    }
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -83,7 +84,7 @@ public class PersonEditDialogController extends EditDialogController {
     private void addListeners() {
         tagList.setOnMouseClicked(e -> launchTagSelectionEditDialog());
         tagList.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.SPACE || e.getCode() == KeyCode.ENTER) {
+            if (e.getCode() == KeyCode.SPACE) {
                 e.consume();
                 launchTagSelectionEditDialog();
             }
@@ -149,6 +150,7 @@ public class PersonEditDialogController extends EditDialogController {
      * Sets the initial placeholder data in the dialog fields
      */
     public void setInitialPersonData(ReadOnlyPerson person) {
+        idLabel.setText("Person " + person.idString());
         firstNameField.setText(person.getFirstName());
         lastNameField.setText(person.getLastName());
         streetField.setText(person.getStreet());
@@ -156,7 +158,7 @@ public class PersonEditDialogController extends EditDialogController {
         cityField.setText(person.getCity());
         birthdayField.setText(person.birthdayString());
         birthdayField.setPromptText("dd.mm.yyyy");
-        githubUserNameField.setText(person.getGithubUserName());
+        githubUserNameField.setText(person.getGithubUsername());
     }
 
     public void setTags(List<Tag> tags, List<Tag> assignedTags) {
@@ -172,7 +174,7 @@ public class PersonEditDialogController extends EditDialogController {
     @FXML
     protected void handleOk() {
         if (!isInputValid()) return;
-        finalPerson = new Person();
+        finalPerson = Person.createPersonDataContainer();
         finalPerson.setFirstName(firstNameField.getText());
         finalPerson.setLastName(lastNameField.getText());
         finalPerson.setStreet(streetField.getText());
@@ -180,7 +182,7 @@ public class PersonEditDialogController extends EditDialogController {
         finalPerson.setCity(cityField.getText());
         finalPerson.setBirthday(DateTimeUtil.parse(birthdayField.getText()));
         finalPerson.setTags(finalAssignedTags);
-        finalPerson.setGithubUserName(githubUserNameField.getText());
+        finalPerson.setGithubUsername(githubUserNameField.getText());
         isOkClicked = true;
         dialogStage.close();
     }
@@ -197,7 +199,7 @@ public class PersonEditDialogController extends EditDialogController {
         return content;
     }
 
-    public Person getFinalInput() {
+    public Person getEditedPerson() {
         return finalPerson;
     }
 

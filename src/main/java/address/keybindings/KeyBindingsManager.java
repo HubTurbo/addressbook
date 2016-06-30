@@ -47,7 +47,7 @@ public class KeyBindingsManager extends ComponentManager{
             return;
         }
 
-        logger.info("Handling {} " + kb.get());
+        logger.info("Handling {}", kb.get());
         BaseEvent event = kb.get().getEventToRaise();
         raise (event);
 
@@ -56,7 +56,7 @@ public class KeyBindingsManager extends ComponentManager{
     /**
      * Resets global hotkeys
      */
-    public void clear() {
+    public void stop() {
         hotkeyProvider.clear();
     }
 
@@ -70,7 +70,7 @@ public class KeyBindingsManager extends ComponentManager{
                 BINDINGS.getAccelerators().stream()
                 .filter(kb -> kb.getName().equals(name))
                 .findFirst();
-        return keyBinding.isPresent()? Optional.of(keyBinding.get().getKeyCombination()) : Optional.empty();
+        return keyBinding.isPresent() ? Optional.of(keyBinding.get().getKeyCombination()) : Optional.empty();
     }
 
 

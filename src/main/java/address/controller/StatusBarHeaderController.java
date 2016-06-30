@@ -6,30 +6,30 @@ import address.status.PersonEditedStatus;
 import javafx.application.Platform;
 import org.controlsfx.control.StatusBar;
 
-public class StatusBarHeaderController {
+public class StatusBarHeaderController extends UiController{
 
-    private StatusBar footerStatusBar;
+    private StatusBar headerStatusBar;
 
     public StatusBarHeaderController() {
-        footerStatusBar = new StatusBar();
-        footerStatusBar.getStyleClass().removeAll();
-        footerStatusBar.getStyleClass().add("status-bar-with-border");
-        footerStatusBar.setText("");
+        headerStatusBar = new StatusBar();
+        headerStatusBar.getStyleClass().removeAll();
+        headerStatusBar.getStyleClass().add("status-bar-with-border");
+        headerStatusBar.setText("");
     }
 
-    public StatusBar getFooterStatusBarView() {
-        return footerStatusBar;
+    public StatusBar getHeaderStatusBarView() {
+        return headerStatusBar;
     }
 
     public void postStatus(PersonEditedStatus e) {
-        Platform.runLater(() -> footerStatusBar.setText(e.toString()));
+        Platform.runLater(() -> headerStatusBar.setText(e.toString()));
     }
 
     public void postStatus(PersonDeletedStatus e) {
-        Platform.runLater(() -> footerStatusBar.setText(e.toString()));
+        Platform.runLater(() -> headerStatusBar.setText(e.toString()));
     }
 
     public void postStatus(PersonCreatedStatus e) {
-        Platform.runLater(() -> footerStatusBar.setText(e.toString()));
+        Platform.runLater(() -> headerStatusBar.setText(e.toString()));
     }
 }

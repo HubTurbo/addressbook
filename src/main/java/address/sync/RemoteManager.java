@@ -3,6 +3,7 @@ package address.sync;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
 import address.util.AppLogger;
+import address.util.Config;
 import address.util.LoggerManager;
 
 import java.io.IOException;
@@ -25,9 +26,9 @@ public class RemoteManager {
     HashMap<String, LastUpdate<Tag>> updateInformation;
     LocalDateTime personLastUpdatedAt;
 
-    public RemoteManager() {
+    public RemoteManager(Config config) {
         updateInformation = new HashMap<>();
-        remoteService = new RemoteService();
+        remoteService = new RemoteService(config);
     }
 
     public RemoteManager(RemoteService remoteService) {
@@ -108,7 +109,8 @@ public class RemoteManager {
         return updateInformation.get(addressBookName).getETagCount();
     }
 
-    private <T> Optional<String> getLastUpdate(HashMap<String, LastUpdate<T>> updateInformation, String addressBookName, Integer pageNo) {
+    private <T> Optional<String> getLastUpdate(HashMap<String, LastUpdate<T>> updateInformation, String addressBookName,
+                                               Integer pageNo) {
         if (!updateInformation.containsKey(addressBookName)) return Optional.empty();
         LastUpdate<T> lastUpdateInformation = updateInformation.get(addressBookName);
         return lastUpdateInformation.getETag(pageNo);

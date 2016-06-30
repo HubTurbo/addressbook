@@ -1,37 +1,26 @@
 package address.controller;
 
-import java.io.File;
-import java.util.Optional;
-
 import address.MainApp;
-import address.events.*;
-import address.exceptions.DuplicateDataException;
-import address.exceptions.DuplicateTagException;
-import address.model.datatypes.tag.Tag;
-import address.model.ModelManager;
+import address.events.LoadDataRequestEvent;
+import address.events.SaveDataRequestEvent;
 import address.keybindings.KeyBindingsManager;
-import address.prefs.PrefsManager;
-
+import address.model.ModelManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;
-import com.google.common.eventbus.Subscribe;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.text.Text;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
+
+import java.io.File;
 
 /**
  * The controller for the root layout. The root layout provides the basic
  * application layout containing a menu bar and space where other JavaFX
  * elements can be placed.
  */
-public class RootLayoutController {
+public class RootLayoutController extends UiController{
     private static AppLogger logger = LoggerManager.getLogger(RootLayoutController.class);
-
-    private static final String SAVE_LOC_TEXT_PREFIX = "Save File: ";
-    private static final String LOC_TEXT_NOT_SET = "[NOT SET]";
 
     private MainController mainController;
     private ModelManager modelManager;
@@ -46,18 +35,9 @@ public class RootLayoutController {
     @FXML
     private MenuItem menuFileSaveAs;
 
-    @FXML
-    private Text saveLocText;
-
     public RootLayoutController() {
-        EventManager.getInstance().registerHandler(this);
+        super();
     }
-
-    @FXML
-    private void initialize() {
-        updateSaveLocationDisplay();
-    }
-
 
     public void setConnections(MainApp mainApp, MainController mainController, ModelManager modelManager) {
         this.mainController = mainController;
@@ -72,16 +52,6 @@ public class RootLayoutController {
         menuFileSaveAs.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("FILE_SAVE_AS_ACCELERATOR").get());
     }
 
-    @Subscribe
-    private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
-        updateSaveLocationDisplay();
-    }
-
-    private void updateSaveLocationDisplay() {
-        saveLocText.setText(SAVE_LOC_TEXT_PREFIX + (PrefsManager.getInstance().isSaveLocationSet() ?
-                PrefsManager.getInstance().getSaveLocation().getName() : LOC_TEXT_NOT_SET));
-    }
-
     /**
      * @return a file chooser for choosing xml files. The initial folder is set to the same folder that the
      *     current data file is located (if any).
@@ -92,7 +62,7 @@ public class RootLayoutController {
         final FileChooser fileChooser = new FileChooser();
 
         fileChooser.getExtensionFilters().add(extFilter);
-        final File currentFile = PrefsManager.getInstance().getSaveLocation();
+        final File currentFile = modelManager.getPrefs().getSaveLocation();
         fileChooser.setInitialDirectory(currentFile.getParentFile());
         return fileChooser;
     }
@@ -104,7 +74,7 @@ public class RootLayoutController {
     @FXML
     private void handleNew() {
         logger.debug("Wiping current model data.");
-        PrefsManager.getInstance().clearSaveLocation();
+        modelManager.clearPrefsSaveLocation(); // so as not to overwrite previous addressbook file
         modelManager.clearModel();
     }
 
@@ -117,8 +87,8 @@ public class RootLayoutController {
         // Show open file dialog
         File toOpen = getXmlFileChooser().showOpenDialog(mainController.getPrimaryStage());
         if (toOpen == null) return;
-        PrefsManager.getInstance().setSaveLocation(toOpen);
-        EventManager.getInstance().post(new LoadDataRequestEvent(toOpen));
+        modelManager.setPrefsSaveLocation(toOpen.getPath());
+        raise(new LoadDataRequestEvent(toOpen));
     }
 
     /**
@@ -127,10 +97,9 @@ public class RootLayoutController {
      */
     @FXML
     private void handleSave() {
-        final File saveFile = PrefsManager.getInstance().getSaveLocation();
+        final File saveFile = modelManager.getPrefs().getSaveLocation();
         logger.debug("Requesting save to: {}.", saveFile);
-        EventManager.getInstance().post(new SaveRequestEvent(saveFile, modelManager.backingPersonList(),
-                                                             modelManager.getTagList()));
+        raise(new SaveDataRequestEvent(saveFile, modelManager));
     }
 
     /**
@@ -149,25 +118,8 @@ public class RootLayoutController {
             file = new File(file.getPath() + ".xml");
         }
 
-        PrefsManager.getInstance().setSaveLocation(file);
-        EventManager.getInstance().post(new SaveRequestEvent(file, modelManager.backingPersonList(),
-                                        modelManager.getTagList()));
-    }
-
-    /**
-     * Clears existing data and appends dummy data
-     */
-    @FXML
-    private void handleResetWithSampleData() {
-        logger.debug("Resetting with sample data.");
-        try {
-            modelManager.resetWithSampleData();
-        } catch (DuplicateDataException e) {
-            logger.warn("Error resetting sample data: {}", e);
-            mainController.showAlertDialogAndWait(AlertType.INFORMATION, "Duplicate data found",
-                    "Sample data has duplicates",
-                    "Verify that the sample data is valid and does not contain duplicates before adding");
-        }
+        modelManager.setPrefsSaveLocation(file.getPath());
+        raise(new SaveDataRequestEvent(file, modelManager));
     }
 
     /**
@@ -177,7 +129,7 @@ public class RootLayoutController {
     private void handleAbout() {
         logger.debug("Showing information about the application.");
         mainController.showAlertDialogAndWait(AlertType.INFORMATION, "AddressApp", "About",
-                "Some code adapted from http://code.makery.ch");
+                "Version " + MainApp.VERSION.toString() + "\nSome code adapted from http://code.makery.ch");
     }
 
     /**
@@ -199,18 +151,8 @@ public class RootLayoutController {
 
     @FXML
     private void handleNewTag() {
-        Optional<Tag> newTag = Optional.of(new Tag());
-        while (true) { // keep re-asking until user provides valid input or cancels operation.
-            newTag = mainController.getTagDataInput(newTag.get());
-            if (!newTag.isPresent()) break;
-            try {
-                modelManager.addTag(newTag.get());
-                break;
-            } catch (DuplicateTagException e) {
-                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tags",
-                                                      e.toString());
-            }
-        }
+        logger.debug("Adding a new tag from the root layout.");
+        mainController.addTagData();
     }
 
     @FXML

@@ -3,10 +3,12 @@ package address.sync;
 
 import address.events.*;
 import address.exceptions.SyncErrorException;
+import address.main.ComponentManager;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 import address.sync.task.CloudUpdateTask;
 import address.util.AppLogger;
+import address.util.Config;
 import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 
@@ -17,35 +19,53 @@ import java.util.concurrent.*;
 
 /**
  * Syncs data between the cloud and the primary data file
+ *
+ * All requests to the cloud will be based on the currently-active addressbook
+ * which can be set via setActiveAddressBook
  */
-public class SyncManager {
+public class SyncManager extends ComponentManager{
     private static final AppLogger logger = LoggerManager.getLogger(SyncManager.class);
 
     private final ScheduledExecutorService scheduler;
     private final ExecutorService requestExecutor;
+    private Config config;
     private Optional<String> activeAddressBook;
 
     private RemoteManager remoteManager;
 
-    public SyncManager() {
-        activeAddressBook = Optional.empty();
-        scheduler = Executors.newScheduledThreadPool(1);
-        requestExecutor = Executors.newCachedThreadPool();
-        EventManager.getInstance().registerHandler(this);
+    /**
+     * Constructor for SyncManager
+     *
+     * @param config should have updateInterval and simulateUnreliableNetwork set
+     */
+    public SyncManager(Config config) {
+        this(config, new RemoteManager(config), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
     }
-    public SyncManager(RemoteManager remoteManager, ExecutorService executorService,
+
+    /**
+     * Constructor for SyncManager
+     *
+     * @param config
+     * @param remoteManager
+     * @param executorService
+     * @param scheduledExecutorService
+     * @param config should have updateInterval and simulateUnreliableNetwork set
+     */
+    public SyncManager(Config config, RemoteManager remoteManager, ExecutorService executorService,
                        ScheduledExecutorService scheduledExecutorService) {
-        this.remoteManager = remoteManager;
-        this.scheduler = scheduledExecutorService;
-        this.requestExecutor = executorService;
+        super();
         activeAddressBook = Optional.empty();
-        EventManager.getInstance().registerHandler(this);
+        this.config = config;
+        this.remoteManager = remoteManager;
+        this.requestExecutor = executorService;
+        this.scheduler = scheduledExecutorService;
+
     }
 
     // TODO: setActiveAddressBook should be called by the model instead
     @Subscribe
-    public void handleLoadDataRequestEvent(LoadDataRequestEvent e) {
-        setActiveAddressBook(e.file.getName());
+    public void handleSaveLocationChangedEvent(SaveLocationChangedEvent slce) {
+        setActiveAddressBook(slce.saveFile.getName());
     }
 
     public void setActiveAddressBook(String activeAddressBookName) {
@@ -54,21 +74,11 @@ public class SyncManager {
     }
 
     /**
-     * Initializes the remote service, if it hasn't been
-     *
      * Starts getting periodic updates from the cloud
-     *
-     * @param interval should be a positive integer
      */
-    public void startSyncingData(long interval) {
-        if (interval <= 0) {
-            logger.warn("Update interval specified is not positive: {}", interval);
-            return;
-        }
-        if (remoteManager == null) {
-            this.remoteManager = new RemoteManager();
-        }
-        updatePeriodically(interval);
+    public void start() {
+        logger.info("Starting sync manager.");
+        updatePeriodically(config.updateInterval);
     }
 
     /**
@@ -82,27 +92,25 @@ public class SyncManager {
     public void updatePeriodically(long interval) {
         Runnable task = () -> {
             logger.info("Attempting to run periodic update.");
-            EventManager.getInstance().post(new SyncStartedEvent());
+            raise(new SyncStartedEvent());
 
             if (!activeAddressBook.isPresent()) {
-                EventManager.getInstance().post(new SyncFailedEvent("No active addressbook sync found."));
+                raise(new SyncFailedEvent("No active addressbook sync found."));
                 return;
             }
             try {
                 List<Person> updatedPersons = getUpdatedPersons(activeAddressBook.get());
                 logger.logList("Found updated persons: {}", updatedPersons);
-                EventManager.getInstance().post(
-                        new UpdateCompletedEvent<>(updatedPersons, "Person updates completed."));
+                raise(new UpdateCompletedEvent<>(updatedPersons, "Person updates completed."));
 
                 List<Tag> updatedTagList = getUpdatedTags(activeAddressBook.get());
-                EventManager.getInstance().post(new UpdateCompletedEvent<>(updatedTagList, "Tag updates completed."));
+                raise(new UpdateCompletedEvent<>(updatedTagList, "Tag updates completed."));
 
-                EventManager.getInstance().post(new SyncCompletedEvent());
+                raise(new SyncCompletedEvent());
             } catch (SyncErrorException e) {
                 logger.warn("Error obtaining updates.");
-                EventManager.getInstance().post(new SyncFailedEvent(e.getMessage()));
+                raise(new SyncFailedEvent(e.getMessage()));
             } catch (Exception e) {e.printStackTrace();
-
                 logger.warn("{}", e);
             }
         };
@@ -148,14 +156,16 @@ public class SyncManager {
         }
     }
 
+    // TODO: remove
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
-        requestExecutor.execute(new CloudUpdateTask(this.remoteManager, lmce.personData, lmce.tagData));
+        requestExecutor.execute(new CloudUpdateTask(this.remoteManager, lmce.data));
     }
 
+    // TODO: remove
     // To be removed after working out specification on saving and syncing behaviour
     @Subscribe
-    public void handleSaveRequestEvent(SaveRequestEvent sre) {
-        requestExecutor.execute(new CloudUpdateTask(this.remoteManager, sre.personData, sre.tagData));
+    public void handleSaveRequestEvent(SaveDataRequestEvent sre) {
+        requestExecutor.execute(new CloudUpdateTask(this.remoteManager, sre.data));
     }
 }

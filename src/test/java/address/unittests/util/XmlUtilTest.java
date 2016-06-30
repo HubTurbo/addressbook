@@ -2,8 +2,10 @@ package address.unittests.util;
 
 import address.exceptions.DataConversionException;
 import address.model.datatypes.AddressBook;
+import address.storage.StorageAddressBook;
 import address.util.AddressBookBuilder;
 import address.util.FileUtil;
+import address.util.TestUtil;
 import address.util.XmlUtil;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,7 +22,7 @@ public class XmlUtilTest {
     private static final File EMPTY_FILE = new File(TEST_DATA_FOLDER + "empty.xml");
     private static final File MISSING_FILE = new File(TEST_DATA_FOLDER + "missing.xml");
     private static final File VALID_FILE = new File(TEST_DATA_FOLDER + "validAddressBook.xml");
-    private static final File TEMP_FILE = new File(TEST_DATA_FOLDER + "tempAddressBook.xml");
+    private static final File TEMP_FILE = new File(TestUtil.appendToSandboxPath("tempAddressBook.xml"));
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -51,9 +53,9 @@ public class XmlUtilTest {
 
     @Test
     public void getDataFromFile_validFile_validResult() throws Exception {
-        AddressBook dataFromFile = XmlUtil.getDataFromFile(VALID_FILE, AddressBook.class);
-        assertEquals(2, dataFromFile.getPersons().size());
-        assertEquals(1, dataFromFile.getTags().size());
+        StorageAddressBook dataFromFile = XmlUtil.getDataFromFile(VALID_FILE, StorageAddressBook.class);
+        assertEquals(2, dataFromFile.getPersonList().size());
+        assertEquals(1, dataFromFile.getTagList().size());
     }
 
     @Test
@@ -77,17 +79,17 @@ public class XmlUtilTest {
     @Test
     public void saveDataToFile_validFile_dataSaved() throws Exception {
         TEMP_FILE.createNewFile();
-        AddressBook dataToWrite = new AddressBook();
+        StorageAddressBook dataToWrite = new StorageAddressBook(new AddressBook());
         XmlUtil.saveDataToFile(TEMP_FILE, dataToWrite);
-        AddressBook dataFromFile = XmlUtil.getDataFromFile(TEMP_FILE, AddressBook.class);
-        assertEquals(dataToWrite.toString(),dataFromFile.toString());
+        StorageAddressBook dataFromFile = XmlUtil.getDataFromFile(TEMP_FILE, StorageAddressBook.class);
+        assertEquals((new AddressBook(dataToWrite)).toString(),(new AddressBook(dataFromFile)).toString());
         //TODO: use equality instead of string comparisons
 
-        AddressBookBuilder builder = new AddressBookBuilder(dataToWrite);
-        dataToWrite = builder.withPerson("John", "Doe").withTag("Friends").build();
+        AddressBookBuilder builder = new AddressBookBuilder(new AddressBook());
+        dataToWrite = new StorageAddressBook(builder.withPerson("John", "Doe").withTag("Friends").build());
 
         XmlUtil.saveDataToFile(TEMP_FILE, dataToWrite);
-        dataFromFile = XmlUtil.getDataFromFile(TEMP_FILE, AddressBook.class);
-        assertEquals(dataToWrite.toString(),dataFromFile.toString());
+        dataFromFile = XmlUtil.getDataFromFile(TEMP_FILE, StorageAddressBook.class);
+        assertEquals((new AddressBook(dataToWrite)).toString(),(new AddressBook(dataFromFile)).toString());
     }
 }

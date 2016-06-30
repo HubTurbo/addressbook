@@ -11,7 +11,7 @@ plugins {
 
 allprojects {
 
-    version = 'V0.0.3ea'
+    version = 'V1.0.0ea'
 
     apply plugin: 'idea'
     apply plugin: 'java'
@@ -68,7 +68,7 @@ allprojects {
         main {
             java {
                 srcDir 'src/main/java'
-                exclude('installer/**/*')
+                exclude('hubturbo/updater/**/*')
             }
             resources {
                 srcDir 'src/main/resources'
@@ -77,14 +77,14 @@ allprojects {
         installer {
             java {
                 srcDir 'src/main/java/'
-                include('installer/**/*')
-                exclude('installer/UpdateDataGenerator.java')
+                include('hubturbo/updater/**/*')
+                exclude('hubturbo/updater/UpdateDataGenerator.java')
                 include('address/util/FileUtil.java')
                 include('address/util/OsDetector.java')
                 include('address/util/ProgressAwareInputStream.java')
                 include('address/util/JsonUtil.java')
-                include('address/updater/model/UpdateData.java')
-                include('address/updater/model/LibraryDescriptor.java')
+                include('address/updater/VersionDescriptor.java')
+                include('address/updater/LibraryDescriptor.java')
                 include('address/util/AppLogger.java')
                 include('address/util/LoggerManager.java')
                 include('address/util/Config.java')
@@ -120,7 +120,6 @@ allprojects {
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
         compile fileTree(dir: 'lib', include: 'licence.jar')
-        compile "org.ini4j:ini4j:0.5.4"
 
         testCompile "junit:junit:$junitVersion"
         testCompile "org.testfx:testfx-core:4.0.+"
@@ -138,7 +137,6 @@ allprojects {
         installerCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         installerCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         installerCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-        installerCompile "org.ini4j:ini4j:0.5.4"
     }
 
     configurations {
@@ -155,7 +153,7 @@ allprojects {
 
         classpath = sourceSets.generateUpdateData.runtimeClasspath
 
-        main = 'installer.UpdateDataGenerator'
+        main = 'hubturbo.updater.UpdateDataGenerator'
 
         args arguments.split()
     }
@@ -175,11 +173,13 @@ allprojects {
         destinationDir = file('src/main/resources/updater')
 
         // Specify classes needed for Jar Updater
+        from(sourceSets.main.output.resourcesDir) {
+            include 'log4j2.json'
+        }
         from sourceSets.main.output
-        include('address/updater/JarUpdater.class')
-        include('address/util/FileUtil.class')
-        include('address/updater/LocalUpdateSpecificationHelper.class')
     }
+
+    createJarUpdater.dependsOn clean
 
     task copyDependencyLibrariesToReleaseDir(type: Copy) {
         group = "Release"
@@ -239,7 +239,7 @@ allprojects {
         manifest {
             attributes 'Implementation-Title': 'Addressbook',
                     'Implementation-Version': '1.0',
-                    'Main-Class': 'installer.Installer',
+                    'Main-Class': 'hubturbo.updater.Installer',
                     'Class-Path': configurations.installerRuntime.files.collect { "lib/${it.name}" }.join(" ")
         }
 

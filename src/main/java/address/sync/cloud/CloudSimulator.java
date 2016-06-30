@@ -54,10 +54,10 @@ public class CloudSimulator implements ICloudSimulator {
         this.shouldSimulateUnreliableNetwork = shouldSimulateUnreliableNetwork;
     }
 
-    public CloudSimulator() {
+    public CloudSimulator(Config config) {
         fileHandler = new CloudFileHandler();
         cloudRateLimitStatus = new CloudRateLimitStatus(API_QUOTA_PER_HOUR);
-        this.shouldSimulateUnreliableNetwork = Config.getConfig().simulateUnreliableNetwork;
+        this.shouldSimulateUnreliableNetwork = config.simulateUnreliableNetwork;
         cloudRateLimitStatus.restartQuotaTimer();
     }
 
@@ -636,13 +636,13 @@ public class CloudSimulator implements ICloudSimulator {
         return CloudTagList;
     }
 
-    private void modifyCloudPersonList(List<CloudPerson> CloudPersonList) {
-        CloudPersonList.stream()
+    private void modifyCloudPersonList(List<CloudPerson> cloudPersonList) {
+        cloudPersonList.stream()
                 .forEach(this::modifyCloudPersonBasedOnChance);
     }
 
-    private void modifyCloudTagListBasedOnChance(List<CloudTag> CloudTagList) {
-        CloudTagList.stream()
+    private void modifyCloudTagListBasedOnChance(List<CloudTag> cloudTagList) {
+        cloudTagList.stream()
                 .forEach(this::modifyCloudTagBasedOnChance);
     }
 
@@ -667,18 +667,18 @@ public class CloudSimulator implements ICloudSimulator {
         }
     }
 
-    private void modifyCloudPersonBasedOnChance(CloudPerson CloudPerson) {
+    private void modifyCloudPersonBasedOnChance(CloudPerson cloudPerson) {
         if (!shouldSimulateUnreliableNetwork || RANDOM_GENERATOR.nextDouble() > MODIFY_PERSON_PROBABILITY) return;
-        logger.debug("Cloud simulator: modifying person '{}'", CloudPerson);
-        CloudPerson.setCity(java.util.UUID.randomUUID().toString());
-        CloudPerson.setStreet(java.util.UUID.randomUUID().toString());
-        CloudPerson.setPostalCode(String.valueOf(RANDOM_GENERATOR.nextInt(999999)));
+        logger.debug("Cloud simulator: modifying person '{}'", cloudPerson);
+        cloudPerson.setCity(java.util.UUID.randomUUID().toString());
+        cloudPerson.setStreet(java.util.UUID.randomUUID().toString());
+        cloudPerson.setPostalCode(String.valueOf(RANDOM_GENERATOR.nextInt(999999)));
     }
 
-    private void modifyCloudTagBasedOnChance(CloudTag CloudTag) {
+    private void modifyCloudTagBasedOnChance(CloudTag cloudTag) {
         if (!shouldSimulateUnreliableNetwork || RANDOM_GENERATOR.nextDouble() > MODIFY_TAG_PROBABILITY) return;
-        logger.debug("Cloud simulator: modifying tag '{}'", CloudTag);
-        CloudTag.setName(UUID.randomUUID().toString());
+        logger.debug("Cloud simulator: modifying tag '{}'", cloudTag);
+        cloudTag.setName(UUID.randomUUID().toString());
     }
 
     private void delayRandomAmount() {

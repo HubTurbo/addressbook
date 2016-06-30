@@ -23,8 +23,8 @@ public class Tag extends UniqueData implements ExtractableObservables {
     }
 
     // Copy constructor
-    public Tag(Tag grp) {
-        update(grp);
+    public Tag(Tag tag) {
+        update(tag);
     }
 
     public Tag update(Tag group) {
@@ -68,7 +68,7 @@ public class Tag extends UniqueData implements ExtractableObservables {
 
     @Override
     public String toString() {
-        return "Group: " + getName();
+        return "Tag: " + getName();
     }
 
 }

@@ -25,10 +25,10 @@ public class FileUtil {
         return dir.exists() && dir.isDirectory();
     }
 
-    public static boolean isDirExists(String dirpath) {
-        File dir = new File(dirpath);
-
-        return isDirExists(dir);
+    public static void createIfMissing(File file) throws IOException {
+        if (!isFileExists(file)) {
+            createFile(file);
+        }
     }
 
     /**
@@ -153,7 +153,8 @@ public class FileUtil {
     }
 
     /**
-     * Assumes file exists
+     * Writes given string to a file.
+     * Will create the file if it does not exist yet.
      */
     public static void writeToFile(File file, String content) throws IOException {
         Files.write(file.toPath(), content.getBytes(CHARSET));

@@ -4,9 +4,12 @@ import address.events.*;
 import address.exceptions.DataConversionException;
 import address.model.datatypes.AddressBook;
 import address.model.ModelManager;
-import address.prefs.PrefsManager;
+import address.storage.StorageAddressBook;
+import address.model.UserPrefs;
 import address.storage.StorageManager;
 import address.storage.XmlFileStorage;
+import address.util.Config;
+import address.util.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,11 +28,14 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 @PrepareForTest(XmlFileStorage.class)
 public class StorageManagerTest {
 
-    private static final File DUMMY_FILE = new File("dummy");
-    private static final AddressBook EMPTY_ADDRESSBOOK = new AddressBook();
+    private static final File DUMMY_DATA_FILE = new File(TestUtil.appendToSandboxPath("dummyAddressBook.xml"));
+    private static final File DUMMY_PREFS_FILE = new File(TestUtil.appendToSandboxPath("dummyUserPrefs.json"));
+    private static final StorageAddressBook EMPTY_ADDRESSBOOK = new StorageAddressBook(new AddressBook());
+    private static final UserPrefs EMPTY_USERPREFS = new UserPrefs();
     ModelManager modelManagerMock;
     EventManager eventManagerMock;
-    PrefsManager prefsManagerMock;
+    Config configMock;
+    UserPrefs userPrefsMock;
     StorageManager storageManager;
     StorageManager storageManagerSpy;
 
@@ -40,72 +46,27 @@ public class StorageManagerTest {
         PowerMockito.mockStatic(XmlFileStorage.class);
 
         //create mocks for dependencies and inject them into StorageManager object under test
+        userPrefsMock = Mockito.mock(UserPrefs.class);
+        when(userPrefsMock.getSaveLocation()).thenReturn(DUMMY_DATA_FILE);
         modelManagerMock = Mockito.mock(ModelManager.class);
+        when(modelManagerMock.getPrefs()).thenReturn(userPrefsMock);
         eventManagerMock = Mockito.mock(EventManager.class);
-        prefsManagerMock = Mockito.mock(PrefsManager.class);
-        storageManager = new StorageManager(modelManagerMock, prefsManagerMock);
+        configMock = Mockito.mock(Config.class);
+        when(configMock.getPrefsFileLocation()).thenReturn(DUMMY_PREFS_FILE);
+        storageManager = new StorageManager(modelManagerMock::resetData, configMock, userPrefsMock);
         storageManager.setEventManager(eventManagerMock);
 
         // This spy will be used to mock only one method of the object under test
         storageManagerSpy = spy(storageManager);
-        doNothing().when(storageManagerSpy).saveDataToFile(DUMMY_FILE,EMPTY_ADDRESSBOOK);
+        doNothing().when(storageManagerSpy).saveDataToFile(DUMMY_DATA_FILE,EMPTY_ADDRESSBOOK);
     }
 
     @Test
-    public void saveDataToFile_valid_noEvents() throws DataConversionException, FileNotFoundException {
-
-        //invoke method under test
-        storageManager.saveDataToFile(DUMMY_FILE,EMPTY_ADDRESSBOOK);
-
-        //verify the dependent method was called correctly
-        PowerMockito.verifyStatic();
-        XmlFileStorage.saveDataToFile(DUMMY_FILE, EMPTY_ADDRESSBOOK);
-    }
-
-    @Test
-    public void saveDataToFile_fileNotFound_exceptionEvenRaised() throws DataConversionException, FileNotFoundException {
-        verifyExceptionEventRaised(new FileNotFoundException("dummy file not found error"));
-    }
-
-    @Test
-    public void saveDataToFile_dataConversionError_exceptionEvenRaised() throws DataConversionException, FileNotFoundException {
-        verifyExceptionEventRaised(new DataConversionException(new Exception("dummy data conversion error")));
-    }
-
-    /**
-     * Verifies the given FileSavingExceptionEvent is raised when the dependent method throws the given exception.
-     * @param exceptionToExpect The exception that will be thrown by the dependent method.
-     */
-    private void verifyExceptionEventRaised(Exception exceptionToExpect) throws DataConversionException, FileNotFoundException {
-        // set up to throw exception from the collaborating method XmlFileStorage.saveDataToFile
-        PowerMockito.doThrow(exceptionToExpect).when(XmlFileStorage.class);
-        XmlFileStorage.saveDataToFile(DUMMY_FILE, EMPTY_ADDRESSBOOK);
-
-        //invoke the method under test
-        storageManager.saveDataToFile(DUMMY_FILE,EMPTY_ADDRESSBOOK);
-
-        //verify the relevant event was raised
-        verify(eventManagerMock, times(1)).post(Mockito.any(FileSavingExceptionEvent.class));
-    }
-
-    @Test
-    public void handleSaveRequestEvent(){
+    public void handleSaveDataRequestEvent(){
 
         //mock dependent method of same object (that method is tested elsewhere)
-        storageManagerSpy.handleSaveRequestEvent(
-                new SaveRequestEvent(DUMMY_FILE,EMPTY_ADDRESSBOOK.getPersons(),EMPTY_ADDRESSBOOK.getTags()));
-
-        //verify that method is called correctly
-        verify(storageManagerSpy, times(1)).saveDataToFile(any(File.class), any(AddressBook.class));
-        //TODO: make the above verification stronger by comparing actual parameters instead of 'any'
-    }
-
-    @Test
-    public void handleLocalModelSyncedFromCloudEvent(){
-
-        //mock dependent method of same object (that method is tested elsewhere)
-        storageManagerSpy.handleLocalModelSyncedFromCloudEvent(
-                new LocalModelSyncedFromCloudEvent(EMPTY_ADDRESSBOOK.getPersons(),EMPTY_ADDRESSBOOK.getTags()));
+        storageManagerSpy.handleSaveDataRequestEvent(
+                new SaveDataRequestEvent(DUMMY_DATA_FILE, EMPTY_ADDRESSBOOK));
 
         //verify that method is called correctly
         verify(storageManagerSpy, times(1)).saveDataToFile(any(File.class), any(AddressBook.class));
@@ -116,8 +77,7 @@ public class StorageManagerTest {
     public void handleLocalModelChangedEvent(){
 
         //mock dependent method of same object (that method is tested elsewhere)
-        storageManagerSpy.handleLocalModelChangedEvent(
-                new LocalModelChangedEvent(EMPTY_ADDRESSBOOK.getPersons(),EMPTY_ADDRESSBOOK.getTags()));
+        storageManagerSpy.handleLocalModelChangedEvent(new LocalModelChangedEvent(EMPTY_ADDRESSBOOK));
 
         //verify that method is called correctly
         verify(storageManagerSpy, times(1)).saveDataToFile(any(File.class), any(AddressBook.class));
@@ -128,17 +88,17 @@ public class StorageManagerTest {
     public void handleLoadDataRequestEvent_noError_noEventRaised() throws FileNotFoundException, DataConversionException {
 
         //set up response from dependent method
-        PowerMockito.when(XmlFileStorage.loadDataFromSaveFile(DUMMY_FILE)).thenReturn(EMPTY_ADDRESSBOOK);
+        PowerMockito.when(XmlFileStorage.loadDataFromSaveFile(DUMMY_DATA_FILE)).thenReturn(EMPTY_ADDRESSBOOK);
 
         //invoke method under test
-        storageManager.handleLoadDataRequestEvent(new LoadDataRequestEvent(DUMMY_FILE));
+        storageManager.handleLoadDataRequestEvent(new LoadDataRequestEvent(DUMMY_DATA_FILE));
 
         //verify the dependent method was called
         PowerMockito.verifyStatic();
-        XmlFileStorage.loadDataFromSaveFile(DUMMY_FILE);
+        XmlFileStorage.loadDataFromSaveFile(DUMMY_DATA_FILE);
 
         //verify modelManager was updated with correct data
-        verify(modelManagerMock, times(1)).updateUsingExternalData(EMPTY_ADDRESSBOOK);
+        verify(modelManagerMock, times(1)).resetData(EMPTY_ADDRESSBOOK);
     }
 
     @Test
@@ -146,11 +106,11 @@ public class StorageManagerTest {
             throws FileNotFoundException, DataConversionException {
 
         //set up to throw exception from dependent method
-        PowerMockito.when(XmlFileStorage.loadDataFromSaveFile(DUMMY_FILE))
+        PowerMockito.when(XmlFileStorage.loadDataFromSaveFile(DUMMY_DATA_FILE))
                 .thenThrow(new FileNotFoundException("dummy exception"));
 
         //invoke method under test
-        storageManager.handleLoadDataRequestEvent(new LoadDataRequestEvent(DUMMY_FILE));
+        storageManager.handleLoadDataRequestEvent(new LoadDataRequestEvent(DUMMY_DATA_FILE));
 
         //verify the relevant event was raised
         verify(eventManagerMock, times(1)).post(Mockito.any(FileOpeningExceptionEvent.class));
@@ -161,14 +121,24 @@ public class StorageManagerTest {
             throws FileNotFoundException, DataConversionException {
 
         //set up to throw exception from dependent method
-        PowerMockito.when(XmlFileStorage.loadDataFromSaveFile(DUMMY_FILE))
+        PowerMockito.when(XmlFileStorage.loadDataFromSaveFile(DUMMY_DATA_FILE))
                 .thenThrow(new DataConversionException(new Exception("dummy exception")));
 
         //invoke method under test
-        storageManager.handleLoadDataRequestEvent(new LoadDataRequestEvent(DUMMY_FILE));
+        storageManager.handleLoadDataRequestEvent(new LoadDataRequestEvent(DUMMY_DATA_FILE));
 
         //verify the relevant event was raised
         verify(eventManagerMock, times(1)).post(Mockito.any(FileOpeningExceptionEvent.class));
     }
 
+    @Test
+    public void handleSavePrefsRequestEvent(){
+
+        //mock dependent method of same object (that method is tested elsewhere)
+        storageManagerSpy.handleSavePrefsRequestEvent(
+                new SavePrefsRequestEvent(EMPTY_USERPREFS));
+
+        //verify that method is called correctly
+        verify(storageManagerSpy, times(1)).savePrefsToFile(EMPTY_USERPREFS);
+    }
 }

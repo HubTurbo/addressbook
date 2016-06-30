@@ -1,7 +1,9 @@
 package address.browser;
 
 import address.browser.page.GithubProfilePage;
-import address.browser.page.Page;
+import hubturbo.embeddedbrowser.BrowserType;
+import hubturbo.embeddedbrowser.HyperBrowser;
+import hubturbo.embeddedbrowser.page.Page;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.AppLogger;
@@ -22,12 +24,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 /**
  * Manages the AddressBook browser.
+ * To begin using this class: call start() once.
  */
 public class BrowserManager {
+
+    private static final BrowserType type = BrowserType.FULL_FEATURE_BROWSER;
+
+    private static final String GITHUB_ROOT_URL = "https://github.com/";
+    private static final String INVALID_GITHUB_USERNAME_MESSAGE = "Unparsable GitHub Username.";
+
     private static AppLogger logger = LoggerManager.getLogger(BrowserManager.class);
 
     private ObservableList<ReadOnlyViewablePerson> filteredPersons;
@@ -38,37 +46,54 @@ public class BrowserManager {
 
     private ChangeListener<String> listener = (observable,  oldValue,  newValue) -> {
         try {
-            URL url = new URL("https://github.com/" + newValue);
+            URL url = new URL(GITHUB_ROOT_URL + newValue);
             if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
-                hyperBrowser.get().loadUrl(url);
+                Page page = hyperBrowser.get().loadUrl(url);
+                GithubProfilePage gPage = new GithubProfilePage(page);
+                gPage.setupPageAutomation();
             }
         } catch (MalformedURLException e) {
             logger.warn("Malformed URL obtained, not attempting to load.");
-            // TODO handle instead of simply logging a message
+            if (!newValue.equals("")) {
+                hyperBrowser.get().loadHTML(INVALID_GITHUB_USERNAME_MESSAGE);
+            }
         }
     };
 
     public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
         this.selectedPersonUsername = new SimpleStringProperty();
         this.filteredPersons = filteredPersons;
+    }
+
+    /**
+     * Initialize the browser managed by the browser manager.
+     * This must be called in a non-ui thread.
+     */
+    public static void initBrowser(){
+        if (type == BrowserType.FULL_FEATURE_BROWSER) {
+            if (Environment.isMac()) {
+                BrowserCore.initialize();
+            }
+            logger.debug("Suppressing browser logs");
+            LoggerProvider.setLevel(Level.SEVERE);
+        }
+    }
+
+    /**
+     * Starts the browser manager.
+     */
+    public void start() {
         String headlessProperty = System.getProperty("testfx.headless");
         if (headlessProperty != null && headlessProperty.equals("true")) {
             logger.info("Headless mode detected, not initializing HyperBrowser.");
             hyperBrowser = Optional.empty();
         } else {
             logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
-            hyperBrowser = Optional.of(new HyperBrowser(HyperBrowser.FULL_FEATURE_BROWSER,
-                                       HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
-                                       BrowserManagerUtil.getBrowserInitialScreen()));
+            hyperBrowser = Optional.of(new HyperBrowser(
+                    type,
+                    HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
+                    BrowserManagerUtil.getBrowserInitialScreen()));
         }
-    }
-
-    public static void initializeBrowser() {
-        if (Environment.isMac()) {
-            BrowserCore.initialize();
-        }
-        logger.debug("Suppressing browser logs");
-        LoggerProvider.setLevel(Level.SEVERE);
     }
 
     /**
@@ -79,30 +104,22 @@ public class BrowserManager {
         if (!hyperBrowser.isPresent()) return;
 
         selectedPersonUsername.removeListener(listener);
-
+        
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
-        ArrayList<ReadOnlyViewablePerson> listOfPersonToLoadInFuture =
-                BrowserManagerUtil.getListOfPersonToLoadInFuture(filteredPersons, indexOfPersonInListOfContacts);
-        ArrayList<URL> listOfFutureUrl = listOfPersonToLoadInFuture.stream()
-                                                                    .map(ReadOnlyViewablePerson::profilePageUrl)
-                                                                    .collect(Collectors.toCollection(ArrayList::new));
+        List<URL> listOfFutureUrl =
+                BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons, indexOfPersonInListOfContacts);
         try {
             Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             GithubProfilePage gPage = new GithubProfilePage(page);
-
-            if (!gPage.isPageLoading()) {
-                gPage.automateClickingAndScrolling();
-            }
-            gPage.setPageLoadFinishListener(b -> gPage.automateClickingAndScrolling());
-
+            gPage.setupPageAutomation();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            assert false : "Will never go into here if preconditions of loadUrls is fulfilled.";
+            assert false : "Preconditions of loadUrls is not fulfilled.";
         }
 
         selectedPersonUsername.unbind();
-        selectedPersonUsername.bind(person.githubUserNameProperty());
+        selectedPersonUsername.bind(person.githubUsernameProperty());
         selectedPersonUsername.addListener(listener);
     }
 

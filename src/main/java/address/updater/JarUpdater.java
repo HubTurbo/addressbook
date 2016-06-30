@@ -27,13 +27,16 @@ import java.util.concurrent.Executors;
  * If you made any changes to this class, run gradle task compileJarUpdater
  *
  * Options:
- * --update-specification
+ * --update-specification the update specification file on which files to be updated
+ * --source-dir the main directory which files to be updated
  */
 public class JarUpdater extends Application {
     private static final AppLogger logger = LoggerManager.getLogger(JarUpdater.class);
 
     private static final int MAX_RETRY = 10;
     private static final int WAIT_TIME = 2000;
+    private static final String ERROR_ON_RUNNING_APP_MESSAGE = "Application not called properly, " +
+                                                               "please contact developer.";
     private static final String ERROR_ON_UPDATING_MESSAGE = "There was an error in updating.";
     
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
@@ -50,12 +53,11 @@ public class JarUpdater extends Application {
                 run();
             } catch (IllegalArgumentException e) {
                 logger.info(e.getMessage());
+                showInvalidProgramArgumentErrorDialog();
             } catch (IOException e) {
                 logger.info(e.getMessage());
                 showErrorOnUpdatingDialog();
             }
-
-            stop();
         });
     }
 
@@ -124,8 +126,12 @@ public class JarUpdater extends Application {
     }
 
     /**
+     * Applies update to a file.
+     *
+     * Technically replaces a file with a newer version with a guard to wait until the file is modifiable.
+     *
      * In some platforms (Windows in particular), JAR file cannot be modified if it was executed and
-     * the process has not ended yet. As such, we will make several tries with wait.
+     * the process it created has not ended yet. As such, we will make several tries with wait.
      */
     private void applyUpdate(Path source, Path dest) throws IOException {
         logger.info("Applying update for {}", dest.toString());
@@ -154,12 +160,19 @@ public class JarUpdater extends Application {
         throw new IOException("Jar file cannot be updated. Most likely is in use by another process.");
     }
 
+    private void showInvalidProgramArgumentErrorDialog() {
+        showErrorDialog("Failed to run updater", ERROR_ON_RUNNING_APP_MESSAGE);
+    }
+
     private void showErrorOnUpdatingDialog() {
-        String header = "Failed to update";
+        showErrorDialog("Failed to update", ERROR_ON_UPDATING_MESSAGE);
+    }
+
+    private void showErrorDialog(String header, String message) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText(header);
-            alert.setContentText(ERROR_ON_UPDATING_MESSAGE);
+            alert.setContentText(message);
             alert.showAndWait();
             stop();
         });

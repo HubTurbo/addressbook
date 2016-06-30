@@ -1,11 +1,7 @@
 package address.unittests;
 
-import address.events.EventManager;
-import address.events.TagSearchResultsChangedEvent;
 import address.model.datatypes.tag.Tag;
 import address.model.TagSelectionEditDialogModel;
-import com.google.common.eventbus.Subscribe;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -23,32 +19,14 @@ public class PersonEditDialogModelTest {
         return tagList;
     }
 
-    int eventCounter;
-    ArrayList<Tag> eventData;
-
-    @Subscribe
-    public void handleTagSearchResultsChangedEvent(TagSearchResultsChangedEvent e) {
-        eventCounter++;
-        eventData.clear();
-        eventData.addAll(e.getSelectableTags());
-    }
-
-    @Before
-    public void setup() {
-        EventManager.getInstance().registerHandler(this);
-        eventCounter = 0;
-        eventData = new ArrayList<>();
-    }
-
     @Test
     public void filterTags() {
         List<Tag> allTags = getList("friends", "relatives", "colleagues");
         List<Tag> assignedTags = getList("friends");
-        TagSelectionEditDialogModel model = new TagSelectionEditDialogModel(allTags, assignedTags);
+        TagSelectionEditDialogModel model = new TagSelectionEditDialogModel();
+        model.init(allTags, assignedTags, "");
         model.setFilter("ela");
 
-        assertEquals(2, eventCounter);
-        assertEquals(1, eventData.size());
-        assertEquals(allTags.get(1), eventData.get(0));
+        assertEquals(allTags.get(1), model.getFilteredTags().get(0));
     }
 }

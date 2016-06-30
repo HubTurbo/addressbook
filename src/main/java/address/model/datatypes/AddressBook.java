@@ -4,59 +4,62 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.*;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.stream.Collectors;
 
 /**
  * Wraps all data at the address-book level
- *
  * Duplicates are not allowed (by .equals comparison)
- * TODO: truly enforce set property through code (Sets, XML Schemas)
  */
-
-@XmlRootElement(name = "addressbook")
 public class AddressBook implements ReadOnlyAddressBook {
 
-    @JsonIgnore private final ObservableList<Person> persons;
-    @JsonIgnore private final ObservableList<Tag> tags;
+    private final ObservableList<Person> persons;
+    private final ObservableList<Tag> tags;
 
     {
-        persons = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
-        tags = FXCollections.observableArrayList(ExtractableObservables::extractFrom);
+        persons = FXCollections.observableArrayList();
+        tags = FXCollections.observableArrayList();
     }
 
     public AddressBook() {}
 
-    public AddressBook(AddressBook toBeCopied) {
-        this(toBeCopied.getPersons(), toBeCopied.getTags());
+    /**
+     * Persons and Tags are copied into this addressbook
+     */
+    public AddressBook(ReadOnlyAddressBook toBeCopied) {
+        this(toBeCopied.getPersonList(), toBeCopied.getTagList());
     }
 
-    public AddressBook(List<Person> persons, List<Tag> tags) {
-        setPersons(persons);
-        setTags(tags);
+    /**
+     * Persons and Tags are copied into this addressbook
+     */
+    public AddressBook(List<? extends ReadOnlyPerson> persons, List<Tag> tags) {
+        resetData(persons, tags);
     }
 
     public ViewableAddressBook createVisibleAddressBook() {
         return new ViewableAddressBook(this);
     }
 
-    @XmlElement(name = "persons")
-    @JsonProperty("persons")
+//// list overwrite operations
+
     public ObservableList<Person> getPersons() {
         return persons;
     }
 
-    @XmlElement(name = "tags")
-    @JsonProperty("tags")
     public ObservableList<Tag> getTags() {
         return tags;
+    }
+
+    public void setPersons(List<Person> persons) {
+        this.persons.setAll(persons);
+    }
+
+    public void setTags(Collection<Tag> tags) {
+        this.tags.setAll(tags);
     }
 
     public void clearData() {
@@ -64,41 +67,56 @@ public class AddressBook implements ReadOnlyAddressBook {
         tags.clear();
     }
 
-    public void resetData(Collection<Person> ps, Collection<Tag> ts) {
-        persons.setAll(ps);
-        tags.setAll(ts);
+    public void resetData(Collection<? extends ReadOnlyPerson> newPersons, Collection<Tag> newTags) {
+        setPersons(newPersons.stream().map(Person::new).collect(Collectors.toList()));
+        setTags(newTags);
     }
 
-    public void resetData(AddressBook newData) {
-        resetData(newData.getPersons(), newData.getTags());
+    public void resetData(ReadOnlyAddressBook newData) {
+        resetData(newData.getPersonList(), newData.getTagList());
     }
 
-    public void setPersons(List<Person> persons) {
-        this.persons.setAll(persons);
+//// person-level operations
+
+    public boolean containsPerson(ReadOnlyPerson key) {
+        return ReadOnlyPerson.containsById(persons, key);
     }
 
-    public void setTags(List<Tag> tags) {
-        this.tags.setAll(tags);
+    public boolean containsPerson(int id) {
+        return ReadOnlyPerson.containsById(persons, id);
     }
 
-    public Optional<Person> findPerson(ReadOnlyPerson personToFind) {
-        for (Person p : persons) {
-            if (p.equals(personToFind)) {
-                return Optional.of(p);
-            }
-        }
-        return Optional.empty();
+    public Optional<Person> findPerson(ReadOnlyPerson key) {
+        return ReadOnlyPerson.findById(persons, key);
     }
 
-    //TODO: refine later
+    public Optional<Person> findPerson(int id) {
+        return ReadOnlyPerson.findById(persons, id);
+    }
+
     public void addPerson(Person p){
         persons.add(p);
     }
 
-    //TODO: refine later
+    public boolean removePerson(ReadOnlyPerson key) {
+        return ReadOnlyPerson.removeOneById(persons, key);
+    }
+
+    public boolean removePerson(int id) {
+        return ReadOnlyPerson.removeOneById(persons, id);
+    }
+
+//// tag-level operations
+
     public void addTag(Tag t){
         tags.add(t);
     }
+
+    public boolean removeTag(Tag t) {
+        return tags.remove(t);
+    }
+
+//// util methods
 
     // Deprecated (to be removed when no-dupe property is properly enforced
     public boolean containsDuplicates() {
@@ -106,10 +124,9 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     @Override
-    public String toString(){
-        //TODO: refine later
+    public String toString() {
         return persons.size() + " persons, " + tags.size() +  " tags";
-
+        // TODO: refine later
     }
 
     @Override
@@ -131,4 +148,5 @@ public class AddressBook implements ReadOnlyAddressBook {
     public UnmodifiableObservableList<Tag> getTagsAsReadOnlyObservableList() {
         return new UnmodifiableObservableList<>(tags);
     }
+
 }

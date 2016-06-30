@@ -99,7 +99,7 @@ public class RemoteServiceTest {
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_CREATED, remotePerson, header);
         when(cloudSimulator.createPerson(anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(remoteResponse);
 
-        Person person = new Person("unknownName", "unknownName");
+        Person person = new Person("unknownName", "unknownName", 0);
 
         ExtractedRemoteResponse<Person> serviceResponse = remoteService.createPerson("Test", person);
         assertEquals(HttpURLConnection.HTTP_CREATED, serviceResponse.getResponseCode());
@@ -113,7 +113,7 @@ public class RemoteServiceTest {
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         when(cloudSimulator.createPerson(anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(remoteResponse);
 
-        Person person = new Person("unknownName", "unknownName");
+        Person person = new Person("unknownName", "unknownName", 0);
 
         ExtractedRemoteResponse<Person> serviceResponse = remoteService.createPerson("Test", person);
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());
@@ -136,7 +136,7 @@ public class RemoteServiceTest {
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_CREATED, remotePerson, header);
         when(cloudSimulator.createPerson(anyString(), any(CloudPerson.class), isNull(String.class))).thenReturn(remoteResponse);
 
-        Person person = new Person("unknownName", "unknownName");
+        Person person = new Person("unknownName", "unknownName", 0);
         List<Tag> personTags = new ArrayList<>();
         personTags.add(new Tag("New Tag"));
         person.setTags(personTags);
@@ -218,7 +218,7 @@ public class RemoteServiceTest {
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_OK, remotePerson, header);
         when(cloudSimulator.updatePerson(anyString(), anyInt(), any(CloudPerson.class), isNull(String.class))).thenReturn(remoteResponse);
 
-        Person updatedPerson = new Person("newFirstName", "newLastName");
+        Person updatedPerson = new Person("newFirstName", "newLastName", 1);
         ExtractedRemoteResponse<Person> serviceResponse = remoteService.updatePerson("Test", 1, updatedPerson);
 
         assertEquals(HttpURLConnection.HTTP_OK, serviceResponse.getResponseCode());
@@ -233,7 +233,7 @@ public class RemoteServiceTest {
         RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
         when(cloudSimulator.updatePerson(anyString(), anyInt(), any(CloudPerson.class), isNull(String.class))).thenReturn(remoteResponse);
 
-        Person updatedPerson = new Person("newFirstName", "newLastName");
+        Person updatedPerson = new Person("newFirstName", "newLastName", 1);
         ExtractedRemoteResponse<Person> serviceResponse = remoteService.updatePerson("Test", 1, updatedPerson);
 
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, serviceResponse.getResponseCode());

@@ -3,6 +3,7 @@ package address.util;
 import javafx.application.Platform;
 
 import java.util.concurrent.*;
+import java.util.function.Supplier;
 
 /**
  * Contains utility methods for running code in various ways,
@@ -16,8 +17,33 @@ public final class PlatformExecUtil {
         Platform.runLater(action);
     }
 
-    public static <R> Future<R> callLater(Callable<R> callback) {
-        return new FutureTask<>(callback);
+    /**
+     * If called from FX thread, will run immediately and return completed future.
+     * If called outside FX thread, returns immediately, callback is queued and run asynchronously on FX thread.
+     */
+    public static <R> Future<R> call(Callable<R> callback) {
+        final FutureTask<R> task = new FutureTask<>(callback);
+        if (Platform.isFxApplicationThread()) {
+            task.run();
+        } else {
+            runLater(task);
+        }
+        return task;
+    }
+
+    /**
+     * Runs callback on FX thread and wait till the result is returned. Returns custom value if there was any thread
+     * execution exceptions thrown.
+     * @see #call(Callable)
+     * @return {@code failValue} if there was an exception during execution, else result of {@code callback}
+     */
+    public static <T> T callAndWait(Callable<T> callback, T failValue) {
+            try {
+                return call(callback).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                return failValue; // execution exception, unable to retrieve data
+            }
     }
 
     public static void runLaterDelayed(Runnable action, long delay, TimeUnit unit) {

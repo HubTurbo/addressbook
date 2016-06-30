@@ -1,21 +1,23 @@
 package address.controller;
 
-import address.events.EventManager;
 import address.model.datatypes.tag.Tag;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 
+/**
+ * Dialog to handle editing of a tag
+ *
+ * Stage and initial tag should be set before showing stage
+ */
 public class TagEditDialogController extends EditDialogController {
     @FXML
     private TextField tagNameField;
 
     private Tag editedTag;
-
-    public TagEditDialogController() {
-        EventManager.getInstance().registerHandler(this);
-    }
 
     @FXML
     public void initialize() {
@@ -24,6 +26,25 @@ public class TagEditDialogController extends EditDialogController {
 
     public void setInitialTagData(Tag tag) {
         tagNameField.setText(tag.getName());
+    }
+
+    @Override
+    public void setDialogStage(Stage dialogStage) {
+        dialogStage.getScene().setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                e.consume();
+                handleCancel();
+            }
+            if (e.getCode() == KeyCode.ENTER) {
+                e.consume();
+                handleOk();
+            }
+        });
+        this.dialogStage = dialogStage;
+    }
+
+    public Tag getEditedTag() {
+        return editedTag;
     }
 
     private void showErrorAlert(String headerText, String contentText) {
@@ -45,10 +66,6 @@ public class TagEditDialogController extends EditDialogController {
 
     private boolean isEmptyName() {
         return tagNameField.getText().isEmpty();
-    }
-
-    public Tag getFinalInput() {
-        return editedTag;
     }
 
     @FXML

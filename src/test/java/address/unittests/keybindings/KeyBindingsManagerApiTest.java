@@ -46,6 +46,7 @@ public class KeyBindingsManagerApiTest {
 
         /*====== bindings A-Z keys (in alphabetical order of main key =====================*/
 
+        verifyAccelerator("PERSON_TAG_ACCELERATOR", "A");
         verifyAccelerator("PERSON_DELETE_ACCELERATOR", "D");
         verifyAccelerator("PERSON_EDIT_ACCELERATOR", "E");
         verifySequence(new JumpToListRequestEvent(-1), "G", "B");
@@ -60,6 +61,7 @@ public class KeyBindingsManagerApiTest {
         verifyHotkey(new MaximizeAppRequestEvent(), "CTRL + SHIFT + X");
         verifyHotkey(new MaximizeAppRequestEvent(), "META + SHIFT + X");
 
+        verifyAccelerator("PERSON_CHANGE_CANCEL_ACCELERATOR", "SHORTCUT + Z");
          /*====== other keys ======================================================*/
 
         verifyShortcut(new JumpToListRequestEvent(1), "SHORTCUT DOWN");
@@ -74,8 +76,6 @@ public class KeyBindingsManagerApiTest {
 
     @Test
     public void keyEventDetected_undefinedBinding_ignored(){
-        verifyIgnored("A");
-        verifyIgnored("G", "A");
         verifyIgnored("ALT + A");
         verifyIgnored("CTRL + ALT + A");
         verifyIgnored("SHORTCUT + SHIFT + A");
@@ -185,6 +185,10 @@ public class KeyBindingsManagerApiTest {
     @Test
     public void getAcceleratorKeyCombo(){
         //check one existing accelerator
+        Assert.assertEquals(keyBindingsManager.getAcceleratorKeyCombo("PERSON_TAG_ACCELERATOR").get(),
+                KeyCombination.valueOf("A"));
+
+        //check one existing accelerator
         Assert.assertEquals(keyBindingsManager.getAcceleratorKeyCombo("PERSON_DELETE_ACCELERATOR").get(),
                 KeyCombination.valueOf("D"));
 
@@ -197,6 +201,20 @@ public class KeyBindingsManagerApiTest {
 
         //check an non-existing accelerator that is a shortcut
         assertFalse(keyBindingsManager.getAcceleratorKeyCombo("LIST_ENTER_SHORTCUT").isPresent());
+    }
+
+    @Test
+    public void ensureNoClashBetweenSequencesAndAccelerators(){
+        Bindings bindings = new Bindings();
+        List<KeySequence> sequences = bindings.getSequences();
+        bindings.getAccelerators().stream()
+                .forEach(accelerator -> verifyNotInSequences(sequences, accelerator));
+    }
+
+    private void verifyNotInSequences(List<KeySequence> sequences, Accelerator a) {
+        Optional<KeySequence> matchingSequence = sequences.stream()
+                .filter(s -> s.isIncluded(a.getKeyCombination())).findFirst();
+        assertFalse("Clash between " + matchingSequence + " and " + a, matchingSequence.isPresent());
     }
 
     /**

@@ -1,53 +1,106 @@
 package address.controller;
 
 import address.events.*;
-import address.exceptions.DuplicatePersonException;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
+import address.model.datatypes.tag.Tag;
 import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.keybindings.KeyBindingsManager;
-import address.status.PersonCreatedStatus;
+import address.parser.qualifier.TrueQualifier;
 import address.status.PersonDeletedStatus;
-import address.status.PersonEditedStatus;
 import address.ui.PersonListViewCell;
-import address.util.ReorderedList;
+import address.util.FilteredList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
+import address.util.collections.ReorderedList;
 import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.*;
 
-public class PersonOverviewController {
+/**
+ * Dialog to view the list of persons and their details
+ *
+ * setConnections should be set before showing stage
+ */
+public class PersonOverviewController extends UiController{
     private static AppLogger logger = LoggerManager.getLogger(PersonOverviewController.class);
 
     @FXML
-    private ListView<ReadOnlyViewablePerson> personListView;
+    private Button newButton;
 
+    @FXML
+    private Button editButton;
+
+    @FXML
+    private Button deleteButton;
+
+    @FXML
+    private ListView<ReadOnlyViewablePerson> personListView;
     @FXML
     private TextField filterField;
 
     private MainController mainController;
     private ModelManager modelManager;
+    private FilteredList<ReadOnlyViewablePerson> filteredPersonList;
 
-    private ReorderedList reorderedList;
+    /**
+     * When the user selected multiple item in the listview. The edit feature will be
+     * disabled. Features related to edit will be bind to this property.
+     */
+    private BooleanProperty isEditDisabled = new SimpleBooleanProperty(false);
+
+    private ListChangeListener<Integer> multipleSelectListener = c -> {
+        if (c.getList().size() > 1) {
+            isEditDisabled.set(true);
+        } else {
+            isEditDisabled.set(false);
+        }
+    };
 
     public PersonOverviewController() {
-        EventManager.getInstance().registerHandler(this);
+        super();
+    }
 
+    @Subscribe
+    private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
+        filteredPersonList.setPredicate(fce.filterExpression::satisfies);
+    }
+
+    public void setConnections(MainController mainController, ModelManager modelManager,
+                               ObservableList<ReadOnlyViewablePerson> personList) {
+        this.mainController = mainController;
+        this.modelManager = modelManager;
+        filteredPersonList = new FilteredList<>(personList, new PredExpr(new TrueQualifier())::satisfies);
+
+        ReorderedList<ReadOnlyViewablePerson> orderedList = new ReorderedList<>(filteredPersonList);
+        personListView.setItems(orderedList);
+        personListView.setCellFactory(listView -> new PersonListViewCell(orderedList));
+        personListView.getSelectionModel().selectedItemProperty().addListener(
+            (observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    logger.debug("Person in list view clicked. Loading GitHub profile page: '{}'", newValue);
+                    mainController.loadGithubProfilePage(newValue);
+                }
+            });
+        personListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        personListView.getSelectionModel().getSelectedIndices().addListener(multipleSelectListener);
     }
 
     /**
@@ -57,41 +110,30 @@ public class PersonOverviewController {
     @FXML
     private void initialize() {
         personListView.setContextMenu(createContextMenu());
-    }
-
-    public void setConnections(MainController mainController, ModelManager modelManager, ReorderedList reorderedList) {
-        this.mainController = mainController;
-        this.modelManager = modelManager;
-        this.reorderedList = reorderedList;
-
-        // Add observable list data to the list
-        personListView.setItems(reorderedList.getDisplayedList());
-        personListView.setCellFactory(listView -> new PersonListViewCell(reorderedList));
-        personListView.getSelectionModel().selectedItemProperty().addListener(
-            (observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    logger.debug("Person in list view clicked. Loading GitHub profile page: '{}'", newValue);
-                    mainController.loadGithubProfilePage(newValue);
-                }
-            });
+        editButton.disableProperty().bind(isEditDisabled);
     }
 
     /**
      * Called when the user clicks on the delete button.
      */
     @FXML
-    private void handleDeletePerson() {
-        int selectedIndex = personListView.getSelectionModel().getSelectedIndex();
-        if (selectedIndex >= 0) {
-            final ReadOnlyPerson deleteTarget = personListView.getItems().get(selectedIndex);
-            mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(deleteTarget));
-
-            modelManager.delayedDeletePerson(deleteTarget, 1, TimeUnit.SECONDS);
+    private void handleDeletePersons() {
+        final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
+        
+        if (isSelectionValid()) {
+            showInvalidSelectionAlert();
         } else {
-            // Nothing selected.
-            mainController.showAlertDialogAndWait(AlertType.WARNING,
-                    "No Selection", "No Person Selected", "Please select a person in the list.");
+            selected.stream()
+                    .forEach(target -> {
+                        mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(target));
+                        modelManager.deletePersonThroughUI(target);
+                    });
         }
+    }
+
+    private boolean isSelectionValid() {
+        final List<?> selected = personListView.getSelectionModel().getSelectedItems();
+        return selected.isEmpty() || selected.stream().anyMatch(Objects::isNull);
     }
 
     /**
@@ -100,19 +142,30 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleNewPerson() {
-        Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person());
-        while (true) { // keep re-asking until user provides valid input or cancels operation.
-            prevInputData = mainController.getPersonDataInput(prevInputData.get());
+        modelManager.createPersonThroughUI(() ->
+                mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person"));
+    }
 
-            if (!prevInputData.isPresent()) break;
-            try {
-                modelManager.addPerson(new Person(prevInputData.get()));
-                mainController.getStatusBarHeaderController().postStatus(new PersonCreatedStatus(prevInputData.get()));
-                break;
-            } catch (DuplicatePersonException e) {
-                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning",
-                        "Cannot have duplicate person", e.toString());
-            }
+    /**
+     * Called when the context menu edit is clicked.
+     */
+    private void handleRetagPersons() {
+        List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
+
+        if (isSelectionValid()) {
+            showInvalidSelectionAlert();
+            return;
+        }
+
+        Optional<List<Tag>> listOfFinalAssignedTags = mainController.getPersonsTagsInput(selectedPersons);
+
+        if (listOfFinalAssignedTags.isPresent()) {
+            selectedPersons.stream()
+                    .forEach(p -> {
+                        Person editedPerson = new Person(p);
+                        editedPerson.setTags(listOfFinalAssignedTags.get());
+                        modelManager.editPersonThroughUI(p, () -> Optional.of(editedPerson));
+                    });
         }
     }
 
@@ -124,25 +177,22 @@ public class PersonOverviewController {
     private void handleEditPerson() {
         final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
         if (editTarget == null) { // no selection
-            mainController.showAlertDialogAndWait(AlertType.WARNING, "No Selection",
-                "No Person Selected", "Please select a person in the list.");
+            showInvalidSelectionAlert();
             return;
         }
+        modelManager.editPersonThroughUI(editTarget,
+                () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
+    }
 
-        Optional<ReadOnlyPerson> prevInputData = Optional.of(new Person(editTarget));
-        while (true) { // keep re-asking until user provides valid input or cancels operation.
-            prevInputData = mainController.getPersonDataInput(prevInputData.get());
-            if (!prevInputData.isPresent()) break;
-            try {
-                modelManager.updatePerson(editTarget, prevInputData.get());
-                mainController.getStatusBarHeaderController().postStatus(
-                        new PersonEditedStatus(new Person(editTarget), prevInputData.get()));
-                break;
-            } catch (DuplicatePersonException e) {
-                mainController.showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate person",
-                                                      e.toString());
-            }
+    private void handleCancelPersonOperations() {
+        final List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
+        if (isSelectionValid()) {
+            showInvalidSelectionAlert();
+            return;
         }
+        selectedPersons.stream().forEach(selectedPerson -> {
+                modelManager.cancelPersonChangeCommand(selectedPerson);
+        });
     }
 
     @FXML
@@ -151,28 +201,40 @@ public class PersonOverviewController {
         boolean isFilterValid = true;
         try {
             filterExpression = Parser.parse(filterField.getText());
-        } catch (ParseException ignored) {
+        } catch (ParseException e) {
+            logger.debug("Invalid filter found: {}", e);
             isFilterValid = false;
         }
 
         if (isFilterValid || filterField.getText().isEmpty()) {
-            filterField.getStyleClass().remove("error");
+            if (filterField.getStyleClass().contains("error")) filterField.getStyleClass().remove("error");
         } else {
-            filterField.getStyleClass().add("error");
+            if (!filterField.getStyleClass().contains("error")) filterField.getStyleClass().add("error");
         }
-        EventManager.getInstance().post(new FilterCommittedEvent(filterExpression));
+        raise(new FilterCommittedEvent(filterExpression));
     }
 
-    private ContextMenu createContextMenu(){
+    private ContextMenu createContextMenu() {
         final ContextMenu contextMenu = new ContextMenu();
 
-        MenuItem editMenuItem = new MenuItem("Edit");
+        final MenuItem editMenuItem = new MenuItem("Edit");
+        editMenuItem.disableProperty().bind(isEditDisabled);
         editMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("PERSON_EDIT_ACCELERATOR").get());
         editMenuItem.setOnAction(e -> handleEditPerson());
-        MenuItem deleteMenuItem = new MenuItem("Delete");
+
+        final MenuItem deleteMenuItem = new MenuItem("Delete");
         deleteMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("PERSON_DELETE_ACCELERATOR").get());
-        deleteMenuItem.setOnAction(e -> handleDeletePerson());
-        contextMenu.getItems().addAll(editMenuItem, deleteMenuItem);
+        deleteMenuItem.setOnAction(e -> handleDeletePersons());
+
+        final MenuItem tagMenuItem = new MenuItem("Tag");
+        tagMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("PERSON_TAG_ACCELERATOR").get());
+        tagMenuItem.setOnAction(e -> handleRetagPersons());
+
+        final MenuItem cancelOperationMenuItem = new MenuItem("Cancel");
+        cancelOperationMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("PERSON_CHANGE_CANCEL_ACCELERATOR").get());
+        cancelOperationMenuItem.setOnAction(e -> handleCancelPersonOperations());
+
+        contextMenu.getItems().addAll(editMenuItem, deleteMenuItem, tagMenuItem, cancelOperationMenuItem);
         contextMenu.setId("personListContextMenu");
         return contextMenu;
     }
@@ -192,14 +254,13 @@ public class PersonOverviewController {
      *                    To jump to bottom, should be -1.
      */
 
-
     private void jumpToListItem(int targetIndex) {
         int listSize = personListView.getItems().size();
         if (listSize < targetIndex) {
             return;
         }
         int indexOfItem;
-        if (targetIndex == -1){  // if the target is the bottom of the list
+        if (targetIndex == -1) {  // if the target is the bottom of the list
             indexOfItem = listSize - 1;
         } else {
             indexOfItem = targetIndex - 1; //to account for list indexes starting from 0
@@ -208,13 +269,19 @@ public class PersonOverviewController {
         selectItem(indexOfItem);
     }
 
+    private void showInvalidSelectionAlert() {
+        mainController.showAlertDialogAndWait(AlertType.WARNING,
+                "Invalid Selection", "No Person Selected", "Please select a person in the list.");
+    }
+
     /**
-     * Selects the item in the list
+     * Selects the item in the list and scrolls to it if it is out of view.
      * @param indexOfItem
      */
     private void selectItem(int indexOfItem) {
-        personListView.getSelectionModel().select(indexOfItem);
+        personListView.getSelectionModel().clearAndSelect(indexOfItem);
         personListView.getFocusModel().focus(indexOfItem);
         personListView.requestFocus();
+        personListView.scrollTo(indexOfItem);
     }
 }

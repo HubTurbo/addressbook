@@ -7,6 +7,7 @@ import java.util.Optional;
 import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
+import address.util.FxViewUtil;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 
@@ -17,14 +18,15 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
-public class PersonCardController {
+public class PersonCardController extends UiController{
     @FXML
     private HBox cardPane;
     @FXML
     private ImageView profileImage;
+    @FXML
+    private Label idLabel;
     @FXML
     private Label firstName;
     @FXML
@@ -37,6 +39,14 @@ public class PersonCardController {
     private Label tags;
 
     private ReadOnlyViewablePerson person;
+    private FadeTransition deleteTransition;
+
+    {
+        deleteTransition = new FadeTransition(Duration.millis(1000), cardPane);
+        deleteTransition.setFromValue(1.0);
+        deleteTransition.setToValue(0.1);
+        deleteTransition.setCycleCount(1);
+    }
 
     public PersonCardController(ReadOnlyViewablePerson person) {
         this.person = person;
@@ -53,19 +63,19 @@ public class PersonCardController {
     @FXML
     public void initialize() {
 
-        if (person.getGithubUserName().length() > 0) {
+        if (person.getGithubUsername().length() > 0) {
             setProfileImage();
         }
 
-        if (person.isDeleted()){
+        if (person.isDeleted()) {
             Platform.runLater(() -> cardPane.setOpacity(0.1f));
         }
+        FxViewUtil.configureCircularImageView(profileImage);
 
-        double xyPositionAndRadius = profileImage.getFitHeight() / 2.0;
-        profileImage.setClip(new Circle(xyPositionAndRadius, xyPositionAndRadius, xyPositionAndRadius));
-
+        initIdLabel();
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
+
         address.textProperty().bind(new StringBinding(){
             {
                 bind(person.streetProperty());
@@ -76,10 +86,10 @@ public class PersonCardController {
             protected String computeValue() {
                 StringBuilder sb = new StringBuilder();
                 if (person.getStreet().length() > 0){
-                    sb.append(person.getStreet() + "\n");
+                    sb.append(person.getStreet()).append("\n");
                 }
                 if (person.getCity().length() > 0){
-                    sb.append(person.getCity() + "\n");
+                    sb.append(person.getCity()).append("\n");
                 }
                 if (person.getPostalCode().length() > 0){
                     sb.append(person.getPostalCode());
@@ -87,7 +97,7 @@ public class PersonCardController {
                 return sb.toString();
             }
         });
-        birthday.textProperty().bind(new StringBinding(){
+        birthday.textProperty().bind(new StringBinding() {
             {
                 bind(person.birthdayProperty()); //Bind property at instance initializer
             }
@@ -100,7 +110,7 @@ public class PersonCardController {
                 return "";
             }
         });
-        tags.textProperty().bind(new StringBinding(){
+        tags.textProperty().bind(new StringBinding() {
             {
                 bind(person.getObservableTagList()); //Bind property at instance initializer
             }
@@ -111,13 +121,36 @@ public class PersonCardController {
             }
         });
         person.isDeletedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == true){
-                handleDeletedPerson();
+            if (newValue) {
+                handleDelete();
+            } else {
+//                deleteTransition.stop();
             }
         });
-        person.githubUserNameProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.length() > 0){
+        person.githubUsernameProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > 0) {
                 setProfileImage();
+            }
+        });
+        if (person.getSecondsLeftInPendingState() > 0) {
+            cardPane.setStyle("-fx-background-color:yellow");
+        }
+        person.secondsLeftInPendingStateProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.intValue() > 0) {
+                cardPane.setStyle("-fx-background-color:yellow");
+            } else {
+                cardPane.setStyle(null);
+            }
+        });
+    }
+
+    private void initIdLabel() {
+        idLabel.setText(person.idString());
+        person.onRemoteIdConfirmed(id -> {
+            if (Platform.isFxApplicationThread()) {
+                idLabel.setText(person.idString());
+            } else {
+                Platform.runLater(() -> idLabel.setText(person.idString()));
             }
         });
     }
@@ -134,22 +167,14 @@ public class PersonCardController {
                 if (image != null && image.getHeight() > 0) {
                     profileImage.setImage(image);
                 } else {
-                    profileImage.setImage(
-                            new Image(this.getClass().getResourceAsStream("/images/default_profile_picture.png"))
-                    );
+                    profileImage.setImage(ImageManager.getDefaultProfileImage());
                 }
             }).start();
         }
     }
 
-    public void handleDeletedPerson(){
-        Platform.runLater(() -> {
-            FadeTransition ft = new FadeTransition(Duration.millis(1000), cardPane);
-            ft.setFromValue(1.0);
-            ft.setToValue(0.1);
-            ft.setCycleCount(1);
-            ft.play();
-        });
+    public void handleDelete() {
+        Platform.runLater(() -> deleteTransition.play());
     }
 
     public HBox getLayout() {
