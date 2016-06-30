@@ -1,19 +1,42 @@
 package address.unittests.util;
 
 import address.util.UrlUtil;
+import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests the UrlUtil methods.
  */
 public class UrlUtilTest {
+    
+    private List<URL> listOfUrl;
+    private final String GITHUB_ROOT_URL = "https://github.com/";
+    private final int noOfFutureUrls = 2;
+
+    public UrlUtilTest() throws MalformedURLException {
+        listOfUrl = new ArrayList<>();
+        listOfUrl.add(new URL(GITHUB_ROOT_URL + 1));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL + 2));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL + 3));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL + 4));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL + 5));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL  + "a"));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL));
+    }
 
     @Test
     public void testCompareBaseUrls_differentCapital_success() throws MalformedURLException {
@@ -44,4 +67,50 @@ public class UrlUtilTest {
     }
 
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testGetFuturisticUrls_listMoreThan3Person_nextTwoIndexPersonReturned() {
+        List<URL> list = UrlUtil.getFuturisticUrls(listOfUrl, 0, noOfFutureUrls);
+        assertTrue(list.contains(listOfUrl.get(1)));
+        assertTrue(list.contains(listOfUrl.get(2)));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testGetFuturisticUrls_NearTheEndOfList_resultOverlappedToLowerIndex() {
+        List<URL> list = UrlUtil.getFuturisticUrls(listOfUrl.subList(0, 5),
+                3, noOfFutureUrls);
+        assertTrue(list.contains(listOfUrl.get(4)));
+        assertTrue(list.contains(listOfUrl.get(0)));
+    }
+
+    @Test
+    public void testGetFuturisticUrls_listLessThan3Person_resultSizeBoundedToListSize() {
+        List<URL> list = UrlUtil.getFuturisticUrls(listOfUrl.subList(0,2),
+                0,noOfFutureUrls);
+        assertTrue(list.contains(listOfUrl.get(1)));
+        TestCase.assertFalse(list.contains(listOfUrl.get(0)));
+        TestCase.assertFalse(list.contains(listOfUrl.get(2)));
+        TestCase.assertFalse(list.contains(listOfUrl.get(3)));
+        TestCase.assertFalse(list.contains(listOfUrl.get(4)));
+    }
+
+    @Test
+    public void testGetFuturisticUrls_listOnly1Person_resultSizeBoundedToListSize() {
+        List<URL> list = UrlUtil.getFuturisticUrls(listOfUrl.subList(0,1),
+                0, noOfFutureUrls);
+        assertEquals(list.size(), 0);
+    }
+
+    @Test
+    public void testGetFuturisticUrls_listWithDuplicateUrls_ignoreDuplicateUrls() {
+        List<URL> list = UrlUtil.getFuturisticUrls(listOfUrl.subList(5,13),
+                0, noOfFutureUrls);
+        assertEquals(list.size(), 1);
+        assertTrue(list.contains(listOfUrl.get(9)));
+        list = UrlUtil.getFuturisticUrls(listOfUrl.subList(5,13),
+                4, noOfFutureUrls);
+        assertEquals(list.size(), 1);
+        assertTrue(list.contains(listOfUrl.get(8)));
+    }
 }

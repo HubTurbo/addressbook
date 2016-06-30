@@ -1,6 +1,9 @@
 package address.browser;
 
+import address.MainApp;
 import address.browser.page.GithubProfilePage;
+
+import address.model.datatypes.person.ReadOnlyPerson;
 
 import hubturbo.embeddedbrowser.BrowserConfig;
 import hubturbo.embeddedbrowser.BrowserType;
@@ -19,13 +22,18 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Manages the AddressBook browser.
@@ -34,6 +42,8 @@ import java.util.logging.Level;
 public class BrowserManager {
 
     private static final BrowserType type = BrowserType.FULL_FEATURE_BROWSER;
+
+    private static final String FXML_BROWSER_PLACE_HOLDER_SCREEN = "/view/DefaultBrowserPlaceHolderScreen.fxml";
 
     private static final String GITHUB_ROOT_URL = "https://github.com/";
     private static final String INVALID_GITHUB_USERNAME_MESSAGE = "Unparsable GitHub Username.";
@@ -96,7 +106,7 @@ public class BrowserManager {
             hyperBrowser = Optional.of(new HyperBrowser(
                     type,
                     config.getNoOfPages(),
-                    BrowserManagerUtil.getBrowserInitialScreen()));
+                    getBrowserInitialScreen()));
         }
     }
 
@@ -112,9 +122,11 @@ public class BrowserManager {
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
         List<URL> listOfFutureUrl =
-                BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons,
-                                                                    indexOfPersonInListOfContacts,
-                                                                    config.getNoOfPages());
+                UrlUtil.getFuturisticUrls(filteredPersons.stream()
+                                                         .map(ReadOnlyPerson::profilePageUrl)
+                                                         .collect(Collectors.toCollection(ArrayList::new)),
+                                                                  indexOfPersonInListOfContacts,
+                                                                  config.getNoOfPages() - 1);
         try {
             List<Page> pages = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             configureGithubPageTasks(pages);
@@ -145,5 +157,16 @@ public class BrowserManager {
             return new AnchorPane();
         }
         return hyperBrowser.get().getHyperBrowserView();
+    }
+
+    private static Optional<Node> getBrowserInitialScreen(){
+        String fxmlResourcePath = FXML_BROWSER_PLACE_HOLDER_SCREEN;
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            return Optional.ofNullable(loader.load());
+        } catch (IOException e){
+            return Optional.empty();
+        }
     }
 }
