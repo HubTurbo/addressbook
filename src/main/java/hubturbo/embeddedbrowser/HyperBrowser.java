@@ -140,29 +140,29 @@ public class HyperBrowser {
     /**
      * Loads the URLs to the browser.
      * @param url The URL of the content to load.
-     * @param futureUrl The non-nullable list of URLs that may be called to load in the next T time.
-     * @return The pages of the url and futureUrl contents. The url page is located at index 0.
+     * @param futureUrls The non-nullable list of URLs that may be called to load in the next T time.
+     * @return The pages of the url and futureUrls contents. The url page is located at index 0.
      * @throws IllegalArgumentException When the amount of URLs to load is more than no of pages the paging system
      *                                      of the HyperBrowser has.
      */
-    public synchronized List<Page> loadUrls(URL url, List<URL> futureUrl) throws IllegalArgumentException {
-        if (url == null || futureUrl == null) {
+    public synchronized List<Page> loadUrls(URL url, List<URL> futureUrls) throws IllegalArgumentException {
+        if (url == null || futureUrls == null) {
             throw new NullPointerException();
         }
 
-        if (futureUrl.size() + 1 > noOfPages) {
-            throw new IllegalArgumentException("The HyperBrowser can not load " + (futureUrl.size() + 1) + "URLs. "
+        if (futureUrls.size() + 1 > noOfPages) {
+            throw new IllegalArgumentException("The HyperBrowser can not load " + (futureUrls.size() + 1) + "URLs. "
                     + "The HyperBrowser is configured to load a maximum of " + noOfPages +  "URLs.");
         }
 
-        clearPagesNotRequired(getListOfUrlToBeLoaded(url, futureUrl));
+        clearPagesNotRequired(getListOfUrlToBeLoaded(url, futureUrls));
         Page page = loadPage(url);
         replaceBrowserView(page.getBrowser().getBrowserView());
         displayedUrl = url;
 
         List<Page> pages = new ArrayList<>();
         pages.add(page);
-        futureUrl.forEach(p -> pages.add(this.loadPage(p)));
+        futureUrls.forEach(p -> pages.add(this.loadPage(p)));
 
         return pages;
     }

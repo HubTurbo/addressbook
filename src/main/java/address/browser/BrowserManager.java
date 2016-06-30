@@ -123,9 +123,7 @@ public class BrowserManager {
     }
 
     private void configureGithubPageTasks(List<Page> pages) {
-        List<GithubProfilePage> githubProfilePages = pages.stream().map(p
-                -> new GithubProfilePage(p)).collect(Collectors.toCollection(ArrayList::new));
-        githubProfilePages.stream().forEach(GithubProfilePage::setupPageAutomation);
+        pages.stream().map(p -> new GithubProfilePage(p)).forEach(GithubProfilePage::setupPageAutomation);
     }
 
     /**
