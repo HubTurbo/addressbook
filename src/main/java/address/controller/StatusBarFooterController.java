@@ -32,15 +32,15 @@ public class StatusBarFooterController extends UiController{
     private TickingTimer timer;
     private long updateIntervalInSecs;
 
-    private final Label saveLocationLabel;
+    private final Label secondaryStatusBarLabel;
 
     public StatusBarFooterController() {
         super();
-        this.saveLocationLabel = new Label("");
+        this.secondaryStatusBarLabel = new Label("");
     }
 
-    private void updateWithConfigValues(Config config) {
-        updateIntervalInSecs = (int) DateTimeUtil.millisecsToSecs(config.updateInterval);
+    private void initSyncTimer(long updateInterval) {
+        updateIntervalInSecs = (int) DateTimeUtil.millisecsToSecs(updateInterval);
         timer = new TickingTimer("Sync timer", (int) updateIntervalInSecs,
                 this::syncSchedulerOntick, this::syncSchedulerOnTimeOut, TimeUnit.SECONDS);
     }
@@ -57,27 +57,28 @@ public class StatusBarFooterController extends UiController{
 
     /**
      * Initializes the status bar
-     *
-     * The given config object should have set updatedInterval
-     *
-     * @param config
+     * @param updateInterval The sync period
+     * @param saveLocation The location to save the file for storing Addressbook contacts.
      */
-    public void initStatusBar(Config config) {
-        updateWithConfigValues(config);
+    public void init(long updateInterval, String saveLocation) {
+        initSyncTimer(updateInterval);
+        initStatusBar();
+        initSaveLocationLabel(saveLocation);
+    }
+
+    private void initSaveLocationLabel(String saveLocation) {
+        updateSaveLocationDisplay(saveLocation);
+        secondaryStatusBarLabel.setTextAlignment(TextAlignment.LEFT);
+        setTooltip(secondaryStatusBarLabel);
+    }
+
+    private void initStatusBar() {
         this.syncStatusBar = new StatusBar();
         this.updaterStatusBar = new StatusBar();
         FxViewUtil.applyAnchorBoundaryParameters(syncStatusBar, 0.0, 0.0, 0.0, 0.0);
         FxViewUtil.applyAnchorBoundaryParameters(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
         syncStatusBarPane.getChildren().add(syncStatusBar);
         updaterStatusBarPane.getChildren().add(updaterStatusBar);
-        initSaveLocationLabel();
-    }
-
-    private void initSaveLocationLabel() {
-        saveLocationLabel.setTextAlignment(TextAlignment.LEFT);
-        setTooltip(saveLocationLabel);
-        this.updaterStatusBar.getRightItems().add(saveLocationLabel);
-        saveLocationLabel.setVisible(false);
     }
 
     private void setTooltip(Label label) {
@@ -131,8 +132,13 @@ public class StatusBarFooterController extends UiController{
             updaterStatusBar.setText(ufe.toString());
             updaterStatusBar.setProgress(0.0);
             updaterStatusBar.setText("");
-            saveLocationLabel.setVisible(true);
+            showSecondaryStatusBarLabel();
         });
+    }
+
+    private void showSecondaryStatusBarLabel() {
+        secondaryStatusBarLabel.setVisible(true);
+        this.updaterStatusBar.getRightItems().add(secondaryStatusBarLabel);
     }
 
     @Subscribe
@@ -141,16 +147,16 @@ public class StatusBarFooterController extends UiController{
             updaterStatusBar.setText(ufe.toString());
             updaterStatusBar.setProgress(0.0);
             updaterStatusBar.setText("");
-            saveLocationLabel.setVisible(true);
+            showSecondaryStatusBarLabel();
         });
     }
 
     @Subscribe
     private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
-        updateSaveLocationDisplay(e.saveFile);
+        updateSaveLocationDisplay(e.saveFile.getName());
     }
 
-    private void updateSaveLocationDisplay(File saveFile) {
-        saveLocationLabel.setText(SAVE_LOC_TEXT_PREFIX + ((saveFile != null) ? saveFile.getName() : LOC_TEXT_NOT_SET));
+    private void updateSaveLocationDisplay(String saveFile) {
+        secondaryStatusBarLabel.setText(SAVE_LOC_TEXT_PREFIX + ((saveFile != null) ? saveFile : LOC_TEXT_NOT_SET));
     }
 }

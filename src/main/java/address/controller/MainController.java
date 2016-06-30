@@ -183,7 +183,7 @@ public class MainController extends UiController{
             GridPane gridPane = loader.load();
             gridPane.getStyleClass().add("grid-pane");
             StatusBarFooterController controller = loader.getController();
-            controller.initStatusBar(config);
+            controller.init(config.updateInterval, modelManager.getPrefs().getSaveLocationString());
             rootLayout.getChildren().add(gridPane);
         } catch (IOException e) {
             logger.warn("Error Loading footer status bar: {}", e);
