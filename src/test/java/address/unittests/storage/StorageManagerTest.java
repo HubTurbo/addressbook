@@ -13,7 +13,9 @@ import address.util.FileUtil;
 import address.util.TestSerializationClass;
 import address.util.TestUtil;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
@@ -35,6 +37,8 @@ public class StorageManagerTest {
     private static final File DUMMY_DATA_FILE = new File(TestUtil.appendToSandboxPath("dummyAddressBook.xml"));
     private static final File DUMMY_PREFS_FILE = new File(TestUtil.appendToSandboxPath("dummyUserPrefs.json"));
     private static final File SERIALIZATION_FILE = new File(TestUtil.appendToSandboxPath("serialize.json"));
+    private static final File INEXISTENT_FILE = new File(TestUtil.appendToSandboxPath("inexistent"));
+    private static final File NON_JSON_FILE = new File(TestUtil.appendToSandboxPath("non.json"));
 
     private static final StorageAddressBook EMPTY_ADDRESSBOOK = new StorageAddressBook(new AddressBook());
     private static final UserPrefs EMPTY_USERPREFS = new UserPrefs();
@@ -45,6 +49,9 @@ public class StorageManagerTest {
     UserPrefs userPrefsMock;
     StorageManager storageManager;
     StorageManager storageManagerSpy;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setup(){
@@ -66,6 +73,20 @@ public class StorageManagerTest {
         // This spy will be used to mock only one method of the object under test
         storageManagerSpy = spy(storageManager);
         doNothing().when(storageManagerSpy).saveDataToFile(DUMMY_DATA_FILE,EMPTY_ADDRESSBOOK);
+    }
+
+    @Test
+    public void start_correspondingMethodCalled() throws Exception {
+        storageManagerSpy.start();
+        PowerMockito.verifyPrivate(storageManagerSpy).invoke("loadDataFromFile", userPrefsMock.getSaveLocation());
+    }
+
+    @Test
+    public void saveAddressBook_noException() throws IOException, DataConversionException {
+        StorageManager.saveAddressBook(DUMMY_DATA_FILE, EMPTY_ADDRESSBOOK);
+
+        PowerMockito.verifyStatic();
+        FileUtil.createIfMissing(DUMMY_DATA_FILE);
     }
 
     @Test
@@ -147,6 +168,28 @@ public class StorageManagerTest {
 
         //verify that method is called correctly
         verify(storageManagerSpy, times(1)).savePrefsToFile(EMPTY_USERPREFS);
+    }
+
+    @Test
+    public void getUserPrefs_verifyMethodCalled() throws IOException {
+        StorageManager.getUserPrefs(DUMMY_PREFS_FILE);
+        PowerMockito.verifyStatic();
+        StorageManager.deserializeObjectFromJsonFile(DUMMY_PREFS_FILE, UserPrefs.class);
+    }
+
+    @Test
+    public void getUserPrefs_inexistentFile_emptyUserPrefs() throws IOException {
+        UserPrefs emptyUserPrefs = new UserPrefs();
+        UserPrefs fromInexistentFile = StorageManager.getUserPrefs(INEXISTENT_FILE);
+        assertEquals(emptyUserPrefs.getSaveLocation(), fromInexistentFile.getSaveLocation());
+    }
+
+    @Test
+    public void getUserPrefs_nonJsonFile_emptyUserPrefs() throws IOException {
+        FileUtil.writeToFile(NON_JSON_FILE, "}");
+        UserPrefs emptyUserPrefs = new UserPrefs();
+        UserPrefs fromInexistentFile = StorageManager.getUserPrefs(NON_JSON_FILE);
+        assertEquals(emptyUserPrefs.getSaveLocation(), fromInexistentFile.getSaveLocation());
     }
 
     @Test
