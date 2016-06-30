@@ -2,7 +2,6 @@ package address.util;
 
 import address.TestApp;
 import address.model.datatypes.AddressBook;
-import address.model.datatypes.ReadOnlyAddressBook;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ViewablePerson;
 import address.model.datatypes.tag.Tag;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
  * A utility class for test cases.
  */
 public class TestUtil {
-
     /**
      * Folder used for temp files created during testing. Ignored by Git.
      */
@@ -76,7 +74,6 @@ public class TestUtil {
     }
 
     public static void main(String... s) {
-        StorageAddressBook sa = generateSampleStorageAddressBook();
         createDataFileWithSampleData(TestApp.SAVE_LOCATION_FOR_TESTING);
     }
 
@@ -89,8 +86,8 @@ public class TestUtil {
     }
 
     /**
-     * Tweaks the {@code keyCodeCombination} to convert the {@code KeyCode.SHORTCUT} to
-     * {@code KeyCode.META} on Macs and {@code KeyCode.CONTROL} on other platforms.
+     * Tweaks the {@code keyCodeCombination} to resolve the {@code KeyCode.SHORTCUT} to their
+     * respective platform-specific keycodes
      */
     public static KeyCode[] scrub(KeyCodeCombination keyCodeCombination) {
         List<KeyCode> keys = new ArrayList<>();
@@ -114,16 +111,23 @@ public class TestUtil {
         return keys.toArray(new KeyCode[]{});
     }
 
-    /**
-     * Returns {@code KeyCode.META} if on a Mac, {@code KeyCode.CONTROL} otherwise.
-     */
-    private static KeyCode getPlatformSpecificShortcutKey() {
-        return OsDetector.isOnMac()? KeyCode.META : KeyCode.CONTROL;
+    public static boolean isHeadlessEnvironment() {
+        String headlessProperty = System.getProperty("testfx.headless");
+        return headlessProperty != null && headlessProperty.equals("true");
     }
 
     /**
-     * Replaces any {@code KeyCode.SHORTCUT} with {@code KeyCode.META} on Macs
-     *     and {@code KeyCode.CONTROL} on other platforms.
+     * Returns {@code KeyCode.COMMAND or KeyCode.META} if on a Mac depending on headful/headless mode,
+     * {@code KeyCode.CONTROL} otherwise.
+     */
+    private static KeyCode getPlatformSpecificShortcutKey() {
+        KeyCode macShortcut = isHeadlessEnvironment() ? KeyCode.COMMAND : KeyCode.META;
+        return OsDetector.isOnMac() ? macShortcut : KeyCode.CONTROL;
+    }
+
+    /**
+     * Replaces any {@code KeyCode.SHORTCUT or KeyCode.META} with {@code KeyCode.META or KeyCode.COMMAND} on Macs
+     * depending on headful/headless mode, and {@code KeyCode.CONTROL} on other platforms.
      */
     public static KeyCode[] scrub(KeyCode[] keyCodes) {
         for (int i = 0; i < keyCodes.length; i++) {
@@ -137,7 +141,7 @@ public class TestUtil {
     /**
      * Generates a minimal {@link KeyEvent} object that matches the {@code keyCombination}
      */
-    public static KeyEvent getKeyEvent(String keyCombination){
+    public static KeyEvent getKeyEvent(String keyCombination) {
         String[] keys = keyCombination.split(" ");
 
         String key = keys[keys.length - 1];
