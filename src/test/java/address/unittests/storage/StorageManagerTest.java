@@ -9,6 +9,8 @@ import address.model.UserPrefs;
 import address.storage.StorageManager;
 import address.storage.XmlFileStorage;
 import address.util.Config;
+import address.util.FileUtil;
+import address.util.TestSerializationClass;
 import address.util.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,9 +22,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(XmlFileStorage.class)
@@ -30,8 +34,11 @@ public class StorageManagerTest {
 
     private static final File DUMMY_DATA_FILE = new File(TestUtil.appendToSandboxPath("dummyAddressBook.xml"));
     private static final File DUMMY_PREFS_FILE = new File(TestUtil.appendToSandboxPath("dummyUserPrefs.json"));
+    private static final File SERIALIZATION_FILE = new File(TestUtil.appendToSandboxPath("serialize.json"));
+
     private static final StorageAddressBook EMPTY_ADDRESSBOOK = new StorageAddressBook(new AddressBook());
     private static final UserPrefs EMPTY_USERPREFS = new UserPrefs();
+
     ModelManager modelManagerMock;
     EventManager eventManagerMock;
     Config configMock;
@@ -140,5 +147,27 @@ public class StorageManagerTest {
 
         //verify that method is called correctly
         verify(storageManagerSpy, times(1)).savePrefsToFile(EMPTY_USERPREFS);
+    }
+
+    @Test
+    public void serializeObjectToJsonFile_noExceptionThrown() throws IOException {
+        TestSerializationClass testSerializationClass = new TestSerializationClass();
+        testSerializationClass.setTestValues();
+
+        StorageManager.serializeObjectToJsonFile(SERIALIZATION_FILE, testSerializationClass);
+
+        assertEquals(FileUtil.readFromFile(SERIALIZATION_FILE), TestSerializationClass.JSON_STRING_REPRESENTATION);
+    }
+
+    @Test
+    public void deserializeObjectFromJsonFile_noExceptionThrown() throws IOException {
+        FileUtil.writeToFile(SERIALIZATION_FILE, TestSerializationClass.JSON_STRING_REPRESENTATION);
+
+        TestSerializationClass testSerializationClass = StorageManager
+                .deserializeObjectFromJsonFile(SERIALIZATION_FILE, TestSerializationClass.class);
+
+        assertEquals(testSerializationClass.getName(), TestSerializationClass.getNameTestValue());
+        assertEquals(testSerializationClass.getListOfLocalDateTimes(), TestSerializationClass.getListTestValues());
+        assertEquals(testSerializationClass.getHashMapTestValues(), TestSerializationClass.getHashMapTestValues());
     }
 }
