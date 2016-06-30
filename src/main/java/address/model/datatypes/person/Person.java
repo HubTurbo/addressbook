@@ -39,6 +39,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 
     private final SimpleObjectProperty<LocalDate> birthday;
     private final ObservableList<Tag> tags;
+    private final SimpleBooleanProperty isDeleted;
 
     // defaults
     {
@@ -53,6 +54,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         birthday = new SimpleObjectProperty<>();
 
         tags = FXCollections.observableArrayList();
+        isDeleted = new SimpleBooleanProperty(false);
     }
 
     /**
@@ -100,6 +102,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 
         setBirthday(newDataSource.getBirthday());
         setTags(newDataSource.getTagList());
+        setIsDeleted(false);// TODO: change when isDeleted is fully implemented
         return this;
     }
 
@@ -270,7 +273,20 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         this.tags.addAll(tags);
     }
 
-//// OTHER LOGIC
+    @JsonProperty("isDeleted")
+    public boolean isDeleted() {
+        return isDeleted.get();
+    }
+
+    public SimpleBooleanProperty isDeletedProperty() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted.set(isDeleted);
+    }
+
+    //// OTHER LOGIC
 
     /**
      * Compares id

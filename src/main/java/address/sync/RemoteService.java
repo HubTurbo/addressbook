@@ -420,6 +420,7 @@ public class RemoteService implements IRemoteService {
         person.setPostalCode(cloudPerson.getPostalCode());
         person.setTags(convertToTagList(cloudPerson.getTags()));
         person.setBirthday(cloudPerson.getBirthday());
+        person.setIsDeleted(cloudPerson.isDeleted());
         return person;
     }
 
@@ -430,6 +431,7 @@ public class RemoteService implements IRemoteService {
         cloudPerson.setPostalCode(person.getPostalCode());
         cloudPerson.setTags(convertToCloudTagList(person.getTags()));
         cloudPerson.setBirthday(person.getBirthday());
+        cloudPerson.setDeleted(person.isDeleted());
         return cloudPerson;
     }
 
