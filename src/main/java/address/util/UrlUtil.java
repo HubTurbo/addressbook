@@ -24,7 +24,7 @@ public class UrlUtil {
     /**
      * Gets a list of URL that may be potentially be used in the future.
      * The {@link URL} that will be used at the current moment must be in the param urls. And it will be to determine
-     * which URL wil be used in the future.
+     * which URL may be used in the future.
      * @param urls The list of URL that contains URL that may be potentially used in the future.
      * @param selectedUrl The index of the current URL in the list(urls) that will be used at this moment.
      * @param noOfFuturisticUrl The number of future URLs you wish to obtain from the list.

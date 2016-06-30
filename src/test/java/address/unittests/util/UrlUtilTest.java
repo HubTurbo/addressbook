@@ -32,7 +32,7 @@ public class UrlUtilTest {
         listOfUrl.add(new URL(GITHUB_ROOT_URL));
         listOfUrl.add(new URL(GITHUB_ROOT_URL));
         listOfUrl.add(new URL(GITHUB_ROOT_URL));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL  + "a"));
+        listOfUrl.add(new URL(GITHUB_ROOT_URL + "a"));
         listOfUrl.add(new URL(GITHUB_ROOT_URL));
         listOfUrl.add(new URL(GITHUB_ROOT_URL));
         listOfUrl.add(new URL(GITHUB_ROOT_URL));
@@ -78,16 +78,14 @@ public class UrlUtilTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testGetFuturisticUrls_NearTheEndOfList_resultOverlappedToLowerIndex() {
-        List<URL> list = UrlUtil.getFuturisticUrls(listOfUrl.subList(0, 5),
-                3, noOfFutureUrls);
+        List<URL> list = UrlUtil.getFuturisticUrls(listOfUrl.subList(0, 5), 3, noOfFutureUrls);
         assertTrue(list.contains(listOfUrl.get(4)));
         assertTrue(list.contains(listOfUrl.get(0)));
     }
 
     @Test
     public void testGetFuturisticUrls_listLessThan3Person_resultSizeBoundedToListSize() {
-        List<URL> list = UrlUtil.getFuturisticUrls(listOfUrl.subList(0,2),
-                0,noOfFutureUrls);
+        List<URL> list = UrlUtil.getFuturisticUrls(listOfUrl.subList(0,2), 0, noOfFutureUrls);
         assertTrue(list.contains(listOfUrl.get(1)));
         TestCase.assertFalse(list.contains(listOfUrl.get(0)));
         TestCase.assertFalse(list.contains(listOfUrl.get(2)));
@@ -97,8 +95,7 @@ public class UrlUtilTest {
 
     @Test
     public void testGetFuturisticUrls_listOnly1Person_resultSizeBoundedToListSize() {
-        List<URL> list = UrlUtil.getFuturisticUrls(listOfUrl.subList(0,1),
-                0, noOfFutureUrls);
+        List<URL> list = UrlUtil.getFuturisticUrls(listOfUrl.subList(0,1), 0, noOfFutureUrls);
         assertEquals(list.size(), 0);
     }
 
@@ -108,8 +105,7 @@ public class UrlUtilTest {
                 0, noOfFutureUrls);
         assertEquals(list.size(), 1);
         assertTrue(list.contains(listOfUrl.get(9)));
-        list = UrlUtil.getFuturisticUrls(listOfUrl.subList(5,13),
-                4, noOfFutureUrls);
+        list = UrlUtil.getFuturisticUrls(listOfUrl.subList(5,13), 4, noOfFutureUrls);
         assertEquals(list.size(), 1);
         assertTrue(list.contains(listOfUrl.get(8)));
     }
