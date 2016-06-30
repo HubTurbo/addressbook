@@ -50,9 +50,6 @@ public class StorageManagerTest {
     StorageManager storageManager;
     StorageManager storageManagerSpy;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Before
     public void setup(){
 
@@ -211,6 +208,6 @@ public class StorageManagerTest {
 
         assertEquals(testSerializationClass.getName(), TestSerializationClass.getNameTestValue());
         assertEquals(testSerializationClass.getListOfLocalDateTimes(), TestSerializationClass.getListTestValues());
-        assertEquals(testSerializationClass.getHashMapTestValues(), TestSerializationClass.getHashMapTestValues());
+        assertEquals(testSerializationClass.getMapOfIntegerToString(), TestSerializationClass.getHashMapTestValues());
     }
 }
