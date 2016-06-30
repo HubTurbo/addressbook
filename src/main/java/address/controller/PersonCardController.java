@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 
+import address.MainApp;
 import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
@@ -37,6 +38,10 @@ public class PersonCardController extends UiController{
     private Label birthday;
     @FXML
     private Label tags;
+    @FXML
+    private Label pending;
+    @FXML
+    private ImageView syncingImageView;
 
     private ReadOnlyViewablePerson person;
     private FadeTransition deleteTransition;
@@ -134,12 +139,20 @@ public class PersonCardController extends UiController{
         });
         if (person.getSecondsLeftInPendingState() > 0) {
             cardPane.setStyle("-fx-background-color:yellow");
+            pending.setText(String.format("Syncing in %d seconds", person.getSecondsLeftInPendingState()));
         }
         person.secondsLeftInPendingStateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() > 0) {
                 cardPane.setStyle("-fx-background-color:yellow");
+                pending.setText(String.format("Syncing in %d seconds", newValue));
             } else {
                 cardPane.setStyle(null);
+                pending.setText("Syncing...");
+                syncingImageView.setVisible(true);
+                person.onRemoteIdConfirmed((Integer id) -> {
+                    syncingImageView.setVisible(false);
+                    pending.setText("");
+                });
             }
         });
     }
