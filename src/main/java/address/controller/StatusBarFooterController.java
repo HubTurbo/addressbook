@@ -67,7 +67,7 @@ public class StatusBarFooterController extends UiController{
     }
 
     private void initSaveLocationLabel(String saveLocation) {
-        secondaryStatusBarLabel.setText(SAVE_LOC_TEXT_PREFIX + saveLocation);
+        updateSaveLocationDisplay(saveLocation);
         secondaryStatusBarLabel.setTextAlignment(TextAlignment.LEFT);
         setTooltip(secondaryStatusBarLabel);
     }
@@ -153,10 +153,10 @@ public class StatusBarFooterController extends UiController{
 
     @Subscribe
     private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
-        updateSaveLocationDisplay(e.saveFile);
+        updateSaveLocationDisplay(e.saveFile.getName());
     }
 
-    private void updateSaveLocationDisplay(File saveFile) {
-        secondaryStatusBarLabel.setText(SAVE_LOC_TEXT_PREFIX + ((saveFile != null) ? saveFile.getName() : LOC_TEXT_NOT_SET));
+    private void updateSaveLocationDisplay(String saveFile) {
+        secondaryStatusBarLabel.setText(SAVE_LOC_TEXT_PREFIX + ((saveFile != null) ? saveFile : LOC_TEXT_NOT_SET));
     }
 }
