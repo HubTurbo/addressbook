@@ -1,6 +1,7 @@
 package address.updater;
 
 import address.storage.StorageManager;
+import address.util.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,12 +20,7 @@ public class LocalUpdateSpecificationHelper {
     }
 
     public static void clearLocalUpdateSpecFile() throws IOException {
-        // delete local update data file here
-        File localUpdateSpecFile = new File(LOCAL_UPDATE_DATA_FILE);
-
-        if (localUpdateSpecFile.exists()) {
-            Files.delete(localUpdateSpecFile.toPath());
-        }
+        FileUtil.deleteFileIfExists(LOCAL_UPDATE_DATA_FILE);
     }
 
     public static void saveLocalUpdateSpecFile(List<String> affectedFiles) throws IOException {
