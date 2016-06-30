@@ -64,15 +64,9 @@ public class SyncManager extends ComponentManager {
 
     }
 
-    // TODO: create an appropriate event for this?
-    // For now, assume that the address book's save file name is the name of the addressbook
     @Subscribe
-    public void handleSaveLocationChangedEvent(SaveLocationChangedEvent slce) {
-        if (slce.saveFile == null) {
-            setActiveAddressBook(null);
-            return;
-        }
-        setActiveAddressBook(slce.saveFile.getName());
+    public void handleChangeActiveAddressBookRequestEvent(ChangeActiveAddressBookRequestEvent slce) {
+        setActiveAddressBook(slce.getActiveAddressBookName());
     }
 
     public Optional<String> getActiveAddressBook() {
@@ -199,8 +193,8 @@ public class SyncManager extends ComponentManager {
     /**
      * Executes a callable task and returns a CompletableFuture (instead of a Future)
      *
-     * @param callable
-     * @param executor
+     * @param callable task to be executed
+     * @param executor executor used to execute the callable task
      * @param <T>
      * @return
      */
