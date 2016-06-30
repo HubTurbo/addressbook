@@ -15,6 +15,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +45,18 @@ public class TestUtil {
             new Tag("relatives"),
             new Tag("friends")
     };
+
+    public static Person generateSamplePersonWithAllData(int customId) {
+        final Person p = new Person("first", "last", customId);
+        p.setStreet("some street");
+        p.setPostalCode("1234");
+        p.setCity("some city");
+        p.setGithubUsername("SomeName");
+        p.setBirthday(LocalDate.now());
+        p.setTags(Arrays.asList(new Tag("A"), new Tag("B")));
+        return p;
+    }
+
     public static List<Person> generateSamplePersonData() {
         return Arrays.asList(samplePersonData);
     }

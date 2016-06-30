@@ -44,6 +44,10 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         this.addressbookName = model.getPrefs().getSaveLocation().getName();
     }
 
+    protected ViewablePerson getViewableToAdd() {
+        return viewableToAdd;
+    }
+
     @Override
     public int getTargetPersonId() {
         if (viewableToAdd == null) {
@@ -90,7 +94,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
         assert viewableToAdd != null;
-        PlatformExecUtil.runLater(() -> viewableToAdd.setSecondsLeftInPendingState(secondsLeft));
+        PlatformExecUtil.runAndWait(() -> viewableToAdd.setSecondsLeftInPendingState(secondsLeft));
     }
 
     @Override

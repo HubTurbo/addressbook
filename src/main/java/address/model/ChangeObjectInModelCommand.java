@@ -55,7 +55,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         this.gracePeriodDurationInSeconds = gracePeriodDurationInSeconds;
     }
 
-    public void waitForCompletion() throws InterruptedException {
+    public final void waitForCompletion() throws InterruptedException {
         completionLatch.await();
     }
 
@@ -65,10 +65,6 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
 
     void setState(State newState) {
         state.setValue(newState);
-    }
-
-    public ReadOnlyObjectProperty<State> stateProperty() {
-        return state;
     }
 
     /**
