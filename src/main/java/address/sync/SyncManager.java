@@ -2,7 +2,6 @@ package address.sync;
 
 
 import address.events.*;
-import address.exceptions.SyncErrorException;
 import address.main.ComponentManager;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
@@ -60,7 +59,7 @@ public class SyncManager extends ComponentManager {
 
     }
 
-    // TODO: setActiveAddressBook should be called by the model instead
+    // TODO: create an appropriate event for this?
     // For now, assume that the address book's save file name is the name of the addressbook
     @Subscribe
     public void handleSaveLocationChangedEvent(SaveLocationChangedEvent slce) {
@@ -139,10 +138,43 @@ public class SyncManager extends ComponentManager {
         CompletableFuture<Tag> resultContainer = event.getReturnedTagContainer();
         RemoteTaskWithResult<Tag> taskToCall = new EditTagOnRemoteTask(remoteManager, event.getAddressBookName(),
                                                                        event.getTagName(), event.getEditedTag());
-
         callTaskAndHandleResult(taskToCall, resultContainer);
     }
 
+    @Subscribe
+    public void handleDeleteTagOnRemoteRequestEvent(DeleteTagOnRemoteRequestEvent event) {
+        CompletableFuture<Boolean> resultContainer = event.getResultContainer();
+        RemoteTaskWithResult<Boolean> taskToCall = new DeleteTagOnRemoteTask(remoteManager, event.getAddressBookName(),
+                                                                             event.getTagName());
+        callTaskAndHandleResult(taskToCall, resultContainer);
+    }
+
+    @Subscribe
+    public void handleDeletePersonOnRemoteRequestEvent(DeletePersonOnRemoteRequestEvent event) {
+        CompletableFuture<Boolean> resultContainer = event.getResultContainer();
+        RemoteTaskWithResult<Boolean> taskToCall = new DeletePersonOnRemoteTask(remoteManager,
+                                                                                event.getAddressBookName(),
+                                                                                event.getPersonId());
+        callTaskAndHandleResult(taskToCall, resultContainer);
+    }
+
+    @Subscribe
+    public void handleCreateAddressBookOnRemoteRequestEvent(CreateAddressBookOnRemoteRequestEvent event) {
+        CompletableFuture<Boolean> resultContainer = event.getResultContainer();
+        RemoteTaskWithResult<Boolean> taskToCall = new CreateAddressBookOnRemoteTask(remoteManager,
+                                                                                     event.getAddressBookName());
+        callTaskAndHandleResult(taskToCall, resultContainer);
+    }
+
+    /**
+     * Calls taskToCall and completes the eventResultContainer with the task's result
+     *
+     * Both the task and the completion of the container runs asynchronously using requestExecutor
+     *
+     * @param taskToCall
+     * @param eventResultContainer
+     * @param <T>
+     */
     private <T> void callTaskAndHandleResult(RemoteTaskWithResult<T> taskToCall,
                                              CompletableFuture<T> eventResultContainer) {
         CompletableFuture<T> taskResultContainer = executeTaskForCompletableFuture(taskToCall, requestExecutor);
@@ -177,21 +209,5 @@ public class SyncManager extends ComponentManager {
             }
         });
         return completableFuture;
-    }
-
-    public Future<Boolean> deletePerson(String addressBookName, int personId) throws SyncErrorException {
-        return executeTask(new DeletePersonOnRemoteTask(remoteManager, addressBookName, personId));
-    }
-
-    public Future<Boolean> deleteTag(String addressBookName, String tagName) throws SyncErrorException {
-        return executeTask(new DeleteTagOnRemoteTask(remoteManager, addressBookName, tagName));
-    }
-
-    public Future<Boolean> createAddressBook(String addressBookName) throws SyncErrorException {
-        return executeTask(new CreateAddressBookOnRemote(remoteManager, addressBookName));
-    }
-
-    private <T> Future<T> executeTask(RemoteTaskWithResult<T> task) {
-        return requestExecutor.submit(task);
     }
 }

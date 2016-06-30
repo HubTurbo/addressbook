@@ -4,11 +4,11 @@ import address.sync.RemoteManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 
-public class CreateAddressBookOnRemote extends RemoteTaskWithResult<Boolean> {
-    private static final AppLogger logger = LoggerManager.getLogger(CreateAddressBookOnRemote.class);
+public class CreateAddressBookOnRemoteTask extends RemoteTaskWithResult<Boolean> {
+    private static final AppLogger logger = LoggerManager.getLogger(CreateAddressBookOnRemoteTask.class);
     private final String addressBookName;
 
-    public CreateAddressBookOnRemote(RemoteManager remoteManager, String addressBookName) {
+    public CreateAddressBookOnRemoteTask(RemoteManager remoteManager, String addressBookName) {
         super(remoteManager);
         this.addressBookName = addressBookName;
     }
