@@ -1,19 +1,16 @@
 package address.browser;
 
 import address.browser.page.GithubProfilePage;
-import hubturbo.embeddedbrowser.BrowserType;
-import hubturbo.embeddedbrowser.HyperBrowser;
-import hubturbo.embeddedbrowser.page.Page;
-
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.UrlUtil;
-
 import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
-
+import hubturbo.embeddedbrowser.BrowserType;
+import hubturbo.embeddedbrowser.HyperBrowser;
+import hubturbo.embeddedbrowser.page.Page;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -22,9 +19,9 @@ import javafx.scene.layout.AnchorPane;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 /**
  * Manages the AddressBook browser.
@@ -123,7 +120,7 @@ public class BrowserManager {
     }
 
     private void configureGithubPageTasks(List<Page> pages) {
-        pages.stream().map(p -> new GithubProfilePage(p)).forEach(GithubProfilePage::setupPageAutomation);
+        pages.stream().map(GithubProfilePage::new).forEach(GithubProfilePage::setupPageAutomation);
     }
 
     /**
