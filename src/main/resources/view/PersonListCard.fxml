@@ -37,6 +37,7 @@
                        <Label fx:id="birthday" styleClass="cell_small_label" text="\$birthday" />
 
                        <Label fx:id="tags" styleClass="cell_small_label" text="\$tags" />
+                       <Label fx:id="pending" styleClass="cell_small_label"
                    </children>
                </VBox>
                <ImageView fx:id="profileImage" fitHeight="90.0" fitWidth="90.0" preserveRatio="true" GridPane.columnIndex="1">
