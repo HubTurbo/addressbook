@@ -14,6 +14,7 @@ import com.google.common.eventbus.Subscribe;
 
 import java.util.Optional;
 import java.util.concurrent.*;
+import java.util.function.BiConsumer;
 
 /**
  * Syncs data between the local model and remote
@@ -112,7 +113,7 @@ public class SyncManager extends ComponentManager {
         RemoteTaskWithResult<Person> taskToCall = new CreatePersonOnRemoteTask(remoteManager,
                                                                                event.getAddressBookName(),
                                                                                event.getCreatedPerson());
-        callTask(taskToCall, resultContainer);
+        callTaskAndHandleResult(taskToCall, resultContainer);
     }
 
     @Subscribe
@@ -120,7 +121,7 @@ public class SyncManager extends ComponentManager {
         CompletableFuture<Tag> resultContainer = event.getReturnedTagContainer();
         RemoteTaskWithResult<Tag> taskToCall = new CreateTagOnRemoteTask(remoteManager, event.getAddressBookName(),
                                                                          event.getCreatedTag());
-        callTask(taskToCall, resultContainer);
+        callTaskAndHandleResult(taskToCall, resultContainer);
     }
 
     @Subscribe
@@ -130,7 +131,7 @@ public class SyncManager extends ComponentManager {
                                                                                event.getAddressBookName(),
                                                                                event.getPersonId(),
                                                                                event.getUpdatedPerson());
-        callTask(taskToCall, resultContainer);
+        callTaskAndHandleResult(taskToCall, resultContainer);
     }
 
     @Subscribe
@@ -139,15 +140,43 @@ public class SyncManager extends ComponentManager {
         RemoteTaskWithResult<Tag> taskToCall = new EditTagOnRemoteTask(remoteManager, event.getAddressBookName(),
                                                                        event.getTagName(), event.getEditedTag());
 
-        callTask(taskToCall, resultContainer);
+        callTaskAndHandleResult(taskToCall, resultContainer);
     }
 
-    private <T> void callTask(RemoteTaskWithResult<T> taskToCall, CompletableFuture<T> resultContainer) {
-        try {
-            resultContainer.complete(taskToCall.call());
-        } catch (Exception e) {
-            resultContainer.completeExceptionally(e);
-        }
+    private <T> void callTaskAndHandleResult(RemoteTaskWithResult<T> taskToCall,
+                                             CompletableFuture<T> eventResultContainer) {
+        CompletableFuture<T> taskResultContainer = executeTaskForCompletableFuture(taskToCall, requestExecutor);
+        taskResultContainer.whenCompleteAsync(fillResultContainer(eventResultContainer), requestExecutor);
+    }
+
+    private <T> BiConsumer<T, Throwable> fillResultContainer(CompletableFuture<T> resultContainer) {
+        return (person, ex) -> {
+            if (ex != null) {
+                resultContainer.completeExceptionally(ex);
+                return;
+            }
+            resultContainer.complete(person);
+        };
+    }
+
+    /**
+     * Executes a callable task and returns a CompletableFuture (instead of a Future)
+     *
+     * @param callable
+     * @param executor
+     * @param <T>
+     * @return
+     */
+    private <T> CompletableFuture<T> executeTaskForCompletableFuture(Callable<T> callable, Executor executor) {
+        CompletableFuture<T> completableFuture = new CompletableFuture<>();
+        executor.execute(() -> {
+            try {
+                completableFuture.complete(callable.call());
+            } catch (Throwable ex) {
+                completableFuture.completeExceptionally(ex);
+            }
+        });
+        return completableFuture;
     }
 
     public Future<Boolean> deletePerson(String addressBookName, int personId) throws SyncErrorException {
