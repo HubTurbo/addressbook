@@ -27,7 +27,7 @@ public class FullSystemTest extends GuiTestBase {
 
         type(KeyCode.ENTER)
                 .clickOn("Muster").type(KeyCode.E).sleep(1000).clickOn("#firstNameField")
-                .push(shortcut(KeyCode.A)).eraseText(1).write("John")
+                .push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write("John")
                 .clickOn("#lastNameField").eraseText(6).write("Tan")
                 .clickOn("#cityField").write("Singapore")
                 .clickOn("#githubUserNameField").write("john123");
@@ -53,7 +53,7 @@ public class FullSystemTest extends GuiTestBase {
                 .sleep(1000)
                 //.clickOn("Tags").clickOn("Manage Tags").rightClickOn("colleagues").clickOn("New").write("company")
                 //.type(KeyCode.ENTER).type(KeyCode.ESCAPE)
-        .clickOn("#filterField").push(shortcut(KeyCode.A)).eraseText(1).type(KeyCode.ENTER)
+        .clickOn("#filterField").push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).type(KeyCode.ENTER)
         .clickOn("Ruth").type(KeyCode.E).clickOn("#streetField").write("My Street")
                 .clickOn("#githubUserNameField").write("ruth321")
                 .type(KeyCode.ENTER)
