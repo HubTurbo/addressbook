@@ -16,6 +16,7 @@ public class Config {
     private static final Level DEFAULT_LOGGING_LEVEL = Level.INFO;
     private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
     private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVELS = new HashMap<>();
+    private static final int DEFAULT_BROWSER_NO_OF_PAGES = 3;
 
     // Config values
     public String appTitle = "Address App";
@@ -25,6 +26,7 @@ public class Config {
     public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
     public HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
     private File prefsFileLocation = new File("preferences.json"); //Default user preferences file
+    public int browserNoOfPages = DEFAULT_BROWSER_NO_OF_PAGES;
 
 
     public Config() {
@@ -64,5 +66,13 @@ public class Config {
 
     public File getPrefsFileLocation() {
         return prefsFileLocation;
+    }
+
+    public int getBrowserNoOfPages() {
+        return browserNoOfPages;
+    }
+
+    public void setBrowserNoOfPages(int browserNoOfPages) {
+        this.browserNoOfPages = browserNoOfPages;
     }
 }

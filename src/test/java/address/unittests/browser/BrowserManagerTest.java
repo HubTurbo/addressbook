@@ -2,8 +2,6 @@ package address.unittests.browser;
 
 import address.browser.BrowserManager;
 import address.util.JavafxThreadingRule;
-import hubturbo.embeddedbrowser.BrowserConfig;
-import hubturbo.embeddedbrowser.HyperBrowser;
 import javafx.collections.FXCollections;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,17 +25,12 @@ public class BrowserManagerTest {
      */
     public JavafxThreadingRule javafxRule = new JavafxThreadingRule();
 
-    private BrowserConfig config;
-
-    public BrowserManagerTest() {
-        config = new BrowserConfig(HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
-    }
 
     @Test
     public void testNecessaryBrowserResources_resourcesNotNull() throws NoSuchMethodException,
                                                                         InvocationTargetException,
                                                                         IllegalAccessException {
-        BrowserManager manager = new BrowserManager(FXCollections.observableArrayList(), config);
+        BrowserManager manager = new BrowserManager(FXCollections.observableArrayList(), 3);
         manager.start();
         assertNotNull(manager.getHyperBrowserView());
         Method method = manager.getClass().getDeclaredMethod("getBrowserInitialScreen");
