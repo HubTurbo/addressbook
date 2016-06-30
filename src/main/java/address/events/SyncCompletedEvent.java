@@ -6,7 +6,9 @@ import address.model.datatypes.tag.Tag;
 import java.util.List;
 
 /**
- * An event triggered when Syncing is completed.
+ * An event triggered when Syncing (down) is completed.
+ *
+ * Contains the data obtained from the sync request.
  */
 public class SyncCompletedEvent extends BaseEvent {
     List<Person> updatedPersons;
@@ -27,6 +29,6 @@ public class SyncCompletedEvent extends BaseEvent {
 
     @Override
     public String toString() {
-        return "Synchronization is completed: " + updatedPersons.size() + " updatedPersons and " + latestTags.size() + " latest tags.";
+        return updatedPersons.size() + " updatedPersons and " + latestTags.size() + " latest tags.";
     }
 }

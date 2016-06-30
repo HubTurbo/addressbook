@@ -274,7 +274,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
     }
 
     @JsonProperty("isDeleted")
-    public boolean getIsDeleted() {
+    public boolean isDeleted() {
         return isDeleted.get();
     }
 

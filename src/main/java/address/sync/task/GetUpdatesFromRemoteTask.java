@@ -20,7 +20,8 @@ public class GetUpdatesFromRemoteTask implements Runnable {
     private final Supplier<Optional<String>> syncActiveAddressBookNameSupplier;
     private final RemoteManager remoteManager;
 
-    public GetUpdatesFromRemoteTask(RemoteManager remoteManager, Consumer<BaseEvent> eventRaiser, Supplier<Optional<String>> syncActiveAddressBookNameSupplier) {
+    public GetUpdatesFromRemoteTask(RemoteManager remoteManager, Consumer<BaseEvent> eventRaiser,
+                                    Supplier<Optional<String>> syncActiveAddressBookNameSupplier) {
         this.eventRaiser = eventRaiser;
         this.syncActiveAddressBookNameSupplier = syncActiveAddressBookNameSupplier;
         this.remoteManager = remoteManager;
@@ -65,7 +66,7 @@ public class GetUpdatesFromRemoteTask implements Runnable {
 
             if (!updatedPersons.isPresent()) throw new SyncErrorException("getUpdatedPersons failed.");
 
-            logger.debug("Updated persons retrieved.");
+            logger.logList("Updated persons: {}", updatedPersons.get());
             return updatedPersons.get();
         } catch (IOException e) {
             throw new SyncErrorException("Error getting updated persons.");
@@ -81,17 +82,17 @@ public class GetUpdatesFromRemoteTask implements Runnable {
      */
     private List<Tag> getLatestTags(String addressBookName) throws SyncErrorException {
         try {
-            Optional<List<Tag>> updatedTags = remoteManager.getLatestTagList(addressBookName);
+            Optional<List<Tag>> latestTags = remoteManager.getLatestTagList(addressBookName);
 
-            if (!updatedTags.isPresent()) {
+            if (!latestTags.isPresent()) {
                 logger.info("No updates to tags.");
                 return null;
             } else {
-                logger.info("Updated tags: {}", updatedTags);
-                return updatedTags.get();
+                logger.logList("Latest tags: {}", latestTags.get());
+                return latestTags.get();
             }
         } catch (IOException e) {
-            throw new SyncErrorException("Error getting updated persons.");
+            throw new SyncErrorException("Error getting latest tags.");
         }
     }
 }
