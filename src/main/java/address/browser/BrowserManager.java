@@ -1,19 +1,16 @@
 package address.browser;
 
 import address.browser.page.GithubProfilePage;
-import hubturbo.embeddedbrowser.BrowserType;
-import hubturbo.embeddedbrowser.HyperBrowser;
-import hubturbo.embeddedbrowser.page.Page;
-
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.UrlUtil;
-
 import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
-
+import hubturbo.embeddedbrowser.BrowserType;
+import hubturbo.embeddedbrowser.HyperBrowser;
+import hubturbo.embeddedbrowser.page.Page;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -22,7 +19,8 @@ import javafx.scene.layout.AnchorPane;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -48,9 +46,8 @@ public class BrowserManager {
         try {
             URL url = new URL(GITHUB_ROOT_URL + newValue);
             if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
-                Page page = hyperBrowser.get().loadUrl(url);
-                GithubProfilePage gPage = new GithubProfilePage(page);
-                gPage.setupPageAutomation();
+                List<Page> pages = hyperBrowser.get().loadUrl(url);
+                configureGithubPageTasks(pages);
             }
         } catch (MalformedURLException e) {
             logger.warn("Malformed URL obtained, not attempting to load.");
@@ -110,9 +107,8 @@ public class BrowserManager {
         List<URL> listOfFutureUrl =
                 BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons, indexOfPersonInListOfContacts);
         try {
-            Page page = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
-            GithubProfilePage gPage = new GithubProfilePage(page);
-            gPage.setupPageAutomation();
+            List<Page> pages = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
+            configureGithubPageTasks(pages);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             assert false : "Preconditions of loadUrls is not fulfilled.";
@@ -121,6 +117,10 @@ public class BrowserManager {
         selectedPersonUsername.unbind();
         selectedPersonUsername.bind(person.githubUsernameProperty());
         selectedPersonUsername.addListener(listener);
+    }
+
+    private void configureGithubPageTasks(List<Page> pages) {
+        pages.stream().map(GithubProfilePage::new).forEach(GithubProfilePage::setupPageAutomation);
     }
 
     /**

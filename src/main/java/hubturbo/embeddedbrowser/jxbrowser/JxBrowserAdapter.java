@@ -105,7 +105,7 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
         this.browserView.getBrowser()
                         .getLoadListeners()
                         .stream().forEach(listener -> browserView.getBrowser().removeLoadListener(listener));
-        this.browserView.sceneProperty().removeListener(sceneChangeListener);
+        this.attachListener = Optional.empty();
     }
 
     @Override
