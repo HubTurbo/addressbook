@@ -77,7 +77,7 @@ public class RemoteManager {
      * @return full list of tags if request was successful and there were updates
      * @throws IOException
      */
-    public Optional<List<Tag>> getUpdatedTagList(String addressBookName) throws IOException {
+    public Optional<List<Tag>> getLatestTagList(String addressBookName) throws IOException {
         ExtractedRemoteResponse<List<Tag>> response;
 
         List<Tag> tagList = new ArrayList<>();

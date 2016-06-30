@@ -38,12 +38,10 @@ public class GetUpdatesFromRemoteTask implements Runnable {
         try {
             List<Person> updatedPersons = getUpdatedPersons(syncActiveAddressBookName.get());
             logger.logList("Found updated persons: {}", updatedPersons);
-            eventRaiser.accept(new SyncUpdateResourceCompletedEvent<>(updatedPersons, "Person updates completed."));
+            List<Tag> latestTags = getLatestTags(syncActiveAddressBookName.get());
+            logger.logList("Found latest tags: {}", latestTags);
 
-            List<Tag> updatedTagList = getUpdatedTags(syncActiveAddressBookName.get());
-            eventRaiser.accept(new SyncUpdateResourceCompletedEvent<>(updatedTagList, "Tag updates completed."));
-
-            eventRaiser.accept(new SyncCompletedEvent());
+            eventRaiser.accept(new SyncCompletedEvent(updatedPersons, latestTags));
         } catch (SyncErrorException e) {
             logger.warn("Error obtaining updates: {}", e);
             eventRaiser.accept(new SyncFailedEvent(e.getMessage()));
@@ -81,9 +79,9 @@ public class GetUpdatesFromRemoteTask implements Runnable {
      * @return
      * @throws SyncErrorException if bad response code, missing data or network error
      */
-    private List<Tag> getUpdatedTags(String addressBookName) throws SyncErrorException {
+    private List<Tag> getLatestTags(String addressBookName) throws SyncErrorException {
         try {
-            Optional<List<Tag>> updatedTags = remoteManager.getUpdatedTagList(addressBookName);
+            Optional<List<Tag>> updatedTags = remoteManager.getLatestTagList(addressBookName);
 
             if (!updatedTags.isPresent()) {
                 logger.info("No updates to tags.");
