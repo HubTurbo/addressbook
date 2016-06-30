@@ -1,4 +1,4 @@
-package address.unittests.updater;
+package address.updater;
 
 import address.testutil.TestUtil;
 import address.updater.LocalUpdateSpecificationHelper;

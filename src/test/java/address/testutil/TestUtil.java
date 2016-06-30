@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.time.LocalDate;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -262,5 +263,17 @@ public class TestUtil {
         cloudAddressBook.setTagsList(cloudTagList);
 
         return cloudAddressBook;
+    }
+
+    /**
+     * Gets private method of a class
+     * Invoke the method using method.invoke(objectInstance, params...)
+     *
+     * Caveat: only find method declared in the current Class, not inherited from supertypes
+     */
+    public static Method getPrivateMethod(Class objectClass, String methodName) throws NoSuchMethodException {
+        Method method = objectClass.getDeclaredMethod(methodName);
+        method.setAccessible(true);
+        return method;
     }
 }
