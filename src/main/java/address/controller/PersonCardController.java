@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Optional;
 
 
-import address.MainApp;
 import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
@@ -22,6 +21,7 @@ import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 public class PersonCardController extends UiController{
+    public static final String PENDING_STATE_MESSAGE = "Syncing in %d seconds";
     @FXML
     private HBox cardPane;
     @FXML
@@ -39,7 +39,7 @@ public class PersonCardController extends UiController{
     @FXML
     private Label tags;
     @FXML
-    private Label pending;
+    private Label pendingState;
     @FXML
     private ImageView syncingImageView;
 
@@ -139,19 +139,19 @@ public class PersonCardController extends UiController{
         });
         if (person.getSecondsLeftInPendingState() > 0) {
             cardPane.setStyle("-fx-background-color:yellow");
-            pending.setText(String.format("Syncing in %d seconds", person.getSecondsLeftInPendingState()));
+            pendingState.setText(String.format(PENDING_STATE_MESSAGE, person.getSecondsLeftInPendingState()));
         }
         person.secondsLeftInPendingStateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() > 0) {
                 cardPane.setStyle("-fx-background-color:yellow");
-                pending.setText(String.format("Syncing in %d seconds", newValue));
+                pendingState.setText(String.format(PENDING_STATE_MESSAGE, newValue));
             } else {
                 cardPane.setStyle(null);
-                pending.setText("Syncing...");
+                pendingState.setText("Syncing...");
                 syncingImageView.setVisible(true);
                 person.onRemoteIdConfirmed((Integer id) -> {
                     syncingImageView.setVisible(false);
-                    pending.setText("");
+                    pendingState.setText("");
                 });
             }
         });
