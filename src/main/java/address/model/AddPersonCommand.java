@@ -87,11 +87,6 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected void beforeGracePeriod() {
-        // nothing needed for now
-    }
-
-    @Override
     protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
         assert viewableToAdd != null;
         PlatformExecUtil.runAndWait(() -> viewableToAdd.setSecondsLeftInPendingState(secondsLeft));
