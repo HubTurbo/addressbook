@@ -47,8 +47,9 @@ public class GetUpdatesFromRemoteTask implements Runnable {
         } catch (SyncErrorException e) {
             logger.warn("Error obtaining updates: {}", e);
             eventRaiser.accept(new SyncFailedEvent(e.getMessage()));
-        } catch (Exception e) {e.printStackTrace();
+        } catch (Exception e) {
             logger.warn("Exception occurred in update task: {}", e);
+            eventRaiser.accept(new SyncFailedEvent(e.getMessage()));
         }
     }
 
@@ -73,6 +74,13 @@ public class GetUpdatesFromRemoteTask implements Runnable {
         }
     }
 
+    /**
+     * Gets the full list of tags if it has been updated since the last request
+     *
+     * @param addressBookName
+     * @return
+     * @throws SyncErrorException if bad response code, missing data or network error
+     */
     private List<Tag> getUpdatedTags(String addressBookName) throws SyncErrorException {
         try {
             Optional<List<Tag>> updatedTags = remoteManager.getUpdatedTagList(addressBookName);

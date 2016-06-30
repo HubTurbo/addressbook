@@ -20,6 +20,11 @@ import java.util.function.BiConsumer;
  *
  * Once started, attempts to synchronize with the remote periodically
  * Synchronization will be based on the currently-active address book which can be set via setActiveAddressBook
+ *
+ * Contains event handlers for remote request events. These events should provide a result container
+ * for SyncManager to place the result into after finishing the request.
+ *
+ * All remote requests are run in a separate thread
  */
 public class SyncManager extends ComponentManager {
     private static final AppLogger logger = LoggerManager.getLogger(SyncManager.class);
@@ -44,9 +49,9 @@ public class SyncManager extends ComponentManager {
      * Constructor for SyncManager
      *
      * @param config should have updateInterval (milliseconds) and simulateUnreliableNetwork set
-     * @param remoteManager
-     * @param executorService
-     * @param scheduledExecutorService
+     * @param remoteManager non-null
+     * @param executorService non-null
+     * @param scheduledExecutorService non-null
      */
     public SyncManager(Config config, RemoteManager remoteManager, ExecutorService executorService,
                        ScheduledExecutorService scheduledExecutorService) {
@@ -169,7 +174,7 @@ public class SyncManager extends ComponentManager {
     /**
      * Calls taskToCall and completes the eventResultContainer with the task's result
      *
-     * Both the task and the completion of the container runs asynchronously using requestExecutor
+     * Both the task and the completion of the container run asynchronously using requestExecutor
      *
      * @param taskToCall
      * @param eventResultContainer
@@ -201,6 +206,7 @@ public class SyncManager extends ComponentManager {
      */
     private <T> CompletableFuture<T> executeTaskForCompletableFuture(Callable<T> callable, Executor executor) {
         CompletableFuture<T> completableFuture = new CompletableFuture<>();
+        logger.debug("Executing callable task: {}", callable);
         executor.execute(() -> {
             try {
                 completableFuture.complete(callable.call());
