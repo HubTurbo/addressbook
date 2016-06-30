@@ -91,6 +91,7 @@ public class MainApp extends Application {
         logger.info("Stopping application.");
         ui.stop();
         updateManager.stop();
+        syncManager.stop();
         keyBindingsManager.stop();
         quit();
     }

@@ -14,7 +14,6 @@ import address.util.PlatformExecUtil;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
-import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
@@ -334,7 +333,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 //// EVENT HANDLERS
 
     @Subscribe
-    private <T> void handleUpdateCompletedEvent(UpdateCompletedEvent<T> uce) {
+    private <T> void handleUpdateCompletedEvent(SyncUpdateResourceCompletedEvent<T> uce) {
         // Sync is done outside FX Application thread
         // TODO: Decide how incoming updates should be handled
     }

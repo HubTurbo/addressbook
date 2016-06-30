@@ -5,6 +5,8 @@ import address.events.EventManager;
 
 /**
  * Base class for *Manager classes
+ *
+ * Registers the class' event handlers in eventManager
  */
 public class ComponentManager {
     protected EventManager eventManager;
@@ -16,7 +18,7 @@ public class ComponentManager {
         this(EventManager.getInstance());
     }
 
-    public ComponentManager(EventManager eventManager){
+    public ComponentManager(EventManager eventManager) {
         this.eventManager = eventManager;
         eventManager.registerHandler(this);
     }

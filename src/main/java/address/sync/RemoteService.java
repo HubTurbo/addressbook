@@ -19,11 +19,11 @@ import java.util.*;
  * This component is responsible for providing a high-level API for communication with the remote,
  * as well as the reformatting the remote's response into a format understood by the local logic.
  *
- * Most of the responses returned should include the rate limit status if the respective remote response(s)
- * contain(s) them
+ * Most of the responses are returned as ExtractedRemoteResponse which should include the rate limit status
+ * if the respective remote response(s) contain(s) them
  */
 public class RemoteService implements IRemoteService {
-    private static AppLogger logger = LoggerManager.getLogger(RemoteService.class);
+    private static final AppLogger logger = LoggerManager.getLogger(RemoteService.class);
     private static final int RESOURCES_PER_PAGE = 100;
 
     private final CloudSimulator remote;
@@ -47,14 +47,14 @@ public class RemoteService implements IRemoteService {
      */
     public static boolean isValid(RemoteResponse response) {
         switch (response.getResponseCode()) {
-        case 200:
-        case 201:
-        case 202:
-        case 203:
-        case 204:
-            return true;
-        default:
-            return false;
+            case 200:
+            case 201:
+            case 202:
+            case 203:
+            case 204:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -64,6 +64,7 @@ public class RemoteService implements IRemoteService {
      * Consumes 1 API usage
      *
      * @param addressBookName
+     * @param pageNumber
      * @return wrapped response with list of persons
      * @throws IOException if content cannot be interpreted
      */
@@ -99,20 +100,6 @@ public class RemoteService implements IRemoteService {
         }
         List<CloudTag> cloudTags = getDataListFromBody(remoteResponse.getBody(), CloudTag.class);
         return prepareExtractedResponse(remoteResponse, convertToTagList(cloudTags));
-    }
-
-    private <T> ExtractedRemoteResponse<T> prepareExtractedResponse(RemoteResponse remoteResponse, T data) {
-        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
-        ExtractedRemoteResponse<T> extractedResponse = new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(),
-                                            getETagFromHeader(headerHashMap),
-                                            getRateLimitFromHeader(headerHashMap),
-                                            getRateRemainingFromHeader(headerHashMap),
-                                            getRateResetFromHeader(headerHashMap), data);
-        extractedResponse.setNextPage(remoteResponse.getNextPageNo());
-        extractedResponse.setPrevPage(remoteResponse.getPreviousPageNo());
-        extractedResponse.setFirstPage(remoteResponse.getFirstPageNo());
-        extractedResponse.setLastPage(remoteResponse.getLastPageNo());
-        return extractedResponse;
     }
 
     /**
@@ -240,8 +227,8 @@ public class RemoteService implements IRemoteService {
      * Consumes 1 API usage
      *
      * @param addressBookName
-     * @param time non-null LocalDateTime
      * @param pageNumber
+     * @param time non-null LocalDateTime
      * @param previousETag
      * @return wrapped response with the resulting list of persons
      * @throws IOException if content cannot be interpreted
@@ -284,14 +271,6 @@ public class RemoteService implements IRemoteService {
                                             getRateResetFromHeader(headerHashMap), simplifiedHashMap);
     }
 
-    private HashMap<String, String> getHeaderLimitStatus(HashMap<String, String> bodyHashMap) {
-        HashMap<String, String> simplifiedHashMap = new HashMap<>();
-        simplifiedHashMap.put("Limit", bodyHashMap.get("X-RateLimit-Limit"));
-        simplifiedHashMap.put("Remaining", bodyHashMap.get("X-RateLimit-Remaining"));
-        simplifiedHashMap.put("Reset", bodyHashMap.get("X-RateLimit-Reset"));
-        return simplifiedHashMap;
-    }
-
     /**
      * Creates a new addressbook in the remote with name addressBookName
      *
@@ -306,6 +285,28 @@ public class RemoteService implements IRemoteService {
         RemoteResponse remoteResponse = remote.createAddressBook(addressBookName);
         // empty response whether valid response code or not
         return getResponseWithNoData(remoteResponse);
+    }
+
+    private <T> ExtractedRemoteResponse<T> prepareExtractedResponse(RemoteResponse remoteResponse, T data) {
+        HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
+        ExtractedRemoteResponse<T> extractedResponse = new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(),
+                                            getETagFromHeader(headerHashMap),
+                                            getRateLimitFromHeader(headerHashMap),
+                                            getRateRemainingFromHeader(headerHashMap),
+                                            getRateResetFromHeader(headerHashMap), data);
+        extractedResponse.setNextPage(remoteResponse.getNextPageNo());
+        extractedResponse.setPrevPage(remoteResponse.getPreviousPageNo());
+        extractedResponse.setFirstPage(remoteResponse.getFirstPageNo());
+        extractedResponse.setLastPage(remoteResponse.getLastPageNo());
+        return extractedResponse;
+    }
+
+    private HashMap<String, String> getHeaderLimitStatus(HashMap<String, String> bodyHashMap) {
+        HashMap<String, String> simplifiedHashMap = new HashMap<>();
+        simplifiedHashMap.put("Limit", bodyHashMap.get("X-RateLimit-Limit"));
+        simplifiedHashMap.put("Remaining", bodyHashMap.get("X-RateLimit-Remaining"));
+        simplifiedHashMap.put("Reset", bodyHashMap.get("X-RateLimit-Reset"));
+        return simplifiedHashMap;
     }
 
     private <V> ExtractedRemoteResponse<V> getResponseWithNoData(RemoteResponse remoteResponse) {

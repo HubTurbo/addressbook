@@ -12,16 +12,7 @@ import java.io.IOException;
 
 public class CloudFileHandler {
     private static final AppLogger logger = LoggerManager.getLogger(CloudFileHandler.class);
-
     private static final String CLOUD_DIRECTORY = "cloud/";
-
-    private File getCloudDataFile(String addressBookName) {
-        return new File(getCloudDataFilePath(addressBookName));
-    }
-
-    private String getCloudDataFilePath(String addressBookName) {
-        return CLOUD_DIRECTORY + addressBookName;
-    }
 
     public CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException,
             DataConversionException {
@@ -73,5 +64,13 @@ public class CloudFileHandler {
         }
 
         writeCloudAddressBookToFile(new CloudAddressBook(addressBookName));
+    }
+
+    private File getCloudDataFile(String addressBookName) {
+        return new File(getCloudDataFilePath(addressBookName));
+    }
+
+    private String getCloudDataFilePath(String addressBookName) {
+        return CLOUD_DIRECTORY + addressBookName;
     }
 }
