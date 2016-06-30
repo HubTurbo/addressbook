@@ -4,6 +4,7 @@ import address.MainApp;
 import address.browser.page.GithubProfilePage;
 
 import address.model.datatypes.person.ReadOnlyPerson;
+import address.util.OsDetector;
 
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.HyperBrowser;
@@ -99,8 +100,8 @@ public class BrowserManager {
      */
     public void start() {
         String headlessProperty = System.getProperty("testfx.headless");
-        if (headlessProperty != null && headlessProperty.equals("true")) {
-            logger.info("Headless mode detected, not initializing HyperBrowser.");
+        if (headlessProperty != null && headlessProperty.equals("true") && OsDetector.isOnMac()) {
+            logger.info("Headless mode and Mac OS detected, not initializing HyperBrowser.");
             hyperBrowser = Optional.empty();
         } else {
             logger.info("Initializing browser with {} pages", browserNoOfPages);
