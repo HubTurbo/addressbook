@@ -6,7 +6,9 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.JavafxThreadingRule;
+import hubturbo.embeddedbrowser.BrowserConfig;
 import hubturbo.embeddedbrowser.BrowserType;
+import hubturbo.embeddedbrowser.HyperBrowser;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -38,6 +40,8 @@ public class BrowserManagerTest {
 
     private ObservableList<ReadOnlyViewablePerson> filteredPersons;
 
+    private BrowserConfig config;
+
     public BrowserManagerTest() {
         this.filteredPersons = FXCollections.observableArrayList();
         this.filteredPersons.add(ViewablePerson.fromBacking(createPersonWithGithubUsername("John", "Smith", -1, "1")));
@@ -53,7 +57,7 @@ public class BrowserManagerTest {
         this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lala5", -11)));
         this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lala6", -12)));
         this.filteredPersons.add(ViewablePerson.fromBacking(new Person("Hehe", "Lala7", -12)));
-
+        config = new BrowserConfig(HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
     }
 
     private Person createPersonWithGithubUsername(String john, String smith, int id, String username) {
@@ -64,7 +68,7 @@ public class BrowserManagerTest {
 
     @Test
     public void testNecessaryBrowserResources_resourcesNotNull() {
-        BrowserManager manager = new BrowserManager(filteredPersons);
+        BrowserManager manager = new BrowserManager(filteredPersons, config);
         manager.start();
         assertNotNull(manager.getHyperBrowserView());
         Optional<Node> node = BrowserManagerUtil.getBrowserInitialScreen();
@@ -74,7 +78,7 @@ public class BrowserManagerTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testGetListOfPersonToLoadInFuture_listMoreThan3Person_nextTwoIndexPersonReturned() {
-        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons, 0);
+        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons, 0, config.getNoOfPages());
         assertTrue(list.contains(filteredPersons.get(1).profilePageUrl()));
         assertTrue(list.contains(filteredPersons.get(2).profilePageUrl()));
     }
@@ -82,14 +86,16 @@ public class BrowserManagerTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testGetListOfPersonToLoadInFuture_NearTheEndOfList_resultOverlappedToLowerIndex() {
-        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(0, 5), 3);
+        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(0, 5),
+                                                                             3, config.getNoOfPages());
         assertTrue(list.contains(filteredPersons.get(4).profilePageUrl()));
         assertTrue(list.contains(filteredPersons.get(0).profilePageUrl()));
     }
 
     @Test
     public void testGetListOfPersonToLoadInFuture_listLessThan3Person_resultSizeBoundedToListSize() {
-        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(0,2), 0);
+        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(0,2),
+                                                                             0,config.getNoOfPages());
         assertTrue(list.contains(filteredPersons.get(1).profilePageUrl()));
         assertFalse(list.contains(filteredPersons.get(0).profilePageUrl()));
         assertFalse(list.contains(filteredPersons.get(2).profilePageUrl()));
@@ -99,16 +105,19 @@ public class BrowserManagerTest {
 
     @Test
     public void testGetListOfPersonToLoadInFuture_listOnly1Person_resultSizeBoundedToListSize() {
-        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(0,1), 0);
+        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(0,1),
+                                                                             0, config.getNoOfPages());
         assertEquals(list.size(), 0);
     }
 
     @Test
     public void testGetListOfPersonToLoadInFuture_listWithDuplicateUrls_ignoreDuplicateUrls() {
-        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(5,13), 0);
+        List<URL> list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(5,13),
+                                                                             0, config.getNoOfPages());
         assertEquals(list.size(), 1);
         assertTrue(list.contains(filteredPersons.get(9).profilePageUrl()));
-        list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(5,13), 4);
+        list = BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons.subList(5,13),
+                                                                   4, config.getNoOfPages());
         assertEquals(list.size(), 1);
         assertTrue(list.contains(filteredPersons.get(8).profilePageUrl()));
     }

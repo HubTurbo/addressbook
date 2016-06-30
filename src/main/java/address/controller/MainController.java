@@ -11,6 +11,8 @@ import address.model.datatypes.tag.Tag;
 import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
+import hubturbo.embeddedbrowser.BrowserConfig;
+import hubturbo.embeddedbrowser.HyperBrowser;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -76,7 +78,8 @@ public class MainController extends UiController{
         this.modelManager = modelManager;
         this.config = config;
         this.personList = modelManager.getAllViewablePersonsReadOnly();
-        this.browserManager = new BrowserManager(personList);
+        this.browserManager = new BrowserManager(personList,
+                                                 new BrowserConfig(HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES));
         this.browserManager.initBrowser();
     }
 

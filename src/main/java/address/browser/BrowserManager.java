@@ -1,6 +1,12 @@
 package address.browser;
 
 import address.browser.page.GithubProfilePage;
+
+import hubturbo.embeddedbrowser.BrowserConfig;
+import hubturbo.embeddedbrowser.BrowserType;
+import hubturbo.embeddedbrowser.HyperBrowser;
+import hubturbo.embeddedbrowser.page.Page;
+
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.AppLogger;
 import address.util.LoggerManager;
@@ -8,9 +14,7 @@ import address.util.UrlUtil;
 import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
-import hubturbo.embeddedbrowser.BrowserType;
-import hubturbo.embeddedbrowser.HyperBrowser;
-import hubturbo.embeddedbrowser.page.Page;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -42,6 +46,8 @@ public class BrowserManager {
 
     private StringProperty selectedPersonUsername;
 
+    private BrowserConfig config;
+
     private ChangeListener<String> listener = (observable,  oldValue,  newValue) -> {
         try {
             URL url = new URL(GITHUB_ROOT_URL + newValue);
@@ -57,9 +63,10 @@ public class BrowserManager {
         }
     };
 
-    public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
+    public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons, BrowserConfig config) {
         this.selectedPersonUsername = new SimpleStringProperty();
         this.filteredPersons = filteredPersons;
+        this.config = config;
     }
 
     /**
@@ -85,10 +92,10 @@ public class BrowserManager {
             logger.info("Headless mode detected, not initializing HyperBrowser.");
             hyperBrowser = Optional.empty();
         } else {
-            logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
+            logger.info("Initializing browser with {} pages", config.getNoOfPages());
             hyperBrowser = Optional.of(new HyperBrowser(
                     type,
-                    HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
+                    config.getNoOfPages(),
                     BrowserManagerUtil.getBrowserInitialScreen()));
         }
     }
@@ -105,7 +112,9 @@ public class BrowserManager {
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
         List<URL> listOfFutureUrl =
-                BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons, indexOfPersonInListOfContacts);
+                BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons,
+                                                                    indexOfPersonInListOfContacts,
+                                                                    config.getNoOfPages());
         try {
             List<Page> pages = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             configureGithubPageTasks(pages);

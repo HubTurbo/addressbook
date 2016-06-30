@@ -24,14 +24,14 @@ public class BrowserManagerUtil {
      * Gets a list of person that are needed to be loaded to the browser in future.
      */
     public static List<URL> getListOfPersonUrlToLoadInFuture(
-            List<ReadOnlyViewablePerson> filteredPersons, int indexOfPerson) {
+            List<ReadOnlyViewablePerson> filteredPersons, int indexOfPerson, int noOfBrowserPages) {
         URL personUrlToLoad = filteredPersons.get(indexOfPerson).profilePageUrl();
         List<URL> listOfRequiredUrl = new ArrayList<>();
         List<URL> listOfUrls = filteredPersons.stream().map(p
                                     -> p.profilePageUrl()).collect(Collectors.toCollection(ArrayList::new));
         int count = 1;
         int i = 1;
-        while (count < HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES && i < filteredPersons.size()) {
+        while (count < noOfBrowserPages && i < filteredPersons.size()) {
             URL url = listOfUrls.get((indexOfPerson + i) % filteredPersons.size());
             if (url.equals(personUrlToLoad) || listOfRequiredUrl.contains(url)){
                 i++;
