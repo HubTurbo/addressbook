@@ -13,16 +13,21 @@ This versioning system is loosely based on [Semantic Versioning](http://semver.o
 Addressbook has 3 branches for release, namely `master`, `early-access` and `stable`:
 - `master` : development will occur in this branch.
 - `early-access`: when we have a release candidate from master, the latest commit in `master` will be merged to this
-branch as a candidate for stable release. This release candidate will be polished in this branch until it is ready for stable
-release. Any bug fixes to early access version will go to this branch, increasing the `PATCH` version number (e.g. from
-`V1.1.-0-ea` to `V1.1.-1-ea`). This change is then merged back to master.
-This release version is not meant for production use. Those who are interested to try out the latest (possibly unstable)
+branch and an early access release will be made for people to try out the new features. This release candidate will be
+polished in this branch, i.e. any bug fixes to early access version will go to this branch, increasing the `PATCH` version number
+(e.g. from `V1.1.-0-ea` to `V1.1.-1-ea`). This change is then merged back to master.
+
+  If there are more features to be published for people to try out, a new early access release will be created with a bump
+in `MINOR` version number, resetting the `PATCH` version number to 0.
+
+  This release channel is not meant for production use. Those who are interested to try out the latest (possibly unstable)
 features of Addressbook should use this early access version.
-- `stable` : Once `early-access` version is polished enough, it will be released as a stable version with the same version
-number as the `early-access` version, excluding the `ea` mark of `early-access` version. If there is any hotfix to stable
-version, it will be done in this branch, bumping up the `PATCH` version number (e.g. from `V1.1.-1-` to `V1.1.-2-`). This
-change is then merged to `early-access` branch with a bump in `early-access` `PATCH` version number from whatever it is
-(e.g. from `V1.2.-0-ea` to `V1.2.-1-ea`) and this will then be merged to `master`.
+- `stable` : Once `early-access` version has enough polished features to be included in the new version for
+production use, it will be released as a stable version with the same version number as the `early-access` version,
+excluding the `ea` mark of `early-access` version. If there is any hotfix to stable version, it will be done in this branch,
+bumping up the `PATCH` version number (e.g. from `V1.1.-1-` to `V1.1.-2-`). This change is then merged to `early-access`
+branch with a bump in `early-access` `PATCH` version number from whatever it is (e.g. from `V1.2.-0-ea` to `V1.2.-1-ea`)
+and this will then be merged to `master`.
 
 To illustrate, look at the diagram below.
 
@@ -34,9 +39,9 @@ On creating an early access release, merge the `master` branch to `early-access`
 with the `PATCH` version of 0, like `V1.0.0ea` and `V1.1.0ea` in the diagram. If the release has a bug, it will be fixed in
 `early-access` branch, and the bug fix needs to be merged back `master` branch as shown in `V1.0.1ea`.
 
-When `early-access` version is stable, we will create a stable release by merging `early-access` branch to `stable`
-branch and create a release. The version of the release uses the latest `early-access` version without early access flag
-(from `V1.0.2ea` to `V1.0.2` and from `V1.1.2ea` to `V1.1.2` in the diagram).
+When `early-access` version has a set of new features that is well polished, we will create a stable release by merging
+`early-access` branch to `stable` branch and create a release. The version of the release uses the latest `early-access`
+version without early access flag (from `V1.0.2ea` to `V1.0.2` and from `V1.1.2ea` to `V1.1.2` in the diagram).
 
 If the stable release requires a bug fix, the bug fix will be done in `stable` branch. A re-release will be done with
 a bump in `PATCH` version, as shown in `V1.0.3` in the diagram. This bug fix will be merged back to `early-access` branch
