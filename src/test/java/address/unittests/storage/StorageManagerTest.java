@@ -11,7 +11,7 @@ import address.storage.StorageManager;
 import address.storage.XmlFileStorage;
 import address.util.Config;
 import address.util.FileUtil;
-import address.util.TestSerializationClass;
+import address.util.SerializableTestClass;
 import address.util.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -195,23 +195,23 @@ public class StorageManagerTest {
 
     @Test
     public void serializeObjectToJsonFile_noExceptionThrown() throws IOException {
-        TestSerializationClass testSerializationClass = new TestSerializationClass();
-        testSerializationClass.setTestValues();
+        SerializableTestClass serializableTestClass = new SerializableTestClass();
+        serializableTestClass.setTestValues();
 
-        StorageManager.serializeObjectToJsonFile(SERIALIZATION_FILE, testSerializationClass);
+        StorageManager.serializeObjectToJsonFile(SERIALIZATION_FILE, serializableTestClass);
 
-        assertEquals(FileUtil.readFromFile(SERIALIZATION_FILE), TestSerializationClass.JSON_STRING_REPRESENTATION);
+        assertEquals(FileUtil.readFromFile(SERIALIZATION_FILE), SerializableTestClass.JSON_STRING_REPRESENTATION);
     }
 
     @Test
     public void deserializeObjectFromJsonFile_noExceptionThrown() throws IOException {
-        FileUtil.writeToFile(SERIALIZATION_FILE, TestSerializationClass.JSON_STRING_REPRESENTATION);
+        FileUtil.writeToFile(SERIALIZATION_FILE, SerializableTestClass.JSON_STRING_REPRESENTATION);
 
-        TestSerializationClass testSerializationClass = StorageManager
-                .deserializeObjectFromJsonFile(SERIALIZATION_FILE, TestSerializationClass.class);
+        SerializableTestClass serializableTestClass = StorageManager
+                .deserializeObjectFromJsonFile(SERIALIZATION_FILE, SerializableTestClass.class);
 
-        assertEquals(testSerializationClass.getName(), TestSerializationClass.getNameTestValue());
-        assertEquals(testSerializationClass.getListOfLocalDateTimes(), TestSerializationClass.getListTestValues());
-        assertEquals(testSerializationClass.getMapOfIntegerToString(), TestSerializationClass.getHashMapTestValues());
+        assertEquals(serializableTestClass.getName(), SerializableTestClass.getNameTestValue());
+        assertEquals(serializableTestClass.getListOfLocalDateTimes(), SerializableTestClass.getListTestValues());
+        assertEquals(serializableTestClass.getMapOfIntegerToString(), SerializableTestClass.getHashMapTestValues());
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * A class used to test serialization and deserialization
  */
-public class TestSerializationClass {
+public class SerializableTestClass {
     public static final String JSON_STRING_REPRESENTATION = String.format("{%n" +
             "  \"name\" : \"This is a test class\",%n" +
             "  \"listOfLocalDateTimes\" : " +
@@ -27,7 +27,7 @@ public class TestSerializationClass {
     private List<LocalDateTime> listOfLocalDateTimes;
     private HashMap<Integer, String> mapOfIntegerToString;
 
-    public TestSerializationClass() {}
+    public SerializableTestClass() {}
 
     public static String getNameTestValue() {
         return NAME_TEST_VALUE;
