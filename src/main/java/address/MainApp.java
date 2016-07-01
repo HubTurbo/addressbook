@@ -19,10 +19,10 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
     private static final AppLogger logger = LoggerManager.getLogger(MainApp.class);
 
-    private static final int VERSION_MAJOR = 0;
+    private static final int VERSION_MAJOR = 1;
     private static final int VERSION_MINOR = 0;
-    private static final int VERSION_PATCH = 2;
-    private static final boolean VERSION_EARLY_ACCESS = false;
+    private static final int VERSION_PATCH = 1;
+    private static final boolean VERSION_EARLY_ACCESS = true;
 
     public static final Version VERSION = new Version(
             VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EARLY_ACCESS);

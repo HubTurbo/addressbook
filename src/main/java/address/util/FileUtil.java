@@ -3,6 +3,7 @@ package address.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -165,8 +166,8 @@ public class FileUtil {
         return s.hasNext() ? s.next() : "";
     }
 
-    public static File getJarFileOfClass(Class givenClass) {
-        return new File(givenClass.getProtectionDomain().getCodeSource().getLocation().getPath());
+    public static File getJarFileOfClass(Class givenClass) throws URISyntaxException {
+        return new File(givenClass.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
     }
 
     /**

@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -339,16 +340,14 @@ public class UpdateManager extends ComponentManager {
 
         try {
             backupHandler.createBackupOfApp(currentVersion);
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             logger.fatal("Failed to create backup of app; not applying update");
             return;
         }
 
         String restarterAppPath = JAR_UPDATER_APP_PATH;
-        String localUpdateSpecFilepath = System.getProperty("user.dir") + File.separator +
-                LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
-        String cmdArg = String.format("--update-specification=%s --source-dir=%s",
-                localUpdateSpecFilepath, UPDATE_DIR);
+        String localUpdateSpecFilepath = LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
+        String cmdArg = String.format("--update-specification=%s --source-dir=%s", localUpdateSpecFilepath, UPDATE_DIR);
 
         String command = String.format("java -jar %1$s %2$s", restarterAppPath, cmdArg);
 

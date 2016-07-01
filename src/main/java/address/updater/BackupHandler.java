@@ -8,6 +8,7 @@ import address.util.Version;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -38,7 +39,7 @@ public class BackupHandler {
      * No backup is made if run from backup JAR.
      * Assumes app is run from JAR
      */
-    public void createBackupOfApp(Version version) throws IOException {
+    public void createBackupOfApp(Version version) throws IOException, URISyntaxException {
         File mainAppJar = FileUtil.getJarFileOfClass(MainApp.class);
 
         if (isRunFromBackupJar(mainAppJar.getName())) {
