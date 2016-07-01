@@ -105,10 +105,7 @@ public class BrowserManager {
             hyperBrowser = Optional.empty();
         } else {
             logger.info("Initializing browser with {} pages", browserNoOfPages);
-            hyperBrowser = Optional.of(new HyperBrowser(
-                    browserType,
-                    browserNoOfPages,
-                    getBrowserInitialScreen()));
+            hyperBrowser = Optional.of(new HyperBrowser(browserType, browserNoOfPages, getBrowserInitialScreen()));
         }
     }
 
