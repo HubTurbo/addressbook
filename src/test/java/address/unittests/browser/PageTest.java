@@ -3,7 +3,6 @@ package address.unittests.browser;
 import address.util.JavafxThreadingRule;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.BrowserType;
-import hubturbo.embeddedbrowser.EbElement;
 import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;
 import hubturbo.embeddedbrowser.page.Page;
 import org.apache.commons.io.IOUtils;
@@ -12,8 +11,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
@@ -25,73 +22,53 @@ import static org.junit.Assert.assertTrue;
  */
 public class PageTest {
 
-    private static final String REPO_LIST_CLASS_NAME = "repo-list js-repo-list";
-    private static final String ORGANIZATION_REPO_ID = "org-repositories";
-    private static final String JS_PJAX_CONTAINER_ID = "js-pjax-container";
-    private static final String OCTICON_REPO_CLASS_NAME = "octicon octicon-repo";
+    private static final String VALID_ID_1 = "js-pjax-container";
+    private static final String VALID_CLASS_NAME_1 = "octicon octicon-repo";
+    public static final String VALID_CLASS_NAME_2 = "columns profilecols";
+    public static final String VALID_ID_2 = "js-flash-container";
+    public static final String VALID_ID_3 = "contributions-calendar";
 
     @Rule
     public JavafxThreadingRule rule = new JavafxThreadingRule();
 
     @Test
-    public void testGetElementByClass_fullFeatureBrowser_elementFound() throws IOException {
+    public void testPageTestMethods_fullFeatureBrowser() throws IOException {
         Page page = getSampleGithubProfilePage();
-        assertNotNull(page.getElementByClass(OCTICON_REPO_CLASS_NAME));
-    }
 
-    @Test
-    public void testGetElementByClass_fullFeatureBrowser_elementNotFound() throws IOException {
-        Page page = getSampleGithubProfilePage();
+        assertNotNull(page.getElementByClass(VALID_CLASS_NAME_1));
         assertNull(page.getElementByClass("singaporeFlyer"));
-    }
 
-    @Test
-    public void testGetElementById_fullFeatureBrowser_elementFound() throws IOException {
-        Page page = getSampleGithubProfilePage();
-        assertNotNull(page.getElementById(JS_PJAX_CONTAINER_ID));
-    }
-
-    @Test
-    public void testGetElementById_fullFeatureBrowser_elementNotFound() throws IOException {
-        Page page = getSampleGithubProfilePage();
-
+        assertNotNull(page.getElementById(VALID_ID_1));
         assertNull(page.getElementById("maryland"));
+
+        assertTrue(page.verifyPresence(new String[]{VALID_ID_1, VALID_CLASS_NAME_1}));
+        assertFalse(page.verifyPresence(new String[]{VALID_ID_1, "lalaland"}));
+
+        assertTrue(page.verifyPresenceByClassNames(new String[]{VALID_CLASS_NAME_1, VALID_CLASS_NAME_2}));
+        assertFalse(page.verifyPresenceByClassNames(new String[]{"disney", VALID_CLASS_NAME_2}));
+
+        assertTrue(page.verifyPresenceByClassNames(VALID_CLASS_NAME_2));
+        assertFalse(page.verifyPresenceByClassNames("disney"));
+
+        assertTrue(page.verifyPresenceByIds(new String[]{VALID_ID_1, VALID_ID_2, VALID_ID_3}));
+        assertFalse(page.verifyPresenceByIds(new String[]{"hubturbo", VALID_ID_2, "teammates"}));
+
+        assertTrue(page.verifyPresenceByIds(VALID_ID_1));
+        assertFalse(page.verifyPresenceByIds("hubturbo"));
+
+        page.getBrowser().dispose();
     }
 
-    @Test
-    public void testVerifyPresence_fullFeatureBrowser_true() throws IOException {
-        Page page = getSampleGithubProfilePage();
-        assertTrue(page.verifyPresence(new String[]{JS_PJAX_CONTAINER_ID, OCTICON_REPO_CLASS_NAME}));
-    }
-
-    @Test
-    public void testVerifyPresence_fullFeatureBrowser_false() throws IOException {
-        Page page = getSampleGithubProfilePage();
-        Boolean success = false;
-        success = page.verifyPresence(new String[]{JS_PJAX_CONTAINER_ID, "lalaland"});
-        assertFalse(success);
-    }
 
     private Page getSampleGithubProfilePage() throws IOException {
         EmbeddedBrowser browser = EmbeddedBrowserFactory.createBrowser(BrowserType.FULL_FEATURE_BROWSER);
         InputStream stream = this.getClass().getResourceAsStream("/html_pages/github_profile_page.html");
         String html = IOUtils.toString(stream);
+        stream.close();
         browser.loadHTML(html);
         Page page = new Page(browser);
         while(page.isPageLoading());
-
-        int noOfTries = 20;
-        while(noOfTries > 0) {
-            if (page.getBrowser().getDomElement() != null) {
-                break;
-            }
-            noOfTries--;
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
         return page;
     }
+
 }
