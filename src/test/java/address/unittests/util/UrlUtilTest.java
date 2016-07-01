@@ -69,7 +69,7 @@ public class UrlUtilTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testGetFuturisticUrls_listMoreThan3Person_nextTwoIndexPersonReturned() {
+    public void testGetFutureUrls_listMoreThan3Person_nextTwoIndexPersonReturned() {
         List<URL> list = UrlUtil.getFutureUrls(listOfUrl, 0, noOfFutureUrls);
         assertTrue(list.contains(listOfUrl.get(1)));
         assertTrue(list.contains(listOfUrl.get(2)));
@@ -77,14 +77,14 @@ public class UrlUtilTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testGetFuturisticUrls_NearTheEndOfList_resultOverlappedToLowerIndex() {
+    public void testGetFutureUrls_NearTheEndOfList_resultOverlappedToLowerIndex() {
         List<URL> list = UrlUtil.getFutureUrls(listOfUrl.subList(0, 5), 3, noOfFutureUrls);
         assertTrue(list.contains(listOfUrl.get(4)));
         assertTrue(list.contains(listOfUrl.get(0)));
     }
 
     @Test
-    public void testGetFuturisticUrls_listLessThan3Person_resultSizeBoundedToListSize() {
+    public void testGetFutureUrls_listLessThan3Person_resultSizeBoundedToListSize() {
         List<URL> list = UrlUtil.getFutureUrls(listOfUrl.subList(0,2), 0, noOfFutureUrls);
         assertTrue(list.contains(listOfUrl.get(1)));
         TestCase.assertFalse(list.contains(listOfUrl.get(0)));
@@ -94,13 +94,13 @@ public class UrlUtilTest {
     }
 
     @Test
-    public void testGetFuturisticUrls_listOnly1Person_resultSizeBoundedToListSize() {
+    public void testGetFutureUrls_listOnly1Person_resultSizeBoundedToListSize() {
         List<URL> list = UrlUtil.getFutureUrls(listOfUrl.subList(0,1), 0, noOfFutureUrls);
         assertEquals(list.size(), 0);
     }
 
     @Test
-    public void testGetFuturisticUrls_listWithDuplicateUrls_ignoreDuplicateUrls() {
+    public void testGetFutureUrls_listWithDuplicateUrls_ignoreDuplicateUrls() {
         List<URL> list = UrlUtil.getFutureUrls(listOfUrl.subList(5,13),
                 0, noOfFutureUrls);
         assertEquals(list.size(), 1);
