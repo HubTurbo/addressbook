@@ -31,7 +31,7 @@ public class GuiTestBase extends FxRobot {
     @Before
     public void setup() throws Exception {
         EventManager.clearSubscribers();
-        FxToolkit.setupApplication(() -> new TestApp(() -> getInitialData(), getDataFileLocation()));
+        FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation()));
         FxToolkit.showStage();
     }
 

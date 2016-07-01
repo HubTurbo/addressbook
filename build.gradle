@@ -309,6 +309,7 @@ task headless(type: Test) {
     systemProperty 'testfx.headless', 'true'
     systemProperty 'prism.order', 'sw'
     systemProperty 'prism.text', 't2k'
+
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
