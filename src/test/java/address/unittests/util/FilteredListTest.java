@@ -16,8 +16,8 @@ public class FilteredListTest {
         listOfStrings.addAll("Apple", "Orange", "Pear", "Watermelon", "Strawberry", "Blueberry", "Cranberry");
         FilteredList<String> filteredList = new FilteredList<>(listOfStrings);
         assertEquals(7, filteredList.size());
-        filteredList.setPredicate(string -> StringUtil.containsIgnoreCase(string, "berry"));
-        assertEquals(3, filteredList.size());
+        filteredList.setPredicate(string -> string.length() == 9);
+        assertEquals(2, filteredList.size());
     }
 
     @Test
