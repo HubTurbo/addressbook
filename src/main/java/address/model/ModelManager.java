@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Represents the in-memory model of the address book data.
@@ -333,97 +334,37 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 //// EVENT HANDLERS
 
     @Subscribe
-    private <T> void handleUpdateCompletedEvent(SyncCompletedEvent uce) {
+    private <T> void handleSyncCompletedEvent(SyncCompletedEvent uce) {
         // Sync is done outside FX Application thread
-        // TODO: Decide how incoming updates should be handled
-    }
-
-//// DIFFERENTIAL UPDATE ENGINE todo shift this logic to sync component (with conditional requests to remote)
-
-    /**
-     * Diffs extData with the current model and updates the current model with minimal change.
-     * @param extData data from an external canonical source
-     */
-    public synchronized void updateUsingExternalData(ReadOnlyAddressBook extData) {
-        final AddressBook data = new AddressBook(extData);
-        assert !data.containsDuplicates() : "Duplicates are not allowed in an AddressBook";
-        boolean hasPersonsUpdates = diffUpdate(backingModel.getPersons(), data.getPersons());
-        boolean hasTagsUpdates = diffUpdate(backingTagList(), data.getTags());
-        if (hasPersonsUpdates || hasTagsUpdates) {
-            raise(new LocalModelChangedEvent(this));
-        }
-    }
-
-    /**
-     * Performs a diff-update (minimal change) on target using newData.
-     * Arguments newData and target should contain no duplicates.
-     *
-     * Does NOT trigger any events.
-     *
-     * Specification:
-     *   _________________________________________________
-     *  | in newData | in target | Result                |
-     *  --------------------------------------------------
-     *  | yes        | yes       | update item in target |
-     *  | yes        | no        | remove from target    |
-     *  | no         | yes       | copy-add to target    |
-     *  | no         | no        | N/A                   |
-     *  --------------------------------------------------
-     * Any form of data element ordering in newData will not be enforced on target.
-     *
-     * @param target collection of data items to be updated
-     * @param newData target will be updated to match newData's state
-     * @return true if there were changes from the update.
-     */
-    private synchronized <E extends UniqueData> boolean diffUpdate(Collection<E> target, Collection<E> newData) {
-        assert UniqueData.itemsAreUnique(target) : "target of diffUpdate should not have duplicates";
-        assert UniqueData.itemsAreUnique(newData) : "newData for diffUpdate should not have duplicates";
-
-        final Map<E, E> remaining = new HashMap<>(); // has to be map; sets do not allow elemental retrieval
-        newData.forEach((item) -> remaining.put(item, item));
-
-        final Set<E> toBeRemoved = new HashSet<>();
-        final AtomicBoolean changed = new AtomicBoolean(false);
-
-        // handle updates to existing data objects
-        target.forEach(oldItem -> {
-            final E newItem = remaining.remove(oldItem); // find matching item in unconsidered new data
-            if (newItem == null) { // not in newData
-                toBeRemoved.add(oldItem);
-            } else { // exists in both new and old, update.
-                updateDataItem(oldItem, newItem); // updates the items in target (reference points back to target)
-                changed.set(true);
+        Set<Integer> deletedPersonIds = new HashSet<>();
+        Map<Integer, ReadOnlyPerson> updatedPersons = new HashMap<>();
+        uce.getUpdatedPersons().forEach(p -> {
+            if (p.isDeleted()) {
+                deletedPersonIds.add(p.getId());
+            } else {
+                updatedPersons.put(p.getId(), p);
             }
         });
+        // removal
+        backingModel.getPersons().removeAll(backingModel.getPersons().stream()
+                .filter(p -> deletedPersonIds.contains(p.getId())).collect(Collectors.toList())); // removeIf() not optimised
+        // edits
+        backingModel.getPersons().forEach(p -> {
+            if (updatedPersons.containsKey(p.getId())) {
+                p.update(updatedPersons.remove(p.getId()));
+            }
+        });
+        // new
+        backingModel.getPersons().addAll(updatedPersons.values().stream().map(Person::new).collect(Collectors.toList()));
 
-        final Set<E> toBeAdded = remaining.keySet();
-
-        target.removeAll(toBeRemoved);
-        target.addAll(toBeAdded);
-
-        return changed.get() || toBeAdded.size() > 0 || toBeRemoved.size() > 0;
+        Set<Tag> latestTags = new HashSet<>(uce.getLatestTags());
+        backingModel.getTags().retainAll(latestTags); // delete
+        latestTags.removeAll(backingModel.getTags()); // latest tags no longer contains tags already in model
+        backingModel.getTags().addAll(latestTags); // add
     }
 
-    /**
-     * Allows generic UniqueData .update() calling without having to know which class it is.
-     * Because java does not allow self-referential generic type parameters.
-     *
-     * Does not trigger any events.
-     *
-     * @param target to be updated
-     * @param newData data used for update
-     */
-    private <E extends UniqueData> void updateDataItem(E target, E newData) {
-        if (target instanceof Person && newData instanceof Person) {
-            ((Person) target).update((Person) newData);
-            return;
-        }
-        if (target instanceof Tag && newData instanceof Tag) {
-            ((Tag) target).update((Tag) newData);
-            return;
-        }
-        assert false : "need to add logic for any new UniqueData classes";
-    }
+
+//// PREFS
 
     public UserPrefs getPrefs() {
         return prefs;
@@ -438,5 +379,4 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     public void clearPrefsSaveLocation() {
         setPrefsSaveLocation(null);
     }
-
 }
