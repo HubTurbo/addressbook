@@ -120,7 +120,7 @@ public class MainController extends UiController{
             primaryStage.setMinHeight(400);
             primaryStage.setMinWidth(740);
             primaryStage.setHeight(600);
-            primaryStage.setWidth(340);
+            primaryStage.setWidth(740);
             primaryStage.setScene(scene);
 
             // Give the rootController access to the main controller and modelManager
