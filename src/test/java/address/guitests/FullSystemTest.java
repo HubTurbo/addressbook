@@ -21,72 +21,74 @@ public class FullSystemTest extends GuiTestBase {
         // Set name of tag to be "colleagues"
         clickOn("#tagNameField").write("colleagues");
         verifyThat("#tagNameField", hasText("colleagues"));
-        type(KeyCode.ENTER)
+        type(KeyCode.ENTER);
 
-        // Edit Hans Muster to John Tan, and edit details, including tags
-        .clickOn("Muster").type(KeyCode.E).sleep(1000)
+        // Edit Hans Muster to John Tan, and edit details
+        clickOn("Muster").type(KeyCode.E)
                 .clickOn("#firstNameField").push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write("John")
                 .clickOn("#lastNameField").eraseText(6).write("Tan")
                 .clickOn("#cityField").write("Singapore")
-                .clickOn("#githubUserNameField").write("john123");
-        verifyThat("#firstNameField", hasText("John"));
-        verifyThat("#lastNameField", hasText("Tan"));
-        verifyThat("#cityField", hasText("Singapore"));
-        verifyThat("#githubUserNameField", hasText("john123"));
-                clickOn("#tagList")
+                .clickOn("#githubUserNameField").write("john123")
+                .clickOn("#tagList")
                 .sleep(200) // wait for opening animation
                     .clickOn("#tagSearch")
                     .write("coll").type(KeyCode.SPACE)
                     .type(KeyCode.ENTER)
-                .sleep(200) // wait for closing animation
-                .type(KeyCode.ENTER)
+                .sleep(200); // wait for closing animation
+        verifyThat("#firstNameField", hasText("John"));
+        verifyThat("#lastNameField", hasText("Tan"));
+        verifyThat("#cityField", hasText("Singapore"));
+        verifyThat("#githubUserNameField", hasText("john123"));
+        type(KeyCode.ENTER);
 
         // filter persons list with "colleagues" tag
-        .clickOn("#filterField").write("tag:colleagues").type(KeyCode.ENTER);
+        clickOn("#filterField").write("tag:colleagues").type(KeyCode.ENTER);
         verifyThat("#filterField", hasText("tag:colleagues"));
 
-        // verify John is in the list
-        clickOn("John").type(KeyCode.D)
+        // verify John is in the list, and try to delete
+        clickOn("John").type(KeyCode.D);
 
         // remove filter again
-        .clickOn("#filterField").push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).type(KeyCode.ENTER)
+        clickOn("#filterField").push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).type(KeyCode.ENTER);
 
         // edit Ruth Mueller's github username
-        .clickOn("Ruth").type(KeyCode.E).clickOn("#streetField").write("My Street")
+        clickOn("Ruth").type(KeyCode.E).clickOn("#streetField").write("My Street")
                 .clickOn("#githubUserNameField").write("ruth321")
-                .type(KeyCode.ENTER)
+                .type(KeyCode.ENTER);
 
         // filter based on "Mueller" name
-        .clickOn("#filterField").write("name:Mueller").type(KeyCode.ENTER)
+        clickOn("#filterField").write("name:Mueller").type(KeyCode.ENTER);
 
-        // Edit's Martin Mueller's tags
-        .clickOn("Martin").type(KeyCode.E)
+        // edit Martin Mueller's tags
+        clickOn("Martin").type(KeyCode.E)
                 .clickOn("#tagList")
                 .sleep(200)// wait for opening animation
                     .write("frien").type(KeyCode.SPACE)
                     .type(KeyCode.ENTER)
                 .sleep(200)// wait for closing animation
-                .type(KeyCode.ENTER)
+                .type(KeyCode.ENTER);
 
         // ensure "About" dialog opens
-        .clickOn("Help").clickOn("About").clickOn("OK")
+        clickOn("Help").clickOn("About").clickOn("OK");
 
         // create a new person Ming Lee, check that last name cannot be blank
-        .clickOn("New")
-                .clickOn("#firstNameField").write("Ming").clickOn("OK").targetWindow("Invalid Fields").clickOn("OK")
-                .clickOn("#lastNameField").write("Lee").clickOn("OK")
+        clickOn("New")
+                .clickOn("#firstNameField").write("Ming").clickOn("OK")
+                .targetWindow("Invalid Fields").clickOn("OK")
+                .clickOn("#lastNameField").write("Lee").clickOn("OK");
 
         // save file
-        .clickOn("File").clickOn("[Local] Save")
+        clickOn("File").clickOn("[Local] Save");
 
         // add new tag "company"
-        .clickOn("Tags").clickOn("Manage Tags")
-                .rightClickOn("colleagues").clickOn("New").clickOn("#tagNameField").write("company");
+        clickOn("Tags").clickOn("Manage Tags")
+                .rightClickOn("colleagues").clickOn("New")
+                .clickOn("#tagNameField").write("company");
         verifyThat("#tagNameField", hasText("company"));
-                push(KeyCode.ENTER)
+        push(KeyCode.ENTER);
 
         // verify that company is in the tag list
-                .rightClickOn("company").clickOn("Edit");
+        rightClickOn("company").clickOn("Edit");
         verifyThat("#tagNameField", hasText("company"));
 
         // UNABLE to launch file chooser in mac's headless mode
