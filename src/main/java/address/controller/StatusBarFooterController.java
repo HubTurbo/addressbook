@@ -153,7 +153,7 @@ public class StatusBarFooterController extends UiController{
 
     @Subscribe
     private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
-            updateSaveLocationDisplay(e.saveFile);
+        updateSaveLocationDisplay(e.saveFile);
     }
 
     private void updateSaveLocationDisplay(File saveFile) {
