@@ -8,7 +8,6 @@ import address.parser.expr.Expr;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class ParserTest {
         String filterString = "name:Mueller tag:friends";
         Expr expr = parser.parse(filterString);
 
-        ReadOnlyViewablePerson readOnlyViewablePerson = prepareReadOnlyViewablePersonMock(1, "John", "Mueller", "", "", "friends");
+        ReadOnlyViewablePerson readOnlyViewablePerson = getRovPersonMock(1, "John", "Mueller", "", "", "friends");
 
         assertTrue(expr.satisfies(readOnlyViewablePerson));
     }
@@ -40,9 +39,9 @@ public class ParserTest {
         String filterString = "!name:Mueller tag:friends";
         Expr expr = parser.parse(filterString);
 
-        ReadOnlyViewablePerson personOne = prepareReadOnlyViewablePersonMock(1, "John", "Mueller", "", "", "friends");
-        ReadOnlyViewablePerson personTwo = prepareReadOnlyViewablePersonMock(2, "John", "Tan", "", "", "friends");
-        ReadOnlyViewablePerson personThree = prepareReadOnlyViewablePersonMock(3, "John", "Lee", "", "", "colleagues");
+        ReadOnlyViewablePerson personOne = getRovPersonMock(1, "John", "Mueller", "", "", "friends");
+        ReadOnlyViewablePerson personTwo = getRovPersonMock(2, "John", "Tan", "", "", "friends");
+        ReadOnlyViewablePerson personThree = getRovPersonMock(3, "John", "Lee", "", "", "colleagues");
 
         assertFalse(expr.satisfies(personOne));
         assertTrue(expr.satisfies(personTwo));
@@ -54,10 +53,10 @@ public class ParserTest {
         String filterString = "!name:Mueller !tag:friends !!city:Singapore";
         Expr expr = parser.parse(filterString);
 
-        ReadOnlyViewablePerson personOne = prepareReadOnlyViewablePersonMock(1, "John", "Mueller", "", "", "friends");
-        ReadOnlyViewablePerson personTwo = prepareReadOnlyViewablePersonMock(2, "John", "Tan", "", "Singapore", "friends");
-        ReadOnlyViewablePerson personThree = prepareReadOnlyViewablePersonMock(3, "Mull", "Lee", "", "Malaysia", "colleagues");
-        ReadOnlyViewablePerson personFour = prepareReadOnlyViewablePersonMock(4, "Jack", "Lim", "", "Singapore", "colleagues");
+        ReadOnlyViewablePerson personOne = getRovPersonMock(1, "John", "Mueller", "", "", "friends");
+        ReadOnlyViewablePerson personTwo = getRovPersonMock(2, "John", "Tan", "", "Singapore", "friends");
+        ReadOnlyViewablePerson personThree = getRovPersonMock(3, "Mull", "Lee", "", "Malaysia", "colleagues");
+        ReadOnlyViewablePerson personFour = getRovPersonMock(4, "Jack", "Lim", "", "Singapore", "colleagues");
 
         assertFalse(expr.satisfies(personOne));
         assertFalse(expr.satisfies(personTwo));
@@ -70,11 +69,15 @@ public class ParserTest {
         String filterString = "name:Mueller tag:friends city:Singapore street:Victoria id:5";
         Expr expr = parser.parse(filterString);
 
-        ReadOnlyViewablePerson personOne = prepareReadOnlyViewablePersonMock(1, "John", "Tan", "", "Singapore", "friends");
-        ReadOnlyViewablePerson personTwo = prepareReadOnlyViewablePersonMock(2, "John", "Mueller", "Victoria Street", "Singapore", "friends");
-        ReadOnlyViewablePerson personThree = prepareReadOnlyViewablePersonMock(3, "Mull", "Lee", "Johor Street", "Malaysia", "colleagues");
-        ReadOnlyViewablePerson personFour = prepareReadOnlyViewablePersonMock(4, "Jack", "Lim", "Heng Mui Keng Terrace", "Singapore", "colleagues");
-        ReadOnlyViewablePerson personFive = prepareReadOnlyViewablePersonMock(5, "Martin", "Mueller", "Victoria Street", "Singapore", "friends");
+        ReadOnlyViewablePerson personOne = getRovPersonMock(1, "John", "Tan", "", "Singapore", "friends");
+        ReadOnlyViewablePerson personTwo = getRovPersonMock(2, "John", "Mueller", "Victoria Street", "Singapore",
+                                                            "friends");
+        ReadOnlyViewablePerson personThree = getRovPersonMock(3, "Mull", "Lee", "Johor Street", "Malaysia",
+                                                              "colleagues");
+        ReadOnlyViewablePerson personFour = getRovPersonMock(4, "Jack", "Lim", "Heng Mui Keng Terrace", "Singapore",
+                                                             "colleagues");
+        ReadOnlyViewablePerson personFive = getRovPersonMock(5, "Martin", "Mueller", "Victoria Street", "Singapore",
+                                                             "friends");
 
         assertFalse(expr.satisfies(personOne));
         assertFalse(expr.satisfies(personTwo));
@@ -83,8 +86,34 @@ public class ParserTest {
         assertTrue(expr.satisfies(personFive));
     }
 
-    private ReadOnlyViewablePerson prepareReadOnlyViewablePersonMock(int id, String firstName, String lastName,
-                                                                     String street, String city, String... tags) {
+    @Test
+    public void parser_invalidFilterString_parseExceptionThrown() {
+        // tag should not have s
+        String filterString = "name:Mueller tags:friends city:Singapore street:Victoria id:5";
+        // missing qualifier value for city
+        String filterStringTwo = "name:Mueller tags:friends city: street:Victoria id:5";
+        // unknown symbol
+        String filterStringThree = "name:Mueller & tags:friends city: street:Victoria id:5";
+        // space after city colon
+        String filterStringFour = "name:Mueller & tags:friends city: Singapore street:Victoria id:5";
+
+        assertTrue(isParseExceptionThrown(filterString));
+        assertTrue(isParseExceptionThrown(filterStringTwo));
+        assertTrue(isParseExceptionThrown(filterStringThree));
+        assertTrue(isParseExceptionThrown(filterStringFour));
+    }
+
+    private boolean isParseExceptionThrown(String filterString) {
+        try {
+            parser.parse(filterString);
+            return false;
+        } catch (ParseException e) {
+            return true;
+        }
+    }
+
+    private ReadOnlyViewablePerson getRovPersonMock(int id, String firstName, String lastName, String street,
+                                                    String city, String... tags) {
         ReadOnlyViewablePerson readOnlyViewablePersonMock = mock(ReadOnlyViewablePerson.class);
         List<Tag> tagList = new ArrayList<>();
         for (String tagString : tags) {
