@@ -45,7 +45,7 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
         final Optional<ReadOnlyPerson> input = inputRetriever.get();
         if (input.isPresent()) {
             this.input = input.get();
-            logger.info("retrieveInput: Retrieving input " + input.get().toString());
+            logger.debug("retrieveInput: Retrieving input " + input.get().toString());
             return SIMULATING_RESULT; // normal exec path
         }
         // Problem retrieving input (most likely user cancelled input dialog or some exception occurred.

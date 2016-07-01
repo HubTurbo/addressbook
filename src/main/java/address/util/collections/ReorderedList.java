@@ -30,28 +30,28 @@ public class ReorderedList<T> extends TransformationList<T, T> {
     public ReorderedList(ObservableList<T> source) {
         super(source);
         mappingList = FXCollections.observableArrayList(source);
-        logger.info("Mapping list created.");
+        logger.debug("Mapping list created.");
     }
 
     @Override
     protected synchronized void sourceChanged(ListChangeListener.Change<? extends T> c) {
-        logger.info("Source changed detected: Begin changing of mapping list");
+        logger.debug("Source changed detected: Begin changing of mapping list");
         beginChange();
         while (c.next()) {
             if (c.wasRemoved()) {
-                logger.info("c.wasRemoved:" + Arrays.toString(c.getRemoved().toArray()));
+                logger.debug("c.wasRemoved:" + Arrays.toString(c.getRemoved().toArray()));
                 mappingList.removeAll(c.getRemoved());
             }
 
             if (c.wasAdded()) {
-                logger.info("c.wasAdded:" + Arrays.toString(c.getAddedSubList().toArray()));
+                logger.debug("c.wasAdded:" + Arrays.toString(c.getAddedSubList().toArray()));
                 mappingList.addAll(c.getAddedSubList());
             }
         }
         endChange();
-        logger.info("Source changed detected: End changing of mapping list");
+        logger.debug("Source changed detected: End changing of mapping list");
         fireChange(new SourceAdapterChange<>(this, c));
-        logger.info("Source changed detected: Fire Changes");
+        logger.debug("Source changed detected: Fire Changes");
     }
 
     @Override
