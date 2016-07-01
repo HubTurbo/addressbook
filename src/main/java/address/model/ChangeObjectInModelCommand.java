@@ -55,7 +55,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         this.gracePeriodDurationInSeconds = gracePeriodDurationInSeconds;
     }
 
-    public final void waitForCompletion() throws InterruptedException {
+    public void waitForCompletion() throws InterruptedException {
         completionLatch.await();
     }
 

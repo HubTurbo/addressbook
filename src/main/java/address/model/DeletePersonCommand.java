@@ -38,6 +38,10 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
         this.addressbookName = model.getPrefs().getSaveLocation().getName();
     }
 
+    protected ViewablePerson getViewable() {
+        return target;
+    }
+
     @Override
     public int getTargetPersonId() {
         return target.getId();

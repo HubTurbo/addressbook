@@ -36,10 +36,15 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
                                 int gracePeriodDurationInSeconds, Consumer<BaseEvent> eventRaiser,
                                 ModelManager model) {
         super(inputRetriever, gracePeriodDurationInSeconds);
+        assert target != null;
         this.target = target;
         this.model = model;
         this.eventRaiser = eventRaiser;
         this.addressbookName = model.getPrefs().getSaveLocation().getName();
+    }
+
+    protected ViewablePerson getViewable() {
+        return target;
     }
 
     @Override

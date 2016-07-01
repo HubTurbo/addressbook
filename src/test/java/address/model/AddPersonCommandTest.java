@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AddPersonCommandTest {
 
-    public static class InterruptAndTerminateException extends RuntimeException {}
+    private static class InterruptAndTerminateException extends RuntimeException {}
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -61,7 +61,7 @@ public class AddPersonCommandTest {
         when(modelManagerMock.addViewablePersonWithoutBacking(notNull(ReadOnlyPerson.class))).thenReturn(createdViewable);
 
         // to stop the run at start of grace period (right after simulated change)
-        doThrow(new InterruptAndTerminateException()).when(apc).beforeGracePeriod();
+        doThrow(InterruptAndTerminateException.class).when(apc).beforeGracePeriod();
         thrown.expect(InterruptAndTerminateException.class);
 
         apc.run();
@@ -98,9 +98,9 @@ public class AddPersonCommandTest {
         apc.run();
 
         assertTrue(apc.getViewableToAdd().dataFieldsEqual(inputData)); // same data as input
-        assertTrue(modelManagerSpy.visibleModel().getPersonList().size() == 1); // only 1 viewable
+        assertEquals(modelManagerSpy.visibleModel().getPersonList().size(), 1); // only 1 viewable
         assertTrue(modelManagerSpy.backingModel().getPersonList().isEmpty()); // simulation wont affect backing
-        assertTrue(modelManagerSpy.visibleModel().getPersonList().get(0) == apc.getViewableToAdd()); // same ref
+        assertSame(modelManagerSpy.visibleModel().getPersonList().get(0), apc.getViewableToAdd()); // same ref
     }
 
     @Test
@@ -113,7 +113,7 @@ public class AddPersonCommandTest {
         assertFinalStatesCorrectForSuccessfulAdd(apc, modelManagerSpy, inputData);
     }
 
-    // THIS TEST TAKES >1 SECONDS BY DESIGN
+    // THIS TEST TAKES >=1 SECONDS BY DESIGN
     @Test
     public void interruptGracePeriod_withEditRequest_changesAddedPersonData() {
         // grace period duration must be non zero, will be interrupted immediately anyway
@@ -155,7 +155,7 @@ public class AddPersonCommandTest {
         assertTrue(backingPersonFromModel.dataFieldsEqual(resultData));
     }
 
-    private AddPersonCommand constructWithDummyArgs() {
+    public static AddPersonCommand constructWithDummyArgs() {
         return new AddPersonCommand(null, 0, null, null);
     }
 }
