@@ -89,18 +89,25 @@ public class ParserTest {
     @Test
     public void parser_invalidFilterString_parseExceptionThrown() {
         // tag should not have s
-        String filterString = "name:Mueller tags:friends city:Singapore street:Victoria id:5";
+        String filterString = "firstName:John lastName:Mueller tags:friends city:Singapore street:Victoria id:5";
         // missing qualifier value for city
-        String filterStringTwo = "name:Mueller tags:friends city: street:Victoria id:5";
+        String filterStringTwo = "firstName:John lastName:Mueller tags:friends city: street:Victoria id:5";
         // unknown symbol
-        String filterStringThree = "name:Mueller & tags:friends city: street:Victoria id:5";
+        String filterStringThree = "firstName:John lastName:Mueller & tags:friends city: street:Victoria id:5";
         // space after city colon
-        String filterStringFour = "name:Mueller & tags:friends city: Singapore street:Victoria id:5";
+        String filterStringFour = "firstName:John lastName:Mueller tags:friends city: Singapore street:Victoria id:5";
 
         assertTrue(isParseExceptionThrown(filterString));
         assertTrue(isParseExceptionThrown(filterStringTwo));
         assertTrue(isParseExceptionThrown(filterStringThree));
         assertTrue(isParseExceptionThrown(filterStringFour));
+    }
+
+    @Test
+    public void parser_invalidValue_parseExceptionThrown() {
+        // not an integer
+        String filterString = "id:one";
+        assertTrue(isParseExceptionThrown(filterString));
     }
 
     private boolean isParseExceptionThrown(String filterString) {
