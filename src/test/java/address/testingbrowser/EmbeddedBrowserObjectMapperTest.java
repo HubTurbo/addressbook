@@ -1,4 +1,4 @@
-package address.browser;
+package address.testingbrowser;
 
 import hubturbo.embeddedbrowser.EbEditorCommand;
 import hubturbo.embeddedbrowser.jxbrowser.EmbeddedBrowserObjectMapper;

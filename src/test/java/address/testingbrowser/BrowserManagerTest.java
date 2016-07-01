@@ -1,5 +1,6 @@
-package address.browser;
+package address.testingbrowser;
 
+import address.browser.BrowserManager;
 import address.testutils.JavafxThreadingRule;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
