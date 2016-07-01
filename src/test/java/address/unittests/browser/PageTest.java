@@ -33,7 +33,7 @@ public class PageTest {
 
     @Test
     public void testPageTestMethods_fullFeatureBrowser() throws IOException {
-        Page page = getSampleGithubProfilePage();
+        Page page = getSampleGithubProfilePage(BrowserType.FULL_FEATURE_BROWSER);
 
         assertNotNull(page.getElementByClass(VALID_CLASS_NAME_1));
         assertNull(page.getElementByClass("singaporeFlyer"));
@@ -59,16 +59,15 @@ public class PageTest {
         page.getBrowser().dispose();
     }
 
-
-    private Page getSampleGithubProfilePage() throws IOException {
-        EmbeddedBrowser browser = EmbeddedBrowserFactory.createBrowser(BrowserType.FULL_FEATURE_BROWSER);
+    private Page getSampleGithubProfilePage(BrowserType type) throws IOException {
+        EmbeddedBrowser browser = EmbeddedBrowserFactory.createBrowser(type);
         InputStream stream = this.getClass().getResourceAsStream("/html_pages/github_profile_page.html");
         String html = IOUtils.toString(stream);
         stream.close();
         browser.loadHTML(html);
         Page page = new Page(browser);
         while(page.isPageLoading());
-        return page;
+        return new Page(browser);
     }
 
 }
