@@ -40,9 +40,11 @@ public class SyncManager extends ComponentManager {
      * Constructor for SyncManager
      *
      * @param config should have updateInterval (milliseconds) and simulateUnreliableNetwork set
+     * @param activeAddressBookName name of active addressbook to start with
      */
-    public SyncManager(Config config) {
-        this(config, new RemoteManager(config), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
+    public SyncManager(Config config, String activeAddressBookName) {
+        this(config, new RemoteManager(config), Executors.newCachedThreadPool(),
+                Executors.newScheduledThreadPool(1), activeAddressBookName);
     }
 
     /**
@@ -54,14 +56,14 @@ public class SyncManager extends ComponentManager {
      * @param scheduledExecutorService non-null
      */
     public SyncManager(Config config, RemoteManager remoteManager, ExecutorService executorService,
-                       ScheduledExecutorService scheduledExecutorService) {
+                       ScheduledExecutorService scheduledExecutorService, String activeAddressBookName) {
         super();
         activeAddressBook = Optional.empty();
         this.config = config;
         this.remoteManager = remoteManager;
         this.requestExecutor = executorService;
         this.scheduler = scheduledExecutorService;
-
+        setActiveAddressBook(activeAddressBookName);
     }
 
     @Subscribe

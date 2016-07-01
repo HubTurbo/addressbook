@@ -54,7 +54,7 @@ public class SyncManagerTest {
         config.simulateUnreliableNetwork = false;
         config.updateInterval = 1;
 
-        syncManager = new SyncManager(config, remoteManager, executorService, scheduledExecutorService);
+        syncManager = new SyncManager(config, remoteManager, executorService, scheduledExecutorService, null);
     }
 
     @Test

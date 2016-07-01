@@ -300,6 +300,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
             throw new DuplicateTagException(tagToAdd);
         }
         backingTagList().add(tagToAdd);
+        raise(new CreateTagOnRemoteRequestEvent(new CompletableFuture<>(), getPrefs().getSaveLocationString(), tagToAdd));
     }
 
 //// UPDATE
@@ -316,8 +317,10 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         if (!original.equals(updated) && backingTagList().contains(updated)) {
             throw new DuplicateTagException(updated);
         }
+        String originalName = original.getName();
         original.update(updated);
-        raise(new LocalModelChangedEvent(this));
+        raise(new EditTagOnRemoteRequestEvent(new CompletableFuture<>(),
+                getPrefs().getSaveLocationString(), originalName, updated));
     }
 
 //// DELETE
@@ -328,7 +331,10 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      * @return true if there was a successful removal
      */
     public synchronized boolean deleteTag(Tag tagToDelete) {
-        return backingTagList().remove(tagToDelete);
+        boolean result = backingTagList().remove(tagToDelete);
+        raise(new DeleteTagOnRemoteRequestEvent(new CompletableFuture<>(),
+                getPrefs().getSaveLocationString(), tagToDelete.getName()));
+        return result;
     }
 
 //// EVENT HANDLERS
@@ -374,6 +380,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         prefs.setSaveLocation(saveLocation);
         raise(new SaveLocationChangedEvent(saveLocation));
         raise(new SavePrefsRequestEvent(prefs));
+        raise(new ChangeActiveAddressBookRequestEvent(saveLocation));
     }
 
     public void clearPrefsSaveLocation() {

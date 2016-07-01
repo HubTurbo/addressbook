@@ -72,7 +72,7 @@ public class MainApp extends Application {
         modelManager = new ModelManager(userPrefs);
         storageManager = new StorageManager(modelManager::resetData, config, userPrefs);
         ui = new Ui(this, modelManager, config);
-        syncManager = new SyncManager(config);
+        syncManager = new SyncManager(config, userPrefs.getSaveLocationString());
         keyBindingsManager = new KeyBindingsManager();
         updateManager = new UpdateManager(VERSION);
     }
