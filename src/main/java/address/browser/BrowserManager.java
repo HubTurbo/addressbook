@@ -1,6 +1,14 @@
 package address.browser;
 
+import address.MainApp;
 import address.browser.page.GithubProfilePage;
+
+import address.model.datatypes.person.ReadOnlyPerson;
+
+import hubturbo.embeddedbrowser.BrowserType;
+import hubturbo.embeddedbrowser.HyperBrowser;
+import hubturbo.embeddedbrowser.page.Page;
+
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.AppLogger;
 import address.util.LoggerManager;
@@ -8,20 +16,23 @@ import address.util.UrlUtil;
 import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;
-import hubturbo.embeddedbrowser.BrowserType;
-import hubturbo.embeddedbrowser.HyperBrowser;
-import hubturbo.embeddedbrowser.page.Page;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Manages the AddressBook browser.
@@ -29,7 +40,9 @@ import java.util.logging.Level;
  */
 public class BrowserManager {
 
-    private static final BrowserType type = BrowserType.FULL_FEATURE_BROWSER;
+    private final BrowserType browserType;
+
+    private static final String FXML_BROWSER_PLACE_HOLDER_SCREEN = "/view/DefaultBrowserPlaceHolderScreen.fxml";
 
     private static final String GITHUB_ROOT_URL = "https://github.com/";
     private static final String INVALID_GITHUB_USERNAME_MESSAGE = "Unparsable GitHub Username.";
@@ -41,6 +54,8 @@ public class BrowserManager {
     private Optional<HyperBrowser> hyperBrowser;
 
     private StringProperty selectedPersonUsername;
+
+    private final int browserNoOfPages;
 
     private ChangeListener<String> listener = (observable,  oldValue,  newValue) -> {
         try {
@@ -57,17 +72,20 @@ public class BrowserManager {
         }
     };
 
-    public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
+    public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons, int browserNoOfPages,
+                          BrowserType browserType) {
         this.selectedPersonUsername = new SimpleStringProperty();
         this.filteredPersons = filteredPersons;
+        this.browserNoOfPages = browserNoOfPages;
+        this.browserType = browserType;
     }
 
     /**
      * Initialize the browser managed by the browser manager.
      * This must be called in a non-ui thread.
      */
-    public static void initBrowser(){
-        if (type == BrowserType.FULL_FEATURE_BROWSER) {
+    public void initBrowser(){
+        if (browserType == BrowserType.FULL_FEATURE_BROWSER) {
             if (Environment.isMac()) {
                 BrowserCore.initialize();
             }
@@ -85,11 +103,11 @@ public class BrowserManager {
             logger.info("Headless mode detected, not initializing HyperBrowser.");
             hyperBrowser = Optional.empty();
         } else {
-            logger.info("Initializing browser with {} pages", HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES);
+            logger.info("Initializing browser with {} pages", browserNoOfPages);
             hyperBrowser = Optional.of(new HyperBrowser(
-                    type,
-                    HyperBrowser.RECOMMENDED_NUMBER_OF_PAGES,
-                    BrowserManagerUtil.getBrowserInitialScreen()));
+                    browserType,
+                    browserNoOfPages,
+                    getBrowserInitialScreen()));
         }
     }
 
@@ -105,7 +123,11 @@ public class BrowserManager {
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
         List<URL> listOfFutureUrl =
-                BrowserManagerUtil.getListOfPersonUrlToLoadInFuture(filteredPersons, indexOfPersonInListOfContacts);
+                UrlUtil.getFutureUrls(filteredPersons.stream()
+                                                         .map(ReadOnlyPerson::profilePageUrl)
+                                                         .collect(Collectors.toCollection(ArrayList::new)),
+                                                                  indexOfPersonInListOfContacts,
+                                                                  browserNoOfPages - 1);
         try {
             List<Page> pages = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
             configureGithubPageTasks(pages);
@@ -136,5 +158,16 @@ public class BrowserManager {
             return new AnchorPane();
         }
         return hyperBrowser.get().getHyperBrowserView();
+    }
+
+    private static Optional<Node> getBrowserInitialScreen(){
+        String fxmlResourcePath = FXML_BROWSER_PLACE_HOLDER_SCREEN;
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            return Optional.ofNullable(loader.load());
+        } catch (IOException e){
+            return Optional.empty();
+        }
     }
 }
