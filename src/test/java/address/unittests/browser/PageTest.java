@@ -1,5 +1,6 @@
 package address.unittests.browser;
 
+import address.browser.page.GithubProfilePage;
 import address.util.JavafxThreadingRule;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.BrowserType;
@@ -55,6 +56,9 @@ public class PageTest {
 
         assertTrue(page.verifyPresenceByIds(VALID_ID_1));
         assertFalse(page.verifyPresenceByIds("hubturbo"));
+
+        GithubProfilePage gPage = new GithubProfilePage(page);
+        assertTrue(gPage.isValidGithubProfilePage());
 
         page.getBrowser().dispose();
     }
