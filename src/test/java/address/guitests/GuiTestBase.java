@@ -99,7 +99,7 @@ public class GuiTestBase extends FxRobot {
         int maxRetries = 3;
         for (int i = 0; i < maxRetries; i++) {
             try {
-                clickOn(query);
+                super.clickOn(query);
                 return this;
             } catch (Exception e) {
                 System.out.println("Going to retry clicking " + query + ", retry count " + (i+1));
