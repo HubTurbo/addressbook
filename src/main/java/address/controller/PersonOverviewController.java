@@ -199,16 +199,15 @@ public class PersonOverviewController extends UiController{
 
     @FXML
     private void handleFilterChanged() {
-        Expr filterExpression = null;
-        boolean isFilterValid = true;
+        Expr filterExpression;
         try {
             filterExpression = parser.parse(filterField.getText());
         } catch (ParseException e) {
             logger.debug("Invalid filter found: {}", e);
-            isFilterValid = false;
+            filterExpression = PredExpr.TRUE;
         }
 
-        if (isFilterValid) {
+        if (filterExpression != null) {
             if (filterField.getStyleClass().contains("error")) filterField.getStyleClass().remove("error");
         } else {
             if (!filterField.getStyleClass().contains("error")) filterField.getStyleClass().add("error");
