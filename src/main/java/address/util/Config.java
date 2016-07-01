@@ -18,7 +18,7 @@ public class Config {
     private static final boolean DEFAULT_NETWORK_UNRELIABLE_MODE = false;
     private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVELS = new HashMap<>();
     private static final int DEFAULT_BROWSER_NO_OF_PAGES = 3;
-    private static final BrowserType DEFAULT_BROWSER_TYPE = BrowserType.LIMITED_FEATURE_BROWSER;
+    private static final BrowserType DEFAULT_BROWSER_TYPE = BrowserType.FULL_FEATURE_BROWSER;
 
     // Config values
     public String appTitle = "Address App";
