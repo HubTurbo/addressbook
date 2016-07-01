@@ -1,6 +1,7 @@
 package address.sync;
 
 import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.AppLogger;
 import address.util.Config;
@@ -121,7 +122,7 @@ public class RemoteManager {
      * @return Resulting person if creation is successful
      * @throws IOException
      */
-    public Optional<Person> createPerson(String addressBookName, Person person) throws IOException {
+    public Optional<Person> createPerson(String addressBookName, ReadOnlyPerson person) throws IOException {
         ExtractedRemoteResponse<Person> response = remoteService.createPerson(addressBookName, person);
         return response.getData();
     }
@@ -147,7 +148,7 @@ public class RemoteManager {
      * @return Resulting person if update is successful
      * @throws IOException
      */
-    public Optional<Person> updatePerson(String addressBookName, int personId, Person updatedPerson) throws IOException {
+    public Optional<Person> updatePerson(String addressBookName, int personId, ReadOnlyPerson updatedPerson) throws IOException {
         ExtractedRemoteResponse<Person> response = remoteService.updatePerson(addressBookName, personId, updatedPerson);
         return response.getData();
     }

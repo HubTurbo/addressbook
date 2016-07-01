@@ -122,7 +122,7 @@ public class RootLayoutController extends UiController{
 
         modelManager.setPrefsSaveLocation(file.getPath());
         // TODO temp patch to create cloud file if non found
-        raise(new CreateAddressBookOnRemoteRequestEvent(new CompletableFuture<Boolean>(), file.getPath()));
+        raise(new CreateAddressBookOnRemoteRequestEvent(new CompletableFuture<>(), file.getName()));
         raise(new SaveDataRequestEvent(file, modelManager));
     }
 

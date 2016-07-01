@@ -3,6 +3,7 @@ package address.sync;
 
 import address.events.*;
 import address.main.ComponentManager;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 import address.sync.task.*;
@@ -109,8 +110,8 @@ public class SyncManager extends ComponentManager {
 
     @Subscribe
     public void handleCreatePersonOnRemoteRequestEvent(CreatePersonOnRemoteRequestEvent event) {
-        CompletableFuture<Person> resultContainer = event.getReturnedPersonContainer();
-        RemoteTaskWithResult<Person> taskToCall = new CreatePersonOnRemoteTask(remoteManager,
+        CompletableFuture<ReadOnlyPerson> resultContainer = event.getReturnedPersonContainer();
+        RemoteTaskWithResult<ReadOnlyPerson> taskToCall = new CreatePersonOnRemoteTask(remoteManager,
                                                                                event.getAddressBookName(),
                                                                                event.getCreatedPerson());
         callTaskAndHandleResult(taskToCall, resultContainer);
@@ -126,8 +127,8 @@ public class SyncManager extends ComponentManager {
 
     @Subscribe
     public void handleUpdatePersonOnRemoteRequestEvent(UpdatePersonOnRemoteRequestEvent event) {
-        CompletableFuture<Person> resultContainer = event.getReturnedPersonContainer();
-        RemoteTaskWithResult<Person> taskToCall = new UpdatePersonOnRemoteTask(remoteManager,
+        CompletableFuture<ReadOnlyPerson> resultContainer = event.getReturnedPersonContainer();
+        RemoteTaskWithResult<ReadOnlyPerson> taskToCall = new UpdatePersonOnRemoteTask(remoteManager,
                                                                                event.getAddressBookName(),
                                                                                event.getPersonId(),
                                                                                event.getUpdatedPerson());

@@ -1,26 +1,27 @@
 package address.events;
 
 import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyPerson;
 
 import java.util.concurrent.CompletableFuture;
 
 public class CreatePersonOnRemoteRequestEvent extends BaseEvent {
-    private CompletableFuture<Person> returnedPersonContainer;
-    private Person createdPerson;
+    private CompletableFuture<ReadOnlyPerson> returnedPersonContainer;
+    private ReadOnlyPerson createdPerson;
     private String addressBookName;
 
-    public CreatePersonOnRemoteRequestEvent(CompletableFuture<Person> returnedPersonContainer, String addressBookName,
-                                            Person createdPerson) {
+    public CreatePersonOnRemoteRequestEvent(CompletableFuture<ReadOnlyPerson> returnedPersonContainer, String addressBookName,
+                                            ReadOnlyPerson createdPerson) {
         this.returnedPersonContainer = returnedPersonContainer;
         this.addressBookName = addressBookName;
         this.createdPerson = createdPerson;
     }
 
-    public CompletableFuture<Person> getReturnedPersonContainer() {
+    public CompletableFuture<ReadOnlyPerson> getReturnedPersonContainer() {
         return returnedPersonContainer;
     }
 
-    public Person getCreatedPerson() {
+    public ReadOnlyPerson getCreatedPerson() {
         return createdPerson;
     }
 

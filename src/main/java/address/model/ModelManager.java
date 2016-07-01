@@ -300,7 +300,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
             throw new DuplicateTagException(tagToAdd);
         }
         backingTagList().add(tagToAdd);
-        raise(new CreateTagOnRemoteRequestEvent(new CompletableFuture<>(), getPrefs().getSaveLocationString(), tagToAdd));
+        raise(new CreateTagOnRemoteRequestEvent(new CompletableFuture<>(), getPrefs().getSaveLocation().getName(), tagToAdd));
     }
 
 //// UPDATE
@@ -320,7 +320,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         String originalName = original.getName();
         original.update(updated);
         raise(new EditTagOnRemoteRequestEvent(new CompletableFuture<>(),
-                getPrefs().getSaveLocationString(), originalName, updated));
+                getPrefs().getSaveLocation().getName(), originalName, updated));
     }
 
 //// DELETE
@@ -333,7 +333,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     public synchronized boolean deleteTag(Tag tagToDelete) {
         boolean result = backingTagList().remove(tagToDelete);
         raise(new DeleteTagOnRemoteRequestEvent(new CompletableFuture<>(),
-                getPrefs().getSaveLocationString(), tagToDelete.getName()));
+                getPrefs().getSaveLocation().getName(), tagToDelete.getName()));
         return result;
     }
 
@@ -351,22 +351,28 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
                 updatedPersons.put(p.getId(), p);
             }
         });
-        // removal
-        backingModel.getPersons().removeAll(backingModel.getPersons().stream()
-                .filter(p -> deletedPersonIds.contains(p.getId())).collect(Collectors.toList())); // removeIf() not optimised
-        // edits
-        backingModel.getPersons().forEach(p -> {
-            if (updatedPersons.containsKey(p.getId())) {
-                p.update(updatedPersons.remove(p.getId()));
-            }
+        PlatformExecUtil.runLater(() -> {
+            // removal
+            backingModel.getPersons().removeAll(backingModel.getPersons().stream()
+                    .filter(p -> deletedPersonIds.contains(p.getId())).collect(Collectors.toList())); // removeIf() not optimised
+            // edits
+            backingModel.getPersons().forEach(p -> {
+                if (updatedPersons.containsKey(p.getId())) {
+                    p.update(updatedPersons.remove(p.getId()));
+                }
+            });
+            // new
+            backingModel.getPersons().addAll(updatedPersons.values().stream()
+                    .map(Person::new).collect(Collectors.toList()));
         });
-        // new
-        backingModel.getPersons().addAll(updatedPersons.values().stream().map(Person::new).collect(Collectors.toList()));
+
 
         Set<Tag> latestTags = new HashSet<>(uce.getLatestTags());
         backingModel.getTags().retainAll(latestTags); // delete
-        latestTags.removeAll(backingModel.getTags()); // latest tags no longer contains tags already in model
-        backingModel.getTags().addAll(latestTags); // add
+        PlatformExecUtil.runLater(() -> {
+            latestTags.removeAll(backingModel.getTags()); // latest tags no longer contains tags already in model
+            backingModel.getTags().addAll(latestTags); // add
+        });
     }
 
 

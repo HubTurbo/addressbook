@@ -1,5 +1,6 @@
 package address.sync;
 
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 import address.sync.cloud.CloudSimulator;
@@ -14,6 +15,7 @@ import address.util.LoggerManager;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This component is responsible for providing a high-level API for communication with the remote,
@@ -113,7 +115,7 @@ public class RemoteService implements IRemoteService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedRemoteResponse<Person> createPerson(String addressBookName, Person newPerson) throws IOException {
+    public ExtractedRemoteResponse<Person> createPerson(String addressBookName, ReadOnlyPerson newPerson) throws IOException {
         RemoteResponse remoteResponse = remote.createPerson(addressBookName, convertToCloudPerson(newPerson), null);
         if (!isValid(remoteResponse)) {
             return getResponseWithNoData(remoteResponse);
@@ -134,7 +136,7 @@ public class RemoteService implements IRemoteService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedRemoteResponse<Person> updatePerson(String addressBookName, int personId, Person updatedPerson)
+    public ExtractedRemoteResponse<Person> updatePerson(String addressBookName, int personId, ReadOnlyPerson updatedPerson)
             throws IOException {
         RemoteResponse remoteResponse = remote.updatePerson(addressBookName, personId,
                 convertToCloudPerson(updatedPerson), null);
@@ -405,11 +407,7 @@ public class RemoteService implements IRemoteService {
     }
 
     private List<CloudTag> convertToCloudTagList(List<Tag> tagList) {
-        List<CloudTag> convertedList = new ArrayList<>();
-        tagList.stream()
-                .forEach(tag -> convertedList.add(convertToCloudTag(tag)));
-
-        return convertedList;
+        return tagList.stream().map(this::convertToCloudTag).collect(Collectors.toCollection(ArrayList::new));
     }
 
     private Person convertToPerson(CloudPerson cloudPerson) {
@@ -424,14 +422,14 @@ public class RemoteService implements IRemoteService {
         return person;
     }
 
-    private CloudPerson convertToCloudPerson(Person person) {
+    private CloudPerson convertToCloudPerson(ReadOnlyPerson person) {
         CloudPerson cloudPerson = new CloudPerson(person.getFirstName(), person.getLastName());
         cloudPerson.setStreet(person.getStreet());
         cloudPerson.setCity(person.getCity());
         cloudPerson.setPostalCode(person.getPostalCode());
-        cloudPerson.setTags(convertToCloudTagList(person.getTags()));
+        cloudPerson.setTags(convertToCloudTagList(person.getTagList()));
         cloudPerson.setBirthday(person.getBirthday());
-        cloudPerson.setDeleted(person.isDeleted());
+        cloudPerson.setDeleted(false);
         return cloudPerson;
     }
 
