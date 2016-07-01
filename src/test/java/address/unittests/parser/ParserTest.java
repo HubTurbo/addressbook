@@ -5,6 +5,7 @@ import address.model.datatypes.tag.Tag;
 import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -16,10 +17,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ParserTest {
+    Parser parser;
+
+    @Before
+    public void setup() {
+        parser = new Parser();
+    }
+
     @Test
     public void parser_multipleQualifiers_correctExprProduced() throws ParseException {
         String filterString = "name:Mueller tag:friends";
-        Expr expr = Parser.parse(filterString);
+        Expr expr = parser.parse(filterString);
 
         ReadOnlyViewablePerson readOnlyViewablePerson = prepareReadOnlyViewablePersonMock("John", "Mueller", "", "friends");
 
@@ -29,7 +37,7 @@ public class ParserTest {
     @Test
     public void parser_containsNotExprAndMultipleQualifiers_correctExprProduced() throws ParseException {
         String filterString = "!name:Mueller tag:friends";
-        Expr expr = Parser.parse(filterString);
+        Expr expr = parser.parse(filterString);
 
         ReadOnlyViewablePerson personOne = prepareReadOnlyViewablePersonMock("John", "Mueller", "", "friends");
         ReadOnlyViewablePerson personTwo = prepareReadOnlyViewablePersonMock("John", "Tan", "", "friends");
@@ -43,7 +51,7 @@ public class ParserTest {
     @Test
     public void parser_multipleNotExprAndMultipleQualifiers_correctExprProduced() throws ParseException {
         String filterString = "!name:Mueller !tag:friends !!city:Singapore";
-        Expr expr = Parser.parse(filterString);
+        Expr expr = parser.parse(filterString);
 
         ReadOnlyViewablePerson personOne = prepareReadOnlyViewablePersonMock("John", "Mueller", "", "friends");
         ReadOnlyViewablePerson personTwo = prepareReadOnlyViewablePersonMock("John", "Tan", "Singapore", "friends");

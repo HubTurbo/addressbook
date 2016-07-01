@@ -10,10 +10,7 @@ import address.parser.expr.PredExpr;
 import address.parser.qualifier.*;
 
 public class Parser {
-
-    private Parser() {}
-
-    public static Expr parse(String input) throws ParseException {
+    public Expr parse(String input) throws ParseException {
         Expr result = null;
 
         Pattern pattern = Pattern.compile("\\s*(!*\\w+)\\s*:\\s*(\\w+)\\s*", Pattern.CASE_INSENSITIVE);
@@ -36,7 +33,7 @@ public class Parser {
         return result;
     }
 
-    private static Expr createPredicate(String qualifierName, String qualifierContent) throws ParseException {
+    private Expr createPredicate(String qualifierName, String qualifierContent) throws ParseException {
         Matcher matcher = getNegativeMatcher(qualifierName);
         if (matcher.matches()) {
             return new NotExpr(createPredicate(matcher.group(1), qualifierContent));
@@ -44,16 +41,16 @@ public class Parser {
         return getRawPredicate(qualifierName, qualifierContent);
     }
 
-    private static Expr getRawPredicate(String qualifierName, String content) throws ParseException {
+    private Expr getRawPredicate(String qualifierName, String content) throws ParseException {
         return new PredExpr(getQualifier(qualifierName, content));
     }
 
-    private static Matcher getNegativeMatcher(String type) {
+    private Matcher getNegativeMatcher(String type) {
         Pattern pattern = Pattern.compile("!(!*\\w+)", Pattern.CASE_INSENSITIVE);
         return pattern.matcher(type);
     }
 
-    private static Qualifier getQualifier(String type, String content) throws ParseException {
+    private Qualifier getQualifier(String type, String content) throws ParseException {
         switch (type) {
             case "city":
                 return new CityQualifier(content);
@@ -74,7 +71,7 @@ public class Parser {
         }
     }
 
-    private static Integer parseInt(String content) throws ParseException {
+    private Integer parseInt(String content) throws ParseException {
         try {
             return Integer.valueOf(content);
         } catch (NumberFormatException e) {
