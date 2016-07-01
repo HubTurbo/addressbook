@@ -95,4 +95,19 @@ public class GuiTestBase extends FxRobot {
         push((KeyCodeCombination)keySequence.getSecondKeyCombination());
     }
 
+    public FxRobot clickOn(String query) {
+        FxRobot fxRobot = null;
+        int maxRetries = 3;
+        for (int i = 0; i < maxRetries; i++) {
+            try {
+                return super.clickOn(query);
+            } catch (Exception e) {
+                System.out.println("Going to retry clicking " + query + ", retry count " + i+1);
+                if(i == maxRetries - 1) throw e;
+                delay(500);
+            }
+        }
+        return fxRobot;
+    }
+
 }
