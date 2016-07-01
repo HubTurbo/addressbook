@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
@@ -75,6 +76,8 @@ public class StorageManagerTest {
     @Test
     public void getConfig_fileInexistent_newConfigCreated() throws Exception {
         Config dummyConfig = new Config();
+        FileUtil.deleteFileIfExists(INEXISTENT_FILE);
+        assertFalse(INEXISTENT_FILE.exists());
         TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("CONFIG_FILE"), INEXISTENT_FILE.getPath());
         PowerMockito.whenNew(Config.class).withAnyArguments().thenReturn(dummyConfig);
         StorageManager.getConfig();
