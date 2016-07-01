@@ -166,13 +166,6 @@ public class StorageManagerTest {
     }
 
     @Test
-    public void getUserPrefs_verifyMethodCalled() throws IOException {
-        StorageManager.getUserPrefs(DUMMY_PREFS_FILE);
-        PowerMockito.verifyStatic();
-        StorageManager.deserializeObjectFromJsonFile(DUMMY_PREFS_FILE, UserPrefs.class);
-    }
-
-    @Test
     public void getUserPrefs_inexistentFile_emptyUserPrefs() throws IOException {
         UserPrefs emptyUserPrefs = new UserPrefs();
         UserPrefs fromInexistentFile = StorageManager.getUserPrefs(INEXISTENT_FILE);
