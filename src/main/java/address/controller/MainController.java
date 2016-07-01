@@ -234,6 +234,7 @@ public class MainController extends UiController{
 
             dialogStage.showAndWait();
             if (controller.isOkClicked()) {
+                logger.debug("Person collected: " + controller.getEditedPerson().toString());
                 return Optional.of(controller.getEditedPerson());
             } else {
                 return Optional.empty();
