@@ -4,6 +4,7 @@ import address.events.CreatePersonOnRemoteRequestEvent;
 import address.events.EventManager;
 import address.events.SyncFailedEvent;
 import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import address.sync.task.CreatePersonOnRemoteTask;
@@ -54,7 +55,7 @@ public class SyncManagerTest {
         config.simulateUnreliableNetwork = false;
         config.updateInterval = 1;
 
-        syncManager = new SyncManager(config, remoteManager, executorService, scheduledExecutorService);
+        syncManager = new SyncManager(config, remoteManager, executorService, scheduledExecutorService, null);
     }
 
     @Test
@@ -64,7 +65,7 @@ public class SyncManagerTest {
         CreatePersonOnRemoteTask createPersonOnRemoteTask = mock(CreatePersonOnRemoteTask.class);
         whenNew(CreatePersonOnRemoteTask.class).withArguments(any(), any(), any()).thenReturn(createPersonOnRemoteTask);
         doReturn(createdPerson).when(createPersonOnRemoteTask).call();
-        CompletableFuture<Person> resultContainer = new CompletableFuture<>();
+        CompletableFuture<ReadOnlyPerson> resultContainer = new CompletableFuture<>();
         EventManager.getInstance().post(new CreatePersonOnRemoteRequestEvent(resultContainer, "addressBook", createdPerson));
 
         sleep(1000);

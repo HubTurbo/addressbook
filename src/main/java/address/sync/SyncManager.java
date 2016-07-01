@@ -3,6 +3,7 @@ package address.sync;
 
 import address.events.*;
 import address.main.ComponentManager;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 import address.sync.task.*;
@@ -40,9 +41,11 @@ public class SyncManager extends ComponentManager {
      * Constructor for SyncManager
      *
      * @param config should have updateInterval (milliseconds) and simulateUnreliableNetwork set
+     * @param activeAddressBookName name of active addressbook to start with
      */
-    public SyncManager(Config config) {
-        this(config, new RemoteManager(config), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(1));
+    public SyncManager(Config config, String activeAddressBookName) {
+        this(config, new RemoteManager(config), Executors.newCachedThreadPool(),
+                Executors.newScheduledThreadPool(1), activeAddressBookName);
     }
 
     /**
@@ -54,14 +57,14 @@ public class SyncManager extends ComponentManager {
      * @param scheduledExecutorService non-null
      */
     public SyncManager(Config config, RemoteManager remoteManager, ExecutorService executorService,
-                       ScheduledExecutorService scheduledExecutorService) {
+                       ScheduledExecutorService scheduledExecutorService, String activeAddressBookName) {
         super();
         activeAddressBook = Optional.empty();
         this.config = config;
         this.remoteManager = remoteManager;
         this.requestExecutor = executorService;
         this.scheduler = scheduledExecutorService;
-
+        setActiveAddressBook(activeAddressBookName);
     }
 
     @Subscribe
@@ -107,8 +110,8 @@ public class SyncManager extends ComponentManager {
 
     @Subscribe
     public void handleCreatePersonOnRemoteRequestEvent(CreatePersonOnRemoteRequestEvent event) {
-        CompletableFuture<Person> resultContainer = event.getReturnedPersonContainer();
-        RemoteTaskWithResult<Person> taskToCall = new CreatePersonOnRemoteTask(remoteManager,
+        CompletableFuture<ReadOnlyPerson> resultContainer = event.getReturnedPersonContainer();
+        RemoteTaskWithResult<ReadOnlyPerson> taskToCall = new CreatePersonOnRemoteTask(remoteManager,
                                                                                event.getAddressBookName(),
                                                                                event.getCreatedPerson());
         callTaskAndHandleResult(taskToCall, resultContainer);
@@ -124,8 +127,8 @@ public class SyncManager extends ComponentManager {
 
     @Subscribe
     public void handleUpdatePersonOnRemoteRequestEvent(UpdatePersonOnRemoteRequestEvent event) {
-        CompletableFuture<Person> resultContainer = event.getReturnedPersonContainer();
-        RemoteTaskWithResult<Person> taskToCall = new UpdatePersonOnRemoteTask(remoteManager,
+        CompletableFuture<ReadOnlyPerson> resultContainer = event.getReturnedPersonContainer();
+        RemoteTaskWithResult<ReadOnlyPerson> taskToCall = new UpdatePersonOnRemoteTask(remoteManager,
                                                                                event.getAddressBookName(),
                                                                                event.getPersonId(),
                                                                                event.getUpdatedPerson());

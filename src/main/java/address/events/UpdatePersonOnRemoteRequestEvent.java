@@ -1,24 +1,25 @@
 package address.events;
 
 import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyPerson;
 
 import java.util.concurrent.CompletableFuture;
 
 public class UpdatePersonOnRemoteRequestEvent extends BaseEvent {
-    private CompletableFuture<Person> returnedPersonContainer;
+    private CompletableFuture<ReadOnlyPerson> returnedPersonContainer;
     private String addressBookName;
     private int personId;
-    private Person updatedPerson;
+    private ReadOnlyPerson updatedPerson;
 
-    public UpdatePersonOnRemoteRequestEvent(CompletableFuture<Person> returnedPersonContainer, String addressBookName,
-                                            int personId, Person updatedPerson) {
+    public UpdatePersonOnRemoteRequestEvent(CompletableFuture<ReadOnlyPerson> returnedPersonContainer, String addressBookName,
+                                            int personId, ReadOnlyPerson updatedPerson) {
         this.returnedPersonContainer = returnedPersonContainer;
         this.addressBookName = addressBookName;
         this.personId = personId;
         this.updatedPerson = updatedPerson;
     }
 
-    public CompletableFuture<Person> getReturnedPersonContainer() {
+    public CompletableFuture<ReadOnlyPerson> getReturnedPersonContainer() {
         return returnedPersonContainer;
     }
 
@@ -30,7 +31,7 @@ public class UpdatePersonOnRemoteRequestEvent extends BaseEvent {
         return personId;
     }
 
-    public Person getUpdatedPerson() {
+    public ReadOnlyPerson getUpdatedPerson() {
         return updatedPerson;
     }
 

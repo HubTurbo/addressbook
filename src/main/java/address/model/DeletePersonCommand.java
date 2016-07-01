@@ -2,12 +2,15 @@ package address.model;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
 import address.events.BaseEvent;
+import address.events.DeletePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.PlatformExecUtil;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -17,20 +20,22 @@ import java.util.function.Supplier;
  */
 public class DeletePersonCommand extends ChangePersonInModelCommand {
 
-    private final Consumer<? extends BaseEvent> eventRaiser;
+    private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
     private final ViewablePerson target;
+    private final String addressbookName;
 
     /**
      * @see super#ChangePersonInModelCommand(Supplier, int)
      */
     protected DeletePersonCommand(ViewablePerson target, int gracePeriodDurationInSeconds,
-                                  Consumer<? extends BaseEvent> eventRaiser, ModelManager model) {
+                                  Consumer<BaseEvent> eventRaiser, ModelManager model) {
         // no input needed for delete commands
         super(() -> Optional.of(target), gracePeriodDurationInSeconds);
         this.target = target;
         this.model = model;
         this.eventRaiser = eventRaiser;
+        this.addressbookName = model.getPrefs().getSaveLocation().getName();
     }
 
     @Override
@@ -108,8 +113,15 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     @Override
     protected State requestChangeToRemote() {
         // TODO: update when remote request api is complete
-        PlatformExecUtil.runAndWait(() -> model.backingModel().removePerson(target));
-        return SUCCESSFUL;
+        CompletableFuture<Boolean> responseHolder = new CompletableFuture<>();
+        eventRaiser.accept(new DeletePersonOnRemoteRequestEvent(responseHolder, addressbookName, target.getId()));
+        try {
+            responseHolder.get();
+            PlatformExecUtil.runAndWait(() -> model.backingModel().removePerson(target));
+            return SUCCESSFUL;
+        } catch (ExecutionException | InterruptedException e) {
+            return CANCELLED; // figure out a policy for syncup fail
+        }
     }
 
     @Override

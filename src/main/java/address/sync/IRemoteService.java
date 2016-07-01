@@ -1,5 +1,6 @@
 package address.sync;
 
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 
@@ -14,8 +15,8 @@ public interface IRemoteService {
 
     ExtractedRemoteResponse<List<Tag>> getTags(String addressBookName, int pageNumber, String previousETag) throws IOException;
 
-    ExtractedRemoteResponse<Person> createPerson(String addressBookName, Person person) throws IOException;
-    ExtractedRemoteResponse<Person> updatePerson(String addressBookName, int personId, Person updatedPerson) throws IOException;
+    ExtractedRemoteResponse<Person> createPerson(String addressBookName, ReadOnlyPerson person) throws IOException;
+    ExtractedRemoteResponse<Person> updatePerson(String addressBookName, int personId, ReadOnlyPerson updatedPerson) throws IOException;
     ExtractedRemoteResponse<Void> deletePerson(String addressBookName, int personId) throws IOException;
 
     ExtractedRemoteResponse<Tag> createTag(String addressBookName, Tag tag) throws IOException;

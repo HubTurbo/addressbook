@@ -3,12 +3,15 @@ package address.model;
 import static address.model.ChangeObjectInModelCommand.State.*;
 import address.events.BaseEvent;
 import address.events.LocalModelChangedEvent;
+import address.events.UpdatePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.PlatformExecUtil;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -18,9 +21,10 @@ import java.util.function.Supplier;
  */
 public class EditPersonCommand extends ChangePersonInModelCommand {
 
-    private final Consumer<? extends BaseEvent> eventRaiser;
+    private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
     private final ViewablePerson target;
+    private final String addressbookName;
 
     /**
      * @param inputRetriever               Will run on execution {@link #run()} thread. This should handle thread concurrency
@@ -29,12 +33,13 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
      * @see super#ChangePersonInModelCommand(Supplier, int)
      */
     protected EditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
-                                int gracePeriodDurationInSeconds, Consumer<? extends BaseEvent> eventRaiser,
+                                int gracePeriodDurationInSeconds, Consumer<BaseEvent> eventRaiser,
                                 ModelManager model) {
         super(inputRetriever, gracePeriodDurationInSeconds);
         this.target = target;
         this.model = model;
         this.eventRaiser = eventRaiser;
+        this.addressbookName = model.getPrefs().getSaveLocation().getName();
     }
 
     @Override
@@ -121,9 +126,16 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected State requestChangeToRemote() {
         assert input != null;
-        // TODO: update when remote request api is complete
-        PlatformExecUtil.runAndWait(() -> target.getBacking().update(input));
-        return SUCCESSFUL;
+
+        CompletableFuture<ReadOnlyPerson> responseHolder = new CompletableFuture<>();
+        eventRaiser.accept(new UpdatePersonOnRemoteRequestEvent(responseHolder, addressbookName, target.getId(), input));
+        try {
+            responseHolder.get();
+            PlatformExecUtil.runAndWait(() -> target.getBacking().update(input));
+            return SUCCESSFUL;
+        } catch (ExecutionException | InterruptedException e) {
+            return CANCELLED; // figure out a policy for syncup fail
+        }
     }
 
     @Override

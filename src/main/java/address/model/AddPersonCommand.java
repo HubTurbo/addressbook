@@ -2,6 +2,7 @@ package address.model;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
 import address.events.BaseEvent;
+import address.events.CreatePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
@@ -11,6 +12,8 @@ import address.util.PlatformExecUtil;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -22,9 +25,10 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     private static final AppLogger logger = LoggerManager.getLogger(AddPersonCommand.class);
 
-    private final Consumer<? extends BaseEvent> eventRaiser;
+    private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
     private ViewablePerson viewableToAdd;
+    private final String addressbookName;
 
     /**
      * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
@@ -33,10 +37,11 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
      * @see super#ChangePersonInModelCommand(Supplier, int)
      */
     protected AddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever, int gracePeriodDurationInSeconds,
-                               Consumer<? extends BaseEvent> eventRaiser, ModelManager model) {
+                               Consumer<BaseEvent> eventRaiser, ModelManager model) {
         super(inputRetriever, gracePeriodDurationInSeconds);
         this.model = model;
         this.eventRaiser = eventRaiser;
+        this.addressbookName = model.getPrefs().getSaveLocation().getName();
     }
 
     @Override
@@ -124,22 +129,26 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected State requestChangeToRemote() {
         assert input != null;
-        // TODO: update when remote request api is complete
-        logger.debug("requestChangeToRemote: Removing mapping for old id:" + getTargetPersonId());
-        model.unassignOngoingChangeForPerson(getTargetPersonId()); // removes mapping for old id
-        PlatformExecUtil.runAndWait(() -> {
-            final Person backingPerson = new Person(model.generatePersonId()).update(viewableToAdd);
-            logger.debug("requestChangeToRemote -> before calling addPersonToBackingModelSilently(). backingPerson: "
-                        + backingPerson.toString());
-            model.addPersonToBackingModelSilently(backingPerson); // so it wont trigger creation of another VP
-            logger.debug("requestChangeToRemote -> after calling addPersonToBackingModelSilently(). backingPerson: "
-                    + backingPerson.toString());
-            logger.debug("requestChangeToRemote -> id of viewable person before updating is " + viewableToAdd.getId());
-            viewableToAdd.connectBackingObject(backingPerson); // changes id to that of backing person
+
+        CompletableFuture<ReadOnlyPerson> responseHolder = new CompletableFuture<>();
+        eventRaiser.accept(new CreatePersonOnRemoteRequestEvent(responseHolder, addressbookName, input));
+        try {
+            final Person backingPerson = new Person(responseHolder.get());
+            logger.debug("requestChangeToRemote -> id of viewable person before updating is " + backingPerson.getId());
+
+            logger.debug("requestChangeToRemote: Removing mapping for old id:" + getTargetPersonId());
+            model.unassignOngoingChangeForPerson(getTargetPersonId()); // removes mapping for old id
+            model.assignOngoingChangeToPerson(backingPerson.getId(), this); // remap this change for the new id
+
+            PlatformExecUtil.runAndWait(() -> {
+                model.addPersonToBackingModelSilently(backingPerson); // so it wont trigger creation of another VP
+                viewableToAdd.connectBackingObject(backingPerson); // changes id to that of backing person
+            });
             logger.debug("requestChangeToRemote -> id of viewable person updated to " + viewableToAdd.getId());
-        });
-        model.assignOngoingChangeToPerson(getTargetPersonId(), this); // remap this change for the new id
-        return SUCCESSFUL;
+            return SUCCESSFUL;
+        } catch (ExecutionException | InterruptedException e) {
+            return CANCELLED; // figure out a policy for syncup fail
+        }
     }
 
     @Override
