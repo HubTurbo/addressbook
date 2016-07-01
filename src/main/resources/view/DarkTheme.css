@@ -242,3 +242,8 @@
     -fx-border-width: 1 1 1 8;
 }
 
+#pendingState {
+    -fx-font-size: 11px;
+    -fx-text-fill: #F70D1A;
+}
+

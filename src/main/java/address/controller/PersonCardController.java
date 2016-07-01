@@ -138,12 +138,10 @@ public class PersonCardController extends UiController{
             }
         });
         if (person.getSecondsLeftInPendingState() > 0) {
-            cardPane.setStyle("-fx-background-color:yellow");
             pendingState.setText(String.format(PENDING_STATE_MESSAGE, person.getSecondsLeftInPendingState()));
         }
         person.secondsLeftInPendingStateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() > 0) {
-                cardPane.setStyle("-fx-background-color:yellow");
                 pendingState.setText(String.format(PENDING_STATE_MESSAGE, newValue));
             } else {
                 cardPane.setStyle(null);
