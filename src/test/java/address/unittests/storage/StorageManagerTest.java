@@ -38,6 +38,7 @@ public class StorageManagerTest {
     private static final File SERIALIZATION_FILE = new File(TestUtil.appendToSandboxPath("serialize.json"));
     private static final File INEXISTENT_FILE = new File(TestUtil.appendToSandboxPath("inexistent"));
     private static final File NON_JSON_FILE = new File(TestUtil.appendToSandboxPath("non.json"));
+    private static final File EMPTY_FILE = new File(TestUtil.appendToSandboxPath("empty.json"));
 
     private static final StorageAddressBook EMPTY_ADDRESSBOOK = new StorageAddressBook(new AddressBook());
     private static final UserPrefs EMPTY_USERPREFS = new UserPrefs();
@@ -72,6 +73,32 @@ public class StorageManagerTest {
     }
 
     @Test
+    public void getConfig_fileInexistent_newConfigCreated() throws Exception {
+        Config dummyConfig = new Config();
+        TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("CONFIG_FILE"), INEXISTENT_FILE.getPath());
+        PowerMockito.whenNew(Config.class).withAnyArguments().thenReturn(dummyConfig);
+        StorageManager.getConfig();
+        PowerMockito.verifyNew(Config.class);
+    }
+
+    @Test
+    public void getConfig_fileExistent_correspondingMethodCalled() throws Exception {
+        FileUtil.createIfMissing(EMPTY_FILE);
+        TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("CONFIG_FILE"), EMPTY_FILE.getPath());
+        StorageManager.getConfig();
+        PowerMockito.verifyPrivate(StorageManager.class).invoke("readFromConfigFile", EMPTY_FILE);
+    }
+
+    @Test
+    public void recreateFile() {} // This is not implemented as it requires reflection
+    @Test
+    public void createAndWriteToConfigFile() {} // This is not implemented as it requires reflection
+    @Test
+    public void deleteConfigFileIfExists() {} // This is not implemented as it requires reflection
+    @Test
+    public void readFromConfigFile() {} // This is not implemented as it requires reflection
+
+    @Test
     public void saveDataToFile() throws IOException, DataConversionException {
         PowerMockito.mockStatic(StorageManager.class);
         PowerMockito.doCallRealMethod().when(storageManagerSpy).saveDataToFile(DUMMY_DATA_FILE, EMPTY_ADDRESSBOOK);
@@ -79,6 +106,25 @@ public class StorageManagerTest {
 
         PowerMockito.verifyStatic();
         StorageManager.saveAddressBook(eq(DUMMY_DATA_FILE), any(ReadOnlyAddressBook.class));
+    }
+
+    @Test
+    public void savePrefsToFile_correspondingMethodCalled() throws IOException {
+        UserPrefs userPrefs = new UserPrefs();
+        PowerMockito.mockStatic(StorageManager.class);
+        storageManagerSpy.savePrefsToFile(userPrefs);
+        PowerMockito.verifyStatic();
+        StorageManager.serializeObjectToJsonFile(any(File.class), eq(userPrefs));
+    }
+
+    @Test
+    public void loadDataFromFile() {} // This is not implemented as it requires reflection
+
+    @Test
+    public void getData_correspondingMethodCalled() throws FileNotFoundException, DataConversionException {
+        storageManagerSpy.getData();
+        PowerMockito.verifyStatic();
+        XmlFileStorage.loadDataFromSaveFile(any(File.class));
     }
 
     @Test
