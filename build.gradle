@@ -11,7 +11,7 @@ plugins {
 
 allprojects {
 
-    version = 'V1.0.1ea'
+    version = 'V1.1.0ea'
 
     apply plugin: 'idea'
     apply plugin: 'java'
@@ -89,6 +89,7 @@ allprojects {
                 include('address/util/LoggerManager.java')
                 include('address/util/Config.java')
                 include('address/events/BaseEvent.java')
+                include('hubturbo/embeddedbrowser/BrowserType.java')
             }
             resources {
                 srcDir jar.getArchivePath().getParent()
@@ -309,6 +310,7 @@ task headless(type: Test) {
     systemProperty 'testfx.headless', 'true'
     systemProperty 'prism.order', 'sw'
     systemProperty 'prism.text', 't2k'
+
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }

@@ -1,12 +1,14 @@
 package address.sync;
 
 import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.AppLogger;
 import address.util.Config;
 import address.util.LoggerManager;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,16 +17,16 @@ import java.util.Optional;
 
 /**
  * This class is meant to abstract away the details for making requests to the remote
- * Manages RemoteService to obtain the make the appropriate requests, and keeps track of
+ * Manages RemoteService to make the appropriate requests, and keeps track of
  * update information to reduce usage of API quota given by the remote
  */
 public class RemoteManager {
     private static final AppLogger logger = LoggerManager.getLogger(RemoteManager.class);
 
-    RemoteService remoteService;
+    private final RemoteService remoteService;
 
-    HashMap<String, LastUpdate<Tag>> updateInformation;
-    LocalDateTime personLastUpdatedAt;
+    private HashMap<String, LastUpdate<Tag>> updateInformation;
+    private LocalDateTime personLastUpdatedAt;
 
     public RemoteManager(Config config) {
         updateInformation = new HashMap<>();
@@ -36,6 +38,14 @@ public class RemoteManager {
         this.remoteService = remoteService;
     }
 
+    /**
+     * Attempts to get the list of updated persons since the last update, if it exists
+     * Else simply attempts to get the full list of persons
+     *
+     * @param addressBookName
+     * @return full list of persons since the last known request if request was successful
+     * @throws IOException
+     */
     public Optional<List<Person>> getUpdatedPersons(String addressBookName) throws IOException {
         ExtractedRemoteResponse<List<Person>> response;
 
@@ -65,10 +75,10 @@ public class RemoteManager {
      * Returns the full list of updated tags
      *
      * @param addressBookName
-     * @return empty optional if there are no updates or if there are other errors
+     * @return full list of tags if request was successful and there were updates
      * @throws IOException
      */
-    public Optional<List<Tag>> getUpdatedTagList(String addressBookName) throws IOException {
+    public Optional<List<Tag>> getLatestTagList(String addressBookName) throws IOException {
         ExtractedRemoteResponse<List<Tag>> response;
 
         List<Tag> tagList = new ArrayList<>();
@@ -102,6 +112,93 @@ public class RemoteManager {
         updateInformation.put(addressBookName, lastUpdateInfo);
         
         return Optional.of(tagList);
+    }
+
+    /**
+     * Attempts to create a person on the remote
+     *
+     * @param addressBookName
+     * @param person
+     * @return Resulting person if creation is successful
+     * @throws IOException
+     */
+    public Optional<Person> createPerson(String addressBookName, ReadOnlyPerson person) throws IOException {
+        ExtractedRemoteResponse<Person> response = remoteService.createPerson(addressBookName, person);
+        return response.getData();
+    }
+
+    /**
+     * Attempts to create a tag on the remote
+     *
+     * @param addressBookName
+     * @param tag
+     * @return Resulting tag if creation is successful
+     * @throws IOException
+     */
+    public Optional<Tag> createTag(String addressBookName, Tag tag) throws IOException {
+        ExtractedRemoteResponse<Tag> response = remoteService.createTag(addressBookName, tag);
+        return response.getData();
+    }
+
+    /**
+     * Attempts to update a person on the remote
+     * @param addressBookName
+     * @param personId id of the person to be updated
+     * @param updatedPerson updated person
+     * @return Resulting person if update is successful
+     * @throws IOException
+     */
+    public Optional<Person> updatePerson(String addressBookName, int personId, ReadOnlyPerson updatedPerson) throws IOException {
+        ExtractedRemoteResponse<Person> response = remoteService.updatePerson(addressBookName, personId, updatedPerson);
+        return response.getData();
+    }
+
+    /**
+     * Attempts to edit a tag on the remote
+     * @param addressBookName
+     * @param tagName name of the tag
+     * @param editedTag edited tag
+     * @return Resulting tag if edit is successful
+     * @throws IOException
+     */
+    public Optional<Tag> editTag(String addressBookName, String tagName, Tag editedTag) throws IOException {
+        ExtractedRemoteResponse<Tag> response = remoteService.editTag(addressBookName, tagName, editedTag);
+        return response.getData();
+    }
+
+    /**
+     * Attempts to delete a tag on the remote
+     * @param addressBookName
+     * @param tagName
+     * @return true if successful
+     * @throws IOException
+     */
+    public boolean deleteTag(String addressBookName, String tagName) throws IOException {
+        ExtractedRemoteResponse<Void> response = remoteService.deleteTag(addressBookName, tagName);
+        return response.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT;
+    }
+
+    /**
+     * Attempts to delete a person on the remote
+     * @param addressBookName
+     * @param personId
+     * @return true if successful
+     * @throws IOException
+     */
+    public boolean deletePerson(String addressBookName, int personId) throws IOException {
+        ExtractedRemoteResponse<Void> response = remoteService.deletePerson(addressBookName, personId);
+        return response.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT;
+    }
+
+    /**
+     * Attempts to create an addressbook on the remote
+     * @param addressBookName
+     * @return true if successful
+     * @throws IOException
+     */
+    public boolean createAddressBook(String addressBookName) throws IOException {
+        ExtractedRemoteResponse<Void> response  = remoteService.createAddressBook(addressBookName);
+        return response.getResponseCode() == HttpURLConnection.HTTP_CREATED;
     }
 
     private <T> int getLastUpdatedPageCount(HashMap<String, LastUpdate<T>> updateInformation, String addressBookName) {

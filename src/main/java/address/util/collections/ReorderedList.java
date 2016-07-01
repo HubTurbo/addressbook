@@ -1,5 +1,7 @@
 package address.util.collections;
 
+import address.util.AppLogger;
+import address.util.LoggerManager;
 import com.sun.javafx.collections.SourceAdapterChange;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -7,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.TransformationList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 public class ReorderedList<T> extends TransformationList<T, T> {
     private ObservableList<T> mappingList;
 
+    private static AppLogger logger = LoggerManager.getLogger(ReorderedList.class);
+
     /**
      * Creates a new Transformation list wrapped around the source list.
      *
@@ -25,23 +30,28 @@ public class ReorderedList<T> extends TransformationList<T, T> {
     public ReorderedList(ObservableList<T> source) {
         super(source);
         mappingList = FXCollections.observableArrayList(source);
+        logger.debug("Mapping list created.");
     }
 
     @Override
     protected synchronized void sourceChanged(ListChangeListener.Change<? extends T> c) {
-
+        logger.debug("Source changed detected: Begin changing of mapping list");
         beginChange();
         while (c.next()) {
             if (c.wasRemoved()) {
+                logger.debug("c.wasRemoved:" + Arrays.toString(c.getRemoved().toArray()));
                 mappingList.removeAll(c.getRemoved());
             }
 
             if (c.wasAdded()) {
+                logger.debug("c.wasAdded:" + Arrays.toString(c.getAddedSubList().toArray()));
                 mappingList.addAll(c.getAddedSubList());
             }
         }
         endChange();
+        logger.debug("Source changed detected: End changing of mapping list");
         fireChange(new SourceAdapterChange<>(this, c));
+        logger.debug("Source changed detected: Fire Changes");
     }
 
     @Override

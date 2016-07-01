@@ -20,8 +20,8 @@ public class MainApp extends Application {
     private static final AppLogger logger = LoggerManager.getLogger(MainApp.class);
 
     private static final int VERSION_MAJOR = 1;
-    private static final int VERSION_MINOR = 0;
-    private static final int VERSION_PATCH = 1;
+    private static final int VERSION_MINOR = 1;
+    private static final int VERSION_PATCH = 0;
     private static final boolean VERSION_EARLY_ACCESS = true;
 
     public static final Version VERSION = new Version(
@@ -72,7 +72,7 @@ public class MainApp extends Application {
         modelManager = new ModelManager(userPrefs);
         storageManager = new StorageManager(modelManager::resetData, config, userPrefs);
         ui = new Ui(this, modelManager, config);
-        syncManager = new SyncManager(config);
+        syncManager = new SyncManager(config, userPrefs.getSaveLocation().getName());
         keyBindingsManager = new KeyBindingsManager();
         updateManager = new UpdateManager(VERSION);
     }
@@ -91,6 +91,7 @@ public class MainApp extends Application {
         logger.info("Stopping application.");
         ui.stop();
         updateManager.stop();
+        syncManager.stop();
         keyBindingsManager.stop();
         quit();
     }

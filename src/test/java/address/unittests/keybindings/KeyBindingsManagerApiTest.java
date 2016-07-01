@@ -2,10 +2,12 @@ package address.unittests.keybindings;
 
 
 import address.events.*;
-import address.keybindings.*;
-import javafx.scene.input.KeyCode;
+import address.keybindings.Accelerator;
+import address.keybindings.Bindings;
+import address.keybindings.KeyBinding;
+import address.keybindings.KeySequence;
+import address.util.TestUtil;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.argThat;
@@ -141,7 +142,7 @@ public class KeyBindingsManagerApiTest {
     private void simulateKeyEvents(String[] keyCombination) {
         assert keyCombination.length == 1 || keyCombination.length == 2;
         Arrays.stream(keyCombination)
-                .forEach(kc -> eventManagerSpy.post(new KeyBindingEvent(getKeyEvent(kc))));
+                .forEach(kc -> eventManagerSpy.post(new KeyBindingEvent(TestUtil.getKeyEvent(kc))));
     }
 
     /**
@@ -155,10 +156,10 @@ public class KeyBindingsManagerApiTest {
         KeyBindingEvent previousEvent;
 
         if(keyCombos.length == 2){
-            currentEvent = new KeyBindingEvent(getKeyEvent(keyCombos[1]));
-            previousEvent = new KeyBindingEvent(getKeyEvent(keyCombos[0]));
+            currentEvent = new KeyBindingEvent(TestUtil.getKeyEvent(keyCombos[1]));
+            previousEvent = new KeyBindingEvent(TestUtil.getKeyEvent(keyCombos[0]));
         }else {
-            currentEvent = new KeyBindingEvent(getKeyEvent(keyCombos[0]));
+            currentEvent = new KeyBindingEvent(TestUtil.getKeyEvent(keyCombos[0]));
             previousEvent = null;
         }
 
@@ -166,20 +167,7 @@ public class KeyBindingsManagerApiTest {
         yetToTest.remove(tested.get());
     }
 
-    /**
-     * Generates a minimal {@link KeyEvent} object that matches the {@code keyCombination}
-     */
-    private KeyEvent getKeyEvent(String keyCombination){
-        String[] keys = keyCombination.split(" ");
 
-        String key = keys[keys.length - 1];
-        boolean shiftDown = keyCombination.toLowerCase().contains("shift");
-        boolean metaDown = keyCombination.toLowerCase().contains("meta");
-        boolean altDown = keyCombination.toLowerCase().contains("alt");
-        boolean ctrlDown = keyCombination.toLowerCase().contains("ctrl")
-                           || keyCombination.toLowerCase().contains("shortcut");
-        return new KeyEvent(null, null, null, KeyCode.valueOf(key), shiftDown, ctrlDown, altDown, metaDown);
-    }
 
 
     @Test

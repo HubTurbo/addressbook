@@ -8,9 +8,6 @@ import hubturbo.embeddedbrowser.EbAttachListener;
 import hubturbo.embeddedbrowser.page.PageInterface;
 import javafx.application.Platform;
 
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 /**
  * A GitHub profile page
  */
@@ -39,16 +36,11 @@ public class GithubProfilePage implements PageInterface {
      * Automation tasks: 1) Clicking on the Repositories tab(if not clicked).
      *                   2) Scrolling to the end of the page when a page is loaded.
      */
-    public void setupPageAutomation() {
+    public synchronized void setupPageAutomation() {
         if (!wasAutoScrollingSetup) {
             this.setPageLoadFinishListener(e -> Platform.runLater(this::executePageLoadedTasks));
             this.setPageAttachedToSceneListener(() -> Platform.runLater(this::executePageLoadedTasks));
             this.wasAutoScrollingSetup = true;
-            //If page has already been loaded at the point of setting up page automation.
-            //Trigger initial automation.
-            if (!page.isPageLoading()) {
-                this.executePageLoadedTasks();
-            }
         }
     }
 

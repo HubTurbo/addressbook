@@ -41,7 +41,7 @@ public class UpdateManager extends ComponentManager {
     private static final String MSG_NO_UPDATE_DATA = "There is no update data to be processed";
     private static final String MSG_NO_UPDATE = "There is no update";
     private static final String MSG_NO_VERSION_AVAILABLE = "No version to be downloaded";
-    private static final String MSG_NO_NEWER_VERSION = "Version has been downloaded before; will not download again";
+    private static final String MSG_NO_NEWER_VERSION = "No newer version to be downloaded";
     private static final String MSG_DIFF_CHANNEL = "VersionDescriptor is for wrong release channel - contact developer";
     // --- End of Messages
 
@@ -110,7 +110,7 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        if (downloadedVersions.contains(latestVersion.get()) || currentVersion.equals(latestVersion.get())) {
+        if (downloadedVersions.contains(latestVersion.get()) || currentVersion.compareTo(latestVersion.get()) >= 0) {
             raise(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
             logger.debug(MSG_NO_NEWER_VERSION);
             return;

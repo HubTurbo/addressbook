@@ -44,6 +44,7 @@ public class TagSelectionEditDialogController extends EditDialogController {
     private TagSelectionEditDialogModel model;
     private Stage dialogStage;
     private ScaleTransition transition;
+    private boolean hasPlayedClosingAnimation = false;
 
     public TagSelectionEditDialogController(){
         super();
@@ -199,7 +200,10 @@ public class TagSelectionEditDialogController extends EditDialogController {
      */
     protected void handleOk() {
         isOkClicked = true;
-        playReversedTransition();
+        if (!hasPlayedClosingAnimation) {
+            hasPlayedClosingAnimation = true;
+            playReversedTransition();
+        }
     }
 
     /**

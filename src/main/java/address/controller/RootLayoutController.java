@@ -1,6 +1,7 @@
 package address.controller;
 
 import address.MainApp;
+import address.events.CreateAddressBookOnRemoteRequestEvent;
 import address.events.LoadDataRequestEvent;
 import address.events.SaveDataRequestEvent;
 import address.keybindings.KeyBindingsManager;
@@ -13,6 +14,7 @@ import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * The controller for the root layout. The root layout provides the basic
@@ -119,6 +121,8 @@ public class RootLayoutController extends UiController{
         }
 
         modelManager.setPrefsSaveLocation(file.getPath());
+        // TODO temp patch to create cloud file if non found
+        raise(new CreateAddressBookOnRemoteRequestEvent(new CompletableFuture<>(), file.getName()));
         raise(new SaveDataRequestEvent(file, modelManager));
     }
 

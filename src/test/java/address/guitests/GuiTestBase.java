@@ -5,20 +5,15 @@ import address.events.EventManager;
 import address.keybindings.KeyBinding;
 import address.keybindings.KeySequence;
 import address.model.datatypes.ReadOnlyAddressBook;
-import address.util.OsDetector;
 import address.util.TestUtil;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.testfx.api.FxRobot;
 import org.testfx.api.FxToolkit;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 public class GuiTestBase extends FxRobot {
@@ -36,7 +31,7 @@ public class GuiTestBase extends FxRobot {
     @Before
     public void setup() throws Exception {
         EventManager.clearSubscribers();
-        FxToolkit.setupApplication(() -> new TestApp(() -> getInitialData(), getDataFileLocation()));
+        FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation()));
         FxToolkit.showStage();
     }
 
@@ -61,87 +56,30 @@ public class GuiTestBase extends FxRobot {
         FxToolkit.cleanupStages();
     }
 
-    protected void pressKeyCombo(KeyCode... keys){
-        pressKeyCombo(Arrays.asList(keys));
+    public FxRobot push(KeyCode... keyCodes){
+        return super.push(TestUtil.scrub(keyCodes));
     }
 
-    protected void pressKeyCombo(List<KeyCode> keys){
-        keys.forEach(this::press);
-        keys.forEach(this::release);
+
+    public FxRobot push(KeyCodeCombination keyCodeCombination){
+        return super.push(TestUtil.scrub(keyCodeCombination));
     }
 
-    protected void pressKeyCombo(KeyCodeCombination combo){
-        pressKeyCombo(getKeyCodes(combo));
+    protected FxRobot push(KeyBinding keyBinding){
+        KeyCodeCombination keyCodeCombination = (KeyCodeCombination)keyBinding.getKeyCombination();
+        return this.push(TestUtil.scrub(keyCodeCombination));
     }
 
-    protected void pressKeyCombo(KeyBinding kb){
-        KeyCodeCombination keyCodeCombination = (KeyCodeCombination)kb.getKeyCombination();
-        pressKeyCombo(getKeyCodes(keyCodeCombination));
+    public FxRobot press(KeyCode... keyCodes) {
+        return super.press(TestUtil.scrub(keyCodes));
     }
 
-    private List<KeyCode> getKeyCodes(KeyCodeCombination combination) {
-        List<KeyCode> keys = new ArrayList<>();
-        if (combination.getAlt() == KeyCombination.ModifierValue.DOWN) {
-            keys.add(KeyCode.ALT);
-        }
-        if (combination.getShift() == KeyCombination.ModifierValue.DOWN) {
-            keys.add(KeyCode.SHIFT);
-        }
-        if (combination.getMeta() == KeyCombination.ModifierValue.DOWN) {
-            keys.add(KeyCode.META);
-        }
-        if (combination.getControl() == KeyCombination.ModifierValue.DOWN) {
-            keys.add(KeyCode.CONTROL);
-        }
-        if (combination.getShortcut() == KeyCombination.ModifierValue.DOWN) {
-            //TODO: add back this hack (from HubTurbo cod)
-            // Fix bug with internal method not having a proper code for SHORTCUT.
-            // Dispatch manually based on platform.
-//            if (PlatformSpecific.isOnMac()) {
-//                keys.add(KeyCode.META);
-//            } else {
-                keys.add(KeyCode.CONTROL);
-//            }
-        }
-        keys.add(combination.getCode());
-        return keys;
+    public FxRobot release(KeyCode... keyCodes) {
+        return super.release(TestUtil.scrub(keyCodes));
     }
 
-    public KeyCodeCombination shortcut(KeyCode keyCode) {
-        return new KeyCodeCombination(keyCode, KeyCodeCombination.SHORTCUT_DOWN);
-    }
-
-    public FxRobot push(KeyCodeCombination keys) {
-        if (!OsDetector.isOnMac()) return super.push(keys);
-        if (keys.getShortcut() != KeyCodeCombination.ModifierValue.DOWN
-                && keys.getMeta() != KeyCodeCombination.ModifierValue.DOWN) return super.push(keys);
-        return push(KeyCode.COMMAND, keys.getCode());
-    }
-
-    public FxRobot push(KeyCode... keys) {
-        return super.push(getPlatformSpecificKeyCodes(keys));
-    }
-
-    private KeyCode[] getPlatformSpecificKeyCodes(KeyCode[] keys) {
-        if (!OsDetector.isOnMac()) return keys;
-        for (int i = 0; i < keys.length; i++) {
-            if (keys[i] == KeyCode.META || keys[i] == KeyCode.SHORTCUT) {
-                keys[i] = KeyCode.COMMAND;
-            }
-        }
-        return keys;
-    }
-
-    public FxRobot press(KeyCode... keys) {
-        return super.press(getPlatformSpecificKeyCodes(keys));
-    }
-
-    public FxRobot release(KeyCode... keys) {
-        return super.release(getPlatformSpecificKeyCodes(keys));
-    }
-
-    public FxRobot type(KeyCode... keys) {
-        return super.type(getPlatformSpecificKeyCodes(keys));
+    public FxRobot type(KeyCode... keyCodes) {
+        return super.type(TestUtil.scrub(keyCodes));
     }
 
     protected void delay(int milliseconds) {
@@ -152,16 +90,9 @@ public class GuiTestBase extends FxRobot {
         }
     }
 
-    protected void pressKeySequence(KeySequence sequence) {
-        pressKeyCombo((KeyCodeCombination)sequence.getKeyCombination());
-        pressKeyCombo((KeyCodeCombination)sequence.getSecondKeyCombination());
+    protected void pushKeySequence(KeySequence keySequence) {
+        push((KeyCodeCombination)keySequence.getKeyCombination());
+        push((KeyCodeCombination)keySequence.getSecondKeyCombination());
     }
 
-    protected void pressEsc() {
-        pressKeyCombo(KeyCode.ESCAPE);
-    }
-
-    protected void pressEnter() {
-        pressKeyCombo(KeyCode.ENTER);
-    }
 }

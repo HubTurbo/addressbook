@@ -122,7 +122,7 @@ public class RemoteResponse {
         }
     }
 
-    public static ByteArrayInputStream convertToInputStream(Object object) {
+    private static ByteArrayInputStream convertToInputStream(Object object) {
         try {
             return new ByteArrayInputStream(JsonUtil.toJsonString(object).getBytes());
         } catch (JsonProcessingException e) {

@@ -593,7 +593,7 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private CloudPerson generateIdForPerson(List<CloudPerson> personList, CloudPerson newPerson) {
-        newPerson.setId(personList.size());
+        newPerson.setId(personList.size() + 1); // starts from one
         return newPerson;
     }
 

@@ -1,12 +1,10 @@
 package address.guitests;
 
 import address.keybindings.Bindings;
-import address.keybindings.KeySequence;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.model.datatypes.person.Person;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
 import org.junit.Test;
 
 import static org.testfx.api.FxAssert.verifyThat;
@@ -36,44 +34,44 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         //======= shortcuts =======================
 
-        pressKeyCombo(bindings.LIST_ENTER_SHORTCUT);
+        push(bindings.LIST_ENTER_SHORTCUT);
         verifyPersonSelected("Person1", "Lastname1");
 
-        pressKeyCombo(KeyCode.CONTROL, KeyCode.DIGIT3);
+        push(KeyCode.CONTROL, KeyCode.DIGIT3);
         verifyPersonSelected("Person3", "Lastname3");
 
         //======= sequences =========================
 
-        pressKeySequence(bindings.LIST_GOTO_BOTTOM_SEQUENCE);
+        pushKeySequence(bindings.LIST_GOTO_BOTTOM_SEQUENCE);
         verifyPersonSelected("Person5", "Lastname5");
 
-        pressKeySequence(bindings.LIST_GOTO_TOP_SEQUENCE);
+        pushKeySequence(bindings.LIST_GOTO_TOP_SEQUENCE);
         verifyPersonSelected("Person1", "Lastname1");
 
 
         //======= accelerators =======================
 
-        pressKeyCombo(KeyCode.CONTROL, KeyCode.DIGIT3);
-        pressKeyCombo(bindings.PERSON_EDIT_ACCELERATOR);
+        push(KeyCode.CONTROL, KeyCode.DIGIT3);
+        push(bindings.PERSON_EDIT_ACCELERATOR);
         verifyEditWindowOpened("Person3", "Lastname3");
 
-        pressKeyCombo(bindings.PERSON_DELETE_ACCELERATOR);
+        push(bindings.PERSON_DELETE_ACCELERATOR);
         verifyPersonDeleted("Person3", "Lastname3");
 
         //TODO: test tag, file open, new, save, save as, cancel
 
         //======== others ============================
 
-        pressKeySequence(bindings.LIST_GOTO_BOTTOM_SEQUENCE);
-        pressKeyCombo(KeyCode.UP);
+        pushKeySequence(bindings.LIST_GOTO_BOTTOM_SEQUENCE);
+        push(KeyCode.UP);
         verifyPersonSelected("Person4", "Lastname4");
 
-        pressKeyCombo(KeyCode.DOWN);
+        push(KeyCode.DOWN);
         verifyPersonSelected("Person5", "Lastname5");
 
         //======== hotkeys ============================
 
-        //TODO: test hotkeys (need to deal with Mac incompatibility)
+        //TODO: test hotkeys 
 
     }
 
@@ -90,7 +88,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
     }
 
     private void verifyPersonSelected(String firstName, String lastName) {
-        pressKeyCombo(bindings.PERSON_EDIT_ACCELERATOR);
+        push(bindings.PERSON_EDIT_ACCELERATOR);
         verifyEditWindowOpened(firstName, lastName);
     }
 

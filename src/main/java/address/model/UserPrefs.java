@@ -1,8 +1,5 @@
 package address.model;
 
-import address.util.AppLogger;
-import address.util.LoggerManager;
-
 import java.io.File;
 
 /**
@@ -25,6 +22,10 @@ public class UserPrefs {
      */
     public synchronized File getSaveLocation() {
         return saveLocation == null ? new File(DEFAULT_TEMP_FILE_PATH) : new File(saveLocation);
+    }
+
+    public String getSaveLocationString() {
+        return saveLocation;
     }
 
     public boolean isSaveLocationSet() {

@@ -76,7 +76,7 @@ public class MainController extends UiController{
         this.modelManager = modelManager;
         this.config = config;
         this.personList = modelManager.getAllViewablePersonsReadOnly();
-        this.browserManager = new BrowserManager(personList);
+        this.browserManager = new BrowserManager(personList, config.getBrowserNoOfPages(), config.getBrowserType());
         this.browserManager.initBrowser();
     }
 
@@ -120,7 +120,7 @@ public class MainController extends UiController{
             primaryStage.setMinHeight(400);
             primaryStage.setMinWidth(740);
             primaryStage.setHeight(600);
-            primaryStage.setWidth(340);
+            primaryStage.setWidth(740);
             primaryStage.setScene(scene);
 
             // Give the rootController access to the main controller and modelManager
@@ -183,7 +183,7 @@ public class MainController extends UiController{
             GridPane gridPane = loader.load();
             gridPane.getStyleClass().add("grid-pane");
             StatusBarFooterController controller = loader.getController();
-            controller.initStatusBar(config);
+            controller.init(config.updateInterval, modelManager.getPrefs().getSaveLocation());
             rootLayout.getChildren().add(gridPane);
         } catch (IOException e) {
             logger.warn("Error Loading footer status bar: {}", e);
@@ -234,6 +234,7 @@ public class MainController extends UiController{
 
             dialogStage.showAndWait();
             if (controller.isOkClicked()) {
+                logger.debug("Person collected: " + controller.getEditedPerson().toString());
                 return Optional.of(controller.getEditedPerson());
             } else {
                 return Optional.empty();

@@ -124,7 +124,7 @@ public class RemoteManagerTest {
 
         when(remoteService.getTags(anyString(), anyInt(), anyString())).thenReturn(remoteResponseOne).thenReturn(remoteResponseTwo);
 
-        Optional<List<Tag>> result = remoteManager.getUpdatedTagList("Test");
+        Optional<List<Tag>> result = remoteManager.getLatestTagList("Test");
 
         // should return the full list of tags
         assertTrue(result.isPresent());
