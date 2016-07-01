@@ -59,6 +59,7 @@ public class PersonOverviewController extends UiController{
     private MainController mainController;
     private ModelManager modelManager;
     private FilteredList<ReadOnlyViewablePerson> filteredPersonList;
+    private Parser parser;
 
     /**
      * When the user selected multiple item in the listview. The edit feature will be
@@ -76,6 +77,7 @@ public class PersonOverviewController extends UiController{
 
     public PersonOverviewController() {
         super();
+        parser = new Parser();
     }
 
     @Subscribe
@@ -197,16 +199,15 @@ public class PersonOverviewController extends UiController{
 
     @FXML
     private void handleFilterChanged() {
-        Expr filterExpression = PredExpr.TRUE;
-        boolean isFilterValid = true;
+        Expr filterExpression;
         try {
-            filterExpression = Parser.parse(filterField.getText());
+            filterExpression = parser.parse(filterField.getText());
         } catch (ParseException e) {
             logger.debug("Invalid filter found: {}", e);
-            isFilterValid = false;
+            filterExpression = PredExpr.TRUE;
         }
 
-        if (isFilterValid || filterField.getText().isEmpty()) {
+        if (filterExpression != null) {
             if (filterField.getStyleClass().contains("error")) filterField.getStyleClass().remove("error");
         } else {
             if (!filterField.getStyleClass().contains("error")) filterField.getStyleClass().add("error");
