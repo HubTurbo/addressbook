@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(XmlFileStorage.class)
+@PrepareForTest({XmlFileStorage.class, FileUtil.class})
 public class StorageManagerTest {
 
     private static final File DUMMY_DATA_FILE = new File(TestUtil.appendToSandboxPath("dummyAddressBook.xml"));
@@ -78,6 +78,8 @@ public class StorageManagerTest {
 
     @Test
     public void saveAddressBook_noException() throws IOException, DataConversionException {
+        PowerMockito.mockStatic(FileUtil.class);
+
         StorageManager.saveAddressBook(DUMMY_DATA_FILE, EMPTY_ADDRESSBOOK);
 
         PowerMockito.verifyStatic();
