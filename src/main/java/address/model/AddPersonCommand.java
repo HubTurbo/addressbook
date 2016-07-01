@@ -76,13 +76,10 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     protected State simulateResult() {
         assert input != null;
         // create VP and add to model
-        viewableToAdd = ViewablePerson.withoutBacking(new Person(input));
+        viewableToAdd = PlatformExecUtil.callAndWait(() -> model.addViewablePersonWithoutBacking(input), null);
         logger.debug("simulateResult: Going to add " + viewableToAdd.toString());
-        PlatformExecUtil.runAndWait(() -> {
-            model.addViewablePerson(viewableToAdd);
-            logger.debug("simulateResult: Added " + viewableToAdd.toString() + " to visible person list in model");
-            model.assignOngoingChangeToPerson(viewableToAdd.getId(), this);
-        });
+        model.assignOngoingChangeToPerson(viewableToAdd.getId(), this);
+        logger.debug("simulateResult: Added " + viewableToAdd.toString() + " to visible person list in model");
         return GRACE_PERIOD;
     }
 

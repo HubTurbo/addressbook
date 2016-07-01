@@ -103,4 +103,26 @@ public class DeletePersonCommandTest {
         verify(modelManagerSpy).execNewEditPersonCommand(testTarget, editInputRetriever);
         assertEquals(dpc.getState(), State.CANCELLED);
     }
+
+    @Test
+    public void interruptGracePeriod_withCancelRequest_undoesSimulation() {
+        // grace period duration must be non zero, will be interrupted immediately anyway
+        final DeletePersonCommand dpc = spy(new DeletePersonCommand(testTarget, 1, null, modelManagerSpy));
+        final Supplier<Optional<ReadOnlyPerson>> editInputRetriever = Optional::empty;
+
+        modelManagerSpy.visibleModel().addPerson(testTarget);
+        modelManagerSpy.addPersonToBackingModelSilently(testTarget.getBacking());
+
+        doNothing().when(dpc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
+        dpc.cancelInGracePeriod(); // pre-specify dpc will be interrupted by cancel
+
+        dpc.run();
+
+        assertEquals(modelManagerSpy.backingModel().getPersonList().size(), 1);
+        assertEquals(modelManagerSpy.visibleModel().getPersonList().size(), 1);
+        assertSame(modelManagerSpy.visibleModel().getPersonList().get(0), testTarget);
+        assertSame(modelManagerSpy.backingModel().getPersonList().get(0), testTarget.getBacking());
+        assertEquals(testTarget.isDeleted(), false);
+        assertEquals(dpc.getState(), State.CANCELLED);
+    }
 }

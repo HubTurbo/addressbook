@@ -35,7 +35,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     private final Map<Integer, ChangePersonInModelCommand> personChangesInProgress;
 
     final Executor commandExecutor;
-
     private UserPrefs prefs;
 
     {

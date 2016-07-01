@@ -142,6 +142,21 @@ public class AddPersonCommandTest {
         assertEquals(apc.getState(), State.CANCELLED);
     }
 
+    @Test
+    public void interruptGracePeriod_withCancelRequest_undoesSimulation() {
+        // grace period duration must be non zero, will be interrupted immediately anyway
+        final AddPersonCommand apc = spy(new AddPersonCommand(returnValidEmptyInput, 1, null, modelManagerSpy));
+
+        doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
+        apc.cancelInGracePeriod(); // pre-specify apc will be interrupted by cancel
+        apc.run();
+
+        assertTrue(modelManagerSpy.backingModel().getPersonList().isEmpty());
+        assertTrue(modelManagerSpy.visibleModel().getPersonList().isEmpty());
+        assertFalse(modelManagerSpy.personHasOngoingChange(apc.getViewableToAdd()));
+        assertEquals(apc.getState(), State.CANCELLED);
+    }
+
     private void assertFinalStatesCorrectForSuccessfulAdd(AddPersonCommand command, ModelManager model, ReadOnlyPerson resultData) {
         assertEquals(command.getState(), State.SUCCESSFUL);
         assertEquals(model.visibleModel().getPersonList().size(), 1); // only 1 viewable
