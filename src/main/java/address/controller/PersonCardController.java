@@ -39,7 +39,7 @@ public class PersonCardController extends UiController{
     @FXML
     private Label tags;
     @FXML
-    private Label pendingState;
+    private Label pendingStateLabel;
     @FXML
     private ImageView syncingImageView;
 
@@ -138,18 +138,22 @@ public class PersonCardController extends UiController{
             }
         });
         if (person.getSecondsLeftInPendingState() > 0) {
-            pendingState.setText(String.format(PENDING_STATE_MESSAGE, person.getSecondsLeftInPendingState()));
+            pendingStateLabel.setText(String.format(PENDING_STATE_MESSAGE, person.getSecondsLeftInPendingState()));
+            pendingStateLabel.setVisible(true);
         }
         person.secondsLeftInPendingStateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() > 0) {
-                pendingState.setText(String.format(PENDING_STATE_MESSAGE, newValue));
+                pendingStateLabel.setText(String.format(PENDING_STATE_MESSAGE, newValue));
+                pendingStateLabel.setVisible(true);
             } else {
                 cardPane.setStyle(null);
-                pendingState.setText("Syncing...");
+                pendingStateLabel.setText("Syncing...");
+                pendingStateLabel.setVisible(true);
                 syncingImageView.setVisible(true);
                 person.onRemoteIdConfirmed((Integer id) -> {
                     syncingImageView.setVisible(false);
-                    pendingState.setText("");
+                    pendingStateLabel.setText("");
+                    pendingStateLabel.setVisible(false);
                 });
             }
         });
