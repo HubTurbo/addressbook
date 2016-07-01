@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -103,6 +104,9 @@ public class Installer extends Application {
         } catch (IOException e) {
             System.out.println("Failed to unpack all JARs");
             throw new IOException("Failed to unpack files.", e);
+        } catch (URISyntaxException e) {
+            System.out.println("Failed to get self JAR");
+            throw new IOException("Failed to unpack files.", e);
         }
 
         try {
@@ -124,7 +128,7 @@ public class Installer extends Application {
         FileUtil.createDirs(new File(LIB_DIR));
     }
 
-    private void unpackAllJarsInsideSelf() throws IOException {
+    private void unpackAllJarsInsideSelf() throws IOException, URISyntaxException {
         System.out.println("Unpacking");
 
         File installerFile = new File(getSelfJarFilename()); // JAR of this class
@@ -149,7 +153,7 @@ public class Installer extends Application {
         System.out.println("Finished Unpacking");
     }
 
-    private String getSelfJarFilename() {
+    private String getSelfJarFilename() throws URISyntaxException {
         return FileUtil.getJarFileOfClass(this.getClass()).getName();
     }
 
