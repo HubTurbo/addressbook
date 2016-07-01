@@ -3,8 +3,6 @@ matrix:
   include:
     - env: TESTTYPE=headless
       jdk: oraclejdk8
-    - env: TESTTYPE=headful
-      jdk: oraclejdk8
 script: travis_retry ./gradlew clean $TESTTYPE jacocoRootReport coveralls
 before_install:
           - "export DISPLAY=:99.0"
