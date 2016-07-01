@@ -2,10 +2,10 @@ package address.unittests.storage;
 
 import address.events.*;
 import address.exceptions.DataConversionException;
-import address.model.datatypes.AddressBook;
 import address.model.ModelManager;
-import address.storage.StorageAddressBook;
 import address.model.UserPrefs;
+import address.model.datatypes.AddressBook;
+import address.storage.StorageAddressBook;
 import address.storage.StorageManager;
 import address.storage.XmlFileStorage;
 import address.util.Config;
@@ -13,9 +13,7 @@ import address.util.FileUtil;
 import address.util.TestSerializationClass;
 import address.util.TestUtil;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
@@ -26,9 +24,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(XmlFileStorage.class)
