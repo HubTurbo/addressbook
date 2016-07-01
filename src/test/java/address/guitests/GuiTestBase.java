@@ -96,14 +96,15 @@ public class GuiTestBase extends FxRobot {
     }
 
     public FxRobot clickOn(String query) {
-        int maxRetries = 3;
+        int maxRetries = 5;
         for (int i = 0; i < maxRetries; i++) {
             try {
                 return super.clickOn(query);
             } catch (Exception e) {
                 System.out.println("Going to retry clicking " + query + ", retry count " + (i+1));
+                e.printStackTrace();
                 if(i == maxRetries - 1) throw e;
-                delay(500);
+                delay(1000);
             }
         }
         return this;
