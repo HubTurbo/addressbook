@@ -199,7 +199,7 @@ public class PersonOverviewController extends UiController{
 
     @FXML
     private void handleFilterChanged() {
-        Expr filterExpression = PredExpr.TRUE;
+        Expr filterExpression = null;
         boolean isFilterValid = true;
         try {
             filterExpression = parser.parse(filterField.getText());
@@ -208,7 +208,7 @@ public class PersonOverviewController extends UiController{
             isFilterValid = false;
         }
 
-        if (isFilterValid || filterField.getText().isEmpty()) {
+        if (isFilterValid) {
             if (filterField.getStyleClass().contains("error")) filterField.getStyleClass().remove("error");
         } else {
             if (!filterField.getStyleClass().contains("error")) filterField.getStyleClass().add("error");

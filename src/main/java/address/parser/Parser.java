@@ -11,7 +11,7 @@ import address.parser.qualifier.*;
 
 public class Parser {
     public Expr parse(String input) throws ParseException {
-        Expr result = null;
+        Expr result = PredExpr.TRUE;
 
         Pattern pattern = Pattern.compile("\\s*(!*\\w+)\\s*:\\s*(\\w+)\\s*", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(input);
@@ -19,15 +19,7 @@ public class Parser {
         while (!matcher.hitEnd()) {
             if (!matcher.find()) throw new ParseException("Part of input invalid '" + input + "'");
             Expr intermediate = createPredicate(matcher.group(1), matcher.group(2));
-            if (result == null) {
-                result = intermediate;
-            } else {
-                result = new AndExpr(intermediate, result);
-            }
-        }
-
-        if (result == null) {
-            throw new ParseException("Failed to parse '" + input + "'");
+            result = new AndExpr(intermediate, result);
         }
 
         return result;
