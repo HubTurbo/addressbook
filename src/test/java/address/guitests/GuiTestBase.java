@@ -5,7 +5,7 @@ import address.events.EventManager;
 import address.keybindings.KeyBinding;
 import address.keybindings.KeySequence;
 import address.model.datatypes.ReadOnlyAddressBook;
-import address.util.TestUtil;
+import address.testutils.TestUtil;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import org.junit.After;
