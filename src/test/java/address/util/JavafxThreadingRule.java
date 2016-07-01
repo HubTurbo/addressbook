@@ -8,7 +8,9 @@ import java.util.concurrent.Future;
 import javax.swing.SwingUtilities;
 
 import address.browser.BrowserManager;
+import hubturbo.embeddedbrowser.BrowserType;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.embed.swing.JFXPanel;
 
 import org.junit.Rule;
@@ -39,7 +41,8 @@ public class JavafxThreadingRule implements TestRule {
     public JavafxThreadingRule() {
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
-        Runnable task = () -> BrowserManager.initBrowser();
+        Runnable task = () -> new BrowserManager(FXCollections.emptyObservableList(),
+                                                 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
         Future<?> future = executor.submit(task);
         try {
             future.get();

@@ -1,0 +1,8 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="300" fx:id="mainPane" stylesheets="@DarkTheme.css" xmlns:fx="http://javafx.com/fxml" fx:controller="address.controller.TagListController">
+    <children>
+        <ScrollPane fx:id="tags" AnchorPane.topAnchor="5.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0"/>
+    </children>
+</AnchorPane>

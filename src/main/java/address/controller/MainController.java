@@ -76,8 +76,7 @@ public class MainController extends UiController{
         this.modelManager = modelManager;
         this.config = config;
         this.personList = modelManager.getAllViewablePersonsReadOnly();
-        this.browserManager = new BrowserManager(personList,
-                                                 config.getBrowserNoOfPages());
+        this.browserManager = new BrowserManager(personList, config.getBrowserNoOfPages(), config.getBrowserType());
         this.browserManager.initBrowser();
     }
 

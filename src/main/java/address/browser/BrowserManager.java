@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  */
 public class BrowserManager {
 
-    private static final BrowserType type = BrowserType.FULL_FEATURE_BROWSER;
+    private final BrowserType browserType;
 
     private static final String FXML_BROWSER_PLACE_HOLDER_SCREEN = "/view/DefaultBrowserPlaceHolderScreen.fxml";
 
@@ -72,18 +72,20 @@ public class BrowserManager {
         }
     };
 
-    public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons, int browserNoOfPages) {
+    public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons, int browserNoOfPages,
+                          BrowserType browserType) {
         this.selectedPersonUsername = new SimpleStringProperty();
         this.filteredPersons = filteredPersons;
         this.browserNoOfPages = browserNoOfPages;
+        this.browserType = browserType;
     }
 
     /**
      * Initialize the browser managed by the browser manager.
      * This must be called in a non-ui thread.
      */
-    public static void initBrowser(){
-        if (type == BrowserType.FULL_FEATURE_BROWSER) {
+    public void initBrowser(){
+        if (browserType == BrowserType.FULL_FEATURE_BROWSER) {
             if (Environment.isMac()) {
                 BrowserCore.initialize();
             }
@@ -103,7 +105,7 @@ public class BrowserManager {
         } else {
             logger.info("Initializing browser with {} pages", browserNoOfPages);
             hyperBrowser = Optional.of(new HyperBrowser(
-                    type,
+                    browserType,
                     browserNoOfPages,
                     getBrowserInitialScreen()));
         }
@@ -121,7 +123,7 @@ public class BrowserManager {
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
         List<URL> listOfFutureUrl =
-                UrlUtil.getFuturisticUrls(filteredPersons.stream()
+                UrlUtil.getFutureUrls(filteredPersons.stream()
                                                          .map(ReadOnlyPerson::profilePageUrl)
                                                          .collect(Collectors.toCollection(ArrayList::new)),
                                                                   indexOfPersonInListOfContacts,

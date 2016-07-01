@@ -17,7 +17,7 @@ public class UrlUtil {
         boolean isSameBaseUrl = url1.getHost().toLowerCase().replaceFirst("www.", "")
                                 .equals(url2.getHost().replaceFirst("www.", "").toLowerCase())
                                 && url1.getPath().replaceAll("/", "").toLowerCase()
-                                   .equals(url2.getPath().replaceAll("/", "").toLowerCase());
+                                .equals(url2.getPath().replaceAll("/", "").toLowerCase());
         return isSameBaseUrl;
     }
 
@@ -27,26 +27,26 @@ public class UrlUtil {
      * which URL may be used in the future.
      * @param urls The list of URL that contains URL that may be potentially used in the future.
      * @param selectedUrl The index of the current URL in the list(urls) that will be used at this moment.
-     * @param noOfFuturisticUrl The number of future URLs you wish to obtain from the list.
-     * @return A list of url that may be potentially used in the future. Range of list size: [0, noOfFuturisticUrl]
+     * @param noOfFutureUrl The number of future URLs you wish to obtain from the list.
+     * @return A list of url that may be potentially used in the future. Range of list size: [0, noOfFutureUrl]
      */
-    public static List<URL> getFuturisticUrls(List<URL> urls, int selectedUrl, int noOfFuturisticUrl) {
+    public static List<URL> getFutureUrls(List<URL> urls, int selectedUrl, int noOfFutureUrl) {
         URL currentUrl = urls.get(selectedUrl);
-        List<URL> listOfFuturisticUrl = new ArrayList<>();
+        List<URL> listOfFutureUrl = new ArrayList<>();
 
         int count = 0;
         int i = 1;
-        while (count < noOfFuturisticUrl && i < urls.size()) {
+        while (count < noOfFutureUrl && i < urls.size()) {
             URL url = urls.get((selectedUrl + i) % urls.size());
-            if (url.equals(currentUrl) || listOfFuturisticUrl.contains(url)){
+            if (url.equals(currentUrl) || listOfFutureUrl.contains(url)){
                 i++;
                 continue;
             }
-            listOfFuturisticUrl.add(url);
+            listOfFutureUrl.add(url);
             i++;
             count++;
         }
-        return listOfFuturisticUrl;
+        return listOfFutureUrl;
     }
 
 }

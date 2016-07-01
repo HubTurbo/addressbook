@@ -2,6 +2,7 @@ package address.unittests.browser;
 
 import address.browser.BrowserManager;
 import address.util.JavafxThreadingRule;
+import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +31,8 @@ public class BrowserManagerTest {
     public void testNecessaryBrowserResources_resourcesNotNull() throws NoSuchMethodException,
                                                                         InvocationTargetException,
                                                                         IllegalAccessException {
-        BrowserManager manager = new BrowserManager(FXCollections.observableArrayList(), 3);
+        BrowserManager manager = new BrowserManager(FXCollections.observableArrayList(), 3,
+                                                    BrowserType.FULL_FEATURE_BROWSER);
         manager.start();
         assertNotNull(manager.getHyperBrowserView());
         Method method = manager.getClass().getDeclaredMethod("getBrowserInitialScreen");
