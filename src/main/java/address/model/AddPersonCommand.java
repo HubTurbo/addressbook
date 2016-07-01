@@ -5,6 +5,8 @@ import address.events.BaseEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
+import address.util.AppLogger;
+import address.util.LoggerManager;
 import address.util.PlatformExecUtil;
 
 import java.util.Optional;
@@ -17,6 +19,8 @@ import java.util.function.Supplier;
  * for adding a person to the addressbook.
  */
 public class AddPersonCommand extends ChangePersonInModelCommand {
+
+    private static final AppLogger logger = LoggerManager.getLogger(AddPersonCommand.class);
 
     private final Consumer<? extends BaseEvent> eventRaiser;
     private final ModelManager model;
@@ -64,8 +68,10 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         assert input != null;
         // create VP and add to model
         viewableToAdd = ViewablePerson.withoutBacking(new Person(input));
+        logger.info("simulateResult: Going to add " + viewableToAdd.toString());
         PlatformExecUtil.runAndWait(() -> {
             model.addViewablePerson(viewableToAdd);
+            logger.info("simulateResult: Added " + viewableToAdd.toString() + " to visible person list in model");
             model.assignOngoingChangeToPerson(viewableToAdd.getId(), this);
         });
         return GRACE_PERIOD;
@@ -119,11 +125,18 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     protected State requestChangeToRemote() {
         assert input != null;
         // TODO: update when remote request api is complete
+        logger.info("requestChangeToRemote: Removing mapping for old id:" + getTargetPersonId());
         model.unassignOngoingChangeForPerson(getTargetPersonId()); // removes mapping for old id
         PlatformExecUtil.runAndWait(() -> {
             final Person backingPerson = new Person(model.generatePersonId()).update(viewableToAdd);
+            logger.info("requestChangeToRemote -> before calling addPersonToBackingModelSilently(). backingPerson: "
+                        + backingPerson.toString());
             model.addPersonToBackingModelSilently(backingPerson); // so it wont trigger creation of another VP
+            logger.info("requestChangeToRemote -> after calling addPersonToBackingModelSilently(). backingPerson: "
+                    + backingPerson.toString());
+            logger.info("requestChangeToRemote -> id of viewable person before updating is " + viewableToAdd.getId());
             viewableToAdd.connectBackingObject(backingPerson); // changes id to that of backing person
+            logger.info("requestChangeToRemote -> id of viewable person updated to " + viewableToAdd.getId());
         });
         model.assignOngoingChangeToPerson(getTargetPersonId(), this); // remap this change for the new id
         return SUCCESSFUL;

@@ -1,5 +1,6 @@
 package address.model;
 
+import address.util.AppLogger;
 import address.util.LoggerManager;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -34,6 +35,8 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         // Terminal states
         CANCELLED, SUCCESSFUL, FAILED,
     }
+
+    private static final AppLogger logger = LoggerManager.getLogger(ChangeObjectInModelCommand.class);
 
     private final CountDownLatch completionLatch;
     protected final int gracePeriodDurationInSeconds;
@@ -99,8 +102,12 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
 
         // Runs FSM till one of terminal states is reached.
         while (!isTerminal(getState())) {
+            logger.info("HandleAndTransitionState before: " + getState().toString());
             setState(handleAndTransitionState(getState()));
+            logger.info("HandleAndTransitionState after: " + getState().toString());
         }
+
+        logger.info("Reached terminal state " + getState().toString());
 
         // handle terminal states
         switch (getState()) {

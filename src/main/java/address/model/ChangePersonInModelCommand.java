@@ -1,6 +1,8 @@
 package address.model;
 
 import address.model.datatypes.person.ReadOnlyPerson;
+import address.util.AppLogger;
+import address.util.LoggerManager;
 import address.util.PlatformExecUtil;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
@@ -16,6 +18,8 @@ import java.util.function.Supplier;
  * {@link #editInGracePeriod(Supplier)}, {@link #deleteInGracePeriod()}.
  */
 public abstract class ChangePersonInModelCommand extends ChangeObjectInModelCommand {
+
+    private static final AppLogger logger = LoggerManager.getLogger(ChangePersonInModelCommand.class);
 
     protected Supplier<Optional<ReadOnlyPerson>> inputRetriever;
     protected ReadOnlyPerson input;
@@ -41,6 +45,7 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
         final Optional<ReadOnlyPerson> input = inputRetriever.get();
         if (input.isPresent()) {
             this.input = input.get();
+            logger.info("retrieveInput: Retrieving input " + input.get().toString());
             return SIMULATING_RESULT; // normal exec path
         }
         // Problem retrieving input (most likely user cancelled input dialog or some exception occurred.
