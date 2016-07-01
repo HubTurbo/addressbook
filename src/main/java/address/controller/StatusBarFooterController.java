@@ -60,13 +60,13 @@ public class StatusBarFooterController extends UiController{
      * @param updateInterval The sync period
      * @param saveLocation The location to save the file for storing Addressbook contacts.
      */
-    public void init(long updateInterval, String saveLocation) {
+    public void init(long updateInterval, File saveLocation) {
         initSyncTimer(updateInterval);
         initStatusBar();
         initSaveLocationLabel(saveLocation);
     }
 
-    private void initSaveLocationLabel(String saveLocation) {
+    private void initSaveLocationLabel(File saveLocation) {
         updateSaveLocationDisplay(saveLocation);
         secondaryStatusBarLabel.setTextAlignment(TextAlignment.LEFT);
         setTooltip(secondaryStatusBarLabel);
@@ -153,10 +153,10 @@ public class StatusBarFooterController extends UiController{
 
     @Subscribe
     private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
-        updateSaveLocationDisplay(e.saveFile.getName());
+        updateSaveLocationDisplay(e.saveFile);
     }
 
-    private void updateSaveLocationDisplay(String saveFile) {
-        secondaryStatusBarLabel.setText(SAVE_LOC_TEXT_PREFIX + ((saveFile != null) ? saveFile : LOC_TEXT_NOT_SET));
+    private void updateSaveLocationDisplay(File saveFile) {
+        secondaryStatusBarLabel.setText(SAVE_LOC_TEXT_PREFIX + ((saveFile != null) ? saveFile.getName() : LOC_TEXT_NOT_SET));
     }
 }
