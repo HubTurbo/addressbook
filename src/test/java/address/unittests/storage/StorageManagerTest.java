@@ -5,6 +5,7 @@ import address.exceptions.DataConversionException;
 import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.model.datatypes.AddressBook;
+import address.model.datatypes.ReadOnlyAddressBook;
 import address.storage.StorageAddressBook;
 import address.storage.StorageManager;
 import address.storage.XmlFileStorage;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({XmlFileStorage.class, FileUtil.class})
+@PrepareForTest({XmlFileStorage.class, FileUtil.class, StorageManager.class})
 public class StorageManagerTest {
 
     private static final File DUMMY_DATA_FILE = new File(TestUtil.appendToSandboxPath("dummyAddressBook.xml"));
@@ -68,6 +69,16 @@ public class StorageManagerTest {
         // This spy will be used to mock only one method of the object under test
         storageManagerSpy = spy(storageManager);
         doNothing().when(storageManagerSpy).saveDataToFile(DUMMY_DATA_FILE,EMPTY_ADDRESSBOOK);
+    }
+
+    @Test
+    public void saveDataToFile() throws IOException, DataConversionException {
+        PowerMockito.mockStatic(StorageManager.class);
+        PowerMockito.doCallRealMethod().when(storageManagerSpy).saveDataToFile(DUMMY_DATA_FILE, EMPTY_ADDRESSBOOK);
+        storageManagerSpy.saveDataToFile(DUMMY_DATA_FILE, EMPTY_ADDRESSBOOK);
+
+        PowerMockito.verifyStatic();
+        StorageManager.saveAddressBook(eq(DUMMY_DATA_FILE), any(ReadOnlyAddressBook.class));
     }
 
     @Test
