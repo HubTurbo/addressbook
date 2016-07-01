@@ -12,6 +12,8 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -152,5 +154,16 @@ public class TestUtil {
         boolean ctrlDown = keyCombination.toLowerCase().contains("ctrl")
                 || keyCombination.toLowerCase().contains("shortcut") && !OsDetector.isOnMac();
         return new KeyEvent(null, null, null, KeyCode.valueOf(key), shiftDown, ctrlDown, altDown, metaDown);
+    }
+
+    public static void setFinalStatic(Field field, Object newValue) throws NoSuchFieldException, IllegalAccessException{
+        field.setAccessible(true);
+        // remove final modifier from field
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        // ~Modifier.FINAL is used to remove the final modifier from field so that its value is no longer
+        // final and can be changed
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        field.set(null, newValue);
     }
 }

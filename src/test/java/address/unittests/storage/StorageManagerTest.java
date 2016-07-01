@@ -2,20 +2,19 @@ package address.unittests.storage;
 
 import address.events.*;
 import address.exceptions.DataConversionException;
-import address.model.datatypes.AddressBook;
 import address.model.ModelManager;
-import address.storage.StorageAddressBook;
 import address.model.UserPrefs;
+import address.model.datatypes.AddressBook;
+import address.model.datatypes.ReadOnlyAddressBook;
+import address.storage.StorageAddressBook;
 import address.storage.StorageManager;
 import address.storage.XmlFileStorage;
 import address.util.Config;
 import address.util.FileUtil;
-import address.util.TestSerializationClass;
+import address.util.SerializableTestClass;
 import address.util.TestUtil;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
@@ -26,12 +25,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(XmlFileStorage.class)
+@PrepareForTest({XmlFileStorage.class, FileUtil.class})
 public class StorageManagerTest {
 
     private static final File DUMMY_DATA_FILE = new File(TestUtil.appendToSandboxPath("dummyAddressBook.xml"));
@@ -39,6 +39,7 @@ public class StorageManagerTest {
     private static final File SERIALIZATION_FILE = new File(TestUtil.appendToSandboxPath("serialize.json"));
     private static final File INEXISTENT_FILE = new File(TestUtil.appendToSandboxPath("inexistent"));
     private static final File NON_JSON_FILE = new File(TestUtil.appendToSandboxPath("non.json"));
+    private static final File EMPTY_FILE = new File(TestUtil.appendToSandboxPath("empty.json"));
 
     private static final StorageAddressBook EMPTY_ADDRESSBOOK = new StorageAddressBook(new AddressBook());
     private static final UserPrefs EMPTY_USERPREFS = new UserPrefs();
@@ -73,6 +74,58 @@ public class StorageManagerTest {
     }
 
     @Test
+    public void getConfig_fileInexistent_newConfigCreated() throws Exception {
+        Config dummyConfig = new Config();
+        FileUtil.deleteFileIfExists(INEXISTENT_FILE);
+        assertFalse(INEXISTENT_FILE.exists());
+        TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("CONFIG_FILE"), INEXISTENT_FILE.getPath());
+        PowerMockito.whenNew(Config.class).withAnyArguments().thenReturn(dummyConfig);
+        StorageManager.getConfig();
+        PowerMockito.verifyNew(Config.class);
+    }
+
+    @Test
+    public void getConfig_fileExistent_correspondingMethodCalled() throws Exception {
+        FileUtil.createIfMissing(EMPTY_FILE);
+        TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("CONFIG_FILE"), EMPTY_FILE.getPath());
+        StorageManager.getConfig();
+        PowerMockito.verifyPrivate(StorageManager.class).invoke("readFromConfigFile", EMPTY_FILE);
+    }
+
+    @Test
+    public void recreateFile() {} // This is not implemented as it requires reflection
+    @Test
+    public void createAndWriteToConfigFile() {} // This is not implemented as it requires reflection
+    @Test
+    public void deleteConfigFileIfExists() {} // This is not implemented as it requires reflection
+    @Test
+    public void readFromConfigFile() {} // This is not implemented as it requires reflection
+
+    /**
+     * This is not implemented due to the need to mock static methods of StorageManager which will prevent some
+     * real methods to be called, hence leaving other unrelated methods untested
+     */
+    @Test
+    public void saveDataToFile() {}
+
+    /**
+     * This is not implemented due to the need to mock static methods of StorageManager which will prevent some
+     * real methods to be called, hence leaving other unrelated methods untested
+     */
+    @Test
+    public void savePrefsToFile_correspondingMethodCalled() {}
+
+    @Test
+    public void loadDataFromFile() {} // This is not implemented as it requires reflection
+
+    @Test
+    public void getData_correspondingMethodCalled() throws FileNotFoundException, DataConversionException {
+        storageManagerSpy.getData();
+        PowerMockito.verifyStatic();
+        XmlFileStorage.loadDataFromSaveFile(any(File.class));
+    }
+
+    @Test
     public void start_correspondingMethodCalled() throws Exception {
         storageManagerSpy.start();
         PowerMockito.verifyPrivate(storageManagerSpy).invoke("loadDataFromFile", userPrefsMock.getSaveLocation());
@@ -80,6 +133,8 @@ public class StorageManagerTest {
 
     @Test
     public void saveAddressBook_noException() throws IOException, DataConversionException {
+        PowerMockito.mockStatic(FileUtil.class);
+
         StorageManager.saveAddressBook(DUMMY_DATA_FILE, EMPTY_ADDRESSBOOK);
 
         PowerMockito.verifyStatic();
@@ -168,13 +223,6 @@ public class StorageManagerTest {
     }
 
     @Test
-    public void getUserPrefs_verifyMethodCalled() throws IOException {
-        StorageManager.getUserPrefs(DUMMY_PREFS_FILE);
-        PowerMockito.verifyStatic();
-        StorageManager.deserializeObjectFromJsonFile(DUMMY_PREFS_FILE, UserPrefs.class);
-    }
-
-    @Test
     public void getUserPrefs_inexistentFile_emptyUserPrefs() throws IOException {
         UserPrefs emptyUserPrefs = new UserPrefs();
         UserPrefs fromInexistentFile = StorageManager.getUserPrefs(INEXISTENT_FILE);
@@ -191,23 +239,23 @@ public class StorageManagerTest {
 
     @Test
     public void serializeObjectToJsonFile_noExceptionThrown() throws IOException {
-        TestSerializationClass testSerializationClass = new TestSerializationClass();
-        testSerializationClass.setTestValues();
+        SerializableTestClass serializableTestClass = new SerializableTestClass();
+        serializableTestClass.setTestValues();
 
-        StorageManager.serializeObjectToJsonFile(SERIALIZATION_FILE, testSerializationClass);
+        StorageManager.serializeObjectToJsonFile(SERIALIZATION_FILE, serializableTestClass);
 
-        assertEquals(FileUtil.readFromFile(SERIALIZATION_FILE), TestSerializationClass.JSON_STRING_REPRESENTATION);
+        assertEquals(FileUtil.readFromFile(SERIALIZATION_FILE), SerializableTestClass.JSON_STRING_REPRESENTATION);
     }
 
     @Test
     public void deserializeObjectFromJsonFile_noExceptionThrown() throws IOException {
-        FileUtil.writeToFile(SERIALIZATION_FILE, TestSerializationClass.JSON_STRING_REPRESENTATION);
+        FileUtil.writeToFile(SERIALIZATION_FILE, SerializableTestClass.JSON_STRING_REPRESENTATION);
 
-        TestSerializationClass testSerializationClass = StorageManager
-                .deserializeObjectFromJsonFile(SERIALIZATION_FILE, TestSerializationClass.class);
+        SerializableTestClass serializableTestClass = StorageManager
+                .deserializeObjectFromJsonFile(SERIALIZATION_FILE, SerializableTestClass.class);
 
-        assertEquals(testSerializationClass.getName(), TestSerializationClass.getNameTestValue());
-        assertEquals(testSerializationClass.getListOfLocalDateTimes(), TestSerializationClass.getListTestValues());
-        assertEquals(testSerializationClass.getMapOfIntegerToString(), TestSerializationClass.getHashMapTestValues());
+        assertEquals(serializableTestClass.getName(), SerializableTestClass.getNameTestValue());
+        assertEquals(serializableTestClass.getListOfLocalDateTimes(), SerializableTestClass.getListTestValues());
+        assertEquals(serializableTestClass.getMapOfIntegerToString(), SerializableTestClass.getHashMapTestValues());
     }
 }

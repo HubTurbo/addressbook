@@ -55,6 +55,18 @@ public class FileUtil {
         Files.delete(file.toPath());
     }
 
+    public static void deleteFileIfExists(String filepath) throws IOException {
+        deleteFileIfExists(new File(filepath));
+    }
+
+    public static void deleteFileIfExists(File file) throws IOException {
+        if (!isFileExists(file)) {
+            return;
+        }
+
+        deleteFile(file);
+    }
+
     /**
      * Lists all files in directory and its subdirectories
      */
