@@ -340,7 +340,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 //// EVENT HANDLERS
 
     @Subscribe
-    private <T> void handleSyncCompletedEvent(SyncCompletedEvent uce) {
+    private void handleSyncCompletedEvent(SyncCompletedEvent uce) {
         // Sync is done outside FX Application thread
         Set<Integer> deletedPersonIds = new HashSet<>();
         Map<Integer, ReadOnlyPerson> updatedPersons = new HashMap<>();
@@ -367,7 +367,8 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         });
 
 
-        Set<Tag> latestTags = new HashSet<>(uce.getLatestTags());
+        if (!uce.getLatestTags().isPresent()) return;
+        Set<Tag> latestTags = new HashSet<>(uce.getLatestTags().get());
         backingModel.getTags().retainAll(latestTags); // delete
         PlatformExecUtil.runLater(() -> {
             latestTags.removeAll(backingModel.getTags()); // latest tags no longer contains tags already in model
