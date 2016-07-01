@@ -21,6 +21,7 @@ import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 public class PersonCardController extends UiController{
+    public static final String PENDING_STATE_MESSAGE = "Syncing in %d seconds";
     @FXML
     private HBox cardPane;
     @FXML
@@ -37,6 +38,10 @@ public class PersonCardController extends UiController{
     private Label birthday;
     @FXML
     private Label tags;
+    @FXML
+    private Label pendingStateLabel;
+    @FXML
+    private ImageView syncingImageView;
 
     private ReadOnlyViewablePerson person;
     private FadeTransition deleteTransition;
@@ -133,13 +138,23 @@ public class PersonCardController extends UiController{
             }
         });
         if (person.getSecondsLeftInPendingState() > 0) {
-            cardPane.setStyle("-fx-background-color:yellow");
+            pendingStateLabel.setText(String.format(PENDING_STATE_MESSAGE, person.getSecondsLeftInPendingState()));
+            pendingStateLabel.setVisible(true);
         }
         person.secondsLeftInPendingStateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() > 0) {
-                cardPane.setStyle("-fx-background-color:yellow");
+                pendingStateLabel.setText(String.format(PENDING_STATE_MESSAGE, newValue));
+                pendingStateLabel.setVisible(true);
             } else {
                 cardPane.setStyle(null);
+                pendingStateLabel.setText("Syncing...");
+                pendingStateLabel.setVisible(true);
+                syncingImageView.setVisible(true);
+                person.onRemoteIdConfirmed((Integer id) -> {
+                    syncingImageView.setVisible(false);
+                    pendingStateLabel.setText("");
+                    pendingStateLabel.setVisible(false);
+                });
             }
         });
     }
