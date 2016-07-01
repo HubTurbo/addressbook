@@ -161,6 +161,8 @@ public class TestUtil {
         // remove final modifier from field
         Field modifiersField = Field.class.getDeclaredField("modifiers");
         modifiersField.setAccessible(true);
+        // ~Modifier.FINAL is used to remove the final modifier from field so that its value is no longer
+        // final and can be changed
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
         field.set(null, newValue);
     }
