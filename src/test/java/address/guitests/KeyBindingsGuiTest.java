@@ -7,6 +7,8 @@ import address.model.datatypes.person.Person;
 import javafx.scene.input.KeyCode;
 import org.junit.Test;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.base.NodeMatchers.hasText;
 
@@ -75,9 +77,9 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
     }
 
-
     private void verifyPersonDeleted(String firstName, String lastName) {
-        //TODO: implement this
+        sleep(4000); //TODO: tie the sleep duration to the actual grace period and implement a polling wait
+        assertFalse(testApp.listContains(firstName, lastName));
     }
 
     private void verifyEditWindowOpened(String firstName, String lastName) {
@@ -88,8 +90,8 @@ public class KeyBindingsGuiTest extends GuiTestBase {
     }
 
     private void verifyPersonSelected(String firstName, String lastName) {
-        push(bindings.PERSON_EDIT_ACCELERATOR);
-        verifyEditWindowOpened(firstName, lastName);
+        assertTrue(testApp.isSelectedPerson(firstName, lastName));
+        assertTrue(testApp.isFocusedPerson(firstName, lastName));
     }
 
 }

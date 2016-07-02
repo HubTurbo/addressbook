@@ -1,7 +1,6 @@
 package address.ui;
 
 import address.MainApp;
-import address.browser.BrowserManager;
 import address.controller.MainController;
 import address.model.ModelManager;
 import address.util.Config;
@@ -12,7 +11,7 @@ import javafx.stage.Stage;
  * The UI of the app.
  */
 public class Ui {
-    MainController mainController;
+    protected MainController mainController;
 
     public Ui(MainApp mainApp, ModelManager modelManager, Config config){
         mainController = new MainController(mainApp, modelManager, config);
