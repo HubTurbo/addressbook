@@ -1,10 +1,12 @@
-package address.sync;
+package address.async;
 
 import address.events.CreatePersonOnRemoteRequestEvent;
 import address.events.EventManager;
 import address.events.SyncFailedEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
+import address.sync.RemoteManager;
+import address.sync.SyncManager;
 import address.sync.task.CreatePersonOnRemoteTask;
 import address.util.Config;
 import com.google.common.eventbus.Subscribe;

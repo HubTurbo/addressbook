@@ -1,7 +1,10 @@
-package address.sync;
+package address.async;
 
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
+import address.sync.ExtractedRemoteResponse;
+import address.sync.RemoteManager;
+import address.sync.RemoteService;
 import org.junit.Before;
 import org.junit.Test;
 

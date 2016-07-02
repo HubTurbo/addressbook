@@ -1,7 +1,9 @@
-package address.sync;
+package address.async;
 
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
+import address.sync.ExtractedRemoteResponse;
+import address.sync.RemoteService;
 import address.sync.cloud.RemoteResponse;
 import address.sync.cloud.CloudSimulator;
 import address.sync.cloud.model.CloudPerson;
