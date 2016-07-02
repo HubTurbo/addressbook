@@ -1,10 +1,13 @@
-package address.storage;
+package address.astorage;
 
 import address.events.*;
 import address.exceptions.DataConversionException;
 import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.model.datatypes.AddressBook;
+import address.storage.StorageAddressBook;
+import address.storage.StorageManager;
+import address.storage.XmlFileStorage;
 import address.util.Config;
 import address.util.FileUtil;
 import address.testutils.SerializableTestClass;

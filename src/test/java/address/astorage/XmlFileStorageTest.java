@@ -1,7 +1,10 @@
-package address.storage;
+package address.astorage;
 
 import address.model.datatypes.AddressBook;
+import address.storage.StorageAddressBook;
+import address.storage.XmlFileStorage;
 import address.util.XmlUtil;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +33,7 @@ public class XmlFileStorageTest {
 
     @Test
     public void getDataFromFile()throws Exception{
-        assertEquals(EMPTY_ADDRESSBOOK.toString(),
+        Assert.assertEquals(EMPTY_ADDRESSBOOK.toString(),
                 XmlFileStorage.loadDataFromSaveFile(DUMMY_FILE).toString());
         //TODO: use equality instead of string comparison
     }
