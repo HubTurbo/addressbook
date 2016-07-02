@@ -1,4 +1,4 @@
-package address.testingbrowser;
+package address.browser;
 
 import address.browser.BrowserManager;
 import address.testutils.JavafxThreadingRule;
