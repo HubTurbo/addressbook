@@ -15,7 +15,8 @@ public class FullSystemTest extends GuiTestBase {
         push(KeyCode.ESCAPE);
 
         // Attempt to create new tag
-        clickOn("Tags").clickOn("New Tag");
+        clickOn("Tags");
+        clickOn("New Tag");
         verifyThat("#tagNameField", hasText(""));
 
         // Set name of tag to be "colleagues"

@@ -5,7 +5,7 @@ import address.events.EventManager;
 import address.keybindings.KeyBinding;
 import address.keybindings.KeySequence;
 import address.model.datatypes.ReadOnlyAddressBook;
-import address.util.TestUtil;
+import address.testutils.TestUtil;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import org.junit.After;
@@ -93,6 +93,21 @@ public class GuiTestBase extends FxRobot {
     protected void pushKeySequence(KeySequence keySequence) {
         push((KeyCodeCombination)keySequence.getKeyCombination());
         push((KeyCodeCombination)keySequence.getSecondKeyCombination());
+    }
+
+    public FxRobot clickOn(String query) {
+        int maxRetries = 5;
+        for (int i = 0; i < maxRetries; i++) {
+            try {
+                return super.clickOn(query);
+            } catch (Exception e) {
+                System.out.println("Going to retry clicking " + query + ", retry count " + (i+1));
+                e.printStackTrace();
+                if(i == maxRetries - 1) throw e;
+                delay(1000);
+            }
+        }
+        return this;
     }
 
 }
