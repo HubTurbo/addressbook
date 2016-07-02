@@ -63,19 +63,33 @@ public class RemoteResponse {
         header.put("ETag", eTag);
     }
 
-    public RemoteResponse(int responseCode, Object body, HashMap<String, String> header) {
-        this.responseCode = responseCode;
-        if (body != null) {
-            this.body = convertToInputStream(body);
-            addETagToHeader(header, getETag(convertToInputStream(body)));
-        }
-        this.headers = header;
+    private HashMap<String, String> getHeaders(CloudRateLimitStatus cloudRateLimitStatus) {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("X-RateLimit-Limit", String.valueOf(cloudRateLimitStatus.getQuotaLimit()));
+        headers.put("X-RateLimit-Remaining", String.valueOf(cloudRateLimitStatus.getQuotaRemaining()));
+        headers.put("X-RateLimit-Reset", String.valueOf(cloudRateLimitStatus.getQuotaReset()));
+        return headers;
     }
 
-    public RemoteResponse(int responseCode) {
-        assert responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR : "RemoteResponse constructor misused";
+    public RemoteResponse(int responseCode, Object body, CloudRateLimitStatus cloudRateLimitStatus) {
+        deductApiUnlessNotModified(responseCode, cloudRateLimitStatus);
         this.responseCode = responseCode;
-        this.headers = new HashMap<>();
+        this.headers = getHeaders(cloudRateLimitStatus);
+        if (body != null) {
+            this.body = convertToInputStream(body);
+            addETagToHeader(getHeaders(cloudRateLimitStatus), getETag(convertToInputStream(body)));
+        }
+    }
+
+    public RemoteResponse(int responseCode, CloudRateLimitStatus cloudRateLimitStatus) {
+        this.responseCode = responseCode;
+        this.headers = getHeaders(cloudRateLimitStatus);
+        this.body = convertToInputStream(getHeaders(cloudRateLimitStatus));
+    }
+
+    private void deductApiUnlessNotModified(int responseCode, CloudRateLimitStatus cloudRateLimitStatus) {
+        if (responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) return;
+        cloudRateLimitStatus.useQuota(1);
     }
 
 
