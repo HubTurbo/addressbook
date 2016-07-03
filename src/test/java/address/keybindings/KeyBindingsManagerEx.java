@@ -16,8 +16,8 @@ public class KeyBindingsManagerEx extends KeyBindingsManager {
      * @param currentEvent the most recent key event
      * @param previousEvent the previous key event
      */
-    public Optional<? extends KeyBinding> getBinding(KeyBindingEvent currentEvent, KeyBindingEvent previousEvent) {
-        return BINDINGS.getBinding(currentEvent, previousEvent);
+    public Optional<? extends KeyBinding> getBinding(KeyBindingEvent previousEvent, KeyBindingEvent currentEvent) {
+        return BINDINGS.getBinding(previousEvent, currentEvent);
     }
 
     /** Returns {@link address.keybindings.KeyBinding} objects managed.

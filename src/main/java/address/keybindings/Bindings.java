@@ -17,20 +17,20 @@ public class Bindings {
      * List of accelerators used.
      * They are here for the purpose of record keeping. Handled automatically by JavaFX.
      */
-    private List<Accelerator> accelerators = new ArrayList<>();
+    protected List<Accelerator> accelerators = new ArrayList<>();
 
     /**
      * List of global hotkeys.
      */
-    private List<GlobalHotkey> hotkeys = new ArrayList<>();
+    protected List<GlobalHotkey> hotkeys = new ArrayList<>();
 
     /** List of key sequences */
-    private List<KeySequence> sequences = new ArrayList<>();
+    protected List<KeySequence> sequences = new ArrayList<>();
 
     /**
      * List of keyboard shortcuts.
      */
-    private List<Shortcut> shortcuts = new ArrayList<>();
+    protected List<Shortcut> shortcuts = new ArrayList<>();
 
 
     /* key bindings in alphabetical order of name */
@@ -166,19 +166,16 @@ public class Bindings {
 
     /**
      * Returns the matching key sequence, if any
-     * @param currentEvent
      * @param previousEvent
+     * @param currentEvent
      */
-    protected Optional<KeySequence> findMatchingSequence(KeyBindingEvent currentEvent,
-                                                         KeyBindingEvent previousEvent) {
+    protected Optional<KeySequence> findMatchingSequence(KeyBindingEvent previousEvent, KeyBindingEvent currentEvent) {
 
         if (previousEvent == null){
             return Optional.empty();
         }
 
-        long elapsedTime = KeyBindingEvent.elapsedTimeInMilliseconds(previousEvent, currentEvent);
-
-        if (elapsedTime > KeySequence.KEY_SEQUENCE_MAX_DELAY_BETWEEN_KEYS){
+        if(!KeySequence.isElapsedTimePermissibile(previousEvent.time, currentEvent.time)){
             return Optional.empty();
         }
 
@@ -193,11 +190,11 @@ public class Bindings {
      * @param previous the previous key event (this is needed to match for key sequences)
      * @return the matching key binding, if any
      */
-    public Optional<? extends KeyBinding>  getBinding(KeyBindingEvent current,
-                                                      KeyBindingEvent previous){
+    public Optional<? extends KeyBinding>  getBinding(KeyBindingEvent previous,
+                                                      KeyBindingEvent current){
         Optional<? extends KeyBinding> matchingBinding;
 
-        matchingBinding = findMatchingSequence(current, previous);
+        matchingBinding = findMatchingSequence(previous, current);
         if (matchingBinding.isPresent()) { return matchingBinding; }
 
         matchingBinding = findMatchingHotkey(current);

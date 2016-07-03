@@ -8,14 +8,9 @@ import javafx.scene.input.KeyCombination;
  */
 public class Shortcut extends KeyBinding{
 
-    Shortcut(String name, KeyCombination keyCombination, BaseEvent eventToRaise) {
+    public Shortcut(String name, KeyCombination keyCombination, BaseEvent eventToRaise) {
         super(name, keyCombination, eventToRaise);
     }
-
-    public KeyCombination getKeyCombination() {
-        return keyCombination;
-    }
-
 
     @Override
     public String toString(){

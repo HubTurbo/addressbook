@@ -71,7 +71,9 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         //======== hotkeys ============================
 
-        //TODO: test hotkeys 
+        push(bindings.APP_MINIMIZE_HOTKEY.get(0));
+        push(bindings.APP_MAXIMIZE_HOTKEY.get(0));
+        //TODO: test hotkeys
 
     }
 

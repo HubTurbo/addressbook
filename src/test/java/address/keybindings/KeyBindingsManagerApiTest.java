@@ -2,7 +2,6 @@ package address.keybindings;
 
 
 import address.events.*;
-
 import address.util.TestUtil;
 import javafx.scene.input.KeyCombination;
 import org.junit.Assert;
@@ -12,9 +11,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertFalse;
@@ -153,14 +150,15 @@ public class KeyBindingsManagerApiTest {
         KeyBindingEvent previousEvent;
 
         if(keyCombos.length == 2){
-            currentEvent = new KeyBindingEvent(TestUtil.getKeyEvent(keyCombos[1]));
+            //Note: previousEvent should be created first so that it's time stamp is earlier than currentEvent's
             previousEvent = new KeyBindingEvent(TestUtil.getKeyEvent(keyCombos[0]));
+            currentEvent = new KeyBindingEvent(TestUtil.getKeyEvent(keyCombos[1]));
         }else {
-            currentEvent = new KeyBindingEvent(TestUtil.getKeyEvent(keyCombos[0]));
             previousEvent = null;
+            currentEvent = new KeyBindingEvent(TestUtil.getKeyEvent(keyCombos[0]));
         }
 
-        Optional<? extends KeyBinding> tested = keyBindingsManager.getBinding(currentEvent, previousEvent);
+        Optional<? extends KeyBinding> tested = keyBindingsManager.getBinding(previousEvent, currentEvent);
         yetToTest.remove(tested.get());
     }
 
@@ -200,6 +198,12 @@ public class KeyBindingsManagerApiTest {
         Optional<KeySequence> matchingSequence = sequences.stream()
                 .filter(s -> s.isIncluded(a.getKeyCombination())).findFirst();
         assertFalse("Clash between " + matchingSequence + " and " + a, matchingSequence.isPresent());
+    }
+
+    @Test
+    public void stop(){
+        //Not tested here because it is hard to veryify the effect of this method on jkeymaster
+        // without being able to fire hotkeys
     }
 
     /**

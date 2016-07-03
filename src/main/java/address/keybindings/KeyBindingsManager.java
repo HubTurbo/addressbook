@@ -20,7 +20,7 @@ public class KeyBindingsManager extends ComponentManager{
     private static final AppLogger logger = LoggerManager.getLogger(KeyBindingsManager.class);
 
     /** Manages global hotkey detection */
-    private GlobalHotkeyProvider hotkeyProvider = new GlobalHotkeyProvider(eventManager, logger);
+    protected GlobalHotkeyProvider hotkeyProvider = new GlobalHotkeyProvider(eventManager, logger);
 
     /** To keep track of the previous keyboard event, to match for key sequences */
     private KeyBindingEvent previousKeyEvent = null;
@@ -39,7 +39,7 @@ public class KeyBindingsManager extends ComponentManager{
     @Subscribe
     public void handleKeyBindingEvent(KeyBindingEvent currentKeyEvent) {
 
-        Optional<? extends KeyBinding> kb = BINDINGS.getBinding(currentKeyEvent, previousKeyEvent);
+        Optional<? extends KeyBinding> kb = BINDINGS.getBinding(previousKeyEvent, currentKeyEvent);
         previousKeyEvent = currentKeyEvent;
 
         if (!kb.isPresent()) {
@@ -50,7 +50,6 @@ public class KeyBindingsManager extends ComponentManager{
         logger.info("Handling {}", kb.get());
         BaseEvent event = kb.get().getEventToRaise();
         raise (event);
-
     }
 
     /**
@@ -59,8 +58,6 @@ public class KeyBindingsManager extends ComponentManager{
     public void stop() {
         hotkeyProvider.clear();
     }
-
-
 
     /**
      * Returns the key combination of the accelerator matching the name given.
@@ -72,6 +69,5 @@ public class KeyBindingsManager extends ComponentManager{
                 .findFirst();
         return keyBinding.isPresent() ? Optional.of(keyBinding.get().getKeyCombination()) : Optional.empty();
     }
-
 
 }
