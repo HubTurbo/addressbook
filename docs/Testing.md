@@ -15,6 +15,29 @@ There are a few key gradle tasks defined that we can play around with:
 - `./gradlew headless` to run **headless testing** only.  
  - Running this or `headful` repeatedly will not re-run the tests unless the build files are `clean`ed
 - `./gradlew headful` to run **headful testing** only.
+- Running specific test classes in a specific order:
+  - Create a test suite (to specify the test order). Here is an example:
+     ```java
+     package address;
+
+     import org.junit.runner.RunWith;
+     import org.junit.runners.Suite;
+
+     @RunWith(Suite.class)
+     @Suite.SuiteClasses({
+             /*The tests to run, in the order they should run*/
+             address.unittests.browser.BrowserManagerTest.class,
+             address.guitests.PersonOverviewTest.class
+     })
+
+     public class TestsInOrder {
+         // the class remains empty,
+         // used only as a holder for the above annotations
+     }
+     ```
+  - Run the test suite using the gradle command <br>
+   `gradle clean headless --tests address.TestsInOrder`
+
 
 **CI Testing**
 - `./gradlew` is run  
