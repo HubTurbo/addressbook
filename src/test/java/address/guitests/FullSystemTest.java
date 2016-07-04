@@ -1,5 +1,6 @@
 package address.guitests;
 
+import guitests.GuiTestBase;
 import javafx.scene.input.KeyCode;
 import org.junit.Test;
 
