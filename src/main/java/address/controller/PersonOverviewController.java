@@ -29,7 +29,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,7 +51,7 @@ public class PersonOverviewController extends UiController{
     private Button deleteButton;
 
     @FXML
-    private ListView<ReadOnlyViewablePerson> personListView;
+    protected ListView<ReadOnlyViewablePerson> personListView;
     @FXML
     private TextField filterField;
 

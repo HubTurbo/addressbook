@@ -71,10 +71,14 @@ public class MainApp extends Application {
 
         modelManager = new ModelManager(userPrefs);
         storageManager = new StorageManager(modelManager::resetData, config, userPrefs);
-        ui = new Ui(this, modelManager, config);
+        ui = createUi(this, modelManager, config);
         syncManager = new SyncManager(config, userPrefs.getSaveLocation().getName());
         keyBindingsManager = new KeyBindingsManager();
         updateManager = new UpdateManager(VERSION);
+    }
+
+    protected Ui createUi(MainApp mainApp, ModelManager modelManager, Config config) {
+        return new Ui(mainApp, modelManager, config);
     }
 
     @Override

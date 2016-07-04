@@ -1,11 +1,11 @@
 package address.model.datatypes.person;
 
-import address.model.ChangePersonInModelCommand;
 import address.model.datatypes.UniqueData;
 import address.model.datatypes.Viewable;
 import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
-import javafx.beans.property.*;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.collections.ListChangeListener;
 
 import java.net.MalformedURLException;
@@ -269,6 +269,11 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
         return visible.tagsString();
     }
 
+    @Override
+    public boolean isSameName(String firstName, String lastName) {
+        return this.firstNameProperty().getValue().equals(firstName)
+                && this.lastNameProperty().getValue().equals(lastName);
+    }
 
     /**
      * Use backing Person for comparison.

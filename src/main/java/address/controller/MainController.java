@@ -63,6 +63,8 @@ public class MainController extends UiController{
 
     private UnmodifiableObservableList<ReadOnlyViewablePerson> personList;
 
+    protected PersonOverviewController personOverviewController;
+
     /**
      * Constructor for mainController
      *
@@ -150,7 +152,7 @@ public class MainController extends UiController{
             SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
             SplitPane.setResizableWithParent(personOverview, false);
             // Give the personOverviewController access to the main app and modelManager.
-            PersonOverviewController personOverviewController = loader.getController();
+            personOverviewController = loader.getController();
             personOverviewController.setConnections(this, modelManager, personList);
 
             pane.getItems().add(personOverview);

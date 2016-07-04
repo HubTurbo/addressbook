@@ -18,6 +18,8 @@ import java.util.concurrent.TimeoutException;
 
 public class GuiTestBase extends FxRobot {
 
+    protected TestApp testApp;
+
     @BeforeClass
     public static void setupSpec() {
         try {
@@ -31,7 +33,7 @@ public class GuiTestBase extends FxRobot {
     @Before
     public void setup() throws Exception {
         EventManager.clearSubscribers();
-        FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation()));
+        testApp = (TestApp)FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation()));
         FxToolkit.showStage();
     }
 
