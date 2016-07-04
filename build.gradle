@@ -53,6 +53,7 @@ allprojects {
         testFxVersion = '3.1.0'
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
+        jarUpdaterDestDir = 'src/main/resources/updater'
         jarUpdaterArchiveName = 'jarUpdater.jar'
     }
 
@@ -159,6 +160,12 @@ allprojects {
         args arguments.split()
     }
 
+    task removeCurrentJarUpdater(type: Delete) {
+        group = "Release"
+
+        delete project.ext.jarUpdaterDestDir + '/' + project.ext.jarUpdaterArchiveName
+    }
+
     task createJarUpdater(type: Jar) {
         group = "Release"
 
@@ -171,7 +178,7 @@ allprojects {
         }
 
         archiveName = project.ext.jarUpdaterArchiveName
-        destinationDir = file('src/main/resources/updater')
+        destinationDir = file(project.ext.jarUpdaterDestDir)
 
         // Specify classes needed for Jar Updater
         from(sourceSets.main.output.resourcesDir) {
@@ -181,6 +188,7 @@ allprojects {
     }
 
     createJarUpdater.dependsOn clean
+    createJarUpdater.dependsOn removeCurrentJarUpdater
 
     task copyDependencyLibrariesToReleaseDir(type: Copy) {
         group = "Release"
