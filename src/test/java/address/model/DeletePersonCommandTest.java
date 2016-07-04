@@ -4,19 +4,18 @@ import address.events.DeletePersonOnRemoteRequestEvent;
 import address.model.ChangeObjectInModelCommand.State;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
-import address.util.JavafxRuntimeRule;
+import address.util.JavafxRuntimeUtil;
 import address.util.TestUtil;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Optional;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
@@ -29,8 +28,6 @@ public class DeletePersonCommandTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-    @Rule
-    public JavafxRuntimeRule javafxRule = new JavafxRuntimeRule();
 
     @Mock
     ModelManager modelManagerMock;
@@ -41,6 +38,16 @@ public class DeletePersonCommandTest {
 
     public static final int TEST_ID = 314;
     ViewablePerson testTarget;
+
+    @BeforeClass
+    public static void beforeSetup() throws TimeoutException {
+        JavafxRuntimeUtil.initRuntime();
+    }
+
+    @AfterClass
+    public static void teardown() throws Exception {
+        JavafxRuntimeUtil.tearDownRuntime();
+    }
 
     @Before
     public void setup() {
