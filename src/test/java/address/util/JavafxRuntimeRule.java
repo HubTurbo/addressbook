@@ -15,26 +15,13 @@ import org.junit.runners.model.Statement;
 import org.testfx.api.FxToolkit;
 
 /**
- * A JUnit {@link Rule} for running tests on the JavaFX thread and performing
+ * A JUnit {@link Rule} for running tests that requires
  * JavaFX initialisation.  To include in your test case, add the following code:
- *
- * <pre>
- * {@literal @}Rule
- * public JavafxThreadingRule jfxRule = new JavafxThreadingRule();
- * </pre>
- *
- * @author Andy Till
- *
+ * public JavafxRuntimeRule jfxRule = new JavafxRuntimeRule();
  */
-public class JavafxThreadingRule implements TestRule {
-    private static final AppLogger logger = LoggerManager.getLogger(JavafxThreadingRule.class);
+public class JavafxRuntimeRule implements TestRule {
 
-    /**
-     * Flag for setting up the JavaFX, we only need to do this once for all tests.
-     */
-    private static boolean jfxIsSetup;
-
-    public JavafxThreadingRule() {
+    public JavafxRuntimeRule() {
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
         Runnable task = () -> new BrowserManager(FXCollections.emptyObservableList(),
@@ -61,22 +48,13 @@ public class JavafxThreadingRule implements TestRule {
     @Override
     public Statement apply(Statement statement, Description description) {
 
-        return new OnJFXThreadStatement(statement);
+        return new OnJFXThreadStatement();
     }
 
     private static class OnJFXThreadStatement extends Statement {
-
-        private final Statement statement;
-
-        public OnJFXThreadStatement(Statement aStatement) {
-            statement = aStatement;
-        }
-
-
         @Override
         public void evaluate() throws Throwable {
 
         }
-
     }
 }

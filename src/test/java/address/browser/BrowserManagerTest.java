@@ -1,6 +1,6 @@
 package address.browser;
 
-import address.util.JavafxThreadingRule;
+import address.util.JavafxRuntimeRule;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
 import org.junit.Rule;
@@ -21,7 +21,7 @@ public class BrowserManagerTest {
     /**
      * To run test cases on JavaFX thread.
      */
-    public JavafxThreadingRule javafxRule = new JavafxThreadingRule();
+    public JavafxRuntimeRule javafxRule = new JavafxRuntimeRule();
 
 
     @Test

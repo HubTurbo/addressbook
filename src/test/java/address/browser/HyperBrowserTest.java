@@ -1,9 +1,9 @@
 package address.browser;
 
+import address.util.JavafxRuntimeRule;
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.HyperBrowser;
 import hubturbo.embeddedbrowser.page.Page;
-import address.util.JavafxThreadingRule;
 import address.util.UrlUtil;
 import org.junit.Test;
 import org.junit.Rule;
@@ -29,7 +29,7 @@ public class HyperBrowserTest {
     /**
      * To run test cases on JavaFX thread.
      */
-    public JavafxThreadingRule javafxRule = new JavafxThreadingRule();
+    public JavafxRuntimeRule javafxRule = new JavafxRuntimeRule();
 
     List<URL> listOfUrl = Arrays.asList(new URL("https://github.com"),
             new URL("https://google.com.sg"),
