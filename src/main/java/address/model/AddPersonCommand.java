@@ -41,7 +41,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         super(inputRetriever, gracePeriodDurationInSeconds);
         this.model = model;
         this.eventRaiser = eventRaiser;
-        this.addressbookName = model.getPrefs().getSaveLocation().getName();
+        this.addressbookName = model.getPrefs().getSaveFileName();
     }
 
     protected ViewablePerson getViewableToAdd() {
@@ -129,11 +129,11 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
             logger.debug("requestChangeToRemote: Removing mapping for old id:" + getTargetPersonId());
             model.unassignOngoingChangeForPerson(getTargetPersonId()); // removes mapping for old id
-            model.assignOngoingChangeToPerson(backingPerson.getId(), this); // remap this change for the new id
 
             PlatformExecUtil.runAndWait(() -> {
                 model.addPersonToBackingModelSilently(backingPerson); // so it wont trigger creation of another VP
                 viewableToAdd.connectBackingObject(backingPerson); // changes id to that of backing person
+                model.assignOngoingChangeToPerson(backingPerson.getId(), this); // remap this change for the new id
             });
             logger.debug("requestChangeToRemote -> id of viewable person updated to " + viewableToAdd.getId());
             return SUCCESSFUL;

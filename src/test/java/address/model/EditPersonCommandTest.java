@@ -1,11 +1,14 @@
 package address.model;
 
+import address.events.UpdatePersonOnRemoteRequestEvent;
 import address.model.ChangeObjectInModelCommand.State;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.JavafxThreadingRule;
 import address.util.TestUtil;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,6 +36,9 @@ public class EditPersonCommandTest {
     @Mock
     ModelManager modelManagerMock;
     ModelManager modelManagerSpy;
+    @Mock
+    UserPrefs prefs;
+    EventBus events;
 
     public static final int TEST_ID = 93;
     ViewablePerson testTarget;
@@ -46,8 +52,17 @@ public class EditPersonCommandTest {
 
     @Before
     public void setup() {
-        modelManagerSpy = spy(new ModelManager(null));
         testTarget = ViewablePerson.fromBacking(TestUtil.generateSamplePersonWithAllData(TEST_ID));
+        modelManagerSpy = spy(new ModelManager(prefs));
+        when(prefs.getSaveFileName()).thenReturn("ADDRESSBOOK NAME");
+        when(modelManagerMock.getPrefs()).thenReturn(prefs);
+        events = new EventBus();
+        events.register(new Object() {
+            @Subscribe
+            public void fakeAddToRemote(UpdatePersonOnRemoteRequestEvent e) {
+                e.getReturnedPersonContainer().complete(e.getUpdatedPerson());
+            }
+        });
     }
 
     @Test
@@ -67,7 +82,7 @@ public class EditPersonCommandTest {
 
     @Test
     public void getTargetPersonId_returnsCorrectId() {
-        final EditPersonCommand epc = new EditPersonCommand(testTarget, null, 0, null, null);
+        final EditPersonCommand epc = new EditPersonCommand(testTarget, null, 0, null, modelManagerMock);
         assertEquals(epc.getTargetPersonId(), TEST_ID);
     }
 
@@ -98,7 +113,7 @@ public class EditPersonCommandTest {
     @Test
     public void succesfulEdit_updatesBackingModelCorrectly() {
         final EditPersonCommand epc = new EditPersonCommand(testTarget, inputRetrieverWrapper(inputData),
-                0, null, modelManagerSpy);
+                0, events::post, modelManagerSpy);
         epc.run();
         assertTrue(epc.getViewable().dataFieldsEqual(inputData));
         assertTrue(epc.getViewable().getBacking().dataFieldsEqual(inputData));
@@ -108,7 +123,7 @@ public class EditPersonCommandTest {
     @Test
     public void interruptGracePeriod_withEditRequest_changesEditResult() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final EditPersonCommand epc = spy(new EditPersonCommand(testTarget, returnValidEmptyInput, 1, null, modelManagerSpy));
+        final EditPersonCommand epc = spy(new EditPersonCommand(testTarget, returnValidEmptyInput, 1, events::post, modelManagerSpy));
         final Supplier<Optional<ReadOnlyPerson>> editInputWrapper = inputRetrieverWrapper(inputData);
 
         doNothing().when(epc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts

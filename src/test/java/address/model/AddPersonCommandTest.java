@@ -1,11 +1,14 @@
 package address.model;
 
+import address.events.CreatePersonOnRemoteRequestEvent;
 import address.model.ChangeObjectInModelCommand.State;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.JavafxThreadingRule;
 import address.util.TestUtil;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,6 +36,9 @@ public class AddPersonCommandTest {
     @Mock
     ModelManager modelManagerMock;
     ModelManager modelManagerSpy;
+    @Mock
+    UserPrefs prefs;
+    EventBus events;
 
     final Supplier<Optional<ReadOnlyPerson>> returnValidEmptyInput = () -> Optional.of(Person.createPersonDataContainer());
 
@@ -42,12 +48,23 @@ public class AddPersonCommandTest {
 
     @Before
     public void setup() {
-        modelManagerSpy = spy(new ModelManager(null));
+        modelManagerSpy = spy(new ModelManager(prefs));
+        when(prefs.getSaveFileName()).thenReturn("ADDRESSBOOK NAME");
+        when(modelManagerMock.getPrefs()).thenReturn(prefs);
+        events = new EventBus();
+
+        events.register(new Object() {
+            @Subscribe
+            public void fakeAddToRemote(CreatePersonOnRemoteRequestEvent e) {
+                e.getReturnedPersonContainer().complete(e.getCreatedPerson());
+            }
+        });
+
     }
 
     @Test
     public void getTargetPersonId_throws_whenViewableNotCreatedYet() {
-        final AddPersonCommand apc = constructWithDummyArgs();
+        final AddPersonCommand apc = new AddPersonCommand(null, 0, null, modelManagerMock);
         thrown.expect(IllegalStateException.class);
         apc.getTargetPersonId();
     }
@@ -70,18 +87,24 @@ public class AddPersonCommandTest {
 
     @Test
     public void getTargetPersonId_returnsFinalId_AfterSuccess() {
-        final AddPersonCommand apc = new AddPersonCommand(returnValidEmptyInput, 0, null, modelManagerSpy);
         final int CORRECT_ID = 1;
-        when(modelManagerSpy.generatePersonId()).thenReturn(CORRECT_ID);
+        events = new EventBus();
+        events.register(new Object() {
+            @Subscribe
+            public void fakeAddToRemote(CreatePersonOnRemoteRequestEvent e) {
+                e.getReturnedPersonContainer().complete(
+                        new Person(CORRECT_ID).update(e.getCreatedPerson()));
+            }
+        });
+        final AddPersonCommand apc = new AddPersonCommand(returnValidEmptyInput, 0, events::post, modelManagerSpy);
 
         apc.run();
         assertEquals(apc.getTargetPersonId(), CORRECT_ID);
-
     }
 
     @Test
     public void retrievingInput_cancelsCommand_whenEmptyInputOptionalRetrieved() {
-        final AddPersonCommand apc = new AddPersonCommand(Optional::empty, 0, null, null);
+        final AddPersonCommand apc = new AddPersonCommand(Optional::empty, 0, null, modelManagerMock);
         apc.run();
         assertEquals(apc.getState(), State.CANCELLED);
     }
@@ -106,7 +129,7 @@ public class AddPersonCommandTest {
     @Test
     public void successfulAdd_updatesBackingModelCorrectly() {
         final ReadOnlyPerson inputData = TestUtil.generateSamplePersonWithAllData(0);
-        final AddPersonCommand apc = new AddPersonCommand(inputRetrieverWrapper(inputData), 0, null, modelManagerSpy);
+        final AddPersonCommand apc = new AddPersonCommand(inputRetrieverWrapper(inputData), 0, events::post, modelManagerSpy);
 
         apc.run();
         assertFalse(modelManagerSpy.personHasOngoingChange(apc.getViewableToAdd()));
@@ -117,7 +140,7 @@ public class AddPersonCommandTest {
     @Test
     public void interruptGracePeriod_withEditRequest_changesAddedPersonData() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final AddPersonCommand apc = spy(new AddPersonCommand(returnValidEmptyInput, 1, null, modelManagerSpy));
+        final AddPersonCommand apc = spy(new AddPersonCommand(returnValidEmptyInput, 1, events::post, modelManagerSpy));
         final Supplier<Optional<ReadOnlyPerson>> editInputWrapper = inputRetrieverWrapper(TestUtil.generateSamplePersonWithAllData(1));
 
         doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
@@ -170,7 +193,4 @@ public class AddPersonCommandTest {
         assertTrue(backingPersonFromModel.dataFieldsEqual(resultData));
     }
 
-    public static AddPersonCommand constructWithDummyArgs() {
-        return new AddPersonCommand(null, 0, null, null);
-    }
 }

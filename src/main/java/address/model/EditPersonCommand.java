@@ -40,7 +40,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
         this.target = target;
         this.model = model;
         this.eventRaiser = eventRaiser;
-        this.addressbookName = model.getPrefs().getSaveLocation().getName();
+        this.addressbookName = model.getPrefs().getSaveFileName();
     }
 
     protected ViewablePerson getViewable() {

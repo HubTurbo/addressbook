@@ -1,11 +1,14 @@
 package address.model;
 
+import address.events.DeletePersonOnRemoteRequestEvent;
 import address.model.ChangeObjectInModelCommand.State;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.JavafxThreadingRule;
 import address.util.TestUtil;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,14 +36,26 @@ public class DeletePersonCommandTest {
     @Mock
     ModelManager modelManagerMock;
     ModelManager modelManagerSpy;
+    @Mock
+    UserPrefs prefs;
+    EventBus events;
 
     public static final int TEST_ID = 314;
     ViewablePerson testTarget;
 
     @Before
     public void setup() {
-        modelManagerSpy = spy(new ModelManager(null));
         testTarget = spy(ViewablePerson.fromBacking(TestUtil.generateSamplePersonWithAllData(TEST_ID)));
+        modelManagerSpy = spy(new ModelManager(prefs));
+        when(prefs.getSaveFileName()).thenReturn("ADDRESSBOOK NAME");
+        when(modelManagerMock.getPrefs()).thenReturn(prefs);
+        events = new EventBus();
+        events.register(new Object() {
+            @Subscribe
+            public void fakeDeleteOnRemote(DeletePersonOnRemoteRequestEvent e) {
+                e.getResultContainer().complete(true);
+            }
+        });
     }
 
     @Test
@@ -60,13 +75,13 @@ public class DeletePersonCommandTest {
 
     @Test
     public void getTargetPersonId_returnsCorrectId() {
-        final DeletePersonCommand epc = new DeletePersonCommand(testTarget, 0, null, null);
+        final DeletePersonCommand epc = new DeletePersonCommand(testTarget, 0, null, modelManagerMock);
         assertEquals(epc.getTargetPersonId(), TEST_ID);
     }
 
     @Test
     public void optimisticUiUpdate_flagsDelete() {
-        final DeletePersonCommand dpc = spy(new DeletePersonCommand(testTarget, 0, null, modelManagerSpy));
+        final DeletePersonCommand dpc = spy(new DeletePersonCommand(testTarget, 0, events::post, modelManagerSpy));
 
         // to stop the run at start of grace period (right after simulated change)
         doThrow(new InterruptAndTerminateException()).when(dpc).beforeGracePeriod();
@@ -78,7 +93,7 @@ public class DeletePersonCommandTest {
 
     @Test
     public void succesfulDelete_updatesBackingModelCorrectly() {
-        final DeletePersonCommand dpc = new DeletePersonCommand(testTarget, 0, null, modelManagerSpy);
+        final DeletePersonCommand dpc = new DeletePersonCommand(testTarget, 0, events::post, modelManagerSpy);
 
         modelManagerSpy.visibleModel().addPerson(testTarget);
         modelManagerSpy.addPersonToBackingModelSilently(testTarget.getBacking());

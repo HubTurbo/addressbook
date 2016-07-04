@@ -24,6 +24,10 @@ public class UserPrefs {
         return saveLocation == null ? new File(DEFAULT_TEMP_FILE_PATH) : new File(saveLocation);
     }
 
+    public String getSaveFileName() {
+        return getSaveLocation().getName();
+    }
+
     public String getSaveLocationString() {
         return saveLocation;
     }
