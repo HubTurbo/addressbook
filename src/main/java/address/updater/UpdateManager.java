@@ -161,7 +161,7 @@ public class UpdateManager extends ComponentManager {
         raise(new UpdaterFinishedEvent("Update will be applied on next launch"));
         this.isUpdateApplicable = true;
 
-        updateDownloadedVersionsData(latestVersion.get());
+        downloadedVersions.add(latestVersion.get());
     }
 
     /**
@@ -299,11 +299,6 @@ public class UpdateManager extends ComponentManager {
         }
     }
 
-    private void updateDownloadedVersionsData(Version latestVersionDownloaded) {
-        downloadedVersions.add(latestVersionDownloaded);
-        writeDownloadedVersionsToFile();
-    }
-
     private void writeDownloadedVersionsToFile() {
         try {
             if (FileUtil.isFileExists(DOWNLOADED_VERSIONS_FILE.toString())) {
@@ -344,6 +339,8 @@ public class UpdateManager extends ComponentManager {
             logger.fatal("Failed to create backup of app; not applying update");
             return;
         }
+
+        writeDownloadedVersionsToFile();
 
         String restarterAppPath = JAR_UPDATER_APP_PATH;
         String localUpdateSpecFilepath = LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
