@@ -321,21 +321,21 @@ class AddressBookTest extends Test {
 }
 
 task guiTest(type: AddressBookTest) {
-    include 'guitests/*'
+    include 'guitests/**'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
 }
 
 task guiUnitTest(type: AddressBookTest) {
-    include 'guiunittests/*'
+    include 'guiunittests/**'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
 }
 
 task unitTest(type: AddressBookTest) {
-    include 'address/*'
+    include 'address/**'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
