@@ -1,22 +1,18 @@
 package address.util;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.swing.SwingUtilities;
-
 import address.browser.BrowserManager;
 import hubturbo.embeddedbrowser.BrowserType;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.embed.swing.JFXPanel;
 
-import org.junit.Rule;
+import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.testfx.api.FxToolkit;
 
 /**
  * A JUnit {@link Rule} for running tests on the JavaFX thread and performing
@@ -51,6 +47,17 @@ public class JavafxThreadingRule implements TestRule {
         }
     }
 
+    @BeforeClass
+    public void setUp() throws Exception {
+        FxToolkit.registerPrimaryStage();
+        FxToolkit.hideStage();
+    }
+
+    @AfterClass
+    public void tearDown() throws Exception {
+        FxToolkit.cleanupStages();
+    }
+
     @Override
     public Statement apply(Statement statement, Description description) {
 
@@ -65,57 +72,10 @@ public class JavafxThreadingRule implements TestRule {
             statement = aStatement;
         }
 
-        private Throwable rethrownException = null;
 
         @Override
         public void evaluate() throws Throwable {
 
-            if(!jfxIsSetup) {
-                setupJavaFX();
-
-                jfxIsSetup = true;
-            }
-
-            final CountDownLatch countDownLatch = new CountDownLatch(1);
-
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        statement.evaluate();
-                    } catch (Throwable e) {
-                        rethrownException = e;
-                    }
-                    countDownLatch.countDown();
-                }});
-
-            countDownLatch.await();
-
-            // if an exception was thrown by the statement during evaluation,
-            // then re-throw it to fail the test
-            if(rethrownException != null) {
-                throw rethrownException;
-            }
-        }
-
-        protected void setupJavaFX() throws InterruptedException {
-
-            long timeMillis = System.currentTimeMillis();
-
-            final CountDownLatch latch = new CountDownLatch(1);
-
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    // initializes JavaFX environment
-                    new JFXPanel();
-
-                    latch.countDown();
-                }
-            });
-
-            logger.info("javafx initialising...");
-            latch.await();
-            logger.info("javafx is initialised in {} ms", (System.currentTimeMillis() - timeMillis));
         }
 
     }
