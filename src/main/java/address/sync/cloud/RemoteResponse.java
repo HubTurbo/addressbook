@@ -63,7 +63,7 @@ public class RemoteResponse {
         header.put("ETag", eTag);
     }
 
-    private HashMap<String, String> getHeaders(CloudRateLimitStatus cloudRateLimitStatus) {
+    private HashMap<String, String> getRateLimitStatusHeader(CloudRateLimitStatus cloudRateLimitStatus) {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("X-RateLimit-Limit", String.valueOf(cloudRateLimitStatus.getQuotaLimit()));
         headers.put("X-RateLimit-Remaining", String.valueOf(cloudRateLimitStatus.getQuotaRemaining()));
@@ -71,24 +71,48 @@ public class RemoteResponse {
         return headers;
     }
 
-    public RemoteResponse(int responseCode, Object body, CloudRateLimitStatus cloudRateLimitStatus) {
-        deductApiUnlessNotModified(responseCode, cloudRateLimitStatus);
-        this.responseCode = responseCode;
-        this.headers = getHeaders(cloudRateLimitStatus);
-        if (body != null) {
-            this.body = convertToInputStream(body);
-            addETagToHeader(getHeaders(cloudRateLimitStatus), getETag(convertToInputStream(body)));
+    private HashMap<String, String> getHeaders(CloudRateLimitStatus cloudRateLimitStatus, String eTag) {
+        HashMap<String, String> headers = getRateLimitStatusHeader(cloudRateLimitStatus);
+        addETagToHeader(headers, eTag);
+        return headers;
+    }
+
+    public RemoteResponse(int responseCode, Object body, CloudRateLimitStatus cloudRateLimitStatus, String previousETag) {
+        String newETag = getETag(convertToInputStream(body));
+
+        if (previousETag != null && previousETag.equals(newETag)) {
+            this.responseCode = HttpURLConnection.HTTP_NOT_MODIFIED;
+            this.headers = getRateLimitStatusHeader(cloudRateLimitStatus);
+            return;
         }
-    }
 
-    public RemoteResponse(int responseCode, CloudRateLimitStatus cloudRateLimitStatus) {
+        deductApi(cloudRateLimitStatus);
         this.responseCode = responseCode;
-        this.headers = getHeaders(cloudRateLimitStatus);
-        this.body = convertToInputStream(getHeaders(cloudRateLimitStatus));
+        this.headers = getHeaders(cloudRateLimitStatus, newETag);
+        this.body = convertToInputStream(body);
     }
 
-    private void deductApiUnlessNotModified(int responseCode, CloudRateLimitStatus cloudRateLimitStatus) {
-        if (responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) return;
+    private RemoteResponse(int responseCode, CloudRateLimitStatus cloudRateLimitStatus) {
+        this.responseCode = responseCode;
+        this.headers = getRateLimitStatusHeader(cloudRateLimitStatus);
+        this.body = convertToInputStream(getRateLimitStatusHeader(cloudRateLimitStatus));
+    }
+
+    private RemoteResponse(int responseCode, Object body, CloudRateLimitStatus cloudRateLimitStatus) {
+        this.responseCode = responseCode;
+        this.headers = getRateLimitStatusHeader(cloudRateLimitStatus);
+        this.body = convertToInputStream(body);
+    }
+
+    public static RemoteResponse getForbiddenResponse(CloudRateLimitStatus cloudRateLimitStatus) {
+        return new RemoteResponse(HttpURLConnection.HTTP_FORBIDDEN, null, cloudRateLimitStatus);
+    }
+
+    public static RemoteResponse getLimitStatusResponse(CloudRateLimitStatus cloudRateLimitStatus) {
+        return new RemoteResponse(HttpURLConnection.HTTP_OK, cloudRateLimitStatus);
+    }
+
+    private void deductApi(CloudRateLimitStatus cloudRateLimitStatus) {
         cloudRateLimitStatus.useQuota(1);
     }
 
@@ -115,6 +139,7 @@ public class RemoteResponse {
      * @return
      */
     public static String getETag(InputStream bodyStream) {
+        if (bodyStream == null) return null;
         try {
             // Adapted from http://www.javacreed.com/how-to-compute-hash-code-of-streams/
             DigestInputStream digestInputStream = new DigestInputStream(new BufferedInputStream(bodyStream),
@@ -136,7 +161,8 @@ public class RemoteResponse {
         }
     }
 
-    private static ByteArrayInputStream convertToInputStream(Object object) {
+    private ByteArrayInputStream convertToInputStream(Object object) {
+        if (object == null) return null;
         try {
             return new ByteArrayInputStream(JsonUtil.toJsonString(object).getBytes());
         } catch (JsonProcessingException e) {
