@@ -5,6 +5,8 @@ import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.HyperBrowser;
 import hubturbo.embeddedbrowser.page.Page;
 import address.util.UrlUtil;
+import javafx.collections.FXCollections;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.Rule;
 
@@ -39,6 +41,12 @@ public class HyperBrowserTest {
             new URL("https://bitbucket.org"));
 
     public HyperBrowserTest() throws MalformedURLException {
+    }
+
+    @BeforeClass
+    public void setup(){
+        new BrowserManager(FXCollections.emptyObservableList(),
+                1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
     }
 
     @Test
