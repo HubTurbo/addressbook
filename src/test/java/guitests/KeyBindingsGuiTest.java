@@ -37,7 +37,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         push(bindings.LIST_ENTER_SHORTCUT);
         verifyPersonSelected("Person1", "Lastname1");
 
-        push(KeyCode.CONTROL, KeyCode.DIGIT3);
+        push(KeyCode.SHORTCUT, KeyCode.DIGIT3);
         verifyPersonSelected("Person3", "Lastname3");
 
         //======= sequences =========================
@@ -51,7 +51,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         //======= accelerators =======================
 
-        push(KeyCode.CONTROL, KeyCode.DIGIT3);
+        push(KeyCode.SHORTCUT, KeyCode.DIGIT3);
         push(bindings.PERSON_EDIT_ACCELERATOR);
         verifyEditWindowOpened("Person3", "Lastname3");
 
