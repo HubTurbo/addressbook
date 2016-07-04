@@ -1,1 +1,1 @@
-If the latest version does not work for some reason, you may want to use a past version until the latest version is fixed. In such a case, you can copy the JAR file of the version you want to use to the root folder (no need to rename it) and run that JAR file.
+If the latest version does not work for some reason, you may want to use a past version until the latest version is fixed. In such a case, you can copy the JAR file of the version you want to use from the past_versions folder to the root folder (no need to rename it) and run that JAR file.

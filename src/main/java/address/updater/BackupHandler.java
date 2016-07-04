@@ -81,7 +81,7 @@ public class BackupHandler {
     }
 
     private void extractInstructionToUseBackupVersion() throws IOException {
-        File backupInstructionFile = new File(BACKUP_DIR + File.separator + BACKUP_INSTRUCTION_FILENAME);
+        File backupInstructionFile = new File(BACKUP_INSTRUCTION_FILENAME);
 
         if (!backupInstructionFile.exists() && !backupInstructionFile.createNewFile()) {
             throw new IOException("Failed to create backup instruction empty file");
