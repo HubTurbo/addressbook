@@ -122,7 +122,7 @@ public class PersonOverviewController extends UiController{
     private void handleDeletePersons() {
         final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
         
-        if (isSelectionValid()) {
+        if (!isSelectionValid()) {
             showInvalidSelectionAlert();
         } else {
             selected.stream()
@@ -135,7 +135,7 @@ public class PersonOverviewController extends UiController{
 
     private boolean isSelectionValid() {
         final List<?> selected = personListView.getSelectionModel().getSelectedItems();
-        return selected.isEmpty() || selected.stream().anyMatch(Objects::isNull);
+        return !selected.isEmpty() && !selected.stream().anyMatch(Objects::isNull);
     }
 
     /**
@@ -154,7 +154,7 @@ public class PersonOverviewController extends UiController{
     private void handleRetagPersons() {
         List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
 
-        if (isSelectionValid()) {
+        if (!isSelectionValid()) {
             showInvalidSelectionAlert();
             return;
         }
@@ -188,7 +188,7 @@ public class PersonOverviewController extends UiController{
 
     private void handleCancelPersonOperations() {
         final List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
-        if (isSelectionValid()) {
+        if (!isSelectionValid()) {
             showInvalidSelectionAlert();
             return;
         }
