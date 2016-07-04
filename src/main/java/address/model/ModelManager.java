@@ -20,6 +20,7 @@ import javafx.collections.ObservableList;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -158,7 +159,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     }
 
     /**
-     * Request to updaate a person. Simulates the change optimistically until remote confirmation, and provides a grace
+     * Request to update a person. Simulates the change optimistically until remote confirmation, and provides a grace
      * period for cancellation, editing, or deleting. TODO listen on Person properties and not manually raise events
      * @param target The Person to be changed.
      * @param userInputRetriever callback to retrieve user's input. Will be run on fx application thread
@@ -174,6 +175,51 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
             final ViewablePerson toEdit = visibleModel.findPerson(target).get();
             execNewEditPersonCommand(toEdit, fxThreadInputRetriever);
         }
+    }
+
+    /**
+     * Request to set the tags for a group of Persons. Simulates change optimistically until remote confirmation,
+     * and provides a grace period for cancellation, editing, or deleting.
+     * @param targets Persons to be retagged
+     * @param newTagsRetriever callback to retrieve the tags to set for every person in {@code targets}.
+     *                         Will be run on fx application thread
+     */
+    public void retagPersonsThroughUI(Collection<? extends ReadOnlyPerson> targets,
+                                      Callable<Optional<? extends Collection<Tag>>> newTagsRetriever) {
+
+        final CompletableFuture<Optional<? extends Collection<Tag>>> chosenTags = new CompletableFuture<>();
+        final AtomicBoolean alreadyRetrieved = new AtomicBoolean(false);
+
+        final Function<ReadOnlyPerson, Supplier<Optional<ReadOnlyPerson>>> editInputRetrieverFactory = p -> () -> {
+            // run ui input retriever on this thread if no other thread did it yet
+            boolean shouldRunTagsRetriever = !alreadyRetrieved.getAndSet(true);
+            if (shouldRunTagsRetriever) {
+                chosenTags.complete(PlatformExecUtil.callAndWait(newTagsRetriever, Optional.empty()));
+            }
+
+            try {
+                Optional<? extends Collection<Tag>> chosenTagsInput = chosenTags.get();
+                if (!chosenTagsInput.isPresent()) {
+                    return Optional.empty();
+                }
+                Person afterRetag = new Person(p);
+                afterRetag.setTags(chosenTagsInput.get());
+                return Optional.of(afterRetag);
+
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                return Optional.empty();
+            }
+        };
+        // handle edit commands for each target
+        targets.forEach(target -> {
+            if (personHasOngoingChange(target)) {
+                getOngoingChangeForPerson(target.getId()).editInGracePeriod(editInputRetrieverFactory.apply(target));
+            } else {
+                final ViewablePerson toEdit = visibleModel.findPerson(target).get();
+                execNewEditPersonCommand(toEdit, editInputRetrieverFactory.apply(target));
+            }
+        });
     }
 
     /**

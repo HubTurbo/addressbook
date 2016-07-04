@@ -153,22 +153,11 @@ public class PersonOverviewController extends UiController{
      */
     private void handleRetagPersons() {
         List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
-
         if (!isSelectionValid()) {
             showInvalidSelectionAlert();
             return;
         }
-
-        Optional<List<Tag>> listOfFinalAssignedTags = mainController.getPersonsTagsInput(selectedPersons);
-
-        if (listOfFinalAssignedTags.isPresent()) {
-            selectedPersons.stream()
-                    .forEach(p -> {
-                        Person editedPerson = new Person(p);
-                        editedPerson.setTags(listOfFinalAssignedTags.get());
-                        modelManager.editPersonThroughUI(p, () -> Optional.of(editedPerson));
-                    });
-        }
+        modelManager.retagPersonsThroughUI(selectedPersons, () -> mainController.getPersonsTagsInput(selectedPersons));
     }
 
     /**
