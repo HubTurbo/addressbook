@@ -1,6 +1,6 @@
 package address.browser;
 
-import address.util.JavafxRuntimeRule;
+import address.util.JavafxRuntimeUtil;
 import address.util.PlatformExecUtil;
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.HyperBrowser;
@@ -10,8 +10,6 @@ import javafx.collections.FXCollections;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.Rule;
-import org.testfx.api.FxToolkit;
 
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
@@ -44,15 +42,14 @@ public class HyperBrowserTest {
 
     @BeforeClass
     public static void setup() throws TimeoutException {
-        FxToolkit.registerPrimaryStage();
-        FxToolkit.hideStage();
+        JavafxRuntimeUtil.initRuntime();
         new BrowserManager(FXCollections.emptyObservableList(),
                 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
     }
 
     @AfterClass
-    public static void tearDown() throws Exception {
-        FxToolkit.cleanupStages();
+    public static void teardown() throws Exception {
+        JavafxRuntimeUtil.tearDownRuntime();
     }
 
     @Test

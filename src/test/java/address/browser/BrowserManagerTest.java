@@ -1,16 +1,15 @@
 package address.browser;
 
-import address.util.JavafxRuntimeRule;
+import address.util.JavafxRuntimeUtil;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.testfx.api.FxToolkit;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -20,21 +19,16 @@ import static org.junit.Assert.assertNotNull;
  */
 public class BrowserManagerTest {
 
-    /**
-     * To run test cases on JavaFX thread.
-     */
-
     @BeforeClass
-    public static void setUp() throws Exception {
+    public static void setup() throws TimeoutException {
+        JavafxRuntimeUtil.initRuntime();
         new BrowserManager(FXCollections.emptyObservableList(),
                 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
-        FxToolkit.registerPrimaryStage();
-        FxToolkit.hideStage();
     }
 
     @AfterClass
-    public static void tearDown() throws Exception {
-        FxToolkit.cleanupStages();
+    public static void teardown() throws Exception {
+        JavafxRuntimeUtil.tearDownRuntime();
     }
 
     @Test
