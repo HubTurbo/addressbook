@@ -335,7 +335,7 @@ task guiUnitTest(type: AddressBookTest) {
 }
 
 task unitTest(type: AddressBookTest) {
-    include 'address/unittests/*'
+    include 'address/*'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
