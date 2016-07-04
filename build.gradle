@@ -261,11 +261,6 @@ allprojects {
     createInstallerJar.dependsOn createMainAppExecutable
 }
 
-test {
-    forkEvery = 1
-    systemProperty 'testfx.setup.timeout', '60000'
-}
-
 task jacocoRootReport(type: JacocoReport) {
     sourceDirectories = files(allprojects.sourceSets.main.allSource.srcDirs)
     classDirectories =  files(allprojects.sourceSets.main.output)
@@ -310,28 +305,65 @@ task coverage {
 task checkStyle {
 }
 
+class AddressBookTest extends Test {
+    public AddressBookTest() {
+    	forkEvery = 1
+        systemProperty 'testfx.setup.timeout', '60000'
+    }
+    
+    public void setHeadless() {
+        systemProperty 'java.awt.robot', 'true'
+        systemProperty 'testfx.robot', 'glass'
+        systemProperty 'testfx.headless', 'true'
+        systemProperty 'prism.order', 'sw'
+        systemProperty 'prism.text', 't2k'
+    }
+}
 
-task headless(type: Test) {
-    systemProperty 'java.awt.robot', 'true'
-    systemProperty 'testfx.robot', 'glass'
-    systemProperty 'testfx.headless', 'true'
-    systemProperty 'prism.order', 'sw'
-    systemProperty 'prism.text', 't2k'
-
+task guiTest(type: AddressBookTest) {
+    include 'address/guitests/*'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
 }
 
-
-task headful(type: Test) {
+task guiUnitTest(type: AddressBookTest) {
+    include 'address/guiunittests/*'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
 }
+
+task unitTest(type: AddressBookTest) {
+    include 'address/unittests/*'
+    jacoco {
+        destinationFile = new File("${buildDir}/jacoco/test.exec")
+    }
+}
+
+task allTests {
+}
+
+task headless << {
+    println "Setting headless mode properties."
+    guiTest.setHeadless()
+    guiUnitTest.setHeadless()
+    unitTest.setHeadless()
+}
+
+unitTest.mustRunAfter headless
+guiUnitTest.mustRunAfter headless
+guiTest.mustRunAfter headless
 
 headless.shouldRunAfter checkStyle
-headful.shouldRunAfter checkStyle
+unitTest.shouldRunAfter checkStyle
+guiUnitTest.shouldRunAfter checkStyle
+guiTest.shouldRunAfter checkStyle
+
+allTests.dependsOn unitTest
+allTests.dependsOn guiUnitTest
+allTests.dependsOn guiTest
+
 checkStyle.shouldRunAfter clean
 checkStyle.dependsOn checkstyleMain, checkstyleTest, findbugsMain, findbugsTest, pmdMain, pmdTest
 coverage.dependsOn jacocoTestReport
