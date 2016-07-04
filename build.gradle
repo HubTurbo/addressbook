@@ -187,6 +187,7 @@ allprojects {
             include 'log4j2.json'
         }
         from sourceSets.main.output
+        exclude '**/jarUpdater.jar'
     }
 
     createJarUpdater.dependsOn clean
