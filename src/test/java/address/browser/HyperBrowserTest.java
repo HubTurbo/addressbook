@@ -44,7 +44,7 @@ public class HyperBrowserTest {
     }
 
     @BeforeClass
-    public void setup(){
+    public static void setup(){
         new BrowserManager(FXCollections.emptyObservableList(),
                 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
     }

@@ -9,9 +9,6 @@ import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -28,17 +25,9 @@ public class BrowserManagerTest {
     public JavafxRuntimeRule javafxRule = new JavafxRuntimeRule();
 
     @BeforeClass
-    public void setup(){
-        ExecutorService executor = Executors.newFixedThreadPool(1);
-
-        Runnable task = () -> new BrowserManager(FXCollections.emptyObservableList(),
+    public static void setup(){
+        new BrowserManager(FXCollections.emptyObservableList(),
                 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
-        Future<?> future = executor.submit(task);
-        try {
-            future.get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Test
