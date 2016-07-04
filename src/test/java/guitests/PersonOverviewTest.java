@@ -1,4 +1,4 @@
-package address.guitests;
+package guitests;
 
 import guitests.GuiTestBase;
 import javafx.scene.control.Label;

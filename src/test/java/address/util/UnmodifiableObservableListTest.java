@@ -1,4 +1,4 @@
-package address.unittests.util;
+package address.util;
 
 import address.util.collections.UnmodifiableObservableList;
 import javafx.collections.FXCollections;

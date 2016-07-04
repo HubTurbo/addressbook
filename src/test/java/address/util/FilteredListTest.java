@@ -1,4 +1,4 @@
-package address.unittests.util;
+package address.util;
 
 import address.model.datatypes.person.Person;
 import address.util.FilteredList;
