@@ -132,7 +132,7 @@ public class MainController extends UiController{
         } catch (IOException e) {
             logger.fatal("Error initializing root layout: {}", e);
             showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml root layout.",
-                                         "IOException when trying to load ", fxmlResourcePath);
+                                            "IOException when trying to load ", fxmlResourcePath);
         }
     }
 
@@ -156,7 +156,7 @@ public class MainController extends UiController{
         } catch (IOException e) {
             logger.fatal("Error loading person overview: {}", e);
             showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for person overview.",
-                                         "IOException when trying to load " , fxmlResourcePath);
+                                            "IOException when trying to load " , fxmlResourcePath);
         }
     }
 
@@ -187,7 +187,7 @@ public class MainController extends UiController{
         } catch (IOException e) {
             logger.fatal("Error Loading footer status bar: {}", e);
             showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for footer status bar.",
-                                         "IOException when trying to load ", fxmlResourcePath);
+                                            "IOException when trying to load ", fxmlResourcePath);
         }
     }
 
@@ -241,7 +241,7 @@ public class MainController extends UiController{
         } catch (IOException e) {
             logger.fatal("Error loading person edit dialog: {}", e);
             showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for edit person dialog.",
-                                         "IOException when trying to load ", fxmlResourcePath);
+                                            "IOException when trying to load ", fxmlResourcePath);
             return Optional.empty();
         }
     }
@@ -397,7 +397,7 @@ public class MainController extends UiController{
         } catch (IOException e) {
             logger.fatal("Error loading tag edit dialog: {}", e);
             showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for edit tag dialog.",
-                                         "IOException when trying to load ", fxmlResourcePath);
+                                            "IOException when trying to load ", fxmlResourcePath);
             return Optional.empty();
         }
     }
@@ -425,7 +425,7 @@ public class MainController extends UiController{
         } catch (IOException e) {
             logger.fatal("Error loading tag list view: {}", e);
             showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for tag list.",
-                                         "IOException when trying to load ", fxmlResourcePath);
+                                            "IOException when trying to load ", fxmlResourcePath);
         }
     }
 
@@ -452,7 +452,7 @@ public class MainController extends UiController{
         } catch (IOException e) {
             logger.fatal("Error loading birthday statistics view: {}", e);
             showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for birthday stats.",
-                                         "IOException when trying to load ", fxmlResourcePath);
+                                            "IOException when trying to load ", fxmlResourcePath);
         }
     }
 
