@@ -28,9 +28,9 @@ public class CloudSimulatorTest {
     private static int STARTING_API_COUNT = 10;
     private static int API_RESET_DELAY = 30000;
 
-    CloudFileHandler cloudFileHandler;
-    CloudRateLimitStatus cloudRateLimitStatus;
-    CloudSimulator cloudSimulator;
+    private CloudFileHandler cloudFileHandler;
+    private CloudRateLimitStatus cloudRateLimitStatus;
+    private CloudSimulator cloudSimulator;
 
     /**
      * Mocks the file handler and spies on the limit status

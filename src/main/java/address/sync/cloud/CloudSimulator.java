@@ -35,14 +35,16 @@ public class CloudSimulator implements ICloudSimulator {
     private static final int API_QUOTA_PER_HOUR = 5000;
     private static final Random RANDOM_GENERATOR = new Random();
     private static final double FAILURE_PROBABILITY = 0.1;
-    private static final double NETWORK_DELAY_PROBABILITY = 0.2;
-    private static final int MIN_DELAY_IN_SEC = 1;
-    private static final int DELAY_RANGE = 5;
+    private static final double NETWORK_DELAY_PROBABILITY = 1.0;
     private static final double MODIFY_PERSON_PROBABILITY = 0.1;
     private static final double MODIFY_TAG_PROBABILITY = 0.05;
     private static final double ADD_PERSON_PROBABILITY = 0.05;
     private static final double ADD_TAG_PROBABILITY = 0.025;
+    private static final int MIN_DELAY_IN_SEC = 1;
+    private static final int MAX_DELAY_IN_SEC = 5;
     private static final int MAX_NUM_PERSONS_TO_ADD = 2;
+    private static final int MAX_NUM_TAGS_TO_ADD = 2;
+
     private CloudRateLimitStatus cloudRateLimitStatus;
     private boolean shouldSimulateUnreliableNetwork;
     private CloudFileHandler fileHandler;
@@ -70,6 +72,7 @@ public class CloudSimulator implements ICloudSimulator {
      *
      * @param addressBookName
      * @param newPerson
+     * @param previousETag
      * @return a response wrapper, containing the added person if successful
      */
     @Override
@@ -157,6 +160,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param addressBookName
      * @param pageNumber
      * @param resourcesPerPage
+     * @param previousETag
      * @return
      */
     @Override
@@ -197,6 +201,7 @@ public class CloudSimulator implements ICloudSimulator {
      * <p>
      * This does NOT cost any API usage
      *
+     * @param previousETag
      * @return
      */
     @Override
@@ -214,6 +219,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param addressBookName
      * @param personId
      * @param updatedPerson
+     * @param previousETag
      * @return
      */
     @Override
@@ -282,6 +288,7 @@ public class CloudSimulator implements ICloudSimulator {
      *
      * @param addressBookName
      * @param newTag          tag name should not already be used
+     * @param previousETag
      * @return
      */
     @Override
@@ -317,6 +324,7 @@ public class CloudSimulator implements ICloudSimulator {
      * @param addressBookName
      * @param oldTagName        should match a existing tag's name
      * @param updatedTag
+     * @param previousETag
      * @return
      */
     @Override
@@ -412,6 +420,9 @@ public class CloudSimulator implements ICloudSimulator {
      *
      * @param addressBookName
      * @param timeString
+     * @param pageNumber
+     * @param resourcesPerPage
+     * @param previousETag
      * @return
      */
     @Override
@@ -493,18 +504,13 @@ public class CloudSimulator implements ICloudSimulator {
         return fullResourceList.subList(startIndex, endIndex);
     }
 
-    private RemoteResponse getNotModifiedResponse() {
-        logger.debug("Preparing not-modified response.");
-        return getEmptyResponse(HttpURLConnection.HTTP_NOT_MODIFIED);
-    }
-
     private RemoteResponse getNetworkFailedResponse() {
         logger.info("Simulated network failure occurred!");
         return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
     }
 
     private RemoteResponse getEmptyResponse(int responseCode) {
-        logger.debug("Preparing empty response.");
+        logger.debug("Preparing empty response: {}", responseCode);
         return new RemoteResponse(responseCode, null, cloudRateLimitStatus, null);
     }
 
@@ -622,17 +628,17 @@ public class CloudSimulator implements ICloudSimulator {
             if (shouldSimulateUnreliableNetwork && RANDOM_GENERATOR.nextDouble() <= ADD_PERSON_PROBABILITY) {
                 CloudPerson person = new CloudPerson(java.util.UUID.randomUUID().toString(),
                                                      java.util.UUID.randomUUID().toString());
-                logger.info("Cloud simulator: adding '{}'", person);
+                logger.info("Simulating data addition for person '{}'", person);
                 personList.add(person);
             }
         }
     }
 
     private void addCloudTagsBasedOnChance(List<CloudTag> tagList) {
-        for (int i = 0; i < MAX_NUM_PERSONS_TO_ADD; i++) {
+        for (int i = 0; i < MAX_NUM_TAGS_TO_ADD; i++) {
             if (shouldSimulateUnreliableNetwork && RANDOM_GENERATOR.nextDouble() <= ADD_TAG_PROBABILITY) {
                 CloudTag tag = new CloudTag(java.util.UUID.randomUUID().toString());
-                logger.debug("Cloud simulator: adding tag '{}'", tag);
+                logger.debug("Simulating data addition for tag '{}'", tag);
                 tagList.add(tag);
             }
         }
@@ -640,7 +646,7 @@ public class CloudSimulator implements ICloudSimulator {
 
     private void modifyCloudPersonBasedOnChance(CloudPerson cloudPerson) {
         if (!shouldSimulateUnreliableNetwork || RANDOM_GENERATOR.nextDouble() > MODIFY_PERSON_PROBABILITY) return;
-        logger.debug("Cloud simulator: modifying person '{}'", cloudPerson);
+        logger.debug("Simulating data modification on person '{}'", cloudPerson);
         cloudPerson.setCity(java.util.UUID.randomUUID().toString());
         cloudPerson.setStreet(java.util.UUID.randomUUID().toString());
         cloudPerson.setPostalCode(String.valueOf(RANDOM_GENERATOR.nextInt(999999)));
@@ -648,12 +654,12 @@ public class CloudSimulator implements ICloudSimulator {
 
     private void modifyCloudTagBasedOnChance(CloudTag cloudTag) {
         if (!shouldSimulateUnreliableNetwork || RANDOM_GENERATOR.nextDouble() > MODIFY_TAG_PROBABILITY) return;
-        logger.debug("Cloud simulator: modifying tag '{}'", cloudTag);
+        logger.debug("Simulating data modification on tag '{}'", cloudTag);
         cloudTag.setName(UUID.randomUUID().toString());
     }
 
     private void delayRandomAmount() {
-        long delayAmount = RANDOM_GENERATOR.nextInt(DELAY_RANGE) + MIN_DELAY_IN_SEC;
+        long delayAmount = RANDOM_GENERATOR.nextInt(MAX_DELAY_IN_SEC - MIN_DELAY_IN_SEC) + MIN_DELAY_IN_SEC;
         try {
             TimeUnit.SECONDS.sleep(delayAmount);
         } catch (InterruptedException e) {

@@ -86,7 +86,7 @@ public class RemoteResponse {
             return;
         }
 
-        deductApi(cloudRateLimitStatus);
+        cloudRateLimitStatus.useQuota(1);
         this.responseCode = responseCode;
         this.headers = getHeaders(cloudRateLimitStatus, newETag);
         this.body = convertToInputStream(body);
@@ -112,11 +112,6 @@ public class RemoteResponse {
         return new RemoteResponse(HttpURLConnection.HTTP_OK, cloudRateLimitStatus);
     }
 
-    private void deductApi(CloudRateLimitStatus cloudRateLimitStatus) {
-        cloudRateLimitStatus.useQuota(1);
-    }
-
-
     public int getResponseCode() {
         return responseCode;
     }
@@ -132,7 +127,7 @@ public class RemoteResponse {
     /**
      * Calculates the hash of the input stream if it has content
      *
-     * The input stream will be digested. Caller should clone or
+     * WARNING: The input stream will be digested. Caller should clone or
      * duplicate the stream before calling this method.
      *
      * @param bodyStream
@@ -166,7 +161,7 @@ public class RemoteResponse {
         try {
             return new ByteArrayInputStream(JsonUtil.toJsonString(object).getBytes());
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            logger.warn("Error converting object {} to input stream", object);
             return null;
         }
     }
