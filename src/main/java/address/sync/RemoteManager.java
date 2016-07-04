@@ -60,7 +60,10 @@ public class RemoteManager {
                 logger.debug("Last updated time for page {} found: {}", curPage, personLastUpdatedAt);
                 response = remoteService.getUpdatedPersonsSince(addressBookName, curPage, personLastUpdatedAt, null);
             }
-            if (!response.getData().isPresent()) return Optional.empty();
+            if (!response.getData().isPresent()) {
+                logger.debug("No data found from response, terminating paged requests.");
+                return Optional.empty();
+            }
             personList.addAll(response.getData().get());
             curPage++;
         } while (response.getNextPage() != 0); // may have problems if RESOURCES_PER_PAGE issues have been updated at the same second

@@ -38,7 +38,9 @@ public class GetUpdatesFromRemoteTask implements Runnable {
         }
         try {
             List<Person> updatedPersons = getUpdatedPersons(syncActiveAddressBookName.get());
+            logger.debug("Updated persons: {}", updatedPersons);
             Optional<List<Tag>> latestTags = getLatestTags(syncActiveAddressBookName.get());
+            logger.debug("Latest tags: {}", latestTags);
 
             eventRaiser.accept(new SyncCompletedEvent(updatedPersons, latestTags));
         } catch (SyncErrorException e) {
