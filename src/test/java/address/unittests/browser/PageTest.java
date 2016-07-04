@@ -1,7 +1,7 @@
 package address.unittests.browser;
 
 import address.browser.page.GithubProfilePage;
-import address.util.JavafxThreadingRule;
+import address.util.JavafxRuntimeRule;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;
@@ -30,7 +30,7 @@ public class PageTest {
     public static final String VALID_ID_3 = "contributions-calendar";
 
     @Rule
-    public JavafxThreadingRule rule = new JavafxThreadingRule();
+    public JavafxRuntimeRule rule = new JavafxRuntimeRule();
 
     @Test
     public void testPageTestMethods_fullFeatureBrowser() throws IOException {

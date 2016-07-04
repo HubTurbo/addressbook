@@ -1,6 +1,6 @@
 package address.unittests.browser;
 
-import address.util.JavafxThreadingRule;
+import address.util.JavafxRuntimeRule;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;
@@ -20,7 +20,7 @@ public class EmbeddedBrowserFactoryTest {
 
 
     @Rule
-    public JavafxThreadingRule rule = new JavafxThreadingRule();
+    public JavafxRuntimeRule rule = new JavafxRuntimeRule();
 
     @Test
     public void testCreateBrowser_fullFeatureBrowser_success() {
