@@ -16,6 +16,14 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 import java.util.HashMap;
 
+/**
+ * This class is meant to mimic the response of a GitHub request
+ *
+ * Construction of an object will use up an API quota in the given cloudRateLimitStatus if the previousETag is not
+ * provided or is found to be different to the given object's eTag
+ *
+ * RemoteResponse instances obtained via other means e.g. RemoteResponse.getForbiddenResponse should not use up quota
+ */
 public class RemoteResponse {
     private static final AppLogger logger = LoggerManager.getLogger(RemoteResponse.class);
 
@@ -26,56 +34,6 @@ public class RemoteResponse {
     private int previousPageNo;
     private int firstPageNo;
     private int lastPageNo;
-
-    public int getNextPageNo() {
-        return nextPageNo;
-    }
-
-    public void setNextPageNo(int nextPageNo) {
-        this.nextPageNo = nextPageNo;
-    }
-
-    public int getPreviousPageNo() {
-        return previousPageNo;
-    }
-
-    public void setPreviousPageNo(int previousPageNo) {
-        this.previousPageNo = previousPageNo;
-    }
-
-    public int getFirstPageNo() {
-        return firstPageNo;
-    }
-
-    public void setFirstPageNo(int firstPageNo) {
-        this.firstPageNo = firstPageNo;
-    }
-
-    public int getLastPageNo() {
-        return lastPageNo;
-    }
-
-    public void setLastPageNo(int lastPageNo) {
-        this.lastPageNo = lastPageNo;
-    }
-
-    private void addETagToHeader(HashMap<String, String> header, String eTag) {
-        header.put("ETag", eTag);
-    }
-
-    private HashMap<String, String> getRateLimitStatusHeader(CloudRateLimitStatus cloudRateLimitStatus) {
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("X-RateLimit-Limit", String.valueOf(cloudRateLimitStatus.getQuotaLimit()));
-        headers.put("X-RateLimit-Remaining", String.valueOf(cloudRateLimitStatus.getQuotaRemaining()));
-        headers.put("X-RateLimit-Reset", String.valueOf(cloudRateLimitStatus.getQuotaReset()));
-        return headers;
-    }
-
-    private HashMap<String, String> getHeaders(CloudRateLimitStatus cloudRateLimitStatus, String eTag) {
-        HashMap<String, String> headers = getRateLimitStatusHeader(cloudRateLimitStatus);
-        addETagToHeader(headers, eTag);
-        return headers;
-    }
 
     public RemoteResponse(int responseCode, Object body, CloudRateLimitStatus cloudRateLimitStatus, String previousETag) {
         String newETag = getETag(convertToInputStream(body));
@@ -112,6 +70,38 @@ public class RemoteResponse {
         return new RemoteResponse(HttpURLConnection.HTTP_OK, cloudRateLimitStatus);
     }
 
+    public int getNextPageNo() {
+        return nextPageNo;
+    }
+
+    public void setNextPageNo(int nextPageNo) {
+        this.nextPageNo = nextPageNo;
+    }
+
+    public int getPreviousPageNo() {
+        return previousPageNo;
+    }
+
+    public void setPreviousPageNo(int previousPageNo) {
+        this.previousPageNo = previousPageNo;
+    }
+
+    public int getFirstPageNo() {
+        return firstPageNo;
+    }
+
+    public void setFirstPageNo(int firstPageNo) {
+        this.firstPageNo = firstPageNo;
+    }
+
+    public int getLastPageNo() {
+        return lastPageNo;
+    }
+
+    public void setLastPageNo(int lastPageNo) {
+        this.lastPageNo = lastPageNo;
+    }
+
     public int getResponseCode() {
         return responseCode;
     }
@@ -133,7 +123,7 @@ public class RemoteResponse {
      * @param bodyStream
      * @return
      */
-    public static String getETag(InputStream bodyStream) {
+    private String getETag(InputStream bodyStream) {
         if (bodyStream == null) return null;
         try {
             // Adapted from http://www.javacreed.com/how-to-compute-hash-code-of-streams/
@@ -154,6 +144,24 @@ public class RemoteResponse {
             logger.warn("Error generating ETag for response");
             return null;
         }
+    }
+
+    private void addETagToHeader(HashMap<String, String> header, String eTag) {
+        header.put("ETag", eTag);
+    }
+
+    private HashMap<String, String> getRateLimitStatusHeader(CloudRateLimitStatus cloudRateLimitStatus) {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("X-RateLimit-Limit", String.valueOf(cloudRateLimitStatus.getQuotaLimit()));
+        headers.put("X-RateLimit-Remaining", String.valueOf(cloudRateLimitStatus.getQuotaRemaining()));
+        headers.put("X-RateLimit-Reset", String.valueOf(cloudRateLimitStatus.getQuotaReset()));
+        return headers;
+    }
+
+    private HashMap<String, String> getHeaders(CloudRateLimitStatus cloudRateLimitStatus, String eTag) {
+        HashMap<String, String> headers = getRateLimitStatusHeader(cloudRateLimitStatus);
+        addETagToHeader(headers, eTag);
+        return headers;
     }
 
     private ByteArrayInputStream convertToInputStream(Object object) {

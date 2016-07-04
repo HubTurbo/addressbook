@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * Requests for a full list of objects should be done in pages. Responses
  * will include first page/prev page/next page/last page if they exist.
  *
- * All requests (include bad ones) will consume API, unless it is
+ * All requests (including bad ones) will consume API, unless it is
  * a response with NOT_MODIFIED.
  *
  * In addition, data returned by this cloud may be modified due to
@@ -322,7 +322,7 @@ public class CloudSimulator implements ICloudSimulator {
      * Consumes 1 API usage
      *
      * @param addressBookName
-     * @param oldTagName        should match a existing tag's name
+     * @param oldTagName        should match an existing tag's name
      * @param updatedTag
      * @param previousETag
      * @return
@@ -416,7 +416,7 @@ public class CloudSimulator implements ICloudSimulator {
     /**
      * Gets the list of persons that have been updated after a certain time, if quota is available
      * <p>
-     * Consumes 1 + floor(updated person list/resourcesPerPage) API usage
+     * Consumes 1 API usage
      *
      * @param addressBookName
      * @param timeString
@@ -459,10 +459,6 @@ public class CloudSimulator implements ICloudSimulator {
             fillInPageNumbers(pageNumber, resourcesPerPage, filteredList, contentResponse);
         }
         return contentResponse;
-    }
-
-    private String getResponseETag(RemoteResponse response) {
-        return response.getHeaders().get("ETag");
     }
 
     /**
@@ -558,9 +554,7 @@ public class CloudSimulator implements ICloudSimulator {
     private CloudPerson addPerson(List<CloudPerson> personList, CloudPerson newPerson)
             throws IllegalArgumentException {
         if (newPerson == null) throw new IllegalArgumentException("Person cannot be null");
-        if (!newPerson.isValid()) {
-            throw new IllegalArgumentException("Fields cannot be null");
-        }
+        if (!newPerson.isValid()) throw new IllegalArgumentException("Invalid person");
         if (isExistingPerson(personList, newPerson)) throw new IllegalArgumentException("Person already exists");
 
         CloudPerson personToAdd = generateIdForPerson(personList, newPerson);
@@ -570,7 +564,7 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private CloudPerson generateIdForPerson(List<CloudPerson> personList, CloudPerson newPerson) {
-        newPerson.setId(personList.size() + 1); // starts from one
+        newPerson.setId(personList.size() + 1);
         return newPerson;
     }
 
@@ -581,8 +575,7 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private CloudPerson updatePersonDetails(List<CloudPerson> personList, List<CloudTag> tagList, int personId,
-                                             CloudPerson updatedPerson)
-            throws NoSuchElementException {
+                                             CloudPerson updatedPerson) throws NoSuchElementException {
         CloudPerson oldPerson = getPersonIfExists(personList, personId);
         oldPerson.updatedBy(updatedPerson);
 
@@ -683,7 +676,7 @@ public class CloudSimulator implements ICloudSimulator {
 
     private CloudTag addTag(List<CloudTag> tagList, CloudTag newTag) {
         if (newTag == null) throw new IllegalArgumentException("Tag cannot be null");
-        if (!newTag.isValid()) throw new IllegalArgumentException("Fields cannot be null");
+        if (!newTag.isValid()) throw new IllegalArgumentException("Invalid tag");
         if (isExistingTag(tagList, newTag)) throw new IllegalArgumentException("Tag already exists");
         tagList.add(newTag);
         return newTag;
@@ -703,8 +696,7 @@ public class CloudSimulator implements ICloudSimulator {
     }
 
     private CloudTag updateTagDetails(List<CloudPerson> personList, List<CloudTag> tagList, String oldTagName,
-                                      CloudTag updatedTag)
-            throws NoSuchElementException {
+                                      CloudTag updatedTag) throws NoSuchElementException {
         CloudTag oldTag = getTagIfExists(tagList, oldTagName);
         oldTag.updatedBy(updatedTag);
         personList.stream()
