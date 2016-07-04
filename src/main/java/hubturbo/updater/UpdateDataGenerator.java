@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  */
 public class UpdateDataGenerator {
     private static final String BASE_DOWNLOAD_LINK =
-            "https://github.com/HubTurbo/addressbook/releases/download/resources/";
+            "https://github.com/HubTurbo/addressbook/releases/download/Resources/";
     private static final File UPDATE_DATA_FILE = new File("UpdateData.json");
 
     public static void main(String[] args) {

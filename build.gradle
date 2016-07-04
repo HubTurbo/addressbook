@@ -11,7 +11,7 @@ plugins {
 
 allprojects {
 
-    version = 'V1.0.1ea'
+    version = 'V1.1.0ea'
 
     apply plugin: 'idea'
     apply plugin: 'java'
