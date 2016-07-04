@@ -131,10 +131,8 @@ public class MainController extends UiController{
             primaryStage.show();
         } catch (IOException e) {
             logger.warn("Error initializing root layout: {}", e);
-            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml root layout.",
-                                   "IOException when trying to load " + fxmlResourcePath);
-            assert false : "FXML Load Error" + "Cannot load fxml root layout." +
-                           "IOException when trying to load " + fxmlResourcePath;
+            showAlertDialogWithAssertion("FXML Load Error", "Cannot load fxml root layout.",
+                                         "IOException when trying to load ", fxmlResourcePath);
         }
     }
 
@@ -157,10 +155,8 @@ public class MainController extends UiController{
             pane.getItems().add(personOverview);
         } catch (IOException e) {
             logger.warn("Error loading person overview: {}", e);
-            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for person overview.",
-                                   "IOException when trying to load " + fxmlResourcePath);
-            assert false : "FXML Load Error" + "Cannot load fxml for person overview." +
-                           "IOException when trying to load " + fxmlResourcePath;
+            showAlertDialogWithAssertion("FXML Load Error", "Cannot load fxml for person overview.",
+                                         "IOException when trying to load " , fxmlResourcePath);
         }
     }
 
@@ -190,10 +186,8 @@ public class MainController extends UiController{
             rootLayout.getChildren().add(gridPane);
         } catch (IOException e) {
             logger.warn("Error Loading footer status bar: {}", e);
-            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for footer status bar.",
-                    "IOException when trying to load " + fxmlResourcePath);
-            assert false : "FXML Load Error" + "Cannot load fxml for footer status bar." +
-                           "IOException when trying to load " + fxmlResourcePath;
+            showAlertDialogWithAssertion("FXML Load Error", "Cannot load fxml for footer status bar.",
+                                         "IOException when trying to load ", fxmlResourcePath);
         }
     }
 
@@ -247,10 +241,8 @@ public class MainController extends UiController{
         } catch (IOException e) {
             e.printStackTrace();
             logger.warn("Error loading person edit dialog: {}", e);
-            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for edit person dialog.",
-                                   "IOException when trying to load " + fxmlResourcePath);
-            assert false : "FXML Load Error" + "Cannot load fxml for edit person dialog." +
-                    "IOException when trying to load " + fxmlResourcePath;
+            showAlertDialogWithAssertion("FXML Load Error", "Cannot load fxml for edit person dialog.",
+                                         "IOException when trying to load ", fxmlResourcePath);
             return Optional.empty();
         }
     }
@@ -405,10 +397,8 @@ public class MainController extends UiController{
             }
         } catch (IOException e) {
             logger.warn("Error loading tag edit dialog: {}", e);
-            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for edit tag dialog.",
-                                   "IOException when trying to load " + fxmlResourcePath);
-            assert false : "FXML Load Error" + "Cannot load fxml for edit tag dialog." +
-                           "IOException when trying to load " + fxmlResourcePath;
+            showAlertDialogWithAssertion("FXML Load Error", "Cannot load fxml for edit tag dialog.",
+                                         "IOException when trying to load ", fxmlResourcePath);
             return Optional.empty();
         }
     }
@@ -435,10 +425,8 @@ public class MainController extends UiController{
             dialogStage.showAndWait();
         } catch (IOException e) {
             logger.warn("Error loading tag list view: {}", e);
-            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for tag list.",
-                                   "IOException when trying to load " + fxmlResourcePath);
-            assert false : "FXML Load Error" + "Cannot load fxml for tag list." +
-                           "IOException when trying to load " + fxmlResourcePath;
+            showAlertDialogWithAssertion("FXML Load Error", "Cannot load fxml for tag list.",
+                                         "IOException when trying to load ", fxmlResourcePath);
         }
     }
 
@@ -464,10 +452,8 @@ public class MainController extends UiController{
             dialogStage.show();
         } catch (IOException e) {
             logger.warn("Error loading birthday statistics view: {}", e);
-            showAlertDialogAndWait(AlertType.ERROR, "FXML Load Error", "Cannot load fxml for birthday stats.",
-                                   "IOException when trying to load " + fxmlResourcePath);
-            assert false : "FXML Load Error" + "Cannot load fxml for birthday stats." +
-                           "IOException when trying to load " + fxmlResourcePath;
+            showAlertDialogWithAssertion("FXML Load Error", "Cannot load fxml for birthday stats.",
+                                         "IOException when trying to load ", fxmlResourcePath);
         }
     }
 
@@ -558,5 +544,11 @@ public class MainController extends UiController{
     public void stop() {
         getPrimaryStage().hide();
         releaseResourcesForAppTermination();
+    }
+
+    private void showAlertDialogWithAssertion(String title, String headerText, String contentText, String errorLocation) {
+        showAlertDialogAndWait(AlertType.ERROR, title, headerText,
+                contentText + errorLocation);
+        assert false : title + " " + headerText + " " + contentText + " " + errorLocation;
     }
 }
