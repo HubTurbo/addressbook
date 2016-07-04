@@ -67,10 +67,6 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         state.setValue(newState);
     }
 
-    public ReadOnlyObjectProperty<State> stateProperty() {
-        return state;
-    }
-
     /**
      * @see #countdownGracePeriodAndHandleOverrides()
      * @param alternateStateTransition will override the default grace period state transition
@@ -228,8 +224,6 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     private State countdownGracePeriodAndHandleOverrides() {
 
         beforeGracePeriod();
-        // Ensure that any override signals detected happen during the current grace period.
-        clearGracePeriodOverride();
 
         // Countdown loop that listens for any overriding signals
         for (int i = gracePeriodDurationInSeconds; i > 0; i--) {

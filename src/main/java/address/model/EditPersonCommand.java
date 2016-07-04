@@ -32,14 +32,19 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
      *                                     If the returned Optional is empty, the command will be cancelled.
      * @see super#ChangePersonInModelCommand(Supplier, int)
      */
-    protected EditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
+    public EditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
                                 int gracePeriodDurationInSeconds, Consumer<BaseEvent> eventRaiser,
                                 ModelManager model) {
         super(inputRetriever, gracePeriodDurationInSeconds);
+        assert target != null;
         this.target = target;
         this.model = model;
         this.eventRaiser = eventRaiser;
-        this.addressbookName = model.getPrefs().getSaveLocation().getName();
+        this.addressbookName = model.getPrefs().getSaveFileName();
+    }
+
+    protected ViewablePerson getViewable() {
+        return target;
     }
 
     @Override
@@ -81,13 +86,8 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected void beforeGracePeriod() {
-        // nothing needed for now
-    }
-
-    @Override
     protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
-        PlatformExecUtil.runLater(() -> target.setSecondsLeftInPendingState(secondsLeft));
+        PlatformExecUtil.runAndWait(() -> target.setSecondsLeftInPendingState(secondsLeft));
     }
 
     @Override
@@ -104,11 +104,6 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected State handleDeleteInGracePeriod() {
         model.execNewDeletePersonCommand(target);
-        return CANCELLED;
-    }
-
-    @Override
-    protected State handleCancelInGracePeriod() {
         return CANCELLED;
     }
 

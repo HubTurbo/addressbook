@@ -28,14 +28,18 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     /**
      * @see super#ChangePersonInModelCommand(Supplier, int)
      */
-    protected DeletePersonCommand(ViewablePerson target, int gracePeriodDurationInSeconds,
+    public DeletePersonCommand(ViewablePerson target, int gracePeriodDurationInSeconds,
                                   Consumer<BaseEvent> eventRaiser, ModelManager model) {
         // no input needed for delete commands
         super(() -> Optional.of(target), gracePeriodDurationInSeconds);
         this.target = target;
         this.model = model;
         this.eventRaiser = eventRaiser;
-        this.addressbookName = model.getPrefs().getSaveLocation().getName();
+        this.addressbookName = model.getPrefs().getSaveFileName();
+    }
+
+    protected ViewablePerson getViewable() {
+        return target;
     }
 
     @Override
@@ -74,13 +78,8 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected void beforeGracePeriod() {
-        // nothing needed for now
-    }
-
-    @Override
     protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
-        PlatformExecUtil.runLater(() -> target.setSecondsLeftInPendingState(secondsLeft));
+        PlatformExecUtil.runAndWait(() -> target.setSecondsLeftInPendingState(secondsLeft));
     }
 
     @Override
@@ -92,11 +91,6 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     @Override
     protected State handleDeleteInGracePeriod() {
         return GRACE_PERIOD; // nothing to be done
-    }
-
-    @Override
-    protected State handleCancelInGracePeriod() {
-        return CANCELLED;
     }
 
     @Override

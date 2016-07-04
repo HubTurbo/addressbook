@@ -52,6 +52,12 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
         return CANCELLED;
     }
 
+    @Override
+    protected void beforeGracePeriod() {
+        // Ensure that any override signals detected happen during the current grace period.
+        clearGracePeriodOverride();
+    }
+
     /**
      * Request to override this command with an edit command using {@code newInputSupplier} to supply input.
      * Only works if the command is currently in the {@link State#GRACE_PERIOD} state.
@@ -96,6 +102,11 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      * @return next state (current state will be {@link State#GRACE_PERIOD})
      */
     protected abstract State handleDeleteInGracePeriod();
+
+    @Override
+    protected State handleCancelInGracePeriod() {
+        return CANCELLED;
+    }
 
     @Override
     protected State checkAndHandleRemoteConflict() {

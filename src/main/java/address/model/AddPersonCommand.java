@@ -36,12 +36,16 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
      *                       If the returned Optional is empty, the command will be cancelled.
      * @see super#ChangePersonInModelCommand(Supplier, int)
      */
-    protected AddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever, int gracePeriodDurationInSeconds,
+    public AddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever, int gracePeriodDurationInSeconds,
                                Consumer<BaseEvent> eventRaiser, ModelManager model) {
         super(inputRetriever, gracePeriodDurationInSeconds);
         this.model = model;
         this.eventRaiser = eventRaiser;
-        this.addressbookName = model.getPrefs().getSaveLocation().getName();
+        this.addressbookName = model.getPrefs().getSaveFileName();
+    }
+
+    protected ViewablePerson getViewableToAdd() {
+        return viewableToAdd;
     }
 
     @Override
@@ -72,25 +76,17 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     protected State simulateResult() {
         assert input != null;
         // create VP and add to model
-        viewableToAdd = ViewablePerson.withoutBacking(new Person(input));
+        viewableToAdd = PlatformExecUtil.callAndWait(() -> model.addViewablePersonWithoutBacking(input), null);
         logger.debug("simulateResult: Going to add " + viewableToAdd.toString());
-        PlatformExecUtil.runAndWait(() -> {
-            model.addViewablePerson(viewableToAdd);
-            logger.debug("simulateResult: Added " + viewableToAdd.toString() + " to visible person list in model");
-            model.assignOngoingChangeToPerson(viewableToAdd.getId(), this);
-        });
+        model.assignOngoingChangeToPerson(viewableToAdd.getId(), this);
+        logger.debug("simulateResult: Added " + viewableToAdd.toString() + " to visible person list in model");
         return GRACE_PERIOD;
-    }
-
-    @Override
-    protected void beforeGracePeriod() {
-        // nothing needed for now
     }
 
     @Override
     protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
         assert viewableToAdd != null;
-        PlatformExecUtil.runLater(() -> viewableToAdd.setSecondsLeftInPendingState(secondsLeft));
+        PlatformExecUtil.runAndWait(() -> viewableToAdd.setSecondsLeftInPendingState(secondsLeft));
     }
 
     @Override
@@ -107,11 +103,6 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected State handleDeleteInGracePeriod() {
         // undo the addition, no need to inform remote because nothing happened from their point of view.
-        return CANCELLED;
-    }
-
-    @Override
-    protected State handleCancelInGracePeriod() {
         return CANCELLED;
     }
 
@@ -138,11 +129,11 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
             logger.debug("requestChangeToRemote: Removing mapping for old id:" + getTargetPersonId());
             model.unassignOngoingChangeForPerson(getTargetPersonId()); // removes mapping for old id
-            model.assignOngoingChangeToPerson(backingPerson.getId(), this); // remap this change for the new id
 
             PlatformExecUtil.runAndWait(() -> {
                 model.addPersonToBackingModelSilently(backingPerson); // so it wont trigger creation of another VP
                 viewableToAdd.connectBackingObject(backingPerson); // changes id to that of backing person
+                model.assignOngoingChangeToPerson(backingPerson.getId(), this); // remap this change for the new id
             });
             logger.debug("requestChangeToRemote -> id of viewable person updated to " + viewableToAdd.getId());
             return SUCCESSFUL;

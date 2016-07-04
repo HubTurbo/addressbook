@@ -35,7 +35,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     private final Map<Integer, ChangePersonInModelCommand> personChangesInProgress;
 
     final Executor commandExecutor;
-
     private UserPrefs prefs;
 
     {
@@ -137,11 +136,11 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         return backingModel.getTags();
     }
 
-    AddressBook backingModel() {
+    protected AddressBook backingModel() {
         return backingModel;
     }
 
-    ViewableAddressBook visibleModel() {
+    protected ViewableAddressBook visibleModel() {
         return visibleModel;
     }
 
@@ -201,18 +200,18 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         }
     }
 
-    void execNewAddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever) {
+    protected void execNewAddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever) {
         final int GRACE_PERIOD_DURATION = 3;
         commandExecutor.execute(new AddPersonCommand(inputRetriever, GRACE_PERIOD_DURATION, this::raise, this));
     }
 
-    void execNewEditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> editInputRetriever) {
+    protected void execNewEditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> editInputRetriever) {
         final int GRACE_PERIOD_DURATION = 3;
         commandExecutor.execute(new EditPersonCommand(target, editInputRetriever, GRACE_PERIOD_DURATION,
                 this::raise, this));
     }
 
-    void execNewDeletePersonCommand(ViewablePerson target) {
+    protected void execNewDeletePersonCommand(ViewablePerson target) {
         final int GRACE_PERIOD_DURATION = 3;
         commandExecutor.execute(new DeletePersonCommand(target, GRACE_PERIOD_DURATION, this::raise, this));
     }
@@ -220,11 +219,11 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     /**
      * @param changeInProgress the active change command on the person with id {@code targetPersonId}
      */
-    synchronized void assignOngoingChangeToPerson(ReadOnlyPerson target, ChangePersonInModelCommand changeInProgress) {
+    protected synchronized void assignOngoingChangeToPerson(ReadOnlyPerson target, ChangePersonInModelCommand changeInProgress) {
         assignOngoingChangeToPerson(target.getId(), changeInProgress);
     }
 
-    synchronized void assignOngoingChangeToPerson(int targetId, ChangePersonInModelCommand changeInProgress) {
+    protected synchronized void assignOngoingChangeToPerson(int targetId, ChangePersonInModelCommand changeInProgress) {
         assert targetId == changeInProgress.getTargetPersonId() : "Must map to correct id";
         if (personChangesInProgress.containsKey(targetId)) {
             throw new IllegalStateException("Only 1 ongoing change allowed per person.");
@@ -236,19 +235,19 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      * Removed the target person's mapped changeInProgress, freeing it for other change commands.
      * @return the removed change command, or null if there was no mapping found
      */
-    synchronized ChangePersonInModelCommand unassignOngoingChangeForPerson(ReadOnlyPerson person) {
+    protected synchronized ChangePersonInModelCommand unassignOngoingChangeForPerson(ReadOnlyPerson person) {
         return personChangesInProgress.remove(person.getId());
     }
 
-    synchronized ChangePersonInModelCommand unassignOngoingChangeForPerson(int targetId) {
+    protected synchronized ChangePersonInModelCommand unassignOngoingChangeForPerson(int targetId) {
         return personChangesInProgress.remove(targetId);
     }
 
-    synchronized ChangePersonInModelCommand getOngoingChangeForPerson(ReadOnlyPerson person) {
+    protected synchronized ChangePersonInModelCommand getOngoingChangeForPerson(ReadOnlyPerson person) {
         return getOngoingChangeForPerson(person.getId());
     }
 
-    synchronized ChangePersonInModelCommand getOngoingChangeForPerson(int targetId) {
+    protected synchronized ChangePersonInModelCommand getOngoingChangeForPerson(int targetId) {
         return personChangesInProgress.get(targetId);
     }
 
@@ -267,16 +266,19 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 //// CREATE
 
     /**
-     * Manually add a ViewablePerson to the visible model
+     * Manually add a ViewablePerson without a backing person to the visible model
+     * @return the added ViewablePerson
      */
-    synchronized void addViewablePerson(ViewablePerson vp) {
-        visibleModel.addPerson(vp);
+    protected synchronized ViewablePerson addViewablePersonWithoutBacking(ReadOnlyPerson data) {
+        final ViewablePerson toAdd = ViewablePerson.withoutBacking(data);
+        visibleModel.addPerson(toAdd);
+        return toAdd;
     }
 
     /**
      * Manually add person to backing model without auto-creating a {@link ViewablePerson} for it in the visible model.
      */
-    synchronized void addPersonToBackingModelSilently(Person p) {
+    protected synchronized void addPersonToBackingModelSilently(Person p) {
         visibleModel.specifyViewableAlreadyCreated(p.getId());
         backingModel.addPerson(p);
     }
