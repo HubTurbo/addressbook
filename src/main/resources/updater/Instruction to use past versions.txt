@@ -1,0 +1,1 @@
+Copy the relevant version JAR to the root folder (no need to rename it) and run that JAR file.
