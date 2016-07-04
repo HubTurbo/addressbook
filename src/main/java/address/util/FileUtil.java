@@ -192,4 +192,16 @@ public class FileUtil {
         assert pathWithForwardSlash.contains("/");
         return pathWithForwardSlash.replace("/", File.separator);
     }
+
+    /**
+     * Gets the file name from the given file path, assuming that
+     * path components are '/'-separated
+     *
+     * @param filePath should not be null
+     * @return
+     */
+    public static String getFileName(String filePath) {
+        String[] pathComponents = filePath.split("/");
+        return pathComponents[pathComponents.length - 1];
+    }
 }

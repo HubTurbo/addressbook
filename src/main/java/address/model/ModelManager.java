@@ -9,6 +9,7 @@ import address.model.datatypes.person.*;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.UniqueData;
 import address.util.AppLogger;
+import address.util.FileUtil;
 import address.util.LoggerManager;
 import address.util.PlatformExecUtil;
 import address.util.collections.UnmodifiableObservableList;
@@ -435,7 +436,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         prefs.setSaveLocation(saveLocation);
         raise(new SaveLocationChangedEvent(saveLocation));
         raise(new SavePrefsRequestEvent(prefs));
-        raise(new ChangeActiveAddressBookRequestEvent(saveLocation));
+        raise(new ChangeActiveAddressBookRequestEvent(FileUtil.getFileName(saveLocation)));
     }
 
     public void clearPrefsSaveLocation() {

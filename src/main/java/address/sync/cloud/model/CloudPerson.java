@@ -27,6 +27,7 @@ public class CloudPerson {
     private LocalDate birthday;
 
     public CloudPerson() {
+        this.tags = new ArrayList<>();
     }
 
     public CloudPerson(String firstName, String lastName) {
