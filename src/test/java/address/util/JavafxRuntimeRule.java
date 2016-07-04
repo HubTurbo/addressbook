@@ -17,17 +17,6 @@ public class JavafxRuntimeRule implements TestRule {
 
     }
 
-    @BeforeClass
-    public void setUp() throws Exception {
-        FxToolkit.registerPrimaryStage();
-        FxToolkit.hideStage();
-    }
-
-    @AfterClass
-    public void tearDown() throws Exception {
-        FxToolkit.cleanupStages();
-    }
-
     @Override
     public Statement apply(Statement statement, Description description) {
 

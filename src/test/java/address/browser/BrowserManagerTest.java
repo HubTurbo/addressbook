@@ -3,9 +3,11 @@ package address.browser;
 import address.util.JavafxRuntimeRule;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.testfx.api.FxToolkit;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,16 +20,21 @@ import static org.junit.Assert.assertNotNull;
  */
 public class BrowserManagerTest {
 
-    @Rule
     /**
      * To run test cases on JavaFX thread.
      */
-    public JavafxRuntimeRule javafxRule = new JavafxRuntimeRule();
 
     @BeforeClass
-    public static void setup(){
+    public static void setUp() throws Exception {
         new BrowserManager(FXCollections.emptyObservableList(),
                 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
+        FxToolkit.registerPrimaryStage();
+        FxToolkit.hideStage();
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        FxToolkit.cleanupStages();
     }
 
     @Test
@@ -42,6 +49,4 @@ public class BrowserManagerTest {
         method.setAccessible(true);
         method.invoke(manager);
     }
-
-
 }
