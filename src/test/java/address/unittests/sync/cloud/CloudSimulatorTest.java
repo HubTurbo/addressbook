@@ -28,9 +28,9 @@ public class CloudSimulatorTest {
     private static int STARTING_API_COUNT = 10;
     private static int API_RESET_DELAY = 30000;
 
-    CloudFileHandler cloudFileHandler;
-    CloudRateLimitStatus cloudRateLimitStatus;
-    CloudSimulator cloudSimulator;
+    private CloudFileHandler cloudFileHandler;
+    private CloudRateLimitStatus cloudRateLimitStatus;
+    private CloudSimulator cloudSimulator;
 
     /**
      * Mocks the file handler and spies on the limit status
@@ -112,8 +112,8 @@ public class CloudSimulatorTest {
         // File creation method is called
         verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
 
-        // Does not consume API quota since it is an error on the cloud's end
-        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        // Still consumes API quota even though it is an error on the cloud's end
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for a cloud error
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
@@ -166,8 +166,8 @@ public class CloudSimulatorTest {
         // File write method is called
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
-        // API quota is not consumed since it is a cloud error
-        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        // API quota is still consumed even though it is a cloud error
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for cloud error
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
@@ -205,8 +205,8 @@ public class CloudSimulatorTest {
         // File write method is called
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
-        // API quota is not consumed since it is a cloud error
-        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        // API quota is still consumed even though it is a cloud error
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for cloud error
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
@@ -334,8 +334,8 @@ public class CloudSimulatorTest {
         // File write method is called, with expected result
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedCloudAddressBook);
 
-        // API quota is not consumed, since it is a cloud error
-        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        // API quota is still consumed, even though it is a cloud error
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response data should be null
         assertNull(remoteResponse.getBody());
@@ -408,7 +408,7 @@ public class CloudSimulatorTest {
         RemoteResponse remoteResponse = cloudSimulator.editTag("Test", "Tag one", updatedTag, null);
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromFile("Test");
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(updatedCloudAddressBook);
-        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
     }
 
@@ -470,8 +470,8 @@ public class CloudSimulatorTest {
         // File write method is called
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(resultingAddressBook);
 
-        // API is not used, since it is a cloud error
-        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        // API is still used, even though it is a cloud error
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for a cloud error
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
@@ -692,8 +692,8 @@ public class CloudSimulatorTest {
         // File write method never called, since there is nothing to write
         verify(cloudFileHandler, never()).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
-        // API quota is not consumed, since it is a cloud error
-        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        // API quota is still consumed, even though it is a cloud error
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Response code for a cloud error
         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
@@ -787,8 +787,8 @@ public class CloudSimulatorTest {
         // File write method is called
         verify(cloudFileHandler, times(1)).writeCloudAddressBookToFile(any(CloudAddressBook.class));
 
-        // API is not used, since it is the server's error
-        assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
+        // API quota is still consumed, even though it is the server's error
+        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
         // Should be null
         assertNull(remoteResponse.getBody());
