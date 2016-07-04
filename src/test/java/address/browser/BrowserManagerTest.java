@@ -1,19 +1,17 @@
-package address.unittests.browser;
+package address.browser;
 
-import address.browser.BrowserManager;
-import address.util.JavafxThreadingRule;
+import address.util.JavafxRuntimeRule;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+
 
 /**
  * Tests the BrowserManager behaviours and functionality.
@@ -24,8 +22,13 @@ public class BrowserManagerTest {
     /**
      * To run test cases on JavaFX thread.
      */
-    public JavafxThreadingRule javafxRule = new JavafxThreadingRule();
+    public JavafxRuntimeRule javafxRule = new JavafxRuntimeRule();
 
+    @BeforeClass
+    public static void setup(){
+        new BrowserManager(FXCollections.emptyObservableList(),
+                1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
+    }
 
     @Test
     public void testNecessaryBrowserResources_resourcesNotNull() throws NoSuchMethodException,

@@ -1,12 +1,8 @@
-package address.unittests.util;
+package address.util;
 
 import address.exceptions.DataConversionException;
 import address.model.datatypes.AddressBook;
 import address.storage.StorageAddressBook;
-import address.util.AddressBookBuilder;
-import address.util.FileUtil;
-import address.util.TestUtil;
-import address.util.XmlUtil;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

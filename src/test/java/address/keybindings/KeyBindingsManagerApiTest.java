@@ -1,11 +1,8 @@
-package address.unittests.keybindings;
+package address.keybindings;
 
 
 import address.events.*;
-import address.keybindings.Accelerator;
-import address.keybindings.Bindings;
-import address.keybindings.KeyBinding;
-import address.keybindings.KeySequence;
+
 import address.util.TestUtil;
 import javafx.scene.input.KeyCombination;
 import org.junit.Assert;

@@ -5,7 +5,7 @@ import address.model.ChangeObjectInModelCommand.State;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
-import address.util.JavafxThreadingRule;
+import address.util.JavafxRuntimeRule;
 import address.util.TestUtil;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -31,7 +31,7 @@ public class AddPersonCommandTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
     @Rule
-    public JavafxThreadingRule javafxRule = new JavafxThreadingRule();
+    public JavafxRuntimeRule javafxRule = new JavafxRuntimeRule();
 
     @Mock
     ModelManager modelManagerMock;

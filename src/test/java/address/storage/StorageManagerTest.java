@@ -1,14 +1,10 @@
-package address.unittests.storage;
+package address.storage;
 
 import address.events.*;
 import address.exceptions.DataConversionException;
 import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.model.datatypes.AddressBook;
-import address.model.datatypes.ReadOnlyAddressBook;
-import address.storage.StorageAddressBook;
-import address.storage.StorageManager;
-import address.storage.XmlFileStorage;
 import address.util.Config;
 import address.util.FileUtil;
 import address.util.SerializableTestClass;

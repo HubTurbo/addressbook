@@ -1,4 +1,4 @@
-package address.guitests;
+package guitests;
 
 import address.keybindings.Bindings;
 import address.model.datatypes.AddressBook;

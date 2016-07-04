@@ -1,5 +1,6 @@
 package address.guitests;
 
+import guitests.GuiTestBase;
 import javafx.scene.control.Label;
 import org.junit.Test;
 
