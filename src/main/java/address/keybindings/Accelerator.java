@@ -10,8 +10,7 @@ import java.util.Optional;
  */
 public class Accelerator extends KeyBinding{
 
-
-    Accelerator(String name, KeyCombination keyCombination) {
+    public Accelerator(String name, KeyCombination keyCombination) {
         super(name, keyCombination, new AcceleratorIgnoredEvent(name));
     }
 

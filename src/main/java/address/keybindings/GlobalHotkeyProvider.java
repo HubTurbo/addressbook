@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class GlobalHotkeyProvider {
     /** Provider for global hotkeys */
-    private final Provider provider = Provider.getCurrentProvider(false);
+    protected Provider provider = Provider.getCurrentProvider(false);
     private final AppLogger logger;
     private EventManager eventManager;
 
