@@ -1,4 +1,4 @@
-package address.unittests.browser;
+package address.browser;
 
 import address.browser.BrowserManager;
 import address.browser.page.GithubProfilePage;
@@ -72,7 +72,6 @@ public class PageTest {
         GithubProfilePage gPage = new GithubProfilePage(page);
         assertTrue(gPage.isValidGithubProfilePage());
 
-        page.getBrowser().dispose();
     }
 
     private Page getSampleGithubProfilePage(BrowserType type) throws IOException {

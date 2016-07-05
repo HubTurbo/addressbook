@@ -1,7 +1,8 @@
-package address.unittests.browser;
+package address.browser;
 
 import address.browser.BrowserManager;
 import address.util.JavafxRuntimeUtil;
+import address.util.PlatformExecUtil;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;
@@ -13,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -22,7 +24,6 @@ import static org.junit.Assert.assertTrue;
  * To test the EmbeddedBrowserFactory
  */
 public class EmbeddedBrowserFactoryTest {
-
 
     @BeforeClass
     public static void setup() throws TimeoutException {
@@ -44,9 +45,11 @@ public class EmbeddedBrowserFactoryTest {
 
     @Test
     public void testCreateBrowser_limitedFeatureBrowser_success() {
-        EmbeddedBrowser browser = EmbeddedBrowserFactory.createBrowser(BrowserType.LIMITED_FEATURE_BROWSER);
-        assertNotNull(browser);
-        assertTrue(browser instanceof FxBrowserAdapter);
+        final AtomicReference<EmbeddedBrowser> browser = new AtomicReference<>();
+        PlatformExecUtil.runLaterAndWait(() ->
+                browser.set(EmbeddedBrowserFactory.createBrowser(BrowserType.LIMITED_FEATURE_BROWSER)));
+        assertNotNull(browser.get());
+        assertTrue(browser.get() instanceof FxBrowserAdapter);
     }
 
     @Test
