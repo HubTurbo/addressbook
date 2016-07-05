@@ -144,7 +144,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
             logger.debug("requestChangeToRemote -> id of viewable person updated to " + viewableToAdd.getId());
             return SUCCESSFUL;
         } catch (ExecutionException | InterruptedException e) {
-            return CANCELLED; // figure out a policy for syncup fail
+            return FAILED;
         }
     }
 
@@ -162,7 +162,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithFailure() {
-        // no way to fail for now
+        finishWithCancel(); // TODO figure out failure handling
     }
 
 }

@@ -120,7 +120,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
             PlatformExecUtil.runAndWait(() -> model.backingModel().removePerson(target));
             return SUCCESSFUL;
         } catch (ExecutionException | InterruptedException e) {
-            return CANCELLED; // figure out a policy for syncup fail
+            return FAILED;
         }
     }
 
@@ -136,6 +136,6 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithFailure() {
-        // Impossible for now
+        finishWithCancel(); // TODO figure out failure handling
     }
 }

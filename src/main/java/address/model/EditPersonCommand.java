@@ -135,7 +135,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
             PlatformExecUtil.runAndWait(() -> target.getBacking().update(input));
             return SUCCESSFUL;
         } catch (ExecutionException | InterruptedException e) {
-            return CANCELLED; // figure out a policy for syncup fail
+            return FAILED;
         }
     }
 
@@ -151,6 +151,6 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithFailure() {
-        // can't happen yet
+        finishWithCancel(); // TODO figure out failure handling
     }
 }
