@@ -1,4 +1,4 @@
-package address.unittests.parser;
+package address.parser;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.tag.Tag;

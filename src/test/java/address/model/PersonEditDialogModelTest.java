@@ -1,4 +1,4 @@
-package address;
+package address.model;
 
 import address.model.datatypes.tag.Tag;
 import address.model.TagSelectionEditDialogModel;
