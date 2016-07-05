@@ -302,6 +302,7 @@ public class CloudManipulator extends CloudSimulator {
     }
 
     private RemoteResponse getNetworkFailedResponse() {
+        shouldFailNext = false;
         logAndUpdateStatus("Simulated network failure occurred!");
         return new RemoteResponse(HttpURLConnection.HTTP_CLIENT_TIMEOUT, null, cloudRateLimitStatus, null);
     }
