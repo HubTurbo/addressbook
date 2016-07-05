@@ -1,15 +1,19 @@
 package address.util;
 
 import address.TestApp;
+import address.browser.BrowserManager;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ViewablePerson;
 import address.model.datatypes.tag.Tag;
 import address.storage.StorageAddressBook;
+import hubturbo.embeddedbrowser.BrowserType;
+import javafx.collections.FXCollections;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import org.testfx.api.FxToolkit;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -18,6 +22,7 @@ import java.util.ArrayList;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 /**
@@ -178,5 +183,20 @@ public class TestUtil {
         // final and can be changed
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
         field.set(null, newValue);
+    }
+
+    public static void initRuntime() throws TimeoutException {
+        FxToolkit.registerPrimaryStage();
+        FxToolkit.hideStage();
+    }
+
+    public static void tearDownRuntime() throws Exception {
+        FxToolkit.cleanupStages();
+    }
+
+    public static void initBrowserInStatic() {
+        BrowserManager manager = new BrowserManager(FXCollections.emptyObservableList(),
+                1, BrowserType.FULL_FEATURE_BROWSER);
+        manager.initBrowser();
     }
 }

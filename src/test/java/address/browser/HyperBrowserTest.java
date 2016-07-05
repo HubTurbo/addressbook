@@ -1,12 +1,11 @@
 package address.browser;
 
-import address.util.JavafxRuntimeUtil;
 import address.util.PlatformExecUtil;
+import address.util.TestUtil;
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.HyperBrowser;
 import hubturbo.embeddedbrowser.page.Page;
 import address.util.UrlUtil;
-import javafx.collections.FXCollections;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,14 +41,13 @@ public class HyperBrowserTest {
 
     @BeforeClass
     public static void setup() throws TimeoutException {
-        JavafxRuntimeUtil.initRuntime();
-        new BrowserManager(FXCollections.emptyObservableList(),
-                1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
+        TestUtil.initRuntime();
+        TestUtil.initBrowserInStatic();
     }
 
     @AfterClass
     public static void teardown() throws Exception {
-        JavafxRuntimeUtil.tearDownRuntime();
+        TestUtil.tearDownRuntime();
     }
 
     @Test

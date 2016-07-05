@@ -1,6 +1,6 @@
 package address.browser;
 
-import address.util.JavafxRuntimeUtil;
+import address.util.TestUtil;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
 import org.junit.AfterClass;
@@ -21,14 +21,13 @@ public class BrowserManagerTest {
 
     @BeforeClass
     public static void setup() throws TimeoutException {
-        JavafxRuntimeUtil.initRuntime();
-        new BrowserManager(FXCollections.emptyObservableList(),
-                1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
+        TestUtil.initRuntime();
+        TestUtil.initBrowserInStatic();
     }
 
     @AfterClass
     public static void teardown() throws Exception {
-        JavafxRuntimeUtil.tearDownRuntime();
+        TestUtil.tearDownRuntime();
     }
 
     @Test
