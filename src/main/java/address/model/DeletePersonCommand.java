@@ -48,6 +48,11 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
+    public String getName() {
+        return "Delete Person " + target.idString();
+    }
+
+    @Override
     protected void before() {
         if (model.personHasOngoingChange(target)) {
             try {

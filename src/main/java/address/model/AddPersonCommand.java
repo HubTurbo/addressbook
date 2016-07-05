@@ -49,6 +49,11 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
+    public String getName() {
+        return "Add Person";
+    }
+
+    @Override
     public int getTargetPersonId() {
         if (viewableToAdd == null) {
             throw new IllegalStateException("Add person command has not created the proposed ViewablePerson yet.");

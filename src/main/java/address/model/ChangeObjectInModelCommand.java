@@ -19,21 +19,34 @@ import static address.model.ChangeObjectInModelCommand.State.*;
  *
  * Should be run OUTSIDE THE FX THREAD because the {@link #run()} method involves blocking calls.
  */
-public abstract class ChangeObjectInModelCommand implements Runnable {
+public abstract class ChangeObjectInModelCommand implements Runnable, CommandInfo {
 
     public enum State {
         // Initial state
-        NEWLY_CREATED,
+        NEWLY_CREATED ("Newly Created"),
 
         // Intermediate states
-        RETRIEVING_INPUT,
-        SIMULATING_RESULT,
-        GRACE_PERIOD,
-        CHECKING_AND_RESOLVING_REMOTE_CONFLICT,
-        REQUESTING_REMOTE_CHANGE,
+        RETRIEVING_INPUT ("Retrieving Input"),
+        SIMULATING_RESULT ("Optimistically Simulating Result"),
+        GRACE_PERIOD ("Pending / Grace Period"),
+        CHECKING_AND_RESOLVING_REMOTE_CONFLICT ("Handling any Remote Conflicts"),
+        REQUESTING_REMOTE_CHANGE ("Request to Remote"),
 
         // Terminal states
-        CANCELLED, SUCCESSFUL, FAILED,
+        CANCELLED ("Cancelled"),
+        SUCCESSFUL ("Successful"),
+        FAILED ("Failed");
+
+        private final String msg;
+
+        State(String msg) {
+            this.msg = msg;
+        }
+
+        @Override
+        public String toString() {
+            return msg;
+        }
     }
 
     private static final AppLogger logger = LoggerManager.getLogger(ChangeObjectInModelCommand.class);
@@ -61,6 +74,11 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
 
     public State getState() {
         return state.getValue();
+    }
+
+    @Override
+    public String statusString() {
+        return getState().toString();
     }
 
     void setState(State newState) {

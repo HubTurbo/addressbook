@@ -53,6 +53,11 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
+    public String getName() {
+        return "Edit Person " + target.idString();
+    }
+
+    @Override
     protected void before() {
         if (model.personHasOngoingChange(target)) {
             try {
