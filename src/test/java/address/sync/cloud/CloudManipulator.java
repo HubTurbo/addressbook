@@ -38,12 +38,6 @@ public class CloudManipulator extends CloudSimulator {
 
     private static final AppLogger logger = LoggerManager.getLogger(CloudManipulator.class);
     private static final Random RANDOM_GENERATOR = new Random();
-    private static final double FAILURE_PROBABILITY = 0.1;
-    private static final double NETWORK_DELAY_PROBABILITY = 1.0;
-    private static final double MODIFY_PERSON_PROBABILITY = 0.1;
-    private static final double MODIFY_TAG_PROBABILITY = 0.05;
-    private static final double ADD_PERSON_PROBABILITY = 0.05;
-    private static final double ADD_TAG_PROBABILITY = 0.025;
     private static final int MIN_DELAY_IN_SEC = 1;
     private static final int MAX_DELAY_IN_SEC = 5;
     private static final int MAX_NUM_PERSONS_TO_ADD = 2;
