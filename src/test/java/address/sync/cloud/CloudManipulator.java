@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -52,9 +53,11 @@ public class CloudManipulator extends CloudSimulator {
     private boolean shouldFailNext = false;
 
     private TextArea statusArea;
+    private String cloudFileToCreate;
 
     public CloudManipulator(Config config) {
         super(config);
+        this.cloudFileToCreate = config.getCloudDataFilePath();
     }
 
     public void start(Stage stage) {

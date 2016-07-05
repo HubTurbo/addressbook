@@ -19,7 +19,7 @@ import java.util.function.Consumer;
  */
 public class StorageManager extends ComponentManager {
     private static final AppLogger logger = LoggerManager.getLogger(StorageManager.class);
-    private static final String CONFIG_FILE = "config.json";
+    private static final String DEFAULT_CONFIG_FILE = "config.json";
     private Config config;
 
     private final Consumer<ReadOnlyAddressBook> loadedDataCallback;
@@ -32,8 +32,13 @@ public class StorageManager extends ComponentManager {
         this.config = config;
     }
 
-    public static Config getConfig() {
-        File configFile = new File(CONFIG_FILE);
+    private static File getConfigFile(String configFilePath) {
+        if (configFilePath == null) return new File(DEFAULT_CONFIG_FILE);
+        return new File(configFilePath);
+    }
+
+    public static Config getConfig(String configFilePath) {
+        File configFile = getConfigFile(configFilePath);
 
         Config config;
         if (configFile.exists()) {

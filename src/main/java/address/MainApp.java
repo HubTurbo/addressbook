@@ -16,6 +16,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.util.Map;
+
 /**
  * The main entry point to the application.
  */
@@ -54,13 +57,14 @@ public class MainApp extends Application {
         logger.info("Initializing app ...");
         super.init();
         new DependencyChecker(REQUIRED_JAVA_VERSION, this::quit).verify();
-        config = initConfig();
+        Map<String, String> applicationParameters = getParameters().getNamed();
+        config = initConfig(applicationParameters.get("config"));
         userPrefs = initPrefs(config);
         initComponents(config, userPrefs);
     }
 
-    protected Config initConfig() {
-        return StorageManager.getConfig();
+    protected Config initConfig(String configFilePath) {
+        return StorageManager.getConfig(configFilePath);
     }
 
     protected UserPrefs initPrefs(Config config) {

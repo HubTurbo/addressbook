@@ -12,6 +12,7 @@ import address.util.Config;
 import address.util.TestUtil;
 import javafx.stage.Stage;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class TestApp extends MainApp {
@@ -20,6 +21,7 @@ public class TestApp extends MainApp {
     protected Supplier<ReadOnlyAddressBook> initialDataSupplier = TestUtil::generateSampleAddressBook;
     protected String saveFileLocation = SAVE_LOCATION_FOR_TESTING;
     protected CloudManipulator remote;
+    private String cloudFile;
 
     public TestApp() {
 
@@ -38,9 +40,14 @@ public class TestApp extends MainApp {
         }
     }
 
+    public TestApp(Supplier<ReadOnlyAddressBook> initialDataSupplier, Supplier<String> cloudFile, String saveFileLocation) {
+        this(initialDataSupplier, saveFileLocation);
+        this.cloudFile = cloudFile.get();
+    }
+
     @Override
-    protected Config initConfig() {
-        Config config = super.initConfig();
+    protected Config initConfig(String configFilePath) {
+        Config config = super.initConfig(configFilePath);
         config.appTitle = "Test App";
         return config;
     }

@@ -20,6 +20,8 @@ public class Config {
     private static final int DEFAULT_BROWSER_NO_OF_PAGES = 3;
     private static final BrowserType DEFAULT_BROWSER_TYPE = BrowserType.FULL_FEATURE_BROWSER;
     private static final boolean DEFAULT_IS_CLOUD_MANIPULABLE = false;
+    private static final String DEFAULT_LOCAL_DATA_FILE_PATH = "test.xml";
+    private static final String DEFAULT_CLOUD_DATA_FILE_PATH = "cloud/test.xml";
 
     // Config values
     public String appTitle = "Address App";
@@ -32,6 +34,8 @@ public class Config {
     public int browserNoOfPages = DEFAULT_BROWSER_NO_OF_PAGES;
     public BrowserType browserType = DEFAULT_BROWSER_TYPE;
     public boolean isCloudManipulable = DEFAULT_IS_CLOUD_MANIPULABLE;
+    private String localDataFilePath = DEFAULT_LOCAL_DATA_FILE_PATH;
+    private String cloudDataFilePath = DEFAULT_CLOUD_DATA_FILE_PATH;
 
 
     public Config() {
@@ -87,5 +91,21 @@ public class Config {
 
     public void setBrowserType(BrowserType browserType) {
         this.browserType = browserType;
+    }
+
+    public String getLocalDataFilePath() {
+        return localDataFilePath;
+    }
+
+    public void setLocalDataFilePath(String localDataFilePath) {
+        this.localDataFilePath = localDataFilePath;
+    }
+
+    public String getCloudDataFilePath() {
+        return cloudDataFilePath;
+    }
+
+    public void setCloudDataFilePath(String cloudDataFilePath) {
+        this.cloudDataFilePath = cloudDataFilePath;
     }
 }

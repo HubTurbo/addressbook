@@ -78,7 +78,7 @@ public class StorageManagerTest {
         assertFalse(INEXISTENT_FILE.exists());
         TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("CONFIG_FILE"), INEXISTENT_FILE.getPath());
         PowerMockito.whenNew(Config.class).withAnyArguments().thenReturn(dummyConfig);
-        StorageManager.getConfig();
+        StorageManager.getConfig(null);
         PowerMockito.verifyNew(Config.class);
     }
 
@@ -86,7 +86,7 @@ public class StorageManagerTest {
     public void getConfig_fileExistent_correspondingMethodCalled() throws Exception {
         FileUtil.createIfMissing(EMPTY_FILE);
         TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("CONFIG_FILE"), EMPTY_FILE.getPath());
-        StorageManager.getConfig();
+        StorageManager.getConfig(null);
         PowerMockito.verifyPrivate(StorageManager.class).invoke("readFromConfigFile", EMPTY_FILE);
     }
 
