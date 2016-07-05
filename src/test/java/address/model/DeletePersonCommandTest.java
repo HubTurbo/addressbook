@@ -4,7 +4,6 @@ import address.events.DeletePersonOnRemoteRequestEvent;
 import address.model.ChangeObjectInModelCommand.State;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
-import address.util.JavafxRuntimeUtil;
 import address.util.TestUtil;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -41,12 +40,12 @@ public class DeletePersonCommandTest {
 
     @BeforeClass
     public static void beforeSetup() throws TimeoutException {
-        JavafxRuntimeUtil.initRuntime();
+        TestUtil.initRuntime();
     }
 
     @AfterClass
     public static void teardown() throws Exception {
-        JavafxRuntimeUtil.tearDownRuntime();
+        TestUtil.tearDownRuntime();
     }
 
     @Before
