@@ -15,7 +15,7 @@ public class JavafxRuntimeUtil {
     public static void initRuntime(){
         try {
             FxToolkit.registerPrimaryStage();
-            FxToolkit.showStage();
+            FxToolkit.hideStage();
         } catch (TimeoutException e) {
             e.printStackTrace();
         }
