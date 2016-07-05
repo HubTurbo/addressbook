@@ -50,7 +50,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     public String getName() {
-        return "Add Person";
+        return "Add Person " + (viewableToAdd == null ? "" : viewableToAdd.idString());
     }
 
     @Override
@@ -71,6 +71,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         if (viewableToAdd != null) {
             model.unassignOngoingChangeForPerson(viewableToAdd.getId());
         }
+        model.trackFinishedCommand(this);
     }
 
     /**

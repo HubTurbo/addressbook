@@ -73,6 +73,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
             target.setIsDeleted(false);
         });
         model.unassignOngoingChangeForPerson(target.getId());
+        model.trackFinishedCommand(this);
     }
 
     @Override

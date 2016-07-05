@@ -15,6 +15,7 @@ import address.util.PlatformExecUtil;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
@@ -35,13 +36,15 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     private final AddressBook backingModel;
     private final ViewableAddressBook visibleModel;
     private final Map<Integer, ChangePersonInModelCommand> personChangesInProgress;
+    private final ObservableList<ChangeObjectInModelCommand> finishedCommands;
 
-    final Executor commandExecutor;
+    private final Executor commandExecutor;
     private UserPrefs prefs;
 
     {
         personChangesInProgress = new HashMap<>();
         commandExecutor = Executors.newCachedThreadPool();
+        finishedCommands = FXCollections.observableArrayList();
     }
 
     /**
@@ -94,6 +97,10 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     }
 
 //// EXPOSING MODEL
+
+    public UnmodifiableObservableList<CommandInfo> getFinishedCommands() {
+        return new UnmodifiableObservableList<>(finishedCommands);
+    }
 
     /**
      * @return all persons in visible model IN AN UNMODIFIABLE VIEW
@@ -308,6 +315,10 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
     void raiseLocalModelChangedEvent() {
         raise(new LocalModelChangedEvent(this));
+    }
+
+    void trackFinishedCommand(ChangeObjectInModelCommand finished) {
+        finishedCommands.add(finished);
     }
 
 //// CREATE

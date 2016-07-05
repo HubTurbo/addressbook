@@ -27,9 +27,9 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     private final String addressbookName;
 
     /**
-     * @param inputRetriever               Will run on execution {@link #run()} thread. This should handle thread concurrency
-     *                                     logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
-     *                                     If the returned Optional is empty, the command will be cancelled.
+     * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
+     *                       logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
+     *                       If the returned Optional is empty, the command will be cancelled.
      * @see super#ChangePersonInModelCommand(Supplier, int)
      */
     public EditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
@@ -78,6 +78,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
             target.setIsEdited(false);
         });
         model.unassignOngoingChangeForPerson(target.getId());
+        model.trackFinishedCommand(this);
     }
 
     @Override
