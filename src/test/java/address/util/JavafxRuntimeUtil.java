@@ -11,9 +11,14 @@ import java.util.concurrent.TimeoutException;
  */
 public class JavafxRuntimeUtil {
 
-    public static void initRuntime() throws TimeoutException {
-        FxToolkit.registerPrimaryStage();
-        FxToolkit.hideStage();
+    @BeforeClass
+    public static void initRuntime(){
+        try {
+            FxToolkit.registerPrimaryStage();
+            FxToolkit.hideStage();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
     }
 
     @AfterClass

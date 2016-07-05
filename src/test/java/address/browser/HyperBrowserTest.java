@@ -18,9 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -41,7 +40,7 @@ public class HyperBrowserTest {
     }
 
     @BeforeClass
-    public static void setup() throws TimeoutException {
+    public static void setup() {
         JavafxRuntimeUtil.initRuntime();
         new BrowserManager(FXCollections.emptyObservableList(),
                 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
@@ -57,6 +56,7 @@ public class HyperBrowserTest {
         HyperBrowser browser = new HyperBrowser(BrowserType.FULL_FEATURE_BROWSER, 1, Optional.empty());
         Page page = browser.loadUrl(new URL("https://github.com")).get(0);
         assertTrue(UrlUtil.compareBaseUrls(page.getBrowser().getOriginUrl(), new URL("https://github.com")));
+        browser.dispose();
     }
 
     @Test
@@ -75,6 +75,7 @@ public class HyperBrowserTest {
         assertTrue(UrlUtil.compareBaseUrls(secondPage.getBrowser().getOriginUrl(), listOfUrl.get(1)));
         Page thirdPage = listOfPages.remove(0);
         assertTrue(UrlUtil.compareBaseUrls(thirdPage.getBrowser().getOriginUrl(), listOfUrl.get(2)));
+        browser.dispose();
     }
 
     @Test
@@ -92,6 +93,8 @@ public class HyperBrowserTest {
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(0).getBrowser().getOriginUrl(), listOfUrl.get(3)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(1).getBrowser().getOriginUrl(), listOfUrl.get(4)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(2).getBrowser().getOriginUrl(), listOfUrl.get(5)));
+
+        browser.dispose();
     }
 
     @Test
@@ -108,6 +111,8 @@ public class HyperBrowserTest {
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(0).getBrowser().getOriginUrl(), listOfUrl.get(2)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(1).getBrowser().getOriginUrl(), listOfUrl.get(3)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(2).getBrowser().getOriginUrl(), listOfUrl.get(4)));
+
+        browser.dispose();
     }
 
     @Test
@@ -123,6 +128,8 @@ public class HyperBrowserTest {
         assertTrue(listOfPages.size() == 2);
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(0).getBrowser().getOriginUrl(), listOfUrl.get(0)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(1).getBrowser().getOriginUrl(), listOfUrl.get(2)));
+
+        browser.dispose();
     }
 
     @Test
@@ -139,61 +146,37 @@ public class HyperBrowserTest {
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(2).getBrowser().getOriginUrl(), listOfUrl.get(4)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(0).getBrowser().getOriginUrl(), listOfUrl.get(1)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(1).getBrowser().getOriginUrl(), listOfUrl.get(2)));
+
+        browser.dispose();
     }
 
     @Test
     public void testLimitedFeatureBrowser_loadUrl_urlAssigned() throws MalformedURLException, InterruptedException {
-        PlatformExecUtil.runLaterAndWait(() -> {
-            HyperBrowser browser = new HyperBrowser(BrowserType.LIMITED_FEATURE_BROWSER, 1, Optional.empty());
-            URL url = null;
-            try {
-                url = new URL("https://github.com");
-            } catch (MalformedURLException e) {
-                fail();
-            }
-            Page page = browser.loadUrl(url).get(0);
-            try {
-                assertTrue(UrlUtil.compareBaseUrls(page.getBrowser().getOriginUrl(), url));
-            } catch (MalformedURLException e) {
-                fail();
-            }
-        });
+        final AtomicReference<HyperBrowser> browser = new AtomicReference<>();
+        PlatformExecUtil.runLaterAndWait(() -> browser.set(new HyperBrowser(BrowserType.LIMITED_FEATURE_BROWSER, 1, Optional.empty())));
+        URL url = new URL("https://github.com");
+        final AtomicReference<Page> page = new AtomicReference<>();
+        PlatformExecUtil.runLaterAndWait(() -> page.set(browser.get().loadUrl(url).get(0)));
+        assertTrue(UrlUtil.compareBaseUrls(page.get().getBrowser().getOriginUrl(), url));
+        browser.get().dispose();
     }
 
     @Test
     public void testLimitedFeatureBrowser_loadUrls_urlsAssigned() throws MalformedURLException, IllegalAccessException, NoSuchFieldException, InterruptedException {
-        PlatformExecUtil.runLaterAndWait(() -> {
-            HyperBrowser browser = new HyperBrowser(BrowserType.LIMITED_FEATURE_BROWSER, 3, Optional.empty());
-            Page page = browser.loadUrls(listOfUrl.get(0), listOfUrl.subList(1,3)).get(0);
-            try {
-                assertTrue(UrlUtil.compareBaseUrls(page.getBrowser().getOriginUrl(), listOfUrl.get(0)));
-            } catch (MalformedURLException e) {
-                fail();
-            }
-
-            Field pages = null;
-            try {
-                pages = browser.getClass().getDeclaredField("pages");
-            } catch (NoSuchFieldException e) {
-                fail();
-            }
-            pages.setAccessible(true);
-            List<Page> listOfPages = null;
-            try {
-                listOfPages = (List<Page>) pages.get(browser);
-            } catch (IllegalAccessException e) {
-                fail();
-            }
-            listOfPages.remove(page);
-            try {
-                Page secondPage = listOfPages.remove(0);
-                assertTrue(UrlUtil.compareBaseUrls(secondPage.getBrowser().getOriginUrl(), listOfUrl.get(1)));
-                Page thirdPage = listOfPages.remove(0);
-                assertTrue(UrlUtil.compareBaseUrls(thirdPage.getBrowser().getOriginUrl(), listOfUrl.get(2)));
-            } catch (MalformedURLException e) {
-                fail();
-            }
-        });
+        final AtomicReference<HyperBrowser> browser = new AtomicReference<>();
+        PlatformExecUtil.runLaterAndWait(() -> browser.set(new HyperBrowser(BrowserType.LIMITED_FEATURE_BROWSER, 3, Optional.empty())));
+        final AtomicReference<Page> page = new AtomicReference<>();
+        PlatformExecUtil.runLaterAndWait(() -> page.set(browser.get().loadUrls(listOfUrl.get(0), listOfUrl.subList(1,3)).get(0)));
+        assertTrue(UrlUtil.compareBaseUrls(page.get().getBrowser().getOriginUrl(), listOfUrl.get(0)));
+        Field pages = browser.get().getClass().getDeclaredField("pages");
+        pages.setAccessible(true);
+        List<Page> listOfPages = (List<Page>) pages.get(browser.get());
+        listOfPages.remove(page.get());
+        Page secondPage = listOfPages.remove(0);
+        assertTrue(UrlUtil.compareBaseUrls(secondPage.getBrowser().getOriginUrl(), listOfUrl.get(1)));
+        Page thirdPage = listOfPages.remove(0);
+        assertTrue(UrlUtil.compareBaseUrls(thirdPage.getBrowser().getOriginUrl(), listOfUrl.get(2)));
+        browser.get().dispose();
     }
 
     @Test
@@ -207,6 +190,8 @@ public class HyperBrowserTest {
         assertTrue(listOfPages.size() == 2);
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(0).getBrowser().getOriginUrl(), listOfUrl.get(1)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(1).getBrowser().getOriginUrl(), listOfUrl.get(2)));
+
+        browser.dispose();
     }
 
     @Test
@@ -214,5 +199,6 @@ public class HyperBrowserTest {
         HyperBrowser browser = new HyperBrowser(BrowserType.FULL_FEATURE_BROWSER, 1, Optional.empty());
         Page page = browser.loadUrl(new URL("https://github.com")).get(0);
         assertTrue(UrlUtil.compareBaseUrls(browser.getDisplayedUrl(), new URL("https://github.com")));
+        browser.dispose();
     }
 }

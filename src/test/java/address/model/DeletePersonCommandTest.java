@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Optional;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
@@ -40,7 +39,7 @@ public class DeletePersonCommandTest {
     ViewablePerson testTarget;
 
     @BeforeClass
-    public static void beforeSetup() throws TimeoutException {
+    public static void beforeSetup() {
         JavafxRuntimeUtil.initRuntime();
     }
 

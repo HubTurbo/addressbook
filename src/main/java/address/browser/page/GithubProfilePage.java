@@ -27,8 +27,8 @@ public class GithubProfilePage implements PageInterface {
     }
 
     public boolean isValidGithubProfilePage(){
-        return page.verifyPresence(new String[]{JS_PJAX_CONTAINER_ID, OCTICON_REPO_CLASS_NAME, REPO_LIST_CLASS_NAME,
-                                                ORGANIZATION_REPO_ID });
+        return page.verifyPresence(new String[]{JS_PJAX_CONTAINER_ID, OCTICON_REPO_CLASS_NAME})
+                || page.verifyPresence(new String[]{REPO_LIST_CLASS_NAME, ORGANIZATION_REPO_ID});
     }
 
     /**

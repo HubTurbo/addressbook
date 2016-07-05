@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -20,10 +19,9 @@ import static org.junit.Assert.assertNotNull;
 public class BrowserManagerTest {
 
     @BeforeClass
-    public static void setup() throws TimeoutException {
+    public static void setup() {
         JavafxRuntimeUtil.initRuntime();
-        new BrowserManager(FXCollections.emptyObservableList(),
-                1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
+        new BrowserManager(FXCollections.emptyObservableList(), 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
     }
 
     @AfterClass
@@ -35,12 +33,13 @@ public class BrowserManagerTest {
     public void testNecessaryBrowserResources_resourcesNotNull() throws NoSuchMethodException,
                                                                         InvocationTargetException,
                                                                         IllegalAccessException {
-        BrowserManager manager = new BrowserManager(FXCollections.observableArrayList(), 3,
+        BrowserManager manager = new BrowserManager(FXCollections.observableArrayList(), 1,
                                                     BrowserType.FULL_FEATURE_BROWSER);
         manager.start();
         assertNotNull(manager.getHyperBrowserView());
         Method method = manager.getClass().getDeclaredMethod("getBrowserInitialScreen");
         method.setAccessible(true);
         method.invoke(manager);
+        manager.freeBrowserResources();
     }
 }
