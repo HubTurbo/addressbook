@@ -51,6 +51,8 @@ public abstract class ChangeObjectInModelCommand implements Runnable, CommandInf
 
     private static final AppLogger logger = LoggerManager.getLogger(ChangeObjectInModelCommand.class);
 
+    private final int commandId;
+
     private final CountDownLatch completionLatch;
     protected final int gracePeriodDurationInSeconds;
     protected final ObjectProperty<State> state; // current state
@@ -64,8 +66,14 @@ public abstract class ChangeObjectInModelCommand implements Runnable, CommandInf
         clearGracePeriodOverride();
     }
 
-    protected ChangeObjectInModelCommand(int gracePeriodDurationInSeconds) {
+    protected ChangeObjectInModelCommand(int commandId, int gracePeriodDurationInSeconds) {
+        this.commandId = commandId;
         this.gracePeriodDurationInSeconds = gracePeriodDurationInSeconds;
+    }
+
+    @Override
+    public int getCommandId() {
+        return commandId;
     }
 
     public void waitForCompletion() throws InterruptedException {

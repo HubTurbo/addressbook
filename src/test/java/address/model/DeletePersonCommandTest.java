@@ -73,7 +73,7 @@ public class DeletePersonCommandTest {
         doThrow(InterruptAndTerminateException.class).when(otherCommand).waitForCompletion(); // don't actually wait
         thrown.expect(InterruptAndTerminateException.class);
 
-        (new DeletePersonCommand(testTarget, 0, null, modelManagerSpy)).run();
+        (new DeletePersonCommand(0, testTarget, 0, null, modelManagerSpy)).run();
 
         verify(otherCommand).waitForCompletion();
         verify(modelManagerSpy, never()).assignOngoingChangeToPerson(any(), any());
@@ -81,13 +81,13 @@ public class DeletePersonCommandTest {
 
     @Test
     public void getTargetPersonId_returnsCorrectId() {
-        final DeletePersonCommand epc = new DeletePersonCommand(testTarget, 0, null, modelManagerMock);
+        final DeletePersonCommand epc = new DeletePersonCommand(0, testTarget, 0, null, modelManagerMock);
         assertEquals(epc.getTargetPersonId(), TEST_ID);
     }
 
     @Test
     public void optimisticUiUpdate_flagsDelete() {
-        final DeletePersonCommand dpc = spy(new DeletePersonCommand(testTarget, 0, events::post, modelManagerSpy));
+        final DeletePersonCommand dpc = spy(new DeletePersonCommand(0, testTarget, 0, events::post, modelManagerSpy));
 
         // to stop the run at start of grace period (right after simulated change)
         doThrow(new InterruptAndTerminateException()).when(dpc).beforeGracePeriod();
@@ -99,7 +99,7 @@ public class DeletePersonCommandTest {
 
     @Test
     public void succesfulDelete_updatesBackingModelCorrectly() {
-        final DeletePersonCommand dpc = new DeletePersonCommand(testTarget, 0, events::post, modelManagerSpy);
+        final DeletePersonCommand dpc = new DeletePersonCommand(0, testTarget, 0, events::post, modelManagerSpy);
 
         modelManagerSpy.visibleModel().addPerson(testTarget);
         modelManagerSpy.addPersonToBackingModelSilently(testTarget.getBacking());
@@ -112,7 +112,7 @@ public class DeletePersonCommandTest {
     @Test
     public void interruptGracePeriod_withEditRequest_cancelsAndSpawnsEditCommand() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final DeletePersonCommand dpc = spy(new DeletePersonCommand(testTarget, 1, null, modelManagerSpy));
+        final DeletePersonCommand dpc = spy(new DeletePersonCommand(0, testTarget, 1, null, modelManagerSpy));
         final Supplier<Optional<ReadOnlyPerson>> editInputRetriever = Optional::empty;
 
         doNothing().when(modelManagerSpy).execNewEditPersonCommand(any(), any());
@@ -128,7 +128,7 @@ public class DeletePersonCommandTest {
     @Test
     public void interruptGracePeriod_withCancelRequest_undoesSimulation() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final DeletePersonCommand dpc = spy(new DeletePersonCommand(testTarget, 1, null, modelManagerSpy));
+        final DeletePersonCommand dpc = spy(new DeletePersonCommand(0, testTarget, 1, null, modelManagerSpy));
         final Supplier<Optional<ReadOnlyPerson>> editInputRetriever = Optional::empty;
 
         modelManagerSpy.visibleModel().addPerson(testTarget);

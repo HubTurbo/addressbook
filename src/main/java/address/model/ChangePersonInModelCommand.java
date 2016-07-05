@@ -29,9 +29,9 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      *                       logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
      *                       If the returned Optional is empty, the command will be cancelled.
      */
-    protected ChangePersonInModelCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever,
+    protected ChangePersonInModelCommand(int commandId, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
                                          int gracePeriodDurationInSeconds) {
-        super(gracePeriodDurationInSeconds);
+        super(commandId, gracePeriodDurationInSeconds);
         this.inputRetriever = inputRetriever;
     }
 

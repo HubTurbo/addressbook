@@ -34,11 +34,11 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
      * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
      *                       logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
      *                       If the returned Optional is empty, the command will be cancelled.
-     * @see super#ChangePersonInModelCommand(Supplier, int)
+     * @see super#ChangePersonInModelCommand(int, Supplier, int)
      */
-    public AddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever, int gracePeriodDurationInSeconds,
+    public AddPersonCommand(int commandId, Supplier<Optional<ReadOnlyPerson>> inputRetriever, int gracePeriodDurationInSeconds,
                                Consumer<BaseEvent> eventRaiser, ModelManager model) {
-        super(inputRetriever, gracePeriodDurationInSeconds);
+        super(commandId, inputRetriever, gracePeriodDurationInSeconds);
         this.model = model;
         this.eventRaiser = eventRaiser;
         this.addressbookName = model.getPrefs().getSaveFileName();

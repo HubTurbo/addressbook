@@ -26,12 +26,12 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     private final String addressbookName;
 
     /**
-     * @see super#ChangePersonInModelCommand(Supplier, int)
+     * @see super#ChangePersonInModelCommand(int, Supplier, int)
      */
-    public DeletePersonCommand(ViewablePerson target, int gracePeriodDurationInSeconds,
+    public DeletePersonCommand(int commandId, ViewablePerson target, int gracePeriodDurationInSeconds,
                                   Consumer<BaseEvent> eventRaiser, ModelManager model) {
         // no input needed for delete commands
-        super(() -> Optional.of(target), gracePeriodDurationInSeconds);
+        super(commandId, () -> Optional.of(target), gracePeriodDurationInSeconds);
         this.target = target;
         this.model = model;
         this.eventRaiser = eventRaiser;

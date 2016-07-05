@@ -22,6 +22,7 @@ import javafx.collections.ObservableList;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -35,16 +36,19 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
     private final AddressBook backingModel;
     private final ViewableAddressBook visibleModel;
+
     private final Map<Integer, ChangePersonInModelCommand> personChangesInProgress;
     private final ObservableList<ChangeObjectInModelCommand> finishedCommands;
-
     private final Executor commandExecutor;
+    private final AtomicInteger commandCounter;
+
     private UserPrefs prefs;
 
     {
         personChangesInProgress = new HashMap<>();
         commandExecutor = Executors.newCachedThreadPool();
         finishedCommands = FXCollections.observableArrayList();
+        commandCounter = new AtomicInteger(0);
     }
 
     /**
@@ -256,18 +260,18 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
     protected void execNewAddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever) {
         final int GRACE_PERIOD_DURATION = 3;
-        commandExecutor.execute(new AddPersonCommand(inputRetriever, GRACE_PERIOD_DURATION, this::raise, this));
+        commandExecutor.execute(new AddPersonCommand(assignCommandId(), inputRetriever, GRACE_PERIOD_DURATION, this::raise, this));
     }
 
     protected void execNewEditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> editInputRetriever) {
         final int GRACE_PERIOD_DURATION = 3;
-        commandExecutor.execute(new EditPersonCommand(target, editInputRetriever, GRACE_PERIOD_DURATION,
-                this::raise, this));
+        commandExecutor.execute(new EditPersonCommand(assignCommandId(), target, editInputRetriever,
+                GRACE_PERIOD_DURATION, this::raise, this));
     }
 
     protected void execNewDeletePersonCommand(ViewablePerson target) {
         final int GRACE_PERIOD_DURATION = 3;
-        commandExecutor.execute(new DeletePersonCommand(target, GRACE_PERIOD_DURATION, this::raise, this));
+        commandExecutor.execute(new DeletePersonCommand(assignCommandId(), target, GRACE_PERIOD_DURATION, this::raise, this));
     }
 
     /**
@@ -319,6 +323,10 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
     void trackFinishedCommand(ChangeObjectInModelCommand finished) {
         finishedCommands.add(finished);
+    }
+
+    int assignCommandId() {
+        return commandCounter.incrementAndGet();
     }
 
 //// CREATE

@@ -30,12 +30,12 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
      * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
      *                       logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
      *                       If the returned Optional is empty, the command will be cancelled.
-     * @see super#ChangePersonInModelCommand(Supplier, int)
+     * @see super#ChangePersonInModelCommand(int, Supplier, int)
      */
-    public EditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
+    public EditPersonCommand(int commandId, ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
                                 int gracePeriodDurationInSeconds, Consumer<BaseEvent> eventRaiser,
                                 ModelManager model) {
-        super(inputRetriever, gracePeriodDurationInSeconds);
+        super(commandId, inputRetriever, gracePeriodDurationInSeconds);
         assert target != null;
         this.target = target;
         this.model = model;
