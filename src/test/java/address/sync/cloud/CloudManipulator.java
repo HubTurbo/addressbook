@@ -1,19 +1,17 @@
 package address.sync.cloud;
 
+import address.exceptions.DataConversionException;
+import address.sync.cloud.model.CloudAddressBook;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
 import address.util.AppLogger;
 import address.util.Config;
 import address.util.LoggerManager;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import org.testfx.api.FxToolkit;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -24,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * simulated corruption or its responses may have significant delays.
  */
 public class CloudManipulator extends CloudSimulator {
-    private class Manipulation {
+    private class Manipulation {// TODO: create a list of this so that the tester can chain a set of errors
         long delay = 0;
         boolean removePerson = false;
     }
@@ -43,7 +41,7 @@ public class CloudManipulator extends CloudSimulator {
     private static final int MAX_NUM_TAGS_TO_ADD = 2;
 
     private boolean isManipulable = true;
-    private boolean delayNext = false;
+    private boolean shouldDelayNext = false;
 
     public CloudManipulator(Config config) {
         super(config);
@@ -51,100 +49,117 @@ public class CloudManipulator extends CloudSimulator {
     }
 
     public void start(Stage stage) {
-        AnchorPane pane = new AnchorPane();
-        Button delayButton = new Button("Delay next response");
-        delayButton.setOnAction(actionEvent -> delayNext = true);
-        pane.getChildren().add(delayButton);
+        VBox buttonBox = new VBox();
+        buttonBox.setMinWidth(300);
+        Button delayButton = getButton("Delay next response");
+        delayButton.setOnAction(actionEvent -> shouldDelayNext = true);
+        Button simulatePersonAdditionButton = getButton("Add person");
+        simulatePersonAdditionButton.setOnAction(actionEvent -> addRandomPersonToAddressBookFile("cloud"));
+
+        buttonBox.getChildren().addAll(delayButton, simulatePersonAdditionButton);
 
         Dialog<Void> dialog = new Dialog<>();
         dialog.initOwner(stage);
-        dialog.getDialogPane().getChildren().add(pane);
+        dialog.getDialogPane().getChildren().add(buttonBox);
+        dialog.getDialogPane().setStyle("-fx-border-color: black;");
         dialog.setX(stage.getX() + 740);
         dialog.setY(stage.getY());
+        dialog.getDialogPane().setPrefWidth(300);
         dialog.show();
+    }
+
+    private Button getButton(String text) {
+        Button button = new Button(text);
+        button.setMinWidth(300);
+        return button;
+    }
+
+    private void addRandomPersonToAddressBookFile(String addressBookName) {
+        try {
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromFile(addressBookName);
+            addCloudPersonsBasedOnChance(cloudAddressBook.getAllPersons());
+            fileHandler.writeCloudAddressBookToFile(cloudAddressBook);
+        } catch (FileNotFoundException e) {
+            logger.warn("Failed to add person: cloud addressbook {} not found", addressBookName);
+        } catch (DataConversionException e) {
+            logger.warn("Error adding person");
+        }
     }
 
     @Override
     public RemoteResponse createPerson(String addressBookName, CloudPerson newPerson, String previousETag) {
         RemoteResponse actualResponse = super.createPerson(addressBookName, newPerson, previousETag);
+        if (shouldDelayNext) delayRandomAmount();
         return actualResponse;
     }
 
     @Override
     public RemoteResponse getPersons(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
         RemoteResponse actualResponse = super.getPersons(addressBookName, pageNumber, resourcesPerPage, previousETag);
-        if (delayNext) {
-            try {
-                logger.info("Delaying for 10 seconds.");
-                Thread.sleep(10000);
-                delayNext = false;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        if (shouldDelayNext) delayRandomAmount();
         return actualResponse;
     }
 
     @Override
     public RemoteResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber, int resourcesPerPage, String previousETag) {
         RemoteResponse actualResponse = super.getUpdatedPersons(addressBookName, timeString, pageNumber, resourcesPerPage, previousETag);
-        if (delayNext) {
-            try {
-                logger.info("Delaying for 10 seconds.");
-                Thread.sleep(10000);
-                delayNext = false;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        if (shouldDelayNext) delayRandomAmount();
         return actualResponse;
     }
 
     @Override
     public RemoteResponse getTags(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
         RemoteResponse actualResponse = super.getTags(addressBookName, pageNumber, resourcesPerPage, previousETag);
+        if (shouldDelayNext) delayRandomAmount();
         return actualResponse;
     }
 
     @Override
     public RemoteResponse getRateLimitStatus(String previousETag) {
         RemoteResponse actualResponse = super.getRateLimitStatus(previousETag);
+        if (shouldDelayNext) delayRandomAmount();
         return actualResponse;
     }
 
     @Override
     public RemoteResponse updatePerson(String addressBookName, int personId, CloudPerson updatedPerson, String previousETag) {
         RemoteResponse actualResponse = super.updatePerson(addressBookName, personId, updatedPerson, previousETag);
+        if (shouldDelayNext) delayRandomAmount();
         return actualResponse;
     }
 
     @Override
     public RemoteResponse deletePerson(String addressBookName, int personId) {
         RemoteResponse actualResponse = super.deletePerson(addressBookName, personId);
+        if (shouldDelayNext) delayRandomAmount();
         return actualResponse;
     }
 
     @Override
     public RemoteResponse createTag(String addressBookName, CloudTag newTag, String previousETag) {
         RemoteResponse actualResponse = super.createTag(addressBookName, newTag, previousETag);
+        if (shouldDelayNext) delayRandomAmount();
         return actualResponse;
     }
 
     @Override
     public RemoteResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag, String previousETag) {
         RemoteResponse actualResponse = super.editTag(addressBookName, oldTagName, updatedTag, previousETag);
+        if (shouldDelayNext) delayRandomAmount();
         return actualResponse;
     }
 
     @Override
     public RemoteResponse deleteTag(String addressBookName, String tagName) {
         RemoteResponse actualResponse = super.deleteTag(addressBookName, tagName);
+        if (shouldDelayNext) delayRandomAmount();
         return actualResponse;
     }
 
     @Override
     public RemoteResponse createAddressBook(String addressBookName) {
         RemoteResponse actualResponse = super.createAddressBook(addressBookName);
+        if (shouldDelayNext) delayRandomAmount();
         return actualResponse;
     }
 
@@ -208,6 +223,7 @@ public class CloudManipulator extends CloudSimulator {
     private void delayRandomAmount() {
         long delayAmount = RANDOM_GENERATOR.nextInt(MAX_DELAY_IN_SEC - MIN_DELAY_IN_SEC) + MIN_DELAY_IN_SEC;
         try {
+            logger.debug("Delaying response by {} secs", delayAmount);
             TimeUnit.SECONDS.sleep(delayAmount);
         } catch (InterruptedException e) {
             logger.warn("Error occurred while delaying cloud response.");

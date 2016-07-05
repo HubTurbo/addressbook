@@ -29,8 +29,8 @@ public class CloudSimulator implements IRemote {
     private static final AppLogger logger = LoggerManager.getLogger(CloudSimulator.class);
     private static final int API_QUOTA_PER_HOUR = 5000;
 
-    private CloudRateLimitStatus cloudRateLimitStatus;
-    private CloudFileHandler fileHandler;
+    protected CloudRateLimitStatus cloudRateLimitStatus;
+    protected CloudFileHandler fileHandler;
 
     public CloudSimulator(CloudFileHandler fileHandler, CloudRateLimitStatus cloudRateLimitStatus) {
         this.fileHandler = fileHandler;
