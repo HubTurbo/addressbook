@@ -1,6 +1,5 @@
 package address.browser;
 
-import address.browser.BrowserManager;
 import address.browser.page.GithubProfilePage;
 import address.util.JavafxRuntimeUtil;
 import hubturbo.EmbeddedBrowser;
@@ -36,7 +35,7 @@ public class PageTest {
     @BeforeClass
     public static void setup() throws TimeoutException {
         JavafxRuntimeUtil.initRuntime();
-        new BrowserManager(FXCollections.observableArrayList(), 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
+        new BrowserManager(FXCollections.emptyObservableList(), 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
     }
 
     @AfterClass

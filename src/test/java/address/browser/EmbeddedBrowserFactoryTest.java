@@ -28,7 +28,7 @@ public class EmbeddedBrowserFactoryTest {
     @BeforeClass
     public static void setup() throws TimeoutException {
         JavafxRuntimeUtil.initRuntime();
-        new BrowserManager(FXCollections.observableArrayList(), 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
+        new BrowserManager(FXCollections.emptyObservableList(), 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
     }
 
     @AfterClass
