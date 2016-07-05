@@ -270,6 +270,11 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
     }
 
 
+    @Override
+    public boolean hasName(String firstName, String lastName) {
+        return firstNameProperty().getValue().equals(firstName)
+                && lastNameProperty().getValue().equals(lastName);
+    }
     /**
      * Use backing Person for comparison.
      */

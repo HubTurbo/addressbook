@@ -27,7 +27,10 @@ public class TagListController extends UiController{
 
     public void setStage(Stage stage) {
         stage.getScene().setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.ESCAPE) stage.close();
+            if (e.getCode() == KeyCode.ESCAPE) {
+                e.consume();
+                stage.close();
+            }
         });
         this.stage = stage;
     }
