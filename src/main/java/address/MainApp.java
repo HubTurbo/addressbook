@@ -4,7 +4,10 @@ import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
 import address.model.UserPrefs;
 import address.storage.StorageManager;
+import address.sync.RemoteManager;
 import address.sync.SyncManager;
+import address.sync.cloud.CloudSimulator;
+import address.sync.cloud.IRemote;
 import address.ui.Ui;
 import address.updater.UpdateManager;
 import address.util.*;
@@ -38,6 +41,7 @@ public class MainApp extends Application {
     protected ModelManager modelManager;
     protected SyncManager syncManager;
     protected UpdateManager updateManager;
+    protected RemoteManager remoteManager;
     protected Ui ui;
     protected KeyBindingsManager keyBindingsManager;
     protected Config config;
@@ -69,12 +73,41 @@ public class MainApp extends Application {
     protected void initComponents(Config config, UserPrefs userPrefs) {
         LoggerManager.init(config);
 
-        modelManager = new ModelManager(userPrefs);
-        storageManager = new StorageManager(modelManager::resetData, config, userPrefs);
-        ui = new Ui(this, modelManager, config);
-        syncManager = new SyncManager(config, userPrefs.getSaveLocation().getName());
-        keyBindingsManager = new KeyBindingsManager();
-        updateManager = new UpdateManager(VERSION);
+        modelManager = initModelManager(userPrefs);
+        storageManager = initStorageManager(config, userPrefs);
+        ui = initUi(config, modelManager);
+        remoteManager = initRemoteManager(config);
+        syncManager = initSyncManager(remoteManager, config, userPrefs);
+        keyBindingsManager = initKeyBindingsManager();
+        updateManager = initUpdateManager(VERSION);
+    }
+
+    protected UpdateManager initUpdateManager(Version version) {
+        return new UpdateManager(version);
+    }
+
+    protected KeyBindingsManager initKeyBindingsManager() {
+        return new KeyBindingsManager();
+    }
+
+    protected RemoteManager initRemoteManager(Config config) {
+        return new RemoteManager(new CloudSimulator(config));
+    }
+
+    protected SyncManager initSyncManager(RemoteManager remoteManager, Config config, UserPrefs userPrefs) {
+        return new SyncManager(remoteManager, config, userPrefs.getSaveLocation().getName());
+    }
+
+    protected Ui initUi(Config config, ModelManager modelManager) {
+        return new Ui(this, modelManager, config);
+    }
+
+    protected StorageManager initStorageManager(Config config, UserPrefs userPrefs) {
+        return new StorageManager(modelManager::resetData, config, userPrefs);
+    }
+
+    protected ModelManager initModelManager(UserPrefs userPrefs) {
+        return new ModelManager(userPrefs);
     }
 
     @Override

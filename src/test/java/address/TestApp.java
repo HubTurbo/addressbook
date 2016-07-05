@@ -4,6 +4,9 @@ import address.model.UserPrefs;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.storage.StorageAddressBook;
+import address.sync.RemoteManager;
+import address.sync.RemoteService;
+import address.sync.cloud.CloudManipulator;
 import address.util.Config;
 import address.util.TestUtil;
 
@@ -41,6 +44,11 @@ public class TestApp extends MainApp {
         UserPrefs userPrefs = super.initPrefs(config);
         userPrefs.setSaveLocation(saveFileLocation);
         return userPrefs;
+    }
+
+    @Override
+    protected RemoteManager initRemoteManager(Config config) {
+        return new RemoteManager(new CloudManipulator(config));
     }
 
     public static void main(String[] args) {

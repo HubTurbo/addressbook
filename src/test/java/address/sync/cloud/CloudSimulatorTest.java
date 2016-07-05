@@ -41,7 +41,7 @@ public class CloudSimulatorTest {
         final long resetTime = System.currentTimeMillis()/1000 + API_RESET_DELAY;
         cloudFileHandler = mock(CloudFileHandler.class);
         cloudRateLimitStatus = new CloudRateLimitStatus(STARTING_API_COUNT, resetTime);
-        cloudSimulator = new CloudSimulator(cloudFileHandler, cloudRateLimitStatus, false);
+        cloudSimulator = new CloudSimulator(cloudFileHandler, cloudRateLimitStatus);
 
         CloudAddressBook remoteAddressBook = getDummyAddressBook();
         stub(cloudFileHandler.readCloudAddressBookFromFile("Test")).toReturn(remoteAddressBook);

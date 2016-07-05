@@ -3,8 +3,8 @@ package address.sync;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
+import address.sync.cloud.IRemote;
 import address.util.AppLogger;
-import address.util.Config;
 import address.util.LoggerManager;
 
 import java.io.IOException;
@@ -28,9 +28,9 @@ public class RemoteManager {
     private HashMap<String, LastUpdate<Tag>> updateInformation;
     private LocalDateTime personLastUpdatedAt;
 
-    public RemoteManager(Config config) {
+    public RemoteManager(IRemote remote) {
         updateInformation = new HashMap<>();
-        remoteService = new RemoteService(config);
+        remoteService = new RemoteService(remote);
     }
 
     public RemoteManager(RemoteService remoteService) {

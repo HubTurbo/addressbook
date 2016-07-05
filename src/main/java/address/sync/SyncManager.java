@@ -43,8 +43,8 @@ public class SyncManager extends ComponentManager {
      * @param config should have updateInterval (milliseconds) and simulateUnreliableNetwork set
      * @param activeAddressBookName name of active addressbook to start with
      */
-    public SyncManager(Config config, String activeAddressBookName) {
-        this(config, new RemoteManager(config), Executors.newCachedThreadPool(),
+    public SyncManager(RemoteManager remoteManager, Config config, String activeAddressBookName) {
+        this(config, remoteManager, Executors.newCachedThreadPool(),
                 Executors.newScheduledThreadPool(1), activeAddressBookName);
     }
 

@@ -19,6 +19,7 @@ public class Config {
     private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVELS = new HashMap<>();
     private static final int DEFAULT_BROWSER_NO_OF_PAGES = 3;
     private static final BrowserType DEFAULT_BROWSER_TYPE = BrowserType.FULL_FEATURE_BROWSER;
+    private static final boolean DEFAULT_IS_CLOUD_MANIPULABLE = false;
 
     // Config values
     public String appTitle = "Address App";
@@ -30,6 +31,7 @@ public class Config {
     private File prefsFileLocation = new File("preferences.json"); //Default user preferences file
     public int browserNoOfPages = DEFAULT_BROWSER_NO_OF_PAGES;
     public BrowserType browserType = DEFAULT_BROWSER_TYPE;
+    public boolean isCloudManipulable = DEFAULT_IS_CLOUD_MANIPULABLE;
 
 
     public Config() {
