@@ -1,18 +1,23 @@
 package address.sync.cloud;
 
+import address.TestApp;
 import address.exceptions.DataConversionException;
 import address.sync.cloud.model.CloudAddressBook;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
 import address.util.AppLogger;
 import address.util.Config;
+import address.util.FileUtil;
 import address.util.LoggerManager;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
+import java.net.URL;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -53,6 +58,8 @@ public class CloudManipulator extends CloudSimulator {
         VBox buttonBox = new VBox();
         buttonBox.setMinWidth(300);
         Button delayButton = getButton("Delay next response");
+        ImageView imageView = getClockIcon();
+        delayButton.setGraphic(imageView);
         delayButton.setOnAction(actionEvent -> shouldDelayNext = true);
         Button simulatePersonAdditionButton = getButton("Add person");
         simulatePersonAdditionButton.setOnAction(actionEvent -> addRandomPersonToAddressBookFile("cloud"));
@@ -67,7 +74,16 @@ public class CloudManipulator extends CloudSimulator {
         dialog.setX(stage.getX() + 740);
         dialog.setY(stage.getY());
         dialog.getDialogPane().setPrefWidth(300);
+        dialog.getDialogPane().setPrefHeight(1000);
         dialog.show();
+    }
+
+    private ImageView getClockIcon() {
+        URL url = getClass().getResource("/images/clock.png");
+        ImageView imageView = new ImageView(new Image(url.toString()));
+        imageView.setFitHeight(50);
+        imageView.setFitWidth(50);
+        return imageView;
     }
 
     private Button getButton(String text) {
