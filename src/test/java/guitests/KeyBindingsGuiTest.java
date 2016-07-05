@@ -72,8 +72,9 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         //======== hotkeys ============================
 
         push(bindings.APP_MINIMIZE_HOTKEY.get(0));
-        push(bindings.APP_MAXIMIZE_HOTKEY.get(0));
-        //TODO: test hotkeys
+        push(bindings.APP_RESIZE_HOTKEY.get(0)); //maximize the window
+        push(bindings.APP_RESIZE_HOTKEY.get(0)); //set window to default size
+        //TODO: test hotkeys further
 
     }
 

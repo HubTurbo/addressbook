@@ -5,8 +5,9 @@
 
 | Shortcut                              | Action |
 | ------------------------------------: |--------|
-| <kbd>D</kbd>               | **D**elete selected person |
-| <kbd>E</kbd>               | **E**dit selected person |
+| <kbd>A</kbd>               | t**A**g the selected person |
+| <kbd>D</kbd>               | **D**elete the selected person |
+| <kbd>E</kbd>               | **E**dit the selected person |
 | <kbd>G</kbd>,<kbd>B</kbd>  | **G**o to **B**ottom of the list |
 | <kbd>G</kbd>,<kbd>T</kbd>  | **G**o to **T**op of the list |
 | <kbd>Ctrl + N</kbd>        | **N**ew file |
@@ -22,4 +23,4 @@ Unlike keyboard shortcuts given above, hotkeys work even when the app is not in 
 | Shortcut                              | Action |
 | ------------------------------------: |--------|
 | <kbd>Ctrl + Alt + X</kbd>         | Minimize app |
-| <kbd>Ctrl + Shift + X</kbd>       | Maximize app |
+| <kbd>Ctrl + Shift + X</kbd>       | Toggle between maximum and default app Window sizes|
