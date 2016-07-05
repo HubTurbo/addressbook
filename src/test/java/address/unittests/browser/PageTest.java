@@ -1,17 +1,21 @@
 package address.unittests.browser;
 
+import address.browser.BrowserManager;
 import address.browser.page.GithubProfilePage;
-import address.util.JavafxRuntimeRule;
+import address.util.JavafxRuntimeUtil;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;
 import hubturbo.embeddedbrowser.page.Page;
+import javafx.collections.FXCollections;
 import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.TimeoutException;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
@@ -29,8 +33,16 @@ public class PageTest {
     public static final String VALID_ID_2 = "js-flash-container";
     public static final String VALID_ID_3 = "contributions-calendar";
 
-    @Rule
-    public JavafxRuntimeRule rule = new JavafxRuntimeRule();
+    @BeforeClass
+    public static void setup() throws TimeoutException {
+        JavafxRuntimeUtil.initRuntime();
+        new BrowserManager(FXCollections.observableArrayList(), 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
+    }
+
+    @AfterClass
+    public static void teardown() throws Exception {
+        JavafxRuntimeUtil.tearDownRuntime();
+    }
 
     @Test
     public void testPageTestMethods_fullFeatureBrowser() throws IOException {

@@ -1,13 +1,18 @@
 package address.unittests.browser;
 
-import address.util.JavafxRuntimeRule;
+import address.browser.BrowserManager;
+import address.util.JavafxRuntimeUtil;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;
 import hubturbo.embeddedbrowser.fxbrowser.FxBrowserAdapter;
 import hubturbo.embeddedbrowser.jxbrowser.JxBrowserAdapter;
-import org.junit.Rule;
+import javafx.collections.FXCollections;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.concurrent.TimeoutException;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -19,8 +24,16 @@ import static org.junit.Assert.assertTrue;
 public class EmbeddedBrowserFactoryTest {
 
 
-    @Rule
-    public JavafxRuntimeRule rule = new JavafxRuntimeRule();
+    @BeforeClass
+    public static void setup() throws TimeoutException {
+        JavafxRuntimeUtil.initRuntime();
+        new BrowserManager(FXCollections.observableArrayList(), 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        JavafxRuntimeUtil.tearDownRuntime();
+    }
 
     @Test
     public void testCreateBrowser_fullFeatureBrowser_success() {
@@ -45,4 +58,5 @@ public class EmbeddedBrowserFactoryTest {
         }
         assertNull(browser);
     }
+
 }
