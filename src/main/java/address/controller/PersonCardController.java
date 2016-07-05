@@ -72,9 +72,6 @@ public class PersonCardController extends UiController{
             setProfileImage();
         }
 
-        if (person.isDeleted()) {
-            Platform.runLater(() -> cardPane.setOpacity(0.1f));
-        }
         FxViewUtil.configureCircularImageView(profileImage);
 
         initIdLabel();
@@ -125,13 +122,7 @@ public class PersonCardController extends UiController{
                 return person.tagsString();
             }
         });
-        person.isDeletedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                handleDelete();
-            } else {
-//                deleteTransition.stop();
-            }
-        });
+
         person.githubUsernameProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.length() > 0) {
                 setProfileImage();

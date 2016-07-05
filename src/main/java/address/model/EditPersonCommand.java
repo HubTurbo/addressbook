@@ -1,8 +1,9 @@
 package address.model;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
+
 import address.events.BaseEvent;
-import address.events.LocalModelChangedEvent;
 import address.events.UpdatePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
@@ -66,6 +67,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
                 e.printStackTrace();
             }
         }
+        PlatformExecUtil.runAndWait(() -> target.setChangeInProgress(EDITING));
         model.assignOngoingChangeToPerson(target.getId(), this);
         target.stopSyncingWithBackingObject();
     }
@@ -73,9 +75,9 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void after() {
         PlatformExecUtil.runAndWait(() -> {
+            target.setChangeInProgress(NONE);
             target.continueSyncingWithBackingObject();
             target.forceSyncFromBacking();
-            target.setIsEdited(false);
         });
         model.unassignOngoingChangeForPerson(target.getId());
         model.trackFinishedCommand(this);
@@ -84,10 +86,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected State simulateResult() {
         assert input != null;
-        PlatformExecUtil.runAndWait(() -> {
-            target.setIsEdited(true);
-            target.simulateUpdate(input);
-        });
+        PlatformExecUtil.runAndWait(() -> target.simulateUpdate(input));
         return GRACE_PERIOD;
     }
 

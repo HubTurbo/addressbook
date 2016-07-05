@@ -1,6 +1,8 @@
 package address.model;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
+
 import address.events.BaseEvent;
 import address.events.DeletePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.ReadOnlyPerson;
@@ -8,7 +10,6 @@ import address.model.datatypes.person.ViewablePerson;
 import address.util.PlatformExecUtil;
 
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -61,6 +62,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
                 e.printStackTrace();
             }
         }
+        PlatformExecUtil.runAndWait(() -> target.setChangeInProgress(DELETING));
         model.assignOngoingChangeToPerson(target.getId(), this);
         target.stopSyncingWithBackingObject();
     }
@@ -68,9 +70,9 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void after() {
         PlatformExecUtil.runAndWait(() -> {
+            target.setChangeInProgress(NONE);
             target.continueSyncingWithBackingObject();
             target.forceSyncFromBacking();
-            target.setIsDeleted(false);
         });
         model.unassignOngoingChangeForPerson(target.getId());
         model.trackFinishedCommand(this);
@@ -78,8 +80,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected State simulateResult() {
-        PlatformExecUtil.runAndWait(() ->
-                target.setIsDeleted(true));
+        // delete changeinprogress field already set in #before
         return GRACE_PERIOD;
     }
 

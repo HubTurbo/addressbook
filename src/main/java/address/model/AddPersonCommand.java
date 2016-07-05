@@ -1,6 +1,8 @@
 package address.model;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
+
 import address.events.BaseEvent;
 import address.events.CreatePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.Person;
@@ -69,6 +71,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void after() {
         if (viewableToAdd != null) {
+            viewableToAdd.setChangeInProgress(NONE);
             model.unassignOngoingChangeForPerson(viewableToAdd.getId());
         }
         model.trackFinishedCommand(this);
@@ -82,7 +85,10 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     protected State simulateResult() {
         assert input != null;
         // create VP and add to model
-        viewableToAdd = PlatformExecUtil.callAndWait(() -> model.addViewablePersonWithoutBacking(input), null);
+        PlatformExecUtil.runAndWait(() -> {
+            viewableToAdd = model.addViewablePersonWithoutBacking(input);
+            viewableToAdd.setChangeInProgress(ADDING);
+        });
         logger.debug("simulateResult: Going to add " + viewableToAdd.toString());
         model.assignOngoingChangeToPerson(viewableToAdd.getId(), this);
         logger.debug("simulateResult: Added " + viewableToAdd.toString() + " to visible person list in model");
