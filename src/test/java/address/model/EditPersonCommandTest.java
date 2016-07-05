@@ -81,7 +81,7 @@ public class EditPersonCommandTest {
         doThrow(InterruptAndTerminateException.class).when(otherCommand).waitForCompletion(); // don't actually wait
         thrown.expect(InterruptAndTerminateException.class);
 
-        (new EditPersonCommand(testTarget, returnValidEmptyInput, 0, null, modelManagerSpy)).run();
+        (new EditPersonCommand(0, testTarget, returnValidEmptyInput, 0, null, modelManagerSpy)).run();
 
         verify(otherCommand).waitForCompletion();
         verify(modelManagerSpy, never()).assignOngoingChangeToPerson(any(), any());
@@ -89,20 +89,20 @@ public class EditPersonCommandTest {
 
     @Test
     public void getTargetPersonId_returnsCorrectId() {
-        final EditPersonCommand epc = new EditPersonCommand(testTarget, null, 0, null, modelManagerMock);
+        final EditPersonCommand epc = new EditPersonCommand(0, testTarget, null, 0, null, modelManagerMock);
         assertEquals(epc.getTargetPersonId(), TEST_ID);
     }
 
     @Test
     public void retrievingInput_cancelsCommand_whenEmptyInputOptionalRetrieved() {
-        final EditPersonCommand epc = new EditPersonCommand(testTarget, Optional::empty, 0, null, modelManagerMock);
+        final EditPersonCommand epc = new EditPersonCommand(0, testTarget, Optional::empty, 0, null, modelManagerMock);
         epc.run();
         assertEquals(epc.getState(), State.CANCELLED);
     }
 
     @Test
     public void optimisticUiUpdate_simulatesCorrectData() {
-        final EditPersonCommand epc = spy(new EditPersonCommand(testTarget, inputRetrieverWrapper(inputData),
+        final EditPersonCommand epc = spy(new EditPersonCommand(0, testTarget, inputRetrieverWrapper(inputData),
                 0, null, modelManagerSpy));
 
         // to stop the run at start of grace period (right after simulated change)
@@ -119,7 +119,7 @@ public class EditPersonCommandTest {
 
     @Test
     public void succesfulEdit_updatesBackingModelCorrectly() {
-        final EditPersonCommand epc = new EditPersonCommand(testTarget, inputRetrieverWrapper(inputData),
+        final EditPersonCommand epc = new EditPersonCommand(0, testTarget, inputRetrieverWrapper(inputData),
                 0, events::post, modelManagerSpy);
         epc.run();
         assertTrue(epc.getViewable().dataFieldsEqual(inputData));
@@ -130,7 +130,7 @@ public class EditPersonCommandTest {
     @Test
     public void interruptGracePeriod_withEditRequest_changesEditResult() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final EditPersonCommand epc = spy(new EditPersonCommand(testTarget, returnValidEmptyInput, 1, events::post, modelManagerSpy));
+        final EditPersonCommand epc = spy(new EditPersonCommand(0, testTarget, returnValidEmptyInput, 1, events::post, modelManagerSpy));
         final Supplier<Optional<ReadOnlyPerson>> editInputWrapper = inputRetrieverWrapper(inputData);
 
         doNothing().when(epc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
@@ -144,7 +144,7 @@ public class EditPersonCommandTest {
     @Test
     public void interruptGracePeriod_withDeleteRequest_cancelsAndSpawnsDeleteCommand() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final EditPersonCommand epc = spy(new EditPersonCommand(testTarget, returnValidEmptyInput, 1, null, modelManagerSpy));
+        final EditPersonCommand epc = spy(new EditPersonCommand(0, testTarget, returnValidEmptyInput, 1, null, modelManagerSpy));
 
         doNothing().when(modelManagerSpy).execNewDeletePersonCommand(any());
         doNothing().when(epc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
@@ -160,7 +160,7 @@ public class EditPersonCommandTest {
     public void interruptGracePeriod_withCancelRequest_undoesSimulation() {
         final ReadOnlyPerson targetSnapshot = new Person(testTarget);
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final EditPersonCommand epc = spy(new EditPersonCommand(testTarget, returnValidEmptyInput, 1, null, modelManagerSpy));
+        final EditPersonCommand epc = spy(new EditPersonCommand(0, testTarget, returnValidEmptyInput, 1, null, modelManagerSpy));
 
         doNothing().when(epc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
         epc.cancelInGracePeriod(); // pre-specify epc will be interrupted by cancel

@@ -34,11 +34,11 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
      * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
      *                       logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
      *                       If the returned Optional is empty, the command will be cancelled.
-     * @see super#ChangePersonInModelCommand(Supplier, int)
+     * @see super#ChangePersonInModelCommand(int, Supplier, int)
      */
-    public AddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever, int gracePeriodDurationInSeconds,
+    public AddPersonCommand(int commandId, Supplier<Optional<ReadOnlyPerson>> inputRetriever, int gracePeriodDurationInSeconds,
                                Consumer<BaseEvent> eventRaiser, ModelManager model) {
-        super(inputRetriever, gracePeriodDurationInSeconds);
+        super(commandId, inputRetriever, gracePeriodDurationInSeconds);
         this.model = model;
         this.eventRaiser = eventRaiser;
         this.addressbookName = model.getPrefs().getSaveFileName();
@@ -46,6 +46,11 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     protected ViewablePerson getViewableToAdd() {
         return viewableToAdd;
+    }
+
+    @Override
+    public String getName() {
+        return "Add Person " + (viewableToAdd == null ? "" : viewableToAdd.idString());
     }
 
     @Override
@@ -66,6 +71,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         if (viewableToAdd != null) {
             model.unassignOngoingChangeForPerson(viewableToAdd.getId());
         }
+        model.trackFinishedCommand(this);
     }
 
     /**
@@ -138,7 +144,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
             logger.debug("requestChangeToRemote -> id of viewable person updated to " + viewableToAdd.getId());
             return SUCCESSFUL;
         } catch (ExecutionException | InterruptedException e) {
-            return CANCELLED; // figure out a policy for syncup fail
+            return FAILED;
         }
     }
 
@@ -156,7 +162,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithFailure() {
-        // no way to fail for now
+        finishWithCancel(); // TODO figure out failure handling
     }
 
 }

@@ -26,12 +26,12 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     private final String addressbookName;
 
     /**
-     * @see super#ChangePersonInModelCommand(Supplier, int)
+     * @see super#ChangePersonInModelCommand(int, Supplier, int)
      */
-    public DeletePersonCommand(ViewablePerson target, int gracePeriodDurationInSeconds,
+    public DeletePersonCommand(int commandId, ViewablePerson target, int gracePeriodDurationInSeconds,
                                   Consumer<BaseEvent> eventRaiser, ModelManager model) {
         // no input needed for delete commands
-        super(() -> Optional.of(target), gracePeriodDurationInSeconds);
+        super(commandId, () -> Optional.of(target), gracePeriodDurationInSeconds);
         this.target = target;
         this.model = model;
         this.eventRaiser = eventRaiser;
@@ -45,6 +45,11 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     @Override
     public int getTargetPersonId() {
         return target.getId();
+    }
+
+    @Override
+    public String getName() {
+        return "Delete Person " + target.idString();
     }
 
     @Override
@@ -68,6 +73,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
             target.setIsDeleted(false);
         });
         model.unassignOngoingChangeForPerson(target.getId());
+        model.trackFinishedCommand(this);
     }
 
     @Override
@@ -114,7 +120,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
             PlatformExecUtil.runAndWait(() -> model.backingModel().removePerson(target));
             return SUCCESSFUL;
         } catch (ExecutionException | InterruptedException e) {
-            return CANCELLED; // figure out a policy for syncup fail
+            return FAILED;
         }
     }
 
@@ -130,6 +136,6 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithFailure() {
-        // Impossible for now
+        finishWithCancel(); // TODO figure out failure handling
     }
 }

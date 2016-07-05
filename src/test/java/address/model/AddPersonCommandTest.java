@@ -71,7 +71,7 @@ public class AddPersonCommandTest {
 
     @Test
     public void getTargetPersonId_throws_whenViewableNotCreatedYet() {
-        final AddPersonCommand apc = new AddPersonCommand(null, 0, null, modelManagerMock);
+        final AddPersonCommand apc = new AddPersonCommand(0, null, 0, null, modelManagerMock);
         thrown.expect(IllegalStateException.class);
         apc.getTargetPersonId();
     }
@@ -80,7 +80,7 @@ public class AddPersonCommandTest {
     public void getTargetPersonId_returnsTempId_afterResultSimulatedAndBeforeRemoteChange() {
         final ViewablePerson createdViewable = ViewablePerson.withoutBacking(Person.createPersonDataContainer());
         final int CORRECT_ID = createdViewable.getId();
-        final AddPersonCommand apc = spy(new AddPersonCommand(returnValidEmptyInput, 0, null, modelManagerMock));
+        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 0, null, modelManagerMock));
 
         when(modelManagerMock.addViewablePersonWithoutBacking(notNull(ReadOnlyPerson.class))).thenReturn(createdViewable);
 
@@ -103,7 +103,7 @@ public class AddPersonCommandTest {
                         new Person(CORRECT_ID).update(e.getCreatedPerson()));
             }
         });
-        final AddPersonCommand apc = new AddPersonCommand(returnValidEmptyInput, 0, events::post, modelManagerSpy);
+        final AddPersonCommand apc = new AddPersonCommand(0, returnValidEmptyInput, 0, events::post, modelManagerSpy);
 
         apc.run();
         assertEquals(apc.getTargetPersonId(), CORRECT_ID);
@@ -111,7 +111,7 @@ public class AddPersonCommandTest {
 
     @Test
     public void retrievingInput_cancelsCommand_whenEmptyInputOptionalRetrieved() {
-        final AddPersonCommand apc = new AddPersonCommand(Optional::empty, 0, null, modelManagerMock);
+        final AddPersonCommand apc = new AddPersonCommand(0, Optional::empty, 0, null, modelManagerMock);
         apc.run();
         assertEquals(apc.getState(), State.CANCELLED);
     }
@@ -119,7 +119,7 @@ public class AddPersonCommandTest {
     @Test
     public void optimisticUiUpdate_simulatesCorrectData() {
         final ReadOnlyPerson inputData = TestUtil.generateSamplePersonWithAllData(0);
-        final AddPersonCommand apc = spy(new AddPersonCommand(inputRetrieverWrapper(inputData), 0, null, modelManagerSpy));
+        final AddPersonCommand apc = spy(new AddPersonCommand(0, inputRetrieverWrapper(inputData), 0, null, modelManagerSpy));
 
         // to stop the run at start of grace period (right after simulated change)
         doThrow(new InterruptAndTerminateException()).when(apc).beforeGracePeriod();
@@ -136,7 +136,7 @@ public class AddPersonCommandTest {
     @Test
     public void successfulAdd_updatesBackingModelCorrectly() {
         final ReadOnlyPerson inputData = TestUtil.generateSamplePersonWithAllData(0);
-        final AddPersonCommand apc = new AddPersonCommand(inputRetrieverWrapper(inputData), 0, events::post, modelManagerSpy);
+        final AddPersonCommand apc = new AddPersonCommand(0, inputRetrieverWrapper(inputData), 0, events::post, modelManagerSpy);
 
         apc.run();
         assertFalse(modelManagerSpy.personHasOngoingChange(apc.getViewableToAdd()));
@@ -147,7 +147,7 @@ public class AddPersonCommandTest {
     @Test
     public void interruptGracePeriod_withEditRequest_changesAddedPersonData() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final AddPersonCommand apc = spy(new AddPersonCommand(returnValidEmptyInput, 1, events::post, modelManagerSpy));
+        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1, events::post, modelManagerSpy));
         final Supplier<Optional<ReadOnlyPerson>> editInputWrapper = inputRetrieverWrapper(TestUtil.generateSamplePersonWithAllData(1));
 
         doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
@@ -160,7 +160,7 @@ public class AddPersonCommandTest {
     @Test
     public void interruptGracePeriod_withDeleteRequest_cancelsCommand() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final AddPersonCommand apc = spy(new AddPersonCommand(returnValidEmptyInput, 1, null, modelManagerSpy));
+        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1, null, modelManagerSpy));
 
         doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
         apc.deleteInGracePeriod(); // pre-specify apc will be interrupted by delete
@@ -175,7 +175,7 @@ public class AddPersonCommandTest {
     @Test
     public void interruptGracePeriod_withCancelRequest_undoesSimulation() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final AddPersonCommand apc = spy(new AddPersonCommand(returnValidEmptyInput, 1, null, modelManagerSpy));
+        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1, null, modelManagerSpy));
 
         doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
         apc.cancelInGracePeriod(); // pre-specify apc will be interrupted by cancel

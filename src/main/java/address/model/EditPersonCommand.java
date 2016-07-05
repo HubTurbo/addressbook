@@ -27,15 +27,15 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     private final String addressbookName;
 
     /**
-     * @param inputRetriever               Will run on execution {@link #run()} thread. This should handle thread concurrency
-     *                                     logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
-     *                                     If the returned Optional is empty, the command will be cancelled.
-     * @see super#ChangePersonInModelCommand(Supplier, int)
+     * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
+     *                       logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
+     *                       If the returned Optional is empty, the command will be cancelled.
+     * @see super#ChangePersonInModelCommand(int, Supplier, int)
      */
-    public EditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
+    public EditPersonCommand(int commandId, ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
                                 int gracePeriodDurationInSeconds, Consumer<BaseEvent> eventRaiser,
                                 ModelManager model) {
-        super(inputRetriever, gracePeriodDurationInSeconds);
+        super(commandId, inputRetriever, gracePeriodDurationInSeconds);
         assert target != null;
         this.target = target;
         this.model = model;
@@ -50,6 +50,11 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     @Override
     public int getTargetPersonId() {
         return target.getId();
+    }
+
+    @Override
+    public String getName() {
+        return "Edit Person " + target.idString();
     }
 
     @Override
@@ -73,6 +78,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
             target.setIsEdited(false);
         });
         model.unassignOngoingChangeForPerson(target.getId());
+        model.trackFinishedCommand(this);
     }
 
     @Override
@@ -129,7 +135,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
             PlatformExecUtil.runAndWait(() -> target.getBacking().update(input));
             return SUCCESSFUL;
         } catch (ExecutionException | InterruptedException e) {
-            return CANCELLED; // figure out a policy for syncup fail
+            return FAILED;
         }
     }
 
@@ -145,6 +151,6 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithFailure() {
-        // can't happen yet
+        finishWithCancel(); // TODO figure out failure handling
     }
 }
