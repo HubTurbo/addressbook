@@ -130,7 +130,6 @@ allprojects {
             exclude group: "junit", module: "junit"
         }
         testCompile "org.mockito:mockito-core:$mockitoVersion"
-        testCompile group: "org.mock-server", name: "mockserver-netty", version: "$mockServerVersion"
         testCompile "org.powermock:powermock-api-mockito:$powermockVersion"
         testCompile "org.powermock:powermock-module-junit4:$powermockVersion"
         testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
