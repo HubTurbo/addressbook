@@ -1,13 +1,11 @@
 package address.sync.cloud;
 
-import address.TestApp;
 import address.exceptions.DataConversionException;
 import address.sync.cloud.model.CloudAddressBook;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
 import address.util.AppLogger;
 import address.util.Config;
-import address.util.FileUtil;
 import address.util.LoggerManager;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -17,15 +15,19 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Data returned by this cloud may be modified due to
- * simulated corruption or its responses may have significant delays.
+ * Adds data/response manipulation features to the CloudSimulator
+ *
+ * Launches a GUI for the tester to simulate errors and data modifications
+ * By default, the responses returned should be same as the ones returned from CloudSimulator, with little to no delay
  */
 public class CloudManipulator extends CloudSimulator {
     private class Manipulation {// TODO: create a list of this so that the tester can chain a set of errors
@@ -46,40 +48,61 @@ public class CloudManipulator extends CloudSimulator {
     private static final int MAX_NUM_PERSONS_TO_ADD = 2;
     private static final int MAX_NUM_TAGS_TO_ADD = 2;
 
-    private boolean isManipulable = true;
     private boolean shouldDelayNext = false;
+    private boolean shouldFailNext = false;
+
+    private TextArea statusArea;
 
     public CloudManipulator(Config config) {
         super(config);
-        isManipulable = config.isCloudManipulable;
     }
 
     public void start(Stage stage) {
         VBox buttonBox = new VBox();
         buttonBox.setMinWidth(300);
         Button delayButton = getButton("Delay next response");
-        ImageView imageView = getClockIcon();
-        delayButton.setGraphic(imageView);
+        ImageView clockIcon = getIcon("/images/clock.png");
+        delayButton.setGraphic(clockIcon);
         delayButton.setOnAction(actionEvent -> shouldDelayNext = true);
+
+        Button failButton = getButton("Fail next response");
+        ImageView failIcon = getIcon("/images/fail.png");
+        failButton.setGraphic(failIcon);
+        failButton.setOnAction(actionEvent -> shouldFailNext = true);
+
         Button simulatePersonAdditionButton = getButton("Add person");
         simulatePersonAdditionButton.setOnAction(actionEvent -> addRandomPersonToAddressBookFile("cloud"));
+        Button simulatePersonModificationButton = getButton("Modify person");
+        simulatePersonModificationButton.setOnAction(actionEvent -> modifyRandomPersonInAddressBookFile("cloud"));
 
-        buttonBox.getChildren().addAll(delayButton, simulatePersonAdditionButton);
+        statusArea = getStatusArea();
+        buttonBox.getChildren().addAll(delayButton, failButton, simulatePersonAdditionButton, simulatePersonModificationButton, statusArea);
+
 
         Dialog<Void> dialog = new Dialog<>();
         dialog.initModality(Modality.NONE);
         dialog.initOwner(stage);
+        dialog.setTitle("Cloud Manipulator");
         dialog.getDialogPane().getChildren().add(buttonBox);
         dialog.getDialogPane().setStyle("-fx-border-color: black;");
         dialog.setX(stage.getX() + 740);
         dialog.setY(stage.getY());
         dialog.getDialogPane().setPrefWidth(300);
-        dialog.getDialogPane().setPrefHeight(1000);
+        dialog.getDialogPane().setPrefHeight(600);
         dialog.show();
     }
 
-    private ImageView getClockIcon() {
-        URL url = getClass().getResource("/images/clock.png");
+    private TextArea getStatusArea() {
+        TextArea statusArea = new TextArea();
+        statusArea.setEditable(false);
+        statusArea.setMinWidth(300);
+        statusArea.setMinHeight(300);
+        statusArea.setWrapText(true);
+        return statusArea;
+    }
+
+    private ImageView getIcon(String resourcePath) {
+        URL url = getClass().getResource(resourcePath);
         ImageView imageView = new ImageView(new Image(url.toString()));
         imageView.setFitHeight(50);
         imageView.setFitWidth(50);
@@ -92,15 +115,39 @@ public class CloudManipulator extends CloudSimulator {
         return button;
     }
 
-    private void addRandomPersonToAddressBookFile(String addressBookName) {
+    private CloudPerson getRandomPerson(List<CloudPerson> listOfCloudPersons) {
+        int sizeOfList = listOfCloudPersons.size();
+        return listOfCloudPersons.get(RANDOM_GENERATOR.nextInt(sizeOfList - 1));
+    }
+
+    private void logAndUpdateStatus(String newStatus) {
+        logger.debug(newStatus);
+        statusArea.appendText(LocalDateTime.now() + ": " + newStatus + "\n");
+    }
+
+    private void modifyRandomPersonInAddressBookFile(String addressBookName) {
+        logAndUpdateStatus("Modifying random person in address book");
         try {
             CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromFile(addressBookName);
-            addCloudPersonsBasedOnChance(cloudAddressBook.getAllPersons());
+            modifyCloudPerson(getRandomPerson(cloudAddressBook.getAllPersons()));
             fileHandler.writeCloudAddressBookToFile(cloudAddressBook);
         } catch (FileNotFoundException e) {
-            logger.warn("Failed to add person: cloud addressbook {} not found", addressBookName);
+            logAndUpdateStatus("Failed to modify person: cloud addressbook " + addressBookName + " not found");
         } catch (DataConversionException e) {
-            logger.warn("Error adding person");
+            logAndUpdateStatus("Failed to modify person: error occurred");
+        }
+    }
+
+    private void addRandomPersonToAddressBookFile(String addressBookName) {
+        logAndUpdateStatus("Adding random person to address book");
+        try {
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromFile(addressBookName);
+            addCloudPersons(cloudAddressBook.getAllPersons());
+            fileHandler.writeCloudAddressBookToFile(cloudAddressBook);
+        } catch (FileNotFoundException e) {
+            logAndUpdateStatus("Failed to add person: cloud addressbook " + addressBookName + " not found");
+        } catch (DataConversionException e) {
+            logAndUpdateStatus("Failed to modify person: error occurred");
         }
     }
 
@@ -108,6 +155,7 @@ public class CloudManipulator extends CloudSimulator {
     public RemoteResponse createPerson(String addressBookName, CloudPerson newPerson, String previousETag) {
         RemoteResponse actualResponse = super.createPerson(addressBookName, newPerson, previousETag);
         if (shouldDelayNext) delayRandomAmount();
+        if (shouldFailNext) return getNetworkFailedResponse();
         return actualResponse;
     }
 
@@ -115,6 +163,7 @@ public class CloudManipulator extends CloudSimulator {
     public RemoteResponse getPersons(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
         RemoteResponse actualResponse = super.getPersons(addressBookName, pageNumber, resourcesPerPage, previousETag);
         if (shouldDelayNext) delayRandomAmount();
+        if (shouldFailNext) return getNetworkFailedResponse();
         return actualResponse;
     }
 
@@ -122,6 +171,7 @@ public class CloudManipulator extends CloudSimulator {
     public RemoteResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber, int resourcesPerPage, String previousETag) {
         RemoteResponse actualResponse = super.getUpdatedPersons(addressBookName, timeString, pageNumber, resourcesPerPage, previousETag);
         if (shouldDelayNext) delayRandomAmount();
+        if (shouldFailNext) return getNetworkFailedResponse();
         return actualResponse;
     }
 
@@ -129,6 +179,7 @@ public class CloudManipulator extends CloudSimulator {
     public RemoteResponse getTags(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
         RemoteResponse actualResponse = super.getTags(addressBookName, pageNumber, resourcesPerPage, previousETag);
         if (shouldDelayNext) delayRandomAmount();
+        if (shouldFailNext) return getNetworkFailedResponse();
         return actualResponse;
     }
 
@@ -136,6 +187,7 @@ public class CloudManipulator extends CloudSimulator {
     public RemoteResponse getRateLimitStatus(String previousETag) {
         RemoteResponse actualResponse = super.getRateLimitStatus(previousETag);
         if (shouldDelayNext) delayRandomAmount();
+        if (shouldFailNext) return getNetworkFailedResponse();
         return actualResponse;
     }
 
@@ -143,6 +195,7 @@ public class CloudManipulator extends CloudSimulator {
     public RemoteResponse updatePerson(String addressBookName, int personId, CloudPerson updatedPerson, String previousETag) {
         RemoteResponse actualResponse = super.updatePerson(addressBookName, personId, updatedPerson, previousETag);
         if (shouldDelayNext) delayRandomAmount();
+        if (shouldFailNext) return getNetworkFailedResponse();
         return actualResponse;
     }
 
@@ -150,6 +203,7 @@ public class CloudManipulator extends CloudSimulator {
     public RemoteResponse deletePerson(String addressBookName, int personId) {
         RemoteResponse actualResponse = super.deletePerson(addressBookName, personId);
         if (shouldDelayNext) delayRandomAmount();
+        if (shouldFailNext) return getNetworkFailedResponse();
         return actualResponse;
     }
 
@@ -157,6 +211,7 @@ public class CloudManipulator extends CloudSimulator {
     public RemoteResponse createTag(String addressBookName, CloudTag newTag, String previousETag) {
         RemoteResponse actualResponse = super.createTag(addressBookName, newTag, previousETag);
         if (shouldDelayNext) delayRandomAmount();
+        if (shouldFailNext) return getNetworkFailedResponse();
         return actualResponse;
     }
 
@@ -164,6 +219,7 @@ public class CloudManipulator extends CloudSimulator {
     public RemoteResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag, String previousETag) {
         RemoteResponse actualResponse = super.editTag(addressBookName, oldTagName, updatedTag, previousETag);
         if (shouldDelayNext) delayRandomAmount();
+        if (shouldFailNext) return getNetworkFailedResponse();
         return actualResponse;
     }
 
@@ -171,6 +227,7 @@ public class CloudManipulator extends CloudSimulator {
     public RemoteResponse deleteTag(String addressBookName, String tagName) {
         RemoteResponse actualResponse = super.deleteTag(addressBookName, tagName);
         if (shouldDelayNext) delayRandomAmount();
+        if (shouldFailNext) return getNetworkFailedResponse();
         return actualResponse;
     }
 
@@ -178,62 +235,57 @@ public class CloudManipulator extends CloudSimulator {
     public RemoteResponse createAddressBook(String addressBookName) {
         RemoteResponse actualResponse = super.createAddressBook(addressBookName);
         if (shouldDelayNext) delayRandomAmount();
+        if (shouldFailNext) return getNetworkFailedResponse();
         return actualResponse;
     }
 
     private List<CloudPerson> mutateCloudPersonList(List<CloudPerson> CloudPersonList) {
         modifyCloudPersonList(CloudPersonList);
-        addCloudPersonsBasedOnChance(CloudPersonList);
+        addCloudPersons(CloudPersonList);
         return CloudPersonList;
     }
 
     private List<CloudTag> mutateCloudTagList(List<CloudTag> CloudTagList) {
-        modifyCloudTagListBasedOnChance(CloudTagList);
-        addCloudTagsBasedOnChance(CloudTagList);
+        modifyCloudTagList(CloudTagList);
+        addCloudTags(CloudTagList);
         return CloudTagList;
     }
 
     private void modifyCloudPersonList(List<CloudPerson> cloudPersonList) {
         cloudPersonList.stream()
-                .forEach(this::modifyCloudPersonBasedOnChance);
+                .forEach(this::modifyCloudPerson);
     }
 
-    private void modifyCloudTagListBasedOnChance(List<CloudTag> cloudTagList) {
+    private void modifyCloudTagList(List<CloudTag> cloudTagList) {
         cloudTagList.stream()
-                .forEach(this::modifyCloudTagBasedOnChance);
+                .forEach(this::modifyCloudTag);
     }
 
-    private void addCloudPersonsBasedOnChance(List<CloudPerson> personList) {
+    private void addCloudPersons(List<CloudPerson> personList) {
         for (int i = 0; i < MAX_NUM_PERSONS_TO_ADD; i++) {
-            if (isManipulable && RANDOM_GENERATOR.nextDouble() <= ADD_PERSON_PROBABILITY) {
-                CloudPerson person = new CloudPerson(java.util.UUID.randomUUID().toString(),
-                        java.util.UUID.randomUUID().toString());
-                logger.info("Simulating data addition for person '{}'", person);
-                personList.add(person);
-            }
+            CloudPerson person = new CloudPerson(java.util.UUID.randomUUID().toString(),
+                    java.util.UUID.randomUUID().toString());
+            logger.info("Simulating data addition for person '{}'", person);
+            personList.add(person);
         }
     }
 
-    private void addCloudTagsBasedOnChance(List<CloudTag> tagList) {
+    private void addCloudTags(List<CloudTag> tagList) {
         for (int i = 0; i < MAX_NUM_TAGS_TO_ADD; i++) {
-            if (isManipulable && RANDOM_GENERATOR.nextDouble() <= ADD_TAG_PROBABILITY) {
-                CloudTag tag = new CloudTag(java.util.UUID.randomUUID().toString());
-                logger.debug("Simulating data addition for tag '{}'", tag);
-                tagList.add(tag);
-            }
+            CloudTag tag = new CloudTag(java.util.UUID.randomUUID().toString());
+            logger.debug("Simulating data addition for tag '{}'", tag);
+            tagList.add(tag);
         }
     }
 
-    private void modifyCloudPersonBasedOnChance(CloudPerson cloudPerson) {
-        if (!isManipulable || RANDOM_GENERATOR.nextDouble() > MODIFY_PERSON_PROBABILITY) return;
+    private void modifyCloudPerson(CloudPerson cloudPerson) {
         logger.debug("Simulating data modification on person '{}'", cloudPerson);
         cloudPerson.setCity(java.util.UUID.randomUUID().toString());
         cloudPerson.setStreet(java.util.UUID.randomUUID().toString());
         cloudPerson.setPostalCode(String.valueOf(RANDOM_GENERATOR.nextInt(999999)));
     }
 
-    private void modifyCloudTagBasedOnChance(CloudTag cloudTag) {
-        if (!isManipulable || RANDOM_GENERATOR.nextDouble() > MODIFY_TAG_PROBABILITY) return;
+    private void modifyCloudTag(CloudTag cloudTag) {
         logger.debug("Simulating data modification on tag '{}'", cloudTag);
         cloudTag.setName(UUID.randomUUID().toString());
     }
@@ -241,25 +293,16 @@ public class CloudManipulator extends CloudSimulator {
     private void delayRandomAmount() {
         long delayAmount = RANDOM_GENERATOR.nextInt(MAX_DELAY_IN_SEC - MIN_DELAY_IN_SEC) + MIN_DELAY_IN_SEC;
         try {
-            logger.debug("Delaying response by {} secs", delayAmount);
+            logAndUpdateStatus("Delayed response by " + delayAmount + " secs");
             TimeUnit.SECONDS.sleep(delayAmount);
         } catch (InterruptedException e) {
-            logger.warn("Error occurred while delaying cloud response.");
+            logAndUpdateStatus("Error occurred while delaying cloud response");
         }
         shouldDelayNext = false;
     }
 
-    private boolean shouldSimulateNetworkFailure() {
-        return isManipulable && RANDOM_GENERATOR.nextDouble() <= FAILURE_PROBABILITY;
+    private RemoteResponse getNetworkFailedResponse() {
+        logAndUpdateStatus("Simulated network failure occurred!");
+        return new RemoteResponse(HttpURLConnection.HTTP_CLIENT_TIMEOUT, null, cloudRateLimitStatus, null);
     }
-
-    private boolean shouldSimulateSlowResponse() {
-        return isManipulable && RANDOM_GENERATOR.nextDouble() <= NETWORK_DELAY_PROBABILITY;
-    }
-
-    /**
-     *
-     if (shouldSimulateNetworkFailure()) return getNetworkFailedResponse();
-     if (shouldSimulateSlowResponse()) delayRandomAmount();
-     */
 }
