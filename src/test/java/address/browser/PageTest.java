@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
  * To test the Page methods.
  */
 public class PageTest {
-
+/*
     private static final String VALID_ID_1 = "js-pjax-container";
     private static final String VALID_CLASS_NAME_1 = "octicon octicon-repo";
     public static final String VALID_CLASS_NAME_2 = "columns profilecols";
@@ -84,5 +84,5 @@ public class PageTest {
         while(page.isPageLoading());
         return new Page(browser);
     }
-
+*/
 }
