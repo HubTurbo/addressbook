@@ -1,6 +1,5 @@
 package address.browser;
 
-import address.browser.BrowserManager;
 import address.util.JavafxRuntimeUtil;
 import address.util.PlatformExecUtil;
 import hubturbo.EmbeddedBrowser;
@@ -13,7 +12,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static junit.framework.TestCase.assertNotNull;

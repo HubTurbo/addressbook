@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -22,8 +21,7 @@ public class BrowserManagerTest {
     @BeforeClass
     public static void setup() {
         JavafxRuntimeUtil.initRuntime();
-        new BrowserManager(FXCollections.emptyObservableList(),
-                1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
+        new BrowserManager(FXCollections.emptyObservableList(), 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
     }
 
     @AfterClass

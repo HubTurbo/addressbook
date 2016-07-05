@@ -12,12 +12,17 @@ import java.util.concurrent.TimeoutException;
  */
 public class JavafxRuntimeUtil {
 
+    private static Boolean isInitialized = false;
+
     public static void initRuntime(){
-        try {
-            FxToolkit.registerPrimaryStage();
-            FxToolkit.hideStage();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
+        if (!isInitialized) {
+            try {
+                FxToolkit.registerPrimaryStage();
+                FxToolkit.hideStage();
+            } catch (TimeoutException e) {
+                e.printStackTrace();
+            }
+            isInitialized = true;
         }
     }
 

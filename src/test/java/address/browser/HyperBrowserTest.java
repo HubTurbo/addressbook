@@ -18,10 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertTrue;
 
 /**
