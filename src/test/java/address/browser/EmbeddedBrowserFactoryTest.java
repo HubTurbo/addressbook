@@ -41,6 +41,8 @@ public class EmbeddedBrowserFactoryTest {
         EmbeddedBrowser browser = EmbeddedBrowserFactory.createBrowser(BrowserType.FULL_FEATURE_BROWSER);
         assertNotNull(browser);
         assertTrue(browser instanceof JxBrowserAdapter);
+
+        browser.dispose();
     }
 
     @Test
@@ -50,6 +52,8 @@ public class EmbeddedBrowserFactoryTest {
                 browser.set(EmbeddedBrowserFactory.createBrowser(BrowserType.LIMITED_FEATURE_BROWSER)));
         assertNotNull(browser.get());
         assertTrue(browser.get() instanceof FxBrowserAdapter);
+
+        browser.get().dispose();
     }
 
     @Test

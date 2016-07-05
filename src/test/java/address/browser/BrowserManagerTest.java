@@ -35,12 +35,13 @@ public class BrowserManagerTest {
     public void testNecessaryBrowserResources_resourcesNotNull() throws NoSuchMethodException,
                                                                         InvocationTargetException,
                                                                         IllegalAccessException {
-        BrowserManager manager = new BrowserManager(FXCollections.observableArrayList(), 3,
+        BrowserManager manager = new BrowserManager(FXCollections.observableArrayList(), 1,
                                                     BrowserType.FULL_FEATURE_BROWSER);
         manager.start();
         assertNotNull(manager.getHyperBrowserView());
         Method method = manager.getClass().getDeclaredMethod("getBrowserInitialScreen");
         method.setAccessible(true);
         method.invoke(manager);
+        manager.freeBrowserResources();
     }
 }

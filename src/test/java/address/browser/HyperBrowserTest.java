@@ -58,6 +58,7 @@ public class HyperBrowserTest {
         HyperBrowser browser = new HyperBrowser(BrowserType.FULL_FEATURE_BROWSER, 1, Optional.empty());
         Page page = browser.loadUrl(new URL("https://github.com")).get(0);
         assertTrue(UrlUtil.compareBaseUrls(page.getBrowser().getOriginUrl(), new URL("https://github.com")));
+        browser.dispose();
     }
 
     @Test
@@ -76,6 +77,7 @@ public class HyperBrowserTest {
         assertTrue(UrlUtil.compareBaseUrls(secondPage.getBrowser().getOriginUrl(), listOfUrl.get(1)));
         Page thirdPage = listOfPages.remove(0);
         assertTrue(UrlUtil.compareBaseUrls(thirdPage.getBrowser().getOriginUrl(), listOfUrl.get(2)));
+        browser.dispose();
     }
 
     @Test
@@ -93,6 +95,8 @@ public class HyperBrowserTest {
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(0).getBrowser().getOriginUrl(), listOfUrl.get(3)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(1).getBrowser().getOriginUrl(), listOfUrl.get(4)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(2).getBrowser().getOriginUrl(), listOfUrl.get(5)));
+
+        browser.dispose();
     }
 
     @Test
@@ -109,6 +113,8 @@ public class HyperBrowserTest {
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(0).getBrowser().getOriginUrl(), listOfUrl.get(2)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(1).getBrowser().getOriginUrl(), listOfUrl.get(3)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(2).getBrowser().getOriginUrl(), listOfUrl.get(4)));
+
+        browser.dispose();
     }
 
     @Test
@@ -124,6 +130,8 @@ public class HyperBrowserTest {
         assertTrue(listOfPages.size() == 2);
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(0).getBrowser().getOriginUrl(), listOfUrl.get(0)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(1).getBrowser().getOriginUrl(), listOfUrl.get(2)));
+
+        browser.dispose();
     }
 
     @Test
@@ -140,6 +148,8 @@ public class HyperBrowserTest {
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(2).getBrowser().getOriginUrl(), listOfUrl.get(4)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(0).getBrowser().getOriginUrl(), listOfUrl.get(1)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(1).getBrowser().getOriginUrl(), listOfUrl.get(2)));
+
+        browser.dispose();
     }
 
     @Test
@@ -150,6 +160,7 @@ public class HyperBrowserTest {
         final AtomicReference<Page> page = new AtomicReference<>();
         PlatformExecUtil.runLaterAndWait(() -> page.set(browser.get().loadUrl(url).get(0)));
         assertTrue(UrlUtil.compareBaseUrls(page.get().getBrowser().getOriginUrl(), url));
+        browser.get().dispose();
     }
 
     @Test
@@ -167,6 +178,7 @@ public class HyperBrowserTest {
         assertTrue(UrlUtil.compareBaseUrls(secondPage.getBrowser().getOriginUrl(), listOfUrl.get(1)));
         Page thirdPage = listOfPages.remove(0);
         assertTrue(UrlUtil.compareBaseUrls(thirdPage.getBrowser().getOriginUrl(), listOfUrl.get(2)));
+        browser.get().dispose();
     }
 
     @Test
@@ -180,6 +192,8 @@ public class HyperBrowserTest {
         assertTrue(listOfPages.size() == 2);
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(0).getBrowser().getOriginUrl(), listOfUrl.get(1)));
         assertTrue(UrlUtil.compareBaseUrls(listOfPages.get(1).getBrowser().getOriginUrl(), listOfUrl.get(2)));
+
+        browser.dispose();
     }
 
     @Test
@@ -187,5 +201,6 @@ public class HyperBrowserTest {
         HyperBrowser browser = new HyperBrowser(BrowserType.FULL_FEATURE_BROWSER, 1, Optional.empty());
         Page page = browser.loadUrl(new URL("https://github.com")).get(0);
         assertTrue(UrlUtil.compareBaseUrls(browser.getDisplayedUrl(), new URL("https://github.com")));
+        browser.dispose();
     }
 }
