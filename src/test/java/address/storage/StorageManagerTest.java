@@ -29,7 +29,7 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({XmlFileStorage.class, FileUtil.class})
-@PowerMockIgnore({"javax.management.*"})
+@PowerMockIgnore({"javax.management.*"})// Defer loading of javax.management.* in log4j to system class loader
 public class StorageManagerTest {
 
     private static final File DUMMY_DATA_FILE = new File(TestUtil.appendToSandboxPath("dummyAddressBook.xml"));

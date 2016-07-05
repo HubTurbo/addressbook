@@ -28,7 +28,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({CreatePersonOnRemoteTask.class, SyncManager.class})
-@PowerMockIgnore({"javax.management.*"})
+@PowerMockIgnore({"javax.management.*"})// Defer loading of javax.management.* in log4j to system class loader
 public class SyncManagerTest {
     RemoteManager remoteManager;
     SyncManager syncManager;
