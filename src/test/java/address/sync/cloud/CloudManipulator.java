@@ -9,6 +9,7 @@ import address.util.Config;
 import address.util.LoggerManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
@@ -59,6 +60,7 @@ public class CloudManipulator extends CloudSimulator {
         buttonBox.getChildren().addAll(delayButton, simulatePersonAdditionButton);
 
         Dialog<Void> dialog = new Dialog<>();
+        dialog.initModality(Modality.NONE);
         dialog.initOwner(stage);
         dialog.getDialogPane().getChildren().add(buttonBox);
         dialog.getDialogPane().setStyle("-fx-border-color: black;");
@@ -228,6 +230,7 @@ public class CloudManipulator extends CloudSimulator {
         } catch (InterruptedException e) {
             logger.warn("Error occurred while delaying cloud response.");
         }
+        shouldDelayNext = false;
     }
 
     private boolean shouldSimulateNetworkFailure() {
