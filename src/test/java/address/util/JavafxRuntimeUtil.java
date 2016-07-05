@@ -1,7 +1,5 @@
 package address.util;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.testfx.api.FxToolkit;
 
 import java.util.concurrent.TimeoutException;
@@ -16,7 +14,6 @@ public class JavafxRuntimeUtil {
         FxToolkit.hideStage();
     }
 
-    @AfterClass
     public static void tearDownRuntime() throws Exception {
         FxToolkit.cleanupStages();
     }
