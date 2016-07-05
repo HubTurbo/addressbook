@@ -1,6 +1,5 @@
 package address.keybindings;
 
-import address.events.AcceleratorIgnoredEvent;
 import address.events.BaseEvent;
 import address.events.KeyBindingEvent;
 import address.main.ComponentManager;
@@ -9,13 +8,12 @@ import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 import javafx.scene.input.KeyCombination;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
  * Manages key bindings.
  */
-public class KeyBindingsManager extends ComponentManager{
+public class KeyBindingsManager extends ComponentManager {
 
     private static final AppLogger logger = LoggerManager.getLogger(KeyBindingsManager.class);
 

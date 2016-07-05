@@ -5,6 +5,14 @@ import address.sync.cloud.model.CloudTag;
 import address.util.AppLogger;
 import address.util.Config;
 import address.util.LoggerManager;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import org.testfx.api.FxToolkit;
 
 import java.util.List;
 import java.util.Random;
@@ -13,10 +21,14 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Data returned by this cloud may be modified due to
- * simulated corruption or its responses may have significant delays,
- * if the cloud is initialized with an unreliable network parameter
+ * simulated corruption or its responses may have significant delays.
  */
 public class CloudManipulator extends CloudSimulator {
+    private class Manipulation {
+        long delay = 0;
+        boolean removePerson = false;
+    }
+
     private static final AppLogger logger = LoggerManager.getLogger(CloudManipulator.class);
     private static final Random RANDOM_GENERATOR = new Random();
     private static final double FAILURE_PROBABILITY = 0.1;
@@ -29,11 +41,27 @@ public class CloudManipulator extends CloudSimulator {
     private static final int MAX_DELAY_IN_SEC = 5;
     private static final int MAX_NUM_PERSONS_TO_ADD = 2;
     private static final int MAX_NUM_TAGS_TO_ADD = 2;
+
     private boolean isManipulable = true;
+    private boolean delayNext = false;
 
     public CloudManipulator(Config config) {
         super(config);
         isManipulable = config.isCloudManipulable;
+    }
+
+    public void start(Stage stage) {
+        AnchorPane pane = new AnchorPane();
+        Button delayButton = new Button("Delay next response");
+        delayButton.setOnAction(actionEvent -> delayNext = true);
+        pane.getChildren().add(delayButton);
+
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.initOwner(stage);
+        dialog.getDialogPane().getChildren().add(pane);
+        dialog.setX(stage.getX() + 740);
+        dialog.setY(stage.getY());
+        dialog.show();
     }
 
     @Override
@@ -45,12 +73,30 @@ public class CloudManipulator extends CloudSimulator {
     @Override
     public RemoteResponse getPersons(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
         RemoteResponse actualResponse = super.getPersons(addressBookName, pageNumber, resourcesPerPage, previousETag);
+        if (delayNext) {
+            try {
+                logger.info("Delaying for 10 seconds.");
+                Thread.sleep(10000);
+                delayNext = false;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         return actualResponse;
     }
 
     @Override
     public RemoteResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber, int resourcesPerPage, String previousETag) {
         RemoteResponse actualResponse = super.getUpdatedPersons(addressBookName, timeString, pageNumber, resourcesPerPage, previousETag);
+        if (delayNext) {
+            try {
+                logger.info("Delaying for 10 seconds.");
+                Thread.sleep(10000);
+                delayNext = false;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         return actualResponse;
     }
 

@@ -7,8 +7,10 @@ import address.storage.StorageAddressBook;
 import address.sync.RemoteManager;
 import address.sync.RemoteService;
 import address.sync.cloud.CloudManipulator;
+import address.sync.cloud.IRemote;
 import address.util.Config;
 import address.util.TestUtil;
+import javafx.stage.Stage;
 
 import java.util.function.Supplier;
 
@@ -17,7 +19,11 @@ public class TestApp extends MainApp {
     public static final String SAVE_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleData.xml");
     protected Supplier<ReadOnlyAddressBook> initialDataSupplier = TestUtil::generateSampleAddressBook;
     protected String saveFileLocation = SAVE_LOCATION_FOR_TESTING;
+    protected CloudManipulator remote;
 
+    public TestApp() {
+
+    }
 
     public TestApp(Supplier<ReadOnlyAddressBook> initialDataSupplier, String saveFileLocation) {
         super();
@@ -48,7 +54,17 @@ public class TestApp extends MainApp {
 
     @Override
     protected RemoteManager initRemoteManager(Config config) {
-        return new RemoteManager(new CloudManipulator(config));
+        remote = new CloudManipulator(config);
+        return new RemoteManager(remote);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        ui.start(primaryStage);
+        updateManager.start();
+        storageManager.start();
+        syncManager.start();
+        remote.start(primaryStage);
     }
 
     public static void main(String[] args) {

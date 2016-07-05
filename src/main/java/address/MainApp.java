@@ -60,21 +60,18 @@ public class MainApp extends Application {
     }
 
     protected Config initConfig() {
-        Config config = StorageManager.getConfig();
-        logger.info("Config successfully obtained from StorageManager");
-        return config;
+        return StorageManager.getConfig();
     }
 
     protected UserPrefs initPrefs(Config config) {
-        UserPrefs userPrefs = StorageManager.getUserPrefs(config.getPrefsFileLocation());
-        return userPrefs;
+        return StorageManager.getUserPrefs(config.getPrefsFileLocation());
     }
 
-    protected void initComponents(Config config, UserPrefs userPrefs) {
+    private void initComponents(Config config, UserPrefs userPrefs) {
         LoggerManager.init(config);
 
         modelManager = initModelManager(userPrefs);
-        storageManager = initStorageManager(config, userPrefs);
+        storageManager = initStorageManager(modelManager, config, userPrefs);
         ui = initUi(config, modelManager);
         remoteManager = initRemoteManager(config);
         syncManager = initSyncManager(remoteManager, config, userPrefs);
@@ -102,7 +99,7 @@ public class MainApp extends Application {
         return new Ui(this, modelManager, config);
     }
 
-    protected StorageManager initStorageManager(Config config, UserPrefs userPrefs) {
+    protected StorageManager initStorageManager(ModelManager modelManager, Config config, UserPrefs userPrefs) {
         return new StorageManager(modelManager::resetData, config, userPrefs);
     }
 
