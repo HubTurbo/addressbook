@@ -33,7 +33,7 @@ public class PageTest {
     public static final String VALID_ID_3 = "contributions-calendar";
 
     @BeforeClass
-    public static void setup() throws TimeoutException {
+    public static void setup() {
         JavafxRuntimeUtil.initRuntime();
         new BrowserManager(FXCollections.emptyObservableList(), 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();
     }

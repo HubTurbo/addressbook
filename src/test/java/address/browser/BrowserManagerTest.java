@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 public class BrowserManagerTest {
 
     @BeforeClass
-    public static void setup() throws TimeoutException {
+    public static void setup() {
         JavafxRuntimeUtil.initRuntime();
         new BrowserManager(FXCollections.emptyObservableList(),
                 1, BrowserType.FULL_FEATURE_BROWSER).initBrowser();

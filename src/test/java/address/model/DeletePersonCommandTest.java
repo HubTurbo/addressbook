@@ -40,7 +40,7 @@ public class DeletePersonCommandTest {
     ViewablePerson testTarget;
 
     @BeforeClass
-    public static void beforeSetup() throws TimeoutException {
+    public static void beforeSetup() {
         JavafxRuntimeUtil.initRuntime();
     }
 

@@ -48,7 +48,7 @@ public class EditPersonCommandTest {
     }
 
     @BeforeClass
-    public static void beforeSetup() throws TimeoutException {
+    public static void beforeSetup() {
         JavafxRuntimeUtil.initRuntime();
     }
 
