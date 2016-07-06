@@ -41,21 +41,6 @@ public class CloudSimulator implements IRemote {
         fileHandler = new CloudFileHandler();
         cloudRateLimitStatus = new CloudRateLimitStatus(API_QUOTA_PER_HOUR);
         cloudRateLimitStatus.restartQuotaTimer();
-        if (config.getCloudDataFilePath() != null) initializeCloudFile(config.getCloudDataFilePath(), config.getAddressBookName());
-    }
-
-    private void initializeCloudFile(String cloudDataFilePath, String addressBookName) {
-        try {
-            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromFile(cloudDataFilePath);
-            fileHandler.initializeCloudAddressBookFile(addressBookName);
-            fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
-        } catch (DataConversionException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /**

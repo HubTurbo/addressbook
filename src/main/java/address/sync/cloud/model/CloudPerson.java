@@ -27,13 +27,20 @@ public class CloudPerson {
     private LocalDate birthday;
 
     public CloudPerson() {
+        this.id = -1;
         this.tags = new ArrayList<>();
+        this.firstName = "";
+        this.lastName = "";
+        this.street = "";
+        this.city = "";
+        this.postalCode = "";
+        this.isDeleted = false;
     }
 
     public CloudPerson(String firstName, String lastName) {
+        this();
         this.firstName = firstName;
         this.lastName = lastName;
-        this.tags = new ArrayList<>();
         setLastUpdatedAt(LocalDateTime.now());
     }
 

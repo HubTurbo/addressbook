@@ -57,7 +57,11 @@ public class TestApp extends MainApp {
 
     @Override
     protected RemoteManager initRemoteManager(Config config) {
-        remote = new CloudManipulator(config);
+        if (initalCloudDataSupplier.get() == null) {
+            remote = new CloudManipulator(config);
+        } else {
+            remote = new CloudManipulator(config, initalCloudDataSupplier.get());
+        }
         return new RemoteManager(remote);
     }
 

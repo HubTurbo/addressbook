@@ -15,6 +15,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -46,11 +47,41 @@ public class CloudManipulator extends CloudSimulator {
     private boolean shouldFailNext = false;
 
     private TextArea statusArea;
-    private String cloudFileToCreate;
 
     public CloudManipulator(Config config) {
         super(config);
-        this.cloudFileToCreate = config.getCloudDataFilePath();
+        if (config.getCloudDataFilePath() != null) initializeCloudFile(config.getCloudDataFilePath(), config.getAddressBookName());
+    }
+
+    public CloudManipulator(Config config, CloudAddressBook cloudAddressBook) {
+        super(config);
+        initializeCloudFile(cloudAddressBook, config.getAddressBookName());
+    }
+
+    private void initializeCloudFile(String cloudDataFilePath, String addressBookName) {
+        try {
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromFile(cloudDataFilePath);
+            initializeCloudFile(cloudAddressBook, addressBookName);
+        } catch (DataConversionException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeCloudFile(CloudAddressBook cloudAddressBook, String addressBookName) {
+        try {
+            fileHandler.initializeCloudAddressBookFile(addressBookName);
+            fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
+        } catch (DataConversionException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void start(Stage stage) {
