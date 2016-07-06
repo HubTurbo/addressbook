@@ -8,6 +8,11 @@ import guitests.guihandles.EditPersonDialogHandle;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import address.sync.cloud.model.CloudAddressBook;
+import address.sync.cloud.model.CloudPerson;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tests key bindings through the GUI
@@ -28,8 +33,21 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         //TODO: create a better set of sample data
     }
 
+    @Override
+    protected CloudAddressBook getInitialCloudData() {
+        CloudAddressBook cloudAddressBook = new CloudAddressBook();
+        List<CloudPerson> cloudPersonList = new ArrayList<>();
+        cloudPersonList.add(new CloudPerson("Person1", "Lastname1", 1));
+        cloudPersonList.add(new CloudPerson("Person2", "Lastname2", 1));
+        cloudPersonList.add(new CloudPerson("Person3", "Lastname3", 1));
+        cloudPersonList.add(new CloudPerson("Person4", "Lastname4", 1));
+        cloudPersonList.add(new CloudPerson("Person5", "Lastname5", 1));
+        cloudAddressBook.setPersonsList(cloudPersonList);
+        return cloudAddressBook;
+    }
+
     @Test
-    public void keyBindings(){
+    public void keyBindings() {
 
         //======= shortcuts =======================
 
