@@ -31,7 +31,7 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 @PrepareForTest({XmlFileStorage.class, FileUtil.class})
 @PowerMockIgnore({"javax.management.*"})// Defer loading of javax.management.* in log4j to system class loader
 public class StorageManagerTest {
-
+    private static final String DUMMY_DATA_FILE_PATH = TestUtil.appendToSandboxPath("dummyAddressBook.xml");
     private static final File DUMMY_DATA_FILE = new File(TestUtil.appendToSandboxPath("dummyAddressBook.xml"));
     private static final File DUMMY_PREFS_FILE = new File(TestUtil.appendToSandboxPath("dummyUserPrefs.json"));
     private static final File SERIALIZATION_FILE = new File(TestUtil.appendToSandboxPath("serialize.json"));
@@ -49,8 +49,7 @@ public class StorageManagerTest {
     StorageManager storageManagerSpy;
 
     @Before
-    public void setup(){
-
+    public void setup() {
         //mock the dependent static class
         PowerMockito.mockStatic(XmlFileStorage.class);
 
@@ -58,6 +57,8 @@ public class StorageManagerTest {
         eventManagerMock = Mockito.mock(EventManager.class);
         configMock = Mockito.mock(Config.class);
         when(configMock.getPrefsFileLocation()).thenReturn(DUMMY_PREFS_FILE);
+        when(configMock.getLocalDataFilePath()).thenReturn(DUMMY_DATA_FILE_PATH);
+        modelManagerMock = Mockito.mock(ModelManager.class);
         storageManager = new StorageManager(modelManagerMock::resetData, configMock, userPrefsMock);
         storageManager.setEventManager(eventManagerMock);
 
