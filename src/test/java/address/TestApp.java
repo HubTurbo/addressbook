@@ -17,7 +17,7 @@ public class TestApp extends MainApp {
     public static final String SAVE_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleData.xml");
     public static final String DEFAULT_CLOUD_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleCloudData.xml");
     protected Supplier<ReadOnlyAddressBook> initialDataSupplier = () -> null;
-    protected Supplier<CloudAddressBook> initalCloudDataSupplier = () -> null;
+    protected Supplier<CloudAddressBook> initialCloudDataSupplier = () -> null;
     protected String saveFileLocation = SAVE_LOCATION_FOR_TESTING;
     protected CloudManipulator remote;
 
@@ -28,7 +28,7 @@ public class TestApp extends MainApp {
                    Supplier<CloudAddressBook> initialCloudDataSupplier) {
         super();
         this.initialDataSupplier = initialDataSupplier;
-        this.initalCloudDataSupplier = initialCloudDataSupplier;
+        this.initialCloudDataSupplier = initialCloudDataSupplier;
         this.saveFileLocation = saveFileLocation;
 
         //If some intial data has been provided, write those to the file
@@ -45,7 +45,7 @@ public class TestApp extends MainApp {
         config.appTitle = "Test App";
         config.setLocalDataFilePath(saveFileLocation);
         // Use default cloud test data if no data is supplied
-        if (initalCloudDataSupplier.get() == null) config.setCloudDataFilePath(DEFAULT_CLOUD_LOCATION_FOR_TESTING);
+        if (initialCloudDataSupplier.get() == null) config.setCloudDataFilePath(DEFAULT_CLOUD_LOCATION_FOR_TESTING);
         return config;
     }
 
@@ -57,10 +57,10 @@ public class TestApp extends MainApp {
 
     @Override
     protected RemoteManager initRemoteManager(Config config) {
-        if (initalCloudDataSupplier.get() == null) {
+        if (initialCloudDataSupplier.get() == null) {
             remote = new CloudManipulator(config);
         } else {
-            remote = new CloudManipulator(config, initalCloudDataSupplier.get());
+            remote = new CloudManipulator(config, initialCloudDataSupplier.get());
         }
         return new RemoteManager(remote);
     }

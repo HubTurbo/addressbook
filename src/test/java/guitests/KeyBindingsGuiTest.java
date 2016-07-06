@@ -35,13 +35,13 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
     @Override
     protected CloudAddressBook getInitialCloudData() {
-        CloudAddressBook cloudAddressBook = new CloudAddressBook();
+        CloudAddressBook cloudAddressBook = new CloudAddressBook("MyAddressBook");
         List<CloudPerson> cloudPersonList = new ArrayList<>();
         cloudPersonList.add(new CloudPerson("Person1", "Lastname1", 1));
-        cloudPersonList.add(new CloudPerson("Person2", "Lastname2", 1));
-        cloudPersonList.add(new CloudPerson("Person3", "Lastname3", 1));
-        cloudPersonList.add(new CloudPerson("Person4", "Lastname4", 1));
-        cloudPersonList.add(new CloudPerson("Person5", "Lastname5", 1));
+        cloudPersonList.add(new CloudPerson("Person2", "Lastname2", 2));
+        cloudPersonList.add(new CloudPerson("Person3", "Lastname3", 3));
+        cloudPersonList.add(new CloudPerson("Person4", "Lastname4", 4));
+        cloudPersonList.add(new CloudPerson("Person5", "Lastname5", 5));
         cloudAddressBook.setPersonsList(cloudPersonList);
         return cloudAddressBook;
     }
