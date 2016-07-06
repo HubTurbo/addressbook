@@ -37,6 +37,11 @@ public class CloudPerson {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+    public CloudPerson(String firstName, String lastName, int id) {
+        this(firstName, lastName);
+        setId(id);
+    }
+
     public int getId() {
         return id;
     }

@@ -5,6 +5,7 @@ import address.events.EventManager;
 import address.keybindings.KeyBinding;
 import address.keybindings.KeySequence;
 import address.model.datatypes.ReadOnlyAddressBook;
+import address.sync.cloud.model.CloudAddressBook;
 import address.util.TestUtil;
 import guitests.guihandles.MainGuiHandle;
 import guitests.guihandles.MainMenuHandle;
@@ -42,7 +43,8 @@ public class GuiTestBase extends FxRobot {
     @Before
     public void setup() throws Exception {
         EventManager.clearSubscribers();
-        FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation()));
+        FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, this::getInitialCloudData,
+                                                     getDataFileLocation(), getCloudFileLocation()));
         FxToolkit.showStage();
     }
 
@@ -54,12 +56,24 @@ public class GuiTestBase extends FxRobot {
         return TestUtil.generateSampleAddressBook();
     }
 
+    protected CloudAddressBook getInitialCloudData() {
+        return TestUtil.generateSampleCloudAddressBook();
+    }
+
     /**
      * Override this in child classes to set the data file location.
      * @return
      */
-    protected String getDataFileLocation(){
+    protected String getDataFileLocation() {
         return TestApp.SAVE_LOCATION_FOR_TESTING;
+    }
+
+    /**
+     * Override this in child classes to set the data file location.
+     * @return
+     */
+    protected String getCloudFileLocation() {
+        return TestApp.CLOUD_LOCATION_FOR_TESTING;
     }
 
     @After

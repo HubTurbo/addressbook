@@ -14,7 +14,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -125,9 +124,9 @@ public class CloudManipulator extends CloudSimulator {
     private void modifyRandomPersonInAddressBookFile(String addressBookName) {
         logAndUpdateStatus("Modifying random person in address book");
         try {
-            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromFile(addressBookName);
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
             modifyCloudPerson(getRandomPerson(cloudAddressBook.getAllPersons()));
-            fileHandler.writeCloudAddressBookToFile(cloudAddressBook);
+            fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
         } catch (FileNotFoundException e) {
             logAndUpdateStatus("Failed to modify person: cloud addressbook " + addressBookName + " not found");
         } catch (DataConversionException e) {
@@ -138,9 +137,9 @@ public class CloudManipulator extends CloudSimulator {
     private void addRandomPersonToAddressBookFile(String addressBookName) {
         logAndUpdateStatus("Adding random person to address book");
         try {
-            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromFile(addressBookName);
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
             addCloudPersons(cloudAddressBook.getAllPersons());
-            fileHandler.writeCloudAddressBookToFile(cloudAddressBook);
+            fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
         } catch (FileNotFoundException e) {
             logAndUpdateStatus("Failed to add person: cloud addressbook " + addressBookName + " not found");
         } catch (DataConversionException e) {

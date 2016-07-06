@@ -8,6 +8,7 @@ import address.sync.RemoteManager;
 import address.sync.RemoteService;
 import address.sync.cloud.CloudManipulator;
 import address.sync.cloud.IRemote;
+import address.sync.cloud.model.CloudAddressBook;
 import address.util.Config;
 import address.util.TestUtil;
 import javafx.stage.Stage;
@@ -18,19 +19,23 @@ import java.util.function.Supplier;
 public class TestApp extends MainApp {
 
     public static final String SAVE_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleData.xml");
+    public static final String CLOUD_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleCloudData.xml");
     protected Supplier<ReadOnlyAddressBook> initialDataSupplier = TestUtil::generateSampleAddressBook;
+    protected Supplier<CloudAddressBook> initalCloudDataSupplier = TestUtil::generateSampleCloudAddressBook;
     protected String saveFileLocation = SAVE_LOCATION_FOR_TESTING;
+    protected String cloudFileLocation = CLOUD_LOCATION_FOR_TESTING;
     protected CloudManipulator remote;
-    private String cloudFile;
 
     public TestApp() {
-
     }
 
-    public TestApp(Supplier<ReadOnlyAddressBook> initialDataSupplier, String saveFileLocation) {
+    public TestApp(Supplier<ReadOnlyAddressBook> initialDataSupplier, Supplier<CloudAddressBook> initialCloudDataSupplier,
+                   String saveFileLocation, String cloudFileLocation) {
         super();
         this.initialDataSupplier = initialDataSupplier;
+        this.initalCloudDataSupplier = initialCloudDataSupplier;
         this.saveFileLocation = saveFileLocation;
+        this.cloudFileLocation = cloudFileLocation;
 
         //If some intial data has been provided, write those to the file
         if (initialDataSupplier.get() != null) {
@@ -40,22 +45,18 @@ public class TestApp extends MainApp {
         }
     }
 
-    public TestApp(Supplier<ReadOnlyAddressBook> initialDataSupplier, Supplier<String> cloudFile, String saveFileLocation) {
-        this(initialDataSupplier, saveFileLocation);
-        this.cloudFile = cloudFile.get();
-    }
-
     @Override
     protected Config initConfig(String configFilePath) {
         Config config = super.initConfig(configFilePath);
         config.appTitle = "Test App";
+        config.setLocalDataFilePath(saveFileLocation);
+        config.setCloudDataFilePath(cloudFileLocation);
         return config;
     }
 
     @Override
     protected UserPrefs initPrefs(Config config) {
         UserPrefs userPrefs = super.initPrefs(config);
-        userPrefs.setSaveLocation(saveFileLocation);
         return userPrefs;
     }
 
