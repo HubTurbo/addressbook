@@ -4,6 +4,7 @@ import address.MainApp;
 import address.browser.BrowserManager;
 import address.events.*;
 import address.exceptions.DuplicateTagException;
+import address.model.UserPrefs;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
@@ -27,6 +28,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,6 +64,7 @@ public class MainController extends UiController{
     private BrowserManager browserManager;
     private MainApp mainApp;
     private Config config;
+    private UserPrefs prefs;
 
     private StatusBarHeaderController statusBarHeaderController;
 
@@ -74,11 +77,12 @@ public class MainController extends UiController{
      * @param modelManager
      * @param config should have appTitle and updateInterval set
      */
-    public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
+    public MainController(MainApp mainApp, ModelManager modelManager, Config config, UserPrefs prefs) {
         super();
         this.mainApp = mainApp;
         this.modelManager = modelManager;
         this.config = config;
+        this.prefs = prefs;
         this.personList = modelManager.getAllViewablePersonsReadOnly();
         this.browserManager = new BrowserManager(personList, config.getBrowserNoOfPages(), config.getBrowserType());
         this.browserManager.initBrowser();
@@ -517,6 +521,7 @@ public class MainController extends UiController{
     public void showPersonWebPage() {
         SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
         pane.getItems().add(browserManager.getHyperBrowserView());
+        pane.setDividerPositions(0.3f);
     }
 
     @Subscribe
@@ -545,8 +550,9 @@ public class MainController extends UiController{
     }
 
     protected void setDefaultSize() {
-        primaryStage.setHeight(DEFAULT_HEIGHT);
-        primaryStage.setWidth(DEFAULT_WIDTH);
+
+        primaryStage.setHeight(prefs.getScreenSize().getRight());
+        primaryStage.setWidth(prefs.getScreenSize().getLeft());
         primaryStage.setMaximized(false);
         primaryStage.setIconified(false);
     }
