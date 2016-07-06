@@ -27,7 +27,7 @@ public class CloudPerson {
     private LocalDate birthday;
 
     public CloudPerson() {
-        this.id = -1;
+        this.id = 0;
         this.tags = new ArrayList<>();
         this.firstName = "";
         this.lastName = "";
