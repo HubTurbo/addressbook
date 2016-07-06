@@ -20,16 +20,18 @@ import java.util.function.Consumer;
 public class StorageManager extends ComponentManager {
     private static final AppLogger logger = LoggerManager.getLogger(StorageManager.class);
     private static final String DEFAULT_CONFIG_FILE = "config.json";
-    private Config config;
+    private UserPrefs userPrefs;
+    private File saveFile;
+    private File userPrefsFile;
 
     private final Consumer<ReadOnlyAddressBook> loadedDataCallback;
-    private UserPrefs prefs;
 
-    public StorageManager(Consumer<ReadOnlyAddressBook> loadedDataCallback, Config config, UserPrefs prefs) {
+    public StorageManager(Consumer<ReadOnlyAddressBook> loadedDataCallback, Config config, UserPrefs userPrefs) {
         super();
         this.loadedDataCallback = loadedDataCallback;
-        this.prefs = prefs;
-        this.config = config;
+        this.saveFile = new File(config.getLocalDataFilePath());
+        this.userPrefsFile = config.getPrefsFileLocation();
+        this.userPrefs = userPrefs;
     }
 
     private static File getConfigFile(String configFilePath) {
@@ -116,7 +118,7 @@ public class StorageManager extends ComponentManager {
     @Subscribe
     public void handleLocalModelChangedEvent(LocalModelChangedEvent lmce) {
         logger.info("Local data changed, saving to primary data file");
-        saveDataToFile(prefs.getSaveLocation(), lmce.data);
+        saveDataToFile(saveFile, lmce.data);
     }
 
     /**
@@ -163,9 +165,9 @@ public class StorageManager extends ComponentManager {
      */
     public void savePrefsToFile(UserPrefs prefs) {
         try {
-            serializeObjectToJsonFile(config.getPrefsFileLocation(), prefs);
+            serializeObjectToJsonFile(userPrefsFile, prefs);
         } catch (IOException e) {
-            raise(new FileSavingExceptionEvent(e, config.getPrefsFileLocation()));
+            raise(new FileSavingExceptionEvent(e, userPrefsFile));
         }
     }
 
@@ -191,7 +193,7 @@ public class StorageManager extends ComponentManager {
      */
     public void start() {
         logger.info("Starting storage manager.");
-        loadDataFromFile(prefs.getSaveLocation());
+        loadDataFromFile(saveFile);
     }
 
     protected void loadDataFromFile(File dataFile) {
@@ -205,8 +207,8 @@ public class StorageManager extends ComponentManager {
     }
 
     public ReadOnlyAddressBook getData() throws FileNotFoundException, DataConversionException {
-        logger.debug("Attempting to read data from file: {}", prefs.getSaveLocation());
-        return XmlFileStorage.loadDataFromSaveFile(prefs.getSaveLocation());
+        logger.debug("Attempting to read data from file: {}", saveFile);
+        return XmlFileStorage.loadDataFromSaveFile(saveFile);
     }
 
     public static <T> void serializeObjectToJsonFile(File jsonFile, T objectToSerialize) throws IOException {

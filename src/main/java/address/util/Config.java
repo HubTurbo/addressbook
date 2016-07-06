@@ -22,6 +22,7 @@ public class Config {
     private static final boolean DEFAULT_IS_CLOUD_MANIPULABLE = false;
     private static final String DEFAULT_LOCAL_DATA_FILE_PATH = "test.xml";
     private static final String DEFAULT_CLOUD_DATA_FILE_PATH = "cloud/test.xml";
+    private static final String DEFAULT_ADDRESS_BOOK_NAME = "MyAddressBook";
 
     // Config values
     public String appTitle = "Address App";
@@ -36,6 +37,7 @@ public class Config {
     public boolean isCloudManipulable = DEFAULT_IS_CLOUD_MANIPULABLE;
     private String localDataFilePath = DEFAULT_LOCAL_DATA_FILE_PATH;
     private String cloudDataFilePath = DEFAULT_CLOUD_DATA_FILE_PATH;
+    private String addressBookName = DEFAULT_ADDRESS_BOOK_NAME;
 
 
     public Config() {
@@ -107,5 +109,13 @@ public class Config {
 
     public void setCloudDataFilePath(String cloudDataFilePath) {
         this.cloudDataFilePath = cloudDataFilePath;
+    }
+
+    public String getAddressBookName() {
+        return addressBookName;
+    }
+
+    public void setAddressBookName(String addressBookName) {
+        this.addressBookName = addressBookName;
     }
 }

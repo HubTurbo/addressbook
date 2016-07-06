@@ -74,11 +74,11 @@ public class MainApp extends Application {
     private void initComponents(Config config, UserPrefs userPrefs) {
         LoggerManager.init(config);
 
-        modelManager = initModelManager(userPrefs);
+        modelManager = initModelManager(config);
         storageManager = initStorageManager(modelManager, config, userPrefs);
         ui = initUi(config, modelManager);
         remoteManager = initRemoteManager(config);
-        syncManager = initSyncManager(remoteManager, config, userPrefs);
+        syncManager = initSyncManager(remoteManager, config);
         keyBindingsManager = initKeyBindingsManager();
         updateManager = initUpdateManager(VERSION);
     }
@@ -95,8 +95,8 @@ public class MainApp extends Application {
         return new RemoteManager(new CloudSimulator(config));
     }
 
-    protected SyncManager initSyncManager(RemoteManager remoteManager, Config config, UserPrefs userPrefs) {
-        return new SyncManager(remoteManager, config, userPrefs.getSaveLocation().getName());
+    protected SyncManager initSyncManager(RemoteManager remoteManager, Config config) {
+        return new SyncManager(remoteManager, config, config.getAddressBookName());
     }
 
     protected Ui initUi(Config config, ModelManager modelManager) {
@@ -107,8 +107,8 @@ public class MainApp extends Application {
         return new StorageManager(modelManager::resetData, config, userPrefs);
     }
 
-    protected ModelManager initModelManager(UserPrefs userPrefs) {
-        return new ModelManager(userPrefs);
+    protected ModelManager initModelManager(Config config) {
+        return new ModelManager(config);
     }
 
     @Override

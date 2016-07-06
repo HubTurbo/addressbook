@@ -39,11 +39,11 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
      * @see super#ChangePersonInModelCommand(int, Supplier, int)
      */
     public AddPersonCommand(int commandId, Supplier<Optional<ReadOnlyPerson>> inputRetriever, int gracePeriodDurationInSeconds,
-                               Consumer<BaseEvent> eventRaiser, ModelManager model) {
+                               Consumer<BaseEvent> eventRaiser, ModelManager model, String addressbookName) {
         super(commandId, inputRetriever, gracePeriodDurationInSeconds);
         this.model = model;
         this.eventRaiser = eventRaiser;
-        this.addressbookName = model.getPrefs().getSaveFileName();
+        this.addressbookName = addressbookName;
     }
 
     protected ViewablePerson getViewableToAdd() {
