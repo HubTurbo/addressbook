@@ -36,10 +36,6 @@ public class Bindings {
     /* key bindings in alphabetical order of name */
     public List<GlobalHotkey> APP_RESIZE_HOTKEY = new ArrayList<>();
     public List<GlobalHotkey> APP_MINIMIZE_HOTKEY = new ArrayList<>();
-    public Accelerator FILE_NEW_ACCELERATOR;
-    public Accelerator FILE_OPEN_ACCELERATOR;
-    public Accelerator FILE_SAVE_ACCELERATOR;
-    public Accelerator FILE_SAVE_AS_ACCELERATOR;
     public KeySequence LIST_GOTO_TOP_SEQUENCE;
     public KeySequence LIST_GOTO_BOTTOM_SEQUENCE;
     public Shortcut LIST_ENTER_SHORTCUT;
@@ -62,10 +58,6 @@ public class Bindings {
         PERSON_EDIT_ACCELERATOR = setAccelerator("PERSON_EDIT_ACCELERATOR", "E");
         LIST_GOTO_BOTTOM_SEQUENCE = setSequence("LIST_GOTO_BOTTOM_SEQUENCE", "G", "B", new JumpToListRequestEvent(-1));
         LIST_GOTO_TOP_SEQUENCE = setSequence("LIST_GOTO_TOP_SEQUENCE", "G", "T", new JumpToListRequestEvent(1));
-        FILE_NEW_ACCELERATOR = setAccelerator("FILE_NEW_ACCELERATOR", "SHORTCUT + N");
-        FILE_OPEN_ACCELERATOR = setAccelerator("FILE_OPEN_ACCELERATOR", "SHORTCUT + O");
-        FILE_SAVE_ACCELERATOR = setAccelerator("FILE_SAVE_ACCELERATOR", "SHORTCUT + S");
-        FILE_SAVE_AS_ACCELERATOR = setAccelerator("FILE_SAVE_AS_ACCELERATOR", "SHORTCUT + ALT + S");
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "CTRL + ALT + X", new MinimizeAppRequestEvent()));
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "META + ALT + X", new MinimizeAppRequestEvent()));
         APP_RESIZE_HOTKEY.add(setHotkey("APP_RESIZE_HOTKEY", "CTRL + SHIFT + X", new ResizeAppRequestEvent()));

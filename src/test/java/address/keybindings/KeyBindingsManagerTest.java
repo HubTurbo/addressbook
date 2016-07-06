@@ -62,17 +62,17 @@ public class KeyBindingsManagerTest {
     public void getAcceleratorKeyCombo() throws Exception {
         // Set up the mock to return a list containing two accelerators
         ArrayList<Accelerator> accelerators = new ArrayList<>();
-        Accelerator fileNewAccelerator = new Bindings().FILE_NEW_ACCELERATOR;
-        accelerators.add(fileNewAccelerator);
-        accelerators.add(new Bindings().FILE_SAVE_ACCELERATOR);
+        Accelerator personEditAccelerator = new Bindings().PERSON_EDIT_ACCELERATOR;
+        accelerators.add(personEditAccelerator);
+        accelerators.add(new Bindings().PERSON_CHANGE_CANCEL_ACCELERATOR);
 
         // Verify checking for non-existent accelerator
         assertEquals(Optional.empty(), keyBindingsManager.getAcceleratorKeyCombo("non existent"));
 
         // Verify checking for existing accelerator
         when(keyBindingsManager.BINDINGS.getAccelerators()).thenReturn(accelerators);
-        assertEquals(fileNewAccelerator.getKeyCombination(),
-                     keyBindingsManager.getAcceleratorKeyCombo("FILE_NEW_ACCELERATOR").get());
+        assertEquals(personEditAccelerator.getKeyCombination(),
+                     keyBindingsManager.getAcceleratorKeyCombo("PERSON_EDIT_ACCELERATOR").get());
     }
 
 }
