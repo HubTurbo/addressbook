@@ -122,7 +122,7 @@ public class StorageManagerTest {
     @Test
     public void start_correspondingMethodCalled() throws Exception {
         storageManagerSpy.start();
-        PowerMockito.verifyPrivate(storageManagerSpy).invoke("loadDataFromFile", configMock.getLocalDataFilePath());
+        PowerMockito.verifyPrivate(storageManagerSpy).invoke("loadDataFromFile", new File(configMock.getLocalDataFilePath()));
     }
 
     @Test
