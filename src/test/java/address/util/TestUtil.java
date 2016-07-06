@@ -120,7 +120,7 @@ public class TestUtil {
         createDataFileWithData(generateSampleStorageAddressBook(), filePath);
     }
 
-    public static void createDataFileWithData(StorageAddressBook data, String filePath) {
+    public static <T> void createDataFileWithData(T data, String filePath) {
         try {
             File saveFileForTesting = new File(filePath);
             FileUtil.createIfMissing(saveFileForTesting);

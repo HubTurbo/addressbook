@@ -1,41 +1,35 @@
 package address;
 
 import address.model.UserPrefs;
-import address.model.datatypes.AddressBook;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.storage.StorageAddressBook;
 import address.sync.RemoteManager;
-import address.sync.RemoteService;
 import address.sync.cloud.CloudManipulator;
-import address.sync.cloud.IRemote;
 import address.sync.cloud.model.CloudAddressBook;
 import address.util.Config;
 import address.util.TestUtil;
 import javafx.stage.Stage;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class TestApp extends MainApp {
 
     public static final String SAVE_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleData.xml");
-    public static final String CLOUD_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleCloudData.xml");
-    protected Supplier<ReadOnlyAddressBook> initialDataSupplier = TestUtil::generateSampleAddressBook;
-    protected Supplier<CloudAddressBook> initalCloudDataSupplier = TestUtil::generateSampleCloudAddressBook;
+    public static final String DEFAULT_CLOUD_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleCloudData.xml");
+    protected Supplier<ReadOnlyAddressBook> initialDataSupplier = () -> null;
+    protected Supplier<CloudAddressBook> initalCloudDataSupplier = () -> null;
     protected String saveFileLocation = SAVE_LOCATION_FOR_TESTING;
-    protected String cloudFileLocation = CLOUD_LOCATION_FOR_TESTING;
     protected CloudManipulator remote;
 
     public TestApp() {
     }
 
-    public TestApp(Supplier<ReadOnlyAddressBook> initialDataSupplier, Supplier<CloudAddressBook> initialCloudDataSupplier,
-                   String saveFileLocation, String cloudFileLocation) {
+    public TestApp(Supplier<ReadOnlyAddressBook> initialDataSupplier, String saveFileLocation,
+                   Supplier<CloudAddressBook> initialCloudDataSupplier) {
         super();
         this.initialDataSupplier = initialDataSupplier;
         this.initalCloudDataSupplier = initialCloudDataSupplier;
         this.saveFileLocation = saveFileLocation;
-        this.cloudFileLocation = cloudFileLocation;
 
         //If some intial data has been provided, write those to the file
         if (initialDataSupplier.get() != null) {
@@ -50,7 +44,8 @@ public class TestApp extends MainApp {
         Config config = super.initConfig(configFilePath);
         config.appTitle = "Test App";
         config.setLocalDataFilePath(saveFileLocation);
-        config.setCloudDataFilePath(cloudFileLocation);
+        // Use default cloud test data if no data is supplied
+        if (initalCloudDataSupplier.get() == null) config.setCloudDataFilePath(DEFAULT_CLOUD_LOCATION_FOR_TESTING);
         return config;
     }
 

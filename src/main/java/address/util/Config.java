@@ -5,13 +5,12 @@ import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Optional;
 
 /**
  * Config values used by the app
  */
 public class Config {
-    private static final String CONFIG_FILE = "config.ini";
-
     // Default values
     private static final long DEFAULT_UPDATE_INTERVAL = 10000;
     private static final Level DEFAULT_LOGGING_LEVEL = Level.INFO;
@@ -21,7 +20,7 @@ public class Config {
     private static final BrowserType DEFAULT_BROWSER_TYPE = BrowserType.FULL_FEATURE_BROWSER;
     private static final boolean DEFAULT_IS_CLOUD_MANIPULABLE = false;
     private static final String DEFAULT_LOCAL_DATA_FILE_PATH = "test.xml";
-    private static final String DEFAULT_CLOUD_DATA_FILE_PATH = "cloud/test.xml";
+    private static final String DEFAULT_CLOUD_DATA_FILE_PATH = null; // For use in CloudManipulator for manual testing
     private static final String DEFAULT_ADDRESS_BOOK_NAME = "MyAddressBook";
 
     // Config values
@@ -34,7 +33,7 @@ public class Config {
     private File prefsFileLocation = new File("preferences.json"); //Default user preferences file
     public int browserNoOfPages = DEFAULT_BROWSER_NO_OF_PAGES;
     public BrowserType browserType = DEFAULT_BROWSER_TYPE;
-    public boolean isCloudManipulable = DEFAULT_IS_CLOUD_MANIPULABLE;
+    private boolean isCloudManipulable = DEFAULT_IS_CLOUD_MANIPULABLE;
     private String localDataFilePath = DEFAULT_LOCAL_DATA_FILE_PATH;
     private String cloudDataFilePath = DEFAULT_CLOUD_DATA_FILE_PATH;
     private String addressBookName = DEFAULT_ADDRESS_BOOK_NAME;
@@ -117,5 +116,13 @@ public class Config {
 
     public void setAddressBookName(String addressBookName) {
         this.addressBookName = addressBookName;
+    }
+
+    public boolean isCloudManipulable() {
+        return isCloudManipulable;
+    }
+
+    public void setCloudManipulable(boolean cloudManipulable) {
+        isCloudManipulable = cloudManipulable;
     }
 }
