@@ -50,6 +50,10 @@ public class MainController extends UiController{
     private static final String ICON_APPLICATION = "/images/address_book_32.png";
     private static final String ICON_EDIT = "/images/edit.png";
     private static final String ICON_CALENDAR = "/images/calendar.png";
+    public static final int MIN_HEIGHT = 400;
+    public static final int MIN_WIDTH = 740;
+    public static final int DEFAULT_HEIGHT = 600;
+    public static final int DEFAULT_WIDTH = 740;
 
     private Stage primaryStage;
     private VBox rootLayout;
@@ -117,10 +121,8 @@ public class MainController extends UiController{
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
             scene.setOnKeyPressed(event -> raisePotentialEvent(new KeyBindingEvent(event)));
-            primaryStage.setMinHeight(400);
-            primaryStage.setMinWidth(740);
-            primaryStage.setHeight(600);
-            primaryStage.setWidth(740);
+            setMinSize();
+            setDefaultSize();
             primaryStage.setScene(scene);
 
             // Give the rootController access to the main controller and modelManager
@@ -518,9 +520,9 @@ public class MainController extends UiController{
     }
 
     @Subscribe
-    private void handleMaximizeAppRequestEvent(MaximizeAppRequestEvent event){
-        logger.debug("Handling the maximize app window request");
-        Platform.runLater(this::maximizeWindow);
+    private void handleResizeAppRequestEvent(ResizeAppRequestEvent event){
+        logger.debug("Handling the resize app window request");
+        Platform.runLater(this::resizeWindow);
     }
 
     @Subscribe
@@ -529,6 +531,29 @@ public class MainController extends UiController{
         Platform.runLater(this::minimizeWindow);
     }
 
+    /**
+     * Toggles between maximized and default size.
+     * If not currently at the maximized size, goes to default size.
+     */
+    private void resizeWindow(){
+        if(primaryStage.isMaximized()){
+            setDefaultSize();
+        } else {
+            maximizeWindow();
+        }
+    }
+
+    protected void setDefaultSize() {
+        primaryStage.setHeight(DEFAULT_HEIGHT);
+        primaryStage.setWidth(DEFAULT_WIDTH);
+        primaryStage.setMaximized(false);
+        primaryStage.setIconified(false);
+    }
+
+    private void setMinSize() {
+        primaryStage.setMinHeight(MIN_HEIGHT);
+        primaryStage.setMinWidth(MIN_WIDTH);
+    }
 
     private void minimizeWindow() {
         primaryStage.setIconified(true);

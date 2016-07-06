@@ -15,7 +15,7 @@ public abstract class BaseEvent {
      *     even if they are two different event objects. This is a weaker form of equality.
      *     e.g. if both events intended the selection to jump to the 1st element in the list. <br>
      *     The default implementation returns true of both objects are of the same class.
-     *     For example, comparing two distinct {@link MaximizeAppRequestEvent} will return
+     *     For example, comparing two distinct {@link ResizeAppRequestEvent} will return
      *     true (because both intend to maximize the app). <br>
      *     If the events are parameterized, e.g. {@link JumpToListRequestEvent} this method
      *     should be overriden to compare the parameters.

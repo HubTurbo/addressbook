@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.*;
 
 public class KeyBindingsManagerApiTest {
 
@@ -27,7 +27,7 @@ public class KeyBindingsManagerApiTest {
 
     @Before
     public void setup(){
-        eventManagerSpy = Mockito.spy(EventManager.getInstance());
+        eventManagerSpy = Mockito.mock(EventManager.class);
         keyBindingsManager = new KeyBindingsManagerEx();
         keyBindingsManager.setEventManager(eventManagerSpy);
     }
@@ -53,8 +53,8 @@ public class KeyBindingsManagerApiTest {
 
         verifyHotkey(new MinimizeAppRequestEvent(), "CTRL + ALT + X");
         verifyHotkey(new MinimizeAppRequestEvent(), "META + ALT + X");
-        verifyHotkey(new MaximizeAppRequestEvent(), "CTRL + SHIFT + X");
-        verifyHotkey(new MaximizeAppRequestEvent(), "META + SHIFT + X");
+        verifyHotkey(new ResizeAppRequestEvent(), "CTRL + SHIFT + X");
+        verifyHotkey(new ResizeAppRequestEvent(), "META + SHIFT + X");
 
         verifyAccelerator("PERSON_CHANGE_CANCEL_ACCELERATOR", "SHORTCUT + Z");
          /*====== other keys ======================================================*/
@@ -101,11 +101,8 @@ public class KeyBindingsManagerApiTest {
         //As the mocked object is reused multiple times within a single @Test, we reset the mock before each sub test
         Mockito.reset(eventManagerSpy);
 
-        //simulate the key events that matches the key binding
-        simulateKeyEvents(keyCombination);
-
-        //verify that the simulated key event was detected
-        Mockito.verify(eventManagerSpy, times(keyCombination.length)).post(Matchers.isA(KeyBindingEvent.class));
+        //simulate receiving the key events that matches the key binding
+        simulateReceivingKeyBindingEvents(keyCombination);
 
         //verify that the correct event was raised
         Mockito.verify(eventManagerSpy, times(1)).post((BaseEvent) argThat(new EventIntentionMatcher(expectedEvent)));
@@ -119,24 +116,22 @@ public class KeyBindingsManagerApiTest {
         //As the mocked object is reused multiple times within a single @Test, we reset the mock before each sub test
         Mockito.reset(eventManagerSpy);
 
-        //simulate the key events that matches the key binding
-        simulateKeyEvents(keyCombination);
-
-        //verify that the simulated key event was detected
-        Mockito.verify(eventManagerSpy, times(keyCombination.length)).post(Matchers.isA(KeyBindingEvent.class));
+        //simulate receiving key events that matches the key binding
+        simulateReceivingKeyBindingEvents(keyCombination);
 
         //verify that no other event was raised i.e. only the simulated key event was posted to event manager
-        Mockito.verify(eventManagerSpy, times(keyCombination.length)).post(Matchers.any());
+        Mockito.verify(eventManagerSpy, times(0)).post(Matchers.any());
     }
 
     /**
-     * Simulates one or two key combinations being used
+     * Simulates receiving 1 or 2 key binding events from the event handling mechanism
      * @param keyCombination
      */
-    private void simulateKeyEvents(String[] keyCombination) {
+    private void simulateReceivingKeyBindingEvents(String[] keyCombination) {
         assert keyCombination.length == 1 || keyCombination.length == 2;
+
         Arrays.stream(keyCombination)
-                .forEach(kc -> eventManagerSpy.post(new KeyBindingEvent(TestUtil.getKeyEvent(kc))));
+                .forEach(kc -> keyBindingsManager.handleKeyBindingEvent(new KeyBindingEvent(TestUtil.getKeyEvent(kc))));
     }
 
     /**

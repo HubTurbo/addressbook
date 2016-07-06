@@ -34,7 +34,7 @@ public class Bindings {
 
 
     /* key bindings in alphabetical order of name */
-    public List<GlobalHotkey> APP_MAXIMIZE_HOTKEY = new ArrayList<>();
+    public List<GlobalHotkey> APP_RESIZE_HOTKEY = new ArrayList<>();
     public List<GlobalHotkey> APP_MINIMIZE_HOTKEY = new ArrayList<>();
     public Accelerator FILE_NEW_ACCELERATOR;
     public Accelerator FILE_OPEN_ACCELERATOR;
@@ -68,8 +68,8 @@ public class Bindings {
         FILE_SAVE_AS_ACCELERATOR = setAccelerator("FILE_SAVE_AS_ACCELERATOR", "SHORTCUT + ALT + S");
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "CTRL + ALT + X", new MinimizeAppRequestEvent()));
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "META + ALT + X", new MinimizeAppRequestEvent()));
-        APP_MAXIMIZE_HOTKEY.add(setHotkey("APP_MAXIMIZE_HOTKEY", "CTRL + SHIFT + X", new MaximizeAppRequestEvent()));
-        APP_MAXIMIZE_HOTKEY.add(setHotkey("APP_MAXIMIZE_HOTKEY", "META + SHIFT + X", new MaximizeAppRequestEvent()));
+        APP_RESIZE_HOTKEY.add(setHotkey("APP_RESIZE_HOTKEY", "CTRL + SHIFT + X", new ResizeAppRequestEvent()));
+        APP_RESIZE_HOTKEY.add(setHotkey("APP_RESIZE_HOTKEY", "META + SHIFT + X", new ResizeAppRequestEvent()));
         PERSON_CHANGE_CANCEL_ACCELERATOR = setAccelerator("PERSON_CHANGE_CANCEL_ACCELERATOR", "SHORTCUT + Z");
 
         /*====== other keys ======================================================*/
