@@ -8,7 +8,7 @@
 
 <VBox maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity" stylesheets="@DarkTheme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.controller.RootLayoutController">
    <children>
-      <MenuBar VBox.vgrow="ALWAYS">
+      <MenuBar VBox.vgrow="NEVER">
          <menus>
             <Menu mnemonicParsing="false" text="File">
                <items>
@@ -35,6 +35,12 @@
       </MenuBar>
       <AnchorPane fx:id="headerStatusbarPlaceholder" styleClass="anchor-pane-with-border">
       </AnchorPane>
-      <SplitPane id="splitPane" fx:id="splitPane" prefHeight="295.0" prefWidth="209.0" VBox.vgrow="ALWAYS" />
+      <SplitPane id="splitPane" fx:id="splitPane" dividerPositions="0.4" VBox.vgrow="ALWAYS">
+         <items>
+            <AnchorPane fx:id="personOverview"  minWidth="340"/>
+            <AnchorPane fx:id="personWebpage" />
+         </items>
+      </SplitPane>
+      <AnchorPane fx:id="footerStatusbarPlaceholder" VBox.vgrow="NEVER"></AnchorPane>
    </children>
 </VBox>

@@ -100,7 +100,7 @@ public class MainApp extends Application {
     }
 
     protected Ui initUi(Config config, ModelManager modelManager) {
-        return new Ui(this, modelManager, config);
+        return new Ui(this, modelManager, config, userPrefs);
     }
 
     protected StorageManager initStorageManager(ModelManager modelManager, Config config, UserPrefs userPrefs) {
@@ -124,6 +124,7 @@ public class MainApp extends Application {
     public void stop() {
         logger.info("Stopping application.");
         ui.stop();
+        storageManager.savePrefsToFile(userPrefs);
         updateManager.stop();
         syncManager.stop();
         keyBindingsManager.stop();
