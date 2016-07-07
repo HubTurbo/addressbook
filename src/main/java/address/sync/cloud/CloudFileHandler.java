@@ -61,35 +61,55 @@ public class CloudFileHandler {
         }
     }
 
-    public void initializeCloudAddressBookFile(String addressBookName, boolean shouldReplaceExisting) throws IOException, DataConversionException,
-            IllegalArgumentException {
+    /**
+     * Attempts to create a file with an empty address book
+     * Deletes any existing file on the same path
+     *
+     * @param addressBookName
+     * @throws IOException
+     * @throws DataConversionException
+     */
+    public void initializeAddressBook(String addressBookName) throws IOException, DataConversionException {
         File cloudFile = getCloudDataFile(addressBookName);
         if (cloudFile.exists()) {
-            if (!shouldReplaceExisting) return;
             cloudFile.delete();
         }
 
-        File cloudDirectory = new File(CLOUD_DIRECTORY);
-        if (!cloudDirectory.exists() && !cloudDirectory.mkdir()) {
-            logger.warn("Error creating directory: '{}'", CLOUD_DIRECTORY);
-            throw new IOException("Error creating directory: " + CLOUD_DIRECTORY);
-        }
-
-        if (!cloudFile.createNewFile()) {
-            logger.warn("Error creating cloud file: '{}'", getCloudDataFilePath(addressBookName));
-            throw new IOException("Error creating cloud file for addressbook: " + getCloudDataFilePath(addressBookName));
-        }
-
-        writeCloudAddressBookToCloudFile(new CloudAddressBook(addressBookName));
+        createCloudFile(new CloudAddressBook(addressBookName));
     }
 
-    public void createCloudAddressBookFile(String addressBookName) throws IOException, DataConversionException,
+    /**
+     * Attempts to create an empty address book on the cloud
+     * Fails if address book already exists
+     *
+     * @param addressBookName
+     * @throws IOException
+     * @throws DataConversionException
+     * @throws IllegalArgumentException if cloud file already exists
+     */
+    public void createAddressBook(String addressBookName) throws IOException, DataConversionException,
             IllegalArgumentException {
-        File cloudFile = getCloudDataFile(addressBookName);
+        createCloudFile(new CloudAddressBook(addressBookName));
+    }
+
+    /**
+     * Attempts to create the cloud file in the cloud directory, containing an empty address book
+     * File will be named the same as the address book
+     *
+     * The cloud directory will also be created if it does not exist
+     *
+     * @param cloudAddressBook
+     * @throws IOException
+     * @throws DataConversionException
+     * @throws IllegalArgumentException if cloud file already exists
+     */
+    private void createCloudFile(CloudAddressBook cloudAddressBook) throws IOException, DataConversionException, IllegalArgumentException {
+        File cloudFile = getCloudDataFile(cloudAddressBook.getName());
         if (cloudFile.exists()) {
-            logger.warn("Cannot create an addressbook that already exists: '{}'.", addressBookName);
-            throw new IllegalArgumentException("AddressBook '" + addressBookName + "' already exists!");
+            logger.warn("Cannot create an address book that already exists: '{}'.", cloudAddressBook.getName());
+            throw new IllegalArgumentException("AddressBook '" + cloudAddressBook.getName() + "' already exists!");
         }
+
 
         File cloudDirectory = new File(CLOUD_DIRECTORY);
         if (!cloudDirectory.exists() && !cloudDirectory.mkdir()) {
@@ -97,12 +117,13 @@ public class CloudFileHandler {
             throw new IOException("Error creating directory: " + CLOUD_DIRECTORY);
         }
 
+
         if (!cloudFile.createNewFile()) {
-            logger.warn("Error creating cloud file: '{}'", getCloudDataFilePath(addressBookName));
-            throw new IOException("Error creating cloud file for addressbook: " + getCloudDataFilePath(addressBookName));
+            logger.warn("Error creating cloud file: '{}'", getCloudDataFilePath(cloudAddressBook.getName()));
+            throw new IOException("Error creating cloud file for address book: " + getCloudDataFilePath(cloudAddressBook.getName()));
         }
 
-        writeCloudAddressBookToCloudFile(new CloudAddressBook(addressBookName));
+        writeCloudAddressBookToCloudFile(cloudAddressBook);
     }
 
     private File getCloudDataFile(String addressBookName) {

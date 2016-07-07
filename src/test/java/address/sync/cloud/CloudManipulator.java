@@ -125,7 +125,7 @@ public class CloudManipulator extends CloudSimulator {
     private void initializeCloudFile(CloudAddressBook cloudAddressBook) {
         try {
             this.addressBookName = cloudAddressBook.getName();
-            fileHandler.initializeCloudAddressBookFile(cloudAddressBook.getName(), true);
+            fileHandler.initializeAddressBook(cloudAddressBook.getName());
             fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
         } catch (FileNotFoundException e) {
             logger.fatal("Cloud file cannot be found for: {}", cloudAddressBook.getName());

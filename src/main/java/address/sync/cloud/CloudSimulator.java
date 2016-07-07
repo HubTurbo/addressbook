@@ -42,7 +42,7 @@ public class CloudSimulator implements IRemote {
         cloudRateLimitStatus = new CloudRateLimitStatus(API_QUOTA_PER_HOUR);
         cloudRateLimitStatus.restartQuotaTimer();
         try {
-            fileHandler.initializeCloudAddressBookFile(config.getAddressBookName(), false);
+            fileHandler.createAddressBook(config.getAddressBookName());
         } catch (IOException | DataConversionException e) {
             logger.fatal("Error initializing cloud file for '{}'", config.getAddressBookName());
             assert false : "Error initializing cloud file: " + config.getAddressBookName();
@@ -344,7 +344,7 @@ public class CloudSimulator implements IRemote {
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
 
         try {
-            fileHandler.createCloudAddressBookFile(addressBookName);
+            fileHandler.createAddressBook(addressBookName);
 
             //TODO: Return a wrapped simplified version of an empty addressbook (e.g. only fields such as name)
             return getEmptyResponse(HttpURLConnection.HTTP_CREATED);

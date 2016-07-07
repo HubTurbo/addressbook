@@ -54,7 +54,7 @@ public class CloudSimulatorTest {
         RemoteResponse remoteResponse = cloudSimulator.createAddressBook("Test");
 
         // File handler is called to create an address book file
-        verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
+        verify(cloudFileHandler, times(1)).createAddressBook("Test");
 
         // 1 API quota is consumed
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
@@ -72,7 +72,7 @@ public class CloudSimulatorTest {
         RemoteResponse remoteResponse = cloudSimulator.createAddressBook("Test");
 
         // File creation will not be called since there is no more quota
-        verify(cloudFileHandler, never()).createCloudAddressBookFile("Test");
+        verify(cloudFileHandler, never()).createAddressBook("Test");
 
         // API count is not modified
         assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
@@ -84,12 +84,12 @@ public class CloudSimulatorTest {
     @Test
     public void createAddressBook_illegalArgument_unsuccessfulCreation() throws IOException, DataConversionException {
         // Prepare filehandler to throw an exception that the addressbook already exists
-        doThrow(new IllegalArgumentException("AddressBook 'Test' already exists!")).when(cloudFileHandler).createCloudAddressBookFile("Test");
+        doThrow(new IllegalArgumentException("AddressBook 'Test' already exists!")).when(cloudFileHandler).createAddressBook("Test");
 
         RemoteResponse remoteResponse = cloudSimulator.createAddressBook("Test");
 
         // File creation method is called
-        verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
+        verify(cloudFileHandler, times(1)).createAddressBook("Test");
 
         // Still consumes API quota since it is the caller's error
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
@@ -101,12 +101,12 @@ public class CloudSimulatorTest {
     @Test
     public void createAddressBook_conversionException_unsuccessfulCreation() throws IOException, DataConversionException {
         // Prepares filehandler to throw an exception that there are problems with data conversion
-        doThrow(new DataConversionException("Error in conversion when creating file.")).when(cloudFileHandler).createCloudAddressBookFile("Test");
+        doThrow(new DataConversionException("Error in conversion when creating file.")).when(cloudFileHandler).createAddressBook("Test");
 
         RemoteResponse remoteResponse = cloudSimulator.createAddressBook("Test");
 
         // File creation method is called
-        verify(cloudFileHandler, times(1)).createCloudAddressBookFile("Test");
+        verify(cloudFileHandler, times(1)).createAddressBook("Test");
 
         // Still consumes API quota even though it is an error on the cloud's end
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
