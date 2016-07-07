@@ -61,10 +61,11 @@ public class CloudFileHandler {
         }
     }
 
-    public void initializeCloudAddressBookFile(String addressBookName) throws IOException, DataConversionException,
+    public void initializeCloudAddressBookFile(String addressBookName, boolean shouldReplaceExisting) throws IOException, DataConversionException,
             IllegalArgumentException {
         File cloudFile = getCloudDataFile(addressBookName);
         if (cloudFile.exists()) {
+            if (!shouldReplaceExisting) return;
             cloudFile.delete();
         }
 
