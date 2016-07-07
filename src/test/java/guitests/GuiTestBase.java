@@ -6,6 +6,9 @@ import address.keybindings.KeyBinding;
 import address.keybindings.KeySequence;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.util.TestUtil;
+import guitests.guihandles.MainGuiHandle;
+import guitests.guihandles.MainMenuHandle;
+import guitests.guihandles.PersonListPanelHandle;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import org.junit.After;
@@ -17,6 +20,14 @@ import org.testfx.api.FxToolkit;
 import java.util.concurrent.TimeoutException;
 
 public class GuiTestBase extends FxRobot {
+
+    /* Handles to GUI elements present at the start up are created in advance
+     *   for easy access from child classes.
+     */
+    protected MainGuiHandle mainGui = new MainGuiHandle(this);
+    protected MainMenuHandle mainMenu = mainGui.getMainMenu();
+    protected PersonListPanelHandle personListPanel = mainGui.getPersonListPanel();
+
 
     @BeforeClass
     public static void setupSpec() {
@@ -60,12 +71,11 @@ public class GuiTestBase extends FxRobot {
         return super.push(TestUtil.scrub(keyCodes));
     }
 
-
     public FxRobot push(KeyCodeCombination keyCodeCombination){
         return super.push(TestUtil.scrub(keyCodeCombination));
     }
 
-    protected FxRobot push(KeyBinding keyBinding){
+    public FxRobot push(KeyBinding keyBinding){
         KeyCodeCombination keyCodeCombination = (KeyCodeCombination)keyBinding.getKeyCombination();
         return this.push(TestUtil.scrub(keyCodeCombination));
     }
@@ -82,17 +92,10 @@ public class GuiTestBase extends FxRobot {
         return super.type(TestUtil.scrub(keyCodes));
     }
 
-    protected void delay(int milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    protected void pushKeySequence(KeySequence keySequence) {
+    public void pushKeySequence(KeySequence keySequence) {
         push((KeyCodeCombination)keySequence.getKeyCombination());
         push((KeyCodeCombination)keySequence.getSecondKeyCombination());
     }
+
 
 }

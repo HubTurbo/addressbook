@@ -52,4 +52,6 @@ public interface ReadOnlyViewablePerson extends ReadOnlyPerson, ReadOnlyViewable
                 Arrays.stream(obs))
                 .toArray(Observable[]::new);
     }
+
+    boolean hasName(String firstName, String lastName);
 }

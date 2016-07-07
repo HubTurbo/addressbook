@@ -4,11 +4,10 @@ import address.keybindings.Bindings;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.model.datatypes.person.Person;
-import javafx.scene.input.KeyCode;
+import guitests.guihandles.EditPersonDialogHandle;
 import org.junit.Test;
 
-import static org.testfx.api.FxAssert.verifyThat;
-import static org.testfx.matcher.base.NodeMatchers.hasText;
+import static org.junit.Assert.*;
 
 /**
  * Tests key bindings through the GUI
@@ -34,40 +33,45 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         //======= shortcuts =======================
 
-        push(bindings.LIST_ENTER_SHORTCUT);
-        verifyPersonSelected("Person1", "Lastname1");
+        personListPanel.use_LIST_ENTER_SHORTCUT();
+        assertTrue(personListPanel.isSelected("Person1", "Lastname1"));
 
-        push(KeyCode.SHORTCUT, KeyCode.DIGIT3);
-        verifyPersonSelected("Person3", "Lastname3");
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
+        assertTrue(personListPanel.isSelected("Person4", "Lastname4"));
 
         //======= sequences =========================
 
-        pushKeySequence(bindings.LIST_GOTO_BOTTOM_SEQUENCE);
-        verifyPersonSelected("Person5", "Lastname5");
+        personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
+        assertTrue(personListPanel.isSelected("Person5", "Lastname5"));
 
-        pushKeySequence(bindings.LIST_GOTO_TOP_SEQUENCE);
-        verifyPersonSelected("Person1", "Lastname1");
+        personListPanel.use_LIST_GOTO_TOP_SEQUENCE();
+        assertTrue(personListPanel.isSelected("Person1", "Lastname1"));
 
 
         //======= accelerators =======================
 
-        push(KeyCode.SHORTCUT, KeyCode.DIGIT3);
-        push(bindings.PERSON_EDIT_ACCELERATOR);
-        verifyEditWindowOpened("Person3", "Lastname3");
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
 
-        push(bindings.PERSON_DELETE_ACCELERATOR);
-        verifyPersonDeleted("Person3", "Lastname3");
+        EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        assertEquals("Person3 Lastname3", editPersonDialog.getFullName());
+        editPersonDialog.clickCancel();
+
+        personListPanel.use_PERSON_DELETE_ACCELERATOR();
+        assertTrue(personListPanel.contains("Person3", "Lastname3")); // still in the list due to grace period
+        personListPanel.waitForGracePeriodToExpire();
+        assertFalse(personListPanel.contains("Person3", "Lastname3")); // removed from list after grace period
 
         //TODO: test tag, file open, new, save, save as, cancel
 
         //======== others ============================
 
-        pushKeySequence(bindings.LIST_GOTO_BOTTOM_SEQUENCE);
-        push(KeyCode.UP);
-        verifyPersonSelected("Person4", "Lastname4");
+        personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
+        personListPanel.navigateUp();
 
-        push(KeyCode.DOWN);
-        verifyPersonSelected("Person5", "Lastname5");
+        assertTrue(personListPanel.isSelected("Person4", "Lastname4"));
+
+        personListPanel.navigateDown();
+        assertTrue(personListPanel.isSelected("Person5", "Lastname5"));
 
         //======== hotkeys ============================
 
@@ -78,21 +82,5 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
     }
 
-
-    private void verifyPersonDeleted(String firstName, String lastName) {
-        //TODO: implement this
-    }
-
-    private void verifyEditWindowOpened(String firstName, String lastName) {
-        targetWindow("Edit Person");
-        verifyThat("#firstNameField", hasText(firstName));
-        verifyThat("#lastNameField", hasText(lastName));
-        clickOn("Cancel");
-    }
-
-    private void verifyPersonSelected(String firstName, String lastName) {
-        push(bindings.PERSON_EDIT_ACCELERATOR);
-        verifyEditWindowOpened(firstName, lastName);
-    }
 
 }

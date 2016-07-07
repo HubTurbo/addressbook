@@ -533,7 +533,8 @@ public class MainController extends UiController{
 
     /**
      * Toggles between maximized and default size.
-     * If not currently at the maximized size, goes to default size.
+     * If not currently at the maximized size, goes to maximised size.
+     * If currently maximized, goes to default size.
      */
     private void resizeWindow(){
         if(primaryStage.isMaximized()){
