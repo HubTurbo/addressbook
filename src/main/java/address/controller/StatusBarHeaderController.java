@@ -4,8 +4,6 @@ import address.status.PersonCreatedStatus;
 import address.status.PersonDeletedStatus;
 import address.status.PersonEditedStatus;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
-import javafx.scene.input.MouseEvent;
 import org.controlsfx.control.StatusBar;
 
 public class StatusBarHeaderController extends UiController{
@@ -19,7 +17,7 @@ public class StatusBarHeaderController extends UiController{
         headerStatusBar.getStyleClass().removeAll();
         headerStatusBar.getStyleClass().add("status-bar-with-border");
         headerStatusBar.setText("");
-        headerStatusBar.setOnMouseClicked(event -> Platform.runLater(() ->mainController.showDetailUserActionsDialog()));
+        headerStatusBar.setOnMouseClicked(event -> Platform.runLater(() ->mainController.showActivityHistoryDialog()));
     }
 
     public StatusBar getHeaderStatusBarView() {

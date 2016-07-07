@@ -4,13 +4,11 @@ import address.MainApp;
 import address.browser.BrowserManager;
 import address.events.*;
 import address.exceptions.DuplicateTagException;
-import address.model.CommandInfo;
 import address.model.UserPrefs;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
-import address.ui.CommandInfoListViewCell;
 import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
@@ -20,7 +18,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -43,6 +40,7 @@ import java.util.Optional;
  */
 public class MainController extends UiController{
     private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
+    private static final String FXML_ACTIVITY_HISTORY = "/view/ActivityHistory.fxml";
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
@@ -464,17 +462,27 @@ public class MainController extends UiController{
         }
     }
 
-    public void showDetailUserActionsDialog() {
-        final Alert alert = new Alert(AlertType.INFORMATION);
-        alert.getDialogPane().getStylesheets().add("view/DarkTheme.css");
-        alert.initOwner(primaryStage);
-        alert.setTitle("User Logs");
-        alert.setHeaderText("User Actions");
-        ListView<CommandInfo> listView = new ListView<>();
-        listView.setItems(modelManager.getFinishedCommands());
-        listView.setCellFactory(lv -> new CommandInfoListViewCell());
-        alert.getDialogPane().setContent(listView);
-        alert.showAndWait();
+    public void showActivityHistoryDialog() {
+        logger.debug("Loading Activity History.");
+        final String fxmlResourcePath = FXML_ACTIVITY_HISTORY;
+        try {
+            // Load the fxml file and create a new stage for the popup.
+            FXMLLoader loader = loadFxml(fxmlResourcePath);
+            AnchorPane page = loader.load();
+
+            Scene scene = new Scene(page);
+            Stage dialogStage = loadDialogStage("Activity History", primaryStage, scene);
+
+            // Set the persons into the controller.
+            ActivityHistoryController controller = loader.getController();
+            controller.setConnections(modelManager.getFinishedCommands());
+            controller.init();
+            dialogStage.show();
+        } catch (IOException e) {
+            logger.fatal("Error loading activity history view: {}", e);
+            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for activity history.",
+                    "IOException when trying to load ", fxmlResourcePath);
+        }
     }
 
     /**
