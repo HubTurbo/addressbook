@@ -23,4 +23,18 @@ public class MainGuiHandle {
     }
 
 
+    public boolean isMinimized() {
+        return true;
+        //TODO: implement this
+    }
+
+    public boolean isMaximized() {
+        return true;
+        //TODO: implement this
+    }
+
+    public boolean isDefaultSize() {
+        return true;
+        //TODO: implement this
+    }
 }

@@ -101,9 +101,15 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public EditPersonDialogHandle use_PERSON_EDIT_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_EDIT_ACCELERATOR);
-        guiRobot.sleep(2000);
+        guiRobot.sleep(500);
         guiRobot.targetWindow(EditPersonDialogHandle.TITLE);
         return new EditPersonDialogHandle(guiRobot);
+    }
+
+    public TagPersonDialogHandle use_PERSON_TAG_ACCELERATOR() {
+        guiRobot.push(new Bindings().PERSON_TAG_ACCELERATOR);
+        guiRobot.sleep(500);
+        return new TagPersonDialogHandle(guiRobot);
     }
 
     public void clickOnPerson(String personName) {

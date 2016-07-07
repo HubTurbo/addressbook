@@ -4,7 +4,9 @@ import address.keybindings.Bindings;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.model.datatypes.person.Person;
+import address.util.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
+import guitests.guihandles.TagPersonDialogHandle;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -20,9 +22,9 @@ import java.util.List;
 public class KeyBindingsGuiTest extends GuiTestBase {
 
     private final Bindings bindings = new Bindings();
+    private AddressBook initialData = generateInitialData();
 
-    @Override
-    protected ReadOnlyAddressBook getInitialData() {
+    private AddressBook generateInitialData() {//TODO: create a better set of sample data
         AddressBook ab = new AddressBook();
         ab.addPerson(new Person("Person1", "Lastname1", 1));
         ab.addPerson(new Person("Person2", "Lastname2", 2));
@@ -30,20 +32,16 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         ab.addPerson(new Person("Person4", "Lastname4", 4));
         ab.addPerson(new Person("Person5", "Lastname5", 5));
         return ab;
-        //TODO: create a better set of sample data
+    }
+
+    @Override
+    protected ReadOnlyAddressBook getInitialData() {
+        return initialData;
     }
 
     @Override
     protected CloudAddressBook getInitialCloudData() {
-        CloudAddressBook cloudAddressBook = new CloudAddressBook("MyAddressBook");
-        List<CloudPerson> cloudPersonList = new ArrayList<>();
-        cloudPersonList.add(new CloudPerson("Person1", "Lastname1", 1));
-        cloudPersonList.add(new CloudPerson("Person2", "Lastname2", 2));
-        cloudPersonList.add(new CloudPerson("Person3", "Lastname3", 3));
-        cloudPersonList.add(new CloudPerson("Person4", "Lastname4", 4));
-        cloudPersonList.add(new CloudPerson("Person5", "Lastname5", 5));
-        cloudAddressBook.setPersonsList(cloudPersonList);
-        return cloudAddressBook;
+        return TestUtil.generateCloudAddressBook(initialData);
     }
 
     @Test
@@ -68,35 +66,41 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         //======= accelerators =======================
 
-        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
 
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
-        assertEquals("Person3 Lastname3", editPersonDialog.getFullName());
+        assertEquals("Person4 Lastname4", editPersonDialog.getFullName());
         editPersonDialog.clickCancel();
 
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        assertTrue(personListPanel.contains("Person3", "Lastname3")); // still in the list due to grace period
+        assertTrue(personListPanel.contains("Person4", "Lastname4")); // still in the list due to grace period
         personListPanel.waitForGracePeriodToExpire();
-        assertFalse(personListPanel.contains("Person3", "Lastname3")); // removed from list after grace period
+        assertFalse(personListPanel.contains("Person4", "Lastname4")); // removed from list after grace period
 
-        //TODO: test tag, file open, new, save, save as, cancel
+        TagPersonDialogHandle tagPersonDialog = personListPanel.use_PERSON_TAG_ACCELERATOR();
+        tagPersonDialog.close();
 
         //======== others ============================
 
-        personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
-        personListPanel.navigateUp();
-
-        assertTrue(personListPanel.isSelected("Person4", "Lastname4"));
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
+        assertTrue(personListPanel.isSelected("Person2", "Lastname2"));
 
         personListPanel.navigateDown();
-        assertTrue(personListPanel.isSelected("Person5", "Lastname5"));
+        assertTrue(personListPanel.isSelected("Person3", "Lastname3"));
+
+        personListPanel.navigateUp();
+        assertTrue(personListPanel.isSelected("Person2", "Lastname2"));
 
         //======== hotkeys ============================
 
         guiRobot.push(bindings.APP_MINIMIZE_HOTKEY.get(0));
+        assertTrue(mainGui.isMinimized());
+
         guiRobot.push(bindings.APP_RESIZE_HOTKEY.get(0)); //maximize the window
+        assertTrue(mainGui.isMaximized());
+
         guiRobot.push(bindings.APP_RESIZE_HOTKEY.get(0)); //set window to default size
-        //TODO: test hotkeys further
+        assertTrue(mainGui.isDefaultSize());
 
     }
 
