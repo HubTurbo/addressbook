@@ -98,8 +98,8 @@ public class SyncManager extends ComponentManager {
         logger.info("Starting sync manager.");
         long initialDelay = 300; // temp fix for issue #66
         Runnable syncTask = new GetUpdatesFromRemoteTask(remoteManager, this::raise, this::getActiveAddressBook);
-        logger.debug("Scheduling synchronization task with interval of {} milliseconds", config.updateInterval);
-        scheduler.scheduleWithFixedDelay(syncTask, initialDelay, config.updateInterval, TimeUnit.MILLISECONDS);
+        logger.debug("Scheduling synchronization task with interval of {} milliseconds", config.getUpdateInterval());
+        scheduler.scheduleWithFixedDelay(syncTask, initialDelay, config.getUpdateInterval(), TimeUnit.MILLISECONDS);
     }
 
     public void stop() {

@@ -7,6 +7,8 @@ import address.sync.cloud.model.CloudTag;
 import address.util.AppLogger;
 import address.util.Config;
 import address.util.LoggerManager;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -30,6 +32,12 @@ import java.util.function.Supplier;
  *
  * Launches a GUI for the tester to simulate errors and data modifications
  * By default, the responses returned should be same as the ones returned from CloudSimulator, with little to no delay
+ *
+ * The CloudManipulator will attempt to initialize a cloud file with cloud address book data.
+ * This data can be provided through several means:
+ *  - A cloud address book can be provided for initialization.
+ *  - Otherwise, a cloud data file path can be provided in config.
+ *  - If all else fails, it will initialize an empty cloud file with the given address book name in config.
  */
 public class CloudManipulator extends CloudSimulator {
     private static final AppLogger logger = LoggerManager.getLogger(CloudManipulator.class);
@@ -37,14 +45,18 @@ public class CloudManipulator extends CloudSimulator {
     private static final String FAIL_BUTTON_TEXT = "Fail next response";
     private static final String DELAY_BUTTON_ICON_PATH = "/images/clock.png";
     private static final String FAIL_BUTTON_ICON_PATH = "/images/fail.png";
+    private static final String ADD_PERSON_TEXT = "Add person";
+    private static final String MODIFY_PERSON_TEXT = "Modify person";
+    private static final String CLOUD_MANIPULATOR_TITLE = "Cloud Manipulator";
+    private static final String ADDRESS_BOOK_FIELD_TOOLTIP_TEXT = "Enter address book to target.";
+    private static final int CONSOLE_WIDTH = 300;
+    private static final int CONSOLE_HEIGHT = 600;
+
     private static final Random RANDOM_GENERATOR = new Random();
     private static final int MIN_DELAY_IN_SEC = 1;
     private static final int MAX_DELAY_IN_SEC = 5;
     private static final int MAX_NUM_PERSONS_TO_ADD = 2;
     private static final int MAX_NUM_TAGS_TO_ADD = 2;
-    private static final String ADD_PERSON_TEXT = "Add person";
-    private static final String MODIFY_PERSON_TEXT = "Modify person";
-    private static final String CLOUD_MANIPULATOR_TITLE = "Cloud Manipulator";
 
     private boolean shouldDelayNext = false;
     private boolean shouldFailNext = false;
@@ -53,6 +65,12 @@ public class CloudManipulator extends CloudSimulator {
     private TextArea statusArea;
     private TextField addressBookField;
 
+    /**
+     * Initializes CloudManipulator with data found in config's cloudDataFilePath
+     * Upon failure, it will initialize an empty address book with config's addressBookName
+     *
+     * @param config
+     */
     public CloudManipulator(Config config) {
         super(config);
         if (config.getCloudDataFilePath() != null) {
@@ -62,6 +80,11 @@ public class CloudManipulator extends CloudSimulator {
         }
     }
 
+    /**
+     * Initializes CloudManipulator with the provided cloud address book
+     *
+     * @param config
+     */
     public CloudManipulator(Config config, CloudAddressBook cloudAddressBook) {
         super(config);
         initializeCloudFile(cloudAddressBook);
@@ -77,8 +100,9 @@ public class CloudManipulator extends CloudSimulator {
      * @param addressBookName
      */
     private void initializeCloudFile(String cloudDataFilePath, String addressBookName) {
+        CloudAddressBook cloudAddressBook;
         try {
-            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromFile(cloudDataFilePath);
+            cloudAddressBook = fileHandler.readCloudAddressBookFromFile(cloudDataFilePath);
             initializeCloudFile(cloudAddressBook);
         } catch (DataConversionException e) {
             logger.fatal("Error initializing reading from cloud data file: {}", cloudDataFilePath);
@@ -110,30 +134,17 @@ public class CloudManipulator extends CloudSimulator {
 
     public void start(Stage stage) {
         VBox buttonBox = new VBox();
-        buttonBox.setMinWidth(300);
+        buttonBox.setMinWidth(CONSOLE_WIDTH);
         addressBookField = getAddressBookNameField(addressBookName);
-        addressBookField.setTooltip(new Tooltip("Enter address book to target."));
 
-        Button delayButton = getButton(DELAY_BUTTON_TEXT);
-        ImageView delayIcon = getIcon(DELAY_BUTTON_ICON_PATH);
-        delayButton.setGraphic(delayIcon);
-        delayButton.setOnAction(actionEvent -> shouldDelayNext = true);
-
-        Button failButton = getButton(FAIL_BUTTON_TEXT);
-        ImageView failIcon = getIcon(FAIL_BUTTON_ICON_PATH);
-        failButton.setGraphic(failIcon);
-        failButton.setOnAction(actionEvent -> shouldFailNext = true);
-
-        Button simulatePersonAdditionButton = getButton(ADD_PERSON_TEXT);
-        simulatePersonAdditionButton.setOnAction(actionEvent -> addRandomPersonToAddressBookFile(addressBookField::getText));
-        Button simulatePersonModificationButton = getButton(MODIFY_PERSON_TEXT);
-        simulatePersonModificationButton.setOnAction(actionEvent -> modifyRandomPersonInAddressBookFile(addressBookField::getText));
-
+        Button delayButton = getButton(DELAY_BUTTON_TEXT, getIcon(DELAY_BUTTON_ICON_PATH), actionEvent -> shouldDelayNext = true);
+        Button failButton = getButton(FAIL_BUTTON_TEXT, getIcon(FAIL_BUTTON_ICON_PATH), actionEvent -> shouldFailNext = true);
+        Button simulatePersonAdditionButton = getButton(ADD_PERSON_TEXT, null, actionEvent -> addRandomPersonToAddressBookFile(addressBookField::getText));
+        Button simulatePersonModificationButton = getButton(MODIFY_PERSON_TEXT, null, actionEvent -> modifyRandomPersonInAddressBookFile(addressBookField::getText));
 
         statusArea = getStatusArea();
         buttonBox.getChildren().addAll(delayButton, failButton, addressBookField, simulatePersonAdditionButton,
                                        simulatePersonModificationButton, statusArea);
-
 
         Dialog<Void> dialog = new Dialog<>();
         dialog.initModality(Modality.NONE); // so that the dialog does not prevent interaction with the app
@@ -142,21 +153,22 @@ public class CloudManipulator extends CloudSimulator {
         dialog.getDialogPane().getChildren().add(buttonBox);
         dialog.setX(stage.getX() + 740);
         dialog.setY(stage.getY());
-        dialog.getDialogPane().setPrefWidth(300);
-        dialog.getDialogPane().setPrefHeight(600);
+        dialog.getDialogPane().setPrefWidth(CONSOLE_WIDTH);
+        dialog.getDialogPane().setPrefHeight(CONSOLE_HEIGHT);
         dialog.show();
     }
 
     private TextField getAddressBookNameField(String startingText) {
         TextField addressBookNameField = new TextField(startingText);
-        addressBookNameField.setMinWidth(300);
+        addressBookNameField.setMinWidth(CONSOLE_WIDTH);
+        addressBookNameField.setTooltip(new Tooltip(ADDRESS_BOOK_FIELD_TOOLTIP_TEXT));
         return addressBookNameField;
     }
 
     private TextArea getStatusArea() {
         TextArea statusArea = new TextArea();
         statusArea.setEditable(false);
-        statusArea.setMinWidth(300);
+        statusArea.setMinWidth(CONSOLE_WIDTH);
         statusArea.setMinHeight(300);
         statusArea.setWrapText(true);
         return statusArea;
@@ -170,9 +182,11 @@ public class CloudManipulator extends CloudSimulator {
         return imageView;
     }
 
-    private Button getButton(String text) {
+    private Button getButton(String text, ImageView graphic, EventHandler<ActionEvent> actionEventHandler) {
         Button button = new Button(text);
-        button.setMinWidth(300);
+        button.setMinWidth(CONSOLE_WIDTH);
+        button.setGraphic(graphic);
+        button.setOnAction(actionEventHandler);
         return button;
     }
 

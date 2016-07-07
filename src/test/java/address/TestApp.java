@@ -12,10 +12,14 @@ import javafx.stage.Stage;
 
 import java.util.function.Supplier;
 
+/**
+ * This class is meant to override some properties of MainApp so that it will be suited for
+ * testing
+ */
 public class TestApp extends MainApp {
 
     public static final String SAVE_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleData.xml");
-    public static final String DEFAULT_CLOUD_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleCloudData.xml");
+    protected static final String DEFAULT_CLOUD_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleCloudData.xml");
     protected Supplier<ReadOnlyAddressBook> initialDataSupplier = () -> null;
     protected Supplier<CloudAddressBook> initialCloudDataSupplier = () -> null;
     protected String saveFileLocation = SAVE_LOCATION_FOR_TESTING;
@@ -28,10 +32,10 @@ public class TestApp extends MainApp {
                    Supplier<CloudAddressBook> initialCloudDataSupplier) {
         super();
         this.initialDataSupplier = initialDataSupplier;
-        this.initialCloudDataSupplier = initialCloudDataSupplier;
         this.saveFileLocation = saveFileLocation;
+        this.initialCloudDataSupplier = initialCloudDataSupplier;
 
-        //If some intial data has been provided, write those to the file
+        // If some initial local data has been provided, write those to the file
         if (initialDataSupplier.get() != null) {
             TestUtil.createDataFileWithData(
                     new StorageAddressBook(this.initialDataSupplier.get()),
@@ -42,7 +46,7 @@ public class TestApp extends MainApp {
     @Override
     protected Config initConfig(String configFilePath) {
         Config config = super.initConfig(configFilePath);
-        config.appTitle = "Test App";
+        config.setAppTitle("Test App");
         config.setLocalDataFilePath(saveFileLocation);
         // Use default cloud test data if no data is supplied
         if (initialCloudDataSupplier.get() == null) config.setCloudDataFilePath(DEFAULT_CLOUD_LOCATION_FOR_TESTING);

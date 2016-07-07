@@ -55,15 +55,15 @@ public class TestUtil {
     public static String SANDBOX_FOLDER = FileUtil.getPath("./src/test/data/sandbox/");
 
     public static final Person[] samplePersonData = {
-            new Person("Hans", "Muster", -1),
-            new Person("Ruth", "Mueller", -2),
-            new Person("Heinz", "Kurz", -3),
-            new Person("Cornelia", "Meier", -4),
-            new Person("Werner", "Meyer", -5),
-            new Person("Lydia", "Kunz", -6),
-            new Person("Anna", "Best", -7),
-            new Person("Stefan", "Meier", -8),
-            new Person("Martin", "Mueller", -9)
+            new Person("Hans", "Muster", 1),
+            new Person("Ruth", "Mueller", 2),
+            new Person("Heinz", "Kurz", 3),
+            new Person("Cornelia", "Meier", 4),
+            new Person("Werner", "Meyer", 5),
+            new Person("Lydia", "Kunz", 6),
+            new Person("Anna", "Best", 7),
+            new Person("Stefan", "Meier", 8),
+            new Person("Martin", "Mueller", 9)
     };
 
     public static final Tag[] sampleTagData = {
@@ -72,15 +72,15 @@ public class TestUtil {
     };
 
     public static final CloudPerson[] sampleCloudPersonData = {
-            new CloudPerson("Hans", "Muster", -1),
-            new CloudPerson("Ruth", "Mueller", -2),
-            new CloudPerson("Heinz", "Kurz", -3),
-            new CloudPerson("Cornelia", "Meier", -4),
-            new CloudPerson("Werner", "Meyer", -5),
-            new CloudPerson("Lydia", "Kunz", -6),
-            new CloudPerson("Anna", "Best", -7),
-            new CloudPerson("Stefan", "Meier", -8),
-            new CloudPerson("Martin", "Mueller", -9)
+            new CloudPerson("Hans", "Muster", 1),
+            new CloudPerson("Ruth", "Mueller", 2),
+            new CloudPerson("Heinz", "Kurz", 3),
+            new CloudPerson("Cornelia", "Meier", 4),
+            new CloudPerson("Werner", "Meyer", 5),
+            new CloudPerson("Lydia", "Kunz", 6),
+            new CloudPerson("Anna", "Best", 7),
+            new CloudPerson("Stefan", "Meier", 8),
+            new CloudPerson("Martin", "Mueller", 9)
     };
 
     public static final CloudTag[] sampleCloudTagData = {
