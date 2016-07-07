@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
  * Requests for a full list of objects should be done in pages. Responses
  * will include first page/prev page/next page/last page if they exist.
  *
- * All requests (including bad ones) will consume API, unless it is
- * a response with NOT_MODIFIED.
+ * Providing previous request's eTag may return a NOT_MODIFIED response if the response's eTag has not changed.
+ * All requests (including bad ones) will consume API, unless it is a response with NOT_MODIFIED.
  */
 public class CloudSimulator implements IRemote {
     private static final AppLogger logger = LoggerManager.getLogger(CloudSimulator.class);
@@ -52,7 +52,7 @@ public class CloudSimulator implements IRemote {
     /**
      * Attempts to create a person if quota is available
      *
-     * A new ID for the new person will be generated; and the ID field in the given newPerson will be ignored
+     * A new ID for the new person will be generated, and the ID field in the given newPerson will be ignored
      * <p>
      * Consumes 1 API usage
      *

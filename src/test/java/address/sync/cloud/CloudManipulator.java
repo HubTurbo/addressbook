@@ -34,10 +34,10 @@ import java.util.function.Supplier;
  * By default, the responses returned should be same as the ones returned from CloudSimulator, with little to no delay
  *
  * The CloudManipulator will attempt to initialize a cloud file with cloud address book data.
- * This data can be provided through several means:
+ * This data can be provided through the following means:
  *  - A cloud address book can be provided for initialization.
- *  - Otherwise, a cloud data file path can be provided in config.
- *  - If all else fails, it will initialize an empty cloud file with the given address book name in config.
+ *  - A cloud data file path can be provided in config. If reading fails, it will initialize an empty cloud file
+ *  with the given address book name in config.
  */
 public class CloudManipulator extends CloudSimulator {
     private static final AppLogger logger = LoggerManager.getLogger(CloudManipulator.class);
@@ -105,7 +105,7 @@ public class CloudManipulator extends CloudSimulator {
             cloudAddressBook = fileHandler.readCloudAddressBookFromFile(cloudDataFilePath);
             initializeCloudFile(cloudAddressBook);
         } catch (DataConversionException e) {
-            logger.fatal("Error initializing reading from cloud data file: {}", cloudDataFilePath);
+            logger.fatal("Error reading from cloud data file: {}", cloudDataFilePath);
             assert false : "Error initializing cloud file: data conversion error during file reading";
         } catch (FileNotFoundException e) {
             logger.warn("Invalid cloud data file path provided: {}. Using empty address book for cloud", cloudDataFilePath);
@@ -133,8 +133,8 @@ public class CloudManipulator extends CloudSimulator {
     }
 
     public void start(Stage stage) {
-        VBox buttonBox = new VBox();
-        buttonBox.setMinWidth(CONSOLE_WIDTH);
+        VBox consoleBox = new VBox();
+        consoleBox.setMinWidth(CONSOLE_WIDTH);
         addressBookField = getAddressBookNameField(addressBookName);
 
         Button delayButton = getButton(DELAY_BUTTON_TEXT, getIcon(DELAY_BUTTON_ICON_PATH), actionEvent -> shouldDelayNext = true);
@@ -143,14 +143,14 @@ public class CloudManipulator extends CloudSimulator {
         Button simulatePersonModificationButton = getButton(MODIFY_PERSON_TEXT, null, actionEvent -> modifyRandomPersonInAddressBookFile(addressBookField::getText));
 
         statusArea = getStatusArea();
-        buttonBox.getChildren().addAll(delayButton, failButton, addressBookField, simulatePersonAdditionButton,
+        consoleBox.getChildren().addAll(delayButton, failButton, addressBookField, simulatePersonAdditionButton,
                                        simulatePersonModificationButton, statusArea);
 
         Dialog<Void> dialog = new Dialog<>();
         dialog.initModality(Modality.NONE); // so that the dialog does not prevent interaction with the app
         dialog.initOwner(stage);
         dialog.setTitle(CLOUD_MANIPULATOR_TITLE);
-        dialog.getDialogPane().getChildren().add(buttonBox);
+        dialog.getDialogPane().getChildren().add(consoleBox);
         dialog.setX(stage.getX() + 740);
         dialog.setY(stage.getY());
         dialog.getDialogPane().setPrefWidth(CONSOLE_WIDTH);
@@ -159,7 +159,11 @@ public class CloudManipulator extends CloudSimulator {
     }
 
     private TextField getAddressBookNameField(String startingText) {
-        TextField addressBookNameField = new TextField(startingText);
+        TextField addressBookNameField = new TextField();
+        if (startingText != null) {
+            addressBookNameField.setText(startingText);
+        }
+        addressBookNameField.setPromptText("Address Book");
         addressBookNameField.setMinWidth(CONSOLE_WIDTH);
         addressBookNameField.setTooltip(new Tooltip(ADDRESS_BOOK_FIELD_TOOLTIP_TEXT));
         return addressBookNameField;
@@ -201,13 +205,13 @@ public class CloudManipulator extends CloudSimulator {
     }
 
     private void modifyRandomPersonInAddressBookFile(Supplier<String> addressBookName) {
-        logAndUpdateStatus("Modifying random person in address book");
+        logAndUpdateStatus("Modifying random person in address book " + addressBookName.get());
         try {
             CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(addressBookName.get());
             modifyCloudPerson(getRandomPerson(cloudAddressBook.getAllPersons()));
             fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
         } catch (FileNotFoundException e) {
-            logAndUpdateStatus("Failed to modify person: cloud addressbook " + addressBookName.get() + " not found");
+            logAndUpdateStatus("Failed to modify person: cloud address book " + addressBookName.get() + " not found");
         } catch (DataConversionException e) {
             logAndUpdateStatus("Failed to modify person: error occurred");
         }
@@ -220,7 +224,7 @@ public class CloudManipulator extends CloudSimulator {
             addCloudPersons(cloudAddressBook.getAllPersons());
             fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
         } catch (FileNotFoundException e) {
-            logAndUpdateStatus("Failed to add person: cloud addressbook " + addressBookName.get() + " not found");
+            logAndUpdateStatus("Failed to add person: cloud address book " + addressBookName.get() + " not found");
         } catch (DataConversionException e) {
             logAndUpdateStatus("Failed to modify person: error occurred");
         }
@@ -366,14 +370,14 @@ public class CloudManipulator extends CloudSimulator {
     }
 
     private void delayRandomAmount() {
+        shouldDelayNext = false;
         long delayAmount = RANDOM_GENERATOR.nextInt(MAX_DELAY_IN_SEC - MIN_DELAY_IN_SEC) + MIN_DELAY_IN_SEC;
         try {
-            logAndUpdateStatus("Delayed response by " + delayAmount + " secs");
+            logAndUpdateStatus("Delaying response by " + delayAmount + " secs");
             TimeUnit.SECONDS.sleep(delayAmount);
         } catch (InterruptedException e) {
             logAndUpdateStatus("Error occurred while delaying cloud response");
         }
-        shouldDelayNext = false;
     }
 
     private RemoteResponse getNetworkFailedResponse() {
