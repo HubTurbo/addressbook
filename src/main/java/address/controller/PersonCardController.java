@@ -24,9 +24,14 @@ import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 public class PersonCardController extends UiController{
-    public static final String DELETING_PENDING_STATE_MESSAGE = "Deleted ";
-    public static final String EDITING_PENDING_STATE_MESSAGE = "Edited ";
-    public static final String CREATED_PENDING_STATE_MESSAGE = "Created ";
+
+    private enum PendingState {
+        COUNTING_DOWN, SYNCING, SYNCING_DONE
+    }
+
+    public static final String DELETING_PENDING_STATE_MESSAGE = "Deleted";
+    public static final String EDITING_PENDING_STATE_MESSAGE = "Edited";
+    public static final String CREATED_PENDING_STATE_MESSAGE = "Created";
 
     @FXML
     private HBox cardPane;
@@ -50,6 +55,8 @@ public class PersonCardController extends UiController{
     private ProgressIndicator syncIndicator;
     @FXML
     private HBox pendingStateHolder;
+    @FXML
+    private Label pendingCountdownIndicator;
 
     private ReadOnlyViewablePerson person;
     private FadeTransition deleteTransition;
@@ -137,41 +144,54 @@ public class PersonCardController extends UiController{
             }
         });
         if (person.getSecondsLeftInPendingState() > 0) {
-            setPendingStateMessage(person.getChangeInProgress(), person.getSecondsLeftInPendingState());
+            setPendingStateMessage(person.getChangeInProgress());
             pendingStateHolder.setVisible(true);
+            pendingCountdownIndicator.setVisible(true);
         }
         person.secondsLeftInPendingStateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() > 0) {
-                setPendingStateMessage(person.getChangeInProgress(), newValue);
-                pendingStateHolder.setVisible(true);
+                setPendingStateMessage(person.getChangeInProgress());
+                setVisibilitySettings(PendingState.COUNTING_DOWN);
             } else {
                 cardPane.setStyle(null);
-                setPendingStateMessage(person.getChangeInProgress(), newValue);
-                pendingStateHolder.setVisible(true);
-                syncIndicator.setVisible(true);
+                setPendingStateMessage(person.getChangeInProgress());
+                setVisibilitySettings(PendingState.SYNCING);
                 person.onRemoteIdConfirmed((Integer id) -> {
-                    syncIndicator.setVisible(false);
+                    setVisibilitySettings(PendingState.SYNCING_DONE);
                     pendingStateLabel.setText("");
-                    pendingStateHolder.setVisible(false);
                 });
             }
         });
+        pendingCountdownIndicator.textProperty().bind(person.secondsLeftInPendingStateProperty().asString());
     }
 
-    private void setPendingStateMessage(ReadOnlyViewablePerson.ChangeInProgress changeInProgress, Number secsLeft) {
-
-        String secsLeftString = "";
-
-        if (secsLeft.shortValue() > 0) {
-            secsLeftString = String.valueOf(secsLeft);
+    private void setVisibilitySettings(PendingState state) {
+        switch (state) {
+            case COUNTING_DOWN:
+                pendingStateHolder.setVisible(true);
+                pendingCountdownIndicator.setVisible(true);
+                break;
+            case SYNCING:
+                pendingStateHolder.setVisible(true);
+                pendingCountdownIndicator.setVisible(false);
+                syncIndicator.setVisible(true);
+                break;
+            case SYNCING_DONE:
+                syncIndicator.setVisible(false);
+                pendingStateHolder.setVisible(false);
+                break;
         }
+    }
+
+    private void setPendingStateMessage(ReadOnlyViewablePerson.ChangeInProgress changeInProgress) {
+
 
         if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.ADDING) {
-            pendingStateLabel.setText(CREATED_PENDING_STATE_MESSAGE + secsLeftString);
+            pendingStateLabel.setText(CREATED_PENDING_STATE_MESSAGE);
         } else if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.EDITING) {
-            pendingStateLabel.setText(EDITING_PENDING_STATE_MESSAGE + secsLeftString);
+            pendingStateLabel.setText(EDITING_PENDING_STATE_MESSAGE);
         } else if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.DELETING) {
-            pendingStateLabel.setText(DELETING_PENDING_STATE_MESSAGE + secsLeftString);
+            pendingStateLabel.setText(DELETING_PENDING_STATE_MESSAGE);
         }
     }
 
