@@ -146,7 +146,7 @@ public class PersonCardController extends UiController{
                 pendingStateHolder.setVisible(true);
             } else {
                 cardPane.setStyle(null);
-                setPendingStateMessage(person.getChangeInProgress(), -1);
+                setPendingStateMessage(person.getChangeInProgress(), newValue);
                 pendingStateHolder.setVisible(true);
                 syncIndicator.setVisible(true);
                 person.onRemoteIdConfirmed((Integer id) -> {
@@ -160,18 +160,18 @@ public class PersonCardController extends UiController{
 
     private void setPendingStateMessage(ReadOnlyViewablePerson.ChangeInProgress changeInProgress, Number secsLeft) {
 
-        String secLeftString = "";
+        String secsLeftString = "";
 
         if (secsLeft.shortValue() > 0) {
-            secLeftString = String.valueOf(secsLeft);
+            secsLeftString = String.valueOf(secsLeft);
         }
 
         if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.ADDING) {
-            pendingStateLabel.setText(CREATED_PENDING_STATE_MESSAGE + secLeftString);
+            pendingStateLabel.setText(CREATED_PENDING_STATE_MESSAGE + secsLeftString);
         } else if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.EDITING) {
-            pendingStateLabel.setText(EDITING_PENDING_STATE_MESSAGE + secLeftString);
+            pendingStateLabel.setText(EDITING_PENDING_STATE_MESSAGE + secsLeftString);
         } else if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.DELETING) {
-            pendingStateLabel.setText(DELETING_PENDING_STATE_MESSAGE + secLeftString);
+            pendingStateLabel.setText(DELETING_PENDING_STATE_MESSAGE + secsLeftString);
         }
     }
 
