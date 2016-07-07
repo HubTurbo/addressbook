@@ -42,7 +42,7 @@ public class CloudSimulator implements IRemote {
         cloudRateLimitStatus = new CloudRateLimitStatus(API_QUOTA_PER_HOUR);
         cloudRateLimitStatus.restartQuotaTimer();
         try {
-            fileHandler.initializeCloudAddressBookFile(config.getAddressBookName());
+            fileHandler.initializeCloudAddressBookFile(config.getAddressBookName(), false);
         } catch (IOException | DataConversionException e) {
             logger.fatal("Error initializing cloud file for '{}'", config.getAddressBookName());
             assert false : "Error initializing cloud file: " + config.getAddressBookName();
