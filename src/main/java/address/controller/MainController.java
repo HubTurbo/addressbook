@@ -53,8 +53,6 @@ public class MainController extends UiController{
     private static final String ICON_CALENDAR = "/images/calendar.png";
     public static final int MIN_HEIGHT = 400;
     public static final int MIN_WIDTH = 740;
-    public static final int DEFAULT_HEIGHT = 600;
-    public static final int DEFAULT_WIDTH = 740;
 
     private Stage primaryStage;
     private VBox rootLayout;

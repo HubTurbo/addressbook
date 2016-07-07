@@ -8,8 +8,11 @@ import javafx.stage.Screen;
  */
 public final class ScreenUtil {
 
+    public static final int DEFAULT_HEIGHT = 600;
+    public static final int DEFAULT_WIDTH = 740;
+
     public static ScreenSize getRecommendedScreenSize() {
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        return new ScreenSize(primScreenBounds.getWidth() * 0.5, primScreenBounds.getHeight() * 0.7);
+        //Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        return new ScreenSize((double)DEFAULT_WIDTH, (double)DEFAULT_HEIGHT);
     }
 }
