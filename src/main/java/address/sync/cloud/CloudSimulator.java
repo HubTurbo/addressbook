@@ -32,7 +32,7 @@ public class CloudSimulator implements IRemote {
     protected CloudRateLimitStatus cloudRateLimitStatus;
     protected CloudFileHandler fileHandler;
 
-    public CloudSimulator(CloudFileHandler fileHandler, CloudRateLimitStatus cloudRateLimitStatus) {
+    protected CloudSimulator(CloudFileHandler fileHandler, CloudRateLimitStatus cloudRateLimitStatus) {
         this.fileHandler = fileHandler;
         this.cloudRateLimitStatus = cloudRateLimitStatus;
     }
@@ -41,6 +41,12 @@ public class CloudSimulator implements IRemote {
         fileHandler = new CloudFileHandler();
         cloudRateLimitStatus = new CloudRateLimitStatus(API_QUOTA_PER_HOUR);
         cloudRateLimitStatus.restartQuotaTimer();
+        try {
+            fileHandler.initializeCloudAddressBookFile(config.getAddressBookName());
+        } catch (IOException | DataConversionException e) {
+            logger.fatal("Error initializing cloud file for '{}'", config.getAddressBookName());
+            assert false : "Error initializing cloud file: " + config.getAddressBookName();
+        }
     }
 
     /**
@@ -430,11 +436,6 @@ public class CloudSimulator implements IRemote {
             endIndex = fullResourceList.size();
         }
         return fullResourceList.subList(startIndex, endIndex);
-    }
-
-    private RemoteResponse getNetworkFailedResponse() {
-        logger.info("Simulated network failure occurred!");
-        return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
     }
 
     private RemoteResponse getEmptyResponse(int responseCode) {

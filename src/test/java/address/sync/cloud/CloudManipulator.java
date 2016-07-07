@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * Adds data/response manipulation features to the CloudSimulator
@@ -31,92 +32,125 @@ import java.util.concurrent.TimeUnit;
  * By default, the responses returned should be same as the ones returned from CloudSimulator, with little to no delay
  */
 public class CloudManipulator extends CloudSimulator {
-    private class Manipulation {// TODO: create a list of this so that the tester can chain a set of errors
-        long delay = 0;
-        boolean removePerson = false;
-    }
-
     private static final AppLogger logger = LoggerManager.getLogger(CloudManipulator.class);
+    private static final String DELAY_BUTTON_TEXT = "Delay next response";
+    private static final String FAIL_BUTTON_TEXT = "Fail next response";
+    private static final String DELAY_BUTTON_ICON_PATH = "/images/clock.png";
+    private static final String FAIL_BUTTON_ICON_PATH = "/images/fail.png";
     private static final Random RANDOM_GENERATOR = new Random();
     private static final int MIN_DELAY_IN_SEC = 1;
     private static final int MAX_DELAY_IN_SEC = 5;
     private static final int MAX_NUM_PERSONS_TO_ADD = 2;
     private static final int MAX_NUM_TAGS_TO_ADD = 2;
+    private static final String ADD_PERSON_TEXT = "Add person";
+    private static final String MODIFY_PERSON_TEXT = "Modify person";
+    private static final String CLOUD_MANIPULATOR_TITLE = "Cloud Manipulator";
 
     private boolean shouldDelayNext = false;
     private boolean shouldFailNext = false;
 
+    private String addressBookName;
     private TextArea statusArea;
+    private TextField addressBookField;
 
     public CloudManipulator(Config config) {
         super(config);
-        if (config.getCloudDataFilePath() != null) initializeCloudFile(config.getCloudDataFilePath(), config.getAddressBookName());
+        if (config.getCloudDataFilePath() != null) {
+            initializeCloudFile(config.getCloudDataFilePath(), config.getAddressBookName());
+        } else {
+            initializeCloudFile(new CloudAddressBook(config.getAddressBookName()));
+        }
     }
 
     public CloudManipulator(Config config, CloudAddressBook cloudAddressBook) {
         super(config);
-        initializeCloudFile(cloudAddressBook, config.getAddressBookName());
+        initializeCloudFile(cloudAddressBook);
     }
 
+    /**
+     * Attempts to read a CloudAddressBook from the given cloudDataFilePath,
+     * then initializes a cloud file with the read cloudAddressBook
+     *
+     * Initializes an empty cloud file with addressBookName if read from cloudDataFilePath fails
+     *
+     * @param cloudDataFilePath
+     * @param addressBookName
+     */
     private void initializeCloudFile(String cloudDataFilePath, String addressBookName) {
         try {
             CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromFile(cloudDataFilePath);
-            initializeCloudFile(cloudAddressBook, addressBookName);
+            initializeCloudFile(cloudAddressBook);
         } catch (DataConversionException e) {
-            e.printStackTrace();
+            logger.fatal("Error initializing reading from cloud data file: {}", cloudDataFilePath);
+            assert false : "Error initializing cloud file: data conversion error during file reading";
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Invalid cloud data file path provided: {}. Using empty address book for cloud", cloudDataFilePath);
+            initializeCloudFile(new CloudAddressBook(addressBookName));
         }
     }
 
-    private void initializeCloudFile(CloudAddressBook cloudAddressBook, String addressBookName) {
+    /**
+     * Initializes a cloud file with the cloudAddressBook
+     *
+     * @param cloudAddressBook
+     */
+    private void initializeCloudFile(CloudAddressBook cloudAddressBook) {
         try {
-            fileHandler.initializeCloudAddressBookFile(addressBookName);
+            this.addressBookName = cloudAddressBook.getName();
+            fileHandler.initializeCloudAddressBookFile(cloudAddressBook.getName());
             fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
-        } catch (DataConversionException e) {
-            e.printStackTrace();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            logger.fatal("Cloud file cannot be found for: {}", cloudAddressBook.getName());
+            assert false : "Error initializing cloud file: cloud file cannot be found.";
+        } catch (DataConversionException | IOException e) {
+            logger.fatal("Error initializing cloud file for: {}", cloudAddressBook.getName());
+            assert false : "Error initializing cloud file: data conversion error";
         }
     }
 
     public void start(Stage stage) {
         VBox buttonBox = new VBox();
         buttonBox.setMinWidth(300);
-        Button delayButton = getButton("Delay next response");
-        ImageView clockIcon = getIcon("/images/clock.png");
-        delayButton.setGraphic(clockIcon);
+        addressBookField = getAddressBookNameField(addressBookName);
+        addressBookField.setTooltip(new Tooltip("Enter address book to target."));
+
+        Button delayButton = getButton(DELAY_BUTTON_TEXT);
+        ImageView delayIcon = getIcon(DELAY_BUTTON_ICON_PATH);
+        delayButton.setGraphic(delayIcon);
         delayButton.setOnAction(actionEvent -> shouldDelayNext = true);
 
-        Button failButton = getButton("Fail next response");
-        ImageView failIcon = getIcon("/images/fail.png");
+        Button failButton = getButton(FAIL_BUTTON_TEXT);
+        ImageView failIcon = getIcon(FAIL_BUTTON_ICON_PATH);
         failButton.setGraphic(failIcon);
         failButton.setOnAction(actionEvent -> shouldFailNext = true);
 
-        Button simulatePersonAdditionButton = getButton("Add person");
-        simulatePersonAdditionButton.setOnAction(actionEvent -> addRandomPersonToAddressBookFile("cloud"));
-        Button simulatePersonModificationButton = getButton("Modify person");
-        simulatePersonModificationButton.setOnAction(actionEvent -> modifyRandomPersonInAddressBookFile("cloud"));
+        Button simulatePersonAdditionButton = getButton(ADD_PERSON_TEXT);
+        simulatePersonAdditionButton.setOnAction(actionEvent -> addRandomPersonToAddressBookFile(addressBookField::getText));
+        Button simulatePersonModificationButton = getButton(MODIFY_PERSON_TEXT);
+        simulatePersonModificationButton.setOnAction(actionEvent -> modifyRandomPersonInAddressBookFile(addressBookField::getText));
+
 
         statusArea = getStatusArea();
-        buttonBox.getChildren().addAll(delayButton, failButton, simulatePersonAdditionButton, simulatePersonModificationButton, statusArea);
+        buttonBox.getChildren().addAll(delayButton, failButton, addressBookField, simulatePersonAdditionButton,
+                                       simulatePersonModificationButton, statusArea);
 
 
         Dialog<Void> dialog = new Dialog<>();
-        dialog.initModality(Modality.NONE);
+        dialog.initModality(Modality.NONE); // so that the dialog does not prevent interaction with the app
         dialog.initOwner(stage);
-        dialog.setTitle("Cloud Manipulator");
+        dialog.setTitle(CLOUD_MANIPULATOR_TITLE);
         dialog.getDialogPane().getChildren().add(buttonBox);
-        dialog.getDialogPane().setStyle("-fx-border-color: black;");
         dialog.setX(stage.getX() + 740);
         dialog.setY(stage.getY());
         dialog.getDialogPane().setPrefWidth(300);
         dialog.getDialogPane().setPrefHeight(600);
         dialog.show();
+    }
+
+    private TextField getAddressBookNameField(String startingText) {
+        TextField addressBookNameField = new TextField(startingText);
+        addressBookNameField.setMinWidth(300);
+        return addressBookNameField;
     }
 
     private TextArea getStatusArea() {
@@ -152,27 +186,27 @@ public class CloudManipulator extends CloudSimulator {
         statusArea.appendText(LocalDateTime.now() + ": " + newStatus + "\n");
     }
 
-    private void modifyRandomPersonInAddressBookFile(String addressBookName) {
+    private void modifyRandomPersonInAddressBookFile(Supplier<String> addressBookName) {
         logAndUpdateStatus("Modifying random person in address book");
         try {
-            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(addressBookName.get());
             modifyCloudPerson(getRandomPerson(cloudAddressBook.getAllPersons()));
             fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
         } catch (FileNotFoundException e) {
-            logAndUpdateStatus("Failed to modify person: cloud addressbook " + addressBookName + " not found");
+            logAndUpdateStatus("Failed to modify person: cloud addressbook " + addressBookName.get() + " not found");
         } catch (DataConversionException e) {
             logAndUpdateStatus("Failed to modify person: error occurred");
         }
     }
 
-    private void addRandomPersonToAddressBookFile(String addressBookName) {
+    private void addRandomPersonToAddressBookFile(Supplier<String> addressBookName) {
         logAndUpdateStatus("Adding random person to address book");
         try {
-            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(addressBookName.get());
             addCloudPersons(cloudAddressBook.getAllPersons());
             fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
         } catch (FileNotFoundException e) {
-            logAndUpdateStatus("Failed to add person: cloud addressbook " + addressBookName + " not found");
+            logAndUpdateStatus("Failed to add person: cloud addressbook " + addressBookName.get() + " not found");
         } catch (DataConversionException e) {
             logAndUpdateStatus("Failed to modify person: error occurred");
         }
@@ -292,7 +326,7 @@ public class CloudManipulator extends CloudSimulator {
         for (int i = 0; i < MAX_NUM_PERSONS_TO_ADD; i++) {
             CloudPerson person = new CloudPerson(java.util.UUID.randomUUID().toString(),
                     java.util.UUID.randomUUID().toString());
-            logger.info("Simulating data addition for person '{}'", person);
+            logger.info("Simulating person addition: '{}'", person);
             personList.add(person);
         }
     }
@@ -300,20 +334,20 @@ public class CloudManipulator extends CloudSimulator {
     private void addCloudTags(List<CloudTag> tagList) {
         for (int i = 0; i < MAX_NUM_TAGS_TO_ADD; i++) {
             CloudTag tag = new CloudTag(java.util.UUID.randomUUID().toString());
-            logger.debug("Simulating data addition for tag '{}'", tag);
+            logger.debug("Simulating tag addition: '{}'", tag);
             tagList.add(tag);
         }
     }
 
     private void modifyCloudPerson(CloudPerson cloudPerson) {
-        logger.debug("Simulating data modification on person '{}'", cloudPerson);
+        logger.debug("Simulating person modification on: '{}'", cloudPerson);
         cloudPerson.setCity(java.util.UUID.randomUUID().toString());
         cloudPerson.setStreet(java.util.UUID.randomUUID().toString());
         cloudPerson.setPostalCode(String.valueOf(RANDOM_GENERATOR.nextInt(999999)));
     }
 
     private void modifyCloudTag(CloudTag cloudTag) {
-        logger.debug("Simulating data modification on tag '{}'", cloudTag);
+        logger.debug("Simulating tag modification on: '{}'", cloudTag);
         cloudTag.setName(UUID.randomUUID().toString());
     }
 
