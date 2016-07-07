@@ -5,7 +5,7 @@ import address.controller.MainController;
 import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.util.Config;
-import address.util.ScreenSize;
+import address.util.GuiSettings;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
@@ -30,9 +30,10 @@ public class Ui {
     }
 
     public void stop() {
-        ScreenSize screenSize = new ScreenSize(mainController.getPrimaryStage().getWidth(),
-                                               mainController.getPrimaryStage().getHeight());
-        pref.setScreenSize(screenSize);
+        Stage stage = mainController.getPrimaryStage();
+        GuiSettings guiSettings = new GuiSettings(stage.getWidth(), stage.getHeight(),
+                                                  (int)stage.getX(), (int)stage.getY());
+        pref.setGuiSettings(guiSettings);
         mainController.stop();
     }
 }

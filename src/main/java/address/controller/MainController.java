@@ -549,8 +549,12 @@ public class MainController extends UiController{
 
     protected void setDefaultSize() {
 
-        primaryStage.setHeight(prefs.getScreenSize().getHeight());
-        primaryStage.setWidth(prefs.getScreenSize().getWidth());
+        primaryStage.setHeight(prefs.getGuiSettings().getWindowHeight());
+        primaryStage.setWidth(prefs.getGuiSettings().getWindowWidth());
+        if (prefs.getGuiSettings().getWindowCoordinates() != null) {
+            primaryStage.setX(prefs.getGuiSettings().getWindowCoordinates().getX());
+            primaryStage.setY(prefs.getGuiSettings().getWindowCoordinates().getY());
+        }
         primaryStage.setMaximized(false);
         primaryStage.setIconified(false);
     }

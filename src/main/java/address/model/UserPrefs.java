@@ -1,7 +1,6 @@
 package address.model;
 
-import address.util.ScreenSize;
-import address.util.ScreenUtil;
+import address.util.GuiSettings;
 
 import java.io.File;
 
@@ -17,7 +16,7 @@ public class UserPrefs {
      */
     private volatile String saveLocation;
 
-    public ScreenSize screenSize;
+    public GuiSettings guiSettings;
 
     public synchronized void setSaveLocation(String saveLocation) {
         this.saveLocation = saveLocation;
@@ -42,11 +41,11 @@ public class UserPrefs {
         return getSaveLocation() != null;
     }
 
-    public ScreenSize getScreenSize() {
-        return screenSize == null ? ScreenUtil.getRecommendedScreenSize() : screenSize;
+    public GuiSettings getGuiSettings() {
+        return guiSettings == null ? new GuiSettings() : guiSettings;
     }
 
-    public void setScreenSize(ScreenSize screenSize) {
-        this.screenSize = screenSize;
+    public void setGuiSettings(GuiSettings guiSettings) {
+        this.guiSettings = guiSettings;
     }
 }
