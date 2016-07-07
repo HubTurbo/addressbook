@@ -4,11 +4,13 @@ import address.MainApp;
 import address.browser.BrowserManager;
 import address.events.*;
 import address.exceptions.DuplicateTagException;
+import address.model.CommandInfo;
 import address.model.UserPrefs;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
+import address.ui.CommandInfoListViewCell;
 import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
@@ -18,6 +20,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -168,7 +171,7 @@ public class MainController extends UiController{
     }
 
     private void showHeaderStatusBar() {
-        statusBarHeaderController = new StatusBarHeaderController();
+        statusBarHeaderController = new StatusBarHeaderController(this);
         AnchorPane sbPlaceHolder = (AnchorPane) rootLayout.lookup("#headerStatusbarPlaceholder");
 
         assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in rootLayout";
@@ -459,6 +462,19 @@ public class MainController extends UiController{
             showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for birthday stats.",
                                             "IOException when trying to load ", fxmlResourcePath);
         }
+    }
+
+    public void showDetailUserActionsDialog() {
+        final Alert alert = new Alert(AlertType.INFORMATION);
+        alert.getDialogPane().getStylesheets().add("view/DarkTheme.css");
+        alert.initOwner(primaryStage);
+        alert.setTitle("User Logs");
+        alert.setHeaderText("User Actions");
+        ListView<CommandInfo> listView = new ListView<>();
+        listView.setItems(modelManager.getFinishedCommands());
+        listView.setCellFactory(lv -> new CommandInfoListViewCell());
+        alert.getDialogPane().setContent(listView);
+        alert.showAndWait();
     }
 
     /**

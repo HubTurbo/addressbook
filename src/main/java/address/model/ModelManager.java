@@ -11,6 +11,7 @@ import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -320,7 +321,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     }
 
     void trackFinishedCommand(ChangeObjectInModelCommand finished) {
-        finishedCommands.add(finished);
+        Platform.runLater(() -> finishedCommands.add(finished));
     }
 
     int assignCommandId() {
