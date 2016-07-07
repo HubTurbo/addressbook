@@ -245,6 +245,10 @@
 #pendingStateLabel {
     -fx-font-size: 11px;
     -fx-text-fill: #F70D1A;
+
+}
+
+#pendingStateHolder {
     -fx-background-radius: 5;
     -fx-background-color: white;
     -fx-padding-background-color: transparent;

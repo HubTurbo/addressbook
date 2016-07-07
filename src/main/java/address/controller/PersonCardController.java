@@ -14,14 +14,20 @@ import javafx.application.Platform;
 import javafx.beans.binding.StringBinding;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Group;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 public class PersonCardController extends UiController{
-    public static final String PENDING_STATE_MESSAGE = "Syncing in %d seconds";
+    public static final String DELETING_PENDING_STATE_MESSAGE = "Deleted ";
+    public static final String EDITING_PENDING_STATE_MESSAGE = "Edited ";
+    public static final String CREATED_PENDING_STATE_MESSAGE = "Created ";
+
     @FXML
     private HBox cardPane;
     @FXML
@@ -41,7 +47,9 @@ public class PersonCardController extends UiController{
     @FXML
     private Label pendingStateLabel;
     @FXML
-    private ImageView syncingImageView;
+    private ProgressIndicator syncIndicator;
+    @FXML
+    private HBox pendingStateHolder;
 
     private ReadOnlyViewablePerson person;
     private FadeTransition deleteTransition;
@@ -129,25 +137,42 @@ public class PersonCardController extends UiController{
             }
         });
         if (person.getSecondsLeftInPendingState() > 0) {
-            pendingStateLabel.setText(String.format(PENDING_STATE_MESSAGE, person.getSecondsLeftInPendingState()));
-            pendingStateLabel.setVisible(true);
+            setPendingStateMessage(person.getChangeInProgress(), person.getSecondsLeftInPendingState());
+            pendingStateHolder.setVisible(true);
         }
         person.secondsLeftInPendingStateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() > 0) {
-                pendingStateLabel.setText(String.format(PENDING_STATE_MESSAGE, newValue));
-                pendingStateLabel.setVisible(true);
+                setPendingStateMessage(person.getChangeInProgress(), newValue);
+                pendingStateHolder.setVisible(true);
             } else {
                 cardPane.setStyle(null);
-                pendingStateLabel.setText("Syncing...");
-                pendingStateLabel.setVisible(true);
-                syncingImageView.setVisible(true);
+                setPendingStateMessage(person.getChangeInProgress(), -1);
+                pendingStateHolder.setVisible(true);
+                syncIndicator.setVisible(true);
                 person.onRemoteIdConfirmed((Integer id) -> {
-                    syncingImageView.setVisible(false);
+                    syncIndicator.setVisible(false);
                     pendingStateLabel.setText("");
-                    pendingStateLabel.setVisible(false);
+                    pendingStateHolder.setVisible(false);
                 });
             }
         });
+    }
+
+    private void setPendingStateMessage(ReadOnlyViewablePerson.ChangeInProgress changeInProgress, Number secsLeft) {
+
+        String secLeftString = "";
+
+        if (secsLeft.shortValue() > 0) {
+            secLeftString = String.valueOf(secsLeft);
+        }
+
+        if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.ADDING) {
+            pendingStateLabel.setText(CREATED_PENDING_STATE_MESSAGE + secLeftString);
+        } else if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.EDITING) {
+            pendingStateLabel.setText(EDITING_PENDING_STATE_MESSAGE + secLeftString);
+        } else if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.DELETING) {
+            pendingStateLabel.setText(DELETING_PENDING_STATE_MESSAGE + secLeftString);
+        }
     }
 
     private void initIdLabel() {
