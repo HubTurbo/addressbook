@@ -480,7 +480,6 @@ public class CloudSimulator implements IRemote {
             throws IllegalArgumentException {
         if (newPerson == null) throw new IllegalArgumentException("Person cannot be null");
         if (!newPerson.isValid()) throw new IllegalArgumentException("Invalid person");
-        if (isExistingPerson(personList, newPerson)) throw new IllegalArgumentException("Person already exists");
 
         CloudPerson personToAdd = generateIdForPerson(personList, newPerson);
         personList.add(personToAdd);

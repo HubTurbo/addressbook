@@ -729,24 +729,25 @@ public class CloudSimulatorTest {
     }
 
     @Test
-    public void createPerson_alreadyExists_unsuccessfulCreation() throws DataConversionException, IOException {
+    public void createPerson_alreadyExists_successfulCreation() throws DataConversionException, IOException {
         CloudPerson remotePerson = new CloudPerson("firstName", "lastName");
         RemoteResponse remoteResponse = cloudSimulator.createPerson("Test", remotePerson, null);
 
         // File read method called
         verify(cloudFileHandler, times(1)).readCloudAddressBookFromCloudFile("Test");
 
-        // File write method never called, since there is an error
-        verify(cloudFileHandler, never()).writeCloudAddressBookToCloudFile(any(CloudAddressBook.class));
+        // File write method called, since it is a valid person
+        verify(cloudFileHandler, times(1)).writeCloudAddressBookToCloudFile(any(CloudAddressBook.class));
 
-        // Response code for a bad request
+        // API quota is consumed
         assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
 
-        // Body is null
-        assertNull(remoteResponse.getBody());
+        // Response code for successful creation
+        assertEquals(HttpURLConnection.HTTP_CREATED, remoteResponse.getResponseCode());
 
-        // Response code for a bad request
-        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, remoteResponse.getResponseCode());
+        CloudPerson person = JsonUtil.fromJsonString(convertToString(remoteResponse.getBody()), CloudPerson.class);
+        // Resulting data should be the same
+        assertEquals(remotePerson, person);
     }
 
     @Test
