@@ -3,6 +3,7 @@ package address.model;
 import address.events.DeletePersonOnRemoteRequestEvent;
 import address.model.ChangeObjectInModelCommand.State;
 import address.model.datatypes.person.ReadOnlyPerson;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.TestUtil;
 import com.google.common.eventbus.EventBus;
@@ -93,7 +94,7 @@ public class DeletePersonCommandTest {
         thrown.expect(InterruptAndTerminateException.class);
 
         dpc.run();
-        verify(testTarget).setIsDeleted(true);
+        verify(testTarget).setChangeInProgress(ReadOnlyViewablePerson.ChangeInProgress.DELETING);
     }
 
     @Test
@@ -142,7 +143,7 @@ public class DeletePersonCommandTest {
         assertEquals(modelManagerSpy.visibleModel().getPersonList().size(), 1);
         assertSame(modelManagerSpy.visibleModel().getPersonList().get(0), testTarget);
         assertSame(modelManagerSpy.backingModel().getPersonList().get(0), testTarget.getBacking());
-        assertEquals(testTarget.isDeleted(), false);
+        assertEquals(testTarget.getChangeInProgress(), ReadOnlyViewablePerson.ChangeInProgress.NONE);
         assertEquals(dpc.getState(), State.CANCELLED);
     }
 }

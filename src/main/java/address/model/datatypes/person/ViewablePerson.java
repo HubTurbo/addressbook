@@ -1,6 +1,7 @@
 package address.model.datatypes.person;
 
-import address.model.ChangePersonInModelCommand;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
+
 import address.model.datatypes.UniqueData;
 import address.model.datatypes.Viewable;
 import address.model.datatypes.tag.Tag;
@@ -34,9 +35,11 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
      * can only be changed by {@link #connectBackingObject}
      */
     private int id;
+    private final Property<ChangeInProgress> changeInProgress;
 
     {
         remoteIdConfirmationHandlers = new ArrayList<>();
+        changeInProgress = new SimpleObjectProperty<>(NONE);
     }
 
     /**
@@ -131,6 +134,20 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
     }
 
 //// OPTIMISTIC UPDATING
+
+    @Override
+    public ChangeInProgress getChangeInProgress() {
+        return changeInProgress.getValue();
+    }
+
+    @Override
+    public ReadOnlyProperty<ChangeInProgress> changeInProgressProperty() {
+        return changeInProgress;
+    }
+
+    public void setChangeInProgress(ChangeInProgress currentChange) {
+        changeInProgress.setValue(currentChange);
+    }
 
     /**
      * Updates the visible data, backing data remains untouched.

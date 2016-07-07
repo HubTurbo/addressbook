@@ -22,13 +22,9 @@ public abstract class Viewable<D extends UniqueData> extends UniqueData implemen
     protected boolean isSyncingWithBackingObject;
 
     protected final IntegerProperty secondsLeftInPendingState; // 0 when not in pending state
-    protected final BooleanProperty isDeleted;
-    protected final BooleanProperty isEdited;
 
     {
         secondsLeftInPendingState = new SimpleIntegerProperty(-1);
-        isDeleted = new SimpleBooleanProperty(false);
-        isEdited = new SimpleBooleanProperty(false);
     }
 
     /**
@@ -121,35 +117,6 @@ public abstract class Viewable<D extends UniqueData> extends UniqueData implemen
     public void decrementSecondsLeftInPendingState() {
         secondsLeftInPendingState.set(secondsLeftInPendingState.get() - 1);
     }
-
-    @Override
-    public boolean isDeleted() {
-        return isDeleted.get();
-    }
-
-    @Override
-    public ReadOnlyBooleanProperty isDeletedProperty() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(boolean isDeleted) {
-        this.isDeleted.set(isDeleted);
-    }
-
-    @Override
-    public boolean isEdited() {
-        return isEdited.get();
-    }
-
-    @Override
-    public ReadOnlyBooleanProperty isEditedProperty() {
-        return isEdited;
-    }
-
-    public void setIsEdited(boolean isEdited) {
-        this.isEdited.set(isEdited);
-    }
-
 
 // VISIBLE--BACKING binding controls
 
