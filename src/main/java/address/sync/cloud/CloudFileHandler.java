@@ -17,35 +17,13 @@ public class CloudFileHandler {
     public CloudAddressBook readCloudAddressBookFromExternalFile(String cloudDataFilePath) throws FileNotFoundException,
             DataConversionException {
         File cloudFile = new File(cloudDataFilePath);
-        try {
-            logger.debug("Reading from cloud file '{}'.", cloudFile.getName());
-            CloudAddressBook CloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
-            if (CloudAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
-            return CloudAddressBook;
-        } catch (FileNotFoundException e) {
-            logger.warn("Cloud file '{}' not found.", cloudFile.getName());
-            throw e;
-        } catch (DataConversionException e) {
-            logger.warn("Error reading from cloud file '{}'.", cloudFile.getName());
-            throw e;
-        }
+        return readFromCloudFile(cloudFile);
     }
 
     public CloudAddressBook readCloudAddressBook(String addressBookName) throws FileNotFoundException,
             DataConversionException {
         File cloudFile = getCloudDataFile(addressBookName);
-        try {
-            logger.debug("Reading from cloud file '{}'.", cloudFile.getName());
-            CloudAddressBook CloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
-            if (CloudAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
-            return CloudAddressBook;
-        } catch (FileNotFoundException e) {
-            logger.warn("Cloud file '{}' not found.", cloudFile.getName());
-            throw e;
-        } catch (DataConversionException e) {
-            logger.warn("Error reading from cloud file '{}'.", cloudFile.getName());
-            throw e;
-        }
+        return readFromCloudFile(cloudFile);
     }
 
     public void writeCloudAddressBook(CloudAddressBook CloudAddressBook) throws FileNotFoundException,
@@ -108,6 +86,21 @@ public class CloudFileHandler {
             createCloudFile(new CloudAddressBook(addressBookName));
         } catch (IllegalArgumentException e) {
             assert false : "Error in logic: createCloudFile should not be called since address book is present";
+        }
+    }
+
+    private CloudAddressBook readFromCloudFile(File cloudFile) throws FileNotFoundException, DataConversionException {
+        try {
+            logger.debug("Reading from cloud file '{}'.", cloudFile.getName());
+            CloudAddressBook CloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
+            if (CloudAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
+            return CloudAddressBook;
+        } catch (FileNotFoundException e) {
+            logger.warn("Cloud file '{}' not found.", cloudFile.getName());
+            throw e;
+        } catch (DataConversionException e) {
+            logger.warn("Error reading from cloud file '{}'.", cloudFile.getName());
+            throw e;
         }
     }
 

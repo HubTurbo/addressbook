@@ -54,6 +54,8 @@ public class CloudManipulator extends CloudSimulator {
     private static final String CLOUD_MANIPULATOR_TITLE = "Cloud Manipulator";
     private static final String ADDRESS_BOOK_FIELD_TOOLTIP_TEXT = "Enter address book to target.";
     private static final String ADDRESS_BOOK_FIELD_PROMPT_TEXT = "Address Book";
+    private static final String FAIL_SYNC_UP_CHECKBOX_TEXT = "Fail all Sync-Up requests";
+    private static final String FAIL_SYNC_DOWN_CHECKBOX_TEXT = "Fail all Sync-Down requests";
     private static final int CONSOLE_WIDTH = 300;
     private static final int CONSOLE_HEIGHT = 600;
 
@@ -68,6 +70,7 @@ public class CloudManipulator extends CloudSimulator {
     private TextArea statusArea;
     private TextField addressBookField;
     private CheckBox failSyncUpsCheckBox;
+    private CheckBox failSyncDownsCheckBox;
 
     /**
      * Initializes CloudManipulator with data found in config's cloudDataFilePath
@@ -101,7 +104,7 @@ public class CloudManipulator extends CloudSimulator {
      * Initializes an empty cloud file with addressBookName if read from cloudDataFilePath fails
      *
      * @param cloudDataFilePath
-     * @param addressBookName
+     * @param addressBookName name of empty address book if read fails
      */
     private void initializeCloudFile(String cloudDataFilePath, String addressBookName) {
         CloudAddressBook cloudAddressBook;
@@ -140,7 +143,8 @@ public class CloudManipulator extends CloudSimulator {
         VBox consoleBox = getConsoleBox();
 
         addressBookField = getAddressBookNameField(addressBookName);
-        failSyncUpsCheckBox = getFailSyncUpsCheckBox();
+        failSyncUpsCheckBox = getCheckBox(FAIL_SYNC_UP_CHECKBOX_TEXT);
+        failSyncDownsCheckBox = getCheckBox(FAIL_SYNC_DOWN_CHECKBOX_TEXT);
         statusArea = getStatusArea();
 
         Button delayButton = getButton(DELAY_BUTTON_TEXT, getIcon(DELAY_BUTTON_ICON_PATH), actionEvent -> shouldDelayNext = true);
@@ -152,9 +156,11 @@ public class CloudManipulator extends CloudSimulator {
         Button simulateTagModificationButton = getButton(MODIFY_TAG_TEXT, null, actionEvent -> modifyRandomTagInAddressBookFile(addressBookField::getText));
         Button simulateTagDeletionButton = getButton(DELETE_TAG_TEXT, null, actionEvent -> deleteRandomTagInAddressBookFile(addressBookField::getText));
 
-        consoleBox.getChildren().addAll(failSyncUpsCheckBox, delayButton, failButton, addressBookField, simulatePersonAdditionButton,
-                                        simulatePersonModificationButton, simulatePersonDeletionButton, simulateTagAdditionButton,
-                                        simulateTagModificationButton, simulateTagDeletionButton, statusArea);
+        consoleBox.getChildren().addAll(failSyncUpsCheckBox, failSyncDownsCheckBox, delayButton, failButton,
+                                        addressBookField, simulatePersonAdditionButton,
+                                        simulatePersonModificationButton, simulatePersonDeletionButton,
+                                        simulateTagAdditionButton, simulateTagModificationButton,
+                                        simulateTagDeletionButton, statusArea);
 
         Dialog<Void> dialog = getConsoleDialog(stage);
         dialog.getDialogPane().getChildren().add(consoleBox);
@@ -163,6 +169,7 @@ public class CloudManipulator extends CloudSimulator {
 
     private Dialog<Void> getConsoleDialog(Stage stage) {
         Dialog<Void> dialog = new Dialog<>();
+        dialog.initOwner(stage);
         dialog.initModality(Modality.NONE); // so that the dialog does not prevent interaction with the app
         dialog.setTitle(CLOUD_MANIPULATOR_TITLE);
         dialog.setX(stage.getX() + 740);
@@ -172,9 +179,9 @@ public class CloudManipulator extends CloudSimulator {
         return dialog;
     }
 
-    private CheckBox getFailSyncUpsCheckBox() {
+    private CheckBox getCheckBox(String checkBoxText) {
         CheckBox failSyncUpsCheckBox = new CheckBox();
-        failSyncUpsCheckBox.setText("Fail all Sync-Up requests.");
+        failSyncUpsCheckBox.setText(checkBoxText);
         failSyncUpsCheckBox.setMinWidth(CONSOLE_WIDTH);
         return failSyncUpsCheckBox;
     }
@@ -339,8 +346,8 @@ public class CloudManipulator extends CloudSimulator {
 
     private boolean shouldFail(boolean isSyncUp) {
         if (shouldFailNext) return true;
-        if (!isSyncUp) return false;
-        return failSyncUpsCheckBox.isSelected();
+        if (isSyncUp) return failSyncUpsCheckBox.isSelected();
+        return failSyncDownsCheckBox.isSelected();
     }
 
     @Override
