@@ -310,7 +310,7 @@ class AddressBookTest extends Test {
     	forkEvery = 1
         systemProperty 'testfx.setup.timeout', '60000'
     }
-    
+
     public void setHeadless() {
         systemProperty 'java.awt.robot', 'true'
         systemProperty 'testfx.robot', 'glass'
@@ -368,4 +368,4 @@ checkStyle.shouldRunAfter clean
 checkStyle.dependsOn checkstyleMain, checkstyleTest, findbugsMain, findbugsTest, pmdMain, pmdTest
 coverage.dependsOn jacocoTestReport
 
-defaultTasks 'clean', 'headless', 'jacocoRootReport'
+defaultTasks 'clean', 'headless', 'alltests', 'jacocoRootReport'
