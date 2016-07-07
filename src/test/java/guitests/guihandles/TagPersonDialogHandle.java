@@ -1,6 +1,6 @@
 package guitests.guihandles;
 
-import guitests.GuiTestBase;
+import guitests.GuiRobot;
 import javafx.scene.input.KeyCode;
 
 /**
@@ -10,8 +10,8 @@ public class TagPersonDialogHandle extends GuiHandle {
 
     private String tagSearchFieldId = "#tagSearch";
 
-    public TagPersonDialogHandle(GuiTestBase guiTestBase) {
-        super(guiTestBase);
+    public TagPersonDialogHandle(GuiRobot guiRobot) {
+        super(guiRobot);
     }
 
     public TagPersonDialogHandle enterSearchQuery(String queryText) {
@@ -20,12 +20,12 @@ public class TagPersonDialogHandle extends GuiHandle {
     }
 
     public TagPersonDialogHandle acceptSuggestedTag() {
-        guiTestBase.type(KeyCode.SPACE);
+        guiRobot.type(KeyCode.SPACE);
         return this;
     }
 
     public void close() {
         super.pressEnter();
-        guiTestBase.sleep(200); // wait for closing animation
+        guiRobot.sleep(200); // wait for closing animation
     }
 }

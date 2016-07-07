@@ -1,6 +1,6 @@
 package guitests.guihandles;
 
-import guitests.GuiTestBase;
+import guitests.GuiRobot;
 
 /**
  * Provides a handle to the dialog used for adding a new tag.
@@ -9,8 +9,8 @@ public class NewTagDialogHandle extends GuiHandle {
 
     private String tagNameFieldId = "#tagNameField";
 
-    public NewTagDialogHandle(GuiTestBase guiTestBase) {
-        super(guiTestBase);
+    public NewTagDialogHandle(GuiRobot guiRobot) {
+        super(guiRobot);
     }
 
     public String getTagName() {

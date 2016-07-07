@@ -1,6 +1,6 @@
 package guitests.guihandles;
 
-import guitests.GuiTestBase;
+import guitests.GuiRobot;
 
 public class EditPersonDialogHandle extends GuiHandle {
 
@@ -12,8 +12,8 @@ public class EditPersonDialogHandle extends GuiHandle {
     private String tagSearchFieldId = "#tagList";
     private String cancelButtonText = "Cancel";
 
-    public EditPersonDialogHandle(GuiTestBase guiTestBase) {
-        super(guiTestBase);
+    public EditPersonDialogHandle(GuiRobot guiRobot) {
+        super(guiRobot);
     }
 
     public String getFirstName(){
@@ -25,7 +25,7 @@ public class EditPersonDialogHandle extends GuiHandle {
     }
 
     public void clickCancel(){
-        guiTestBase.clickOn(cancelButtonText);
+        guiRobot.clickOn(cancelButtonText);
     }
 
     public String getFullName() {
@@ -62,9 +62,9 @@ public class EditPersonDialogHandle extends GuiHandle {
     }
 
     public TagPersonDialogHandle openTagPersonDialog() {
-        guiTestBase.clickOn(tagSearchFieldId)
+        guiRobot.clickOn(tagSearchFieldId)
                 .sleep(200); // wait for opening animation
-        return new TagPersonDialogHandle(guiTestBase);
+        return new TagPersonDialogHandle(guiRobot);
     }
 
 }

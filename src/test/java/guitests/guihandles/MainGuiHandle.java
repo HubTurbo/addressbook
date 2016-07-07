@@ -1,21 +1,21 @@
 package guitests.guihandles;
 
-import guitests.GuiTestBase;
+import guitests.GuiRobot;
 
 /**
  * Provides a handle for the main GUI.
  */
 public class MainGuiHandle {
-    private final GuiTestBase guiTestBase;
+    private final GuiRobot guiRobot;
     private MainMenuHandle mainMenu;
 
-    public MainGuiHandle(GuiTestBase guiTestBase){
-        this.guiTestBase = guiTestBase;
-        this.mainMenu = new MainMenuHandle(guiTestBase);
+    public MainGuiHandle(GuiRobot guiRobot){
+        this.guiRobot = guiRobot;
+        this.mainMenu = new MainMenuHandle(guiRobot);
     }
 
     public PersonListPanelHandle getPersonListPanel(){
-        return new PersonListPanelHandle(guiTestBase);
+        return new PersonListPanelHandle(guiRobot);
     }
 
     public MainMenuHandle getMainMenu() {
