@@ -232,89 +232,89 @@ public class CloudManipulator extends CloudSimulator {
 
     @Override
     public RemoteResponse createPerson(String addressBookName, CloudPerson newPerson, String previousETag) {
-        RemoteResponse actualResponse = super.createPerson(addressBookName, newPerson, previousETag);
         if (shouldDelayNext) delayRandomAmount();
         if (shouldFailNext) return getNetworkFailedResponse();
+        RemoteResponse actualResponse = super.createPerson(addressBookName, newPerson, previousETag);
         return actualResponse;
     }
 
     @Override
     public RemoteResponse getPersons(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
-        RemoteResponse actualResponse = super.getPersons(addressBookName, pageNumber, resourcesPerPage, previousETag);
         if (shouldDelayNext) delayRandomAmount();
         if (shouldFailNext) return getNetworkFailedResponse();
+        RemoteResponse actualResponse = super.getPersons(addressBookName, pageNumber, resourcesPerPage, previousETag);
         return actualResponse;
     }
 
     @Override
     public RemoteResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber, int resourcesPerPage, String previousETag) {
-        RemoteResponse actualResponse = super.getUpdatedPersons(addressBookName, timeString, pageNumber, resourcesPerPage, previousETag);
         if (shouldDelayNext) delayRandomAmount();
         if (shouldFailNext) return getNetworkFailedResponse();
+        RemoteResponse actualResponse = super.getUpdatedPersons(addressBookName, timeString, pageNumber, resourcesPerPage, previousETag);
         return actualResponse;
     }
 
     @Override
     public RemoteResponse getTags(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
-        RemoteResponse actualResponse = super.getTags(addressBookName, pageNumber, resourcesPerPage, previousETag);
         if (shouldDelayNext) delayRandomAmount();
         if (shouldFailNext) return getNetworkFailedResponse();
+        RemoteResponse actualResponse = super.getTags(addressBookName, pageNumber, resourcesPerPage, previousETag);
         return actualResponse;
     }
 
     @Override
     public RemoteResponse getRateLimitStatus(String previousETag) {
-        RemoteResponse actualResponse = super.getRateLimitStatus(previousETag);
         if (shouldDelayNext) delayRandomAmount();
         if (shouldFailNext) return getNetworkFailedResponse();
+        RemoteResponse actualResponse = super.getRateLimitStatus(previousETag);
         return actualResponse;
     }
 
     @Override
     public RemoteResponse updatePerson(String addressBookName, int personId, CloudPerson updatedPerson, String previousETag) {
-        RemoteResponse actualResponse = super.updatePerson(addressBookName, personId, updatedPerson, previousETag);
         if (shouldDelayNext) delayRandomAmount();
         if (shouldFailNext) return getNetworkFailedResponse();
+        RemoteResponse actualResponse = super.updatePerson(addressBookName, personId, updatedPerson, previousETag);
         return actualResponse;
     }
 
     @Override
     public RemoteResponse deletePerson(String addressBookName, int personId) {
-        RemoteResponse actualResponse = super.deletePerson(addressBookName, personId);
         if (shouldDelayNext) delayRandomAmount();
         if (shouldFailNext) return getNetworkFailedResponse();
+        RemoteResponse actualResponse = super.deletePerson(addressBookName, personId);
         return actualResponse;
     }
 
     @Override
     public RemoteResponse createTag(String addressBookName, CloudTag newTag, String previousETag) {
-        RemoteResponse actualResponse = super.createTag(addressBookName, newTag, previousETag);
         if (shouldDelayNext) delayRandomAmount();
         if (shouldFailNext) return getNetworkFailedResponse();
+        RemoteResponse actualResponse = super.createTag(addressBookName, newTag, previousETag);
         return actualResponse;
     }
 
     @Override
     public RemoteResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag, String previousETag) {
-        RemoteResponse actualResponse = super.editTag(addressBookName, oldTagName, updatedTag, previousETag);
         if (shouldDelayNext) delayRandomAmount();
         if (shouldFailNext) return getNetworkFailedResponse();
+        RemoteResponse actualResponse = super.editTag(addressBookName, oldTagName, updatedTag, previousETag);
         return actualResponse;
     }
 
     @Override
     public RemoteResponse deleteTag(String addressBookName, String tagName) {
-        RemoteResponse actualResponse = super.deleteTag(addressBookName, tagName);
         if (shouldDelayNext) delayRandomAmount();
         if (shouldFailNext) return getNetworkFailedResponse();
+        RemoteResponse actualResponse = super.deleteTag(addressBookName, tagName);
         return actualResponse;
     }
 
     @Override
     public RemoteResponse createAddressBook(String addressBookName) {
-        RemoteResponse actualResponse = super.createAddressBook(addressBookName);
         if (shouldDelayNext) delayRandomAmount();
         if (shouldFailNext) return getNetworkFailedResponse();
+        RemoteResponse actualResponse = super.createAddressBook(addressBookName);
         return actualResponse;
     }
 
