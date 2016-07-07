@@ -13,6 +13,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import junit.framework.AssertionFailedError;
 import org.testfx.api.FxToolkit;
 
 import java.io.File;
@@ -29,6 +30,22 @@ import java.util.stream.Collectors;
  * A utility class for test cases.
  */
 public class TestUtil {
+
+    public static void assertThrows(Class<? extends Throwable> expected, Runnable executable) {
+        try {
+            executable.run();
+        }
+        catch (Throwable actualException) {
+            if (!actualException.getClass().isAssignableFrom(expected)) {
+                String message = String.format("Expected thrown: %s, actual: %s", expected.getName(),
+                        actualException.getClass().getName());
+                throw new AssertionFailedError(message);
+            } else return;
+        }
+        throw new AssertionFailedError(
+                String.format("Expected %s to be thrown, but nothing was thrown.", expected.getName()));
+    }
+
     /**
      * Folder used for temp files created during testing. Ignored by Git.
      */

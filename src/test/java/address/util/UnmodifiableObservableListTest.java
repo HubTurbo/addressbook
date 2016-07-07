@@ -1,7 +1,9 @@
 package address.util;
 
 import address.util.collections.UnmodifiableObservableList;
+
 import javafx.collections.FXCollections;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -9,92 +11,71 @@ import org.junit.rules.ExpectedException;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static address.util.TestUtil.assertThrows;
 
 public class UnmodifiableObservableListTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @Test
-    public void mutatingMethods_disabled() {
-        List<Integer> backing = new ArrayList<>();
-        backing.add(10);
-        UnmodifiableObservableList<Integer> list = new UnmodifiableObservableList<>(FXCollections.observableList(backing));
+    List<Integer> backing;
+    UnmodifiableObservableList<Integer> list;
 
+    @Before
+    public void setup() {
+        backing = new ArrayList<>();
+        backing.add(10);
+        list = new UnmodifiableObservableList<>(FXCollections.observableList(backing));
+    }
+
+    @Test
+    public void transformationListGenerators_correctBackingList() {
         assertSame(list.sorted().getSource(), list);
         assertSame(list.filtered(i -> true).getSource(), list);
+    }
 
-        thrown.expect(UnsupportedOperationException.class);
-        list.addAll(2, 1);
+    @Test
+    public void mutatingMethods_disabled() {
 
-        thrown.expect(UnsupportedOperationException.class);
-        list.setAll(new ArrayList<Number>());
+        final Class<UnsupportedOperationException> ex = UnsupportedOperationException.class;
 
-        thrown.expect(UnsupportedOperationException.class);
-        list.setAll(1, 2);
+        assertThrows(ex, () -> list.add(0, 2));
+        assertThrows(ex, () -> list.add(3));
 
-        thrown.expect(UnsupportedOperationException.class);
-        list.removeAll(1, 2);
+        assertThrows(ex, () -> list.addAll(2, 1));
+        assertThrows(ex, () -> list.addAll(backing));
+        assertThrows(ex, () -> list.addAll(0, backing));
 
-        thrown.expect(UnsupportedOperationException.class);
-        list.retainAll(1, 2);
+        assertThrows(ex, () -> list.set(0, 2));
 
-        thrown.expect(UnsupportedOperationException.class);
-        list.remove(0, 1);
+        assertThrows(ex, () -> list.setAll(new ArrayList<Number>()));
+        assertThrows(ex, () -> list.setAll(1, 2));
 
-        thrown.expect(UnsupportedOperationException.class);
-        Iterator<Integer> iter = list.iterator();
+        assertThrows(ex, () -> list.remove(0, 1));
+        assertThrows(ex, () -> list.remove(null));
+        assertThrows(ex, () -> list.remove(0));
+
+        assertThrows(ex, () -> list.removeAll(backing));
+        assertThrows(ex, () -> list.removeAll(1, 2));
+
+        assertThrows(ex, () -> list.retainAll(backing));
+        assertThrows(ex, () -> list.retainAll(1, 2));
+
+        assertThrows(ex, () -> list.replaceAll(i -> 1));
+
+        assertThrows(ex, () -> list.sort(Comparator.naturalOrder()));
+
+        assertThrows(ex, () -> list.clear());
+
+        final Iterator<Integer> iter = list.iterator();
         iter.next();
-        iter.remove();
+        assertThrows(ex, iter::remove);
 
-        thrown.expect(UnsupportedOperationException.class);
-        list.add(3);
-
-        thrown.expect(UnsupportedOperationException.class);
-        list.remove(null);
-
-        thrown.expect(UnsupportedOperationException.class);
-        list.addAll(backing);
-
-        thrown.expect(UnsupportedOperationException.class);
-        list.addAll(0, backing);
-
-        thrown.expect(UnsupportedOperationException.class);
-        list.removeAll(backing);
-
-        thrown.expect(UnsupportedOperationException.class);
-        list.retainAll(backing);
-
-        thrown.expect(UnsupportedOperationException.class);
-        list.replaceAll(i -> 1);
-
-        thrown.expect(UnsupportedOperationException.class);
-        list.sort(Comparator.naturalOrder());
-
-        thrown.expect(UnsupportedOperationException.class);
-        list.clear();
-
-        thrown.expect(UnsupportedOperationException.class);
-        list.set(0, 2);
-
-        thrown.expect(UnsupportedOperationException.class);
-        list.add(0, 2);
-
-        thrown.expect(UnsupportedOperationException.class);
-        list.remove(0);
-
-        thrown.expect(UnsupportedOperationException.class);
-        ListIterator<Integer> liter = list.listIterator();
+        final ListIterator<Integer> liter = list.listIterator();
         liter.next();
-        liter.remove();
-
-        thrown.expect(UnsupportedOperationException.class);
-        liter.add(5);
-
-        thrown.expect(UnsupportedOperationException.class);
-        liter.set(3);
-
-        thrown.expect(UnsupportedOperationException.class);
-        list.removeIf(i -> true);
+        assertThrows(ex, liter::remove);
+        assertThrows(ex, () -> liter.add(5));
+        assertThrows(ex, () -> liter.set(3));
+        assertThrows(ex, () -> list.removeIf(i -> true));
     }
 }
