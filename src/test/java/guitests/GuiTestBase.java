@@ -20,12 +20,14 @@ import org.testfx.api.FxToolkit;
 
 import java.util.concurrent.TimeoutException;
 
-public class GuiTestBase extends FxRobot {
+public class GuiTestBase {
+
+    GuiRobot guiRobot = new GuiRobot();
 
     /* Handles to GUI elements present at the start up are created in advance
      *   for easy access from child classes.
      */
-    protected MainGuiHandle mainGui = new MainGuiHandle(this);
+    protected MainGuiHandle mainGui = new MainGuiHandle(guiRobot);
     protected MainMenuHandle mainMenu = mainGui.getMainMenu();
     protected PersonListPanelHandle personListPanel = mainGui.getPersonListPanel();
 
@@ -73,35 +75,6 @@ public class GuiTestBase extends FxRobot {
         FxToolkit.cleanupStages();
     }
 
-    public FxRobot push(KeyCode... keyCodes){
-        return super.push(TestUtil.scrub(keyCodes));
-    }
-
-    public FxRobot push(KeyCodeCombination keyCodeCombination){
-        return super.push(TestUtil.scrub(keyCodeCombination));
-    }
-
-    public FxRobot push(KeyBinding keyBinding){
-        KeyCodeCombination keyCodeCombination = (KeyCodeCombination)keyBinding.getKeyCombination();
-        return this.push(TestUtil.scrub(keyCodeCombination));
-    }
-
-    public FxRobot press(KeyCode... keyCodes) {
-        return super.press(TestUtil.scrub(keyCodes));
-    }
-
-    public FxRobot release(KeyCode... keyCodes) {
-        return super.release(TestUtil.scrub(keyCodes));
-    }
-
-    public FxRobot type(KeyCode... keyCodes) {
-        return super.type(TestUtil.scrub(keyCodes));
-    }
-
-    public void pushKeySequence(KeySequence keySequence) {
-        push((KeyCodeCombination)keySequence.getKeyCombination());
-        push((KeyCodeCombination)keySequence.getSecondKeyCombination());
-    }
 
 
 }

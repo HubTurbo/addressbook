@@ -55,10 +55,10 @@ public class FullSystemTest extends GuiTestBase {
         //TODO: convert the code below to use page object pattern
 
         //Ensure "About" dialog opens
-        clickOn("Help").clickOn("About").clickOn("OK");
+        guiRobot.clickOn("Help").clickOn("About").clickOn("OK");
 
         //Create a new person Ming Lee, check that last name cannot be blank
-        clickOn("New")
+        guiRobot.clickOn("New")
                 .clickOn("#firstNameField").write("Ming").clickOn("OK")
                 .targetWindow("Invalid Fields").clickOn("OK")
                 .clickOn("#lastNameField").write("Lee").clickOn("OK");

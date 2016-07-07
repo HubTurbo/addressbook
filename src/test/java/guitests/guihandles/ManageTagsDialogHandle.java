@@ -1,13 +1,13 @@
 package guitests.guihandles;
 
-import guitests.GuiTestBase;
+import guitests.GuiRobot;
 
 /**
  * Provides a handle to the dialog used for managing tags.
  */
 public class ManageTagsDialogHandle extends GuiHandle {
-    public ManageTagsDialogHandle(GuiTestBase guiTestBase) {
-        super(guiTestBase);
+    public ManageTagsDialogHandle(GuiRobot guiRobot) {
+        super(guiRobot);
     }
 
 }

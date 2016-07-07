@@ -1,7 +1,7 @@
 package guitests.guihandles;
 
 
-import guitests.GuiTestBase;
+import guitests.GuiRobot;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -12,10 +12,10 @@ import java.lang.reflect.Constructor;
  * Base class for all GUI Handles used in testing.
  */
 public class GuiHandle {
-    protected final GuiTestBase guiTestBase;
+    protected final GuiRobot guiRobot;
 
-    public GuiHandle(GuiTestBase guiTestBase){
-        this.guiTestBase = guiTestBase;
+    public GuiHandle(GuiRobot guiRobot){
+        this.guiRobot = guiRobot;
     }
 
     /**
@@ -23,8 +23,8 @@ public class GuiHandle {
      */
     public <T> T as(Class<? extends GuiHandle> clazz) {
         try {
-            Constructor<?> ctor = clazz.getConstructor(GuiTestBase.class);
-            Object object = ctor.newInstance(new Object[] { guiTestBase });
+            Constructor<?> ctor = clazz.getConstructor(GuiRobot.class);
+            Object object = ctor.newInstance(new Object[] { guiRobot });
             return (T)object;
         } catch (Exception e) {
             e.printStackTrace();
@@ -33,7 +33,7 @@ public class GuiHandle {
     }
 
     protected Node getNode(String query) {
-        return guiTestBase.lookup(query).tryQuery().get();
+        return guiRobot.lookup(query).tryQuery().get();
     }
 
     protected String getTextFieldText(String filedName) {
@@ -56,41 +56,41 @@ public class GuiHandle {
      * @param newText
      */
     protected void typeTextField(String textFieldId, String newText) {
-        guiTestBase.clickOn(textFieldId)
+        guiRobot.clickOn(textFieldId)
                 .push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1)
                 .write(newText)
         ;
     }
 
     public void pressEnter() {
-        guiTestBase.type(KeyCode.ENTER);
+        guiRobot.type(KeyCode.ENTER);
     }
 
     protected void pressEsc() {
-        guiTestBase.push(KeyCode.ESCAPE);
+        guiRobot.push(KeyCode.ESCAPE);
     }
 
     /**
      * Presses the button with the name 'Cancel' on it.
      */
     public void clickCancel() {
-        guiTestBase.clickOn("Cancel");
+        guiRobot.clickOn("Cancel");
     }
 
     /**
      * Presses the button named 'OK'.
      */
     public void clickOk() {
-        guiTestBase.clickOn("OK");
+        guiRobot.clickOn("OK");
     }
 
     public GuiHandle clickOn(String id) {
-        guiTestBase.clickOn(id);
+        guiRobot.clickOn(id);
         return this;
     }
 
     public GuiHandle rightClickOn(String id) {
-        guiTestBase.rightClickOn(id);
+        guiRobot.rightClickOn(id);
         return this;
     }
 
