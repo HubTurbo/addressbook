@@ -388,7 +388,7 @@ public class RemoteService implements IRemoteService {
     private List<Person> convertToPersonList(List<CloudPerson> cloudPersonList) {
         List<Person> convertedList = new ArrayList<>();
         cloudPersonList.stream()
-                .forEach(CloudPerson -> convertedList.add(convertToPerson(CloudPerson)));
+                .forEach(cloudPerson -> convertedList.add(convertToPerson(cloudPerson)));
 
         return convertedList;
     }

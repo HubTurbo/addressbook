@@ -49,6 +49,7 @@ public class CloudManipulator extends CloudSimulator {
     private static final String MODIFY_PERSON_TEXT = "Modify person";
     private static final String CLOUD_MANIPULATOR_TITLE = "Cloud Manipulator";
     private static final String ADDRESS_BOOK_FIELD_TOOLTIP_TEXT = "Enter address book to target.";
+    private static final String ADDRESS_BOOK_FIELD_PROMPT_TEXT = "Address Book";
     private static final int CONSOLE_WIDTH = 300;
     private static final int CONSOLE_HEIGHT = 600;
 
@@ -64,6 +65,7 @@ public class CloudManipulator extends CloudSimulator {
     private String addressBookName;
     private TextArea statusArea;
     private TextField addressBookField;
+    private CheckBox failSyncUpsCheckBox;
 
     /**
      * Initializes CloudManipulator with data found in config's cloudDataFilePath
@@ -133,9 +135,9 @@ public class CloudManipulator extends CloudSimulator {
     }
 
     public void start(Stage stage) {
-        VBox consoleBox = new VBox();
-        consoleBox.setMinWidth(CONSOLE_WIDTH);
+        VBox consoleBox = getConsoleBox();
         addressBookField = getAddressBookNameField(addressBookName);
+        failSyncUpsCheckBox = getFailSyncUpsCheckBox();
 
         Button delayButton = getButton(DELAY_BUTTON_TEXT, getIcon(DELAY_BUTTON_ICON_PATH), actionEvent -> shouldDelayNext = true);
         Button failButton = getButton(FAIL_BUTTON_TEXT, getIcon(FAIL_BUTTON_ICON_PATH), actionEvent -> shouldFailNext = true);
@@ -143,7 +145,7 @@ public class CloudManipulator extends CloudSimulator {
         Button simulatePersonModificationButton = getButton(MODIFY_PERSON_TEXT, null, actionEvent -> modifyRandomPersonInAddressBookFile(addressBookField::getText));
 
         statusArea = getStatusArea();
-        consoleBox.getChildren().addAll(delayButton, failButton, addressBookField, simulatePersonAdditionButton,
+        consoleBox.getChildren().addAll(failSyncUpsCheckBox, delayButton, failButton, addressBookField, simulatePersonAdditionButton,
                                        simulatePersonModificationButton, statusArea);
 
         Dialog<Void> dialog = new Dialog<>();
@@ -158,12 +160,25 @@ public class CloudManipulator extends CloudSimulator {
         dialog.show();
     }
 
+    private CheckBox getFailSyncUpsCheckBox() {
+        CheckBox failSyncUpsCheckBox = new CheckBox();
+        failSyncUpsCheckBox.setText("Fail all Sync-Up requests.");
+        failSyncUpsCheckBox.setMinWidth(CONSOLE_WIDTH);
+        return failSyncUpsCheckBox;
+    }
+
+    private VBox getConsoleBox() {
+        VBox consoleBox = new VBox();
+        consoleBox.setMinWidth(CONSOLE_WIDTH);
+        return consoleBox;
+    }
+
     private TextField getAddressBookNameField(String startingText) {
         TextField addressBookNameField = new TextField();
         if (startingText != null) {
             addressBookNameField.setText(startingText);
         }
-        addressBookNameField.setPromptText("Address Book");
+        addressBookNameField.setPromptText(ADDRESS_BOOK_FIELD_PROMPT_TEXT);
         addressBookNameField.setMinWidth(CONSOLE_WIDTH);
         addressBookNameField.setTooltip(new Tooltip(ADDRESS_BOOK_FIELD_TOOLTIP_TEXT));
         return addressBookNameField;
@@ -233,15 +248,21 @@ public class CloudManipulator extends CloudSimulator {
     @Override
     public RemoteResponse createPerson(String addressBookName, CloudPerson newPerson, String previousETag) {
         if (shouldDelayNext) delayRandomAmount();
-        if (shouldFailNext) return getNetworkFailedResponse();
+        if (shouldFail(true)) return getNetworkFailedResponse();
         RemoteResponse actualResponse = super.createPerson(addressBookName, newPerson, previousETag);
         return actualResponse;
+    }
+
+    private boolean shouldFail(boolean isSyncUp) {
+        if (shouldFailNext) return true;
+        if (!isSyncUp) return false;
+        return failSyncUpsCheckBox.isSelected();
     }
 
     @Override
     public RemoteResponse getPersons(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
         if (shouldDelayNext) delayRandomAmount();
-        if (shouldFailNext) return getNetworkFailedResponse();
+        if (shouldFail(false)) return getNetworkFailedResponse();
         RemoteResponse actualResponse = super.getPersons(addressBookName, pageNumber, resourcesPerPage, previousETag);
         return actualResponse;
     }
@@ -249,7 +270,7 @@ public class CloudManipulator extends CloudSimulator {
     @Override
     public RemoteResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber, int resourcesPerPage, String previousETag) {
         if (shouldDelayNext) delayRandomAmount();
-        if (shouldFailNext) return getNetworkFailedResponse();
+        if (shouldFail(false)) return getNetworkFailedResponse();
         RemoteResponse actualResponse = super.getUpdatedPersons(addressBookName, timeString, pageNumber, resourcesPerPage, previousETag);
         return actualResponse;
     }
@@ -257,7 +278,7 @@ public class CloudManipulator extends CloudSimulator {
     @Override
     public RemoteResponse getTags(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
         if (shouldDelayNext) delayRandomAmount();
-        if (shouldFailNext) return getNetworkFailedResponse();
+        if (shouldFail(false)) return getNetworkFailedResponse();
         RemoteResponse actualResponse = super.getTags(addressBookName, pageNumber, resourcesPerPage, previousETag);
         return actualResponse;
     }
@@ -265,7 +286,7 @@ public class CloudManipulator extends CloudSimulator {
     @Override
     public RemoteResponse getRateLimitStatus(String previousETag) {
         if (shouldDelayNext) delayRandomAmount();
-        if (shouldFailNext) return getNetworkFailedResponse();
+        if (shouldFail(false)) return getNetworkFailedResponse();
         RemoteResponse actualResponse = super.getRateLimitStatus(previousETag);
         return actualResponse;
     }
@@ -273,7 +294,7 @@ public class CloudManipulator extends CloudSimulator {
     @Override
     public RemoteResponse updatePerson(String addressBookName, int personId, CloudPerson updatedPerson, String previousETag) {
         if (shouldDelayNext) delayRandomAmount();
-        if (shouldFailNext) return getNetworkFailedResponse();
+        if (shouldFail(true)) return getNetworkFailedResponse();
         RemoteResponse actualResponse = super.updatePerson(addressBookName, personId, updatedPerson, previousETag);
         return actualResponse;
     }
@@ -281,7 +302,7 @@ public class CloudManipulator extends CloudSimulator {
     @Override
     public RemoteResponse deletePerson(String addressBookName, int personId) {
         if (shouldDelayNext) delayRandomAmount();
-        if (shouldFailNext) return getNetworkFailedResponse();
+        if (shouldFail(true)) return getNetworkFailedResponse();
         RemoteResponse actualResponse = super.deletePerson(addressBookName, personId);
         return actualResponse;
     }
@@ -289,7 +310,7 @@ public class CloudManipulator extends CloudSimulator {
     @Override
     public RemoteResponse createTag(String addressBookName, CloudTag newTag, String previousETag) {
         if (shouldDelayNext) delayRandomAmount();
-        if (shouldFailNext) return getNetworkFailedResponse();
+        if (shouldFail(true)) return getNetworkFailedResponse();
         RemoteResponse actualResponse = super.createTag(addressBookName, newTag, previousETag);
         return actualResponse;
     }
@@ -297,7 +318,7 @@ public class CloudManipulator extends CloudSimulator {
     @Override
     public RemoteResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag, String previousETag) {
         if (shouldDelayNext) delayRandomAmount();
-        if (shouldFailNext) return getNetworkFailedResponse();
+        if (shouldFail(true)) return getNetworkFailedResponse();
         RemoteResponse actualResponse = super.editTag(addressBookName, oldTagName, updatedTag, previousETag);
         return actualResponse;
     }
@@ -305,7 +326,7 @@ public class CloudManipulator extends CloudSimulator {
     @Override
     public RemoteResponse deleteTag(String addressBookName, String tagName) {
         if (shouldDelayNext) delayRandomAmount();
-        if (shouldFailNext) return getNetworkFailedResponse();
+        if (shouldFail(true)) return getNetworkFailedResponse();
         RemoteResponse actualResponse = super.deleteTag(addressBookName, tagName);
         return actualResponse;
     }
@@ -313,7 +334,7 @@ public class CloudManipulator extends CloudSimulator {
     @Override
     public RemoteResponse createAddressBook(String addressBookName) {
         if (shouldDelayNext) delayRandomAmount();
-        if (shouldFailNext) return getNetworkFailedResponse();
+        if (shouldFail(true)) return getNetworkFailedResponse();
         RemoteResponse actualResponse = super.createAddressBook(addressBookName);
         return actualResponse;
     }
