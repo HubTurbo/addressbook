@@ -92,9 +92,9 @@ public class CloudFileHandler {
     private CloudAddressBook readFromCloudFile(File cloudFile) throws FileNotFoundException, DataConversionException {
         try {
             logger.debug("Reading from cloud file '{}'.", cloudFile.getName());
-            CloudAddressBook CloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
-            if (CloudAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
-            return CloudAddressBook;
+            CloudAddressBook cloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
+            if (cloudAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
+            return cloudAddressBook;
         } catch (FileNotFoundException e) {
             logger.warn("Cloud file '{}' not found.", cloudFile.getName());
             throw e;
