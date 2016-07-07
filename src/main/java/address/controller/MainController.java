@@ -28,7 +28,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -151,14 +150,14 @@ public class MainController extends UiController{
         try {
             // Load person overview.
             FXMLLoader loader = loadFxml(fxmlResourcePath);
-            AnchorPane personOverview = loader.load();
-            SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-            SplitPane.setResizableWithParent(personOverview, false);
+            VBox personOverview = loader.load();
+            AnchorPane pane = (AnchorPane) rootLayout.lookup("#personOverview");
+            SplitPane.setResizableWithParent(pane, false);
             // Give the personOverviewController access to the main app and modelManager.
             PersonOverviewController personOverviewController = loader.getController();
             personOverviewController.setConnections(this, modelManager, personList);
 
-            pane.getItems().add(personOverview);
+            pane.getChildren().add(personOverview);
         } catch (IOException e) {
             logger.fatal("Error loading person overview: {}", e);
             showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for person overview.",
@@ -174,7 +173,7 @@ public class MainController extends UiController{
         statusBarHeaderController = new StatusBarHeaderController();
         AnchorPane sbPlaceHolder = (AnchorPane) rootLayout.lookup("#headerStatusbarPlaceholder");
 
-        assert sbPlaceHolder != null : "footerStatusbarPlaceHolder node not found in rootLayout";
+        assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in rootLayout";
 
         FxViewUtil.applyAnchorBoundaryParameters(statusBarHeaderController.getHeaderStatusBarView(), 0.0, 0.0, 0.0, 0.0);
         sbPlaceHolder.getChildren().add(statusBarHeaderController.getHeaderStatusBarView());
@@ -189,7 +188,9 @@ public class MainController extends UiController{
             gridPane.getStyleClass().add("grid-pane");
             StatusBarFooterController controller = loader.getController();
             controller.init(config.getUpdateInterval(), config.getAddressBookName());
-            rootLayout.getChildren().add(gridPane);
+            AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
+            FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
+            placeHolder.getChildren().add(gridPane);
         } catch (IOException e) {
             logger.fatal("Error Loading footer status bar: {}", e);
             showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for footer status bar.",
@@ -519,9 +520,8 @@ public class MainController extends UiController{
     }
 
     public void showPersonWebPage() {
-        SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-        pane.getItems().add(browserManager.getHyperBrowserView());
-        pane.setDividerPositions(0.3f);
+        AnchorPane pane = (AnchorPane) rootLayout.lookup("#personWebpage");
+        pane.getChildren().add(browserManager.getHyperBrowserView());
     }
 
     @Subscribe
@@ -551,8 +551,8 @@ public class MainController extends UiController{
 
     protected void setDefaultSize() {
 
-        primaryStage.setHeight(prefs.getScreenSize().getRight());
-        primaryStage.setWidth(prefs.getScreenSize().getLeft());
+        primaryStage.setHeight(prefs.getScreenSize().getHeight());
+        primaryStage.setWidth(prefs.getScreenSize().getWidth());
         primaryStage.setMaximized(false);
         primaryStage.setIconified(false);
     }

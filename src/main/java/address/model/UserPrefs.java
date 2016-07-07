@@ -1,8 +1,7 @@
 package address.model;
 
+import address.util.ScreenSize;
 import address.util.ScreenUtil;
-import javafx.util.Pair;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
 
@@ -18,7 +17,7 @@ public class UserPrefs {
      */
     private volatile String saveLocation;
 
-    public ImmutablePair<Double, Double> screenSize;
+    public ScreenSize screenSize;
 
     public synchronized void setSaveLocation(String saveLocation) {
         this.saveLocation = saveLocation;
@@ -43,11 +42,11 @@ public class UserPrefs {
         return getSaveLocation() != null;
     }
 
-    public ImmutablePair<Double, Double> getScreenSize() {
+    public ScreenSize getScreenSize() {
         return screenSize == null ? ScreenUtil.getRecommendedScreenSize() : screenSize;
     }
 
-    public void setScreenSize(ImmutablePair<Double, Double> screenSize) {
+    public void setScreenSize(ScreenSize screenSize) {
         this.screenSize = screenSize;
     }
 }

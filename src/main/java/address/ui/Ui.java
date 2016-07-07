@@ -1,15 +1,13 @@
 package address.ui;
 
 import address.MainApp;
-import address.browser.BrowserManager;
 import address.controller.MainController;
 import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.util.Config;
+import address.util.ScreenSize;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import javafx.util.Pair;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
 /**
  * The UI of the app.
@@ -32,9 +30,9 @@ public class Ui {
     }
 
     public void stop() {
-        ImmutablePair<Double, Double> pair = new ImmutablePair<>(mainController.getPrimaryStage().getWidth(),
+        ScreenSize screenSize = new ScreenSize(mainController.getPrimaryStage().getWidth(),
                                                mainController.getPrimaryStage().getHeight());
-        pref.setScreenSize(pair);
+        pref.setScreenSize(screenSize);
         mainController.stop();
     }
 }
