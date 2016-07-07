@@ -47,6 +47,10 @@ public class CloudManipulator extends CloudSimulator {
     private static final String FAIL_BUTTON_ICON_PATH = "/images/fail.png";
     private static final String ADD_PERSON_TEXT = "Add person";
     private static final String MODIFY_PERSON_TEXT = "Modify person";
+    private static final String DELETE_PERSON_TEXT = "Delete person";
+    private static final String ADD_TAG_TEXT = "Add tag";
+    private static final String MODIFY_TAG_TEXT = "Modify tag";
+    private static final String DELETE_TAG_TEXT = "Delete tag";
     private static final String CLOUD_MANIPULATOR_TITLE = "Cloud Manipulator";
     private static final String ADDRESS_BOOK_FIELD_TOOLTIP_TEXT = "Enter address book to target.";
     private static final String ADDRESS_BOOK_FIELD_PROMPT_TEXT = "Address Book";
@@ -56,8 +60,6 @@ public class CloudManipulator extends CloudSimulator {
     private static final Random RANDOM_GENERATOR = new Random();
     private static final int MIN_DELAY_IN_SEC = 1;
     private static final int MAX_DELAY_IN_SEC = 5;
-    private static final int MAX_NUM_PERSONS_TO_ADD = 2;
-    private static final int MAX_NUM_TAGS_TO_ADD = 2;
 
     private boolean shouldDelayNext = false;
     private boolean shouldFailNext = false;
@@ -136,28 +138,38 @@ public class CloudManipulator extends CloudSimulator {
 
     public void start(Stage stage) {
         VBox consoleBox = getConsoleBox();
+
         addressBookField = getAddressBookNameField(addressBookName);
         failSyncUpsCheckBox = getFailSyncUpsCheckBox();
+        statusArea = getStatusArea();
 
         Button delayButton = getButton(DELAY_BUTTON_TEXT, getIcon(DELAY_BUTTON_ICON_PATH), actionEvent -> shouldDelayNext = true);
         Button failButton = getButton(FAIL_BUTTON_TEXT, getIcon(FAIL_BUTTON_ICON_PATH), actionEvent -> shouldFailNext = true);
         Button simulatePersonAdditionButton = getButton(ADD_PERSON_TEXT, null, actionEvent -> addRandomPersonToAddressBookFile(addressBookField::getText));
         Button simulatePersonModificationButton = getButton(MODIFY_PERSON_TEXT, null, actionEvent -> modifyRandomPersonInAddressBookFile(addressBookField::getText));
+        Button simulatePersonDeletionButton = getButton(DELETE_PERSON_TEXT, null, actionEvent -> deleteRandomPersonInAddressBookFile(addressBookField::getText));
+        Button simulateTagAdditionButton = getButton(ADD_TAG_TEXT, null, actionEvent -> addRandomTagToAddressBookFile(addressBookField::getText));
+        Button simulateTagModificationButton = getButton(MODIFY_TAG_TEXT, null, actionEvent -> modifyRandomTagInAddressBookFile(addressBookField::getText));
+        Button simulateTagDeletionButton = getButton(DELETE_TAG_TEXT, null, actionEvent -> deleteRandomPersonInAddressBookFile(addressBookField::getText));
 
-        statusArea = getStatusArea();
         consoleBox.getChildren().addAll(failSyncUpsCheckBox, delayButton, failButton, addressBookField, simulatePersonAdditionButton,
-                                       simulatePersonModificationButton, statusArea);
+                                        simulatePersonModificationButton, simulatePersonDeletionButton, simulateTagAdditionButton,
+                                        simulateTagModificationButton, simulateTagDeletionButton, statusArea);
 
+        Dialog<Void> dialog = getConsoleDialog(stage);
+        dialog.getDialogPane().getChildren().add(consoleBox);
+        dialog.show();
+    }
+
+    private Dialog<Void> getConsoleDialog(Stage stage) {
         Dialog<Void> dialog = new Dialog<>();
         dialog.initModality(Modality.NONE); // so that the dialog does not prevent interaction with the app
-        dialog.initOwner(stage);
         dialog.setTitle(CLOUD_MANIPULATOR_TITLE);
-        dialog.getDialogPane().getChildren().add(consoleBox);
         dialog.setX(stage.getX() + 740);
         dialog.setY(stage.getY());
         dialog.getDialogPane().setPrefWidth(CONSOLE_WIDTH);
         dialog.getDialogPane().setPrefHeight(CONSOLE_HEIGHT);
-        dialog.show();
+        return dialog;
     }
 
     private CheckBox getFailSyncUpsCheckBox() {
@@ -209,9 +221,15 @@ public class CloudManipulator extends CloudSimulator {
         return button;
     }
 
-    private CloudPerson getRandomPerson(List<CloudPerson> listOfCloudPersons) {
-        int sizeOfList = listOfCloudPersons.size();
-        return listOfCloudPersons.get(RANDOM_GENERATOR.nextInt(sizeOfList - 1));
+    /**
+     * Returns a random element from the list
+     * @param list non-empty list
+     * @param <T>
+     * @return
+     */
+    private <T> T getRandom(List<T> list) {
+        int sizeOfList = list.size();
+        return list.get(RANDOM_GENERATOR.nextInt(sizeOfList));
     }
 
     private void logAndUpdateStatus(String newStatus) {
@@ -219,29 +237,95 @@ public class CloudManipulator extends CloudSimulator {
         statusArea.appendText(LocalDateTime.now() + ": " + newStatus + "\n");
     }
 
-    private void modifyRandomPersonInAddressBookFile(Supplier<String> addressBookName) {
-        logAndUpdateStatus("Modifying random person in address book " + addressBookName.get());
+    private void deleteRandomPersonInAddressBookFile(Supplier<String> addressBookName) {
+        String targetAddressBook = addressBookName.get();
+        logAndUpdateStatus("Deleting random person in address book " + targetAddressBook);
         try {
-            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(addressBookName.get());
-            modifyCloudPerson(getRandomPerson(cloudAddressBook.getAllPersons()));
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(targetAddressBook);
+            List<CloudPerson> allPersons = cloudAddressBook.getAllPersons();
+            if (allPersons.isEmpty()) return;
+            allPersons.remove(getRandom(allPersons));
             fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
         } catch (FileNotFoundException e) {
-            logAndUpdateStatus("Failed to modify person: cloud address book " + addressBookName.get() + " not found");
+            logAndUpdateStatus("Failed to delete person: cloud address book " + targetAddressBook + " not found");
+        } catch (DataConversionException e) {
+            logAndUpdateStatus("Failed to delete person: error occurred");
+        }
+    }
+
+    private void deleteRandomTagInAddressBookFile(Supplier<String> addressBookName) {
+        String targetAddressBook = addressBookName.get();
+        logAndUpdateStatus("Deleting random tag in address book " + targetAddressBook);
+        try {
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(targetAddressBook);
+            List<CloudTag> allTags = cloudAddressBook.getAllTags();
+            if (allTags.isEmpty()) return;
+            allTags.remove(getRandom(allTags));
+            fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
+        } catch (FileNotFoundException e) {
+            logAndUpdateStatus("Failed to delete tag: cloud address book " + targetAddressBook + " not found");
+        } catch (DataConversionException e) {
+            logAndUpdateStatus("Failed to delete tag: error occurred");
+        }
+    }
+
+    private void modifyRandomPersonInAddressBookFile(Supplier<String> addressBookName) {
+        String targetAddressBook = addressBookName.get();
+        logAndUpdateStatus("Modifying random person in address book " + targetAddressBook);
+        try {
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(targetAddressBook);
+            List<CloudPerson> allPersons = cloudAddressBook.getAllPersons();
+            if (allPersons.isEmpty()) return;
+            modifyCloudPerson(getRandom(allPersons));
+            fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
+        } catch (FileNotFoundException e) {
+            logAndUpdateStatus("Failed to modify person: cloud address book " + targetAddressBook + " not found");
         } catch (DataConversionException e) {
             logAndUpdateStatus("Failed to modify person: error occurred");
         }
     }
 
-    private void addRandomPersonToAddressBookFile(Supplier<String> addressBookName) {
-        logAndUpdateStatus("Adding random person to address book");
+    private void modifyRandomTagInAddressBookFile(Supplier<String> addressBookName) {
+        String targetAddressBook = addressBookName.get();
+        logAndUpdateStatus("Modifying random tag in address book " + targetAddressBook);
         try {
-            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(addressBookName.get());
-            addCloudPersons(cloudAddressBook.getAllPersons());
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(targetAddressBook);
+            List<CloudTag> allTags = cloudAddressBook.getAllTags();
+            if (allTags.isEmpty()) return;
+            modifyCloudTag(getRandom(allTags));
             fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
         } catch (FileNotFoundException e) {
-            logAndUpdateStatus("Failed to add person: cloud address book " + addressBookName.get() + " not found");
+            logAndUpdateStatus("Failed to modify tag: cloud address book " + targetAddressBook + " not found");
         } catch (DataConversionException e) {
-            logAndUpdateStatus("Failed to modify person: error occurred");
+            logAndUpdateStatus("Failed to modify tag: error occurred");
+        }
+    }
+
+    private void addRandomPersonToAddressBookFile(Supplier<String> addressBookName) {
+        String targetAddressBook = addressBookName.get();
+        logAndUpdateStatus("Adding random person to address book " + targetAddressBook);
+        try {
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(targetAddressBook);
+            addCloudPerson(cloudAddressBook.getAllPersons());
+            fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
+        } catch (FileNotFoundException e) {
+            logAndUpdateStatus("Failed to add person: cloud address book " + targetAddressBook + " not found");
+        } catch (DataConversionException e) {
+            logAndUpdateStatus("Failed to add person: error occurred");
+        }
+    }
+
+    private void addRandomTagToAddressBookFile(Supplier<String> addressBookName) {
+        String targetAddressBook = addressBookName.get();
+        logAndUpdateStatus("Adding random tag to address book " + targetAddressBook);
+        try {
+            CloudAddressBook cloudAddressBook = fileHandler.readCloudAddressBookFromCloudFile(targetAddressBook);
+            addCloudTag(cloudAddressBook.getAllTags());
+            fileHandler.writeCloudAddressBookToCloudFile(cloudAddressBook);
+        } catch (FileNotFoundException e) {
+            logAndUpdateStatus("Failed to add tag: cloud address book " + targetAddressBook + " not found");
+        } catch (DataConversionException e) {
+            logAndUpdateStatus("Failed to add tag: error occurred");
         }
     }
 
@@ -339,43 +423,22 @@ public class CloudManipulator extends CloudSimulator {
         return actualResponse;
     }
 
-    private List<CloudPerson> mutateCloudPersonList(List<CloudPerson> CloudPersonList) {
-        modifyCloudPersonList(CloudPersonList);
-        addCloudPersons(CloudPersonList);
-        return CloudPersonList;
+    private void addCloudPerson(List<CloudPerson> personList) {
+        CloudPerson person = new CloudPerson(java.util.UUID.randomUUID().toString(),
+                java.util.UUID.randomUUID().toString());
+        logger.info("Simulating person addition: '{}'", person);
+        personList.add(person);
     }
 
-    private List<CloudTag> mutateCloudTagList(List<CloudTag> CloudTagList) {
-        modifyCloudTagList(CloudTagList);
-        addCloudTags(CloudTagList);
-        return CloudTagList;
+    private void addCloudTag(List<CloudTag> tagList) {
+        CloudTag tag = new CloudTag(java.util.UUID.randomUUID().toString());
+        logger.debug("Simulating tag addition: '{}'", tag);
+        tagList.add(tag);
     }
 
-    private void modifyCloudPersonList(List<CloudPerson> cloudPersonList) {
-        cloudPersonList.stream()
-                .forEach(this::modifyCloudPerson);
-    }
-
-    private void modifyCloudTagList(List<CloudTag> cloudTagList) {
-        cloudTagList.stream()
-                .forEach(this::modifyCloudTag);
-    }
-
-    private void addCloudPersons(List<CloudPerson> personList) {
-        for (int i = 0; i < MAX_NUM_PERSONS_TO_ADD; i++) {
-            CloudPerson person = new CloudPerson(java.util.UUID.randomUUID().toString(),
-                    java.util.UUID.randomUUID().toString());
-            logger.info("Simulating person addition: '{}'", person);
-            personList.add(person);
-        }
-    }
-
-    private void addCloudTags(List<CloudTag> tagList) {
-        for (int i = 0; i < MAX_NUM_TAGS_TO_ADD; i++) {
-            CloudTag tag = new CloudTag(java.util.UUID.randomUUID().toString());
-            logger.debug("Simulating tag addition: '{}'", tag);
-            tagList.add(tag);
-        }
+    private void deleteCloudTag(List<CloudTag> tagList) {
+        CloudTag tagRemoved = tagList.remove(RANDOM_GENERATOR.nextInt(tagList.size()));
+        logger.debug("Simulating tag deletion: '{}'", tagRemoved);
     }
 
     private void modifyCloudPerson(CloudPerson cloudPerson) {
