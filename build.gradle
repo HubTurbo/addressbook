@@ -307,7 +307,7 @@ task checkStyle {
 
 class AddressBookTest extends Test {
     public AddressBookTest() {
-    	forkEvery = 1
+    	  forkEvery = 1
         systemProperty 'testfx.setup.timeout', '60000'
     }
 
@@ -320,52 +320,54 @@ class AddressBookTest extends Test {
     }
 }
 
-task guiTest(type: AddressBookTest) {
+task guiTests(type: AddressBookTest) {
     include 'guitests/**'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
 }
 
-task guiUnitTest(type: AddressBookTest) {
+task guiUnitTests(type: AddressBookTest) {
     include 'guiunittests/**'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
 }
 
-task unitTest(type: AddressBookTest) {
+task unitTests(type: AddressBookTest) {
     include 'address/**'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
 }
 
-task allTests {
+task allTests(type: AddressBookTest) {
+    jacoco {
+        destinationFile = new File("${buildDir}/jacoco/test.exec")
+    }
 }
 
 task headless << {
     println "Setting headless mode properties."
-    guiTest.setHeadless()
-    guiUnitTest.setHeadless()
-    unitTest.setHeadless()
+    guiTests.setHeadless()
+    guiUnitTests.setHeadless()
+    unitTests.setHeadless()
+    allTests.setHeadless()
 }
 
-unitTest.mustRunAfter headless
-guiUnitTest.mustRunAfter headless
-guiTest.mustRunAfter headless
+unitTests.mustRunAfter headless
+guiUnitTests.mustRunAfter headless
+guiTests.mustRunAfter headless
+allTests.mustRunAfter headless
 
 headless.shouldRunAfter checkStyle
-unitTest.shouldRunAfter checkStyle
-guiUnitTest.shouldRunAfter checkStyle
-guiTest.shouldRunAfter checkStyle
-
-allTests.dependsOn unitTest
-allTests.dependsOn guiUnitTest
-allTests.dependsOn guiTest
+unitTests.shouldRunAfter checkStyle
+guiUnitTests.shouldRunAfter checkStyle
+guiTests.shouldRunAfter checkStyle
+allTests.shouldRunAfter checkStyle
 
 checkStyle.shouldRunAfter clean
 checkStyle.dependsOn checkstyleMain, checkstyleTest, findbugsMain, findbugsTest, pmdMain, pmdTest
 coverage.dependsOn jacocoTestReport
 
-defaultTasks 'clean', 'headless', 'alltests', 'jacocoRootReport'
+defaultTasks 'clean', 'headless', 'allTests', 'jacocoRootReport'

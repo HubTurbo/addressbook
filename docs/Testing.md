@@ -4,23 +4,22 @@ Tests' settings are mostly contained in `build.gradle` and `.travis.yml`.
 
 ## Gradle Tasks
 There are a few key gradle tasks defined that we can play around with:  
-- `alltests` to run all tests:
-  - `guiTest`
-  - `guiUnitTest`
-  - `unitTest`
+- `allTests` to run all tests
+- `guiTests` to run `guitests`
+- `guiUnitTests` to run `guiunittests`
+- `unitTests` to run `address`
 - `headless` to set headless properties (applies only to the above test tasks, and not to default gradle's `test` tasks)
 - `checkStyle` to run code style checks
 - `clean` to remove previously built files
+    - Running tasks repeatedly may not work unless the build files are `clean`ed first.
+- `jacocoRootReport` to obtain coverage information after tests have been run
 
 ## Local Testing
 ### How to do some common testing-related tasks
 - To run all tests in headless mode: `./gradlew`
-  - It will run `clean`, `headless`, `alltests`, `jacocoRootReport` tasks.
-- To run checkstyle followed by headful tests `./gradlew checkStyle alltests`
-- To run **headless testing** only: `./gradlew headless` alltests
-  - Running tests repeatedly will not re-run the tests unless the build files are `clean`ed first.
-    e.g. `./gradlew clean headless alltests`
-- To run **headful testing** only: `./gradlew alltests`
+  - It will run `clean`, `headless`, `allTests`, `jacocoRootReport` tasks.
+- To run all tests in headless mode: `./gradlew clean allTests jacocoRootReport`
+- To run checkstyle followed by headful tests `./gradlew clean checkStyle allTests jacocoRootReport`
 - Running specific test classes in a specific order: When troubleshooting test failures,
   you might want to run some specific tests in a specific order. Here are the steps to do that.
   - Create a test suite (to specify the test order). Here is an example:
@@ -43,12 +42,12 @@ There are a few key gradle tasks defined that we can play around with:
      }
      ```
   - Run the test suite using the gradle command <br>
-   `gradle clean headless --tests address.TestsInOrder`
+   `gradle clean headless allTests --tests address.TestsInOrder`
 
 
 ## CI Testing
 - The current Travis set up
-  - runs the `./gradlew clean headless alltests jacocoRootReport coveralls -i` command.
+  - runs the `./gradlew clean headless allTests jacocoRootReport coveralls -i` command.
   - At the moment, we do not check the code style. It is up to the contributor to verify his or her coding style locally by running `./gradlew checkStyle`.
   - Automatically retries up to 3 times if a task fails
 
