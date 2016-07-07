@@ -14,7 +14,7 @@ public class CloudFileHandler {
     private static final AppLogger logger = LoggerManager.getLogger(CloudFileHandler.class);
     private static final String CLOUD_DIRECTORY = "cloud/";
 
-    public CloudAddressBook readCloudAddressBookFromFile(String cloudDataFilePath) throws FileNotFoundException,
+    public CloudAddressBook readCloudAddressBookFromExternalFile(String cloudDataFilePath) throws FileNotFoundException,
             DataConversionException {
         File cloudFile = new File(cloudDataFilePath);
         try {
@@ -31,7 +31,7 @@ public class CloudFileHandler {
         }
     }
 
-    public CloudAddressBook readCloudAddressBookFromCloudFile(String addressBookName) throws FileNotFoundException,
+    public CloudAddressBook readCloudAddressBook(String addressBookName) throws FileNotFoundException,
             DataConversionException {
         File cloudFile = getCloudDataFile(addressBookName);
         try {
@@ -48,7 +48,7 @@ public class CloudFileHandler {
         }
     }
 
-    public void writeCloudAddressBookToCloudFile(CloudAddressBook CloudAddressBook) throws FileNotFoundException,
+    public void writeCloudAddressBook(CloudAddressBook CloudAddressBook) throws FileNotFoundException,
             DataConversionException {
         String addressBookName = CloudAddressBook.getName();
         File cloudFile = getCloudDataFile(addressBookName);
@@ -93,6 +93,25 @@ public class CloudFileHandler {
     }
 
     /**
+     * Attempts to create an empty address book on the cloud if it does not exist
+     *
+     * @param addressBookName
+     * @throws IOException
+     * @throws DataConversionException
+     * @throws IllegalArgumentException
+     */
+    public void createAddressBookIfAbsent(String addressBookName) throws IOException, DataConversionException,
+            IllegalArgumentException {
+        File cloudFile = getCloudDataFile(addressBookName);
+        if (cloudFile.exists()) return;
+        try {
+            createCloudFile(new CloudAddressBook(addressBookName));
+        } catch (IllegalArgumentException e) {
+            assert false : "Error in logic: createCloudFile should not be called since address book is present";
+        }
+    }
+
+    /**
      * Attempts to create the cloud file in the cloud directory, containing an empty address book
      * File will be named the same as the address book
      *
@@ -123,7 +142,7 @@ public class CloudFileHandler {
             throw new IOException("Error creating cloud file for address book: " + getCloudDataFilePath(cloudAddressBook.getName()));
         }
 
-        writeCloudAddressBookToCloudFile(cloudAddressBook);
+        writeCloudAddressBook(cloudAddressBook);
     }
 
     private File getCloudDataFile(String addressBookName) {

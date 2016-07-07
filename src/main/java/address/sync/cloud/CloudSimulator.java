@@ -42,7 +42,7 @@ public class CloudSimulator implements IRemote {
         cloudRateLimitStatus = new CloudRateLimitStatus(API_QUOTA_PER_HOUR);
         cloudRateLimitStatus.restartQuotaTimer();
         try {
-            fileHandler.createAddressBook(config.getAddressBookName());
+            fileHandler.createAddressBookIfAbsent(config.getAddressBookName());
         } catch (IOException | DataConversionException e) {
             logger.fatal("Error initializing cloud file for '{}'", config.getAddressBookName());
             assert false : "Error initializing cloud file: " + config.getAddressBookName();
@@ -68,9 +68,9 @@ public class CloudSimulator implements IRemote {
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
 
         try {
-            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBook(addressBookName);
             CloudPerson returnedPerson = addPerson(fileData.getAllPersons(), newPerson);
-            fileHandler.writeCloudAddressBookToCloudFile(fileData);
+            fileHandler.writeCloudAddressBook(fileData);
             return new RemoteResponse(HttpURLConnection.HTTP_CREATED, returnedPerson, cloudRateLimitStatus,
                                       previousETag);
         } catch (IllegalArgumentException e) {
@@ -102,7 +102,7 @@ public class CloudSimulator implements IRemote {
 
         List<CloudPerson> fullPersonList = new ArrayList<>();
         try {
-            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBook(addressBookName);
             fullPersonList.addAll(fileData.getAllPersons());
         } catch (FileNotFoundException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_NOT_FOUND);
@@ -146,7 +146,7 @@ public class CloudSimulator implements IRemote {
         List<CloudTag> fullTagList = new ArrayList<>();
 
         try {
-            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBook(addressBookName);
             fullTagList.addAll(fileData.getAllTags());
         } catch (FileNotFoundException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_NOT_FOUND);
@@ -199,10 +199,10 @@ public class CloudSimulator implements IRemote {
                 personId, updatedPerson, previousETag);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
         try {
-            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBook(addressBookName);
             CloudPerson resultingPerson = updatePersonDetails(fileData.getAllPersons(), fileData.getAllTags(), personId,
                                                               updatedPerson);
-            fileHandler.writeCloudAddressBookToCloudFile(fileData);
+            fileHandler.writeCloudAddressBook(fileData);
             return new RemoteResponse(HttpURLConnection.HTTP_OK, resultingPerson, cloudRateLimitStatus, previousETag);
         } catch (NoSuchElementException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
@@ -227,9 +227,9 @@ public class CloudSimulator implements IRemote {
         logger.debug("deletePerson called with: addressbook {}, personid {}", addressBookName, personId);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
         try {
-            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBook(addressBookName);
             deletePersonFromData(fileData.getAllPersons(), personId);
-            fileHandler.writeCloudAddressBookToCloudFile(fileData);
+            fileHandler.writeCloudAddressBook(fileData);
 
             return getEmptyResponse(HttpURLConnection.HTTP_NO_CONTENT);
         } catch (NoSuchElementException e) {
@@ -257,9 +257,9 @@ public class CloudSimulator implements IRemote {
                 previousETag);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
         try {
-            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBook(addressBookName);
             CloudTag returnedTag = addTag(fileData.getAllTags(), newTag);
-            fileHandler.writeCloudAddressBookToCloudFile(fileData);
+            fileHandler.writeCloudAddressBook(fileData);
             return new RemoteResponse(HttpURLConnection.HTTP_CREATED, returnedTag, cloudRateLimitStatus, previousETag);
         } catch (IllegalArgumentException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
@@ -287,10 +287,10 @@ public class CloudSimulator implements IRemote {
                 oldTagName, updatedTag, previousETag);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
         try {
-            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBook(addressBookName);
             CloudTag returnedTag = updateTagDetails(fileData.getAllPersons(), fileData.getAllTags(), oldTagName,
                                                     updatedTag);
-            fileHandler.writeCloudAddressBookToCloudFile(fileData);
+            fileHandler.writeCloudAddressBook(fileData);
             return new RemoteResponse(HttpURLConnection.HTTP_OK, returnedTag, cloudRateLimitStatus, previousETag);
         } catch (NoSuchElementException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
@@ -316,9 +316,9 @@ public class CloudSimulator implements IRemote {
         logger.debug("deleteTag called with: addressbook {}, tagname {}", addressBookName, tagName);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
         try {
-            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBook(addressBookName);
             deleteTagFromData(fileData.getAllPersons(), fileData.getAllTags(), tagName);
-            fileHandler.writeCloudAddressBookToCloudFile(fileData);
+            fileHandler.writeCloudAddressBook(fileData);
 
             return getEmptyResponse(HttpURLConnection.HTTP_NO_CONTENT);
         } catch (NoSuchElementException e) {
@@ -376,7 +376,7 @@ public class CloudSimulator implements IRemote {
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
         List<CloudPerson> fullPersonList = new ArrayList<>();
         try {
-            CloudAddressBook fileData = fileHandler.readCloudAddressBookFromCloudFile(addressBookName);
+            CloudAddressBook fileData = fileHandler.readCloudAddressBook(addressBookName);
             fullPersonList.addAll(fileData.getAllPersons());
         } catch (FileNotFoundException e) {
             return getEmptyResponse(HttpURLConnection.HTTP_NOT_FOUND);
