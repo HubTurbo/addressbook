@@ -31,12 +31,11 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 @PrepareForTest({XmlFileStorage.class, FileUtil.class})
 @PowerMockIgnore({"javax.management.*"})// Defer loading of javax.management.* in log4j to system class loader
 public class StorageManagerTest {
-
+    private static final String DUMMY_DATA_FILE_PATH = TestUtil.appendToSandboxPath("dummyAddressBook.xml");
     private static final File DUMMY_DATA_FILE = new File(TestUtil.appendToSandboxPath("dummyAddressBook.xml"));
     private static final File DUMMY_PREFS_FILE = new File(TestUtil.appendToSandboxPath("dummyUserPrefs.json"));
     private static final File SERIALIZATION_FILE = new File(TestUtil.appendToSandboxPath("serialize.json"));
     private static final File INEXISTENT_FILE = new File(TestUtil.appendToSandboxPath("inexistent"));
-    private static final File NON_JSON_FILE = new File(TestUtil.appendToSandboxPath("non.json"));
     private static final File EMPTY_FILE = new File(TestUtil.appendToSandboxPath("empty.json"));
 
     private static final StorageAddressBook EMPTY_ADDRESSBOOK = new StorageAddressBook(new AddressBook());
@@ -50,19 +49,16 @@ public class StorageManagerTest {
     StorageManager storageManagerSpy;
 
     @Before
-    public void setup(){
-
+    public void setup() {
         //mock the dependent static class
         PowerMockito.mockStatic(XmlFileStorage.class);
 
         //create mocks for dependencies and inject them into StorageManager object under test
-        userPrefsMock = Mockito.mock(UserPrefs.class);
-        when(userPrefsMock.getSaveLocation()).thenReturn(DUMMY_DATA_FILE);
-        modelManagerMock = Mockito.mock(ModelManager.class);
-        when(modelManagerMock.getPrefs()).thenReturn(userPrefsMock);
         eventManagerMock = Mockito.mock(EventManager.class);
         configMock = Mockito.mock(Config.class);
         when(configMock.getPrefsFileLocation()).thenReturn(DUMMY_PREFS_FILE);
+        when(configMock.getLocalDataFilePath()).thenReturn(DUMMY_DATA_FILE_PATH);
+        modelManagerMock = Mockito.mock(ModelManager.class);
         storageManager = new StorageManager(modelManagerMock::resetData, configMock, userPrefsMock);
         storageManager.setEventManager(eventManagerMock);
 
@@ -76,17 +72,17 @@ public class StorageManagerTest {
         Config dummyConfig = new Config();
         FileUtil.deleteFileIfExists(INEXISTENT_FILE);
         assertFalse(INEXISTENT_FILE.exists());
-        TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("CONFIG_FILE"), INEXISTENT_FILE.getPath());
+        TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("DEFAULT_CONFIG_FILE"), INEXISTENT_FILE.getPath());
         PowerMockito.whenNew(Config.class).withAnyArguments().thenReturn(dummyConfig);
-        StorageManager.getConfig();
+        StorageManager.getConfig(null);
         PowerMockito.verifyNew(Config.class);
     }
 
     @Test
     public void getConfig_fileExistent_correspondingMethodCalled() throws Exception {
         FileUtil.createIfMissing(EMPTY_FILE);
-        TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("CONFIG_FILE"), EMPTY_FILE.getPath());
-        StorageManager.getConfig();
+        TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("DEFAULT_CONFIG_FILE"), EMPTY_FILE.getPath());
+        StorageManager.getConfig(null);
         PowerMockito.verifyPrivate(StorageManager.class).invoke("readFromConfigFile", EMPTY_FILE);
     }
 
@@ -126,7 +122,7 @@ public class StorageManagerTest {
     @Test
     public void start_correspondingMethodCalled() throws Exception {
         storageManagerSpy.start();
-        PowerMockito.verifyPrivate(storageManagerSpy).invoke("loadDataFromFile", userPrefsMock.getSaveLocation());
+        PowerMockito.verifyPrivate(storageManagerSpy).invoke("loadDataFromFile", new File(configMock.getLocalDataFilePath()));
     }
 
     @Test
@@ -218,21 +214,6 @@ public class StorageManagerTest {
 
         //verify that method is called correctly
         verify(storageManagerSpy, times(1)).savePrefsToFile(EMPTY_USERPREFS);
-    }
-
-    @Test
-    public void getUserPrefs_inexistentFile_emptyUserPrefs() throws IOException {
-        UserPrefs emptyUserPrefs = new UserPrefs();
-        UserPrefs fromInexistentFile = StorageManager.getUserPrefs(INEXISTENT_FILE);
-        assertEquals(emptyUserPrefs.getSaveLocation(), fromInexistentFile.getSaveLocation());
-    }
-
-    @Test
-    public void getUserPrefs_nonJsonFile_emptyUserPrefs() throws IOException {
-        FileUtil.writeToFile(NON_JSON_FILE, "}");
-        UserPrefs emptyUserPrefs = new UserPrefs();
-        UserPrefs fromInexistentFile = StorageManager.getUserPrefs(NON_JSON_FILE);
-        assertEquals(emptyUserPrefs.getSaveLocation(), fromInexistentFile.getSaveLocation());
     }
 
     @Test

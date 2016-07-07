@@ -35,13 +35,13 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
      */
     public EditPersonCommand(int commandId, ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
                                 int gracePeriodDurationInSeconds, Consumer<BaseEvent> eventRaiser,
-                                ModelManager model) {
+                                ModelManager model, String addressbookName) {
         super(commandId, inputRetriever, gracePeriodDurationInSeconds);
         assert target != null;
         this.target = target;
         this.model = model;
         this.eventRaiser = eventRaiser;
-        this.addressbookName = model.getPrefs().getSaveFileName();
+        this.addressbookName = addressbookName;
     }
 
     protected ViewablePerson getViewable() {

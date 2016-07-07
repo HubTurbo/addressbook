@@ -88,7 +88,7 @@ public class MainController extends UiController{
         logger.info("Starting main controller.");
         this.primaryStage = primaryStage;
         this.browserManager.start();
-        primaryStage.setTitle(config.appTitle);
+        primaryStage.setTitle(config.getAppTitle());
 
         // Set the application icon.
         this.primaryStage.getIcons().add(getImage(ICON_APPLICATION));
@@ -184,7 +184,7 @@ public class MainController extends UiController{
             GridPane gridPane = loader.load();
             gridPane.getStyleClass().add("grid-pane");
             StatusBarFooterController controller = loader.getController();
-            controller.init(config.updateInterval, modelManager.getPrefs().getSaveLocation());
+            controller.init(config.getUpdateInterval(), config.getAddressBookName());
             rootLayout.getChildren().add(gridPane);
         } catch (IOException e) {
             logger.fatal("Error Loading footer status bar: {}", e);

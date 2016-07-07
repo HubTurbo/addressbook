@@ -1,6 +1,7 @@
 package address.model;
 
 import address.model.datatypes.person.ReadOnlyPerson;
+import address.util.Config;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,11 +20,14 @@ public class ModelManagerTest {
 
     @Mock
     ModelManager modelMock;
+    @Mock
+    Config config;
     ModelManager modelSpy;
 
     @Before
     public void setup() {
-        modelSpy = spy(new ModelManager(null));
+        when(config.getLocalDataFilePath()).thenReturn("MyAddressBook");
+        modelSpy = spy(new ModelManager(config));
     }
 
     @SuppressWarnings("unchecked")

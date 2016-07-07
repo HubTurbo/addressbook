@@ -7,6 +7,9 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ViewablePerson;
 import address.model.datatypes.tag.Tag;
 import address.storage.StorageAddressBook;
+import address.sync.cloud.model.CloudAddressBook;
+import address.sync.cloud.model.CloudPerson;
+import address.sync.cloud.model.CloudTag;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
 import javafx.scene.input.KeyCode;
@@ -52,20 +55,37 @@ public class TestUtil {
     public static String SANDBOX_FOLDER = FileUtil.getPath("./src/test/data/sandbox/");
 
     public static final Person[] samplePersonData = {
-            new Person("Hans", "Muster", -1),
-            new Person("Ruth", "Mueller", -2),
-            new Person("Heinz", "Kurz", -3),
-            new Person("Cornelia", "Meier", -4),
-            new Person("Werner", "Meyer", -5),
-            new Person("Lydia", "Kunz", -6),
-            new Person("Anna", "Best", -7),
-            new Person("Stefan", "Meier", -8),
-            new Person("Martin", "Mueller", -9)
+            new Person("Hans", "Muster", 1),
+            new Person("Ruth", "Mueller", 2),
+            new Person("Heinz", "Kurz", 3),
+            new Person("Cornelia", "Meier", 4),
+            new Person("Werner", "Meyer", 5),
+            new Person("Lydia", "Kunz", 6),
+            new Person("Anna", "Best", 7),
+            new Person("Stefan", "Meier", 8),
+            new Person("Martin", "Mueller", 9)
     };
 
     public static final Tag[] sampleTagData = {
             new Tag("relatives"),
             new Tag("friends")
+    };
+
+    public static final CloudPerson[] sampleCloudPersonData = {
+            new CloudPerson("Hans", "Muster", 1),
+            new CloudPerson("Ruth", "Mueller", 2),
+            new CloudPerson("Heinz", "Kurz", 3),
+            new CloudPerson("Cornelia", "Meier", 4),
+            new CloudPerson("Werner", "Meyer", 5),
+            new CloudPerson("Lydia", "Kunz", 6),
+            new CloudPerson("Anna", "Best", 7),
+            new CloudPerson("Stefan", "Meier", 8),
+            new CloudPerson("Martin", "Mueller", 9)
+    };
+
+    public static final CloudTag[] sampleCloudTagData = {
+            new CloudTag("relatives"),
+            new CloudTag("friends")
     };
 
     public static Person generateSamplePersonWithAllData(int customId) {
@@ -100,7 +120,7 @@ public class TestUtil {
         createDataFileWithData(generateSampleStorageAddressBook(), filePath);
     }
 
-    public static void createDataFileWithData(StorageAddressBook data, String filePath) {
+    public static <T> void createDataFileWithData(T data, String filePath) {
         try {
             File saveFileForTesting = new File(filePath);
             FileUtil.createIfMissing(saveFileForTesting);
@@ -114,8 +134,12 @@ public class TestUtil {
         createDataFileWithSampleData(TestApp.SAVE_LOCATION_FOR_TESTING);
     }
 
-    public static AddressBook generateSampleAddressBook(){
+    public static AddressBook generateSampleAddressBook() {
         return new AddressBook(Arrays.asList(samplePersonData), Arrays.asList(sampleTagData));
+    }
+
+    public static CloudAddressBook generateSampleCloudAddressBook() {
+        return new CloudAddressBook("MyAddressBook", Arrays.asList(sampleCloudPersonData), Arrays.asList(sampleCloudTagData));
     }
 
     public static StorageAddressBook generateSampleStorageAddressBook() {

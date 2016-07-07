@@ -51,8 +51,7 @@ public class SyncManagerTest {
         executorService = spy(Executors.newCachedThreadPool());
         scheduledExecutorService = mock(ScheduledExecutorService.class);
         config = new Config();
-        config.simulateUnreliableNetwork = false;
-        config.updateInterval = 1;
+        config.setUpdateInterval(1);
 
         syncManager = new SyncManager(config, remoteManager, executorService, scheduledExecutorService, null);
     }

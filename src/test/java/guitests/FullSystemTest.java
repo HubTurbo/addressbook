@@ -63,9 +63,6 @@ public class FullSystemTest extends GuiTestBase {
                 .targetWindow("Invalid Fields").clickOn("OK")
                 .clickOn("#lastNameField").write("Lee").clickOn("OK");
 
-        //Save file
-        clickOn("File").clickOn("[Local] Save");
-
         //Create a new tag 'company' using the 'Manage Tags' dialog
         ManageTagsDialogHandle manageTagsDialog = mainMenu.clickOn("Tags", "Manage Tags")
                 .as(ManageTagsDialogHandle.class);

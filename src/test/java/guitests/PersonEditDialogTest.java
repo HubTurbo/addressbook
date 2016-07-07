@@ -12,8 +12,9 @@ public class PersonEditDialogTest extends GuiTestBase {
     public void testUpdatePerson() {
         // TODO: find out why context menu does not appear in headless tests
         // TODO: This does not work if the person is not visible (i.e. too far down the list)
-        String nameOfPersonToEdit = "Cornelia";
-        clickOn(nameOfPersonToEdit).push(KeyCode.E).targetWindow("Edit Person")
+        String nameOfPersonToEdit = "Heinz";
+        clickOn(nameOfPersonToEdit)
+                .push(KeyCode.E).targetWindow("Edit Person")
                 .clickOn("#cityField").write("My City").clickOn("OK");
         clickOn(nameOfPersonToEdit).push(KeyCode.E).targetWindow("Edit Person");
 

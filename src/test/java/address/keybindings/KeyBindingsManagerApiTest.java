@@ -46,10 +46,6 @@ public class KeyBindingsManagerApiTest {
         verifyAccelerator("PERSON_EDIT_ACCELERATOR", "E");
         verifySequence(new JumpToListRequestEvent(-1), "G", "B");
         verifySequence(new JumpToListRequestEvent(1), "G", "T");
-        verifyAccelerator("FILE_NEW_ACCELERATOR", "SHORTCUT + N");
-        verifyAccelerator("FILE_OPEN_ACCELERATOR", "SHORTCUT + O");
-        verifyAccelerator("FILE_SAVE_ACCELERATOR", "SHORTCUT + S");
-        verifyAccelerator("FILE_SAVE_AS_ACCELERATOR", "SHORTCUT + ALT + S");
 
         verifyHotkey(new MinimizeAppRequestEvent(), "CTRL + ALT + X");
         verifyHotkey(new MinimizeAppRequestEvent(), "META + ALT + X");

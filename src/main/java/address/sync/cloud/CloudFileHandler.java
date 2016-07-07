@@ -14,7 +14,24 @@ public class CloudFileHandler {
     private static final AppLogger logger = LoggerManager.getLogger(CloudFileHandler.class);
     private static final String CLOUD_DIRECTORY = "cloud/";
 
-    public CloudAddressBook readCloudAddressBookFromFile(String addressBookName) throws FileNotFoundException,
+    public CloudAddressBook readCloudAddressBookFromFile(String cloudDataFilePath) throws FileNotFoundException,
+            DataConversionException {
+        File cloudFile = new File(cloudDataFilePath);
+        try {
+            logger.debug("Reading from cloud file '{}'.", cloudFile.getName());
+            CloudAddressBook CloudAddressBook = XmlUtil.getDataFromFile(cloudFile, CloudAddressBook.class);
+            if (CloudAddressBook.getName() == null) throw new DataConversionException("AddressBook name is null.");
+            return CloudAddressBook;
+        } catch (FileNotFoundException e) {
+            logger.warn("Cloud file '{}' not found.", cloudFile.getName());
+            throw e;
+        } catch (DataConversionException e) {
+            logger.warn("Error reading from cloud file '{}'.", cloudFile.getName());
+            throw e;
+        }
+    }
+
+    public CloudAddressBook readCloudAddressBookFromCloudFile(String addressBookName) throws FileNotFoundException,
             DataConversionException {
         File cloudFile = getCloudDataFile(addressBookName);
         try {
@@ -31,7 +48,7 @@ public class CloudFileHandler {
         }
     }
 
-    public void writeCloudAddressBookToFile(CloudAddressBook CloudAddressBook) throws FileNotFoundException,
+    public void writeCloudAddressBookToCloudFile(CloudAddressBook CloudAddressBook) throws FileNotFoundException,
             DataConversionException {
         String addressBookName = CloudAddressBook.getName();
         File cloudFile = getCloudDataFile(addressBookName);
@@ -42,6 +59,27 @@ public class CloudFileHandler {
             logger.warn("Error writing to cloud file '{}'.", cloudFile.getName());
             throw e;
         }
+    }
+
+    public void initializeCloudAddressBookFile(String addressBookName) throws IOException, DataConversionException,
+            IllegalArgumentException {
+        File cloudFile = getCloudDataFile(addressBookName);
+        if (cloudFile.exists()) {
+            cloudFile.delete();
+        }
+
+        File cloudDirectory = new File(CLOUD_DIRECTORY);
+        if (!cloudDirectory.exists() && !cloudDirectory.mkdir()) {
+            logger.warn("Error creating directory: '{}'", CLOUD_DIRECTORY);
+            throw new IOException("Error creating directory: " + CLOUD_DIRECTORY);
+        }
+
+        if (!cloudFile.createNewFile()) {
+            logger.warn("Error creating cloud file: '{}'", getCloudDataFilePath(addressBookName));
+            throw new IOException("Error creating cloud file for addressbook: " + getCloudDataFilePath(addressBookName));
+        }
+
+        writeCloudAddressBookToCloudFile(new CloudAddressBook(addressBookName));
     }
 
     public void createCloudAddressBookFile(String addressBookName) throws IOException, DataConversionException,
@@ -63,7 +101,7 @@ public class CloudFileHandler {
             throw new IOException("Error creating cloud file for addressbook: " + getCloudDataFilePath(addressBookName));
         }
 
-        writeCloudAddressBookToFile(new CloudAddressBook(addressBookName));
+        writeCloudAddressBookToCloudFile(new CloudAddressBook(addressBookName));
     }
 
     private File getCloudDataFile(String addressBookName) {

@@ -3,7 +3,7 @@ package address.sync.cloud;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
 
-public interface ICloudSimulator {
+public interface IRemote {
     RemoteResponse createPerson(String addressBookName, CloudPerson newPerson, String previousETag);
     RemoteResponse getPersons(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag);
     RemoteResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber, int resourcesPerPage, String previousETag);

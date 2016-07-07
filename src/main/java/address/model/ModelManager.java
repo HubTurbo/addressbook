@@ -7,11 +7,7 @@ import address.main.ComponentManager;
 import address.model.datatypes.*;
 import address.model.datatypes.person.*;
 import address.model.datatypes.tag.Tag;
-import address.model.datatypes.UniqueData;
-import address.util.AppLogger;
-import address.util.FileUtil;
-import address.util.LoggerManager;
-import address.util.PlatformExecUtil;
+import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
@@ -42,7 +38,8 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     private final Executor commandExecutor;
     private final AtomicInteger commandCounter;
 
-    private UserPrefs prefs;
+    private String saveFilePath;
+    private String addressBookNameToUse;
 
     {
         personChangesInProgress = new HashMap<>();
@@ -55,7 +52,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      * Initializes a ModelManager with the given AddressBook
      * AddressBook and its variables should not be null
      */
-    public ModelManager(AddressBook src, UserPrefs prefs) {
+    public ModelManager(AddressBook src, Config config) {
         super();
         if (src == null) {
             logger.fatal("Attempted to initialize with a null AddressBook");
@@ -78,11 +75,12 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         backingModel.getPersons().addListener(modelChangeListener);
         backingTagList().addListener(modelChangeListener);
 
-        this.prefs = prefs;
+        this.saveFilePath = config.getLocalDataFilePath();
+        this.addressBookNameToUse = config.getAddressBookName();
     }
 
-    public ModelManager(UserPrefs prefs) {
-        this(new AddressBook(), prefs);
+    public ModelManager(Config config) {
+        this(new AddressBook(), config);
     }
 
     /**
@@ -260,18 +258,18 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
     protected void execNewAddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever) {
         final int GRACE_PERIOD_DURATION = 3;
-        commandExecutor.execute(new AddPersonCommand(assignCommandId(), inputRetriever, GRACE_PERIOD_DURATION, this::raise, this));
+        commandExecutor.execute(new AddPersonCommand(assignCommandId(), inputRetriever, GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
     }
 
     protected void execNewEditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> editInputRetriever) {
         final int GRACE_PERIOD_DURATION = 3;
         commandExecutor.execute(new EditPersonCommand(assignCommandId(), target, editInputRetriever,
-                GRACE_PERIOD_DURATION, this::raise, this));
+                GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
     }
 
     protected void execNewDeletePersonCommand(ViewablePerson target) {
         final int GRACE_PERIOD_DURATION = 3;
-        commandExecutor.execute(new DeletePersonCommand(assignCommandId(), target, GRACE_PERIOD_DURATION, this::raise, this));
+        commandExecutor.execute(new DeletePersonCommand(assignCommandId(), target, GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
     }
 
     /**
@@ -368,7 +366,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
             throw new DuplicateTagException(tagToAdd);
         }
         backingTagList().add(tagToAdd);
-        raise(new CreateTagOnRemoteRequestEvent(new CompletableFuture<>(), getPrefs().getSaveLocation().getName(), tagToAdd));
+        raise(new CreateTagOnRemoteRequestEvent(new CompletableFuture<>(), addressBookNameToUse, tagToAdd));
     }
 
 //// UPDATE
@@ -388,7 +386,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         String originalName = original.getName();
         original.update(updated);
         raise(new EditTagOnRemoteRequestEvent(new CompletableFuture<>(),
-                getPrefs().getSaveLocation().getName(), originalName, updated));
+                addressBookNameToUse, originalName, updated));
     }
 
 //// DELETE
@@ -401,7 +399,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     public synchronized boolean deleteTag(Tag tagToDelete) {
         boolean result = backingTagList().remove(tagToDelete);
         raise(new DeleteTagOnRemoteRequestEvent(new CompletableFuture<>(),
-                getPrefs().getSaveLocation().getName(), tagToDelete.getName()));
+                addressBookNameToUse, tagToDelete.getName()));
         return result;
     }
 
@@ -442,23 +440,5 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
             latestTags.removeAll(backingModel.getTags()); // latest tags no longer contains tags already in model
             backingModel.getTags().addAll(latestTags); // add
         });
-    }
-
-
-//// PREFS
-
-    public UserPrefs getPrefs() {
-        return prefs;
-    }
-
-    public void setPrefsSaveLocation(String saveLocation) {
-        prefs.setSaveLocation(saveLocation);
-        raise(new SaveLocationChangedEvent(saveLocation));
-        raise(new SavePrefsRequestEvent(prefs));
-        raise(new ChangeActiveAddressBookRequestEvent(FileUtil.getFileName(saveLocation)));
-    }
-
-    public void clearPrefsSaveLocation() {
-        setPrefsSaveLocation(null);
     }
 }
