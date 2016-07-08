@@ -98,12 +98,12 @@ public class CloudRateLimitStatus {
         this.quotaReset = quotaResetTime;
     }
 
-    public void useQuota(int amount) {
+    public void useQuota(int amount) throws RejectedExecutionException {
+        if (quotaRemaining < amount) throw new RejectedExecutionException("No more API quota");
         quotaRemaining -= amount;
     }
 
     public void useQuota() throws RejectedExecutionException {
-        if (quotaRemaining <= 0) throw new RejectedExecutionException("No more API quota");
         useQuota(1);
     }
 
