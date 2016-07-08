@@ -386,23 +386,21 @@ public class RemoteService implements IRemoteService {
     }
 
     private List<Person> convertToPersonList(List<CloudPerson> cloudPersonList) {
-        List<Person> convertedList = new ArrayList<>();
-        cloudPersonList.stream()
-                .forEach(CloudPerson -> convertedList.add(convertToPerson(CloudPerson)));
-
-        return convertedList;
+        return cloudPersonList.stream()
+                .map(this::convertToPerson)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private List<Tag> convertToTagList(List<CloudTag> cloudTagList) {
-        List<Tag> convertedList = new ArrayList<>();
-        cloudTagList.stream()
-                .forEach(cloudTag -> convertedList.add(convertToTag(cloudTag)));
-
-        return convertedList;
+        return cloudTagList.stream()
+                .map(this::convertToTag)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private List<CloudTag> convertToCloudTagList(List<Tag> tagList) {
-        return tagList.stream().map(this::convertToCloudTag).collect(Collectors.toCollection(ArrayList::new));
+        return tagList.stream()
+                .map(this::convertToCloudTag)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private Person convertToPerson(CloudPerson cloudPerson) {
