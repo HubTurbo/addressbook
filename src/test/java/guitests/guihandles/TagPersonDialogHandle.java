@@ -2,6 +2,7 @@ package guitests.guihandles;
 
 import guitests.GuiRobot;
 import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 
 /**
  * Provides a handle for the dialog used for tagging a person.
@@ -10,8 +11,8 @@ public class TagPersonDialogHandle extends GuiHandle {
 
     private String tagSearchFieldId = "#tagSearch";
 
-    public TagPersonDialogHandle(GuiRobot guiRobot) {
-        super(guiRobot);
+    public TagPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
+        super(guiRobot, primaryStage);
     }
 
     public TagPersonDialogHandle enterSearchQuery(String queryText) {

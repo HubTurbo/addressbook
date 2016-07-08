@@ -1,6 +1,7 @@
 package guitests.guihandles;
 
 import guitests.GuiRobot;
+import javafx.stage.Stage;
 
 public class EditPersonDialogHandle extends GuiHandle {
 
@@ -12,8 +13,8 @@ public class EditPersonDialogHandle extends GuiHandle {
     private String tagSearchFieldId = "#tagList";
     private String cancelButtonText = "Cancel";
 
-    public EditPersonDialogHandle(GuiRobot guiRobot) {
-        super(guiRobot);
+    public EditPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
+        super(guiRobot, primaryStage);
     }
 
     public String getFirstName(){
@@ -64,7 +65,7 @@ public class EditPersonDialogHandle extends GuiHandle {
     public TagPersonDialogHandle openTagPersonDialog() {
         guiRobot.clickOn(tagSearchFieldId)
                 .sleep(200); // wait for opening animation
-        return new TagPersonDialogHandle(guiRobot);
+        return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
 }
