@@ -28,7 +28,6 @@
                     <children>
                         <HBox spacing="5">
                             <children>
-                                <Label fx:id="idLabel" text="\$id" />
                                 <Label fx:id="firstName" text="\$first" />
                                 <Label fx:id="lastName" text="\$last" />
                             </children>
