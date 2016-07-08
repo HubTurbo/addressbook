@@ -261,7 +261,7 @@ allprojects {
     createInstallerJar.dependsOn createMainAppExecutable
 }
 
-task jacocoRootReport(type: JacocoReport) {
+task coverage(type: JacocoReport) {
     sourceDirectories = files(allprojects.sourceSets.main.allSource.srcDirs)
     classDirectories =  files(allprojects.sourceSets.main.output)
     executionData = files(allprojects.jacocoTestReport.executionData)
@@ -278,14 +278,14 @@ task jacocoRootReport(type: JacocoReport) {
 
 coveralls {
     sourceDirs = allprojects.sourceSets.main.allSource.srcDirs.flatten()
-    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+    jacocoReportPath = "${buildDir}/reports/jacoco/coverage/coverage.xml"
 }
 
 tasks.coveralls {
     group = 'Coverage reports'
     description = 'Uploads the aggregated coverage report to Coveralls'
 
-    dependsOn jacocoRootReport
+    dependsOn coverage
     onlyIf { System.env.'CI' }
 }
 
@@ -300,8 +300,6 @@ tasks.withType(FindBugs) {
     }
 }
 
-task coverage {
-}
 task checkStyle {
 }
 
@@ -368,6 +366,5 @@ allTests.shouldRunAfter checkStyle
 
 checkStyle.shouldRunAfter clean
 checkStyle.dependsOn checkstyleMain, checkstyleTest, findbugsMain, findbugsTest, pmdMain, pmdTest
-coverage.dependsOn jacocoTestReport
 
-defaultTasks 'clean', 'headless', 'allTests', 'jacocoRootReport'
+defaultTasks 'clean', 'headless', 'allTests', 'coverage'

@@ -32,8 +32,8 @@ There are a few key gradle tasks defined that we can play around with:
      @RunWith(Suite.class)
      @Suite.SuiteClasses({
              /*The tests to run, in the order they should run*/
-             address.unittests.browser.BrowserManagerTest.class,
-             address.guitests.PersonOverviewTest.class
+             address.browser.BrowserManagerTest.class,
+             guitests.PersonOverviewTest.class
      })
 
      public class TestsInOrder {
@@ -42,7 +42,7 @@ There are a few key gradle tasks defined that we can play around with:
      }
      ```
   - Run the test suite using the gradle command <br>
-   `gradle clean headless allTests --tests address.TestsInOrder`
+   `./gradlew clean headless allTests --tests address.TestsInOrder`
 
 
 ## CI Testing
