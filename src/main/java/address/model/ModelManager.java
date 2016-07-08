@@ -13,7 +13,6 @@ import com.google.common.eventbus.Subscribe;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.util.*;
@@ -63,18 +62,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
         backingModel = new AddressBook(src);
         visibleModel = backingModel.createVisibleAddressBook();
-
-        // update changes need to go through #editPersonThroughUI or #updateTag to trigger the LMCEvent
-        final ListChangeListener<Object> modelChangeListener = change -> {
-            while (change.next()) {
-                if (change.wasAdded() || change.wasRemoved()) {
-                    raise(new LocalModelChangedEvent(this));
-                    return;
-                }
-            }
-        };
-        backingModel.getPersons().addListener(modelChangeListener);
-        backingTagList().addListener(modelChangeListener);
 
         this.saveFilePath = config.getLocalDataFilePath();
         this.addressBookNameToUse = config.getAddressBookName();
@@ -316,10 +303,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         return personChangesInProgress.containsKey(personId);
     }
 
-    void raiseLocalModelChangedEvent() {
-        raise(new LocalModelChangedEvent(this));
-    }
-
     void trackFinishedCommand(ChangeObjectInModelCommand finished) {
         Platform.runLater(() -> finishedCommands.add(finished));
     }
@@ -409,13 +392,21 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     @Subscribe
     private void handleSyncCompletedEvent(SyncCompletedEvent uce) {
         // Sync is done outside FX Application thread
+        if (uce.getLatestTags().isPresent()) {
+            syncTags(uce.getLatestTags().get());
+        }
+        syncPersons(uce.getUpdatedPersons());
+        raise(new LocalModelChangedEvent(this));
+    }
+
+    private void syncPersons(Collection<Person> syncData) {
         Set<Integer> deletedPersonIds = new HashSet<>();
-        Map<Integer, ReadOnlyPerson> updatedPersons = new HashMap<>();
-        uce.getUpdatedPersons().forEach(p -> {
+        Map<Integer, ReadOnlyPerson> newOrUpdatedPersons = new HashMap<>();
+        syncData.forEach(p -> {
             if (p.isDeleted()) {
                 deletedPersonIds.add(p.getId());
             } else {
-                updatedPersons.put(p.getId(), p);
+                newOrUpdatedPersons.put(p.getId(), p);
             }
         });
         PlatformExecUtil.runLater(() -> {
@@ -424,18 +415,18 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
                     .filter(p -> deletedPersonIds.contains(p.getId())).collect(Collectors.toList())); // removeIf() not optimised
             // edits
             backingModel.getPersons().forEach(p -> {
-                if (updatedPersons.containsKey(p.getId())) {
-                    p.update(updatedPersons.remove(p.getId()));
+                if (newOrUpdatedPersons.containsKey(p.getId())) {
+                    p.update(newOrUpdatedPersons.remove(p.getId()));
                 }
             });
             // new
-            backingModel.getPersons().addAll(updatedPersons.values().stream()
+            backingModel.getPersons().addAll(newOrUpdatedPersons.values().stream()
                     .map(Person::new).collect(Collectors.toList()));
         });
+    }
 
-
-        if (!uce.getLatestTags().isPresent()) return;
-        Set<Tag> latestTags = new HashSet<>(uce.getLatestTags().get());
+    private void syncTags(Collection<Tag> syncData) {
+        Set<Tag> latestTags = new HashSet<>(syncData);
         backingModel.getTags().retainAll(latestTags); // delete
         PlatformExecUtil.runLater(() -> {
             latestTags.removeAll(backingModel.getTags()); // latest tags no longer contains tags already in model

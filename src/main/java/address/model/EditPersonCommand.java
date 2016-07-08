@@ -145,7 +145,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithSuccess() {
-        model.raiseLocalModelChangedEvent();
+        // nothing to do for now
     }
 
     @Override
