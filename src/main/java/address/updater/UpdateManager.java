@@ -37,6 +37,7 @@ public class UpdateManager extends ComponentManager {
     private static final String MSG_FAIL_DOWNLOAD_UPDATE = "Downloading update failed";
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR updater";
+    private static final String MSG_JAR_UPDATER_MISSING = "JAR Updater is missing";
     private static final String MSG_FAIL_MAIN_APP_URL = "Main app download link is broken";
     private static final String MSG_NO_UPDATE_DATA = "There is no update data to be processed";
     private static final String MSG_NO_UPDATE = "There is no update";
@@ -149,10 +150,16 @@ public class UpdateManager extends ComponentManager {
             logger.debug(MSG_FAIL_CREATE_UPDATE_SPEC);
             return;
         }
-
+        
+        if (isJarUpdaterExist()) {
+            raise(new UpdaterFailedEvent(MSG_JAR_UPDATER_MISSING));
+            logger.debug(MSG_JAR_UPDATER_MISSING);
+            return;
+        }
+        
         try {
             extractJarUpdater();
-        } catch (IOException|NullPointerException e) {
+        } catch (IOException e) {
             raise(new UpdaterFailedEvent(MSG_FAIL_EXTRACT_JAR_UPDATER));
             logger.debug(MSG_FAIL_EXTRACT_JAR_UPDATER);
             return;
@@ -162,6 +169,10 @@ public class UpdateManager extends ComponentManager {
         this.isUpdateApplicable = true;
 
         downloadedVersions.add(latestVersion.get());
+    }
+
+    private boolean isJarUpdaterExist() {
+        return !new File(JAR_UPDATER_RESOURCE_PATH).exists();
     }
 
     /**
@@ -284,7 +295,7 @@ public class UpdateManager extends ComponentManager {
         );
     }
 
-    private void extractJarUpdater() throws IOException, NullPointerException {
+    private void extractJarUpdater() throws IOException {
         File jarUpdaterFile = new File(JAR_UPDATER_APP_PATH);
 
         if (!jarUpdaterFile.exists() && !jarUpdaterFile.createNewFile()) {
@@ -293,7 +304,7 @@ public class UpdateManager extends ComponentManager {
 
         try (InputStream in = UpdateManager.class.getClassLoader().getResourceAsStream(JAR_UPDATER_RESOURCE_PATH)) {
             Files.copy(in, jarUpdaterFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException|NullPointerException e) { //Null stream results in NullPointerException
+        } catch (IOException e) {
             logger.debug("Failed to extract jar updater");
             throw e;
         }
