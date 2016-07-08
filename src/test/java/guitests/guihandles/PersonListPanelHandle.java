@@ -41,6 +41,10 @@ public class PersonListPanelHandle extends GuiHandle {
         return (ListView<ReadOnlyViewablePerson>) getNode(personListViewId);
     }
 
+    public void use_PERSON_CHANGE_CANCEL_ACCELERATOR() {
+        guiRobot.push(new Bindings().PERSON_CHANGE_CANCEL_ACCELERATOR);
+    }
+
     public void use_LIST_JUMP_TO_INDEX_SHORTCUT(int index) {
         switch (index) {
             case 1:
