@@ -261,6 +261,17 @@ allprojects {
     createInstallerJar.dependsOn createMainAppExecutable
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.12'
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
 task coverage(type: JacocoReport) {
     sourceDirectories = files(allprojects.sourceSets.main.allSource.srcDirs)
     classDirectories =  files(allprojects.sourceSets.main.output)
@@ -281,26 +292,7 @@ coveralls {
     jacocoReportPath = "${buildDir}/reports/jacoco/coverage/coverage.xml"
 }
 
-tasks.coveralls {
-    group = 'Coverage reports'
-    description = 'Uploads the aggregated coverage report to Coveralls'
-
-    dependsOn coverage
-    onlyIf { System.env.'CI' }
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.12'
-}
-
-tasks.withType(FindBugs) {
-    reports {
-        xml.enabled = false
-        html.enabled = true
-    }
-}
-
-task checkStyle {
+task checkStyle { // A dummy task to run a set of tasks
 }
 
 class AddressBookTest extends Test {
@@ -352,6 +344,9 @@ task headless << {
     unitTests.setHeadless()
     allTests.setHeadless()
 }
+
+coveralls.dependsOn coverage
+coveralls.onlyIf { System.env.'CI' }
 
 unitTests.mustRunAfter headless
 guiUnitTests.mustRunAfter headless
