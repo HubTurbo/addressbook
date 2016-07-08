@@ -5,6 +5,7 @@ import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProg
 
 import address.events.BaseEvent;
 import address.events.UpdatePersonOnRemoteRequestEvent;
+import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.PlatformExecUtil;
@@ -34,8 +35,8 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
      * @see super#ChangePersonInModelCommand(int, Supplier, int)
      */
     public EditPersonCommand(int commandId, ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
-                                int gracePeriodDurationInSeconds, Consumer<BaseEvent> eventRaiser,
-                                ModelManager model, String addressbookName) {
+                             int gracePeriodDurationInSeconds, Consumer<BaseEvent> eventRaiser,
+                             ModelManager model, String addressbookName) {
         super(commandId, inputRetriever, gracePeriodDurationInSeconds);
         assert target != null;
         this.target = target;
@@ -119,7 +120,6 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected State resolveRemoteConflict(ReadOnlyPerson remoteVersion) {
-        assert false; // TODO figure out what to show to users
         return null;
     }
 

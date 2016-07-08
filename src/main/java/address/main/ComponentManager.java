@@ -8,7 +8,7 @@ import address.events.EventManager;
  *
  * Registers the class' event handlers in eventManager
  */
-public class ComponentManager {
+public abstract class ComponentManager {
     protected EventManager eventManager;
 
     /**

@@ -45,7 +45,7 @@ public class SyncManager extends ComponentManager {
      */
     public SyncManager(RemoteManager remoteManager, Config config, String activeAddressBookName) {
         this(config, remoteManager, Executors.newCachedThreadPool(),
-                Executors.newScheduledThreadPool(1), activeAddressBookName);
+                Executors.newSingleThreadScheduledExecutor(), activeAddressBookName);
     }
 
     /**
