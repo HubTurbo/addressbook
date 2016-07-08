@@ -51,6 +51,9 @@ allprojects {
         mockServerVersion = '3.10.1'
         powermockVersion = '1.6.5'
         testFxVersion = '3.1.0'
+        monocleVersion = '1.8.0_20'
+        slf4jSimpleVersion = '1.6.4'
+        commonsIoVersion = '2.4'
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         jarUpdaterDestDir = 'src/main/resources/updater'
@@ -109,8 +112,8 @@ allprojects {
     dependencies {
         compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-        compile "org.slf4j:slf4j-simple:1.6.4" // Required to suppress warning, for jkeymaster, see http://www.slf4j.org/codes.html#StaticLoggerBinder
-        compile 'commons-io:commons-io:2.4'
+        compile "org.slf4j:slf4j-simple:$slf4jSimpleVersion" // Required to suppress warning, for jkeymaster, see http://www.slf4j.org/codes.html#StaticLoggerBinder
+        compile "commons-io:commons-io:$commonsIoVersion"
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
@@ -132,7 +135,7 @@ allprojects {
         testCompile "org.mockito:mockito-core:$mockitoVersion"
         testCompile "org.powermock:powermock-api-mockito:$powermockVersion"
         testCompile "org.powermock:powermock-module-junit4:$powermockVersion"
-        testCompile 'org.testfx:openjfx-monocle:1.8.0_20'
+        testCompile "org.testfx:openjfx-monocle:$monocleVersion"
 
         installerCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         installerCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
@@ -261,7 +264,18 @@ allprojects {
     createInstallerJar.dependsOn createMainAppExecutable
 }
 
-task jacocoRootReport(type: JacocoReport) {
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.12'
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+task coverage(type: JacocoReport) {
     sourceDirectories = files(allprojects.sourceSets.main.allSource.srcDirs)
     classDirectories =  files(allprojects.sourceSets.main.output)
     executionData = files(allprojects.jacocoTestReport.executionData)
@@ -278,39 +292,23 @@ task jacocoRootReport(type: JacocoReport) {
 
 coveralls {
     sourceDirs = allprojects.sourceSets.main.allSource.srcDirs.flatten()
-    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+    jacocoReportPath = "${buildDir}/reports/jacoco/coverage/coverage.xml"
 }
 
 tasks.coveralls {
-    group = 'Coverage reports'
-    description = 'Uploads the aggregated coverage report to Coveralls'
-
-    dependsOn jacocoRootReport
+    dependsOn coverage
     onlyIf { System.env.'CI' }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.12'
-}
-
-tasks.withType(FindBugs) {
-    reports {
-        xml.enabled = false
-        html.enabled = true
-    }
-}
-
-task coverage {
-}
-task checkStyle {
+task checkStyle { // A dummy task to run a set of tasks
 }
 
 class AddressBookTest extends Test {
     public AddressBookTest() {
-    	forkEvery = 1
+    	  forkEvery = 1
         systemProperty 'testfx.setup.timeout', '60000'
     }
-    
+
     public void setHeadless() {
         systemProperty 'java.awt.robot', 'true'
         systemProperty 'testfx.robot', 'glass'
@@ -320,52 +318,54 @@ class AddressBookTest extends Test {
     }
 }
 
-task guiTest(type: AddressBookTest) {
+task guiTests(type: AddressBookTest) {
     include 'guitests/**'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
 }
 
-task guiUnitTest(type: AddressBookTest) {
+task guiUnitTests(type: AddressBookTest) {
     include 'guiunittests/**'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
 }
 
-task unitTest(type: AddressBookTest) {
+task unitTests(type: AddressBookTest) {
     include 'address/**'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
 }
 
-task allTests {
+task allTests(type: AddressBookTest) {
+    jacoco {
+        destinationFile = new File("${buildDir}/jacoco/test.exec")
+    }
 }
 
 task headless << {
     println "Setting headless mode properties."
-    guiTest.setHeadless()
-    guiUnitTest.setHeadless()
-    unitTest.setHeadless()
+    guiTests.setHeadless()
+    guiUnitTests.setHeadless()
+    unitTests.setHeadless()
+    allTests.setHeadless()
 }
 
-unitTest.mustRunAfter headless
-guiUnitTest.mustRunAfter headless
-guiTest.mustRunAfter headless
+// Makes sure that headless properties are set before running tests
+unitTests.mustRunAfter headless
+guiUnitTests.mustRunAfter headless
+guiTests.mustRunAfter headless
+allTests.mustRunAfter headless
 
 headless.shouldRunAfter checkStyle
-unitTest.shouldRunAfter checkStyle
-guiUnitTest.shouldRunAfter checkStyle
-guiTest.shouldRunAfter checkStyle
-
-allTests.dependsOn unitTest
-allTests.dependsOn guiUnitTest
-allTests.dependsOn guiTest
+unitTests.shouldRunAfter checkStyle
+guiUnitTests.shouldRunAfter checkStyle
+guiTests.shouldRunAfter checkStyle
+allTests.shouldRunAfter checkStyle
 
 checkStyle.shouldRunAfter clean
 checkStyle.dependsOn checkstyleMain, checkstyleTest, findbugsMain, findbugsTest, pmdMain, pmdTest
-coverage.dependsOn jacocoTestReport
 
-defaultTasks 'clean', 'headless', 'jacocoRootReport'
+defaultTasks 'clean', 'headless', 'allTests', 'coverage'

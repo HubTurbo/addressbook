@@ -1,24 +1,62 @@
-# Running Tests
+# Testing
 
-## Gradle Tasks
+## Background
+We are using [Gradle](https://docs.gradle.org/)'s [wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) to setup testing configurations and running tests.
+Gradle tasks are run using `gradlew <tasks>` on Windows and `./gradlew <tasks>` on Mac/Linux.
+
+We work towards enabling **headless testing** (using [TestFX](https://github.com/TestFX/TestFX)) so that the test results will be more consistent between different machines. In addition, it will reduce disruption for the tester - the tester can continue to do his or her own work on the machine!
+
+Related resources:
+ - [Gradle's User Guide](https://docs.gradle.org/current/userguide/userguide.html)
+  - [Gradle's Java Plugin](https://docs.gradle.org/current/userguide/java_plugin.html)
+  - [Gradle's Jacoco Plugin](https://docs.gradle.org/current/userguide/jacoco_plugin.html)
+ - [Coveralls Gradle Plugin](https://github.com/kt3k/coveralls-gradle-plugin)
+ - [Travis CI Documentation](https://docs.travis-ci.com/)
+
+
+## Tests Information
+
+Tests can be found in the `./src/test/java` folder. We have grouped and packaged the tests into the following types.
+
+1. Unit Tests - `address` package
+  - Logic Testing
+
+2. GUI Unit Tests - `guiunittests` package
+    - Tests the UI interaction within a single component, and ensure its behaviour holds.
+
+3. System Tests - `guitests` package
+  - Tests the UI interaction with the user as well as the interaction between various components (e.g. passing of data)
+
+## Running Tests
+
+Tests' settings are mostly contained in `build.gradle` and `.travis.yml`.
+
+### Available Gradle Tasks
 There are a few key gradle tasks defined that we can play around with:  
-- `headless` to run **headless testing**
-- `headful` to run **headful testing**
+- `allTests` to run all tests
+- `guiTests` to run tests in the `guitests` package
+- `guiUnitTests` to run tests in the `guiunittests` package
+- `unitTests` to run tests in the `address` package
+- `headless` to set headless properties
+  - applies only to the above test tasks, and not to gradle's default `test` tasks
 - `checkStyle` to run code style checks
+  - `PMD`, `FindBugs` and `Checkstyle`
 - `clean` to remove previously built files
+    - Running tasks repeatedly may not work unless the build files are `clean`ed first.
+- `coverage` to generate coverage information after tests have been run
+  - Generated coverage reports can be found at `./build/reports/jacoco/coverage/coverage.xml`
+- `coveralls` to upload data from CI services to coveralls.io (no reason to run this locally)
 
-## Local Testing
-### How to do some common testing-related tasks
+### Local Testing
+#### How to do some common testing-related tasks
 - To run all tests in headless mode: `./gradlew`
-  - It will run `clean`, `headless` tasks.
-- To run checkstyle followed by headful tests `./gradlew checkStyle headful`
-- To run **headless testing** only: `./gradlew headless`
-  - Running this or `headful` repeatedly will not re-run the tests unless the build files are `clean`ed first.
-    e.g. `./gradlew clean headless`
-- To run **headful testing** only: `./gradlew headful`
-- Running specific test classes in a specific order: When troubleshooting test failures,
-  you might want to run some specific tests in a specific order. Here are the steps to do that.
-  - Create a test suite (to specify the test order). Here is an example:
+  - It will run `clean`, `headless`, `allTests`, `coverage` tasks.
+- To run all tests in headful mode: `./gradlew clean allTests coverage`
+- To run checkstyle followed by headful tests `./gradlew clean checkStyle allTests coverage`
+- Running specific test classes in a specific order
+  - When troubleshooting test failures,
+  you might want to run some specific tests in a specific order.  
+    - Create a test suite (to specify the test order):
      ```java
      package address;
 
@@ -28,8 +66,8 @@ There are a few key gradle tasks defined that we can play around with:
      @RunWith(Suite.class)
      @Suite.SuiteClasses({
              /*The tests to run, in the order they should run*/
-             address.unittests.browser.BrowserManagerTest.class,
-             address.guitests.PersonOverviewTest.class
+             address.browser.BrowserManagerTest.class,
+             guitests.PersonOverviewTest.class
      })
 
      public class TestsInOrder {
@@ -37,33 +75,13 @@ There are a few key gradle tasks defined that we can play around with:
          // used only as a holder for the above annotations
      }
      ```
-  - Run the test suite using the gradle command <br>
-   `gradle clean headless --tests address.TestsInOrder`
+    - Run the test suite using the gradle command <br>
+   `./gradlew clean headless allTests --tests address.TestsInOrder`
 
 
-## CI Testing
-- The current Travis set up
-  - runs the `./gradlew` command.
+### CI Testing
+- We run our CI builds on [Travis CI](https://travis-ci.org/HubTurbo/addressbook)
+- The current Travis CI set up (also found in `.travis.yml`):
+  - runs the `./gradlew clean headless allTests coverage coveralls -i` command.
   - At the moment, we do not check the code style. It is up to the contributor to verify his or her coding style locally by running `./gradlew checkStyle`.
   - Automatically retries up to 3 times if a task fails
-
-
-## Types of Tests
-
-We have grouped the tests into the following types.
-
-1. Unit Tests
-  - Logic Testing
-
-2. GUI Unit Testing
-    - Tests the UI interaction within a single component, and ensure its behaviour holds.
-
-3. GUI Testing (Integration)
-  - Tests the UI interaction with the user as well as the interaction between various components (e.g. passing of data)
-
-## Current issues
-
-**Headless Testing**
-  - Running headless tests on Mac OSX no longer causes the window to lose focus!
-  - [Causes JVM to crash when using Mac OSX](https://github.com/HubTurbo/addressbook/issues/108)
-      - Temporarily disabled initializing the browser in test mode. This should and will be changed to a mock instead in future PRs.
