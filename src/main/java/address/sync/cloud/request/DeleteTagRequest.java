@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
 
 public class DeleteTagRequest extends Request {
@@ -25,9 +26,10 @@ public class DeleteTagRequest extends Request {
 
     public void run() {
         try {
+            cloudRateLimitStatus.useQuota();
             deleteTagFromAddressBook(addressBookName, tagName);
             resultContainer.complete(null);
-        } catch (FileNotFoundException | DataConversionException | NoSuchElementException e) {
+        } catch (FileNotFoundException | DataConversionException | NoSuchElementException | RejectedExecutionException e) {
             resultContainer.completeExceptionally(e);
         }
     }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.RejectedExecutionException;
 
 public class DeletePersonRequest extends Request {
     private static AppLogger logger = LoggerManager.getLogger(DeletePersonRequest.class);
@@ -27,12 +28,13 @@ public class DeletePersonRequest extends Request {
     @Override
     public void run() {
         try {
+            cloudRateLimitStatus.useQuota();
             logger.debug("Deleting person #{}", personId);
             deletePersonFromAddressBook(addressBookName, personId);
             logger.debug("Person #{} deleted", personId);
             resultContainer.complete(null);
-        } catch (FileNotFoundException | DataConversionException | NoSuchElementException e) {
-            logger.debug("Delete person request completed exceptionally: {}", e);
+        } catch (FileNotFoundException | DataConversionException | NoSuchElementException | RejectedExecutionException e) {
+            logger.debug("Delete person request for #{} completed exceptionally: {}", personId, e);
             resultContainer.completeExceptionally(e);
         }
     }

@@ -39,12 +39,12 @@ public class RemoteResponse {
         String newETag = getETag(convertToInputStream(body));
 
         if (previousETag != null && previousETag.equals(newETag)) {
+            cloudRateLimitStatus.replenishQuota();
             this.responseCode = HttpURLConnection.HTTP_NOT_MODIFIED;
             this.headers = getRateLimitStatusHeader(cloudRateLimitStatus);
             return;
         }
 
-        cloudRateLimitStatus.useQuota(1);
         this.responseCode = responseCode;
         this.headers = getHeaders(cloudRateLimitStatus, newETag);
         this.body = convertToInputStream(body);
