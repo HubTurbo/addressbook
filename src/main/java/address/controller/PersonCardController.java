@@ -12,14 +12,15 @@ import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 
 import javafx.beans.binding.StringBinding;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
@@ -37,8 +38,6 @@ public class PersonCardController extends UiController{
     private HBox cardPane;
     @FXML
     private ImageView profileImage;
-    @FXML
-    private Label idLabel;
     @FXML
     private Label firstName;
     @FXML
@@ -60,6 +59,7 @@ public class PersonCardController extends UiController{
 
     private ReadOnlyViewablePerson person;
     private FadeTransition deleteTransition;
+    private StringProperty idTooltipString = new SimpleStringProperty("");
 
     {
         deleteTransition = new FadeTransition(Duration.millis(1000), cardPane);
@@ -89,7 +89,7 @@ public class PersonCardController extends UiController{
 
         FxViewUtil.configureCircularImageView(profileImage);
 
-        initIdLabel();
+        initIdTooltip();
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
 
@@ -195,15 +195,13 @@ public class PersonCardController extends UiController{
         }
     }
 
-    private void initIdLabel() {
-        idLabel.setText(person.idString());
-        person.onRemoteIdConfirmed(id -> {
-            if (Platform.isFxApplicationThread()) {
-                idLabel.setText(person.idString());
-            } else {
-                Platform.runLater(() -> idLabel.setText(person.idString()));
-            }
-        });
+    private void initIdTooltip() {
+        Tooltip tp = new Tooltip();
+        tp.textProperty().bind(idTooltipString);
+        firstName.setTooltip(tp);
+        lastName.setTooltip(tp);
+        idTooltipString.set(person.idString());
+        person.onRemoteIdConfirmed(id -> idTooltipString.set(person.idString()));
     }
 
     /**
