@@ -28,6 +28,9 @@ public class RootLayoutController extends UiController{
     private ModelManager modelManager;
     private MainApp mainApp;
 
+    @FXML
+    private MenuItem helpMenuItem;
+
     public RootLayoutController() {
         super();
     }
@@ -39,6 +42,7 @@ public class RootLayoutController extends UiController{
     }
 
     public void setAccelerators() {
+        helpMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("HELP_PAGE_ACCELERATOR").get());
     }
 
     @FXML

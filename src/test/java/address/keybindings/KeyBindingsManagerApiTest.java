@@ -53,6 +53,7 @@ public class KeyBindingsManagerApiTest {
         verifyHotkey(new ResizeAppRequestEvent(), "META + SHIFT + X");
 
         verifyAccelerator("PERSON_CHANGE_CANCEL_ACCELERATOR", "SHORTCUT + Z");
+        verifyAccelerator("HELP_PAGE_ACCELERATOR", "F1");
          /*====== other keys ======================================================*/
 
         verifyShortcut(new JumpToListRequestEvent(1), "SHORTCUT DOWN");
