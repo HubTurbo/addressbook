@@ -24,7 +24,7 @@ Tests can be found in the `./src/test/java` folder. We have grouped and packaged
 2. GUI Unit Tests - `guiunittests` package
     - Tests the UI interaction within a single component, and ensure its behaviour holds.
 
-3. GUI Tests (Integration) - `guitests` package
+3. System Tests - `guitests` package
   - Tests the UI interaction with the user as well as the interaction between various components (e.g. passing of data)
 
 ## Running Tests
