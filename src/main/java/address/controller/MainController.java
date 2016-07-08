@@ -15,6 +15,7 @@ import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -118,29 +119,23 @@ public class MainController extends UiController{
     public void initRootLayout() {
         logger.debug("Initializing root layout.");
         final String fxmlResourcePath = FXML_ROOT_LAYOUT;
-        try {
-            // Load root layout from fxml file.
-            FXMLLoader loader = loadFxml(fxmlResourcePath);
-            rootLayout = loader.load();
+        // Load root layout from fxml file.
+        FXMLLoader loader = loadFxml(fxmlResourcePath);
+        rootLayout = (VBox) loadLoader(loader, "Error initializing root layout");
 
-            // Show the scene containing the root layout.
-            Scene scene = new Scene(rootLayout);
-            scene.setOnKeyPressed(event -> raisePotentialEvent(new KeyBindingEvent(event)));
-            setMinSize();
-            setDefaultSize();
-            primaryStage.setScene(scene);
+        // Show the scene containing the root layout.
+        Scene scene = new Scene(rootLayout);
+        scene.setOnKeyPressed(event -> raisePotentialEvent(new KeyBindingEvent(event)));
+        setMinSize();
+        setDefaultSize();
+        primaryStage.setScene(scene);
 
-            // Give the rootController access to the main controller and modelManager
-            RootLayoutController rootController = loader.getController();
-            rootController.setConnections(mainApp, this, modelManager);
-            rootController.setAccelerators();
+        // Give the rootController access to the main controller and modelManager
+        RootLayoutController rootController = loader.getController();
+        rootController.setConnections(mainApp, this, modelManager);
+        rootController.setAccelerators();
 
-            primaryStage.show();
-        } catch (IOException e) {
-            logger.fatal("Error initializing root layout: {}", e);
-            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml root layout.",
-                                            "IOException when trying to load ", fxmlResourcePath);
-        }
+        primaryStage.show();
     }
 
     /**
@@ -149,22 +144,17 @@ public class MainController extends UiController{
     public void showPersonOverview() {
         logger.debug("Loading person overview.");
         final String fxmlResourcePath = FXML_PERSON_OVERVIEW;
-        try {
-            // Load person overview.
-            FXMLLoader loader = loadFxml(fxmlResourcePath);
-            VBox personOverview = loader.load();
-            AnchorPane pane = (AnchorPane) rootLayout.lookup("#personOverview");
-            SplitPane.setResizableWithParent(pane, false);
-            // Give the personOverviewController access to the main app and modelManager.
-            PersonOverviewController personOverviewController = loader.getController();
-            personOverviewController.setConnections(this, modelManager, personList);
+        // Load person overview.
+        FXMLLoader loader = loadFxml(fxmlResourcePath);
+        VBox personOverview = (VBox) loadLoader(loader, "Error loading person overview");
+        AnchorPane pane = (AnchorPane) rootLayout.lookup("#personOverview");
+        SplitPane.setResizableWithParent(pane, false);
+        // Give the personOverviewController access to the main app and modelManager.
+        PersonOverviewController personOverviewController = loader.getController();
+        personOverviewController.setConnections(this, modelManager, personList);
 
-            pane.getChildren().add(personOverview);
-        } catch (IOException e) {
-            logger.fatal("Error loading person overview: {}", e);
-            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for person overview.",
-                                            "IOException when trying to load " , fxmlResourcePath);
-        }
+        pane.getChildren().add(personOverview);
+
     }
 
     public StatusBarHeaderController getStatusBarHeaderController() {
@@ -184,19 +174,24 @@ public class MainController extends UiController{
     private void showFooterStatusBar() {
         logger.debug("Loading footer status bar.");
         final String fxmlResourcePath = FXML_STATUS_BAR_FOOTER;
+        FXMLLoader loader = loadFxml(fxmlResourcePath);
+        GridPane gridPane = (GridPane) loadLoader(loader, "Error Loading footer status bar");
+        gridPane.getStyleClass().add("grid-pane");
+        StatusBarFooterController controller = loader.getController();
+        controller.init(config.getUpdateInterval(), config.getAddressBookName());
+        AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
+        FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
+        placeHolder.getChildren().add(gridPane);
+    }
+
+    private Node loadLoader(FXMLLoader loader, String errorMsg ) {
         try {
-            FXMLLoader loader = loadFxml(fxmlResourcePath);
-            GridPane gridPane = loader.load();
-            gridPane.getStyleClass().add("grid-pane");
-            StatusBarFooterController controller = loader.getController();
-            controller.init(config.getUpdateInterval(), config.getAddressBookName());
-            AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
-            FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
-            placeHolder.getChildren().add(gridPane);
+            return loader.load();
         } catch (IOException e) {
-            logger.fatal("Error Loading footer status bar: {}", e);
-            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for footer status bar.",
-                                            "IOException when trying to load ", fxmlResourcePath);
+            logger.fatal(errorMsg + ": {}", e);
+            showFatalErrorDialogAndShutdown("FXML Load Error", errorMsg,
+                    "IOException when trying to load ", loader.getLocation().toExternalForm());
+            return null;
         }
     }
 
@@ -218,39 +213,32 @@ public class MainController extends UiController{
     public Optional<ReadOnlyPerson> getPersonDataInput(ReadOnlyPerson initialData, String dialogTitle) {
         logger.debug("Loading dialog for person edit.");
         final String fxmlResourcePath = FXML_PERSON_EDIT_DIALOG;
-        try {
             // Load the fxml file and create a new stage for the popup dialog.
-            FXMLLoader loader = loadFxml(fxmlResourcePath);
-            AnchorPane page = loader.load();
+        FXMLLoader loader = loadFxml(fxmlResourcePath);
+        AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading person edit dialog");
 
-            Scene scene = new Scene(page);
-            Stage dialogStage = loadDialogStage(dialogTitle, primaryStage, scene);
-            dialogStage.getIcons().add(getImage(ICON_EDIT));
+        Scene scene = new Scene(page);
+        Stage dialogStage = loadDialogStage(dialogTitle, primaryStage, scene);
+        dialogStage.getIcons().add(getImage(ICON_EDIT));
 
-            scene.setOnKeyPressed(event -> {
-                if (event.getCode() == KeyCode.ESCAPE) {
-                    dialogStage.close();
-                }
-            });
-
-            // Pass relevant data into the controller.
-            PersonEditDialogController controller = loader.getController();
-            controller.setDialogStage(dialogStage);
-            controller.setInitialPersonData(initialData);
-            controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
-                    new ArrayList<>(initialData.getObservableTagList()));
-
-            dialogStage.showAndWait();
-            if (controller.isOkClicked()) {
-                logger.debug("Person collected: " + controller.getEditedPerson().toString());
-                return Optional.of(controller.getEditedPerson());
-            } else {
-                return Optional.empty();
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                dialogStage.close();
             }
-        } catch (IOException e) {
-            logger.fatal("Error loading person edit dialog: {}", e);
-            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for edit person dialog.",
-                                            "IOException when trying to load ", fxmlResourcePath);
+        });
+
+        // Pass relevant data into the controller.
+        PersonEditDialogController controller = loader.getController();
+        controller.setDialogStage(dialogStage);
+        controller.setInitialPersonData(initialData);
+        controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
+                new ArrayList<>(initialData.getObservableTagList()));
+
+        dialogStage.showAndWait();
+        if (controller.isOkClicked()) {
+            logger.debug("Person collected: " + controller.getEditedPerson().toString());
+            return Optional.of(controller.getEditedPerson());
+        } else {
             return Optional.empty();
         }
     }
@@ -258,14 +246,8 @@ public class MainController extends UiController{
     public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
-        AnchorPane pane = null;
-        try {
-            pane = loader.load();
+        AnchorPane pane = (AnchorPane) loadLoader(loader, "Error launching tag selection dialog");
 
-        } catch (IOException e) {
-            logger.warn("Error launching tag selection dialog: {}", e);
-            assert false : "Error loading fxml : " + FXML_TAG_SELECTION_EDIT_DIALOG;
-        }
 
         // Create the dialog Stage.
         Stage dialogStage = new Stage();
@@ -383,30 +365,23 @@ public class MainController extends UiController{
     public Optional<Tag> getTagDataInput(Tag tag, String dialogTitle) {
         logger.debug("Loading dialog for tag edit.");
         final String fxmlResourcePath = FXML_TAG_EDIT_DIALOG;
-        try {
             // Load the fxml file and create a new stage for the popup dialog.
-            FXMLLoader loader = loadFxml(fxmlResourcePath);
-            AnchorPane page = loader.load();
+        FXMLLoader loader = loadFxml(fxmlResourcePath);
+        AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading tag edit dialog");
 
-            Scene scene = new Scene(page);
-            Stage dialogStage = loadDialogStage(dialogTitle, primaryStage, scene);
-            dialogStage.getIcons().add(getImage(ICON_EDIT));
+        Scene scene = new Scene(page);
+        Stage dialogStage = loadDialogStage(dialogTitle, primaryStage, scene);
+        dialogStage.getIcons().add(getImage(ICON_EDIT));
 
-            // Pass relevant data to the controller.
-            TagEditDialogController controller = loader.getController();
-            controller.setDialogStage(dialogStage);
-            controller.setInitialTagData(tag);
+        // Pass relevant data to the controller.
+        TagEditDialogController controller = loader.getController();
+        controller.setDialogStage(dialogStage);
+        controller.setInitialTagData(tag);
 
-            dialogStage.showAndWait();
-            if (controller.isOkClicked()) {
-                return Optional.of(controller.getEditedTag());
-            } else {
-                return Optional.empty();
-            }
-        } catch (IOException e) {
-            logger.fatal("Error loading tag edit dialog: {}", e);
-            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for edit tag dialog.",
-                                            "IOException when trying to load ", fxmlResourcePath);
+        dialogStage.showAndWait();
+        if (controller.isOkClicked()) {
+            return Optional.of(controller.getEditedTag());
+        } else {
             return Optional.empty();
         }
     }
@@ -414,28 +389,22 @@ public class MainController extends UiController{
     public void showTagList(ObservableList<Tag> tags) {
         logger.debug("Loading tag list.");
         final String fxmlResourcePath = FXML_TAG_LIST;
-        try {
-            // Load the fxml file and create a new stage for the popup dialog.
-            FXMLLoader loader = loadFxml(fxmlResourcePath);
-            AnchorPane page = loader.load();
+        // Load the fxml file and create a new stage for the popup dialog.
+        FXMLLoader loader = loadFxml(fxmlResourcePath);
+        AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading tag list view");
 
-            Scene scene = new Scene(page);
-            Stage dialogStage = loadDialogStage("List of Tags", primaryStage, scene);
+        Scene scene = new Scene(page);
+        Stage dialogStage = loadDialogStage("List of Tags", primaryStage, scene);
 
-            // Set the tag into the controller.
-            TagListController tagListController = loader.getController();
-            tagListController.setMainController(this);
-            tagListController.setModelManager(modelManager);
-            tagListController.setTags(tags);
-            tagListController.setStage(dialogStage);
+        // Set the tag into the controller.
+        TagListController tagListController = loader.getController();
+        tagListController.setMainController(this);
+        tagListController.setModelManager(modelManager);
+        tagListController.setTags(tags);
+        tagListController.setStage(dialogStage);
 
-            // Show the dialog and wait until the user closes it
-            dialogStage.showAndWait();
-        } catch (IOException e) {
-            logger.fatal("Error loading tag list view: {}", e);
-            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for tag list.",
-                                            "IOException when trying to load ", fxmlResourcePath);
-        }
+        // Show the dialog and wait until the user closes it
+        dialogStage.showAndWait();
     }
 
     /**
@@ -444,21 +413,15 @@ public class MainController extends UiController{
     public void showHelpPage() {
         logger.debug("Loading help page.");
         final String fxmlResourcePath = FXML_HELP;
-        try {
-            // Load the fxml file and create a new stage for the popup dialog.
-            FXMLLoader loader = loadFxml(fxmlResourcePath);
-            AnchorPane page = loader.load();
+        // Load the fxml file and create a new stage for the popup dialog.
+        FXMLLoader loader = loadFxml(fxmlResourcePath);
+        AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading help page");
 
-            Scene scene = new Scene(page);
-            Stage dialogStage = loadDialogStage("Help", null, scene);
-            dialogStage.getIcons().add(getImage(ICON_HELP));
-            // Show the dialog and wait until the user closes it
-            dialogStage.showAndWait();
-        } catch (IOException e) {
-            logger.fatal("Error loading tag list view: {}", e);
-            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for tag list.",
-                    "IOException when trying to load ", fxmlResourcePath);
-        }
+        Scene scene = new Scene(page);
+        Stage dialogStage = loadDialogStage("Help", null, scene);
+        dialogStage.getIcons().add(getImage(ICON_HELP));
+        // Show the dialog and wait until the user closes it
+        dialogStage.showAndWait();
     }
 
     /**
@@ -467,25 +430,19 @@ public class MainController extends UiController{
     public void showBirthdayStatistics() {
         logger.debug("Loading birthday statistics.");
         final String fxmlResourcePath = FXML_BIRTHDAY_STATISTICS;
-        try {
-            // Load the fxml file and create a new stage for the popup.
-            FXMLLoader loader = loadFxml(fxmlResourcePath);
-            AnchorPane page = loader.load();
+        // Load the fxml file and create a new stage for the popup.
+        FXMLLoader loader = loadFxml(fxmlResourcePath);
+        AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading birthday statistics view");
 
-            Scene scene = new Scene(page);
-            Stage dialogStage = loadDialogStage("Birthday Statistics", primaryStage, scene);
-            dialogStage.getIcons().add(getImage(ICON_CALENDAR));
+        Scene scene = new Scene(page);
+        Stage dialogStage = loadDialogStage("Birthday Statistics", primaryStage, scene);
+        dialogStage.getIcons().add(getImage(ICON_CALENDAR));
 
-            // Set the persons into the controller.
-            BirthdayStatisticsController controller = loader.getController();
-            controller.setPersonData(modelManager.getAllViewablePersonsReadOnly());
+        // Set the persons into the controller.
+        BirthdayStatisticsController controller = loader.getController();
+        controller.setPersonData(modelManager.getAllViewablePersonsReadOnly());
 
-            dialogStage.show();
-        } catch (IOException e) {
-            logger.fatal("Error loading birthday statistics view: {}", e);
-            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for birthday stats.",
-                                            "IOException when trying to load ", fxmlResourcePath);
-        }
+        dialogStage.show();
     }
 
     public void showActivityHistoryDialog() {
