@@ -1,5 +1,6 @@
 package address.ui;
 
+import address.controller.ActivityHistoryCardController;
 import address.model.CommandInfo;
 import javafx.scene.control.ListCell;
 
@@ -15,7 +16,7 @@ public class CommandInfoListViewCell extends ListCell<CommandInfo> {
             setGraphic(null);
             setText("");
         } else {
-            setText(item.getName() + " " + item.statusString());
+            setGraphic(new ActivityHistoryCardController(item).getLayout());
         }
     }
 }

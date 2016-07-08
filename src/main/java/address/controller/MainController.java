@@ -52,6 +52,7 @@ public class MainController extends UiController{
     private static final String ICON_APPLICATION = "/images/address_book_32.png";
     private static final String ICON_EDIT = "/images/edit.png";
     private static final String ICON_CALENDAR = "/images/calendar.png";
+    private static final String ICON_INFO = "/images/info_icon.png";
     public static final int MIN_HEIGHT = 400;
     public static final int MIN_WIDTH = 740;
 
@@ -472,7 +473,7 @@ public class MainController extends UiController{
 
             Scene scene = new Scene(page);
             Stage dialogStage = loadDialogStage("Activity History", primaryStage, scene);
-
+            dialogStage.getIcons().add(getImage(ICON_INFO));
             // Set the persons into the controller.
             ActivityHistoryController controller = loader.getController();
             controller.setConnections(modelManager.getFinishedCommands());
