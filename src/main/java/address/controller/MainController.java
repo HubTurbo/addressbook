@@ -40,6 +40,7 @@ import java.util.Optional;
  */
 public class MainController extends UiController{
     private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
+    private static final String FXML_ACTIVITY_HISTORY = "/view/ActivityHistory.fxml";
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
@@ -51,6 +52,7 @@ public class MainController extends UiController{
     private static final String ICON_APPLICATION = "/images/address_book_32.png";
     private static final String ICON_EDIT = "/images/edit.png";
     private static final String ICON_CALENDAR = "/images/calendar.png";
+    private static final String ICON_INFO = "/images/info_icon.png";
     public static final int MIN_HEIGHT = 400;
     public static final int MIN_WIDTH = 740;
 
@@ -168,7 +170,7 @@ public class MainController extends UiController{
     }
 
     private void showHeaderStatusBar() {
-        statusBarHeaderController = new StatusBarHeaderController();
+        statusBarHeaderController = new StatusBarHeaderController(this);
         AnchorPane sbPlaceHolder = (AnchorPane) rootLayout.lookup("#headerStatusbarPlaceholder");
 
         assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in rootLayout";
@@ -458,6 +460,29 @@ public class MainController extends UiController{
             logger.fatal("Error loading birthday statistics view: {}", e);
             showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for birthday stats.",
                                             "IOException when trying to load ", fxmlResourcePath);
+        }
+    }
+
+    public void showActivityHistoryDialog() {
+        logger.debug("Loading Activity History.");
+        final String fxmlResourcePath = FXML_ACTIVITY_HISTORY;
+        try {
+            // Load the fxml file and create a new stage for the popup.
+            FXMLLoader loader = loadFxml(fxmlResourcePath);
+            AnchorPane page = loader.load();
+
+            Scene scene = new Scene(page);
+            Stage dialogStage = loadDialogStage("Activity History", primaryStage, scene);
+            dialogStage.getIcons().add(getImage(ICON_INFO));
+            // Set the persons into the controller.
+            ActivityHistoryController controller = loader.getController();
+            controller.setConnections(modelManager.getFinishedCommands());
+            controller.init();
+            dialogStage.show();
+        } catch (IOException e) {
+            logger.fatal("Error loading activity history view: {}", e);
+            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for activity history.",
+                    "IOException when trying to load ", fxmlResourcePath);
         }
     }
 
