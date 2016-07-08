@@ -26,13 +26,13 @@ public class CloudFileHandler {
         return readFromCloudFile(cloudFile);
     }
 
-    public void writeCloudAddressBook(CloudAddressBook CloudAddressBook) throws FileNotFoundException,
+    public void writeCloudAddressBook(CloudAddressBook cloudAddressBook) throws FileNotFoundException,
             DataConversionException {
-        String addressBookName = CloudAddressBook.getName();
+        String addressBookName = cloudAddressBook.getName();
         File cloudFile = getCloudDataFile(addressBookName);
         try {
             logger.info("Writing to cloud file '{}'.", cloudFile.getName());
-            XmlUtil.saveDataToFile(cloudFile, CloudAddressBook);
+            XmlUtil.saveDataToFile(cloudFile, cloudAddressBook);
         } catch (FileNotFoundException | DataConversionException e) {
             logger.warn("Error writing to cloud file '{}'.", cloudFile.getName());
             throw e;
