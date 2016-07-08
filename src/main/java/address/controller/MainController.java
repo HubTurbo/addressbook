@@ -450,7 +450,7 @@ public class MainController extends UiController{
             AnchorPane page = loader.load();
 
             Scene scene = new Scene(page);
-            Stage dialogStage = loadDialogStage("Help", primaryStage, scene);
+            Stage dialogStage = loadDialogStage("Help", null, scene);
             dialogStage.getIcons().add(getImage(ICON_HELP));
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
