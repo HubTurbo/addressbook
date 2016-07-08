@@ -3,6 +3,7 @@ package address.browser;
 import address.util.TestUtil;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.BrowserType;
+import hubturbo.embeddedbrowser.EbLoadListener;
 import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;
 import hubturbo.embeddedbrowser.page.Page;
 import org.apache.commons.io.IOUtils;
@@ -12,6 +13,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static junit.framework.TestCase.assertFalse;
@@ -42,7 +45,7 @@ public class PageTest {
     }
 
     @Test
-    public void testPageTestMethods_fullFeatureBrowser() throws IOException {
+    public void testPageTestMethods_fullFeatureBrowser() throws IOException, InterruptedException {
         Page page = getSampleGithubProfilePage(BrowserType.FULL_FEATURE_BROWSER);
 
         assertNotNull(page.getElementByClass(VALID_CLASS_NAME_1));
@@ -70,14 +73,20 @@ public class PageTest {
 
     }
 
-    private Page getSampleGithubProfilePage(BrowserType type) throws IOException {
+    private Page getSampleGithubProfilePage(BrowserType type) throws IOException, InterruptedException {
         EmbeddedBrowser browser = EmbeddedBrowserFactory.createBrowser(type);
         InputStream stream = this.getClass().getResourceAsStream("/html_pages/github_profile_page.html");
         String html = IOUtils.toString(stream);
         stream.close();
-        browser.loadHTML(html);
         Page page = new Page(browser);
-        while(page.isPageLoading());
+        CountDownLatch latch = new CountDownLatch(1);
+        page.setPageLoadFinishListener(b -> {
+            if (b) {
+                latch.countDown();
+            }
+        });
+        browser.loadHTML(html);
+        latch.await(5, TimeUnit.SECONDS);
         return new Page(browser);
     }
 
