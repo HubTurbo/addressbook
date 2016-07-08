@@ -292,6 +292,11 @@ coveralls {
     jacocoReportPath = "${buildDir}/reports/jacoco/coverage/coverage.xml"
 }
 
+tasks.coveralls {
+  dependsOn coverage
+  onlyIf { System.env.'CI' }
+}
+
 task checkStyle { // A dummy task to run a set of tasks
 }
 
@@ -344,9 +349,6 @@ task headless << {
     unitTests.setHeadless()
     allTests.setHeadless()
 }
-
-coveralls.dependsOn coverage
-coveralls.onlyIf { System.env.'CI' }
 
 unitTests.mustRunAfter headless
 guiUnitTests.mustRunAfter headless
