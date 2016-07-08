@@ -17,7 +17,7 @@ public class StatusBarHeaderController extends UiController{
         headerStatusBar.getStyleClass().removeAll();
         headerStatusBar.getStyleClass().add("status-bar-with-border");
         headerStatusBar.setText("");
-        headerStatusBar.setOnMouseClicked(event -> Platform.runLater(() ->mainController.showActivityHistoryDialog()));
+        headerStatusBar.setOnMouseClicked(event -> mainController.showActivityHistoryDialog());
     }
 
     public StatusBar getHeaderStatusBarView() {
