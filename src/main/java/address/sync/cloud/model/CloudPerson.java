@@ -49,6 +49,10 @@ public class CloudPerson {
         setId(id);
     }
 
+    public CloudPerson(CloudPerson cloudPerson) {
+        updatedBy(cloudPerson);
+    }
+
     public int getId() {
         return id;
     }
