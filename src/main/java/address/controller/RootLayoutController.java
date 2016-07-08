@@ -41,6 +41,12 @@ public class RootLayoutController extends UiController{
     public void setAccelerators() {
     }
 
+    @FXML
+    private void handleHelp() {
+        logger.debug("Showing help page about the application.");
+        mainController.showHelpPage();
+    }
+
     /**
      * Opens an about dialog.
      */

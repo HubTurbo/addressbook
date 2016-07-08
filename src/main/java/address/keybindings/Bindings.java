@@ -43,6 +43,7 @@ public class Bindings {
     public Accelerator PERSON_DELETE_ACCELERATOR;
     public Accelerator PERSON_EDIT_ACCELERATOR;
     public Accelerator PERSON_TAG_ACCELERATOR;
+    public Accelerator HELP_PAGE_ACCELERATOR;
 
 
     public Bindings(){
@@ -63,6 +64,7 @@ public class Bindings {
         APP_RESIZE_HOTKEY.add(setHotkey("APP_RESIZE_HOTKEY", "CTRL + SHIFT + X", new ResizeAppRequestEvent()));
         APP_RESIZE_HOTKEY.add(setHotkey("APP_RESIZE_HOTKEY", "META + SHIFT + X", new ResizeAppRequestEvent()));
         PERSON_CHANGE_CANCEL_ACCELERATOR = setAccelerator("PERSON_CHANGE_CANCEL_ACCELERATOR", "SHORTCUT + Z");
+        HELP_PAGE_ACCELERATOR = setAccelerator("HELP_PAGE_ACCELERATOR", "F1", new HelpPageRequestEvent());
 
         /*====== other keys ======================================================*/
 

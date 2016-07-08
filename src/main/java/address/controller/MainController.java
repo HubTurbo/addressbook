@@ -41,6 +41,7 @@ import java.util.Optional;
 public class MainController extends UiController{
     private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
     private static final String FXML_ACTIVITY_HISTORY = "/view/ActivityHistory.fxml";
+    private static final String FXML_HELP = "/view/help.fxml";
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
@@ -53,6 +54,7 @@ public class MainController extends UiController{
     private static final String ICON_EDIT = "/images/edit.png";
     private static final String ICON_CALENDAR = "/images/calendar.png";
     private static final String ICON_INFO = "/images/info_icon.png";
+    private static final String ICON_HELP = "/images/help_icon.png";
     public static final int MIN_HEIGHT = 400;
     public static final int MIN_WIDTH = 740;
 
@@ -433,6 +435,29 @@ public class MainController extends UiController{
             logger.fatal("Error loading tag list view: {}", e);
             showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for tag list.",
                                             "IOException when trying to load ", fxmlResourcePath);
+        }
+    }
+
+    /**
+     * Opens a dialog to show the help page
+     */
+    public void showHelpPage() {
+        logger.debug("Loading help page.");
+        final String fxmlResourcePath = FXML_HELP;
+        try {
+            // Load the fxml file and create a new stage for the popup dialog.
+            FXMLLoader loader = loadFxml(fxmlResourcePath);
+            AnchorPane page = loader.load();
+
+            Scene scene = new Scene(page);
+            Stage dialogStage = loadDialogStage("Help", primaryStage, scene);
+            dialogStage.getIcons().add(getImage(ICON_HELP));
+            // Show the dialog and wait until the user closes it
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            logger.fatal("Error loading tag list view: {}", e);
+            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for tag list.",
+                    "IOException when trying to load ", fxmlResourcePath);
         }
     }
 
