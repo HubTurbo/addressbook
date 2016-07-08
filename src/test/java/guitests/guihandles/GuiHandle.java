@@ -27,8 +27,7 @@ public class GuiHandle {
             Object object = ctor.newInstance(new Object[] { guiRobot });
             return (T)object;
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Cannot create gui handle of type " + clazz.getName());
+            throw new RuntimeException("Cannot create gui handle of type " + clazz.getName(), e);
         }
     }
 

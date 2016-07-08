@@ -45,11 +45,11 @@ public class Bindings {
     public Accelerator PERSON_TAG_ACCELERATOR;
 
 
-    public Bindings(){
+    public Bindings() {
         init();
     }
 
-    private void init(){
+    private void init() {
 
         /*====== bindings A-Z keys (in alphabetical order of main key =====================*/
 

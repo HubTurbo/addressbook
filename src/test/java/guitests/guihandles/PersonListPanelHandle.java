@@ -41,6 +41,10 @@ public class PersonListPanelHandle extends GuiHandle {
         return (ListView<ReadOnlyViewablePerson>) getNode(personListViewId);
     }
 
+    public void use_PERSON_CHANGE_CANCEL_ACCELERATOR() {
+        guiRobot.push(new Bindings().PERSON_CHANGE_CANCEL_ACCELERATOR);
+    }
+
     public void use_LIST_JUMP_TO_INDEX_SHORTCUT(int index) {
         switch (index) {
             case 1:
@@ -101,9 +105,15 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public EditPersonDialogHandle use_PERSON_EDIT_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_EDIT_ACCELERATOR);
-        guiRobot.sleep(2000);
+        guiRobot.sleep(500);
         guiRobot.targetWindow(EditPersonDialogHandle.TITLE);
         return new EditPersonDialogHandle(guiRobot);
+    }
+
+    public TagPersonDialogHandle use_PERSON_TAG_ACCELERATOR() {
+        guiRobot.push(new Bindings().PERSON_TAG_ACCELERATOR);
+        guiRobot.sleep(500);
+        return new TagPersonDialogHandle(guiRobot);
     }
 
     public void clickOnPerson(String personName) {

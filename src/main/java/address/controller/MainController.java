@@ -564,8 +564,8 @@ public class MainController extends UiController{
      * If not currently at the maximized size, goes to maximised size.
      * If currently maximized, goes to default size.
      */
-    private void resizeWindow(){
-        if(primaryStage.isMaximized()){
+    private void resizeWindow() {
+        if (primaryStage.isMaximized()) {
             setDefaultSize();
         } else {
             maximizeWindow();
@@ -573,7 +573,6 @@ public class MainController extends UiController{
     }
 
     protected void setDefaultSize() {
-
         primaryStage.setHeight(prefs.getGuiSettings().getWindowHeight());
         primaryStage.setWidth(prefs.getGuiSettings().getWindowWidth());
         if (prefs.getGuiSettings().getWindowCoordinates() != null) {

@@ -27,9 +27,9 @@ public class GuiTestBase {
     /* Handles to GUI elements present at the start up are created in advance
      *   for easy access from child classes.
      */
-    protected MainGuiHandle mainGui = new MainGuiHandle(guiRobot);
-    protected MainMenuHandle mainMenu = mainGui.getMainMenu();
-    protected PersonListPanelHandle personListPanel = mainGui.getPersonListPanel();
+    protected MainGuiHandle mainGui;
+    protected MainMenuHandle mainMenu;
+    protected PersonListPanelHandle personListPanel;
 
 
     @BeforeClass
@@ -44,6 +44,11 @@ public class GuiTestBase {
 
     @Before
     public void setup() throws Exception {
+        FxToolkit.setupStage((stage) -> {
+            mainGui = new MainGuiHandle(guiRobot, stage);
+            mainMenu = mainGui.getMainMenu();
+            personListPanel = mainGui.getPersonListPanel();
+        });
         EventManager.clearSubscribers();
         FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation(),
                                                      this::getInitialCloudData));

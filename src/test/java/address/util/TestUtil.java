@@ -240,4 +240,15 @@ public class TestUtil {
                 1, BrowserType.FULL_FEATURE_BROWSER);
         manager.initBrowser();
     }
+
+    public static CloudAddressBook generateCloudAddressBook(AddressBook addressBook) {
+        List<CloudPerson> cloudPersonList = new ArrayList<>();
+        addressBook.getPersonList().stream()
+                .forEach(p -> cloudPersonList.add(new CloudPerson(p.getFirstName(), p.getLastName(), p.getId())));
+
+        CloudAddressBook cloudAddressBook = new CloudAddressBook("MyAddressBook");
+        cloudAddressBook.setPersonsList(cloudPersonList);
+
+        return cloudAddressBook;
+    }
 }

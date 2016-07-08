@@ -1,6 +1,7 @@
 package guitests.guihandles;
 
 import guitests.GuiRobot;
+import javafx.stage.Stage;
 
 /**
  * Provides a handle for the main GUI.
@@ -8,10 +9,12 @@ import guitests.GuiRobot;
 public class MainGuiHandle {
     private final GuiRobot guiRobot;
     private MainMenuHandle mainMenu;
+    private Stage primaryStage;
 
-    public MainGuiHandle(GuiRobot guiRobot){
+    public MainGuiHandle(GuiRobot guiRobot, Stage primaryStage) {
         this.guiRobot = guiRobot;
         this.mainMenu = new MainMenuHandle(guiRobot);
+        this.primaryStage = primaryStage;
     }
 
     public PersonListPanelHandle getPersonListPanel(){
@@ -23,4 +26,15 @@ public class MainGuiHandle {
     }
 
 
+    public boolean isMinimized() {
+        return primaryStage.isIconified() && !primaryStage.isMaximized();
+    }
+
+    public boolean isMaximized() {
+        return primaryStage.isMaximized() && !primaryStage.isIconified();
+    }
+
+    public boolean isDefaultSize() {
+        return !primaryStage.isMaximized() && !primaryStage.isIconified();
+    }
 }
