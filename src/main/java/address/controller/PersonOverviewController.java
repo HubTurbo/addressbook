@@ -123,10 +123,7 @@ public class PersonOverviewController extends UiController{
             showInvalidSelectionAlert();
         } else {
             selected.stream()
-                    .forEach(target -> {
-                        mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(target));
-                        modelManager.deletePersonThroughUI(target);
-                    });
+                    .forEach(target -> modelManager.deletePersonThroughUI(target));
         }
     }
 
