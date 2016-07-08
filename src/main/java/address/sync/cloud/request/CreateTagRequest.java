@@ -7,6 +7,7 @@ import address.sync.cloud.model.CloudTag;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.RejectedExecutionException;
 
 public class CreateTagRequest extends Request {
     private String addressBookName;
@@ -24,7 +25,7 @@ public class CreateTagRequest extends Request {
         try {
             CloudTag returnedTag = createTagInAddressBook(addressBookName, newTag);
             resultContainer.complete(returnedTag);
-        } catch (FileNotFoundException | DataConversionException e) {
+        } catch (FileNotFoundException | DataConversionException | RejectedExecutionException e) {
             resultContainer.completeExceptionally(e);
         }
     }

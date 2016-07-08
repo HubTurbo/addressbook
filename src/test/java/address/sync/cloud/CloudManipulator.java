@@ -449,10 +449,10 @@ public class CloudManipulator extends CloudSimulator {
     }
 
     @Override
-    public RemoteResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag, String previousETag) {
+    public RemoteResponse editTag(String addressBookName, String oldTagName, CloudTag editedTag, String previousETag) {
         if (shouldDelayNext.get()) delayRandomAmount();
         if (shouldFail(true)) return getNetworkFailedResponse();
-        RemoteResponse actualResponse = super.editTag(addressBookName, oldTagName, updatedTag, previousETag);
+        RemoteResponse actualResponse = super.editTag(addressBookName, oldTagName, editedTag, previousETag);
         return actualResponse;
     }
 
