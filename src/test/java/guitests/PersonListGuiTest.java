@@ -1,12 +1,11 @@
 package guitests;
 
-import guitests.GuiTestBase;
 import javafx.scene.control.Label;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class PersonOverviewTest extends GuiTestBase {
+public class PersonListGuiTest extends GuiTestBase {
     @Test
     public void dragAndDrop_firstToSecond() {
         Label hansNameLabel = getNameLabelOf("Hans");
