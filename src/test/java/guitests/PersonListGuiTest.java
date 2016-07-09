@@ -43,8 +43,6 @@ public class PersonListGuiTest extends GuiTestBase {
         return TestUtil.generateCloudAddressBook(initialData);
     }
 
-    //TODO: code above has been duplicated from KeyBindingGuiTest. To be unified later.
-    
     @Test
     public void dragAndDrop_singlePersonCorrectDrag_listReordered() {
 
@@ -59,5 +57,24 @@ public class PersonListGuiTest extends GuiTestBase {
         assertTrue(personListPanel.containsInOrder(ELIZABETH, BENSON, ALICE, CHARLIE, DAN));
     }
 
+    @Test
+    public void dragAndDrop_singlePersonWrongDrag_listUnchanged() {
+        assertTrue(personListPanel.containsInOrder(ALICE, BENSON, CHARLIE, DAN, ELIZABETH));
+
+        personListPanel.dragAndDrop(CHARLIE.getFirstName(), CHARLIE.getFirstName());
+        assertTrue(personListPanel.containsInOrder(ALICE, BENSON, CHARLIE, DAN, ELIZABETH));
+
+        //TODO: test for Dropping outside list
+    }
+
+    @Test
+    public void dragAndDrop_multiplePersonCorrectDrag_listReordered() {
+        //TODO: implement this
+    }
+
+    @Test
+    public void dragAndDrop_multiplePersonWrongDrag_listUnchanged() {
+        //TODO: implement this
+    }
 
 }
