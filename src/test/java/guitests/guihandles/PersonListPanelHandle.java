@@ -2,6 +2,7 @@ package guitests.guihandles;
 
 
 import address.keybindings.Bindings;
+import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import guitests.GuiRobot;
 import javafx.scene.control.ListView;
@@ -9,13 +10,17 @@ import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
 
+import java.util.List;
+
 /**
  * Provides a handle for the panel containing the person list.
  */
 public class PersonListPanelHandle extends GuiHandle {
 
+    public static final int NOT_FOUND = -1;
     private String filterFieldId = "#filterField";
     private String personListViewId = "#personListView";
+    String newButtonId = "#newButton";
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage);
@@ -26,7 +31,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public boolean contains(String firstName, String lastName) {
-        return getList().getItems().stream().anyMatch(p -> p.hasName(firstName, lastName));
+        return getListView().getItems().stream().anyMatch(p -> p.hasName(firstName, lastName));
     }
 
     public boolean isSelected(String firstName, String lastName) {
@@ -34,11 +39,11 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public ReadOnlyViewablePerson getSelectedPerson() {
-        ListView<ReadOnlyViewablePerson> personList = getList();
+        ListView<ReadOnlyViewablePerson> personList = getListView();
         return personList.getSelectionModel().getSelectedItems().get(0);
     }
 
-    public ListView<ReadOnlyViewablePerson> getList() {
+    public ListView<ReadOnlyViewablePerson> getListView() {
         return (ListView<ReadOnlyViewablePerson>) getNode(personListViewId);
     }
 
@@ -130,8 +135,58 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public EditPersonDialogHandle clickNew() {
-        guiRobot.clickOn("#newButton");
+        guiRobot.clickOn(newButtonId);
         guiRobot.sleep(500);
         return new EditPersonDialogHandle(guiRobot, primaryStage);
     }
+
+    public void dragAndDrop(String firstNameOfPersonToDrag, String firstNameOfPersonToDropOn) {
+        guiRobot.drag(firstNameOfPersonToDrag).dropTo(firstNameOfPersonToDropOn);
+    }
+
+    /**
+     * Returns true if the {@code persons} appear as a sub list (in that order) in the panel.
+     */
+    public boolean containsInOrder(Person... persons) {
+        assert persons.length >= 2;
+        int indexOfFirstPerson = getPersonIndex(persons[0]);
+        if(indexOfFirstPerson == NOT_FOUND) return false;
+        return containsInOrder(indexOfFirstPerson, persons);
+    }
+
+    /**
+     * Returns true if the {@code persons} appear as the sub list (in that order) at position {@code startPosition}.
+     */
+    public boolean containsInOrder(int startPosition, Person... persons) {
+        List<ReadOnlyViewablePerson> personsInList = getListView().getItems();
+
+        //Return false if the list in panel is too short to contain the given list
+        if (startPosition + persons.length > personsInList.size()){
+            return false;
+        }
+
+        //Return false if any of the persons doesn't match
+        for (int i = 0; i < persons.length; i++) {
+            if (!personsInList.get(startPosition + i).getFirstName().equals(persons[i].getFirstName())){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns the position of the person given, {@code NOT_FOUND} if not found in the list.
+     */
+    public int getPersonIndex(Person targetPerson) {
+        List<ReadOnlyViewablePerson> personsInList = getListView().getItems();
+        for (int i = 0; i < personsInList.size(); i++) {
+            if(personsInList.get(i).getFirstName().equals(targetPerson.getFirstName())){
+                return i;
+            }
+        }
+        return NOT_FOUND;
+    }
+
+    
 }

@@ -21,7 +21,6 @@ import java.util.List;
  */
 public class KeyBindingsGuiTest extends GuiTestBase {
 
-    private final Bindings bindings = new Bindings();
     private AddressBook initialData = generateInitialData();
 
     private AddressBook generateInitialData() {//TODO: create a better set of sample data
