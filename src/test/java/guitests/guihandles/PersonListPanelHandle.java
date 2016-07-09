@@ -18,8 +18,10 @@ import java.util.List;
  */
 public class PersonListPanelHandle extends GuiHandle {
 
+    public static final int NOT_FOUND = -1;
     private String filterFieldId = "#filterField";
     private String personListViewId = "#personListView";
+    String newButtonId = "#newButton";
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage);
@@ -134,7 +136,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public EditPersonDialogHandle clickNew() {
-        guiRobot.clickOn("#newButton");
+        guiRobot.clickOn(newButtonId);
         guiRobot.sleep(500);
         return new EditPersonDialogHandle(guiRobot, primaryStage);
     }
@@ -143,22 +145,30 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.drag(firstNameOfPersonToDrag).dropTo(firstNameOfPersonToDropOn);
     }
 
+    /**
+     * Returns true if the {@code persons} appear as a sub list (in that order) in the panel.
+     */
     public boolean containsInOrder(Person... persons) {
         assert persons.length >= 2;
-        List<ReadOnlyViewablePerson> personsInList = getList().getItems();
-        int indexOfFirstPerson = getPersonIndex(personsInList, persons[0]);
-        if(indexOfFirstPerson < 0) return false;
-        return containsInOrder(personsInList, indexOfFirstPerson, persons);
+        int indexOfFirstPerson = getPersonIndex(persons[0]);
+        if(indexOfFirstPerson == NOT_FOUND) return false;
+        return containsInOrder(indexOfFirstPerson, persons);
     }
 
-    private boolean containsInOrder(List<ReadOnlyViewablePerson> fullList, int startPosition, Person[] targetPersons) {
+    /**
+     * Returns true if the {@code persons} appear as the sub list (in that order) at position {@code startPosition}.
+     */
+    public boolean containsInOrder(int startPosition, Person... persons) {
+        List<ReadOnlyViewablePerson> personsInList = getList().getItems();
 
-        if (startPosition + targetPersons.length > fullList.size()){
+        //Return false if the list in panel is too short to contain the given list
+        if (startPosition + persons.length > personsInList.size()){
             return false;
         }
 
-        for (int i = 0; i < targetPersons.length; i++) {
-            if (!fullList.get(startPosition + i).getFirstName().equals(targetPersons[i].getFirstName())){
+        //Return false if any of the persons doesn't match
+        for (int i = 0; i < persons.length; i++) {
+            if (!personsInList.get(startPosition + i).getFirstName().equals(persons[i].getFirstName())){
                 return false;
             }
         }
@@ -166,12 +176,16 @@ public class PersonListPanelHandle extends GuiHandle {
         return true;
     }
 
-    private int getPersonIndex(List<ReadOnlyViewablePerson> fullList, Person targetPerson) {
-        for (int i = 0; i < fullList.size(); i++) {
-            if(fullList.get(i).getFirstName().equals(targetPerson.getFirstName())){
+    /**
+     * Returns the position of the person given, {@code NOT_FOUND} if not found in the list.
+     */
+    public int getPersonIndex(Person targetPerson) {
+        List<ReadOnlyViewablePerson> personsInList = getList().getItems();
+        for (int i = 0; i < personsInList.size(); i++) {
+            if(personsInList.get(i).getFirstName().equals(targetPerson.getFirstName())){
                 return i;
             }
         }
-        return -1;
+        return NOT_FOUND;
     }
 }
