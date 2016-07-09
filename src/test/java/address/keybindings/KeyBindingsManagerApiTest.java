@@ -4,6 +4,7 @@ package address.keybindings;
 import address.events.*;
 import address.util.TestUtil;
 import javafx.scene.input.KeyCombination;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,11 @@ public class KeyBindingsManagerApiTest {
         eventManagerSpy = Mockito.mock(EventManager.class);
         keyBindingsManager = new KeyBindingsManagerEx();
         keyBindingsManager.setEventManager(eventManagerSpy);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        keyBindingsManager.stop();
     }
 
     @Test

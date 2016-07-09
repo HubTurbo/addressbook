@@ -2,6 +2,7 @@ package address.keybindings;
 
 import address.events.*;
 import javafx.scene.input.KeyCodeCombination;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -25,6 +26,11 @@ public class KeyBindingsManagerTest {
         Bindings bindingsMock = Mockito.mock(Bindings.class);
         keyBindingsManager.BINDINGS = bindingsMock;
         keyBindingsManager.hotkeyProvider = Mockito.mock(GlobalHotkeyProvider.class);
+    }
+
+    @After
+    public void tearDown()throws Exception{
+        keyBindingsManager.stop();
     }
 
     @Test
