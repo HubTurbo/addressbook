@@ -2,12 +2,16 @@ package guitests.guihandles;
 
 
 import address.keybindings.Bindings;
+import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import guitests.GuiRobot;
+import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
+
+import java.util.List;
 
 /**
  * Provides a handle for the panel containing the person list.
@@ -133,5 +137,41 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.clickOn("#newButton");
         guiRobot.sleep(500);
         return new EditPersonDialogHandle(guiRobot, primaryStage);
+    }
+
+    public void dragAndDrop(String firstNameOfPersonToDrag, String firstNameOfPersonToDropOn) {
+        guiRobot.drag(firstNameOfPersonToDrag).dropTo(firstNameOfPersonToDropOn);
+    }
+
+    public boolean containsInOrder(Person... persons) {
+        assert persons.length >= 2;
+        List<ReadOnlyViewablePerson> personsInList = getList().getItems();
+        int indexOfFirstPerson = getPersonIndex(personsInList, persons[0]);
+        if(indexOfFirstPerson < 0) return false;
+        return containsInOrder(personsInList, indexOfFirstPerson, persons);
+    }
+
+    private boolean containsInOrder(List<ReadOnlyViewablePerson> fullList, int startPosition, Person[] targetPersons) {
+
+        if (startPosition + targetPersons.length > fullList.size()){
+            return false;
+        }
+
+        for (int i = 0; i < targetPersons.length; i++) {
+            if (!fullList.get(startPosition + i).getFirstName().equals(targetPersons[i].getFirstName())){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private int getPersonIndex(List<ReadOnlyViewablePerson> fullList, Person targetPerson) {
+        for (int i = 0; i < fullList.size(); i++) {
+            if(fullList.get(i).getFirstName().equals(targetPerson.getFirstName())){
+                return i;
+            }
+        }
+        return -1;
     }
 }

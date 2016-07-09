@@ -5,7 +5,6 @@ import address.model.datatypes.ReadOnlyAddressBook;
 import address.model.datatypes.person.Person;
 import address.sync.cloud.model.CloudAddressBook;
 import address.util.TestUtil;
-import javafx.scene.control.Label;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -46,19 +45,22 @@ public class PersonListGuiTest extends GuiTestBase {
     //TODO: code above has been duplicated from KeyBindingGuiTest. To be unified later.
     
     @Test
-    public void dragAndDrop_singlePerson() {
+    public void dragAndDrop_singlePersonCorrectDrag_listReordered() {
         TypicalData typicalData = new TypicalData();
-        Label aliceNameLabel = getNameLabelOf(typicalData.ALICE.getFirstName());
-        Label bensonIdLabel = getNameLabelOf(typicalData.BENSON.getFirstName());
-        assertTrue(aliceNameLabel.localToScreen(0, 0).getY() < bensonIdLabel.localToScreen(0, 0).getY());
-        guiRobot.drag(typicalData.ALICE.getFirstName()).dropTo(typicalData.CHARLIE.getFirstName());// drag from first to start of 3rd (slightly further down between 2nd and 3rd)
+        Person alice = typicalData.ALICE;
+        Person benson = typicalData.BENSON;
+        Person charlie = typicalData.CHARLIE;
+        Person dan = typicalData.DAN;
+        Person elizabeth = typicalData.ELIZABETH;
+        assertTrue(personListPanel.containsInOrder(alice, benson, charlie, dan, elizabeth));
 
-        Label aliceNameLabel2 = getNameLabelOf(typicalData.ALICE.getFirstName());
-        Label bensonIdLabel2 = getNameLabelOf(typicalData.BENSON.getFirstName());
-        assertTrue(aliceNameLabel2.localToScreen(0, 0).getY() > bensonIdLabel2.localToScreen(0, 0).getY());
+        // drag first person (Alice) and drop on Charles
+        personListPanel.dragAndDrop(alice.getFirstName(), charlie.getFirstName());
+        assertTrue(personListPanel.containsInOrder(benson, alice, charlie, dan, elizabeth));
+
+        //drag last person and drop at the beginning
+        personListPanel.dragAndDrop(elizabeth.getFirstName(), benson.getFirstName());
+        assertTrue(personListPanel.containsInOrder(elizabeth, benson, alice, charlie, dan));
     }
 
-    private Label getNameLabelOf(String name) {
-        return (Label) guiRobot.lookup(name).tryQuery().get();
-    }
 }
