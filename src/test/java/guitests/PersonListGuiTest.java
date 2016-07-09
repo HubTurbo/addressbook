@@ -52,9 +52,17 @@ public class PersonListGuiTest extends GuiTestBase {
         personListPanel.dragAndDrop(ALICE.getFirstName(), CHARLIE.getFirstName());
         assertTrue(personListPanel.containsInOrder(BENSON, ALICE, CHARLIE, DAN, ELIZABETH));
 
-        //drag last person and drop at the beginning
-        personListPanel.dragAndDrop(ELIZABETH.getFirstName(), BENSON.getFirstName());
-        assertTrue(personListPanel.containsInOrder(ELIZABETH, BENSON, ALICE, CHARLIE, DAN));
+        // drag a card (Dan) to the top
+        personListPanel.dragAndDrop(DAN.getFirstName(), BENSON.getFirstName());
+        assertTrue(personListPanel.containsInOrder(DAN, BENSON, ALICE, CHARLIE, ELIZABETH));
+
+        //drag the person at the bottom and drop at the middle
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(5); //Make the target card visible
+        personListPanel.dragAndDrop(ELIZABETH.getFirstName(), CHARLIE.getFirstName());
+        assertTrue(personListPanel.containsInOrder(DAN, BENSON, ALICE, ELIZABETH, CHARLIE));
+
+        //drag the person at the middle and drop at the bottom
+        //TODO: implement this
     }
 
     @Test

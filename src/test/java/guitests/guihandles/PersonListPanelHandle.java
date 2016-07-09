@@ -5,7 +5,6 @@ import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import guitests.GuiRobot;
-import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
@@ -32,7 +31,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public boolean contains(String firstName, String lastName) {
-        return getList().getItems().stream().anyMatch(p -> p.hasName(firstName, lastName));
+        return getListView().getItems().stream().anyMatch(p -> p.hasName(firstName, lastName));
     }
 
     public boolean isSelected(String firstName, String lastName) {
@@ -40,11 +39,11 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public ReadOnlyViewablePerson getSelectedPerson() {
-        ListView<ReadOnlyViewablePerson> personList = getList();
+        ListView<ReadOnlyViewablePerson> personList = getListView();
         return personList.getSelectionModel().getSelectedItems().get(0);
     }
 
-    public ListView<ReadOnlyViewablePerson> getList() {
+    public ListView<ReadOnlyViewablePerson> getListView() {
         return (ListView<ReadOnlyViewablePerson>) getNode(personListViewId);
     }
 
@@ -159,7 +158,7 @@ public class PersonListPanelHandle extends GuiHandle {
      * Returns true if the {@code persons} appear as the sub list (in that order) at position {@code startPosition}.
      */
     public boolean containsInOrder(int startPosition, Person... persons) {
-        List<ReadOnlyViewablePerson> personsInList = getList().getItems();
+        List<ReadOnlyViewablePerson> personsInList = getListView().getItems();
 
         //Return false if the list in panel is too short to contain the given list
         if (startPosition + persons.length > personsInList.size()){
@@ -180,7 +179,7 @@ public class PersonListPanelHandle extends GuiHandle {
      * Returns the position of the person given, {@code NOT_FOUND} if not found in the list.
      */
     public int getPersonIndex(Person targetPerson) {
-        List<ReadOnlyViewablePerson> personsInList = getList().getItems();
+        List<ReadOnlyViewablePerson> personsInList = getListView().getItems();
         for (int i = 0; i < personsInList.size(); i++) {
             if(personsInList.get(i).getFirstName().equals(targetPerson.getFirstName())){
                 return i;
@@ -188,4 +187,6 @@ public class PersonListPanelHandle extends GuiHandle {
         }
         return NOT_FOUND;
     }
+
+    
 }
