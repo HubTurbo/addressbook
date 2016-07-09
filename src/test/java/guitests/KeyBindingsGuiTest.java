@@ -101,13 +101,13 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         //======== hotkeys ============================
 
-        guiRobot.push(bindings.APP_MINIMIZE_HOTKEY.get(0));
+        mainGui.use_APP_MINIMIZE_HOTKEY();
         assertTrue(mainGui.isMinimized());
 
-        guiRobot.push(bindings.APP_RESIZE_HOTKEY.get(0)); //maximize the window
+        mainGui.use_APP_RESIZE_HOTKEY(); //maximize the window
         assertTrue(mainGui.isMaximized());
 
-        guiRobot.push(bindings.APP_RESIZE_HOTKEY.get(0)); //set window to default size
+        mainGui.use_APP_RESIZE_HOTKEY(); //set window to default size
         assertTrue(mainGui.isDefaultSize());
 
     }

@@ -6,6 +6,7 @@ import address.model.datatypes.person.ReadOnlyViewablePerson;
 import guitests.GuiRobot;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
 
 /**
@@ -16,8 +17,8 @@ public class PersonListPanelHandle extends GuiHandle {
     private String filterFieldId = "#filterField";
     private String personListViewId = "#personListView";
 
-    public PersonListPanelHandle(GuiRobot guiRobot) {
-        super(guiRobot);
+    public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
+        super(guiRobot, primaryStage);
     }
 
     public void use_LIST_ENTER_SHORTCUT() {
@@ -107,13 +108,13 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.push(new Bindings().PERSON_EDIT_ACCELERATOR);
         guiRobot.sleep(500);
         guiRobot.targetWindow(EditPersonDialogHandle.TITLE);
-        return new EditPersonDialogHandle(guiRobot);
+        return new EditPersonDialogHandle(guiRobot, primaryStage);
     }
 
     public TagPersonDialogHandle use_PERSON_TAG_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_TAG_ACCELERATOR);
         guiRobot.sleep(500);
-        return new TagPersonDialogHandle(guiRobot);
+        return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
     public void clickOnPerson(String personName) {
@@ -126,5 +127,11 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public String getFilterText() {
         return getTextFieldText(filterFieldId);
+    }
+
+    public EditPersonDialogHandle clickNew() {
+        guiRobot.clickOn("#newButton");
+        guiRobot.sleep(500);
+        return new EditPersonDialogHandle(guiRobot, primaryStage);
     }
 }

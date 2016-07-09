@@ -1,28 +1,24 @@
 package guitests.guihandles;
 
+import address.keybindings.Bindings;
 import guitests.GuiRobot;
 import javafx.stage.Stage;
 
 /**
  * Provides a handle for the main GUI.
  */
-public class MainGuiHandle {
-    private final GuiRobot guiRobot;
-    private MainMenuHandle mainMenu;
-    private Stage primaryStage;
+public class MainGuiHandle extends GuiHandle{
 
     public MainGuiHandle(GuiRobot guiRobot, Stage primaryStage) {
-        this.guiRobot = guiRobot;
-        this.mainMenu = new MainMenuHandle(guiRobot);
-        this.primaryStage = primaryStage;
+        super(guiRobot, primaryStage);
     }
 
     public PersonListPanelHandle getPersonListPanel(){
-        return new PersonListPanelHandle(guiRobot);
+        return new PersonListPanelHandle(guiRobot, primaryStage);
     }
 
     public MainMenuHandle getMainMenu() {
-        return mainMenu;
+        return new MainMenuHandle(guiRobot, primaryStage);
     }
 
 
@@ -37,4 +33,15 @@ public class MainGuiHandle {
     public boolean isDefaultSize() {
         return !primaryStage.isMaximized() && !primaryStage.isIconified();
     }
+
+    public void use_APP_MINIMIZE_HOTKEY() {
+        guiRobot.push(new Bindings().APP_MINIMIZE_HOTKEY.get(0));
+        guiRobot.sleep(1000);
+    }
+
+    public void use_APP_RESIZE_HOTKEY() {
+        guiRobot.push(new Bindings().APP_RESIZE_HOTKEY.get(0));
+        guiRobot.sleep(1000);
+    }
+
 }

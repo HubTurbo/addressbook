@@ -5,6 +5,7 @@ import guitests.GuiRobot;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 
 import java.lang.reflect.Constructor;
 
@@ -13,9 +14,11 @@ import java.lang.reflect.Constructor;
  */
 public class GuiHandle {
     protected final GuiRobot guiRobot;
+    protected final Stage primaryStage;
 
-    public GuiHandle(GuiRobot guiRobot){
+    public GuiHandle(GuiRobot guiRobot, Stage primaryStage) {
         this.guiRobot = guiRobot;
+        this.primaryStage = primaryStage;
     }
 
     /**
@@ -23,8 +26,8 @@ public class GuiHandle {
      */
     public <T> T as(Class<? extends GuiHandle> clazz) {
         try {
-            Constructor<?> ctor = clazz.getConstructor(GuiRobot.class);
-            Object object = ctor.newInstance(new Object[] { guiRobot });
+            Constructor<?> ctor = clazz.getConstructor(GuiRobot.class, Stage.class);
+            Object object = ctor.newInstance(new Object[] { guiRobot, primaryStage });
             return (T)object;
         } catch (Exception e) {
             throw new RuntimeException("Cannot create gui handle of type " + clazz.getName(), e);
@@ -98,5 +101,10 @@ public class GuiHandle {
      */
     public void dismiss() {
         pressEsc();
+    }
+
+    public void dissmissErrorMessage(String errorDialogTitle) {
+        guiRobot.targetWindow(errorDialogTitle);
+        clickOk();
     }
 }

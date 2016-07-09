@@ -1,9 +1,6 @@
 package guitests;
 
-import guitests.guihandles.EditPersonDialogHandle;
-import guitests.guihandles.ManageTagsDialogHandle;
-import guitests.guihandles.NewTagDialogHandle;
-import guitests.guihandles.TagPersonDialogHandle;
+import guitests.guihandles.*;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -51,17 +48,17 @@ public class FullSystemTest extends GuiTestBase {
         //Remove filter
         personListPanel.enterFilterAndApply("");
 
-
-        //TODO: convert the code below to use page object pattern
-
         //Ensure "About" dialog opens
-        guiRobot.clickOn("Help").clickOn("About").clickOn("OK");
+        AboutDialogHandle aboutDialog = mainMenu.clickOn("Help", "About").as(AboutDialogHandle.class);
+        aboutDialog.clickOk();
 
         //Create a new person Ming Lee, check that last name cannot be blank
-        guiRobot.clickOn("New")
-                .clickOn("#firstNameField").write("Ming").clickOn("OK")
-                .targetWindow("Invalid Fields").clickOn("OK")
-                .clickOn("#lastNameField").write("Lee").clickOn("OK");
+        EditPersonDialogHandle newPersonDialog = personListPanel.clickNew();
+        newPersonDialog.enterFirstName("Ming").clickOk();
+        newPersonDialog.dissmissErrorMessage("Invalid Fields");
+        newPersonDialog.enterLastName("Lee");
+        newPersonDialog.clickOk();
+        assertTrue(personListPanel.contains("Ming", "Lee"));
 
         //Create a new tag 'company' using the 'Manage Tags' dialog
         ManageTagsDialogHandle manageTagsDialog = mainMenu.clickOn("Tags", "Manage Tags")
