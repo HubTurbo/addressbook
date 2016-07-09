@@ -28,6 +28,7 @@
             </Menu>
             <Menu mnemonicParsing="false" text="Help">
                <items>
+                  <MenuItem fx:id="helpMenuItem" mnemonicParsing="false" onAction="#handleHelp" text="Help" />
                   <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="About" />
                </items>
             </Menu>
@@ -37,10 +38,10 @@
       </AnchorPane>
       <SplitPane id="splitPane" fx:id="splitPane" dividerPositions="0.4" VBox.vgrow="ALWAYS">
          <items>
-            <AnchorPane fx:id="personOverview"  minWidth="340"/>
+            <AnchorPane fx:id="personOverview" minWidth="340" />
             <AnchorPane fx:id="personWebpage" />
          </items>
       </SplitPane>
-      <AnchorPane fx:id="footerStatusbarPlaceholder" VBox.vgrow="NEVER"></AnchorPane>
+      <AnchorPane fx:id="footerStatusbarPlaceholder" VBox.vgrow="NEVER" />
    </children>
 </VBox>
