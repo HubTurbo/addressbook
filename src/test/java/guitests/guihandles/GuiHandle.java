@@ -3,6 +3,7 @@ package guitests.guihandles;
 
 import guitests.GuiRobot;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
@@ -106,5 +107,9 @@ public class GuiHandle {
     public void dissmissErrorMessage(String errorDialogTitle) {
         guiRobot.targetWindow(errorDialogTitle);
         clickOk();
+    }
+
+    protected String getTextFromLabel(String fieldId, Node parentNode) {
+        return ((Label)guiRobot.from(parentNode).lookup(fieldId).tryQuery().get()).getText();
     }
 }

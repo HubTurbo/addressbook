@@ -5,12 +5,14 @@ import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import guitests.GuiRobot;
+import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Provides a handle for the panel containing the person list.
@@ -18,9 +20,10 @@ import java.util.List;
 public class PersonListPanelHandle extends GuiHandle {
 
     public static final int NOT_FOUND = -1;
+    public static final String CARD_PANE_ID = "#cardPane";
     private String filterFieldId = "#filterField";
     private String personListViewId = "#personListView";
-    String newButtonId = "#newButton";
+    String newButtonId = "#newButton"; //TODO: convert to constants
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage);
@@ -36,6 +39,10 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public boolean isSelected(String firstName, String lastName) {
         return getSelectedPerson().hasName(firstName, lastName);
+    }
+
+    public boolean isSelected(Person person) {
+        return getSelectedPerson().hasName(person.getFirstName(), person.getLastName());
     }
 
     public ReadOnlyViewablePerson getSelectedPerson() {
@@ -122,6 +129,10 @@ public class PersonListPanelHandle extends GuiHandle {
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
+    public void clickOnPerson(Person person) {
+        guiRobot.clickOn(person.getFirstName());
+    }
+
     public void clickOnPerson(String personName) {
         guiRobot.clickOn(personName);
     }
@@ -186,6 +197,14 @@ public class PersonListPanelHandle extends GuiHandle {
             }
         }
         return NOT_FOUND;
+    }
+
+    public PersonCardHandle getPersonCardHandle(Person person){
+        Set<Node> nodes = guiRobot.lookup(CARD_PANE_ID).queryAll();
+        Node personCardNode = nodes.stream()
+                .filter( (n) -> new PersonCardHandle(guiRobot, primaryStage, n).isSamePerson(person))
+                .findFirst().get();
+        return new PersonCardHandle(guiRobot, primaryStage, personCardNode);
     }
 
     

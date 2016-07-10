@@ -199,6 +199,13 @@ public class TestUtil {
         return keyCodes;
     }
 
+    public static String descOnFail(Object... comparedObjects) {
+        return "Comparison failed \n"
+                + Arrays.asList(comparedObjects).stream()
+                .map(Object::toString)
+                .collect(Collectors.joining("\n"));
+    }
+
     /**
      * Generates a minimal {@link KeyEvent} object that matches the {@code keyCombination}
      */
@@ -246,8 +253,14 @@ public class TestUtil {
         addressBook.getPersonList().stream()
                 .forEach(p -> cloudPersonList.add(new CloudPerson(p.getFirstName(), p.getLastName(), p.getId())));
 
+        List<CloudTag> cloudTagList = new ArrayList<>();
+        addressBook.getTagList().stream()
+                .forEach(t -> cloudTagList.add(new CloudTag(t.getName())));
+
+
         CloudAddressBook cloudAddressBook = new CloudAddressBook("MyAddressBook");
         cloudAddressBook.setPersonsList(cloudPersonList);
+        cloudAddressBook.setTagsList(cloudTagList);
 
         return cloudAddressBook;
     }
