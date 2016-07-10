@@ -78,6 +78,10 @@ public class TestApp extends MainApp {
         remote.start(primaryStage);
     }
 
+    public void deregisterHotKeys(){
+        keyBindingsManager.stop();
+    }
+
     public static void main(String[] args) {
         launch(args);
     }

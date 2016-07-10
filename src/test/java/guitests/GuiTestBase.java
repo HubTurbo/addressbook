@@ -2,26 +2,22 @@ package guitests;
 
 import address.TestApp;
 import address.events.EventManager;
-import address.keybindings.KeyBinding;
-import address.keybindings.KeySequence;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.sync.cloud.model.CloudAddressBook;
 import address.util.TestUtil;
 import guitests.guihandles.MainGuiHandle;
 import guitests.guihandles.MainMenuHandle;
 import guitests.guihandles.PersonListPanelHandle;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.testfx.api.FxRobot;
 import org.testfx.api.FxToolkit;
 
 import java.util.concurrent.TimeoutException;
 
 public class GuiTestBase {
 
+    TestApp testApp;
     GuiRobot guiRobot = new GuiRobot(); //TODO: remove this from here, only *Handle objects should use the robot
 
     /* Handles to GUI elements present at the start up are created in advance
@@ -50,7 +46,7 @@ public class GuiTestBase {
             personListPanel = mainGui.getPersonListPanel();
         });
         EventManager.clearSubscribers();
-        FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation(),
+        testApp = (TestApp) FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation(),
                                                      this::getInitialCloudData));
         FxToolkit.showStage();
     }
@@ -78,8 +74,8 @@ public class GuiTestBase {
     @After
     public void cleanup() throws TimeoutException {
         FxToolkit.cleanupStages();
+        testApp.deregisterHotKeys();
     }
-
 
 
 }
