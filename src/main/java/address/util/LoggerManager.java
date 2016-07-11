@@ -10,8 +10,8 @@ import java.util.HashMap;
 
 public class LoggerManager {
     private static final AppLogger logger = LoggerManager.getLogger(LoggerManager.class);
-    public static Level currentLogLevel = Level.INFO;
-    public static HashMap<String, Level> specialLogLevels = new HashMap<>();
+    private static Level currentLogLevel = Level.INFO;
+    private static HashMap<String, Level> specialLogLevels = new HashMap<>();
 
     public static void init(Config config) {
         logger.info("currentLogLevel: {}", config.currentLogLevel);
@@ -19,23 +19,47 @@ public class LoggerManager {
         currentLogLevel = config.currentLogLevel;
         specialLogLevels = config.specialLogLevels;
 
-        LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-        AbstractConfiguration absConfig = (AbstractConfiguration) loggerContext.getConfiguration();
-        absConfig.getLoggers().forEach((loggerName, loggerConfig) -> {
-            if (specialLogLevels.containsKey(loggerName)) {
-                loggerConfig.setLevel(specialLogLevels.get(loggerName));
-            } else {
-                loggerConfig.setLevel(currentLogLevel);
-            }
-        });
+        LoggerContext loggerContext = getLoggerContext();
+        AbstractConfiguration loggersConfig = getLoggersConfig(loggerContext);
+        updateExistingLoggersLevel(loggersConfig);
+        loggerContext.updateLoggers(loggersConfig);
     }
 
     public static AppLogger getLogger(String className, Level loggingLevel) {
-        LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-        AbstractConfiguration config = (AbstractConfiguration) loggerContext.getConfiguration();
-        setLoggingLevel(config, className, loggingLevel);
-        loggerContext.updateLoggers(config);
+        setClassLoggingLevel(className, loggingLevel);
         return new AppLogger(LogManager.getLogger(className));
+    }
+
+    public static AppLogger getLogger(String className) {
+        Level loggingLevelToSet = determineLoggingLevelToSet(className);
+        setClassLoggingLevel(className, loggingLevelToSet);
+        return new AppLogger(LogManager.getLogger(className));
+    }
+
+    public static <T> AppLogger getLogger(Class<T> clazz) {
+        if (clazz == null) return new AppLogger(LogManager.getRootLogger());
+        return getLogger(clazz.getSimpleName());
+    }
+
+    private static LoggerContext getLoggerContext() {
+        return (LoggerContext) LogManager.getContext(false);
+    }
+
+    private static AbstractConfiguration getLoggersConfig(LoggerContext loggerContext) {
+        return (AbstractConfiguration) loggerContext.getConfiguration();
+    }
+
+    private static void updateExistingLoggersLevel(AbstractConfiguration absConfig) {
+        absConfig.getLoggers().forEach((loggerName, loggerConfig) -> {
+                loggerConfig.setLevel(determineLoggingLevelToSet(loggerName));
+        });
+    }
+
+    private static void setClassLoggingLevel(String className, Level loggingLevel) {
+        LoggerContext loggerContext = getLoggerContext();
+        AbstractConfiguration loggersConfig = getLoggersConfig(loggerContext);
+        setLoggingLevel(loggersConfig, className, loggingLevel);
+        loggerContext.updateLoggers(loggersConfig);
     }
 
     private static Level determineLoggingLevelToSet(String className) {
@@ -52,20 +76,5 @@ public class LoggerManager {
         }
 
         config.addLogger(className, new LoggerConfig(className, loggingLevel, true));
-    }
-
-    public static AppLogger getLogger(String className) {
-        Level loggingLevelToSet = determineLoggingLevelToSet(className);
-
-        LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-        AbstractConfiguration config = (AbstractConfiguration) loggerContext.getConfiguration();
-        setLoggingLevel(config, className, loggingLevelToSet);
-        loggerContext.updateLoggers();
-        return new AppLogger(LogManager.getLogger(className));
-    }
-
-    public static <T> AppLogger getLogger(Class<T> clazz) {
-        if (clazz == null) return new AppLogger(LogManager.getRootLogger());
-        return getLogger(clazz.getSimpleName());
     }
 }
