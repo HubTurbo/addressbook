@@ -79,8 +79,8 @@ as `true` and add `ea` at the end of version in `build.gradle`.
   - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `UpdateData.json`
 5. Create a release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
 6. Run `gradle` task `createInstallerJar` under `release` category (this must be run again to use the updated `UpdateData.json`)
-7. Upload the following as binaries to the latest release:
-  - addressbook.jar
+7. Upload `addressbook.jar` to the latest release.
+8. Upload the following as binaries to the (`resource` release)[https://github.com/HubTurbo/addressbook/releases/tag/resources]:
   - resource-\<version\>.jar
   - all the jars inside `lib` directory which are mentioned in (2)
 
