@@ -146,14 +146,14 @@ public class MainController extends UiController{
         final String fxmlResourcePath = FXML_PERSON_OVERVIEW;
         // Load person overview.
         FXMLLoader loader = loadFxml(fxmlResourcePath);
-        VBox personOverview = (VBox) loadLoader(loader, "Error loading person overview");
-        AnchorPane pane = (AnchorPane) rootLayout.lookup("#personOverview");
-        SplitPane.setResizableWithParent(pane, false);
+        AnchorPane personOverview = (AnchorPane) loadLoader(loader, "Error loading person overview");
+        SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
+        SplitPane.setResizableWithParent(personOverview, false);
         // Give the personOverviewController access to the main app and modelManager.
         PersonOverviewController personOverviewController = loader.getController();
         personOverviewController.setConnections(this, modelManager, personList);
 
-        pane.getChildren().add(personOverview);
+        pane.getItems().add(personOverview);
 
     }
 
@@ -525,8 +525,8 @@ public class MainController extends UiController{
     }
 
     public void showPersonWebPage() {
-        AnchorPane pane = (AnchorPane) rootLayout.lookup("#personWebpage");
-        pane.getChildren().add(browserManager.getHyperBrowserView());
+        SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
+        pane.getItems().add(browserManager.getHyperBrowserView());
     }
 
     @Subscribe
@@ -555,14 +555,13 @@ public class MainController extends UiController{
     }
 
     protected void setDefaultSize() {
-        primaryStage.setHeight(GuiSettings.DEFAULT_HEIGHT);
-        primaryStage.setWidth(GuiSettings.DEFAULT_WIDTH);
-        /*
+        primaryStage.setHeight(prefs.getGuiSettings().getWindowHeight());
+        primaryStage.setWidth(prefs.getGuiSettings().getWindowWidth());
+
         if (prefs.getGuiSettings().getWindowCoordinates() != null) {
             primaryStage.setX(prefs.getGuiSettings().getWindowCoordinates().getX());
             primaryStage.setY(prefs.getGuiSettings().getWindowCoordinates().getY());
         }
-        */
         primaryStage.setMaximized(false);
         primaryStage.setIconified(false);
     }
