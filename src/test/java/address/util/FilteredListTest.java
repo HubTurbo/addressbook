@@ -1,9 +1,7 @@
 package address.util;
 
 import address.model.datatypes.person.Person;
-import address.util.FilteredList;
-import address.util.StringUtil;
-import address.util.TestUtil;
+import address.util.collections.FilteredList;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;

@@ -1,4 +1,4 @@
-package address.util;
+package address.util.collections;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
