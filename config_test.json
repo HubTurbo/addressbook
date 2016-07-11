@@ -1,0 +1,12 @@
+{
+  "appTitle" : "Address App",
+  "updateInterval" : 10000,
+  "currentLogLevel" : "INFO",
+  "specialLogLevels" : { },
+  "prefsFileLocation" : "C:\\Users\\YL Lim\\Documents\\addressbook_unforked\\preferences_test.json",
+  "browserNoOfPages" : 3,
+  "browserType" : "FULL_FEATURE_BROWSER",
+  "localDataFilePath" : "test.xml",
+  "cloudDataFilePath" : null,
+  "addressBookName" : "MyAddressBook"
+}
