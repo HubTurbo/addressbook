@@ -409,6 +409,7 @@ public class RemoteService implements IRemoteService {
         person.setStreet(cloudPerson.getStreet());
         person.setCity(cloudPerson.getCity());
         person.setPostalCode(cloudPerson.getPostalCode());
+        person.setGithubUsername(cloudPerson.getGithubUsername());
         person.setTags(convertToTagList(cloudPerson.getTags()));
         person.setBirthday(cloudPerson.getBirthday());
         person.setIsDeleted(cloudPerson.isDeleted());
@@ -420,6 +421,7 @@ public class RemoteService implements IRemoteService {
         cloudPerson.setStreet(person.getStreet());
         cloudPerson.setCity(person.getCity());
         cloudPerson.setPostalCode(person.getPostalCode());
+        cloudPerson.setGithubUsername(person.getGithubUsername());
         cloudPerson.setTags(convertToCloudTagList(person.getTagList()));
         cloudPerson.setBirthday(person.getBirthday());
         cloudPerson.setDeleted(false);
