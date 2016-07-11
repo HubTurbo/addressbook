@@ -464,14 +464,6 @@ public class CloudManipulator extends CloudSimulator {
         return actualResponse;
     }
 
-    @Override
-    public RemoteResponse createAddressBook(String addressBookName) {
-        if (shouldDelayNext.get()) delayRandomAmount();
-        if (shouldFail(true)) return getNetworkFailedResponse();
-        RemoteResponse actualResponse = super.createAddressBook(addressBookName);
-        return actualResponse;
-    }
-
     private CloudPerson createRandomPerson() {
         return new CloudPerson(java.util.UUID.randomUUID().toString(), java.util.UUID.randomUUID().toString());
     }

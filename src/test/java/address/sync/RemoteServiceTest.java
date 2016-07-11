@@ -351,22 +351,6 @@ public class RemoteServiceTest {
     }
 
     @Test
-    public void createAddressBook() throws IOException {
-        int quotaLimit = 10;
-        int quotaRemaining = 2;
-
-        CloudRateLimitStatus cloudRateLimitStatus = getCloudRateLimitStatus(quotaLimit, quotaRemaining);
-        RemoteResponse remoteResponse = new RemoteResponse(HttpURLConnection.HTTP_CREATED, null, cloudRateLimitStatus, null);
-        when(cloudSimulator.createAddressBook("Test")).thenReturn(remoteResponse);
-
-        ExtractedRemoteResponse<Void> serviceResponse = remoteService.createAddressBook("Test");
-
-        assertEquals(HttpURLConnection.HTTP_CREATED, serviceResponse.getResponseCode());
-        assertFalse(serviceResponse.getData().isPresent());
-        assertEquals(quotaRemaining - 1, serviceResponse.getQuotaRemaining());
-    }
-
-    @Test
     public void getUpdatedPersonsSince() throws IOException {
         int quotaLimit = 10;
         int quotaRemaining = 1;

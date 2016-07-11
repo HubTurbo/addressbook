@@ -268,22 +268,6 @@ public class RemoteService implements IRemoteService {
                                             getRateResetFromHeader(headerHashMap), simplifiedHashMap);
     }
 
-    /**
-     * Creates a new addressbook in the remote with name addressBookName
-     *
-     * Consumes 1 API usage
-     *
-     * @param addressBookName
-     * @return
-     * @throws IOException
-     */
-    @Override
-    public ExtractedRemoteResponse<Void> createAddressBook(String addressBookName) throws IOException {
-        RemoteResponse remoteResponse = remote.createAddressBook(addressBookName);
-        // empty response whether valid response code or not
-        return getResponseWithNoData(remoteResponse);
-    }
-
     private <T> ExtractedRemoteResponse<T> prepareExtractedResponse(RemoteResponse remoteResponse, T data) {
         HashMap<String, String> headerHashMap = remoteResponse.getHeaders();
         ExtractedRemoteResponse<T> extractedResponse = new ExtractedRemoteResponse<>(remoteResponse.getResponseCode(),

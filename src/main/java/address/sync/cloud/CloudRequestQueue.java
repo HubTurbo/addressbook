@@ -7,12 +7,10 @@ import java.util.concurrent.Executors;
 
 public class CloudRequestQueue {
     private CloudFileHandler cloudFileHandler;
-    private CloudRateLimitStatus cloudRateLimitStatus;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public CloudRequestQueue(CloudFileHandler cloudFileHandler, CloudRateLimitStatus cloudRateLimitStatus) {
+    public CloudRequestQueue(CloudFileHandler cloudFileHandler) {
         this.cloudFileHandler = cloudFileHandler;
-        this.cloudRateLimitStatus = cloudRateLimitStatus;
     }
 
     public void submitRequest(Request request) {

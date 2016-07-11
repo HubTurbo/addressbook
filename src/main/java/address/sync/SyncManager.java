@@ -159,14 +159,6 @@ public class SyncManager extends ComponentManager {
         callTaskAndHandleResult(taskToCall, resultContainer);
     }
 
-    @Subscribe
-    public void handleCreateAddressBookOnRemoteRequestEvent(CreateAddressBookOnRemoteRequestEvent event) {
-        CompletableFuture<Boolean> resultContainer = event.getResultContainer();
-        RemoteTaskWithResult<Boolean> taskToCall = new CreateAddressBookOnRemoteTask(remoteManager,
-                                                                                     event.getAddressBookName());
-        callTaskAndHandleResult(taskToCall, resultContainer);
-    }
-
     /**
      * Calls taskToCall and completes the eventResultContainer with the task's result
      *

@@ -28,13 +28,16 @@ import java.util.stream.Collectors;
  *
  * Providing previous request's eTag may return a NOT_MODIFIED response if the response's eTag has not changed.
  * All requests (including bad ones) will consume API, unless it is a response with NOT_MODIFIED.
+ *
+ * Requests that involve writing to file will be executed sequentially, based on the order they are added to the
+ * request queue (which may differ from the order the API method was called)
  */
 public class CloudSimulator implements IRemote {
     private static final AppLogger logger = LoggerManager.getLogger(CloudSimulator.class);
     private static final int API_QUOTA_PER_HOUR = 5000;
 
     protected volatile CloudRateLimitStatus cloudRateLimitStatus;
-    protected CloudRequestQueue cloudRequestQueue;
+    protected CloudRequestQueue cloudWriteRequestQueue;
     protected CloudFileHandler cloudFileHandler;
 
     protected CloudSimulator(CloudFileHandler cloudFileHandler, CloudRateLimitStatus cloudRateLimitStatus) {
@@ -43,10 +46,10 @@ public class CloudSimulator implements IRemote {
     }
 
     public CloudSimulator(Config config) {
-        cloudFileHandler = new CloudFileHandler(); // to remove after requests have been migrated
+        cloudFileHandler = new CloudFileHandler();
         cloudRateLimitStatus = new CloudRateLimitStatus(API_QUOTA_PER_HOUR);
         cloudRateLimitStatus.restartQuotaTimer();
-        cloudRequestQueue = new CloudRequestQueue(cloudFileHandler, cloudRateLimitStatus);
+        cloudWriteRequestQueue = new CloudRequestQueue(cloudFileHandler);
         try {
             cloudFileHandler.createAddressBookIfAbsent(config.getAddressBookName());
         } catch (IOException | DataConversionException e) {
@@ -76,7 +79,7 @@ public class CloudSimulator implements IRemote {
         try {
             CompletableFuture<CloudPerson> resultContainer = new CompletableFuture<>();
             CreatePersonRequest createPersonRequest = new CreatePersonRequest(addressBookName, newPerson, resultContainer);
-            cloudRequestQueue.submitRequest(createPersonRequest);
+            cloudWriteRequestQueue.submitRequest(createPersonRequest);
 
             CloudPerson returnedPerson = resultContainer.get();
             return new RemoteResponse(HttpURLConnection.HTTP_CREATED, returnedPerson, cloudRateLimitStatus,
@@ -207,7 +210,7 @@ public class CloudSimulator implements IRemote {
         try {
             CompletableFuture<CloudPerson> resultContainer = new CompletableFuture<>();
             UpdatePersonRequest updatePersonRequest = new UpdatePersonRequest(addressBookName, personId, updatedPerson, resultContainer);
-            cloudRequestQueue.submitRequest(updatePersonRequest);
+            cloudWriteRequestQueue.submitRequest(updatePersonRequest);
 
             CloudPerson returnedPerson = resultContainer.get();
             return new RemoteResponse(HttpURLConnection.HTTP_OK, returnedPerson, cloudRateLimitStatus, previousETag);
@@ -236,7 +239,7 @@ public class CloudSimulator implements IRemote {
             CompletableFuture<Void> resultContainer = new CompletableFuture<>();
             DeletePersonRequest deletePersonRequest = new DeletePersonRequest(addressBookName, personId, resultContainer);
             logger.debug("Submitting delete person request");
-            cloudRequestQueue.submitRequest(deletePersonRequest);
+            cloudWriteRequestQueue.submitRequest(deletePersonRequest);
 
             resultContainer.get();
             logger.info("Person #{} successful deleted", personId);
@@ -284,7 +287,7 @@ public class CloudSimulator implements IRemote {
         try {
             CompletableFuture<CloudTag> resultContainer = new CompletableFuture<>();
             CreateTagRequest createTagRequest = new CreateTagRequest(addressBookName, newTag, resultContainer);
-            cloudRequestQueue.submitRequest(createTagRequest);
+            cloudWriteRequestQueue.submitRequest(createTagRequest);
 
             CloudTag returnedTag = resultContainer.get();
 
@@ -316,7 +319,7 @@ public class CloudSimulator implements IRemote {
         try {
             CompletableFuture<CloudTag> resultContainer = new CompletableFuture<>();
             EditTagRequest editTagRequest = new EditTagRequest(addressBookName, oldTagName, editedTag, resultContainer);
-            cloudRequestQueue.submitRequest(editTagRequest);
+            cloudWriteRequestQueue.submitRequest(editTagRequest);
 
             CloudTag returnedTag = resultContainer.get();
             return new RemoteResponse(HttpURLConnection.HTTP_OK, returnedTag, cloudRateLimitStatus, previousETag);
@@ -345,7 +348,7 @@ public class CloudSimulator implements IRemote {
         try {
             CompletableFuture<Void> resultContainer = new CompletableFuture<>();
             DeleteTagRequest deleteTagRequest = new DeleteTagRequest(addressBookName, tagName, resultContainer);
-            cloudRequestQueue.submitRequest(deleteTagRequest);
+            cloudWriteRequestQueue.submitRequest(deleteTagRequest);
 
             resultContainer.get();
             return getEmptyResponse(HttpURLConnection.HTTP_NO_CONTENT);
@@ -354,31 +357,6 @@ public class CloudSimulator implements IRemote {
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
             return getResponseForCause(cause);
-        }
-    }
-
-    /**
-     * Creates a new, empty addressbook named addressBookName, if quota is available
-     * <p>
-     * Consumes 1 API usage
-     *
-     * @param addressBookName
-     * @return
-     */
-    @Override
-    public RemoteResponse createAddressBook(String addressBookName) {
-        logger.debug("createAddressBook called with: addressbook {}", addressBookName);
-        if (!cloudRateLimitStatus.hasQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
-
-        try {
-            cloudFileHandler.createAddressBook(addressBookName);
-
-            //TODO: Return a wrapped simplified version of an empty addressbook (e.g. only fields such as name)
-            return getEmptyResponse(HttpURLConnection.HTTP_CREATED);
-        } catch (DataConversionException | IOException e) {
-            return getEmptyResponse(HttpURLConnection.HTTP_INTERNAL_ERROR);
-        } catch (IllegalArgumentException e) {
-            return getEmptyResponse(HttpURLConnection.HTTP_BAD_REQUEST);
         }
     }
 
