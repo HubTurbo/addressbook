@@ -35,6 +35,7 @@ public class CloudPerson {
         this.street = "";
         this.city = "";
         this.postalCode = "";
+        this.githubUsername = "";
         this.isDeleted = false;
     }
 
