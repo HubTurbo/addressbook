@@ -40,9 +40,11 @@ public class CloudSimulator implements IRemote {
     protected CloudRequestQueue cloudWriteRequestQueue;
     protected CloudFileHandler cloudFileHandler;
 
-    protected CloudSimulator(CloudFileHandler cloudFileHandler, CloudRateLimitStatus cloudRateLimitStatus) {
+    protected CloudSimulator(CloudFileHandler cloudFileHandler, CloudRateLimitStatus cloudRateLimitStatus,
+                             CloudRequestQueue cloudWriteRequestQueue) {
         this.cloudFileHandler = cloudFileHandler;
-        this.cloudRateLimitStatus = cloudRateLimitStatus;// TODO: ADD CLOUD REQUEST QUEUE STUB DURING TESTS
+        this.cloudRateLimitStatus = cloudRateLimitStatus;
+        this.cloudWriteRequestQueue = cloudWriteRequestQueue;
     }
 
     public CloudSimulator(Config config) {

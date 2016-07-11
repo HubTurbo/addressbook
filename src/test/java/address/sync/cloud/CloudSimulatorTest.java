@@ -27,6 +27,7 @@ public class CloudSimulatorTest {
     private CloudFileHandler cloudFileHandler;
     private CloudRateLimitStatus cloudRateLimitStatus;
     private CloudSimulator cloudSimulator;
+    private CloudRequestQueue cloudRequestQueue;
 
     /**
      * Mocks the file handler and spies on the limit status
@@ -41,7 +42,8 @@ public class CloudSimulatorTest {
         final long resetTime = System.currentTimeMillis()/1000 + API_RESET_DELAY;
         cloudFileHandler = mock(CloudFileHandler.class);
         cloudRateLimitStatus = new CloudRateLimitStatus(STARTING_API_COUNT, resetTime);
-        cloudSimulator = new CloudSimulator(cloudFileHandler, cloudRateLimitStatus);
+        cloudRequestQueue = new CloudRequestQueue(cloudFileHandler);
+        cloudSimulator = new CloudSimulator(cloudFileHandler, cloudRateLimitStatus, cloudRequestQueue);
 
         CloudAddressBook remoteAddressBook = getDummyAddressBook();
         stub(cloudFileHandler.readCloudAddressBook("Test")).toReturn(remoteAddressBook);

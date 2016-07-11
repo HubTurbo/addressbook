@@ -28,7 +28,7 @@ public class DeleteTagRequest extends Request {
         try {
             deleteTagFromAddressBook(addressBookName, tagName);
             resultContainer.complete(null);
-        } catch (FileNotFoundException | DataConversionException | NoSuchElementException | RejectedExecutionException e) {
+        } catch (FileNotFoundException | DataConversionException | NoSuchElementException e) {
             resultContainer.completeExceptionally(e);
         }
     }

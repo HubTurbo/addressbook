@@ -25,7 +25,7 @@ public class CreatePersonRequest extends Request {
         try {
             CloudPerson returnedPerson = createPersonInAddressBook(addressBookName, newPerson);
             resultContainer.complete(returnedPerson);
-        } catch (FileNotFoundException | DataConversionException | RejectedExecutionException e) {
+        } catch (FileNotFoundException | DataConversionException | IllegalArgumentException e) {
             resultContainer.completeExceptionally(e);
         }
     }

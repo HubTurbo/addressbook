@@ -29,7 +29,7 @@ public class EditTagRequest extends Request {
         try {
             CloudTag returnedTag = editTagInAddressBook(addressBookName, oldTagName, editedTag);
             resultContainer.complete(returnedTag);
-        } catch (FileNotFoundException | DataConversionException | RejectedExecutionException e) {
+        } catch (FileNotFoundException | DataConversionException | NoSuchElementException e) {
             resultContainer.completeExceptionally(e);
         }
     }

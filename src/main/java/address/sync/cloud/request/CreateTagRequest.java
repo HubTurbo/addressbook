@@ -25,19 +25,19 @@ public class CreateTagRequest extends Request {
         try {
             CloudTag returnedTag = createTagInAddressBook(addressBookName, newTag);
             resultContainer.complete(returnedTag);
-        } catch (FileNotFoundException | DataConversionException | RejectedExecutionException e) {
+        } catch (FileNotFoundException | DataConversionException | IllegalArgumentException e) {
             resultContainer.completeExceptionally(e);
         }
     }
 
-    private CloudTag createTagInAddressBook(String addressBookName, CloudTag newTag) throws FileNotFoundException, DataConversionException {
+    private CloudTag createTagInAddressBook(String addressBookName, CloudTag newTag) throws FileNotFoundException, DataConversionException, IllegalArgumentException {
         CloudAddressBook fileData = cloudFileHandler.readCloudAddressBook(addressBookName);
         CloudTag returnedTag = addTag(fileData.getAllTags(), newTag);
         cloudFileHandler.writeCloudAddressBook(fileData);
         return returnedTag;
     }
 
-    private CloudTag addTag(List<CloudTag> tagList, CloudTag newTag) {
+    private CloudTag addTag(List<CloudTag> tagList, CloudTag newTag) throws IllegalArgumentException {
         if (newTag == null) throw new IllegalArgumentException("Tag cannot be null");
         if (!newTag.isValid()) throw new IllegalArgumentException("Invalid tag");
         if (isExistingTag(tagList, newTag)) throw new IllegalArgumentException("Tag already exists");

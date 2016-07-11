@@ -38,7 +38,7 @@ public class DeletePersonRequest extends Request {
         }
     }
 
-    public void deletePersonFromAddressBook(String addressBookName, int personId) throws FileNotFoundException, DataConversionException, NoSuchElementException {
+    private void deletePersonFromAddressBook(String addressBookName, int personId) throws FileNotFoundException, DataConversionException, NoSuchElementException {
         CloudAddressBook fileData = cloudFileHandler.readCloudAddressBook(addressBookName);
         deletePersonFromData(fileData.getAllPersons(), personId);
         cloudFileHandler.writeCloudAddressBook(fileData);

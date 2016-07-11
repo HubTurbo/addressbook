@@ -32,7 +32,7 @@ public class UpdatePersonRequest extends Request {
         try {
             CloudPerson returnedPerson = updatePersonInAddressBook(addressBookName, personId, updatedPerson);
             resultContainer.complete(returnedPerson);
-        } catch (FileNotFoundException | DataConversionException | RejectedExecutionException e) {
+        } catch (FileNotFoundException | DataConversionException | NoSuchElementException e) {
             resultContainer.completeExceptionally(e);
         }
     }
