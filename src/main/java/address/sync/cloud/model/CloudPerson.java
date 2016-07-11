@@ -19,6 +19,7 @@ public class CloudPerson {
     private String street;
     private String city;
     private String postalCode;
+    private String githubUsername;
     private List<CloudTag> tags;
     private boolean isDeleted;
 
@@ -113,6 +114,16 @@ public class CloudPerson {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+    @XmlElement(name = "githubUsername")
+    public String getGithubUsername() {
+        return githubUsername;
+    }
+
+    public void setGithubUsername(String githubUsername) {
+        this.githubUsername = githubUsername;
+        setLastUpdatedAt(LocalDateTime.now());
+    }
+
     @XmlElement(name = "tags")
     public List<CloudTag> getTags() {
         return tags;
@@ -160,6 +171,7 @@ public class CloudPerson {
         this.street = updatedPerson.street;
         this.city = updatedPerson.city;
         this.postalCode = updatedPerson.postalCode;
+        this.githubUsername = updatedPerson.githubUsername;
         this.tags = updatedPerson.tags;
         this.isDeleted = updatedPerson.isDeleted;
         this.birthday = updatedPerson.birthday;
