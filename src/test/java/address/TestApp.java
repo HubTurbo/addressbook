@@ -7,7 +7,6 @@ import address.sync.RemoteManager;
 import address.sync.cloud.CloudManipulator;
 import address.sync.cloud.model.CloudAddressBook;
 import address.util.Config;
-import address.util.GuiSettings;
 import address.util.TestUtil;
 import javafx.stage.Stage;
 
@@ -57,7 +56,6 @@ public class TestApp extends MainApp {
     @Override
     protected UserPrefs initPrefs(Config config) {
         UserPrefs userPrefs = super.initPrefs(config);
-        //userPrefs.setGuiSettings(new GuiSettings(GuiSettings.DEFAULT_WIDTH, GuiSettings.DEFAULT_HEIGHT, 0, 0));
         return userPrefs;
     }
 
