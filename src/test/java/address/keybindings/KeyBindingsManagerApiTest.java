@@ -53,8 +53,8 @@ public class KeyBindingsManagerApiTest {
         verifySequence(new JumpToListRequestEvent(-1), "G", "B");
         verifySequence(new JumpToListRequestEvent(1), "G", "T");
 
-        verifyHotkey(new MinimizeAppRequestEvent(), "CTRL + ALT + X");
-        verifyHotkey(new MinimizeAppRequestEvent(), "META + ALT + X");
+        //verifyHotkey(new MinimizeAppRequestEvent(), "CTRL + ALT + X");
+        //verifyHotkey(new MinimizeAppRequestEvent(), "META + ALT + X");
         //verifyHotkey(new ResizeAppRequestEvent(), "CTRL + SHIFT + X");
         //verifyHotkey(new ResizeAppRequestEvent(), "META + SHIFT + X");
 
