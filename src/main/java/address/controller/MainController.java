@@ -134,9 +134,9 @@ public class MainController extends UiController{
         // Show the scene containing the root layout.
         Scene scene = new Scene(rootLayout);
         scene.setOnKeyPressed(event -> raisePotentialEvent(new KeyBindingEvent(event)));
+        primaryStage.setScene(scene);
         setMinSize();
         setDefaultSize();
-        primaryStage.setScene(scene);
 
         // Give the rootController access to the main controller and modelManager
         RootLayoutController rootController = loader.getController();
@@ -560,19 +560,6 @@ public class MainController extends UiController{
         PlatformExecUtil.runAndWait(() -> finishedCommandResults.add(evt.result));
     }
 
-    /**
-     * Toggles between maximized and default size.
-     * If not currently at the maximized size, goes to maximised size.
-     * If currently maximized, goes to default size.
-     */
-    private void resizeWindow() {
-        if (primaryStage.isMaximized()) {
-            setDefaultSize();
-        } else {
-            maximizeWindow();
-        }
-    }
-
     protected void setDefaultSize() {
         primaryStage.setHeight(prefs.getGuiSettings().getWindowHeight());
         primaryStage.setWidth(prefs.getGuiSettings().getWindowWidth());
@@ -580,8 +567,6 @@ public class MainController extends UiController{
             primaryStage.setX(prefs.getGuiSettings().getWindowCoordinates().getX());
             primaryStage.setY(prefs.getGuiSettings().getWindowCoordinates().getY());
         }
-        primaryStage.setMaximized(false);
-        primaryStage.setIconified(false);
     }
 
     private void setMinSize() {
@@ -594,9 +579,15 @@ public class MainController extends UiController{
         primaryStage.setMaximized(false);
     }
 
-    private void maximizeWindow() {
+    private void resizeWindow() {
+        logger.info("Resizing window");
+        if (OsDetector.isOnMac()) primaryStage.hide();
         primaryStage.setMaximized(true);
         primaryStage.setIconified(false);
+        if (OsDetector.isOnMac()) primaryStage.show();
+
+        logger.info("Stage width: {}", primaryStage.getWidth());
+        logger.info("Stage height: {}", primaryStage.getHeight());
     }
 
     public void stop() {
