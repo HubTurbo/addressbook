@@ -8,8 +8,11 @@ import address.util.Version;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,10 +24,13 @@ import java.util.stream.Collectors;
 public class BackupHandler {
     private static final AppLogger logger = LoggerManager.getLogger(BackupHandler.class);
     private static final int MAX_BACKUP_JAR_KEPT = 3;
+    private static final String BACKUP_DIR = "past_versions";
     private static final String BACKUP_MARKER = "_";
     private static final String BACKUP_FILENAME_STRING_FORMAT = "addressbook" + BACKUP_MARKER + "%s.jar";
     private static final String BACKUP_FILENAME_PATTERN_STRING =
             "addressbook" + BACKUP_MARKER + "(" + Version.VERSION_PATTERN_STRING + ")\\.(jar|JAR)$";
+    private static final String BACKUP_INSTRUCTION_FILENAME = "Instruction to use past versions.txt";
+    private static final String BACKUP_INSTRUCTION_RESOURCE_PATH = "updater/Instruction to use past versions.txt";
 
     private final Version currentVersion;
     private DependencyHistoryHandler dependencyHistoryHandler;
@@ -47,12 +53,45 @@ public class BackupHandler {
             return;
         }
 
+        try {
+            createBackupDirIfMissing();
+        } catch (IOException e) {
+            logger.debug("Failed to create backup directory", e);
+            throw e;
+        }
+
+        extractInstructionToUseBackupVersion();
+
         String backupFilename = getBackupFilename(version);
 
         try {
-            FileUtil.copyFile(mainAppJar.toPath(), Paths.get(backupFilename), true);
+            FileUtil.copyFile(mainAppJar.toPath(), Paths.get(BACKUP_DIR, backupFilename), true);
         } catch (IOException e) {
             logger.debug("Failed to create backup", e);
+            throw e;
+        }
+    }
+
+    private void createBackupDirIfMissing() throws IOException {
+        File backupDir = new File(BACKUP_DIR);
+
+        if (!FileUtil.isDirExists(backupDir)) {
+            FileUtil.createDirs(new File(BACKUP_DIR));
+        }
+    }
+
+    private void extractInstructionToUseBackupVersion() throws IOException {
+        File backupInstructionFile = new File(BACKUP_INSTRUCTION_FILENAME);
+
+        if (!backupInstructionFile.exists() && !backupInstructionFile.createNewFile()) {
+            throw new IOException("Failed to create backup instruction empty file");
+        }
+
+        try (InputStream in =
+                     BackupHandler.class.getClassLoader().getResourceAsStream(BACKUP_INSTRUCTION_RESOURCE_PATH)) {
+            Files.copy(in, backupInstructionFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            logger.debug("Failed to extract backup instruction");
             throw e;
         }
     }
@@ -69,6 +108,7 @@ public class BackupHandler {
      * Assumes user won't change backup filenames
      */
     public void cleanupBackups() {
+        logger.debug("Cleaning backups");
 
         if (dependencyHistoryHandler.getCurrentVersionDependencies() == null ||
                 dependencyHistoryHandler.getCurrentVersionDependencies().isEmpty()) {
@@ -85,7 +125,7 @@ public class BackupHandler {
             logger.debug("Deleting {}", allBackupFilenames.get(i));
 
             try {
-                FileUtil.deleteFile(allBackupFilenames.get(i));
+                FileUtil.deleteFile(BACKUP_DIR + File.separator + allBackupFilenames.get(i));
                 deletedVersions.add(getVersionOfBackupFileFromFilename(allBackupFilenames.get(i)));
             } catch (IOException e) {
                 logger.warn("Failed to delete old backup file: {}", e);
@@ -123,20 +163,24 @@ public class BackupHandler {
      * @return all backup filenames aside from current app sorted from lowest version to latest
      */
     private List<String> getAllBackupFilenamesAsideFromCurrent() {
-        File currDirectory = new File(".");
+        File backupDir = new File(BACKUP_DIR);
 
-        File[] filesInCurrentDirectory = currDirectory.listFiles();
-
-        if (filesInCurrentDirectory == null) {
-            // current directory always exists
-            assert false;
+        if (!FileUtil.isDirExists(backupDir)) {
+            logger.debug("No backup directory");
             return new ArrayList<>();
         }
 
-        List<File> listOfFilesInCurrDirectory = new ArrayList<>(Arrays.asList(filesInCurrentDirectory));
+        File[] backupFiles = backupDir.listFiles();
+
+        if (backupFiles == null) {
+            logger.debug("No backup files found");
+            return new ArrayList<>();
+        }
+
+        List<File> listOfBackupFiles = new ArrayList<>(Arrays.asList(backupFiles));
 
         // Exclude current version in case user is running backup Jar
-        return listOfFilesInCurrDirectory.stream()
+        return listOfBackupFiles.stream()
                 .filter(f ->
                         !f.getName().equals(getBackupFilename(currentVersion))
                         && f.getName().matches(BACKUP_FILENAME_PATTERN_STRING))

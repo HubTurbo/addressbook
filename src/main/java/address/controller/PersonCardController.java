@@ -12,22 +12,32 @@ import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 
 import javafx.beans.binding.StringBinding;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 public class PersonCardController extends UiController{
-    public static final String PENDING_STATE_MESSAGE = "Syncing in %d seconds";
+
+    private enum PendingState {
+        COUNTING_DOWN, SYNCING, SYNCING_DONE
+    }
+
+    public static final String DELETING_PENDING_STATE_MESSAGE = "Deleted";
+    public static final String EDITING_PENDING_STATE_MESSAGE = "Edited";
+    public static final String CREATED_PENDING_STATE_MESSAGE = "Created";
+
     @FXML
     private HBox cardPane;
     @FXML
     private ImageView profileImage;
-    @FXML
-    private Label idLabel;
     @FXML
     private Label firstName;
     @FXML
@@ -41,10 +51,15 @@ public class PersonCardController extends UiController{
     @FXML
     private Label pendingStateLabel;
     @FXML
-    private ImageView syncingImageView;
+    private ProgressIndicator syncIndicator;
+    @FXML
+    private HBox pendingStateHolder;
+    @FXML
+    private Label pendingCountdownIndicator;
 
     private ReadOnlyViewablePerson person;
     private FadeTransition deleteTransition;
+    private StringProperty idTooltipString = new SimpleStringProperty("");
 
     {
         deleteTransition = new FadeTransition(Duration.millis(1000), cardPane);
@@ -72,12 +87,9 @@ public class PersonCardController extends UiController{
             setProfileImage();
         }
 
-        if (person.isDeleted()) {
-            Platform.runLater(() -> cardPane.setOpacity(0.1f));
-        }
         FxViewUtil.configureCircularImageView(profileImage);
 
-        initIdLabel();
+        initIdTooltip();
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
 
@@ -125,49 +137,71 @@ public class PersonCardController extends UiController{
                 return person.tagsString();
             }
         });
-        person.isDeletedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                handleDelete();
-            } else {
-//                deleteTransition.stop();
-            }
-        });
+
         person.githubUsernameProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.length() > 0) {
                 setProfileImage();
             }
         });
         if (person.getSecondsLeftInPendingState() > 0) {
-            pendingStateLabel.setText(String.format(PENDING_STATE_MESSAGE, person.getSecondsLeftInPendingState()));
-            pendingStateLabel.setVisible(true);
+            setPendingStateMessage(person.getChangeInProgress());
+            pendingStateHolder.setVisible(true);
+            pendingCountdownIndicator.setVisible(true);
         }
         person.secondsLeftInPendingStateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() > 0) {
-                pendingStateLabel.setText(String.format(PENDING_STATE_MESSAGE, newValue));
-                pendingStateLabel.setVisible(true);
+                setPendingStateMessage(person.getChangeInProgress());
+                setVisibilitySettings(PendingState.COUNTING_DOWN);
             } else {
                 cardPane.setStyle(null);
-                pendingStateLabel.setText("Syncing...");
-                pendingStateLabel.setVisible(true);
-                syncingImageView.setVisible(true);
+                setPendingStateMessage(person.getChangeInProgress());
+                setVisibilitySettings(PendingState.SYNCING);
                 person.onRemoteIdConfirmed((Integer id) -> {
-                    syncingImageView.setVisible(false);
+                    setVisibilitySettings(PendingState.SYNCING_DONE);
                     pendingStateLabel.setText("");
-                    pendingStateLabel.setVisible(false);
                 });
             }
         });
+        pendingCountdownIndicator.textProperty().bind(person.secondsLeftInPendingStateProperty().asString());
     }
 
-    private void initIdLabel() {
-        idLabel.setText(person.idString());
-        person.onRemoteIdConfirmed(id -> {
-            if (Platform.isFxApplicationThread()) {
-                idLabel.setText(person.idString());
-            } else {
-                Platform.runLater(() -> idLabel.setText(person.idString()));
-            }
-        });
+    private void setVisibilitySettings(PendingState state) {
+        switch (state) {
+            case COUNTING_DOWN:
+                pendingStateHolder.setVisible(true);
+                pendingCountdownIndicator.setVisible(true);
+                break;
+            case SYNCING:
+                pendingStateHolder.setVisible(true);
+                pendingCountdownIndicator.setVisible(false);
+                syncIndicator.setVisible(true);
+                break;
+            case SYNCING_DONE:
+                syncIndicator.setVisible(false);
+                pendingStateHolder.setVisible(false);
+                break;
+        }
+    }
+
+    private void setPendingStateMessage(ReadOnlyViewablePerson.ChangeInProgress changeInProgress) {
+
+
+        if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.ADDING) {
+            pendingStateLabel.setText(CREATED_PENDING_STATE_MESSAGE);
+        } else if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.EDITING) {
+            pendingStateLabel.setText(EDITING_PENDING_STATE_MESSAGE);
+        } else if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.DELETING) {
+            pendingStateLabel.setText(DELETING_PENDING_STATE_MESSAGE);
+        }
+    }
+
+    private void initIdTooltip() {
+        Tooltip tp = new Tooltip();
+        tp.textProperty().bind(idTooltipString);
+        firstName.setTooltip(tp);
+        lastName.setTooltip(tp);
+        idTooltipString.set(person.idString());
+        person.onRemoteIdConfirmed(id -> idTooltipString.set(person.idString()));
     }
 
     /**

@@ -29,9 +29,9 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      *                       logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
      *                       If the returned Optional is empty, the command will be cancelled.
      */
-    protected ChangePersonInModelCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever,
+    protected ChangePersonInModelCommand(int commandId, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
                                          int gracePeriodDurationInSeconds) {
-        super(gracePeriodDurationInSeconds);
+        super(commandId, gracePeriodDurationInSeconds);
         this.inputRetriever = inputRetriever;
     }
 
@@ -50,6 +50,12 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
         }
         // Problem retrieving input (most likely user cancelled input dialog or some exception occurred.
         return CANCELLED;
+    }
+
+    @Override
+    protected void beforeGracePeriod() {
+        // Ensure that any override signals detected happen during the current grace period.
+        clearGracePeriodOverride();
     }
 
     /**
@@ -96,6 +102,11 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      * @return next state (current state will be {@link State#GRACE_PERIOD})
      */
     protected abstract State handleDeleteInGracePeriod();
+
+    @Override
+    protected State handleCancelInGracePeriod() {
+        return CANCELLED;
+    }
 
     @Override
     protected State checkAndHandleRemoteConflict() {

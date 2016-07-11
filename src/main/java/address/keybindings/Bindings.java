@@ -17,29 +17,25 @@ public class Bindings {
      * List of accelerators used.
      * They are here for the purpose of record keeping. Handled automatically by JavaFX.
      */
-    private List<Accelerator> accelerators = new ArrayList<>();
+    protected List<Accelerator> accelerators = new ArrayList<>();
 
     /**
      * List of global hotkeys.
      */
-    private List<GlobalHotkey> hotkeys = new ArrayList<>();
+    protected List<GlobalHotkey> hotkeys = new ArrayList<>();
 
     /** List of key sequences */
-    private List<KeySequence> sequences = new ArrayList<>();
+    protected List<KeySequence> sequences = new ArrayList<>();
 
     /**
      * List of keyboard shortcuts.
      */
-    private List<Shortcut> shortcuts = new ArrayList<>();
+    protected List<Shortcut> shortcuts = new ArrayList<>();
 
 
     /* key bindings in alphabetical order of name */
-    public List<GlobalHotkey> APP_MAXIMIZE_HOTKEY = new ArrayList<>();
+    public List<GlobalHotkey> APP_RESIZE_HOTKEY = new ArrayList<>();
     public List<GlobalHotkey> APP_MINIMIZE_HOTKEY = new ArrayList<>();
-    public Accelerator FILE_NEW_ACCELERATOR;
-    public Accelerator FILE_OPEN_ACCELERATOR;
-    public Accelerator FILE_SAVE_ACCELERATOR;
-    public Accelerator FILE_SAVE_AS_ACCELERATOR;
     public KeySequence LIST_GOTO_TOP_SEQUENCE;
     public KeySequence LIST_GOTO_BOTTOM_SEQUENCE;
     public Shortcut LIST_ENTER_SHORTCUT;
@@ -47,13 +43,14 @@ public class Bindings {
     public Accelerator PERSON_DELETE_ACCELERATOR;
     public Accelerator PERSON_EDIT_ACCELERATOR;
     public Accelerator PERSON_TAG_ACCELERATOR;
+    public Accelerator HELP_PAGE_ACCELERATOR;
 
 
-    public Bindings(){
+    public Bindings() {
         init();
     }
 
-    private void init(){
+    private void init() {
 
         /*====== bindings A-Z keys (in alphabetical order of main key =====================*/
 
@@ -62,15 +59,12 @@ public class Bindings {
         PERSON_EDIT_ACCELERATOR = setAccelerator("PERSON_EDIT_ACCELERATOR", "E");
         LIST_GOTO_BOTTOM_SEQUENCE = setSequence("LIST_GOTO_BOTTOM_SEQUENCE", "G", "B", new JumpToListRequestEvent(-1));
         LIST_GOTO_TOP_SEQUENCE = setSequence("LIST_GOTO_TOP_SEQUENCE", "G", "T", new JumpToListRequestEvent(1));
-        FILE_NEW_ACCELERATOR = setAccelerator("FILE_NEW_ACCELERATOR", "SHORTCUT + N");
-        FILE_OPEN_ACCELERATOR = setAccelerator("FILE_OPEN_ACCELERATOR", "SHORTCUT + O");
-        FILE_SAVE_ACCELERATOR = setAccelerator("FILE_SAVE_ACCELERATOR", "SHORTCUT + S");
-        FILE_SAVE_AS_ACCELERATOR = setAccelerator("FILE_SAVE_AS_ACCELERATOR", "SHORTCUT + ALT + S");
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "CTRL + ALT + X", new MinimizeAppRequestEvent()));
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "META + ALT + X", new MinimizeAppRequestEvent()));
-        APP_MAXIMIZE_HOTKEY.add(setHotkey("APP_MAXIMIZE_HOTKEY", "CTRL + SHIFT + X", new MaximizeAppRequestEvent()));
-        APP_MAXIMIZE_HOTKEY.add(setHotkey("APP_MAXIMIZE_HOTKEY", "META + SHIFT + X", new MaximizeAppRequestEvent()));
+        APP_RESIZE_HOTKEY.add(setHotkey("APP_RESIZE_HOTKEY", "CTRL + SHIFT + X", new ResizeAppRequestEvent()));
+        APP_RESIZE_HOTKEY.add(setHotkey("APP_RESIZE_HOTKEY", "META + SHIFT + X", new ResizeAppRequestEvent()));
         PERSON_CHANGE_CANCEL_ACCELERATOR = setAccelerator("PERSON_CHANGE_CANCEL_ACCELERATOR", "SHORTCUT + Z");
+        HELP_PAGE_ACCELERATOR = setAccelerator("HELP_PAGE_ACCELERATOR", "F1");
 
         /*====== other keys ======================================================*/
 
@@ -166,19 +160,16 @@ public class Bindings {
 
     /**
      * Returns the matching key sequence, if any
-     * @param currentEvent
      * @param previousEvent
+     * @param currentEvent
      */
-    protected Optional<KeySequence> findMatchingSequence(KeyBindingEvent currentEvent,
-                                                         KeyBindingEvent previousEvent) {
+    protected Optional<KeySequence> findMatchingSequence(KeyBindingEvent previousEvent, KeyBindingEvent currentEvent) {
 
         if (previousEvent == null){
             return Optional.empty();
         }
 
-        long elapsedTime = KeyBindingEvent.elapsedTimeInMilliseconds(previousEvent, currentEvent);
-
-        if (elapsedTime > KeySequence.KEY_SEQUENCE_MAX_DELAY_BETWEEN_KEYS){
+        if(!KeySequence.isElapsedTimePermissibile(previousEvent.time, currentEvent.time)){
             return Optional.empty();
         }
 
@@ -193,11 +184,11 @@ public class Bindings {
      * @param previous the previous key event (this is needed to match for key sequences)
      * @return the matching key binding, if any
      */
-    public Optional<? extends KeyBinding>  getBinding(KeyBindingEvent current,
-                                                      KeyBindingEvent previous){
+    public Optional<? extends KeyBinding>  getBinding(KeyBindingEvent previous,
+                                                      KeyBindingEvent current){
         Optional<? extends KeyBinding> matchingBinding;
 
-        matchingBinding = findMatchingSequence(current, previous);
+        matchingBinding = findMatchingSequence(previous, current);
         if (matchingBinding.isPresent()) { return matchingBinding; }
 
         matchingBinding = findMatchingHotkey(current);

@@ -51,7 +51,7 @@ public class BrowserManager {
 
     private ObservableList<ReadOnlyViewablePerson> filteredPersons;
 
-    private Optional<HyperBrowser> hyperBrowser;
+    private Optional<HyperBrowser> hyperBrowser = Optional.empty();
 
     private StringProperty selectedPersonUsername;
 

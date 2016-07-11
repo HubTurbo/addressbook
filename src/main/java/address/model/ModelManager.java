@@ -7,19 +7,19 @@ import address.main.ComponentManager;
 import address.model.datatypes.*;
 import address.model.datatypes.person.*;
 import address.model.datatypes.tag.Tag;
-import address.model.datatypes.UniqueData;
-import address.util.AppLogger;
-import address.util.LoggerManager;
-import address.util.PlatformExecUtil;
+import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
-import javafx.collections.ListChangeListener;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -32,22 +32,27 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
     private final AddressBook backingModel;
     private final ViewableAddressBook visibleModel;
+
     private final Map<Integer, ChangePersonInModelCommand> personChangesInProgress;
+    private final ObservableList<ChangeObjectInModelCommand> finishedCommands;
+    private final Executor commandExecutor;
+    private final AtomicInteger commandCounter;
 
-    final Executor commandExecutor;
-
-    private UserPrefs prefs;
+    private String saveFilePath;
+    private String addressBookNameToUse;
 
     {
         personChangesInProgress = new HashMap<>();
         commandExecutor = Executors.newCachedThreadPool();
+        finishedCommands = FXCollections.observableArrayList();
+        commandCounter = new AtomicInteger(0);
     }
 
     /**
      * Initializes a ModelManager with the given AddressBook
      * AddressBook and its variables should not be null
      */
-    public ModelManager(AddressBook src, UserPrefs prefs) {
+    public ModelManager(AddressBook src, Config config) {
         super();
         if (src == null) {
             logger.fatal("Attempted to initialize with a null AddressBook");
@@ -58,23 +63,12 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         backingModel = new AddressBook(src);
         visibleModel = backingModel.createVisibleAddressBook();
 
-        // update changes need to go through #editPersonThroughUI or #updateTag to trigger the LMCEvent
-        final ListChangeListener<Object> modelChangeListener = change -> {
-            while (change.next()) {
-                if (change.wasAdded() || change.wasRemoved()) {
-                    raise(new LocalModelChangedEvent(this));
-                    return;
-                }
-            }
-        };
-        backingModel.getPersons().addListener(modelChangeListener);
-        backingTagList().addListener(modelChangeListener);
-
-        this.prefs = prefs;
+        this.saveFilePath = config.getLocalDataFilePath();
+        this.addressBookNameToUse = config.getAddressBookName();
     }
 
-    public ModelManager(UserPrefs prefs) {
-        this(new AddressBook(), prefs);
+    public ModelManager(Config config) {
+        this(new AddressBook(), config);
     }
 
     /**
@@ -93,6 +87,10 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     }
 
 //// EXPOSING MODEL
+
+    public UnmodifiableObservableList<CommandInfo> getFinishedCommands() {
+        return new UnmodifiableObservableList<>(finishedCommands);
+    }
 
     /**
      * @return all persons in visible model IN AN UNMODIFIABLE VIEW
@@ -137,11 +135,11 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         return backingModel.getTags();
     }
 
-    AddressBook backingModel() {
+    protected AddressBook backingModel() {
         return backingModel;
     }
 
-    ViewableAddressBook visibleModel() {
+    protected ViewableAddressBook visibleModel() {
         return visibleModel;
     }
 
@@ -159,7 +157,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     }
 
     /**
-     * Request to updaate a person. Simulates the change optimistically until remote confirmation, and provides a grace
+     * Request to update a person. Simulates the change optimistically until remote confirmation, and provides a grace
      * period for cancellation, editing, or deleting. TODO listen on Person properties and not manually raise events
      * @param target The Person to be changed.
      * @param userInputRetriever callback to retrieve user's input. Will be run on fx application thread
@@ -175,6 +173,51 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
             final ViewablePerson toEdit = visibleModel.findPerson(target).get();
             execNewEditPersonCommand(toEdit, fxThreadInputRetriever);
         }
+    }
+
+    /**
+     * Request to set the tags for a group of Persons. Simulates change optimistically until remote confirmation,
+     * and provides a grace period for cancellation, editing, or deleting.
+     * @param targets Persons to be retagged
+     * @param newTagsRetriever callback to retrieve the tags to set for every person in {@code targets}.
+     *                         Will be run on fx application thread
+     */
+    public void retagPersonsThroughUI(Collection<? extends ReadOnlyPerson> targets,
+                                      Callable<Optional<? extends Collection<Tag>>> newTagsRetriever) {
+
+        final CompletableFuture<Optional<? extends Collection<Tag>>> chosenTags = new CompletableFuture<>();
+        final AtomicBoolean alreadyRetrieved = new AtomicBoolean(false);
+
+        final Function<ReadOnlyPerson, Supplier<Optional<ReadOnlyPerson>>> editInputRetrieverFactory = p -> () -> {
+            // run ui input retriever on this thread if no other thread did it yet
+            boolean shouldRunTagsRetriever = !alreadyRetrieved.getAndSet(true);
+            if (shouldRunTagsRetriever) {
+                chosenTags.complete(PlatformExecUtil.callAndWait(newTagsRetriever, Optional.empty()));
+            }
+
+            try {
+                Optional<? extends Collection<Tag>> chosenTagsInput = chosenTags.get();
+                if (!chosenTagsInput.isPresent()) {
+                    return Optional.empty();
+                }
+                Person afterRetag = new Person(p);
+                afterRetag.setTags(chosenTagsInput.get());
+                return Optional.of(afterRetag);
+
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                return Optional.empty();
+            }
+        };
+        // handle edit commands for each target
+        targets.forEach(target -> {
+            if (personHasOngoingChange(target)) {
+                getOngoingChangeForPerson(target.getId()).editInGracePeriod(editInputRetrieverFactory.apply(target));
+            } else {
+                final ViewablePerson toEdit = visibleModel.findPerson(target).get();
+                execNewEditPersonCommand(toEdit, editInputRetrieverFactory.apply(target));
+            }
+        });
     }
 
     /**
@@ -201,30 +244,30 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         }
     }
 
-    void execNewAddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever) {
+    protected void execNewAddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever) {
         final int GRACE_PERIOD_DURATION = 3;
-        commandExecutor.execute(new AddPersonCommand(inputRetriever, GRACE_PERIOD_DURATION, this::raise, this));
+        commandExecutor.execute(new AddPersonCommand(assignCommandId(), inputRetriever, GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
     }
 
-    void execNewEditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> editInputRetriever) {
+    protected void execNewEditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> editInputRetriever) {
         final int GRACE_PERIOD_DURATION = 3;
-        commandExecutor.execute(new EditPersonCommand(target, editInputRetriever, GRACE_PERIOD_DURATION,
-                this::raise, this));
+        commandExecutor.execute(new EditPersonCommand(assignCommandId(), target, editInputRetriever,
+                GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
     }
 
-    void execNewDeletePersonCommand(ViewablePerson target) {
+    protected void execNewDeletePersonCommand(ViewablePerson target) {
         final int GRACE_PERIOD_DURATION = 3;
-        commandExecutor.execute(new DeletePersonCommand(target, GRACE_PERIOD_DURATION, this::raise, this));
+        commandExecutor.execute(new DeletePersonCommand(assignCommandId(), target, GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
     }
 
     /**
      * @param changeInProgress the active change command on the person with id {@code targetPersonId}
      */
-    synchronized void assignOngoingChangeToPerson(ReadOnlyPerson target, ChangePersonInModelCommand changeInProgress) {
+    protected synchronized void assignOngoingChangeToPerson(ReadOnlyPerson target, ChangePersonInModelCommand changeInProgress) {
         assignOngoingChangeToPerson(target.getId(), changeInProgress);
     }
 
-    synchronized void assignOngoingChangeToPerson(int targetId, ChangePersonInModelCommand changeInProgress) {
+    protected synchronized void assignOngoingChangeToPerson(int targetId, ChangePersonInModelCommand changeInProgress) {
         assert targetId == changeInProgress.getTargetPersonId() : "Must map to correct id";
         if (personChangesInProgress.containsKey(targetId)) {
             throw new IllegalStateException("Only 1 ongoing change allowed per person.");
@@ -236,19 +279,19 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      * Removed the target person's mapped changeInProgress, freeing it for other change commands.
      * @return the removed change command, or null if there was no mapping found
      */
-    synchronized ChangePersonInModelCommand unassignOngoingChangeForPerson(ReadOnlyPerson person) {
+    protected synchronized ChangePersonInModelCommand unassignOngoingChangeForPerson(ReadOnlyPerson person) {
         return personChangesInProgress.remove(person.getId());
     }
 
-    synchronized ChangePersonInModelCommand unassignOngoingChangeForPerson(int targetId) {
+    protected synchronized ChangePersonInModelCommand unassignOngoingChangeForPerson(int targetId) {
         return personChangesInProgress.remove(targetId);
     }
 
-    synchronized ChangePersonInModelCommand getOngoingChangeForPerson(ReadOnlyPerson person) {
+    protected synchronized ChangePersonInModelCommand getOngoingChangeForPerson(ReadOnlyPerson person) {
         return getOngoingChangeForPerson(person.getId());
     }
 
-    synchronized ChangePersonInModelCommand getOngoingChangeForPerson(int targetId) {
+    protected synchronized ChangePersonInModelCommand getOngoingChangeForPerson(int targetId) {
         return personChangesInProgress.get(targetId);
     }
 
@@ -260,23 +303,30 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         return personChangesInProgress.containsKey(personId);
     }
 
-    void raiseLocalModelChangedEvent() {
-        raise(new LocalModelChangedEvent(this));
+    void trackFinishedCommand(ChangeObjectInModelCommand finished) {
+        Platform.runLater(() -> finishedCommands.add(finished));
+    }
+
+    int assignCommandId() {
+        return commandCounter.incrementAndGet();
     }
 
 //// CREATE
 
     /**
-     * Manually add a ViewablePerson to the visible model
+     * Manually add a ViewablePerson without a backing person to the visible model
+     * @return the added ViewablePerson
      */
-    synchronized void addViewablePerson(ViewablePerson vp) {
-        visibleModel.addPerson(vp);
+    protected synchronized ViewablePerson addViewablePersonWithoutBacking(ReadOnlyPerson data) {
+        final ViewablePerson toAdd = ViewablePerson.withoutBacking(data);
+        visibleModel.addPerson(toAdd);
+        return toAdd;
     }
 
     /**
      * Manually add person to backing model without auto-creating a {@link ViewablePerson} for it in the visible model.
      */
-    synchronized void addPersonToBackingModelSilently(Person p) {
+    protected synchronized void addPersonToBackingModelSilently(Person p) {
         visibleModel.specifyViewableAlreadyCreated(p.getId());
         backingModel.addPerson(p);
     }
@@ -300,7 +350,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
             throw new DuplicateTagException(tagToAdd);
         }
         backingTagList().add(tagToAdd);
-        raise(new CreateTagOnRemoteRequestEvent(new CompletableFuture<>(), getPrefs().getSaveLocation().getName(), tagToAdd));
+        raise(new CreateTagOnRemoteRequestEvent(new CompletableFuture<>(), addressBookNameToUse, tagToAdd));
     }
 
 //// UPDATE
@@ -320,7 +370,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         String originalName = original.getName();
         original.update(updated);
         raise(new EditTagOnRemoteRequestEvent(new CompletableFuture<>(),
-                getPrefs().getSaveLocation().getName(), originalName, updated));
+                addressBookNameToUse, originalName, updated));
     }
 
 //// DELETE
@@ -333,22 +383,30 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     public synchronized boolean deleteTag(Tag tagToDelete) {
         boolean result = backingTagList().remove(tagToDelete);
         raise(new DeleteTagOnRemoteRequestEvent(new CompletableFuture<>(),
-                getPrefs().getSaveLocation().getName(), tagToDelete.getName()));
+                addressBookNameToUse, tagToDelete.getName()));
         return result;
     }
 
 //// EVENT HANDLERS
 
     @Subscribe
-    private <T> void handleSyncCompletedEvent(SyncCompletedEvent uce) {
+    private void handleSyncCompletedEvent(SyncCompletedEvent uce) {
         // Sync is done outside FX Application thread
+        if (uce.getLatestTags().isPresent()) {
+            syncTags(uce.getLatestTags().get());
+        }
+        syncPersons(uce.getUpdatedPersons());
+        raise(new LocalModelChangedEvent(this));
+    }
+
+    private void syncPersons(Collection<Person> syncData) {
         Set<Integer> deletedPersonIds = new HashSet<>();
-        Map<Integer, ReadOnlyPerson> updatedPersons = new HashMap<>();
-        uce.getUpdatedPersons().forEach(p -> {
+        Map<Integer, ReadOnlyPerson> newOrUpdatedPersons = new HashMap<>();
+        syncData.forEach(p -> {
             if (p.isDeleted()) {
                 deletedPersonIds.add(p.getId());
             } else {
-                updatedPersons.put(p.getId(), p);
+                newOrUpdatedPersons.put(p.getId(), p);
             }
         });
         PlatformExecUtil.runLater(() -> {
@@ -357,39 +415,22 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
                     .filter(p -> deletedPersonIds.contains(p.getId())).collect(Collectors.toList())); // removeIf() not optimised
             // edits
             backingModel.getPersons().forEach(p -> {
-                if (updatedPersons.containsKey(p.getId())) {
-                    p.update(updatedPersons.remove(p.getId()));
+                if (newOrUpdatedPersons.containsKey(p.getId())) {
+                    p.update(newOrUpdatedPersons.remove(p.getId()));
                 }
             });
             // new
-            backingModel.getPersons().addAll(updatedPersons.values().stream()
+            backingModel.getPersons().addAll(newOrUpdatedPersons.values().stream()
                     .map(Person::new).collect(Collectors.toList()));
         });
+    }
 
-
-        Set<Tag> latestTags = new HashSet<>(uce.getLatestTags());
+    private void syncTags(Collection<Tag> syncData) {
+        Set<Tag> latestTags = new HashSet<>(syncData);
         backingModel.getTags().retainAll(latestTags); // delete
         PlatformExecUtil.runLater(() -> {
             latestTags.removeAll(backingModel.getTags()); // latest tags no longer contains tags already in model
             backingModel.getTags().addAll(latestTags); // add
         });
-    }
-
-
-//// PREFS
-
-    public UserPrefs getPrefs() {
-        return prefs;
-    }
-
-    public void setPrefsSaveLocation(String saveLocation) {
-        prefs.setSaveLocation(saveLocation);
-        raise(new SaveLocationChangedEvent(saveLocation));
-        raise(new SavePrefsRequestEvent(prefs));
-        raise(new ChangeActiveAddressBookRequestEvent(saveLocation));
-    }
-
-    public void clearPrefsSaveLocation() {
-        setPrefsSaveLocation(null);
     }
 }

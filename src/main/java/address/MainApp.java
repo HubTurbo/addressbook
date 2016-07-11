@@ -4,7 +4,10 @@ import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
 import address.model.UserPrefs;
 import address.storage.StorageManager;
+import address.sync.RemoteManager;
 import address.sync.SyncManager;
+import address.sync.cloud.CloudSimulator;
+import address.sync.cloud.IRemote;
 import address.ui.Ui;
 import address.updater.UpdateManager;
 import address.util.*;
@@ -13,6 +16,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.util.Map;
+
 /**
  * The main entry point to the application.
  */
@@ -20,7 +26,7 @@ public class MainApp extends Application {
     private static final AppLogger logger = LoggerManager.getLogger(MainApp.class);
 
     private static final int VERSION_MAJOR = 1;
-    private static final int VERSION_MINOR = 1;
+    private static final int VERSION_MINOR = 2;
     private static final int VERSION_PATCH = 0;
     private static final boolean VERSION_EARLY_ACCESS = true;
 
@@ -38,6 +44,7 @@ public class MainApp extends Application {
     protected ModelManager modelManager;
     protected SyncManager syncManager;
     protected UpdateManager updateManager;
+    protected RemoteManager remoteManager;
     protected Ui ui;
     protected KeyBindingsManager keyBindingsManager;
     protected Config config;
@@ -50,31 +57,58 @@ public class MainApp extends Application {
         logger.info("Initializing app ...");
         super.init();
         new DependencyChecker(REQUIRED_JAVA_VERSION, this::quit).verify();
-        config = initConfig();
+        Map<String, String> applicationParameters = getParameters().getNamed();
+        config = initConfig(applicationParameters.get("config"));
         userPrefs = initPrefs(config);
         initComponents(config, userPrefs);
     }
 
-    protected Config initConfig() {
-        Config config = StorageManager.getConfig();
-        logger.info("Config successfully obtained from StorageManager");
-        return config;
+    protected Config initConfig(String configFilePath) {
+        return StorageManager.getConfig(configFilePath);
     }
 
     protected UserPrefs initPrefs(Config config) {
-        UserPrefs userPrefs = StorageManager.getUserPrefs(config.getPrefsFileLocation());
-        return userPrefs;
+        return StorageManager.getUserPrefs(config.getPrefsFileLocation());
     }
 
-    protected void initComponents(Config config, UserPrefs userPrefs) {
+    private void initComponents(Config config, UserPrefs userPrefs) {
         LoggerManager.init(config);
 
-        modelManager = new ModelManager(userPrefs);
-        storageManager = new StorageManager(modelManager::resetData, config, userPrefs);
-        ui = new Ui(this, modelManager, config);
-        syncManager = new SyncManager(config, userPrefs.getSaveLocation().getName());
-        keyBindingsManager = new KeyBindingsManager();
-        updateManager = new UpdateManager(VERSION);
+        modelManager = initModelManager(config);
+        storageManager = initStorageManager(modelManager, config, userPrefs);
+        ui = initUi(config, modelManager);
+        remoteManager = initRemoteManager(config);
+        syncManager = initSyncManager(remoteManager, config);
+        keyBindingsManager = initKeyBindingsManager();
+        updateManager = initUpdateManager(VERSION);
+    }
+
+    protected UpdateManager initUpdateManager(Version version) {
+        return new UpdateManager(version);
+    }
+
+    protected KeyBindingsManager initKeyBindingsManager() {
+        return new KeyBindingsManager();
+    }
+
+    protected RemoteManager initRemoteManager(Config config) {
+        return new RemoteManager(new CloudSimulator(config));
+    }
+
+    protected SyncManager initSyncManager(RemoteManager remoteManager, Config config) {
+        return new SyncManager(remoteManager, config, config.getAddressBookName());
+    }
+
+    protected Ui initUi(Config config, ModelManager modelManager) {
+        return new Ui(this, modelManager, config, userPrefs);
+    }
+
+    protected StorageManager initStorageManager(ModelManager modelManager, Config config, UserPrefs userPrefs) {
+        return new StorageManager(modelManager::resetData, config, userPrefs);
+    }
+
+    protected ModelManager initModelManager(Config config) {
+        return new ModelManager(config);
     }
 
     @Override
@@ -90,6 +124,7 @@ public class MainApp extends Application {
     public void stop() {
         logger.info("Stopping application.");
         ui.stop();
+        storageManager.savePrefsToFile(userPrefs);
         updateManager.stop();
         syncManager.stop();
         keyBindingsManager.stop();

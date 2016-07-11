@@ -2,6 +2,7 @@ package address.model.datatypes.person;
 
 import address.model.datatypes.ReadOnlyViewableDataType;
 import javafx.beans.Observable;
+import javafx.beans.property.ReadOnlyProperty;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -11,6 +12,16 @@ import java.util.stream.Stream;
  * Same purpose as {@link ReadOnlyPerson}, extended with additional Person status data viewable by user.
  */
 public interface ReadOnlyViewablePerson extends ReadOnlyPerson, ReadOnlyViewableDataType {
+
+    enum ChangeInProgress {
+        ADDING,
+        EDITING,
+        DELETING,
+        NONE
+    }
+
+    ChangeInProgress getChangeInProgress();
+    ReadOnlyProperty<ChangeInProgress> changeInProgressProperty();
 
     /**
      * @return whether this person exists on the remote server
@@ -35,12 +46,12 @@ public interface ReadOnlyViewablePerson extends ReadOnlyPerson, ReadOnlyViewable
     default Observable[] extractObservables() {
         final Observable[] obs = {
                 secondsLeftInPendingStateProperty(),
-                isEditedProperty(),
-                isDeletedProperty()
         };
         return Stream.concat(
                 Arrays.stream(ReadOnlyPerson.super.extractObservables()),
                 Arrays.stream(obs))
                 .toArray(Observable[]::new);
     }
+
+    boolean hasName(String firstName, String lastName);
 }

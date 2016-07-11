@@ -22,6 +22,10 @@ public class CloudTag {
         setLastUpdatedAt(LocalDateTime.now());
     }
 
+    public CloudTag(CloudTag cloudTag) {
+        updatedBy(cloudTag);
+    }
+
     @XmlElement(name = "name")
     public String getName() {
         return name;

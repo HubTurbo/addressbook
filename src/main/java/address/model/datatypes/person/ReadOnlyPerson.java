@@ -170,6 +170,17 @@ public interface ReadOnlyPerson extends ExtractableObservables {
         }
     }
 
+    default boolean dataFieldsEqual(ReadOnlyPerson other) {
+        final Set<Tag> othersTags = new HashSet<>(other.getTagList());
+        return fullName().equals(other.fullName())
+                && getGithubUsername().equals(other.getGithubUsername())
+                && getStreet().equals(other.getStreet())
+                && getPostalCode().equals(other.getPostalCode())
+                && getCity().equals(other.getCity())
+                && getBirthday().equals(other.getBirthday())
+                && getTagList().stream().allMatch(othersTags::contains);
+    }
+
 //// Operations below are optional; override if they will be needed.
 //// Eg. implementing a simple person data object should not require using javafx classes like Property, so the
 //// below methods make no sense for that context.

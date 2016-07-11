@@ -1,9 +1,11 @@
 package address.model;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
+
 import address.events.BaseEvent;
-import address.events.LocalModelChangedEvent;
 import address.events.UpdatePersonOnRemoteRequestEvent;
+import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.PlatformExecUtil;
@@ -27,24 +29,34 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     private final String addressbookName;
 
     /**
-     * @param inputRetriever               Will run on execution {@link #run()} thread. This should handle thread concurrency
-     *                                     logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
-     *                                     If the returned Optional is empty, the command will be cancelled.
-     * @see super#ChangePersonInModelCommand(Supplier, int)
+     * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
+     *                       logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
+     *                       If the returned Optional is empty, the command will be cancelled.
+     * @see super#ChangePersonInModelCommand(int, Supplier, int)
      */
-    protected EditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
-                                int gracePeriodDurationInSeconds, Consumer<BaseEvent> eventRaiser,
-                                ModelManager model) {
-        super(inputRetriever, gracePeriodDurationInSeconds);
+    public EditPersonCommand(int commandId, ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
+                             int gracePeriodDurationInSeconds, Consumer<BaseEvent> eventRaiser,
+                             ModelManager model, String addressbookName) {
+        super(commandId, inputRetriever, gracePeriodDurationInSeconds);
+        assert target != null;
         this.target = target;
         this.model = model;
         this.eventRaiser = eventRaiser;
-        this.addressbookName = model.getPrefs().getSaveLocation().getName();
+        this.addressbookName = addressbookName;
+    }
+
+    protected ViewablePerson getViewable() {
+        return target;
     }
 
     @Override
     public int getTargetPersonId() {
         return target.getId();
+    }
+
+    @Override
+    public String getName() {
+        return "Edit Person " + target.idString();
     }
 
     @Override
@@ -56,6 +68,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
                 e.printStackTrace();
             }
         }
+        PlatformExecUtil.runAndWait(() -> target.setChangeInProgress(EDITING));
         model.assignOngoingChangeToPerson(target.getId(), this);
         target.stopSyncingWithBackingObject();
     }
@@ -63,31 +76,24 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void after() {
         PlatformExecUtil.runAndWait(() -> {
+            target.setChangeInProgress(NONE);
             target.continueSyncingWithBackingObject();
             target.forceSyncFromBacking();
-            target.setIsEdited(false);
         });
         model.unassignOngoingChangeForPerson(target.getId());
+        model.trackFinishedCommand(this);
     }
 
     @Override
     protected State simulateResult() {
         assert input != null;
-        PlatformExecUtil.runAndWait(() -> {
-            target.setIsEdited(true);
-            target.simulateUpdate(input);
-        });
+        PlatformExecUtil.runAndWait(() -> target.simulateUpdate(input));
         return GRACE_PERIOD;
     }
 
     @Override
-    protected void beforeGracePeriod() {
-        // nothing needed for now
-    }
-
-    @Override
     protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
-        PlatformExecUtil.runLater(() -> target.setSecondsLeftInPendingState(secondsLeft));
+        PlatformExecUtil.runAndWait(() -> target.setSecondsLeftInPendingState(secondsLeft));
     }
 
     @Override
@@ -108,18 +114,12 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected State handleCancelInGracePeriod() {
-        return CANCELLED;
-    }
-
-    @Override
     protected Optional<ReadOnlyPerson> getRemoteConflict() {
         return Optional.empty(); // TODO add after cloud individual check implemented
     }
 
     @Override
     protected State resolveRemoteConflict(ReadOnlyPerson remoteVersion) {
-        assert false; // TODO figure out what to show to users
         return null;
     }
 
@@ -134,7 +134,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
             PlatformExecUtil.runAndWait(() -> target.getBacking().update(input));
             return SUCCESSFUL;
         } catch (ExecutionException | InterruptedException e) {
-            return CANCELLED; // figure out a policy for syncup fail
+            return FAILED;
         }
     }
 
@@ -145,11 +145,11 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithSuccess() {
-        model.raiseLocalModelChangedEvent();
+        // nothing to do for now
     }
 
     @Override
     protected void finishWithFailure() {
-        // can't happen yet
+        finishWithCancel(); // TODO figure out failure handling
     }
 }

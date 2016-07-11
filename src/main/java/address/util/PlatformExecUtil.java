@@ -23,7 +23,7 @@ public final class PlatformExecUtil {
      */
     public static <R> Future<R> call(Callable<R> callback) {
         final FutureTask<R> task = new FutureTask<>(callback);
-        if (Platform.isFxApplicationThread()) {
+        if (isFxThread()) {
             task.run();
         } else {
             runLater(task);
@@ -92,11 +92,15 @@ public final class PlatformExecUtil {
      */
     public static void runAndWait(Runnable action) {
         assert action != null : "Non-null action required";
-        if (Platform.isFxApplicationThread()) {
+        if (isFxThread()) {
             action.run();
             return;
         }
         runLaterAndWait(action);
+    }
+
+    public static boolean isFxThread() {
+        return Platform.isFxApplicationThread();
     }
 
     private PlatformExecUtil() {

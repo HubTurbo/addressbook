@@ -1,7 +1,6 @@
 package address.controller;
 
 import address.events.*;
-import address.model.UserPrefs;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
@@ -16,15 +15,12 @@ import java.io.File;
 import java.util.concurrent.*;
 
 public class StatusBarFooterController extends UiController{
+    private  static final String ADDRESS_BOOK_LABEL_PREFIX = "Address Book: ";
 
     @FXML
     private AnchorPane updaterStatusBarPane;
-
     @FXML
     private AnchorPane syncStatusBarPane;
-
-    private static final String SAVE_LOC_TEXT_PREFIX = "Save File: ";
-    private static final String LOC_TEXT_NOT_SET = "[NOT SET]";
 
     public static StatusBar syncStatusBar;
     public static StatusBar updaterStatusBar;
@@ -58,16 +54,16 @@ public class StatusBarFooterController extends UiController{
     /**
      * Initializes the status bar
      * @param updateInterval The sync period
-     * @param saveLocation The location to save the file for storing Addressbook contacts.
+     * @param addressBookName name of the active address book
      */
-    public void init(long updateInterval, File saveLocation) {
+    public void init(long updateInterval, String addressBookName) {
         initSyncTimer(updateInterval);
         initStatusBar();
-        initSaveLocationLabel(saveLocation);
+        initAddressBookLabel(addressBookName);
     }
 
-    private void initSaveLocationLabel(File saveLocation) {
-        updateSaveLocationDisplay(saveLocation);
+    private void initAddressBookLabel(String addressBookName) {
+        updateSaveLocationDisplay(addressBookName);
         secondaryStatusBarLabel.setTextAlignment(TextAlignment.LEFT);
         setTooltip(secondaryStatusBarLabel);
     }
@@ -151,12 +147,7 @@ public class StatusBarFooterController extends UiController{
         });
     }
 
-    @Subscribe
-    private void handleSaveLocationChangedEvent(SaveLocationChangedEvent e) {
-        updateSaveLocationDisplay(e.saveFile);
-    }
-
-    private void updateSaveLocationDisplay(File saveFile) {
-        secondaryStatusBarLabel.setText(SAVE_LOC_TEXT_PREFIX + ((saveFile != null) ? saveFile.getName() : LOC_TEXT_NOT_SET));
+    private void updateSaveLocationDisplay(String addressBookName) {
+        secondaryStatusBarLabel.setText(ADDRESS_BOOK_LABEL_PREFIX + addressBookName);
     }
 }

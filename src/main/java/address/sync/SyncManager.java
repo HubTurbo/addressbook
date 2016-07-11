@@ -43,9 +43,9 @@ public class SyncManager extends ComponentManager {
      * @param config should have updateInterval (milliseconds) and simulateUnreliableNetwork set
      * @param activeAddressBookName name of active addressbook to start with
      */
-    public SyncManager(Config config, String activeAddressBookName) {
-        this(config, new RemoteManager(config), Executors.newCachedThreadPool(),
-                Executors.newScheduledThreadPool(1), activeAddressBookName);
+    public SyncManager(RemoteManager remoteManager, Config config, String activeAddressBookName) {
+        this(config, remoteManager, Executors.newCachedThreadPool(),
+                Executors.newSingleThreadScheduledExecutor(), activeAddressBookName);
     }
 
     /**
@@ -96,10 +96,9 @@ public class SyncManager extends ComponentManager {
      */
     public void start() {
         logger.info("Starting sync manager.");
-        long initialDelay = 300; // temp fix for issue #66
         Runnable syncTask = new GetUpdatesFromRemoteTask(remoteManager, this::raise, this::getActiveAddressBook);
-        logger.debug("Scheduling synchronization task with interval of {} milliseconds", config.updateInterval);
-        scheduler.scheduleWithFixedDelay(syncTask, initialDelay, config.updateInterval, TimeUnit.MILLISECONDS);
+        logger.debug("Scheduling synchronization task with interval of {} milliseconds", config.getUpdateInterval());
+        scheduler.scheduleWithFixedDelay(syncTask, 0, config.getUpdateInterval(), TimeUnit.MILLISECONDS);
     }
 
     public void stop() {

@@ -3,12 +3,11 @@ package address.sync;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
-import address.sync.cloud.CloudSimulator;
+import address.sync.cloud.IRemote;
 import address.sync.cloud.RemoteResponse;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
 import address.util.AppLogger;
-import address.util.Config;
 import address.util.JsonUtil;
 import address.util.LoggerManager;
 
@@ -28,14 +27,10 @@ public class RemoteService implements IRemoteService {
     private static final AppLogger logger = LoggerManager.getLogger(RemoteService.class);
     private static final int RESOURCES_PER_PAGE = 100;
 
-    private final CloudSimulator remote;
+    private final IRemote remote;
 
-    public RemoteService(Config config) {
-        remote = new CloudSimulator(config);
-    }
-
-    public RemoteService(CloudSimulator cloudSimulator) {
-        remote = cloudSimulator;
+    public RemoteService(IRemote remote) {
+        this.remote = remote;
     }
 
     /**
@@ -391,23 +386,21 @@ public class RemoteService implements IRemoteService {
     }
 
     private List<Person> convertToPersonList(List<CloudPerson> cloudPersonList) {
-        List<Person> convertedList = new ArrayList<>();
-        cloudPersonList.stream()
-                .forEach(CloudPerson -> convertedList.add(convertToPerson(CloudPerson)));
-
-        return convertedList;
+        return cloudPersonList.stream()
+                .map(this::convertToPerson)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private List<Tag> convertToTagList(List<CloudTag> cloudTagList) {
-        List<Tag> convertedList = new ArrayList<>();
-        cloudTagList.stream()
-                .forEach(cloudTag -> convertedList.add(convertToTag(cloudTag)));
-
-        return convertedList;
+        return cloudTagList.stream()
+                .map(this::convertToTag)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private List<CloudTag> convertToCloudTagList(List<Tag> tagList) {
-        return tagList.stream().map(this::convertToCloudTag).collect(Collectors.toCollection(ArrayList::new));
+        return tagList.stream()
+                .map(this::convertToCloudTag)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private Person convertToPerson(CloudPerson cloudPerson) {

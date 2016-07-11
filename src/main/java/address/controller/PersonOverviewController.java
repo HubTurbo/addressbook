@@ -122,7 +122,7 @@ public class PersonOverviewController extends UiController{
     private void handleDeletePersons() {
         final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
         
-        if (isSelectionValid()) {
+        if (!isSelectionValid()) {
             showInvalidSelectionAlert();
         } else {
             selected.stream()
@@ -135,7 +135,7 @@ public class PersonOverviewController extends UiController{
 
     private boolean isSelectionValid() {
         final List<?> selected = personListView.getSelectionModel().getSelectedItems();
-        return selected.isEmpty() || selected.stream().anyMatch(Objects::isNull);
+        return !selected.isEmpty() && !selected.stream().anyMatch(Objects::isNull);
     }
 
     /**
@@ -153,22 +153,11 @@ public class PersonOverviewController extends UiController{
      */
     private void handleRetagPersons() {
         List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
-
-        if (isSelectionValid()) {
+        if (!isSelectionValid()) {
             showInvalidSelectionAlert();
             return;
         }
-
-        Optional<List<Tag>> listOfFinalAssignedTags = mainController.getPersonsTagsInput(selectedPersons);
-
-        if (listOfFinalAssignedTags.isPresent()) {
-            selectedPersons.stream()
-                    .forEach(p -> {
-                        Person editedPerson = new Person(p);
-                        editedPerson.setTags(listOfFinalAssignedTags.get());
-                        modelManager.editPersonThroughUI(p, () -> Optional.of(editedPerson));
-                    });
-        }
+        modelManager.retagPersonsThroughUI(selectedPersons, () -> mainController.getPersonsTagsInput(selectedPersons));
     }
 
     /**
@@ -188,7 +177,7 @@ public class PersonOverviewController extends UiController{
 
     private void handleCancelPersonOperations() {
         final List<ReadOnlyViewablePerson> selectedPersons = personListView.getSelectionModel().getSelectedItems();
-        if (isSelectionValid()) {
+        if (!isSelectionValid()) {
             showInvalidSelectionAlert();
             return;
         }

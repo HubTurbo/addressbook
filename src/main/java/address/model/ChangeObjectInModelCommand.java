@@ -19,24 +19,39 @@ import static address.model.ChangeObjectInModelCommand.State.*;
  *
  * Should be run OUTSIDE THE FX THREAD because the {@link #run()} method involves blocking calls.
  */
-public abstract class ChangeObjectInModelCommand implements Runnable {
+public abstract class ChangeObjectInModelCommand implements Runnable, CommandInfo {
 
     public enum State {
         // Initial state
-        NEWLY_CREATED,
+        NEWLY_CREATED ("Newly Created"),
 
         // Intermediate states
-        RETRIEVING_INPUT,
-        SIMULATING_RESULT,
-        GRACE_PERIOD,
-        CHECKING_AND_RESOLVING_REMOTE_CONFLICT,
-        REQUESTING_REMOTE_CHANGE,
+        RETRIEVING_INPUT ("Retrieving Input"),
+        SIMULATING_RESULT ("Optimistically Simulating Result"),
+        GRACE_PERIOD ("Pending / Grace Period"),
+        CHECKING_AND_RESOLVING_REMOTE_CONFLICT ("Handling any Remote Conflicts"),
+        REQUESTING_REMOTE_CHANGE ("Request to Remote"),
 
         // Terminal states
-        CANCELLED, SUCCESSFUL, FAILED,
+        CANCELLED ("Cancelled"),
+        SUCCESSFUL ("Successful"),
+        FAILED ("Failed");
+
+        private final String msg;
+
+        State(String msg) {
+            this.msg = msg;
+        }
+
+        @Override
+        public String toString() {
+            return msg;
+        }
     }
 
     private static final AppLogger logger = LoggerManager.getLogger(ChangeObjectInModelCommand.class);
+
+    private final int commandId;
 
     private final CountDownLatch completionLatch;
     protected final int gracePeriodDurationInSeconds;
@@ -51,8 +66,14 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         clearGracePeriodOverride();
     }
 
-    protected ChangeObjectInModelCommand(int gracePeriodDurationInSeconds) {
+    protected ChangeObjectInModelCommand(int commandId, int gracePeriodDurationInSeconds) {
+        this.commandId = commandId;
         this.gracePeriodDurationInSeconds = gracePeriodDurationInSeconds;
+    }
+
+    @Override
+    public int getCommandId() {
+        return commandId;
     }
 
     public void waitForCompletion() throws InterruptedException {
@@ -63,12 +84,13 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         return state.getValue();
     }
 
-    void setState(State newState) {
-        state.setValue(newState);
+    @Override
+    public String statusString() {
+        return getState().toString();
     }
 
-    public ReadOnlyObjectProperty<State> stateProperty() {
-        return state;
+    void setState(State newState) {
+        state.setValue(newState);
     }
 
     /**
@@ -228,8 +250,6 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     private State countdownGracePeriodAndHandleOverrides() {
 
         beforeGracePeriod();
-        // Ensure that any override signals detected happen during the current grace period.
-        clearGracePeriodOverride();
 
         // Countdown loop that listens for any overriding signals
         for (int i = gracePeriodDurationInSeconds; i > 0; i--) {

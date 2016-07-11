@@ -1,6 +1,8 @@
 package address.model;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
+
 import address.events.BaseEvent;
 import address.events.DeletePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.ReadOnlyPerson;
@@ -8,7 +10,6 @@ import address.model.datatypes.person.ViewablePerson;
 import address.util.PlatformExecUtil;
 
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -26,21 +27,30 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     private final String addressbookName;
 
     /**
-     * @see super#ChangePersonInModelCommand(Supplier, int)
+     * @see super#ChangePersonInModelCommand(int, Supplier, int)
      */
-    protected DeletePersonCommand(ViewablePerson target, int gracePeriodDurationInSeconds,
-                                  Consumer<BaseEvent> eventRaiser, ModelManager model) {
+    public DeletePersonCommand(int commandId, ViewablePerson target, int gracePeriodDurationInSeconds,
+                               Consumer<BaseEvent> eventRaiser, ModelManager model, String addressbookName) {
         // no input needed for delete commands
-        super(() -> Optional.of(target), gracePeriodDurationInSeconds);
+        super(commandId, () -> Optional.of(target), gracePeriodDurationInSeconds);
         this.target = target;
         this.model = model;
         this.eventRaiser = eventRaiser;
-        this.addressbookName = model.getPrefs().getSaveLocation().getName();
+        this.addressbookName = addressbookName;
+    }
+
+    protected ViewablePerson getViewable() {
+        return target;
     }
 
     @Override
     public int getTargetPersonId() {
         return target.getId();
+    }
+
+    @Override
+    public String getName() {
+        return "Delete Person " + target.idString();
     }
 
     @Override
@@ -52,6 +62,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
                 e.printStackTrace();
             }
         }
+        PlatformExecUtil.runAndWait(() -> target.setChangeInProgress(DELETING));
         model.assignOngoingChangeToPerson(target.getId(), this);
         target.stopSyncingWithBackingObject();
     }
@@ -59,28 +70,23 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void after() {
         PlatformExecUtil.runAndWait(() -> {
+            target.setChangeInProgress(NONE);
             target.continueSyncingWithBackingObject();
             target.forceSyncFromBacking();
-            target.setIsDeleted(false);
         });
         model.unassignOngoingChangeForPerson(target.getId());
+        model.trackFinishedCommand(this);
     }
 
     @Override
     protected State simulateResult() {
-        PlatformExecUtil.runAndWait(() ->
-                target.setIsDeleted(true));
+        // delete changeinprogress field already set in #before
         return GRACE_PERIOD;
     }
 
     @Override
-    protected void beforeGracePeriod() {
-        // nothing needed for now
-    }
-
-    @Override
     protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
-        PlatformExecUtil.runLater(() -> target.setSecondsLeftInPendingState(secondsLeft));
+        PlatformExecUtil.runAndWait(() -> target.setSecondsLeftInPendingState(secondsLeft));
     }
 
     @Override
@@ -92,11 +98,6 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     @Override
     protected State handleDeleteInGracePeriod() {
         return GRACE_PERIOD; // nothing to be done
-    }
-
-    @Override
-    protected State handleCancelInGracePeriod() {
-        return CANCELLED;
     }
 
     @Override
@@ -120,7 +121,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
             PlatformExecUtil.runAndWait(() -> model.backingModel().removePerson(target));
             return SUCCESSFUL;
         } catch (ExecutionException | InterruptedException e) {
-            return CANCELLED; // figure out a policy for syncup fail
+            return FAILED;
         }
     }
 
@@ -136,6 +137,6 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithFailure() {
-        // Impossible for now
+        finishWithCancel(); // TODO figure out failure handling
     }
 }

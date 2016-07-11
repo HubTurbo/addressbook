@@ -3,8 +3,8 @@ package address.sync;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
+import address.sync.cloud.IRemote;
 import address.util.AppLogger;
-import address.util.Config;
 import address.util.LoggerManager;
 
 import java.io.IOException;
@@ -28,9 +28,9 @@ public class RemoteManager {
     private HashMap<String, LastUpdate<Tag>> updateInformation;
     private LocalDateTime personLastUpdatedAt;
 
-    public RemoteManager(Config config) {
+    public RemoteManager(IRemote remote) {
         updateInformation = new HashMap<>();
-        remoteService = new RemoteService(config);
+        remoteService = new RemoteService(remote);
     }
 
     public RemoteManager(RemoteService remoteService) {
@@ -60,7 +60,10 @@ public class RemoteManager {
                 logger.debug("Last updated time for page {} found: {}", curPage, personLastUpdatedAt);
                 response = remoteService.getUpdatedPersonsSince(addressBookName, curPage, personLastUpdatedAt, null);
             }
-            if (!response.getData().isPresent()) return Optional.empty();
+            if (!response.getData().isPresent()) {
+                logger.debug("No data found from response, terminating paged requests.");
+                return Optional.empty();
+            }
             personList.addAll(response.getData().get());
             curPage++;
         } while (response.getNextPage() != 0); // may have problems if RESOURCES_PER_PAGE issues have been updated at the same second

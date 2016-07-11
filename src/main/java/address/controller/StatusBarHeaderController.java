@@ -9,12 +9,15 @@ import org.controlsfx.control.StatusBar;
 public class StatusBarHeaderController extends UiController{
 
     private StatusBar headerStatusBar;
+    private MainController mainController;
 
-    public StatusBarHeaderController() {
+    public StatusBarHeaderController(MainController mainController) {
+        this.mainController = mainController;
         headerStatusBar = new StatusBar();
         headerStatusBar.getStyleClass().removeAll();
         headerStatusBar.getStyleClass().add("status-bar-with-border");
         headerStatusBar.setText("");
+        headerStatusBar.setOnMouseClicked(event -> mainController.showActivityHistoryDialog());
     }
 
     public StatusBar getHeaderStatusBarView() {

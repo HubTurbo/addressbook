@@ -1,49 +1,104 @@
 package address.util;
 
 import address.TestApp;
+import address.browser.BrowserManager;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ViewablePerson;
 import address.model.datatypes.tag.Tag;
 import address.storage.StorageAddressBook;
+import address.sync.cloud.model.CloudAddressBook;
+import address.sync.cloud.model.CloudPerson;
+import address.sync.cloud.model.CloudTag;
+import hubturbo.embeddedbrowser.BrowserType;
+import javafx.collections.FXCollections;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import junit.framework.AssertionFailedError;
+import org.testfx.api.FxToolkit;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 /**
  * A utility class for test cases.
  */
 public class TestUtil {
+
+    public static void assertThrows(Class<? extends Throwable> expected, Runnable executable) {
+        try {
+            executable.run();
+        }
+        catch (Throwable actualException) {
+            if (!actualException.getClass().isAssignableFrom(expected)) {
+                String message = String.format("Expected thrown: %s, actual: %s", expected.getName(),
+                        actualException.getClass().getName());
+                throw new AssertionFailedError(message);
+            } else return;
+        }
+        throw new AssertionFailedError(
+                String.format("Expected %s to be thrown, but nothing was thrown.", expected.getName()));
+    }
+
     /**
      * Folder used for temp files created during testing. Ignored by Git.
      */
     public static String SANDBOX_FOLDER = FileUtil.getPath("./src/test/data/sandbox/");
 
     public static final Person[] samplePersonData = {
-            new Person("Hans", "Muster", -1),
-            new Person("Ruth", "Mueller", -2),
-            new Person("Heinz", "Kurz", -3),
-            new Person("Cornelia", "Meier", -4),
-            new Person("Werner", "Meyer", -5),
-            new Person("Lydia", "Kunz", -6),
-            new Person("Anna", "Best", -7),
-            new Person("Stefan", "Meier", -8),
-            new Person("Martin", "Mueller", -9)
+            new Person("Hans", "Muster", 1),
+            new Person("Ruth", "Mueller", 2),
+            new Person("Heinz", "Kurz", 3),
+            new Person("Cornelia", "Meier", 4),
+            new Person("Werner", "Meyer", 5),
+            new Person("Lydia", "Kunz", 6),
+            new Person("Anna", "Best", 7),
+            new Person("Stefan", "Meier", 8),
+            new Person("Martin", "Mueller", 9)
     };
 
     public static final Tag[] sampleTagData = {
             new Tag("relatives"),
             new Tag("friends")
     };
+
+    public static final CloudPerson[] sampleCloudPersonData = {
+            new CloudPerson("Hans", "Muster", 1),
+            new CloudPerson("Ruth", "Mueller", 2),
+            new CloudPerson("Heinz", "Kurz", 3),
+            new CloudPerson("Cornelia", "Meier", 4),
+            new CloudPerson("Werner", "Meyer", 5),
+            new CloudPerson("Lydia", "Kunz", 6),
+            new CloudPerson("Anna", "Best", 7),
+            new CloudPerson("Stefan", "Meier", 8),
+            new CloudPerson("Martin", "Mueller", 9)
+    };
+
+    public static final CloudTag[] sampleCloudTagData = {
+            new CloudTag("relatives"),
+            new CloudTag("friends")
+    };
+
+    public static Person generateSamplePersonWithAllData(int customId) {
+        final Person p = new Person("first", "last", customId);
+        p.setStreet("some street");
+        p.setPostalCode("1234");
+        p.setCity("some city");
+        p.setGithubUsername("SomeName");
+        p.setBirthday(LocalDate.now());
+        p.setTags(Arrays.asList(new Tag("A"), new Tag("B")));
+        return p;
+    }
+
     public static List<Person> generateSamplePersonData() {
         return Arrays.asList(samplePersonData);
     }
@@ -65,7 +120,7 @@ public class TestUtil {
         createDataFileWithData(generateSampleStorageAddressBook(), filePath);
     }
 
-    public static void createDataFileWithData(StorageAddressBook data, String filePath) {
+    public static <T> void createDataFileWithData(T data, String filePath) {
         try {
             File saveFileForTesting = new File(filePath);
             FileUtil.createIfMissing(saveFileForTesting);
@@ -79,8 +134,12 @@ public class TestUtil {
         createDataFileWithSampleData(TestApp.SAVE_LOCATION_FOR_TESTING);
     }
 
-    public static AddressBook generateSampleAddressBook(){
+    public static AddressBook generateSampleAddressBook() {
         return new AddressBook(Arrays.asList(samplePersonData), Arrays.asList(sampleTagData));
+    }
+
+    public static CloudAddressBook generateSampleCloudAddressBook() {
+        return new CloudAddressBook("MyAddressBook", Arrays.asList(sampleCloudPersonData), Arrays.asList(sampleCloudTagData));
     }
 
     public static StorageAddressBook generateSampleStorageAddressBook() {
@@ -165,5 +224,31 @@ public class TestUtil {
         // final and can be changed
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
         field.set(null, newValue);
+    }
+
+    public static void initRuntime() throws TimeoutException {
+        FxToolkit.registerPrimaryStage();
+        FxToolkit.hideStage();
+    }
+
+    public static void tearDownRuntime() throws Exception {
+        FxToolkit.cleanupStages();
+    }
+
+    public static void initBrowserInStatic() {
+        BrowserManager manager = new BrowserManager(FXCollections.emptyObservableList(),
+                1, BrowserType.FULL_FEATURE_BROWSER);
+        manager.initBrowser();
+    }
+
+    public static CloudAddressBook generateCloudAddressBook(AddressBook addressBook) {
+        List<CloudPerson> cloudPersonList = new ArrayList<>();
+        addressBook.getPersonList().stream()
+                .forEach(p -> cloudPersonList.add(new CloudPerson(p.getFirstName(), p.getLastName(), p.getId())));
+
+        CloudAddressBook cloudAddressBook = new CloudAddressBook("MyAddressBook");
+        cloudAddressBook.setPersonsList(cloudPersonList);
+
+        return cloudAddressBook;
     }
 }

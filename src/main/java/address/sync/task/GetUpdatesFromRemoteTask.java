@@ -38,9 +38,9 @@ public class GetUpdatesFromRemoteTask implements Runnable {
         }
         try {
             List<Person> updatedPersons = getUpdatedPersons(syncActiveAddressBookName.get());
-            logger.logList("Found updated persons: {}", updatedPersons);
-            List<Tag> latestTags = getLatestTags(syncActiveAddressBookName.get());
-            logger.logList("Found latest tags: {}", latestTags);
+            logger.debug("Updated persons: {}", updatedPersons);
+            Optional<List<Tag>> latestTags = getLatestTags(syncActiveAddressBookName.get());
+            logger.debug("Latest tags: {}", latestTags);
 
             eventRaiser.accept(new SyncCompletedEvent(updatedPersons, latestTags));
         } catch (SyncErrorException e) {
@@ -61,12 +61,8 @@ public class GetUpdatesFromRemoteTask implements Runnable {
      */
     private List<Person> getUpdatedPersons(String addressBookName) throws SyncErrorException {
         try {
-            Optional<List<Person>> updatedPersons;
-            updatedPersons = remoteManager.getUpdatedPersons(addressBookName);
-
+            Optional<List<Person>> updatedPersons = remoteManager.getUpdatedPersons(addressBookName);
             if (!updatedPersons.isPresent()) throw new SyncErrorException("getUpdatedPersons failed.");
-
-            logger.logList("Updated persons: {}", updatedPersons.get());
             return updatedPersons.get();
         } catch (IOException e) {
             throw new SyncErrorException("Error getting updated persons.");
@@ -80,17 +76,9 @@ public class GetUpdatesFromRemoteTask implements Runnable {
      * @return
      * @throws SyncErrorException if bad response code, missing data or network error
      */
-    private List<Tag> getLatestTags(String addressBookName) throws SyncErrorException {
+    private Optional<List<Tag>> getLatestTags(String addressBookName) throws SyncErrorException {
         try {
-            Optional<List<Tag>> latestTags = remoteManager.getLatestTagList(addressBookName);
-
-            if (!latestTags.isPresent()) {
-                logger.info("No updates to tags.");
-                return null;
-            } else {
-                logger.logList("Latest tags: {}", latestTags.get());
-                return latestTags.get();
-            }
+            return remoteManager.getLatestTagList(addressBookName);
         } catch (IOException e) {
             throw new SyncErrorException("Error getting latest tags.");
         }

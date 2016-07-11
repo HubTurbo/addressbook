@@ -16,6 +16,14 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 import java.util.HashMap;
 
+/**
+ * This class is meant to mimic the response of a GitHub request
+ *
+ * Construction of an object will use up an API quota in the given cloudRateLimitStatus if the previousETag is not
+ * provided or is found to be different to the given object's eTag
+ *
+ * RemoteResponse instances obtained via other means e.g. RemoteResponse.getForbiddenResponse should not use up quota
+ */
 public class RemoteResponse {
     private static final AppLogger logger = LoggerManager.getLogger(RemoteResponse.class);
 
@@ -26,6 +34,41 @@ public class RemoteResponse {
     private int previousPageNo;
     private int firstPageNo;
     private int lastPageNo;
+
+    public RemoteResponse(int responseCode, Object body, CloudRateLimitStatus cloudRateLimitStatus, String previousETag) {
+        String newETag = getETag(convertToInputStream(body));
+
+        if (previousETag != null && previousETag.equals(newETag)) {
+            this.responseCode = HttpURLConnection.HTTP_NOT_MODIFIED;
+            this.headers = getRateLimitStatusHeader(cloudRateLimitStatus);
+            return;
+        }
+
+        cloudRateLimitStatus.useQuota(1);
+        this.responseCode = responseCode;
+        this.headers = getHeaders(cloudRateLimitStatus, newETag);
+        this.body = convertToInputStream(body);
+    }
+
+    private RemoteResponse(int responseCode, CloudRateLimitStatus cloudRateLimitStatus) {
+        this.responseCode = responseCode;
+        this.headers = getRateLimitStatusHeader(cloudRateLimitStatus);
+        this.body = convertToInputStream(getRateLimitStatusHeader(cloudRateLimitStatus));
+    }
+
+    private RemoteResponse(int responseCode, Object body, CloudRateLimitStatus cloudRateLimitStatus) {
+        this.responseCode = responseCode;
+        this.headers = getRateLimitStatusHeader(cloudRateLimitStatus);
+        this.body = convertToInputStream(body);
+    }
+
+    public static RemoteResponse getForbiddenResponse(CloudRateLimitStatus cloudRateLimitStatus) {
+        return new RemoteResponse(HttpURLConnection.HTTP_FORBIDDEN, null, cloudRateLimitStatus);
+    }
+
+    public static RemoteResponse getLimitStatusResponse(CloudRateLimitStatus cloudRateLimitStatus) {
+        return new RemoteResponse(HttpURLConnection.HTTP_OK, cloudRateLimitStatus);
+    }
 
     public int getNextPageNo() {
         return nextPageNo;
@@ -59,26 +102,6 @@ public class RemoteResponse {
         this.lastPageNo = lastPageNo;
     }
 
-    private void addETagToHeader(HashMap<String, String> header, String eTag) {
-        header.put("ETag", eTag);
-    }
-
-    public RemoteResponse(int responseCode, Object body, HashMap<String, String> header) {
-        this.responseCode = responseCode;
-        if (body != null) {
-            this.body = convertToInputStream(body);
-            addETagToHeader(header, getETag(convertToInputStream(body)));
-        }
-        this.headers = header;
-    }
-
-    public RemoteResponse(int responseCode) {
-        assert responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR : "RemoteResponse constructor misused";
-        this.responseCode = responseCode;
-        this.headers = new HashMap<>();
-    }
-
-
     public int getResponseCode() {
         return responseCode;
     }
@@ -94,13 +117,14 @@ public class RemoteResponse {
     /**
      * Calculates the hash of the input stream if it has content
      *
-     * The input stream will be digested. Caller should clone or
+     * WARNING: The input stream will be digested. Caller should clone or
      * duplicate the stream before calling this method.
      *
      * @param bodyStream
      * @return
      */
-    public static String getETag(InputStream bodyStream) {
+    private String getETag(InputStream bodyStream) {
+        if (bodyStream == null) return null;
         try {
             // Adapted from http://www.javacreed.com/how-to-compute-hash-code-of-streams/
             DigestInputStream digestInputStream = new DigestInputStream(new BufferedInputStream(bodyStream),
@@ -122,11 +146,30 @@ public class RemoteResponse {
         }
     }
 
-    private static ByteArrayInputStream convertToInputStream(Object object) {
+    private void addETagToHeader(HashMap<String, String> header, String eTag) {
+        header.put("ETag", eTag);
+    }
+
+    private HashMap<String, String> getRateLimitStatusHeader(CloudRateLimitStatus cloudRateLimitStatus) {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("X-RateLimit-Limit", String.valueOf(cloudRateLimitStatus.getQuotaLimit()));
+        headers.put("X-RateLimit-Remaining", String.valueOf(cloudRateLimitStatus.getQuotaRemaining()));
+        headers.put("X-RateLimit-Reset", String.valueOf(cloudRateLimitStatus.getQuotaReset()));
+        return headers;
+    }
+
+    private HashMap<String, String> getHeaders(CloudRateLimitStatus cloudRateLimitStatus, String eTag) {
+        HashMap<String, String> headers = getRateLimitStatusHeader(cloudRateLimitStatus);
+        addETagToHeader(headers, eTag);
+        return headers;
+    }
+
+    private ByteArrayInputStream convertToInputStream(Object object) {
+        if (object == null) return null;
         try {
             return new ByteArrayInputStream(JsonUtil.toJsonString(object).getBytes());
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            logger.warn("Error converting object {} to input stream", object);
             return null;
         }
     }
