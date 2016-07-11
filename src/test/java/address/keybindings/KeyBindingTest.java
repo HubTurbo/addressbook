@@ -3,6 +3,7 @@ package address.keybindings;
 
 import address.events.AcceleratorIgnoredEvent;
 import address.events.BaseEvent;
+import address.util.OsDetector;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import org.junit.Rule;
@@ -12,6 +13,7 @@ import org.junit.rules.ExpectedException;
 import static org.junit.Assert.assertEquals;
 
 public class KeyBindingTest {
+    private static final String ALT_STRING = OsDetector.isOnMac() ? "⌥" : "Alt+";
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -24,7 +26,7 @@ public class KeyBindingTest {
     private KeyBinding keyBinding = new Shortcut(SAMPLE_KEYBINDING_NAME, ALT_A, SAMPLE_EVENT);
 
     @Test
-    public void constructor_nullParameters_assertionFailure(){
+    public void constructor_nullParameters_assertionFailure() {
         // Null name
         thrown.expect(AssertionError.class);
         thrown.expectMessage("name cannot be null");
@@ -42,8 +44,8 @@ public class KeyBindingTest {
     }
 
     @Test
-    public void getText(){
-        assertEquals(SAMPLE_KEYBINDING_NAME + " Alt+A", keyBinding.getDisplayText());
+    public void getText() {
+        assertEquals(SAMPLE_KEYBINDING_NAME + " " + ALT_STRING + "A", keyBinding.getDisplayText());
     }
 
     @Test
