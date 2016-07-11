@@ -11,13 +11,23 @@ import java.util.HashMap;
 public class LoggerManager {
     private static final AppLogger logger = LoggerManager.getLogger(LoggerManager.class);
     public static Level currentLogLevel = Level.INFO;
-    public static HashMap<String, Level> specialLogLevel = new HashMap<>();
+    public static HashMap<String, Level> specialLogLevels = new HashMap<>();
 
     public static void init(Config config) {
         logger.info("currentLogLevel: {}", config.currentLogLevel);
         logger.info("specialLogLevels: {}", config.specialLogLevels);
         currentLogLevel = config.currentLogLevel;
-        specialLogLevel = config.specialLogLevels;
+        specialLogLevels = config.specialLogLevels;
+
+        LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+        AbstractConfiguration absConfig = (AbstractConfiguration) loggerContext.getConfiguration();
+        absConfig.getLoggers().forEach((loggerName, loggerConfig) -> {
+            if (specialLogLevels.containsKey(loggerName)) {
+                loggerConfig.setLevel(specialLogLevels.get(loggerName));
+            } else {
+                loggerConfig.setLevel(currentLogLevel);
+            }
+        });
     }
 
     public static AppLogger getLogger(String className, Level loggingLevel) {
@@ -29,15 +39,15 @@ public class LoggerManager {
     }
 
     private static Level determineLoggingLevelToSet(String className) {
-        if (specialLogLevel != null && specialLogLevel.containsKey(className)) {
-            return specialLogLevel.get(className);
+        if (specialLogLevels != null && specialLogLevels.containsKey(className)) {
+            return specialLogLevels.get(className);
         }
         return currentLogLevel;
     }
 
     private static void setLoggingLevel(AbstractConfiguration config, String className, Level loggingLevel) {
         if (config.getLogger(className) != null) {
-            config.getLoggerConfig(className).setLevel(loggingLevel);
+            config.getLogger(className).setLevel(loggingLevel);
             return;
         }
 
