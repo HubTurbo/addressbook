@@ -57,7 +57,7 @@ public class MainController extends UiController{
     private static final String ICON_INFO = "/images/info_icon.png";
     private static final String ICON_HELP = "/images/help_icon.png";
     public static final int MIN_HEIGHT = 600;
-    public static final int MIN_WIDTH = 740;
+    public static final int MIN_WIDTH = 450;
 
     private Stage primaryStage;
     private VBox rootLayout;

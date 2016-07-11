@@ -74,6 +74,10 @@ public class Config {
         return prefsFileLocation;
     }
 
+    public void setPrefsFileLocation(File prefsFileLocation) {
+        this.prefsFileLocation = prefsFileLocation;
+    }
+
     public int getBrowserNoOfPages() {
         return browserNoOfPages;
     }
