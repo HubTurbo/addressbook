@@ -4,7 +4,6 @@ import address.MainApp;
 import address.browser.BrowserManager;
 import address.events.*;
 import address.exceptions.DuplicateTagException;
-import address.model.UserPrefs;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
@@ -58,6 +57,8 @@ public class MainController extends UiController{
     private static final String ICON_HELP = "/images/help_icon.png";
     public static final int MIN_HEIGHT = 600;
     public static final int MIN_WIDTH = 740;
+    public static final int DEFAULT_HEIGHT = 600;
+    public static final int DEFAULT_WIDTH = 740;
 
     private Stage primaryStage;
     private VBox rootLayout;
@@ -66,7 +67,6 @@ public class MainController extends UiController{
     private BrowserManager browserManager;
     private MainApp mainApp;
     private Config config;
-    private UserPrefs prefs;
 
     private StatusBarHeaderController statusBarHeaderController;
 
@@ -79,12 +79,11 @@ public class MainController extends UiController{
      * @param modelManager
      * @param config should have appTitle and updateInterval set
      */
-    public MainController(MainApp mainApp, ModelManager modelManager, Config config, UserPrefs prefs) {
+    public MainController(MainApp mainApp, ModelManager modelManager, Config config) {
         super();
         this.mainApp = mainApp;
         this.modelManager = modelManager;
         this.config = config;
-        this.prefs = prefs;
         this.personList = modelManager.getAllViewablePersonsReadOnly();
         this.browserManager = new BrowserManager(personList, config.getBrowserNoOfPages(), config.getBrowserType());
         this.browserManager.initBrowser();
@@ -144,17 +143,20 @@ public class MainController extends UiController{
     public void showPersonOverview() {
         logger.debug("Loading person overview.");
         final String fxmlResourcePath = FXML_PERSON_OVERVIEW;
+
+        // Load person overview.
+
+
         // Load person overview.
         FXMLLoader loader = loadFxml(fxmlResourcePath);
-        VBox personOverview = (VBox) loadLoader(loader, "Error loading person overview");
-        AnchorPane pane = (AnchorPane) rootLayout.lookup("#personOverview");
-        SplitPane.setResizableWithParent(pane, false);
+        AnchorPane personOverview = (AnchorPane) loadLoader(loader, "Error loading person overview");
+        SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
+        SplitPane.setResizableWithParent(personOverview, false);
         // Give the personOverviewController access to the main app and modelManager.
         PersonOverviewController personOverviewController = loader.getController();
         personOverviewController.setConnections(this, modelManager, personList);
 
-        pane.getChildren().add(personOverview);
-
+        pane.getItems().add(personOverview);
     }
 
     public StatusBarHeaderController getStatusBarHeaderController() {
@@ -165,7 +167,7 @@ public class MainController extends UiController{
         statusBarHeaderController = new StatusBarHeaderController(this);
         AnchorPane sbPlaceHolder = (AnchorPane) rootLayout.lookup("#headerStatusbarPlaceholder");
 
-        assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in rootLayout";
+        assert sbPlaceHolder != null : "footerStatusbarPlaceHolder node not found in rootLayout";
 
         FxViewUtil.applyAnchorBoundaryParameters(statusBarHeaderController.getHeaderStatusBarView(), 0.0, 0.0, 0.0, 0.0);
         sbPlaceHolder.getChildren().add(statusBarHeaderController.getHeaderStatusBarView());
@@ -179,9 +181,9 @@ public class MainController extends UiController{
         gridPane.getStyleClass().add("grid-pane");
         StatusBarFooterController controller = loader.getController();
         controller.init(config.getUpdateInterval(), config.getAddressBookName());
-        AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
-        FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
-        placeHolder.getChildren().add(gridPane);
+        //AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
+        //FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
+        rootLayout.getChildren().add(gridPane);
     }
 
     private Node loadLoader(FXMLLoader loader, String errorMsg ) {
@@ -525,8 +527,8 @@ public class MainController extends UiController{
     }
 
     public void showPersonWebPage() {
-        AnchorPane pane = (AnchorPane) rootLayout.lookup("#personWebpage");
-        pane.getChildren().add(browserManager.getHyperBrowserView());
+        SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
+        pane.getItems().add(browserManager.getHyperBrowserView());
     }
 
     @Subscribe
@@ -555,12 +557,8 @@ public class MainController extends UiController{
     }
 
     protected void setDefaultSize() {
-        primaryStage.setHeight(prefs.getGuiSettings().getWindowHeight());
-        primaryStage.setWidth(prefs.getGuiSettings().getWindowWidth());
-        if (prefs.getGuiSettings().getWindowCoordinates() != null) {
-            primaryStage.setX(prefs.getGuiSettings().getWindowCoordinates().getX());
-            primaryStage.setY(prefs.getGuiSettings().getWindowCoordinates().getY());
-        }
+        primaryStage.setHeight(DEFAULT_HEIGHT);
+        primaryStage.setWidth(DEFAULT_WIDTH);
         primaryStage.setMaximized(false);
         primaryStage.setIconified(false);
     }

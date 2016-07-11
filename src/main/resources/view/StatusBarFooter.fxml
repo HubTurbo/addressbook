@@ -9,8 +9,11 @@
   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
 </columnConstraints>
+<rowConstraints>
+  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+</rowConstraints>
  <children>
-      <AnchorPane styleClass="anchor-pane" id="syncStatusBarPane" fx:id="syncStatusBarPane" minWidth="0.0" />
-      <AnchorPane styleClass="anchor-pane" id="updaterStatusBarPane" fx:id="updaterStatusBarPane" minWidth="0.0" GridPane.columnIndex="1" />
+      <AnchorPane styleClass="anchor-pane" id="syncStatusBarPane" fx:id="syncStatusBarPane" minHeight="0.0" minWidth="0.0" />
+      <AnchorPane styleClass="anchor-pane" id="updaterStatusBarPane" fx:id="updaterStatusBarPane" minHeight="0.0" minWidth="0.0" GridPane.columnIndex="1" />
  </children>
 </GridPane>
