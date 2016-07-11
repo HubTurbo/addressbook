@@ -44,6 +44,7 @@ public class Installer extends Application {
     private static final String ERROR_RUNNING = "Failed to run application";
     private static final String ERROR_TRY_AGAIN = "Please try again, or contact developer if it keeps failing.";
     private static final String LIB_DIR = "lib";
+    private static final Path MAIN_APP_FILEPATH = Paths.get(LIB_DIR, new File("resource.jar").getName());
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private ProgressBar progressBar;
@@ -139,6 +140,17 @@ public class Installer extends Application {
                 String filename = jarEntry.getName();
                 Path extractDest = Paths.get(LIB_DIR, new File(filename).getName());
 
+                // For MainApp resource, only extract if it is not present
+                if (filename.startsWith("resource") && filename.endsWith(".jar")) {
+                    if (!MAIN_APP_FILEPATH.toFile().exists()) {
+                        try (InputStream in = jar.getInputStream(jarEntry)) {
+                            Files.copy(in, MAIN_APP_FILEPATH, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    }
+                    continue;
+                }
+
+                // For other JARs, extract if existing files are of different sizes
                 if (filename.endsWith(".jar") && jarEntry.getSize() != extractDest.toFile().length()) {
                     try (InputStream in = jar.getInputStream(jarEntry)) {
                         Files.copy(in, extractDest, StandardCopyOption.REPLACE_EXISTING);
@@ -146,7 +158,7 @@ public class Installer extends Application {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Failed to extract jar updater");
+            System.out.println("Failed to extract libraries");
             throw e;
         }
 

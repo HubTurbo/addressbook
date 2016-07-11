@@ -53,6 +53,8 @@ public class UpdateManager extends ComponentManager {
     private static final String VERSION_DESCRIPTOR_ON_SERVER_EARLY =
             "https://raw.githubusercontent.com/HubTurbo/addressbook/early-access/UpdateData.json";
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "UpdateData.json");
+    private static final String LIB_DIR = "lib" + File.separator;
+    private static final String MAIN_APP_FILEPATH = LIB_DIR + "resource.jar";
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final DependencyHistoryHandler dependencyHistoryHandler;
@@ -227,12 +229,13 @@ public class UpdateManager extends ComponentManager {
 
         mainAppDownloadLink = versionDescriptor.getDownloadLinkForMainApp();
 
-        filesToBeDownloaded.put("addressbook.jar", mainAppDownloadLink);
+        filesToBeDownloaded.put(MAIN_APP_FILEPATH, mainAppDownloadLink);
 
         versionDescriptor.getLibraries().stream()
                 .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == OsDetector.getOs())
-                .filter(libDesc -> !FileUtil.isFileExists("lib/" + libDesc.getFilename()))
-                .forEach(libDesc -> filesToBeDownloaded.put("lib/" + libDesc.getFilename(), libDesc.getDownloadLink()));
+                .filter(libDesc -> !FileUtil.isFileExists(LIB_DIR + libDesc.getFilename()))
+                .forEach(libDesc -> filesToBeDownloaded.put(LIB_DIR + libDesc.getFilename(),
+                                                            libDesc.getDownloadLink()));
 
         return filesToBeDownloaded;
     }

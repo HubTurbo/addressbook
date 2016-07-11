@@ -158,6 +158,10 @@ Currently, Installer needs Jackson to parse the update data for dependency setti
 to Installer JAR; it will need `lib/[jackson].jar` to work. Those Jackson JARs are inside Installer JAR as resource, though,
 which will be unpacked anyway. Hence, JSON parsing in Installer must be called only after it unpacks itself.
 
+Installer will launch the main application with `enable assertion` argument to enable assertion in production. On first
+run, it will unpack the libraries JARs and the main app JAR then launch the main app. On the next runs, it acts as a
+launcher to enable assertion in production.
+
 ## To be improved
 
 ### Automate generateUpdateData
