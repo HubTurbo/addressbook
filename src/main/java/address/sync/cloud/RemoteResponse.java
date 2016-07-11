@@ -44,18 +44,31 @@ public class RemoteResponse {
             return;
         }
 
-        cloudRateLimitStatus.useQuota(1);
+        cloudRateLimitStatus.useQuota();
         this.responseCode = responseCode;
         this.headers = getHeaders(cloudRateLimitStatus, newETag);
         this.body = convertToInputStream(body);
     }
 
+    /**
+     * Returns a response with rate limit status as the content
+     *
+     * @param responseCode
+     * @param cloudRateLimitStatus
+     */
     private RemoteResponse(int responseCode, CloudRateLimitStatus cloudRateLimitStatus) {
         this.responseCode = responseCode;
         this.headers = getRateLimitStatusHeader(cloudRateLimitStatus);
         this.body = convertToInputStream(getRateLimitStatusHeader(cloudRateLimitStatus));
     }
 
+    /**
+     * Returns a response without the eTag header
+     *
+     * @param responseCode
+     * @param body
+     * @param cloudRateLimitStatus
+     */
     private RemoteResponse(int responseCode, Object body, CloudRateLimitStatus cloudRateLimitStatus) {
         this.responseCode = responseCode;
         this.headers = getRateLimitStatusHeader(cloudRateLimitStatus);

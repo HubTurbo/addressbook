@@ -23,8 +23,6 @@ public interface IRemoteService {
     ExtractedRemoteResponse<Tag> editTag(String addressBookName, String oldTagName, Tag newTag) throws IOException;
     ExtractedRemoteResponse<Void> deleteTag(String addressBookName, String tagName) throws IOException;
 
-    ExtractedRemoteResponse<Void> createAddressBook(String addressBookName) throws IOException;
-
     ExtractedRemoteResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, int curPageNumber, LocalDateTime time, String previousETag)
             throws IOException;
 

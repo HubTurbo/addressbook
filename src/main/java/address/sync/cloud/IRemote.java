@@ -14,5 +14,4 @@ public interface IRemote {
     RemoteResponse createTag(String addressBookName, CloudTag newTag, String previousETag);
     RemoteResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag, String previousETag);
     RemoteResponse deleteTag(String addressBookName, String tagName);
-    RemoteResponse createAddressBook(String addressBookName);
 }

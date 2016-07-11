@@ -7,6 +7,7 @@ import address.util.TickingTimer;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class CloudRateLimitStatus {
@@ -97,7 +98,17 @@ public class CloudRateLimitStatus {
         this.quotaReset = quotaResetTime;
     }
 
-    public void useQuota(int amount) {
+    public void useQuota(int amount) throws RejectedExecutionException {
+        if (quotaRemaining < amount) throw new RejectedExecutionException("No more API quota");
         quotaRemaining -= amount;
+    }
+
+    public void useQuota() throws RejectedExecutionException {
+        useQuota(1);
+    }
+
+    public boolean hasQuotaRemaining() {
+        logger.info("Current quota left: {}", quotaRemaining);
+        return quotaRemaining > 0;
     }
 }

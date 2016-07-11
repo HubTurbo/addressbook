@@ -27,6 +27,7 @@ public class CloudSimulatorTest {
     private CloudFileHandler cloudFileHandler;
     private CloudRateLimitStatus cloudRateLimitStatus;
     private CloudSimulator cloudSimulator;
+    private CloudRequestQueue cloudRequestQueue;
 
     /**
      * Mocks the file handler and spies on the limit status
@@ -41,78 +42,13 @@ public class CloudSimulatorTest {
         final long resetTime = System.currentTimeMillis()/1000 + API_RESET_DELAY;
         cloudFileHandler = mock(CloudFileHandler.class);
         cloudRateLimitStatus = new CloudRateLimitStatus(STARTING_API_COUNT, resetTime);
-        cloudSimulator = new CloudSimulator(cloudFileHandler, cloudRateLimitStatus);
+        cloudRequestQueue = new CloudRequestQueue(cloudFileHandler);
+        cloudSimulator = new CloudSimulator(cloudFileHandler, cloudRateLimitStatus, cloudRequestQueue);
 
         CloudAddressBook remoteAddressBook = getDummyAddressBook();
         stub(cloudFileHandler.readCloudAddressBook("Test")).toReturn(remoteAddressBook);
 
         assertEquals(STARTING_API_COUNT, cloudRateLimitStatus.getQuotaRemaining());
-    }
-
-    @Test
-    public void createAddressBook() throws IOException, DataConversionException {
-        RemoteResponse remoteResponse = cloudSimulator.createAddressBook("Test");
-
-        // File handler is called to create an address book file
-        verify(cloudFileHandler, times(1)).createAddressBook("Test");
-
-        // 1 API quota is consumed
-        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
-
-        // Response code for a successful creation
-        assertEquals(HttpURLConnection.HTTP_CREATED, remoteResponse.getResponseCode());
-    }
-
-    @Test
-    public void createAddressBook_notEnoughQuota_unsuccessfulCreation() throws IOException, DataConversionException {
-        // Use up quota
-        cloudRateLimitStatus.useQuota(STARTING_API_COUNT);
-        assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
-
-        RemoteResponse remoteResponse = cloudSimulator.createAddressBook("Test");
-
-        // File creation will not be called since there is no more quota
-        verify(cloudFileHandler, never()).createAddressBook("Test");
-
-        // API count is not modified
-        assertEquals(0, cloudRateLimitStatus.getQuotaRemaining());
-
-        // Response code for a request with insufficient quota
-        assertEquals(HttpURLConnection.HTTP_FORBIDDEN, remoteResponse.getResponseCode());
-    }
-
-    @Test
-    public void createAddressBook_illegalArgument_unsuccessfulCreation() throws IOException, DataConversionException {
-        // Prepare filehandler to throw an exception that the addressbook already exists
-        doThrow(new IllegalArgumentException("AddressBook 'Test' already exists!")).when(cloudFileHandler).createAddressBook("Test");
-
-        RemoteResponse remoteResponse = cloudSimulator.createAddressBook("Test");
-
-        // File creation method is called
-        verify(cloudFileHandler, times(1)).createAddressBook("Test");
-
-        // Still consumes API quota since it is the caller's error
-        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
-
-        // Response code for a bad request
-        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, remoteResponse.getResponseCode());
-    }
-
-    @Test
-    public void createAddressBook_conversionException_unsuccessfulCreation() throws IOException, DataConversionException {
-        // Prepares filehandler to throw an exception that there are problems with data conversion
-        doThrow(new DataConversionException("Error in conversion when creating file.")).when(cloudFileHandler).createAddressBook("Test");
-
-        RemoteResponse remoteResponse = cloudSimulator.createAddressBook("Test");
-
-        // File creation method is called
-        verify(cloudFileHandler, times(1)).createAddressBook("Test");
-
-        // Still consumes API quota even though it is an error on the cloud's end
-        assertEquals(STARTING_API_COUNT - 1, cloudRateLimitStatus.getQuotaRemaining());
-
-        // Response code for a cloud error
-        assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, remoteResponse.getResponseCode());
     }
 
     @Test

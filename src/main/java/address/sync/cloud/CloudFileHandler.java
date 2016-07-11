@@ -26,13 +26,13 @@ public class CloudFileHandler {
         return readFromCloudFile(cloudFile);
     }
 
-    public void writeCloudAddressBook(CloudAddressBook CloudAddressBook) throws FileNotFoundException,
+    public void writeCloudAddressBook(CloudAddressBook cloudAddressBook) throws FileNotFoundException,
             DataConversionException {
-        String addressBookName = CloudAddressBook.getName();
+        String addressBookName = cloudAddressBook.getName();
         File cloudFile = getCloudDataFile(addressBookName);
         try {
             logger.info("Writing to cloud file '{}'.", cloudFile.getName());
-            XmlUtil.saveDataToFile(cloudFile, CloudAddressBook);
+            XmlUtil.saveDataToFile(cloudFile, cloudAddressBook);
         } catch (FileNotFoundException | DataConversionException e) {
             logger.warn("Error writing to cloud file '{}'.", cloudFile.getName());
             throw e;
@@ -57,20 +57,6 @@ public class CloudFileHandler {
     }
 
     /**
-     * Attempts to create an empty address book on the cloud
-     * Fails if address book already exists
-     *
-     * @param addressBookName
-     * @throws IOException
-     * @throws DataConversionException
-     * @throws IllegalArgumentException if cloud file already exists
-     */
-    public void createAddressBook(String addressBookName) throws IOException, DataConversionException,
-            IllegalArgumentException {
-        createCloudFile(new CloudAddressBook(addressBookName));
-    }
-
-    /**
      * Attempts to create an empty address book on the cloud if it does not exist
      *
      * @param addressBookName
@@ -80,12 +66,10 @@ public class CloudFileHandler {
      */
     public void createAddressBookIfAbsent(String addressBookName) throws IOException, DataConversionException,
             IllegalArgumentException {
-        File cloudFile = getCloudDataFile(addressBookName);
-        if (cloudFile.exists()) return;
         try {
             createCloudFile(new CloudAddressBook(addressBookName));
         } catch (IllegalArgumentException e) {
-            assert false : "Error in logic: createCloudFile should not be called since address book is present";
+            logger.info("AddressBook {} already exists, skipping creation.", addressBookName);
         }
     }
 
@@ -118,7 +102,6 @@ public class CloudFileHandler {
     private void createCloudFile(CloudAddressBook cloudAddressBook) throws IOException, DataConversionException, IllegalArgumentException {
         File cloudFile = getCloudDataFile(cloudAddressBook.getName());
         if (cloudFile.exists()) {
-            logger.warn("Cannot create an address book that already exists: '{}'.", cloudAddressBook.getName());
             throw new IllegalArgumentException("AddressBook '" + cloudAddressBook.getName() + "' already exists!");
         }
 

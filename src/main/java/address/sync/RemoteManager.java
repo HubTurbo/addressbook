@@ -193,17 +193,6 @@ public class RemoteManager {
         return response.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT;
     }
 
-    /**
-     * Attempts to create an addressbook on the remote
-     * @param addressBookName
-     * @return true if successful
-     * @throws IOException
-     */
-    public boolean createAddressBook(String addressBookName) throws IOException {
-        ExtractedRemoteResponse<Void> response  = remoteService.createAddressBook(addressBookName);
-        return response.getResponseCode() == HttpURLConnection.HTTP_CREATED;
-    }
-
     private <T> int getLastUpdatedPageCount(HashMap<String, LastUpdate<T>> updateInformation, String addressBookName) {
         if (!updateInformation.containsKey(addressBookName)) return 0;
         return updateInformation.get(addressBookName).getETagCount();
