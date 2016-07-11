@@ -60,7 +60,7 @@ public class TestApp extends MainApp {
     @Override
     protected UserPrefs initPrefs(Config config) {
         UserPrefs userPrefs = super.initPrefs(config);
-        userPrefs.setGuiSettings(new GuiSettings(740.0, 600.0, 0, 0));
+        userPrefs.setGuiSettings(new GuiSettings(600.0, 600.0, 0, 0));
         return userPrefs;
     }
 
