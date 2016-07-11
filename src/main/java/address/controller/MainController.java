@@ -146,22 +146,17 @@ public class MainController extends UiController{
 
         // Load person overview.
 
-        try {
-            // Load person overview.
-            FXMLLoader loader = loadFxml(fxmlResourcePath);
-            AnchorPane personOverview = loader.load();
-            SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
-            SplitPane.setResizableWithParent(personOverview, false);
-            // Give the personOverviewController access to the main app and modelManager.
-            PersonOverviewController personOverviewController = loader.getController();
-            personOverviewController.setConnections(this, modelManager, personList);
 
-            pane.getItems().add(personOverview);
-        } catch (IOException e) {
-            logger.fatal("Error loading person overview: {}", e);
-            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for person overview.",
-                                            "IOException when trying to load " , fxmlResourcePath);
-        }
+        // Load person overview.
+        FXMLLoader loader = loadFxml(fxmlResourcePath);
+        AnchorPane personOverview = (AnchorPane) loadLoader(loader, "Error loading person overview");
+        SplitPane pane = (SplitPane) rootLayout.lookup("#splitPane");
+        SplitPane.setResizableWithParent(personOverview, false);
+        // Give the personOverviewController access to the main app and modelManager.
+        PersonOverviewController personOverviewController = loader.getController();
+        personOverviewController.setConnections(this, modelManager, personList);
+
+        pane.getItems().add(personOverview);
     }
 
     public StatusBarHeaderController getStatusBarHeaderController() {
@@ -186,9 +181,9 @@ public class MainController extends UiController{
         gridPane.getStyleClass().add("grid-pane");
         StatusBarFooterController controller = loader.getController();
         controller.init(config.getUpdateInterval(), config.getAddressBookName());
-        AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
-        FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
-        placeHolder.getChildren().add(gridPane);
+        //AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
+        //FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
+        rootLayout.getChildren().add(gridPane);
     }
 
     private Node loadLoader(FXMLLoader loader, String errorMsg ) {
