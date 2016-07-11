@@ -179,9 +179,9 @@ public class MainController extends UiController{
         gridPane.getStyleClass().add("grid-pane");
         StatusBarFooterController controller = loader.getController();
         controller.init(config.getUpdateInterval(), config.getAddressBookName());
-        AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
-        FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
-        placeHolder.getChildren().add(gridPane);
+        //AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
+        //FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
+        rootLayout.getChildren().add(gridPane);
     }
 
     private Node loadLoader(FXMLLoader loader, String errorMsg ) {

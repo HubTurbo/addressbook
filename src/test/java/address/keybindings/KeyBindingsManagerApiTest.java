@@ -53,10 +53,10 @@ public class KeyBindingsManagerApiTest {
         verifySequence(new JumpToListRequestEvent(-1), "G", "B");
         verifySequence(new JumpToListRequestEvent(1), "G", "T");
 
-        //verifyHotkey(new MinimizeAppRequestEvent(), "CTRL + ALT + X");
-        //verifyHotkey(new MinimizeAppRequestEvent(), "META + ALT + X");
-        //verifyHotkey(new ResizeAppRequestEvent(), "CTRL + SHIFT + X");
-        //verifyHotkey(new ResizeAppRequestEvent(), "META + SHIFT + X");
+        verifyHotkey(new MinimizeAppRequestEvent(), "CTRL + ALT + X");
+        verifyHotkey(new MinimizeAppRequestEvent(), "META + ALT + X");
+        verifyHotkey(new ResizeAppRequestEvent(), "CTRL + SHIFT + X");
+        verifyHotkey(new ResizeAppRequestEvent(), "META + SHIFT + X");
 
         verifyAccelerator("PERSON_CHANGE_CANCEL_ACCELERATOR", "SHORTCUT + Z");
         verifyAccelerator("HELP_PAGE_ACCELERATOR", "F1");
@@ -69,7 +69,7 @@ public class KeyBindingsManagerApiTest {
                 .forEach(i -> verifyShortcut(new JumpToListRequestEvent(i), "SHORTCUT DIGIT"+i));
 
         //Ensure that all key bindings have been tested (in case a future developer added a key binding without tests)
-        //assertTrue("Some key bindings are not tested : " + yetToTest, yetToTest.isEmpty());
+        assertTrue("Some key bindings are not tested : " + yetToTest, yetToTest.isEmpty());
     }
 
     @Test
