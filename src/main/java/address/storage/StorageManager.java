@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Manages storage of addressbook data in local disk.
@@ -25,10 +26,12 @@ public class StorageManager extends ComponentManager {
     private File userPrefsFile;
 
     private final Consumer<ReadOnlyAddressBook> loadedDataCallback;
+    private final Supplier<ReadOnlyAddressBook> defaultDataSupplier;
 
-    public StorageManager(Consumer<ReadOnlyAddressBook> loadedDataCallback, Config config, UserPrefs userPrefs) {
+    public StorageManager(Consumer<ReadOnlyAddressBook> loadedDataCallback, Supplier<ReadOnlyAddressBook> defaultDataSupplier, Config config, UserPrefs userPrefs) {
         super();
         this.loadedDataCallback = loadedDataCallback;
+        this.defaultDataSupplier = defaultDataSupplier;
         this.saveFile = new File(config.getLocalDataFilePath());
         this.userPrefsFile = config.getPrefsFileLocation();
         this.userPrefs = userPrefs;
@@ -109,7 +112,7 @@ public class StorageManager extends ComponentManager {
     public void handleLoadDataRequestEvent(LoadDataRequestEvent ldre) {
         File dataFile = ldre.file;
         logger.info("Handling load data request received: {}", dataFile);
-        loadDataFromFile(dataFile);
+        loadDataFile(dataFile);
     }
 
     /**
@@ -135,7 +138,7 @@ public class StorageManager extends ComponentManager {
      * Raises FileSavingExceptionEvent if the file is not found or if there was an error during
      * saving or data conversion.
      */
-    public void saveDataToFile(File file, ReadOnlyAddressBook data){
+    public void saveDataToFile(File file, ReadOnlyAddressBook data) {
         try {
             saveAddressBook(file, data);
         } catch (IOException | DataConversionException e) {
@@ -193,14 +196,37 @@ public class StorageManager extends ComponentManager {
      */
     public void start() {
         logger.info("Starting storage manager.");
-        loadDataFromFile(saveFile);
+        initializeDataFile(saveFile);
     }
 
-    protected void loadDataFromFile(File dataFile) {
+    protected void initializeDataFile(File dataFile) {
+        try {
+            loadDataFromFile(dataFile);
+        } catch (FileNotFoundException e) {
+            logger.debug("File {} not found, attempting to create file with default data", dataFile);
+            try {
+                saveAddressBook(saveFile, defaultDataSupplier.get());
+            } catch (DataConversionException | IOException e1) {
+                logger.fatal("Unable to initialize local data file with default data.");
+                assert false : "Unable to initialize local data file with default data.";
+            }
+        }
+    }
+
+    protected void loadDataFile(File dataFile) {
+        try {
+            loadDataFromFile(dataFile);
+        } catch (FileNotFoundException e) {
+            logger.debug("File not found: {}", dataFile);
+            raise(new FileOpeningExceptionEvent(e, dataFile));
+        }
+    }
+
+    protected void loadDataFromFile(File dataFile) throws FileNotFoundException {
         try {
             logger.debug("Attempting to load data from file: {}", dataFile);
             loadedDataCallback.accept(getData());
-        } catch (FileNotFoundException | DataConversionException e) {
+        } catch (DataConversionException e) {
             logger.debug("Error loading data from file: {}", e);
             raise(new FileOpeningExceptionEvent(e, dataFile));
         }
