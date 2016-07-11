@@ -27,7 +27,6 @@ public class EditTagRequest extends Request {
     @Override
     public void run() {
         try {
-            cloudRateLimitStatus.useQuota();
             CloudTag returnedTag = editTagInAddressBook(addressBookName, oldTagName, editedTag);
             resultContainer.complete(returnedTag);
         } catch (FileNotFoundException | DataConversionException | RejectedExecutionException e) {

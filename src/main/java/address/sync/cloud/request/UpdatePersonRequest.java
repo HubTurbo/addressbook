@@ -30,7 +30,6 @@ public class UpdatePersonRequest extends Request {
     @Override
     public void run() {
         try {
-            cloudRateLimitStatus.useQuota();
             CloudPerson returnedPerson = updatePersonInAddressBook(addressBookName, personId, updatedPerson);
             resultContainer.complete(returnedPerson);
         } catch (FileNotFoundException | DataConversionException | RejectedExecutionException e) {

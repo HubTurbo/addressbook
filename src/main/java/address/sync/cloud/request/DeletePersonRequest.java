@@ -28,7 +28,6 @@ public class DeletePersonRequest extends Request {
     @Override
     public void run() {
         try {
-            cloudRateLimitStatus.useQuota();
             logger.debug("Deleting person #{}", personId);
             deletePersonFromAddressBook(addressBookName, personId);
             logger.debug("Person #{} deleted", personId);

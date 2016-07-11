@@ -23,7 +23,6 @@ public class CreatePersonRequest extends Request {
     @Override
     public void run() {
         try {
-            cloudRateLimitStatus.useQuota();
             CloudPerson returnedPerson = createPersonInAddressBook(addressBookName, newPerson);
             resultContainer.complete(returnedPerson);
         } catch (FileNotFoundException | DataConversionException | RejectedExecutionException e) {

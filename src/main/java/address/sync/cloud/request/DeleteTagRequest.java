@@ -26,7 +26,6 @@ public class DeleteTagRequest extends Request {
 
     public void run() {
         try {
-            cloudRateLimitStatus.useQuota();
             deleteTagFromAddressBook(addressBookName, tagName);
             resultContainer.complete(null);
         } catch (FileNotFoundException | DataConversionException | NoSuchElementException | RejectedExecutionException e) {

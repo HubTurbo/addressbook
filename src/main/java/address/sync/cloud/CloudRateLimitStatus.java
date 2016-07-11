@@ -107,7 +107,8 @@ public class CloudRateLimitStatus {
         useQuota(1);
     }
 
-    public void replenishQuota() {
-        useQuota(-1);
+    public boolean hasQuotaRemaining() {
+        logger.info("Current quota left: {}", quotaRemaining);
+        return quotaRemaining > 0;
     }
 }
