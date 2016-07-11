@@ -55,7 +55,7 @@ public class HyperBrowser {
 
     private void initialiseHyperBrowser(){
         this.hyperBrowserView = new AnchorPane();
-        FxViewUtil.applyAnchorBoundaryParameters(hyperBrowserView, 0.0, 0.0, 0.0, 0.0);
+
         if (initialScreen.isPresent()) {
             hyperBrowserView.getChildren().add(initialScreen.get());
         }
