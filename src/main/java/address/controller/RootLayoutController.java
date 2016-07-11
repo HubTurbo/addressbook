@@ -1,11 +1,13 @@
 package address.controller;
 
 import address.MainApp;
+import address.keybindings.KeyBindingsManager;
 import address.model.ModelManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.MenuItem;
 
 /**
  * The controller for the root layout. The root layout provides the basic
