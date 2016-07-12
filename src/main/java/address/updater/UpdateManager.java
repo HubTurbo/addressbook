@@ -151,9 +151,9 @@ public class UpdateManager extends ComponentManager {
             return;
         }
         
-        if (isJarUpdaterExist()) {
+        if (!isJarUpdaterResourceExist()) {
             raise(new UpdaterFailedEvent(MSG_JAR_UPDATER_MISSING));
-            logger.debug(MSG_JAR_UPDATER_MISSING);
+            logger.fatal(MSG_JAR_UPDATER_MISSING);
             return;
         }
         
@@ -171,8 +171,8 @@ public class UpdateManager extends ComponentManager {
         downloadedVersions.add(latestVersion.get());
     }
 
-    private boolean isJarUpdaterExist() {
-        return !new File(JAR_UPDATER_RESOURCE_PATH).exists();
+    private boolean isJarUpdaterResourceExist() {
+        return new File(JAR_UPDATER_RESOURCE_PATH).exists();
     }
 
     /**
