@@ -5,6 +5,7 @@ import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProg
 
 import address.events.BaseEvent;
 import address.events.DeletePersonOnRemoteRequestEvent;
+import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.PlatformExecUtil;
@@ -21,10 +22,15 @@ import java.util.function.Supplier;
  */
 public class DeletePersonCommand extends ChangePersonInModelCommand {
 
+    public static final String COMMAND_TYPE = "Delete Person";
+
     private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
     private final ViewablePerson target;
     private final String addressbookName;
+
+    // Person state snapshots
+    private ReadOnlyPerson personDataBeforeExecution;
 
     /**
      * @see super#ChangePersonInModelCommand(int, Supplier, int)
@@ -49,12 +55,8 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    public String getName() {
-        return "Delete Person " + target.idString();
-    }
-
-    @Override
     protected void before() {
+        personDataBeforeExecution = new Person(target);
         if (model.personHasOngoingChange(target)) {
             try {
                 model.getOngoingChangeForPerson(target).waitForCompletion();
@@ -75,7 +77,9 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
             target.forceSyncFromBacking();
         });
         model.unassignOngoingChangeForPerson(target.getId());
-        model.trackFinishedCommand(this);
+        final String targetName = personDataBeforeExecution.fullName(); // no name changes for deletes
+        model.trackCommandResult(new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+                                TARGET_TYPE, target.idString(), targetName, targetName));
     }
 
     @Override

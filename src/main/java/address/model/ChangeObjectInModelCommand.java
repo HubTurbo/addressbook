@@ -3,13 +3,14 @@ package address.model;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
+import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
+import static address.model.SingleTargetCommandResult.CommandStatus;
 
 /**
  * Framework-style superclass for all commands that would cause changes for single domain objects in the model,
@@ -19,7 +20,7 @@ import static address.model.ChangeObjectInModelCommand.State.*;
  *
  * Should be run OUTSIDE THE FX THREAD because the {@link #run()} method involves blocking calls.
  */
-public abstract class ChangeObjectInModelCommand implements Runnable, CommandInfo {
+public abstract class ChangeObjectInModelCommand implements Runnable {
 
     public enum State {
         // Initial state
@@ -33,19 +34,30 @@ public abstract class ChangeObjectInModelCommand implements Runnable, CommandInf
         REQUESTING_REMOTE_CHANGE ("Request to Remote"),
 
         // Terminal states
-        CANCELLED ("Cancelled"),
-        SUCCESSFUL ("Successful"),
-        FAILED ("Failed");
+        CANCELLED ("Cancelled", CommandStatus.CANCELLED),
+        SUCCESSFUL ("Successful", CommandStatus.SUCCESSFUL),
+        FAILED ("Failed", CommandStatus.FAILED);
 
-        private final String msg;
-
-        State(String msg) {
-            this.msg = msg;
+        private final String descr;
+        private final Optional<CommandStatus> resultStatusMapping;
+        State(String descr) {
+            this.descr = descr;
+            resultStatusMapping = Optional.empty();
         }
-
+        State(String descr, CommandStatus resultStatusMapping) {
+            this.descr = descr;
+            this.resultStatusMapping = Optional.of(resultStatusMapping);
+        }
         @Override
         public String toString() {
-            return msg;
+            return descr;
+        }
+        public CommandStatus toResultStatus() {
+            if (resultStatusMapping.isPresent()) {
+                return resultStatusMapping.get();
+            } else {
+                throw new UnsupportedOperationException();
+            }
         }
     }
 
@@ -71,7 +83,6 @@ public abstract class ChangeObjectInModelCommand implements Runnable, CommandInf
         this.gracePeriodDurationInSeconds = gracePeriodDurationInSeconds;
     }
 
-    @Override
     public int getCommandId() {
         return commandId;
     }
@@ -82,11 +93,6 @@ public abstract class ChangeObjectInModelCommand implements Runnable, CommandInf
 
     public State getState() {
         return state.getValue();
-    }
-
-    @Override
-    public String statusString() {
-        return getState().toString();
     }
 
     void setState(State newState) {
@@ -145,6 +151,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable, CommandInf
         default :
             assert false;
         }
+
         after();
         completionLatch.countDown();
     }

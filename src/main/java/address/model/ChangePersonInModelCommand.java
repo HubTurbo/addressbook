@@ -19,6 +19,7 @@ import java.util.function.Supplier;
  */
 public abstract class ChangePersonInModelCommand extends ChangeObjectInModelCommand {
 
+    public static final String TARGET_TYPE = "Person";
     private static final AppLogger logger = LoggerManager.getLogger(ChangePersonInModelCommand.class);
 
     protected Supplier<Optional<ReadOnlyPerson>> inputRetriever;
@@ -42,10 +43,10 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
 
     @Override
     protected State retrieveInput() {
-        final Optional<ReadOnlyPerson> input = inputRetriever.get();
-        if (input.isPresent()) {
-            this.input = input.get();
-            logger.debug("retrieveInput: Retrieving input " + input.get().toString());
+        final Optional<ReadOnlyPerson> retrieved = inputRetriever.get();
+        if (retrieved.isPresent()) {
+            this.input = retrieved.get();
+            logger.debug("retrieveInput: Retrieving input " + retrieved.get().toString());
             return SIMULATING_RESULT; // normal exec path
         }
         // Problem retrieving input (most likely user cancelled input dialog or some exception occurred.

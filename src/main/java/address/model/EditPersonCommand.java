@@ -23,10 +23,16 @@ import java.util.function.Supplier;
  */
 public class EditPersonCommand extends ChangePersonInModelCommand {
 
+    public static final String COMMAND_TYPE = "Edit Person";
+
     private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
     private final ViewablePerson target;
     private final String addressbookName;
+
+    // Person state snapshots
+    private ReadOnlyPerson personDataBeforeExecution;
+    private ReadOnlyPerson personDataAfterExecution;
 
     /**
      * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
@@ -55,33 +61,33 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    public String getName() {
-        return "Edit Person " + target.idString();
-    }
-
-    @Override
     protected void before() {
         if (model.personHasOngoingChange(target)) {
             try {
                 model.getOngoingChangeForPerson(target).waitForCompletion();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                assert false;
             }
         }
         PlatformExecUtil.runAndWait(() -> target.setChangeInProgress(EDITING));
         model.assignOngoingChangeToPerson(target.getId(), this);
         target.stopSyncingWithBackingObject();
+        personDataBeforeExecution = new Person(target);
     }
 
     @Override
     protected void after() {
+        personDataAfterExecution = new Person(target);
         PlatformExecUtil.runAndWait(() -> {
             target.setChangeInProgress(NONE);
             target.continueSyncingWithBackingObject();
             target.forceSyncFromBacking();
         });
         model.unassignOngoingChangeForPerson(target.getId());
-        model.trackFinishedCommand(this);
+        model.trackCommandResult(new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+                                TARGET_TYPE, target.idString(), personDataBeforeExecution.fullName(),
+                                personDataAfterExecution.fullName()));
     }
 
     @Override

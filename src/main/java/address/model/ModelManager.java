@@ -34,7 +34,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     private final ViewableAddressBook visibleModel;
 
     private final Map<Integer, ChangePersonInModelCommand> personChangesInProgress;
-    private final ObservableList<ChangeObjectInModelCommand> finishedCommands;
+    private final ObservableList<SingleTargetCommandResult> commandResults;
     private final Executor commandExecutor;
     private final AtomicInteger commandCounter;
 
@@ -44,7 +44,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     {
         personChangesInProgress = new HashMap<>();
         commandExecutor = Executors.newCachedThreadPool();
-        finishedCommands = FXCollections.observableArrayList();
+        commandResults = FXCollections.observableArrayList();
         commandCounter = new AtomicInteger(0);
     }
 
@@ -92,8 +92,8 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
 //// EXPOSING MODEL
 
-    public UnmodifiableObservableList<CommandInfo> getFinishedCommands() {
-        return new UnmodifiableObservableList<>(finishedCommands);
+    public UnmodifiableObservableList<SingleTargetCommandResult> getCommandResults() {
+        return new UnmodifiableObservableList<>(commandResults);
     }
 
     /**
@@ -307,8 +307,8 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         return personChangesInProgress.containsKey(personId);
     }
 
-    void trackFinishedCommand(ChangeObjectInModelCommand finished) {
-        Platform.runLater(() -> finishedCommands.add(finished));
+    void trackCommandResult(SingleTargetCommandResult result) {
+        Platform.runLater(() -> commandResults.add(result));
     }
 
     int assignCommandId() {

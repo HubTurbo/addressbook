@@ -458,7 +458,7 @@ public class MainController extends UiController{
             dialogStage.getIcons().add(getImage(ICON_INFO));
             // Set the persons into the controller.
             ActivityHistoryController controller = loader.getController();
-            controller.setConnections(modelManager.getFinishedCommands());
+            controller.setConnections(modelManager.getCommandResults());
             controller.init();
             dialogStage.show();
         } catch (IOException e) {
