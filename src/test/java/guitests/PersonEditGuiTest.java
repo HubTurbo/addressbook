@@ -16,6 +16,13 @@ import static guitests.PersonEditGuiTest.TypicalData.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * System tests for 'Edit person' feature.
+ * <p> </p>NOT TESTED: <br>
+ * * Tab order in the edit form: covered in GUI unit tests. <br>
+ * * Tag search using partial words: covered in GUI unit tests. <br>
+ * * Data validation. <br>
+ */
 public class PersonEditGuiTest extends GuiTestBase {
 
     private AddressBook initialData = generateInitialData();
@@ -93,5 +100,12 @@ public class PersonEditGuiTest extends GuiTestBase {
 
     }
 
+    /* TODO:
+     * Test using 'Edit' context menu
+     * Test using 'Edit' button
+     * Test 'Cancel'
+     * Test 'OK'
+     * Test data validation (just one case)
+     */
 
 }
