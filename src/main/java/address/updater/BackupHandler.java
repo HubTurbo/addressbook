@@ -111,15 +111,18 @@ public class BackupHandler {
         }
 
         List<String> backupFilesNames = getSortedBackupFilesNames();
-        List<String> backupFilesToDelete = getBackupFilesToDelete(backupFilesNames);
+        List<Version> backupVersions = getVersionsFromFileNames(backupFilesNames);
 
+        List<String> backupFilesToDelete = getBackupFilesToDelete(backupFilesNames);
         backupFilesToDelete.stream()
                 .forEach(this::deleteBackupFile);
 
         List<Version> deletedVersions = getVersionsFromFileNames(backupFilesToDelete);
-        List<Version> allStoredVersions = getVersionsFromFileNames(backupFilesNames);
+        List<Version> storedVersions = backupVersions.stream()
+                .filter(backupVersion -> !deletedVersions.contains(backupVersion))
+                .collect(Collectors.toCollection(ArrayList::new));
 
-        Set<String> unusedDependencies = getUnusedDependencies(deletedVersions, allStoredVersions,
+        Set<String> unusedDependencies = getUnusedDependencies(deletedVersions, storedVersions,
                 dependencyHistoryHandler.getDependenciesTableForKnownVersions());
 
         unusedDependencies.stream()
