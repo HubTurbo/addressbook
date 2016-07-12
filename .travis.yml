@@ -7,10 +7,10 @@ before_install:
           - "export DISPLAY=:99.0"
           - "sh -e /etc/init.d/xvfb start"
           - "sudo mkdir lib"
-          - "sudo wget https://github.com/HubTurbo/addressbook/releases/download/Resources/jxbrowser-linux32-6.4.jar /lib"
-          - "sudo wget https://github.com/HubTurbo/addressbook/releases/download/Resources/jxbrowser-linux64-6.4.jar /lib"
-          - "sudo wget https://github.com/HubTurbo/addressbook/releases/download/Resources/jxbrowser-win-6.4.jar /lib"
-          - "sudo wget https://github.com/HubTurbo/addressbook/releases/download/Resources/jxbrowser-mac-6.4.jar /lib"
+          - "sudo wget https://github.com/HubTurbo/addressbook/releases/download/Resources/jxbrowser-linux32-6.4.jar -P /lib"
+          - "sudo wget https://github.com/HubTurbo/addressbook/releases/download/Resources/jxbrowser-linux64-6.4.jar -P /lib"
+          - "sudo wget https://github.com/HubTurbo/addressbook/releases/download/Resources/jxbrowser-win-6.4.jar -P /lib"
+          - "sudo wget https://github.com/HubTurbo/addressbook/releases/download/Resources/jxbrowser-mac-6.4.jar -P /lib"
 
 addons:
   apt:
