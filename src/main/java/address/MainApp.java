@@ -26,8 +26,8 @@ public class MainApp extends Application {
     private static final AppLogger logger = LoggerManager.getLogger(MainApp.class);
 
     private static final int VERSION_MAJOR = 1;
-    private static final int VERSION_MINOR = 2;
-    private static final int VERSION_PATCH = 1;
+    private static final int VERSION_MINOR = 3;
+    private static final int VERSION_PATCH = 0;
     private static final boolean VERSION_EARLY_ACCESS = true;
 
     public static final Version VERSION = new Version(
@@ -104,7 +104,7 @@ public class MainApp extends Application {
     }
 
     protected StorageManager initStorageManager(ModelManager modelManager, Config config, UserPrefs userPrefs) {
-        return new StorageManager(modelManager::resetData, config, userPrefs);
+        return new StorageManager(modelManager::resetData, modelManager::getDefaultAddressBook, config, userPrefs);
     }
 
     protected ModelManager initModelManager(Config config) {

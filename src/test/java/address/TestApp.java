@@ -7,9 +7,11 @@ import address.sync.RemoteManager;
 import address.sync.cloud.CloudManipulator;
 import address.sync.cloud.model.CloudAddressBook;
 import address.util.Config;
+import address.util.GuiSettings;
 import address.util.TestUtil;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.function.Supplier;
 
 /**
@@ -20,6 +22,7 @@ public class TestApp extends MainApp {
 
     public static final String SAVE_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleData.xml");
     protected static final String DEFAULT_CLOUD_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleCloudData.xml");
+    protected static final String DEFAULT_PREF_FILE_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("pref_testing.json");
     protected Supplier<ReadOnlyAddressBook> initialDataSupplier = () -> null;
     protected Supplier<CloudAddressBook> initialCloudDataSupplier = () -> null;
     protected String saveFileLocation = SAVE_LOCATION_FOR_TESTING;
@@ -48,6 +51,7 @@ public class TestApp extends MainApp {
         Config config = super.initConfig(configFilePath);
         config.setAppTitle("Test App");
         config.setLocalDataFilePath(saveFileLocation);
+        config.setPrefsFileLocation(new File(DEFAULT_PREF_FILE_LOCATION_FOR_TESTING));
         // Use default cloud test data if no data is supplied
         if (initialCloudDataSupplier.get() == null) config.setCloudDataFilePath(DEFAULT_CLOUD_LOCATION_FOR_TESTING);
         return config;
@@ -56,6 +60,7 @@ public class TestApp extends MainApp {
     @Override
     protected UserPrefs initPrefs(Config config) {
         UserPrefs userPrefs = super.initPrefs(config);
+        userPrefs.setGuiSettings(new GuiSettings(600.0, 600.0, 0, 0));
         return userPrefs;
     }
 

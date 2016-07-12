@@ -42,7 +42,7 @@ import java.util.Optional;
 public class MainController extends UiController{
     private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
     private static final String FXML_ACTIVITY_HISTORY = "/view/ActivityHistory.fxml";
-    private static final String FXML_HELP = "/view/help.fxml";
+    private static final String FXML_HELP = "/view/Help.fxml";
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
@@ -57,7 +57,7 @@ public class MainController extends UiController{
     private static final String ICON_INFO = "/images/info_icon.png";
     private static final String ICON_HELP = "/images/help_icon.png";
     public static final int MIN_HEIGHT = 600;
-    public static final int MIN_WIDTH = 740;
+    public static final int MIN_WIDTH = 450;
 
     private Stage primaryStage;
     private VBox rootLayout;
