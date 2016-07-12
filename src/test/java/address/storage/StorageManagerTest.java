@@ -59,7 +59,8 @@ public class StorageManagerTest {
         when(configMock.getPrefsFileLocation()).thenReturn(DUMMY_PREFS_FILE);
         when(configMock.getLocalDataFilePath()).thenReturn(DUMMY_DATA_FILE_PATH);
         modelManagerMock = Mockito.mock(ModelManager.class);
-        storageManager = new StorageManager(modelManagerMock::resetData, configMock, userPrefsMock);
+        doCallRealMethod().when(modelManagerMock).getDefaultAddressBook();
+        storageManager = new StorageManager(modelManagerMock::resetData, modelManagerMock::getDefaultAddressBook, configMock, userPrefsMock);
         storageManager.setEventManager(eventManagerMock);
 
         // This spy will be used to mock only one method of the object under test

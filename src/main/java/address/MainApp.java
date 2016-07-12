@@ -104,7 +104,7 @@ public class MainApp extends Application {
     }
 
     protected StorageManager initStorageManager(ModelManager modelManager, Config config, UserPrefs userPrefs) {
-        return new StorageManager(modelManager::resetData, config, userPrefs);
+        return new StorageManager(modelManager::resetData, modelManager::getDefaultAddressBook, config, userPrefs);
     }
 
     protected ModelManager initModelManager(Config config) {

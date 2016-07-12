@@ -79,7 +79,6 @@ public class JsonUtilTest {
         addressBook.setTags(Arrays.asList(sampleTag));
 
         String jsonString = JsonUtil.toJsonString(new StorageAddressBook(addressBook));
-        System.out.println(jsonString);
 
         // Read
         ReadOnlyAddressBook addressBookRead = JsonUtil.fromJsonString(jsonString, StorageAddressBook.class);

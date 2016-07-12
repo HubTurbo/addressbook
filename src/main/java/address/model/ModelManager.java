@@ -71,6 +71,10 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         this(new AddressBook(), config);
     }
 
+    public ReadOnlyAddressBook getDefaultAddressBook() {
+        return new AddressBook();
+    }
+
     /**
      * Clears existing backing model and replaces with the provided new data.
      */

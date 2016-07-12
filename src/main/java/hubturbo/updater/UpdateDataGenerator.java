@@ -17,7 +17,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Used to help developer create release in generating the update data
+ * This class is meant to help developers generate the latest app data into UpdateData.json,
+ * including the libraries and their download links
+ *
+ * To be used with gradle task generateUpdateData to provide command line arguments, generally when creating a release
  */
 public class UpdateDataGenerator {
     private static final String BASE_DOWNLOAD_LINK =

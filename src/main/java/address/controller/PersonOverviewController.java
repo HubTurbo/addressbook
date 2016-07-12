@@ -5,7 +5,6 @@ import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
-import address.model.datatypes.tag.Tag;
 import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
@@ -14,7 +13,7 @@ import address.keybindings.KeyBindingsManager;
 import address.parser.qualifier.TrueQualifier;
 import address.status.PersonDeletedStatus;
 import address.ui.PersonListViewCell;
-import address.util.FilteredList;
+import address.util.collections.FilteredList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.collections.ReorderedList;
@@ -29,10 +28,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Dialog to view the list of persons and their details

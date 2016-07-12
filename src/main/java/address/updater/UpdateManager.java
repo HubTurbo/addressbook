@@ -25,8 +25,10 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
- * Checks for update to application and download and apply it if it is available
- * For more details, see documentation
+ * This class is meant to check with the server to determine if there is a newer version of the app to update to
+ *
+ * Data required for the update will be downloaded in the background while the app is running,
+ * and the updates will automatically be applied using a separate application only after the user closes the app
  */
 public class UpdateManager extends ComponentManager {
     public static final String UPDATE_DIR = "update";
@@ -38,7 +40,7 @@ public class UpdateManager extends ComponentManager {
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR updater";
     private static final String MSG_FAIL_MAIN_APP_URL = "Main app download link is broken";
-    private static final String MSG_NO_UPDATE_DATA = "There is no update data to be processed";
+    private static final String MSG_NO_LATEST_DATA = "There is no latest data to be processed";
     private static final String MSG_NO_UPDATE = "There is no update";
     private static final String MSG_NO_VERSION_AVAILABLE = "No version to be downloaded";
     private static final String MSG_NO_NEWER_VERSION = "No newer version to be downloaded";
@@ -90,28 +92,32 @@ public class UpdateManager extends ComponentManager {
         }
 
         raise(new UpdaterInProgressEvent("Getting data from server", -1));
-        Optional<VersionDescriptor> updateData = getUpdateDataFromServer();
+        Optional<VersionDescriptor> latestData = getLatestDataFromServer();
 
-        if (!updateData.isPresent()) {
-            raise(new UpdaterFailedEvent(MSG_NO_UPDATE_DATA));
-            logger.debug(MSG_NO_UPDATE_DATA);
+        // No data obtained from server
+        if (!latestData.isPresent()) {
+            raise(new UpdaterFailedEvent(MSG_NO_LATEST_DATA));
+            logger.debug(MSG_NO_LATEST_DATA);
             return;
         }
 
-        Optional<Version> latestVersion = getLatestVersion(updateData.get());
+        Optional<Version> latestVersion = getLatestVersion(latestData.get());
 
+        // No latest version found
         if (!latestVersion.isPresent()) {
             raise(new UpdaterFailedEvent(MSG_NO_VERSION_AVAILABLE));
             logger.fatal(MSG_NO_VERSION_AVAILABLE);
             return;
         }
 
+        // Wrong channel - EA <-> stable
         if (isOnSameUpdateChannel(latestVersion.get())) {
             raise(new UpdaterFailedEvent(MSG_DIFF_CHANNEL));
             logger.fatal(MSG_DIFF_CHANNEL);
             return;
         }
 
+        // No updates
         if (downloadedVersions.contains(latestVersion.get()) || currentVersion.compareTo(latestVersion.get()) >= 0) {
             raise(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
             logger.debug(MSG_NO_NEWER_VERSION);
@@ -121,7 +127,7 @@ public class UpdateManager extends ComponentManager {
         raise(new UpdaterInProgressEvent("Collecting all update files that are to be downloaded", -1));
         HashMap<String, URL> filesToBeUpdated;
         try {
-            filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(updateData.get());
+            filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(latestData.get());
         } catch (MalformedURLException e) {
             raise(new UpdaterFailedEvent(MSG_FAIL_MAIN_APP_URL));
             logger.debug(MSG_FAIL_MAIN_APP_URL);
@@ -167,26 +173,26 @@ public class UpdateManager extends ComponentManager {
     }
 
     /**
-     * Get update data
+     * Get latest data from the server, containing version information as well as the required libraries
      */
-    private Optional<VersionDescriptor> getUpdateDataFromServer() {
-        URL updateDataUrl;
+    private Optional<VersionDescriptor> getLatestDataFromServer() {
+        URL latestDataFileUrl;
 
         try {
             if (currentVersion.isEarlyAccess()) {
-                updateDataUrl = new URL(VERSION_DESCRIPTOR_ON_SERVER_EARLY);
+                latestDataFileUrl = new URL(VERSION_DESCRIPTOR_ON_SERVER_EARLY);
             } else {
-                updateDataUrl = new URL(VERSION_DESCRIPTOR_ON_SERVER_STABLE);
+                latestDataFileUrl = new URL(VERSION_DESCRIPTOR_ON_SERVER_STABLE);
             }
         } catch (MalformedURLException e) {
-            logger.debug("Update data URL is invalid", e);
+            logger.debug("Latest data file URL is invalid", e);
             return Optional.empty();
         }
 
         try {
-            downloadFile(VERSION_DESCRIPTOR_FILE, updateDataUrl);
+            downloadFile(VERSION_DESCRIPTOR_FILE, latestDataFileUrl);
         } catch (IOException e) {
-            logger.debug("Failed to download update data");
+            logger.debug("Failed to download latest data");
             return Optional.empty();
         }
 
@@ -194,7 +200,7 @@ public class UpdateManager extends ComponentManager {
             return Optional.of(
                     StorageManager.deserializeObjectFromJsonFile(VERSION_DESCRIPTOR_FILE, VersionDescriptor.class));
         } catch (IOException e) {
-            logger.debug("Failed to parse update data from json file.", e);
+            logger.debug("Failed to parse data from latest data file.", e);
         }
 
         return Optional.empty();
@@ -225,11 +231,7 @@ public class UpdateManager extends ComponentManager {
 
         HashMap<String, URL> filesToBeDownloaded = new HashMap<>();
 
-        URL mainAppDownloadLink;
-
-        mainAppDownloadLink = versionDescriptor.getDownloadLinkForMainApp();
-
-        filesToBeDownloaded.put(MAIN_APP_FILEPATH, mainAppDownloadLink);
+        filesToBeDownloaded.put(MAIN_APP_FILEPATH, versionDescriptor.getDownloadLinkForMainApp());
 
         versionDescriptor.getLibraries().stream()
                 .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == OsDetector.getOs())
@@ -276,7 +278,7 @@ public class UpdateManager extends ComponentManager {
             }
             Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            logger.debug("Failed to download update for {}", targetFile.toString(), e);
+            logger.debug("Failed to download update for {}: {}", targetFile.toString(), e);
             throw e;
         }
     }
@@ -328,11 +330,7 @@ public class UpdateManager extends ComponentManager {
     }
 
     public void applyUpdate() {
-        if (!ManifestFileReader.isRunFromJar()) {
-            return;
-        }
-
-        if (!this.isUpdateApplicable) {
+        if (!ManifestFileReader.isRunFromJar() || !this.isUpdateApplicable) {
             return;
         }
 
@@ -345,13 +343,13 @@ public class UpdateManager extends ComponentManager {
 
         writeDownloadedVersionsToFile();
 
-        String restarterAppPath = JAR_UPDATER_APP_PATH;
+        String jarUpdaterAppPath = JAR_UPDATER_APP_PATH;
         String localUpdateSpecFilepath = LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
         String cmdArg = String.format("--update-specification=%s --source-dir=%s", localUpdateSpecFilepath, UPDATE_DIR);
 
-        String command = String.format("java -jar %1$s %2$s", restarterAppPath, cmdArg);
+        String command = String.format("java -jar %1$s %2$s", jarUpdaterAppPath, cmdArg);
 
-        logger.info("Restarting with command " + command);
+        logger.info("Starting jar updater with command " + command);
 
         try {
             Runtime.getRuntime().exec(command);

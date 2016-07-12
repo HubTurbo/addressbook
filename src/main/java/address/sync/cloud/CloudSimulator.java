@@ -62,7 +62,7 @@ public class CloudSimulator implements IRemote {
      * @return a response wrapper, containing the added person if successful
      */
     @Override
-    public RemoteResponse createPerson(String addressBookName, CloudPerson newPerson, String previousETag) {
+    public synchronized RemoteResponse createPerson(String addressBookName, CloudPerson newPerson, String previousETag) {
         logger.debug("createPerson called with: addressbook {}, person {}, prevETag {}", addressBookName, newPerson,
                 previousETag);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
@@ -94,7 +94,7 @@ public class CloudSimulator implements IRemote {
      * @return
      */
     @Override
-    public RemoteResponse getPersons(String addressBookName, int pageNumber, int resourcesPerPage,
+    public synchronized RemoteResponse getPersons(String addressBookName, int pageNumber, int resourcesPerPage,
                                      String previousETag) {
         logger.debug("getPersons called with: addressbook {}, page {}, resourcesperpage {}, prevETag {}",
                 addressBookName, pageNumber, resourcesPerPage, previousETag);
@@ -138,7 +138,7 @@ public class CloudSimulator implements IRemote {
      * @return
      */
     @Override
-    public RemoteResponse getTags(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
+    public synchronized RemoteResponse getTags(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
         logger.debug("getTags called with: addressbook {}, page {}, resourcesperpage {}, prevETag {}", addressBookName,
                 pageNumber, resourcesPerPage, previousETag);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
@@ -174,7 +174,7 @@ public class CloudSimulator implements IRemote {
      * @return
      */
     @Override
-    public RemoteResponse getRateLimitStatus(String previousETag) {
+    public synchronized RemoteResponse getRateLimitStatus(String previousETag) {
         // TODO: Figure out GitHub response for limit status if ETag is provided
         logger.debug("getRateLimitStatus called with: prevETag {}", previousETag);
         return RemoteResponse.getLimitStatusResponse(cloudRateLimitStatus);
@@ -192,7 +192,7 @@ public class CloudSimulator implements IRemote {
      * @return
      */
     @Override
-    public RemoteResponse updatePerson(String addressBookName, int personId,
+    public synchronized RemoteResponse updatePerson(String addressBookName, int personId,
                                        CloudPerson updatedPerson, String previousETag) {
 
         logger.debug("updatePerson called with: addressbook {}, personid {}, person {}, prevETag {}", addressBookName,
@@ -223,7 +223,7 @@ public class CloudSimulator implements IRemote {
      * @return
      */
     @Override
-    public RemoteResponse deletePerson(String addressBookName, int personId) {
+    public synchronized RemoteResponse deletePerson(String addressBookName, int personId) {
         logger.debug("deletePerson called with: addressbook {}, personid {}", addressBookName, personId);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
         try {
@@ -252,7 +252,7 @@ public class CloudSimulator implements IRemote {
      * @return
      */
     @Override
-    public RemoteResponse createTag(String addressBookName, CloudTag newTag, String previousETag) {
+    public synchronized RemoteResponse createTag(String addressBookName, CloudTag newTag, String previousETag) {
         logger.debug("createTag called with: addressbook {}, tag {}, prevETag {}", addressBookName, newTag,
                 previousETag);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
@@ -282,7 +282,7 @@ public class CloudSimulator implements IRemote {
      * @return
      */
     @Override
-    public RemoteResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag, String previousETag) {
+    public synchronized RemoteResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag, String previousETag) {
         logger.debug("editTag called with: addressbook {}, tagname {}, tag {}, prevETag {}", addressBookName,
                 oldTagName, updatedTag, previousETag);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
@@ -312,7 +312,7 @@ public class CloudSimulator implements IRemote {
      * @return
      */
     @Override
-    public RemoteResponse deleteTag(String addressBookName, String tagName) {
+    public synchronized RemoteResponse deleteTag(String addressBookName, String tagName) {
         logger.debug("deleteTag called with: addressbook {}, tagname {}", addressBookName, tagName);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
         try {
@@ -339,7 +339,7 @@ public class CloudSimulator implements IRemote {
      * @return
      */
     @Override
-    public RemoteResponse createAddressBook(String addressBookName) {
+    public synchronized RemoteResponse createAddressBook(String addressBookName) {
         logger.debug("createAddressBook called with: addressbook {}", addressBookName);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
 
@@ -368,7 +368,7 @@ public class CloudSimulator implements IRemote {
      * @return
      */
     @Override
-    public RemoteResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber,
+    public synchronized RemoteResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber,
                                             int resourcesPerPage, String previousETag) {
         logger.debug("getUpdatedPersons called with: addressbook {}, time {}, pageno {}, resourcesperpage {}, prevETag {}",
                 addressBookName, timeString, pageNumber, resourcesPerPage, previousETag);
