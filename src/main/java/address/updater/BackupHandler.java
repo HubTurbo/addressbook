@@ -111,45 +111,70 @@ public class BackupHandler {
         }
 
         List<String> backupFilesNames = getSortedBackupFilesNames();
-        List<Version> deletedVersions = backupFilesNames.stream()
-                .limit(backupFilesNames.size() - MAX_BACKUP_JAR_KEPT)
-                .map(this::deleteBackupFile)
-                .collect(Collectors.toCollection(ArrayList::new));
+        List<String> backupFilesToDelete = getBackupFilesToDelete(backupFilesNames);
 
-        Set<String> dependenciesOfUnusedVersions = new HashSet<>();
-        Set<String> dependenciesOfVersionsInUse = new HashSet<>();
+        backupFilesToDelete.stream()
+                .forEach(this::deleteBackupFile);
 
-        dependencyHistoryHandler.getDependenciesTableForKnownVersions().entrySet().stream()
-                .forEach(e -> {
-                    if (deletedVersions.contains(e.getKey())) {
-                        dependenciesOfUnusedVersions.addAll(e.getValue());
-                    } else {
-                        dependenciesOfVersionsInUse.addAll(e.getValue());
-                    }
-                });
+        List<Version> deletedVersions = getVersionsFromFileNames(backupFilesToDelete);
+        List<Version> allStoredVersions = getVersionsFromFileNames(backupFilesNames);
 
-        dependenciesOfUnusedVersions.removeAll(dependenciesOfVersionsInUse);
+        Set<String> unusedDependencies = getUnusedDependencies(deletedVersions, allStoredVersions,
+                dependencyHistoryHandler.getDependenciesTableForKnownVersions());
 
-        dependenciesOfUnusedVersions.stream().forEach(dep -> {
-            try {
-                FileUtil.deleteFile(new File(dep));
-            } catch (IOException e) {
-                logger.warn("Failed to delete unused dependency: {}", dep, e);
-            }
-        });
+        unusedDependencies.stream()
+                .forEach(this::deleteDependency);
 
         dependencyHistoryHandler.cleanUpUnusedDependencies(deletedVersions);
     }
 
-    private Version deleteBackupFile(String backupFileName) {
-        logger.debug("Deleting {}", backupFileName);
+    private ArrayList<Version> getVersionsFromFileNames(List<String> backupFilesToDelete) {
+        return backupFilesToDelete.stream()
+                .map(this::getVersionFromFileName)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
 
+    /**
+     * Obtain names of backup files to delete, starting from the beginning of the list
+     * @param backupFilesNames
+     * @return
+     */
+    private ArrayList<String> getBackupFilesToDelete(List<String> backupFilesNames) {
+        return backupFilesNames.stream()
+                .limit(backupFilesNames.size() - MAX_BACKUP_JAR_KEPT)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private Set<String> getDependenciesOfVersions(List<Version> versions, Map<Version, List<String>> dependenciesTable) {
+        return versions.stream()
+                .flatMap(storedVersion -> dependenciesTable.get(storedVersion).stream())
+                .collect(Collectors.toCollection(HashSet::new));
+    }
+
+    private Set<String> getUnusedDependencies(List<Version> deletedVersions, List<Version> storedVersions,
+                                              Map<Version, List<String>> dependenciesTable) {
+        Set<String> possiblyUnusedDependencies = getDependenciesOfVersions(deletedVersions, dependenciesTable);
+        Set<String> requiredDependencies = getDependenciesOfVersions(storedVersions, dependenciesTable);
+        possiblyUnusedDependencies.removeAll(requiredDependencies);
+        return possiblyUnusedDependencies;
+    }
+
+    private void deleteDependency(String dependencyFileName) {
+        logger.debug("Deleting {}", dependencyFileName);
+        try {
+            FileUtil.deleteFile(new File(dependencyFileName));
+        } catch (IOException e) {
+            logger.warn("Failed to delete unused dependency: {}", dependencyFileName, e);
+        }
+    }
+
+    private void deleteBackupFile(String backupFileName) {
+        logger.debug("Deleting {}", backupFileName);
         try {
             FileUtil.deleteFile(BACKUP_DIR + File.separator + backupFileName);
         } catch (IOException e) {
             logger.warn("Failed to delete old backup file: {}", e);
         }
-        return getVersionOfBackupFileFromFilename(backupFileName);
     }
 
     private boolean hasCurrentVersionDependencies() {
@@ -158,7 +183,7 @@ public class BackupHandler {
     }
 
     /**
-     * Gets all past backup filenames, sorted from oldest version to latest
+     * Gets all backup filenames, sorted from oldest version to latest
      * This does not include the backup made for the current version of the app
      */
     private List<String> getSortedBackupFilesNames() {
@@ -189,8 +214,8 @@ public class BackupHandler {
     }
 
     private Comparator<String> getBackupFilenameComparatorByVersion() {
-        return (a, b) -> getVersionOfBackupFileFromFilename(a)
-                .compareTo(getVersionOfBackupFileFromFilename(b));
+        return (a, b) -> getVersionFromFileName(a)
+                .compareTo(getVersionFromFileName(b));
     }
 
     /**
@@ -200,7 +225,7 @@ public class BackupHandler {
      * @param filename filename of addressbook backup JAR, in format "addressbook_V[major].[minor].[patch].jar"
      * @return version of backup JAR
      */
-    private Version getVersionOfBackupFileFromFilename(String filename) {
+    private Version getVersionFromFileName(String filename) {
         Pattern htJarBackupFilenamePattern = Pattern.compile(BACKUP_FILENAME_PATTERN_STRING);
         Matcher htJarBackupFilenameMatcher = htJarBackupFilenamePattern.matcher(filename);
         assert htJarBackupFilenameMatcher.find() : "Invalid backup file name found" + filename;
