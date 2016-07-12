@@ -138,10 +138,6 @@ public class TestUtil {
         return new AddressBook(Arrays.asList(samplePersonData), Arrays.asList(sampleTagData));
     }
 
-    public static CloudAddressBook generateSampleCloudAddressBook() {
-        return new CloudAddressBook("MyAddressBook", Arrays.asList(sampleCloudPersonData), Arrays.asList(sampleCloudTagData));
-    }
-
     public static StorageAddressBook generateSampleStorageAddressBook() {
         return new StorageAddressBook(generateSampleAddressBook());
     }
