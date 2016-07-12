@@ -35,7 +35,6 @@ allprojects {
         mavenCentral()
         maven { url "https://repo.eclipse.org/content/repositories/egit-releases/" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "http://maven.teamdev.com/repository/products" }
     }
 
     project.ext {
@@ -118,13 +117,9 @@ allprojects {
         compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         compile "com.google.guava:guava:$guavaVersion"
-        compile "com.teamdev.jxbrowser:jxbrowser-win:$jxBrowserVersion"
-        compile "com.teamdev.jxbrowser:jxbrowser-mac:$jxBrowserVersion"
-        compile "com.teamdev.jxbrowser:jxbrowser-linux32:$jxBrowserVersion"
-        compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
-        compile fileTree(dir: 'lib', include: 'licence.jar')
+        compile fileTree(dir: 'lib', include: '*.jar')
 
         testCompile "junit:junit:$junitVersion"
         testCompile "org.testfx:testfx-core:4.0.+"
