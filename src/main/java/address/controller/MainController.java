@@ -581,18 +581,27 @@ public class MainController extends UiController{
 
     private void resizeWindow() {
         logger.info("Resizing window");
-        if (OsDetector.isOnMac()) {
-            primaryStage.hide();
-            primaryStage.setMaximized(true);
+        if (primaryStage.isIconified()) {
             primaryStage.setIconified(false);
-            primaryStage.show();
         } else {
-            primaryStage.setMaximized(!primaryStage.isMaximized());
-            primaryStage.setIconified(false);
+            // specially handle since stage operations on Mac seem to not be working as intended
+            if (OsDetector.isOnMac()) {
+                // refresh stage so that resizing effects (apart from the first resize after iconify-ing) are applied
+                // however, this will cause minor flinching in window visibility
+                primaryStage.hide(); // hide has to be called before setMaximized,
+                                     // or first attempt after iconify-ing will resize twice
+                primaryStage.show();
+
+                // on Mac, setMaximized seems to work like "setResize"
+                // isMaximized also does not seem to return the correct value
+                primaryStage.setMaximized(true);
+            } else {
+                primaryStage.setMaximized(!primaryStage.isMaximized());
+            }
         }
 
-        logger.info("Stage width: {}", primaryStage.getWidth());
-        logger.info("Stage height: {}", primaryStage.getHeight());
+        logger.debug("Stage width: {}", primaryStage.getWidth());
+        logger.debug("Stage height: {}", primaryStage.getHeight());
     }
 
     public void stop() {
