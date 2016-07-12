@@ -73,7 +73,7 @@ public class UpdateManager extends ComponentManager {
         dependencyHistoryHandler = new DependencyHistoryHandler(currentVersion);
         backupHandler = new BackupHandler(currentVersion, dependencyHistoryHandler);
         this.currentVersion = currentVersion;
-        downloadedVersions = readDownloadedVersionsFromFile();
+        downloadedVersions = getDownloadedVersionsFromFile(DOWNLOADED_VERSIONS_FILE);
     }
 
     public void start() {
@@ -258,24 +258,14 @@ public class UpdateManager extends ComponentManager {
      */
     private void downloadAllFilesToBeUpdated(File updateDir, HashMap<String, URL> filesToBeUpdated) throws IOException {
         if (!FileUtil.isDirExists(updateDir)) {
-            try {
-                Files.createDirectory(updateDir.toPath());
-            } catch (IOException e) {
-                logger.debug("Failed to create update directory", e);
-            }
+            Files.createDirectory(updateDir.toPath());
         }
 
         int noOfFilesTobeDownloaded = filesToBeUpdated.keySet().size();
         int noOfFilesDownloaded = 0;
 
         for (String destFile : filesToBeUpdated.keySet()) {
-            try {
-                downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
-            } catch (IOException e) {
-                logger.debug("Failed to download an update file, aborting update.");
-                throw e;
-            }
-
+            downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
             noOfFilesDownloaded++;
             double progress = (1.0 * noOfFilesDownloaded) / noOfFilesTobeDownloaded;
             raise(new UpdaterInProgressEvent("Downloading updates", progress));
@@ -315,13 +305,13 @@ public class UpdateManager extends ComponentManager {
         }
     }
 
-    private void writeDownloadedVersionsToFile() {
+    private void writeDownloadedVersionsToFile(List<Version> downloadedVersions, File file) {
         try {
-            if (FileUtil.isFileExists(DOWNLOADED_VERSIONS_FILE.toString())) {
-                FileUtil.createFile(DOWNLOADED_VERSIONS_FILE);
+            if (FileUtil.isFileExists(file.toString())) {
+                FileUtil.createFile(file);
             }
 
-            StorageManager.serializeObjectToJsonFile(DOWNLOADED_VERSIONS_FILE, downloadedVersions);
+            StorageManager.serializeObjectToJsonFile(file, downloadedVersions);
         } catch (JsonProcessingException e) {
             logger.debug("Failed to convert downloaded version to JSON");
             e.printStackTrace();
@@ -330,14 +320,13 @@ public class UpdateManager extends ComponentManager {
         }
     }
 
-    private List<Version> readDownloadedVersionsFromFile() {
+    private List<Version> getDownloadedVersionsFromFile(File file) {
         try {
-            return JsonUtil.fromJsonStringToList(FileUtil.readFromFile(DOWNLOADED_VERSIONS_FILE), Version.class);
+            return JsonUtil.fromJsonStringToList(FileUtil.readFromFile(file), Version.class);
         } catch (IOException e) {
             logger.warn("Failed to read downloaded version from file: {}", e);
+            return new ArrayList<>();
         }
-
-        return new ArrayList<>();
     }
 
     public void applyUpdate() {
@@ -348,11 +337,11 @@ public class UpdateManager extends ComponentManager {
         try {
             backupHandler.createAppBackup(currentVersion);
         } catch (IOException | URISyntaxException e) {
-            logger.fatal("Failed to create backup of app; not applying update");
+            logger.warn("Failed to create backup of app; not applying update: {}", e);
             return;
         }
 
-        writeDownloadedVersionsToFile();
+        writeDownloadedVersionsToFile(downloadedVersions, DOWNLOADED_VERSIONS_FILE);
 
         String jarUpdaterAppPath = JAR_UPDATER_APP_PATH;
         String localUpdateSpecFilepath = LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();

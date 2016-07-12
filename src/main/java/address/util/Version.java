@@ -11,11 +11,11 @@ import java.util.regex.Pattern;
  */
 public class Version implements Comparable<Version> {
 
-    public static final String VERSION_PATTERN_STRING = "V(\\d+)\\.(\\d+)\\.(\\d+)(ea)?";
+    public static final String VERSION_REGEX = "V(\\d+)\\.(\\d+)\\.(\\d+)(ea)?";
 
     private static final String EXCEPTION_STRING_NOT_VERSION = "String is not a valid Version. %s";
 
-    private static final Pattern VERSION_PATTERN = Pattern.compile(VERSION_PATTERN_STRING);
+    private static final Pattern VERSION_PATTERN = Pattern.compile(VERSION_REGEX);
 
     private final int major;
     private final int minor;

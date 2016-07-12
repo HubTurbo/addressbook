@@ -27,8 +27,8 @@ public class BackupHandler {
     private static final String BACKUP_DIR = "past_versions";
     private static final String BACKUP_MARKER = "_";
     private static final String BACKUP_FILENAME_STRING_FORMAT = "addressbook" + BACKUP_MARKER + "%s.jar";
-    private static final String BACKUP_FILENAME_PATTERN_STRING =
-            "addressbook" + BACKUP_MARKER + "(" + Version.VERSION_PATTERN_STRING + ")\\.(jar|JAR)$";
+    private static final String BACKUP_FILENAME_REGEX =
+            "addressbook" + BACKUP_MARKER + "(" + Version.VERSION_REGEX + ")\\.(jar|JAR)$";
     private static final String BACKUP_INSTRUCTION_FILENAME = "Instruction to use past versions.txt";
     private static final String BACKUP_INSTRUCTION_RESOURCE_PATH = "updater/Instruction to use past versions.txt";
 
@@ -43,7 +43,7 @@ public class BackupHandler {
     /**
      * Creates a backup unless app is already being run from backup JAR.
      */
-    public void createAppBackup(Version version) throws IOException, URISyntaxException {
+    protected void createAppBackup(Version version) throws IOException, URISyntaxException {
         File mainAppJar = FileUtil.getJarFileOfClass(MainApp.class);
 
         if (isRunFromBackupJar(mainAppJar)) {
@@ -52,41 +52,60 @@ public class BackupHandler {
         }
 
         createBackupDirIfMissing();
-        extractInstructionToUseBackupVersion();
+        extractFile(BACKUP_INSTRUCTION_RESOURCE_PATH, BACKUP_INSTRUCTION_FILENAME);
         makeBackupCopy(mainAppJar, version);
+    }
+
+    /**
+     * Remove old backup jars if there are too many and deletes any unused dependencies
+     * <p>
+     * Assumes that user has not tampered with the backup files' names
+     */
+    protected void cleanupBackups() {
+        logger.debug("Cleaning backups");
+
+        if (!hasCurrentVersionDependencies()) {
+            logger.info("Not running from JAR, will not clean backups");
+            return;
+        }
+
+        File backupDir = new File(BACKUP_DIR);
+        List<String> backupFilesNames = getSortedBackupFilesNames(backupDir, BACKUP_FILENAME_REGEX);
+        List<Version> backupVersions = getVersionsFromFileNames(backupFilesNames);
+
+        List<String> backupFilesToDelete = getBackupFilesToDelete(backupFilesNames, MAX_BACKUP_JAR_KEPT);
+        backupFilesToDelete.stream()
+                .forEach(this::deleteBackupFile);
+
+        List<Version> deletedVersions = getVersionsFromFileNames(backupFilesToDelete);
+        List<Version> retainedVersions = backupVersions.stream()
+                .filter(backupVersion -> !deletedVersions.contains(backupVersion))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        Set<String> unusedDependencies = getUnusedDependencies(deletedVersions, retainedVersions,
+                dependencyHistoryHandler.getDependenciesTableForKnownVersions());
+
+        unusedDependencies.stream()
+                .forEach(this::deleteDependencyFile);
+
+        dependencyHistoryHandler.cleanUpUnusedDependencies(deletedVersions);
     }
 
     private void makeBackupCopy(File mainAppJar, Version version) throws IOException {
         String backupFilename = getBackupFilename(version);
-        try {
-            FileUtil.copyFile(mainAppJar.toPath(), Paths.get(BACKUP_DIR, backupFilename), true);
-        } catch (IOException e) {
-            logger.debug("Failed to create backup", e);
-            throw e;
-        }
+        FileUtil.copyFile(mainAppJar.toPath(), Paths.get(BACKUP_DIR, backupFilename), true);
     }
 
     private void createBackupDirIfMissing() throws IOException {
         File backupDir = new File(BACKUP_DIR);
         if (FileUtil.isDirExists(backupDir)) return;
-
-        try {
-            FileUtil.createDirs(backupDir);
-        } catch (IOException e) {
-            logger.debug("Failed to create backup directory: {}", e);
-            throw e;
-        }
+        FileUtil.createDirs(backupDir);
     }
 
-    private void extractInstructionToUseBackupVersion() throws IOException {
-        File backupInstructionFile = new File(BACKUP_INSTRUCTION_FILENAME);
-        try {
-            InputStream in = BackupHandler.class.getClassLoader().getResourceAsStream(BACKUP_INSTRUCTION_RESOURCE_PATH);
-            Files.copy(in, backupInstructionFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            logger.debug("Failed to extract backup instruction");
-            throw e;
-        }
+    private void extractFile(String fileResourcePath, String fileDestinationPath) throws IOException {
+        File destinationFile = new File(fileDestinationPath);
+        InputStream in = BackupHandler.class.getClassLoader().getResourceAsStream(fileResourcePath);
+        Files.copy(in, destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     private boolean isRunFromBackupJar(File jar) {
@@ -97,40 +116,6 @@ public class BackupHandler {
         return String.format(BACKUP_FILENAME_STRING_FORMAT, version.toString());
     }
 
-    /**
-     * Remove old backup jars if there are too many and deletes any unused dependencies
-     * <p>
-     * Assumes that user has not tampered with the backup files' names
-     */
-    public void cleanupBackups() {
-        logger.debug("Cleaning backups");
-
-        if (!hasCurrentVersionDependencies()) {
-            logger.info("Not running from JAR, will not clean backups");
-            return;
-        }
-
-        List<String> backupFilesNames = getSortedBackupFilesNames();
-        List<Version> backupVersions = getVersionsFromFileNames(backupFilesNames);
-
-        List<String> backupFilesToDelete = getBackupFilesToDelete(backupFilesNames);
-        backupFilesToDelete.stream()
-                .forEach(this::deleteBackupFile);
-
-        List<Version> deletedVersions = getVersionsFromFileNames(backupFilesToDelete);
-        List<Version> storedVersions = backupVersions.stream()
-                .filter(backupVersion -> !deletedVersions.contains(backupVersion))
-                .collect(Collectors.toCollection(ArrayList::new));
-
-        Set<String> unusedDependencies = getUnusedDependencies(deletedVersions, storedVersions,
-                dependencyHistoryHandler.getDependenciesTableForKnownVersions());
-
-        unusedDependencies.stream()
-                .forEach(this::deleteDependency);
-
-        dependencyHistoryHandler.cleanUpUnusedDependencies(deletedVersions);
-    }
-
     private ArrayList<Version> getVersionsFromFileNames(List<String> backupFilesToDelete) {
         return backupFilesToDelete.stream()
                 .map(this::getVersionFromFileName)
@@ -139,15 +124,23 @@ public class BackupHandler {
 
     /**
      * Obtain names of backup files to delete, starting from the beginning of the list
+     *
      * @param backupFilesNames
      * @return
      */
-    private ArrayList<String> getBackupFilesToDelete(List<String> backupFilesNames) {
+    private ArrayList<String> getBackupFilesToDelete(List<String> backupFilesNames, int noOfBackupsToKeep) {
         return backupFilesNames.stream()
-                .limit(backupFilesNames.size() - MAX_BACKUP_JAR_KEPT)
+                .limit(backupFilesNames.size() - noOfBackupsToKeep)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * Gets the union set of dependencies for all given versions
+     *
+     * @param versions
+     * @param dependenciesTable versions mapped to their dependencies
+     * @return
+     */
     private Set<String> getDependenciesOfVersions(List<Version> versions, Map<Version, List<String>> dependenciesTable) {
         return versions.stream()
                 .flatMap(storedVersion -> dependenciesTable.get(storedVersion).stream())
@@ -162,7 +155,7 @@ public class BackupHandler {
         return possiblyUnusedDependencies;
     }
 
-    private void deleteDependency(String dependencyFileName) {
+    private void deleteDependencyFile(String dependencyFileName) {
         logger.debug("Deleting {}", dependencyFileName);
         try {
             FileUtil.deleteFile(new File(dependencyFileName));
@@ -186,12 +179,12 @@ public class BackupHandler {
     }
 
     /**
-     * Gets all backup filenames, sorted from oldest version to latest
-     * This does not include the backup made for the current version of the app
+     * Gets all backup files' names found in backupDir if they match backupFileNameRegex
+     * The backup files' names returned will be sorted from oldest version to newest
+     * <p>
+     * This does not return the backup made for the current version of the app
      */
-    private List<String> getSortedBackupFilesNames() {
-        File backupDir = new File(BACKUP_DIR);
-
+    private List<String> getSortedBackupFilesNames(File backupDir, String backupFileNameRegex) {
         if (!FileUtil.isDirExists(backupDir)) {
             logger.debug("No backup directory");
             return new ArrayList<>();
@@ -208,12 +201,11 @@ public class BackupHandler {
 
         // Exclude current version in case user is running backup Jar
         return listOfBackupFiles.stream()
-                .filter(f ->
-                        !f.getName().equals(getBackupFilename(currentVersion))
-                                && f.getName().matches(BACKUP_FILENAME_PATTERN_STRING))
+                .filter(file -> !file.getName().equals(getBackupFilename(currentVersion)))
+                .filter(file -> file.getName().matches(backupFileNameRegex))
                 .map(File::getName)
                 .sorted(getBackupFilenameComparatorByVersion())
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private Comparator<String> getBackupFilenameComparatorByVersion() {
@@ -229,7 +221,7 @@ public class BackupHandler {
      * @return version of backup JAR
      */
     private Version getVersionFromFileName(String filename) {
-        Pattern htJarBackupFilenamePattern = Pattern.compile(BACKUP_FILENAME_PATTERN_STRING);
+        Pattern htJarBackupFilenamePattern = Pattern.compile(BACKUP_FILENAME_REGEX);
         Matcher htJarBackupFilenameMatcher = htJarBackupFilenamePattern.matcher(filename);
         assert htJarBackupFilenameMatcher.find() : "Invalid backup file name found" + filename;
 
