@@ -346,7 +346,7 @@ public class UpdateManager extends ComponentManager {
         }
 
         try {
-            backupHandler.createBackupOfApp(currentVersion);
+            backupHandler.createAppBackup(currentVersion);
         } catch (IOException | URISyntaxException e) {
             logger.fatal("Failed to create backup of app; not applying update");
             return;

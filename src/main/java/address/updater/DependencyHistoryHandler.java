@@ -48,7 +48,7 @@ public class DependencyHistoryHandler {
     /**
      * Gets dependencies for every version known
      */
-    public HashMap<Version, List<String>> getDependenciesOfAllVersion() {
+    public HashMap<Version, List<String>> getDependenciesTableForKnownVersions() {
         return dependenciesForVersionsInUse;
     }
 
