@@ -35,6 +35,9 @@ allprojects {
         mavenCentral()
         maven { url "https://repo.eclipse.org/content/repositories/egit-releases/" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        flatDir {
+            dirs 'lib'
+        }
     }
 
     project.ext {
@@ -119,8 +122,11 @@ allprojects {
         compile "com.google.guava:guava:$guavaVersion"
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
-        runtime files('lib/jxbrowser-6.4.jar', 'lib/jxbrowser-linux32-6.4.jar', 'lib/jxbrowser-linux64-6.4.jar', 'lib/jxbrowser-mac-6.4.jar', 'jxbrowser-win-6.4.jar', 'licence.jar')
-        compile fileTree(dir: 'lib', include: '*.jar')
+        compile "com.teamdev.jxbrowser:jxbrowser-win:$jxBrowserVersion"
+        compile "com.teamdev.jxbrowser:jxbrowser-mac:$jxBrowserVersion"
+        compile "com.teamdev.jxbrowser:jxbrowser-linux32:$jxBrowserVersion"
+        compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
+        compile fileTree(dir: 'lib', include: 'licence.jar')
 
         testCompile "junit:junit:$junitVersion"
         testCompile "org.testfx:testfx-core:4.0.+"
