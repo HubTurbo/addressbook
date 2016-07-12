@@ -5,13 +5,11 @@ import address.model.datatypes.ReadOnlyAddressBook;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
 import address.sync.cloud.model.CloudAddressBook;
-import address.util.DateTimeUtil;
+import address.testutil.PersonBuilder;
 import address.util.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 import static address.util.TestUtil.descOnFail;
 import static guitests.PersonCrudGuiTest.TypicalData.*;
@@ -59,15 +57,9 @@ public class PersonCrudGuiTest extends GuiTestBase {
     public void editPerson() {
 
         //Prepare new values for Alice
-        Person newAlice = ALICE.copy();
-        newAlice.setFirstName("Alicia");
-        newAlice.setLastName("Brownstone");
-        newAlice.setStreet("Updated street");
-        newAlice.setCity("Singapore");
-        newAlice.setPostalCode("123123");
-        newAlice.setBirthday(DateTimeUtil.parse("01.01.1979"));
-        newAlice.setGithubUsername("alicebrown123");
-        newAlice.setTags(Arrays.asList(new Tag[]{COLLEAGUES, FRIENDS}));
+        Person newAlice = new PersonBuilder(ALICE.copy()).withFirstName("Alicia").withLastName("Brownstone")
+                .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
+                .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(COLLEAGUES, FRIENDS).build();
 
         //Edit new values for Alice
         PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(ALICE);
