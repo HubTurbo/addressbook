@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
  * application layout containing a menu bar and space where other JavaFX
  * elements can be placed.
  */
-public class RootLayoutController extends UiController{
+public class RootLayoutController extends UiController {
     private static AppLogger logger = LoggerManager.getLogger(RootLayoutController.class);
 
     private MainController mainController;

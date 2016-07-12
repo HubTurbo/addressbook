@@ -4,6 +4,7 @@ import static address.model.ChangeObjectInModelCommand.State.*;
 import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
 
 import address.events.BaseEvent;
+import address.events.CommandFinishedEvent;
 import address.events.CreatePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
@@ -75,8 +76,10 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         // personDataSnapshot == null means that the command was cancelled before any input was received
         final String targetName = personDataSnapshot == null ? "" : personDataSnapshot.fullName();
         final String targetIdString = personDataSnapshot == null ? "" : personDataSnapshot.idString();
-        model.trackCommandResult(new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
-                                TARGET_TYPE, targetIdString, targetName, targetName));
+        eventRaiser.accept(new CommandFinishedEvent(
+                new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(), TARGET_TYPE,
+                        targetIdString, targetName, targetName)
+        ));
     }
 
     /**

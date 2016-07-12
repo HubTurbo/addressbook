@@ -4,6 +4,7 @@ import static address.model.ChangeObjectInModelCommand.State.*;
 import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
 
 import address.events.BaseEvent;
+import address.events.CommandFinishedEvent;
 import address.events.DeletePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
@@ -78,8 +79,10 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
         });
         model.unassignOngoingChangeForPerson(target.getId());
         final String targetName = personDataBeforeExecution.fullName(); // no name changes for deletes
-        model.trackCommandResult(new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
-                                TARGET_TYPE, target.idString(), targetName, targetName));
+        eventRaiser.accept(new CommandFinishedEvent(
+                new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(), TARGET_TYPE,
+                        target.idString(), targetName, targetName)
+        ));
     }
 
     @Override

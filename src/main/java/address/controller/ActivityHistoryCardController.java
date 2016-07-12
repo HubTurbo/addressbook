@@ -8,9 +8,6 @@ import javafx.scene.layout.HBox;
 
 import java.io.IOException;
 
-/**
- * TODO: Bind CommandInfo. Currently CommandInfo doesn't use Property class yet.
- */
 public class ActivityHistoryCardController {
 
     @FXML

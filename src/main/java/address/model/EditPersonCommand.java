@@ -4,6 +4,7 @@ import static address.model.ChangeObjectInModelCommand.State.*;
 import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
 
 import address.events.BaseEvent;
+import address.events.CommandFinishedEvent;
 import address.events.UpdatePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
@@ -85,9 +86,10 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
             target.forceSyncFromBacking();
         });
         model.unassignOngoingChangeForPerson(target.getId());
-        model.trackCommandResult(new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
-                                TARGET_TYPE, target.idString(), personDataBeforeExecution.fullName(),
-                                personDataAfterExecution.fullName()));
+        eventRaiser.accept(new CommandFinishedEvent(
+                new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(), TARGET_TYPE,
+                        target.idString(), personDataBeforeExecution.fullName(), personDataAfterExecution.fullName())
+        ));
     }
 
     @Override

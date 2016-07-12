@@ -29,7 +29,6 @@ public class SingleTargetCommandResult {
         targetTypeString = targetType;
         targetNameBeforeExecution = targetNameBefore;
         targetNameAfterExecution = targetNameAfter;
-        System.out.println("\n\t\tID: "+targetIdString+"\n\t\t"+targetNameBefore+"\n\t\t"+targetNameAfter+"\n");
     }
     
     /**
