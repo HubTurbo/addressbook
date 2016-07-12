@@ -546,7 +546,7 @@ public class MainController extends UiController{
     @Subscribe
     private void handleResizeAppRequestEvent(ResizeAppRequestEvent event){
         logger.debug("Handling the resize app window request");
-        Platform.runLater(this::resizeWindow);
+        Platform.runLater(this::handleResizeRequest);
     }
 
     @Subscribe
@@ -579,25 +579,31 @@ public class MainController extends UiController{
         primaryStage.setMaximized(false);
     }
 
-    private void resizeWindow() {
-        logger.info("Resizing window");
+    private void handleResizeRequest() {
+        logger.info("Handling resize request.");
         if (primaryStage.isIconified()) {
+            logger.debug("Cannot resize as window is iconified, attempting to show window instead.");
             primaryStage.setIconified(false);
         } else {
-            // specially handle since stage operations on Mac seem to not be working as intended
-            if (OsDetector.isOnMac()) {
-                // refresh stage so that resizing effects (apart from the first resize after iconify-ing) are applied
-                // however, this will cause minor flinching in window visibility
-                primaryStage.hide(); // hide has to be called before setMaximized,
-                                     // or first attempt after iconify-ing will resize twice
-                primaryStage.show();
+            resizeWindow();
+        }
+    }
 
-                // on Mac, setMaximized seems to work like "setResize"
-                // isMaximized also does not seem to return the correct value
-                primaryStage.setMaximized(true);
-            } else {
-                primaryStage.setMaximized(!primaryStage.isMaximized());
-            }
+    private void resizeWindow() {
+        logger.info("Resizing window");
+        // specially handle since stage operations on Mac seem to not be working as intended
+        if (OsDetector.isOnMac()) {
+            // refresh stage so that resizing effects (apart from the first resize after iconify-ing) are applied
+            // however, this will cause minor flinching in window visibility
+            primaryStage.hide(); // hide has to be called before setMaximized,
+                                 // or first resize attempt after iconify-ing will resize twice
+            primaryStage.show();
+
+            // on Mac, setMaximized seems to work like "setResize"
+            // isMaximized also does not seem to return the correct value
+            primaryStage.setMaximized(true);
+        } else {
+            primaryStage.setMaximized(!primaryStage.isMaximized());
         }
 
         logger.debug("Stage width: {}", primaryStage.getWidth());
