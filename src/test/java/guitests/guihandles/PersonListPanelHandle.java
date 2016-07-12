@@ -179,6 +179,7 @@ public class PersonListPanelHandle extends GuiHandle {
         //Return false if any of the persons doesn't match
         for (int i = 0; i < persons.length; i++) {
             if (!personsInList.get(startPosition + i).getFirstName().equals(persons[i].getFirstName())){
+                //TODO: use a stronger check (not the the first name
                 return false;
             }
         }
@@ -200,12 +201,20 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public PersonCardHandle getPersonCardHandle(Person person){
-        Set<Node> nodes = guiRobot.lookup(CARD_PANE_ID).queryAll();
+        Set<Node> nodes = getAllCardNodes();
         Node personCardNode = nodes.stream()
                 .filter( (n) -> new PersonCardHandle(guiRobot, primaryStage, n).isSamePerson(person))
                 .findFirst().get();
         return new PersonCardHandle(guiRobot, primaryStage, personCardNode);
     }
 
-    
+    protected Set<Node> getAllCardNodes() {
+        return guiRobot.lookup(CARD_PANE_ID).queryAll();
+    }
+
+
+    public List<PersonCardHandle> getSelectedCards() {
+        //TODO: implement this
+        throw new RuntimeException("Not implemented");
+    }
 }

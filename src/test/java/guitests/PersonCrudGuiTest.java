@@ -61,18 +61,35 @@ public class PersonCrudGuiTest extends GuiTestBase {
                 .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
                 .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(COLLEAGUES, FRIENDS).build();
 
-        //Edit new values for Alice
+        //Get a reference to the card displaying Alice's details
         PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(ALICE);
+
+        //Edit Alice to change to new values
         personListPanel.clickOnPerson(ALICE);
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         editPersonDialog.enterNewValues(newAlice);
         editPersonDialog.pressEnter();
 
         assertTrue(descOnFail(alicePersonCard, newAlice), alicePersonCard.isSamePerson(newAlice));
-        assertEquals(newAlice.getLastName(), alicePersonCard.getLastName());
-        guiRobot.sleep(5000);
+        //TODO: write a more elegant function that uses assertEquals but compare two different types of objects
+
+        //TODO: Confirm the right card is selected after the edit, as follows
+        //assertEquals(1, personListPanel.getSelectedCards().size();
+        //assertEquals(alicePersonCard, personListPanel.getSelectedCards().get(0);
+
+        //Confirm right values are displayed after grace period is over
+        guiRobot.sleep(5000); //wait for grace period
+        //TODO: link up to grace period
+        //TODO: confirm the person card display behave as expected during grace period
         assertTrue(descOnFail(alicePersonCard, newAlice), alicePersonCard.isSamePerson(newAlice));
+
+        //Confirm the underlying person object has the right values
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
+
+        //TODO: confirm again after the next sync
+        //TODO: confirm other cards are unaffected
+        //TODO: confirm the right card is selected after the edit
+        //TODO: confirm status bar is updated correctly
 
     }
 
