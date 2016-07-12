@@ -1,5 +1,7 @@
 package address.controller;
 
+import address.MainApp;
+import address.util.FxViewUtil;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.fxbrowser.FxBrowserAdapter;
 import javafx.fxml.FXML;
@@ -21,7 +23,8 @@ public class HelpController {
     @FXML
     public void initialize() {
         EmbeddedBrowser browser = new FxBrowserAdapter(new WebView());
-        browser.loadHTML("This is working :)");
+        browser.loadUrl(MainApp.class.getResource("/help_html/index.html").toExternalForm());
+        FxViewUtil.applyAnchorBoundaryParameters(browser.getBrowserView(), 0.0, 0.0, 0.0, 0.0);
         mainPane.getChildren().add(browser.getBrowserView());
     }
 }
