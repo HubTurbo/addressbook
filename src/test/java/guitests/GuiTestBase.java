@@ -5,6 +5,7 @@ import address.events.EventManager;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.sync.cloud.model.CloudAddressBook;
+import address.testutil.TypicalTestData;
 import address.util.TestUtil;
 import guitests.guihandles.MainGuiHandle;
 import guitests.guihandles.MainMenuHandle;
@@ -27,6 +28,7 @@ public class GuiTestBase {
     protected MainGuiHandle mainGui;
     protected MainMenuHandle mainMenu;
     protected PersonListPanelHandle personListPanel;
+    protected TypicalTestData td = new TypicalTestData();
 
 
     @BeforeClass

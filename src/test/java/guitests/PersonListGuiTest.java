@@ -1,61 +1,35 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
-import address.model.datatypes.ReadOnlyAddressBook;
-import address.model.datatypes.person.Person;
-import address.sync.cloud.model.CloudAddressBook;
-import address.util.TestUtil;
 import org.junit.Test;
-import static guitests.PersonListGuiTest.TypicalData.*;
 
 import static org.junit.Assert.assertTrue;
 
 public class PersonListGuiTest extends GuiTestBase {
 
-    private AddressBook initialData = generateInitialData();
-
-
-    private AddressBook generateInitialData() {//TODO: create a better set of sample data
-        AddressBook ab = new AddressBook();
-        ab.addPerson(ALICE);
-        ab.addPerson(BENSON);
-        ab.addPerson(CHARLIE);
-        ab.addPerson(DAN);
-        ab.addPerson(ELIZABETH);
-        return ab;
-    }
-
-    static class TypicalData{
-        static Person ALICE = new Person("Alice", "Brown", 1);
-        static Person BENSON = new Person("Benson", "Christopher Dean", 2);
-        static Person CHARLIE = new Person("Charlie", "Davidson", 3);
-        static Person DAN = new Person("Dan", "Edwards", 4);
-        static Person ELIZABETH = new Person("Elizabeth", "F. Green", 5);
-    }
-
     @Override
     protected AddressBook getInitialData() {
-        return initialData;
+        return td.book;
     }
 
     @Test
     public void dragAndDrop_singlePersonCorrectDrag_listReordered() {
 
-        assertTrue(personListPanel.containsInOrder(ALICE, BENSON, CHARLIE, DAN, ELIZABETH));
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
 
         // drag first person (Alice) and drop on Charles
-        personListPanel.dragAndDrop(ALICE.getFirstName(), CHARLIE.getFirstName());
-        assertTrue(personListPanel.containsInOrder(BENSON, ALICE, CHARLIE, DAN, ELIZABETH));
+        personListPanel.dragAndDrop(td.alice.getFirstName(), td.charlie.getFirstName());
+        assertTrue(personListPanel.containsInOrder(td.benson, td.alice, td.charlie, td.dan, td.elizabeth));
 
         // drag a card (Charlie) to the top
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1); //ensure the destination card is visible
-        personListPanel.dragAndDrop(CHARLIE.getFirstName(), BENSON.getFirstName());
-        assertTrue(personListPanel.containsInOrder(CHARLIE, BENSON, ALICE, DAN, ELIZABETH));
+        personListPanel.dragAndDrop(td.charlie.getFirstName(), td.benson.getFirstName());
+        assertTrue(personListPanel.containsInOrder(td.charlie, td.benson, td.alice, td.dan, td.elizabeth));
 
         //drag the person at the bottom and drop at the middle
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(5); //Make the target card visible
-        personListPanel.dragAndDrop(ELIZABETH.getFirstName(), ALICE.getFirstName());
-        assertTrue(personListPanel.containsInOrder(CHARLIE, BENSON, ELIZABETH, ALICE, DAN));
+        personListPanel.dragAndDrop(td.elizabeth.getFirstName(), td.alice.getFirstName());
+        assertTrue(personListPanel.containsInOrder(td.charlie, td.benson, td.elizabeth, td.alice, td.dan));
 
         //drag the person at the middle and drop at the bottom
         //TODO: implement this
@@ -63,10 +37,10 @@ public class PersonListGuiTest extends GuiTestBase {
 
     @Test
     public void dragAndDrop_singlePersonWrongDrag_listUnchanged() {
-        assertTrue(personListPanel.containsInOrder(ALICE, BENSON, CHARLIE, DAN, ELIZABETH));
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
 
-        personListPanel.dragAndDrop(CHARLIE.getFirstName(), CHARLIE.getFirstName());
-        assertTrue(personListPanel.containsInOrder(ALICE, BENSON, CHARLIE, DAN, ELIZABETH));
+        personListPanel.dragAndDrop(td.charlie.getFirstName(), td.charlie.getFirstName());
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
 
         //TODO: test for Dropping outside list
     }
