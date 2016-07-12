@@ -9,6 +9,7 @@ import address.sync.cloud.model.CloudAddressBook;
 import address.util.Config;
 import address.util.GuiSettings;
 import address.util.TestUtil;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -60,7 +61,9 @@ public class TestApp extends MainApp {
     @Override
     protected UserPrefs initPrefs(Config config) {
         UserPrefs userPrefs = super.initPrefs(config);
-        userPrefs.setGuiSettings(new GuiSettings(600.0, 600.0, 0, 0));
+        double x = Screen.getPrimary().getVisualBounds().getMinX();
+        double y = Screen.getPrimary().getVisualBounds().getMinY();
+        userPrefs.setGuiSettings(new GuiSettings(600.0, 600.0, (int) x, (int) y));
         return userPrefs;
     }
 
