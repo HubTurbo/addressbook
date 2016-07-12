@@ -581,10 +581,15 @@ public class MainController extends UiController{
 
     private void resizeWindow() {
         logger.info("Resizing window");
-        if (OsDetector.isOnMac()) primaryStage.hide();
-        primaryStage.setMaximized(true);
-        primaryStage.setIconified(false);
-        if (OsDetector.isOnMac()) primaryStage.show();
+        if (OsDetector.isOnMac()) {
+            primaryStage.hide();
+            primaryStage.setMaximized(true);
+            primaryStage.setIconified(false);
+            primaryStage.show();
+        } else {
+            primaryStage.setMaximized(!primaryStage.isMaximized());
+            primaryStage.setIconified(false);
+        }
 
         logger.info("Stage width: {}", primaryStage.getWidth());
         logger.info("Stage height: {}", primaryStage.getHeight());
