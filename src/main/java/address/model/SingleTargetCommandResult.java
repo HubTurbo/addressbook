@@ -1,5 +1,8 @@
 package address.model;
 
+/**
+ * Immutable data wrapper object representing the result of a completed command.
+ */
 public class SingleTargetCommandResult {
 
     public enum CommandStatus {
@@ -56,11 +59,13 @@ public class SingleTargetCommandResult {
 
     /**
      * string representation of target's name before the command was applied.
+     * will be same as {@link #targetNameAfterExecution} if there was no name change
      */
     public final String targetNameBeforeExecution;
 
     /**
      * string representation of target's name after the command terminated.
+     * will be same as {@link #targetNameBeforeExecution} if there was no name change
      */
     public final String targetNameAfterExecution;
 }
