@@ -14,6 +14,7 @@ import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.event.EventType;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -526,7 +527,12 @@ public class MainController extends UiController{
 
     public void showPersonWebPage() {
         AnchorPane pane = (AnchorPane) rootLayout.lookup("#personWebpage");
+        disableKeyboardShortcutOnNode(pane);
         pane.getChildren().add(browserManager.getHyperBrowserView());
+    }
+
+    private void disableKeyboardShortcutOnNode(Node pane) {
+        pane.addEventHandler(EventType.ROOT, event -> event.consume());
     }
 
     @Subscribe
