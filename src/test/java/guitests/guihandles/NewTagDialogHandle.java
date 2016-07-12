@@ -8,18 +8,18 @@ import javafx.stage.Stage;
  */
 public class NewTagDialogHandle extends GuiHandle {
 
-    private String tagNameFieldId = "#tagNameField";
+    private static final String TAG_NAME_FIELD_ID = "#tagNameField";
 
     public NewTagDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage);
     }
 
     public String getTagName() {
-        return getTextFieldText(tagNameFieldId);
+        return getTextFieldText(TAG_NAME_FIELD_ID);
     }
 
     public void enterTagName(String tagName) {
-        typeTextField(tagNameFieldId, tagName);
+        typeTextField(TAG_NAME_FIELD_ID, tagName);
     }
 
 }

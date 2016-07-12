@@ -21,9 +21,9 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public static final int NOT_FOUND = -1;
     public static final String CARD_PANE_ID = "#cardPane";
-    private String filterFieldId = "#filterField";
-    private String personListViewId = "#personListView";
-    String newButtonId = "#newButton"; //TODO: convert to constants
+    private static final String FILTER_FIELD_ID = "#filterField";
+    private static final String PERSON_LIST_VIEW_ID = "#personListView";
+    private static final String NEW_BUTTON_ID = "#newButton"; //TODO: convert to constants
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage);
@@ -51,7 +51,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public ListView<ReadOnlyViewablePerson> getListView() {
-        return (ListView<ReadOnlyViewablePerson>) getNode(personListViewId);
+        return (ListView<ReadOnlyViewablePerson>) getNode(PERSON_LIST_VIEW_ID);
     }
 
     public void use_PERSON_CHANGE_CANCEL_ACCELERATOR() {
@@ -138,15 +138,15 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public void enterFilterAndApply(String filterText) {
-        typeTextField(filterFieldId, filterText);
+        typeTextField(FILTER_FIELD_ID, filterText);
     }
 
     public String getFilterText() {
-        return getTextFieldText(filterFieldId);
+        return getTextFieldText(FILTER_FIELD_ID);
     }
 
     public EditPersonDialogHandle clickNew() {
-        guiRobot.clickOn(newButtonId);
+        guiRobot.clickOn(NEW_BUTTON_ID);
         guiRobot.sleep(500);
         return new EditPersonDialogHandle(guiRobot, primaryStage);
     }
