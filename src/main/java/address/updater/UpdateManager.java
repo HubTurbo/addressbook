@@ -124,7 +124,7 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        raise(new UpdaterInProgressEvent("Collecting all update files that are to be downloaded", -1));
+        raise(new UpdaterInProgressEvent("Collecting all update files to be downloaded", -1));
         HashMap<String, URL> filesToBeUpdated;
         try {
             filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(latestData.get());

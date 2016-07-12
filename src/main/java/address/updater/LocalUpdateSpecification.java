@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Stores information of how to apply update
+ * Stores information of resources to be updated
  */
 public class LocalUpdateSpecification {
     private List<String> localFilesToBeUpdated;

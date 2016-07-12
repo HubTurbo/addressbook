@@ -53,9 +53,9 @@ public class DependencyHistoryHandler {
     }
 
     /**
-     * Deletes dependencies of version which are no longer used
+     * Deletes any unused dependencies
      */
-    public void cleanUpUnusedDependencyVersions(List<Version> unusedVersions) {
+    public void cleanUpUnusedDependencies(List<Version> unusedVersions) {
         Iterator<Map.Entry<Version, List<String>>> it = dependenciesForVersionsInUse.entrySet().iterator();
 
         while (it.hasNext()) {

@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 /**
- * Accesses LocalUpdateSpecification
+ * Manages the LocalUpdateSpecification file
  */
 public class LocalUpdateSpecificationHelper {
     private static final String LOCAL_UPDATE_DATA_FILE = UpdateManager.UPDATE_DIR + File.separator +

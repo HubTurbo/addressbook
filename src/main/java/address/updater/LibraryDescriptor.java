@@ -5,7 +5,7 @@ import address.util.OsDetector;
 import java.net.URL;
 
 /**
- * Download link for a file
+ * Contains information for a dependency library, including its download link
  */
 public class LibraryDescriptor {
 

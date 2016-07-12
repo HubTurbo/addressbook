@@ -118,8 +118,8 @@ public class JarUpdater extends Application {
     }
 
     private void applyUpdateToAllFiles(String sourceDir, List<String> filesToBeUpdated) throws IOException {
-        for (String affectedFile : filesToBeUpdated) {
-            applyUpdate(Paths.get(sourceDir, affectedFile), Paths.get(affectedFile));
+        for (String fileToUpdate : filesToBeUpdated) {
+            applyUpdate(Paths.get(sourceDir, fileToUpdate), Paths.get(fileToUpdate));
         }
     }
 

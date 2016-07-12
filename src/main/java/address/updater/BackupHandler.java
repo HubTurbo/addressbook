@@ -152,7 +152,7 @@ public class BackupHandler {
             }
         });
 
-        dependencyHistoryHandler.cleanUpUnusedDependencyVersions(unusedVersions);
+        dependencyHistoryHandler.cleanUpUnusedDependencies(unusedVersions);
     }
 
     /**
