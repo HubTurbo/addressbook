@@ -119,6 +119,7 @@ allprojects {
         compile "com.google.guava:guava:$guavaVersion"
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
+        runtime files('lib/jxbrowser-6.4.jar', 'lib/jxbrowser-linux32-6.4.jar', 'lib/jxbrowser-linux64-6.4.jar', 'lib/jxbrowser-mac-6.4.jar', 'jxbrowser-win-6.4.jar', 'licence.jar')
         compile fileTree(dir: 'lib', include: '*.jar')
 
         testCompile "junit:junit:$junitVersion"
