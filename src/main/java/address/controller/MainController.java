@@ -421,6 +421,7 @@ public class MainController extends UiController{
         Scene scene = new Scene(page);
         Stage dialogStage = loadDialogStage("Help", null, scene);
         dialogStage.getIcons().add(getImage(ICON_HELP));
+        dialogStage.setMaximized(true);
         // Show the dialog and wait until the user closes it
         dialogStage.showAndWait();
     }

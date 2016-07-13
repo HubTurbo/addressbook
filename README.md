@@ -18,3 +18,6 @@ It periodically syncs data in the primary XML file with another mirror file.
 
 # Acknowledgements
 Some parts of the code has been adapted from http://code.makery.ch
+
+The application embedded help page uses bootstrap template from http://bootply.com
+
