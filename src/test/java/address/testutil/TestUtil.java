@@ -1,4 +1,4 @@
-package address.util;
+package address.testutil;
 
 import address.TestApp;
 import address.browser.BrowserManager;
@@ -10,6 +10,9 @@ import address.storage.StorageAddressBook;
 import address.sync.cloud.model.CloudAddressBook;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
+import address.util.FileUtil;
+import address.util.OsDetector;
+import address.util.XmlUtil;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
 import javafx.scene.input.KeyCode;

@@ -1,20 +1,12 @@
 package guitests;
 
-import address.keybindings.Bindings;
 import address.model.datatypes.AddressBook;
-import address.model.datatypes.ReadOnlyAddressBook;
 import address.model.datatypes.person.Person;
-import address.util.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.TagPersonDialogHandle;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import address.sync.cloud.model.CloudAddressBook;
-import address.sync.cloud.model.CloudPerson;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Tests key bindings through the GUI

@@ -1,9 +1,8 @@
 package address.browser;
 
-import address.util.TestUtil;
+import address.testutil.TestUtil;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.BrowserType;
-import hubturbo.embeddedbrowser.EbLoadListener;
 import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;
 import hubturbo.embeddedbrowser.page.Page;
 import org.apache.commons.io.IOUtils;

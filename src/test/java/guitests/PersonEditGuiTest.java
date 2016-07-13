@@ -7,7 +7,7 @@ import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import org.junit.Test;
 
-import static address.util.TestUtil.descOnFail;
+import static address.testutil.TestUtil.descOnFail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
