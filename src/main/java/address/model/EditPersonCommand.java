@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  */
 public class EditPersonCommand extends ChangePersonInModelCommand {
 
-    public static final String COMMAND_TYPE = "Edit Person";
+    public static final String COMMAND_TYPE = "Edit";
 
     private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;

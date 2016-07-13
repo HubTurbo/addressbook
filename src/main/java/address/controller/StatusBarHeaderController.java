@@ -1,6 +1,8 @@
 package address.controller;
 
-import address.model.CommandInfo;
+
+import address.model.SingleTargetCommandResult;
+import address.util.CommandResultFormatter;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -10,9 +12,9 @@ public class StatusBarHeaderController extends UiController{
 
     private StatusBar headerStatusBar;
     private MainController mainController;
-    private ObservableList<CommandInfo> finishedCommands;
+    private ObservableList<SingleTargetCommandResult> finishedCommands;
 
-    public StatusBarHeaderController(MainController mainController, ObservableList<CommandInfo> finishedCommands) {
+    public StatusBarHeaderController(MainController mainController, ObservableList<SingleTargetCommandResult> finishedCommands) {
         this.mainController = mainController;
         this.finishedCommands = finishedCommands;
         headerStatusBar = new StatusBar();
@@ -20,10 +22,9 @@ public class StatusBarHeaderController extends UiController{
         headerStatusBar.getStyleClass().add("status-bar-with-border");
         headerStatusBar.setText("");
         headerStatusBar.setOnMouseClicked(event -> mainController.showActivityHistoryDialog());
-        this.finishedCommands.addListener((ListChangeListener<CommandInfo>) c -> {
-            CommandInfo lastCommandInfo = finishedCommands.get(finishedCommands.size() -1);
-            Platform.runLater(() -> headerStatusBar.setText(lastCommandInfo.getName() + " "
-                                                            + lastCommandInfo.statusString()));
+        this.finishedCommands.addListener((ListChangeListener<SingleTargetCommandResult>) c -> {
+            SingleTargetCommandResult lastCommandInfo = finishedCommands.get(finishedCommands.size() - 1);
+            Platform.runLater(() -> headerStatusBar.setText(CommandResultFormatter.getStringRepresentation(lastCommandInfo)));
         });
     }
 
