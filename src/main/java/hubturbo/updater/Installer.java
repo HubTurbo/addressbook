@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -108,15 +109,11 @@ public class Installer {
 
         VersionDescriptor versionDescriptor;
 
-        try {
-            versionDescriptor = JsonUtil.fromJsonString(json, VersionDescriptor.class);
-        } catch (IOException e) {
-            throw e;
-        }
+        versionDescriptor = JsonUtil.fromJsonString(json, VersionDescriptor.class);
 
         List<LibraryDescriptor> platformDependentLibraries =  versionDescriptor.getLibraries().stream()
                 .filter(libDesc -> libDesc.getOs() == OsDetector.getOs())
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
 
         for (LibraryDescriptor platformDependentLibrary : platformDependentLibraries) {
             URL downloadLink = platformDependentLibrary.getDownloadLink();
