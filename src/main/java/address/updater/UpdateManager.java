@@ -50,11 +50,11 @@ public class UpdateManager extends ComponentManager {
     private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
     private static final String JAR_UPDATER_APP_PATH = UPDATE_DIR + File.separator + "jarUpdater.jar";
     private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
-    private static final String VERSION_DESCRIPTOR_ON_SERVER_STABLE =
-            "https://raw.githubusercontent.com/HubTurbo/addressbook/stable/UpdateData.json";
-    private static final String VERSION_DESCRIPTOR_ON_SERVER_EARLY_ACCESS =
-            "https://raw.githubusercontent.com/HubTurbo/addressbook/early-access/UpdateData.json";
-    private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "UpdateData.json");
+    private static final String VERSION_DATA_ON_SERVER_STABLE =
+            "https://raw.githubusercontent.com/HubTurbo/addressbook/stable/VersionData.json";
+    private static final String VERSION_DATA_ON_SERVER_EARLY_ACCESS =
+            "https://raw.githubusercontent.com/HubTurbo/addressbook/early-access/VersionData.json";
+    private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
     private static final String LIB_DIR = "lib" + File.separator;
     private static final String MAIN_APP_FILEPATH = LIB_DIR + "resource.jar";
 
@@ -98,7 +98,7 @@ public class UpdateManager extends ComponentManager {
         }
 
         raise(new UpdaterInProgressEvent("Getting data from server", -1));
-        VersionDescriptor latestData;
+        VersionData latestData;
         try {
             latestData = getLatestDataFromServer();
         } catch (IOException e) {
@@ -175,10 +175,10 @@ public class UpdateManager extends ComponentManager {
     /**
      * Get latest data from the server, containing version information as well as the required libraries
      */
-    private VersionDescriptor getLatestDataFromServer() throws IOException {
+    private VersionData getLatestDataFromServer() throws IOException {
         URL latestDataFileUrl;
 
-        latestDataFileUrl = getLatestVersionDescriptorUrl(currentVersion.isEarlyAccess());
+        latestDataFileUrl = getLatestVersionDataUrl(currentVersion.isEarlyAccess());
 
         try {
             downloadFile(VERSION_DESCRIPTOR_FILE, latestDataFileUrl);
@@ -187,30 +187,30 @@ public class UpdateManager extends ComponentManager {
         }
 
         try {
-            return StorageManager.deserializeObjectFromJsonFile(VERSION_DESCRIPTOR_FILE, VersionDescriptor.class);
+            return StorageManager.deserializeObjectFromJsonFile(VERSION_DESCRIPTOR_FILE, VersionData.class);
         } catch (IOException e) {
             throw new IOException("Failed to parse data from latest data file.", e);
         }
     }
 
-    private URL getLatestVersionDescriptorUrl(boolean isEarlyAccess) {
+    private URL getLatestVersionDataUrl(boolean isEarlyAccess) {
         try {
             URL latestDataFileUrl;
             if (isEarlyAccess) {
-                latestDataFileUrl = new URL(VERSION_DESCRIPTOR_ON_SERVER_EARLY_ACCESS);
+                latestDataFileUrl = new URL(VERSION_DATA_ON_SERVER_EARLY_ACCESS);
             } else {
-                latestDataFileUrl = new URL(VERSION_DESCRIPTOR_ON_SERVER_STABLE);
+                latestDataFileUrl = new URL(VERSION_DATA_ON_SERVER_STABLE);
             }
             return latestDataFileUrl;
         } catch (MalformedURLException e) {
-            assert false : "Malformed version descriptor url";
+            assert false : "Malformed version data url";
             return null;
         }
     }
 
-    private Version getVersion(VersionDescriptor versionDescriptor) throws IllegalArgumentException {
+    private Version getVersion(VersionData versionData) throws IllegalArgumentException {
         try {
-            return Version.fromString(versionDescriptor.getVersion());
+            return Version.fromString(versionData.getVersion());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Failed to read version", e);
         }
@@ -224,19 +224,19 @@ public class UpdateManager extends ComponentManager {
      * Determines library files to download
      * Only suitable libraries for the detected operation system will be returned
      *
-     * @param versionDescriptor
+     * @param versionData
      * @return
      * @throws UnsupportedOperationException if OS is unsupported for updating
      */
-    private HashMap<String, URL> getFilesToDownload(VersionDescriptor versionDescriptor) throws UnsupportedOperationException {
+    private HashMap<String, URL> getFilesToDownload(VersionData versionData) throws UnsupportedOperationException {
         if (OsDetector.getOs() == OsDetector.Os.UNKNOWN) {
             throw new UnsupportedOperationException("OS not supported for updating");
         }
 
-        List<LibraryDescriptor> librariesToDownload = getLibrariesForOs(versionDescriptor.getLibraries(), OsDetector.getOs());
+        List<LibraryDescriptor> librariesToDownload = getLibrariesForOs(versionData.getLibraries(), OsDetector.getOs());
 
         HashMap<String, URL> filesToBeDownloaded = getLibraryFilesDownloadLinks(librariesToDownload);
-        filesToBeDownloaded.put(MAIN_APP_FILEPATH, versionDescriptor.getDownloadLinkForMainApp());
+        filesToBeDownloaded.put(MAIN_APP_FILEPATH, versionData.getDownloadLinkForMainApp());
 
         return filesToBeDownloaded;
     }
@@ -250,7 +250,7 @@ public class UpdateManager extends ComponentManager {
     private HashMap<String, URL> getLibraryFilesDownloadLinks(List<LibraryDescriptor> libraryFiles) {
         HashMap<String, URL> filesToBeDownloaded = new HashMap<>();
         libraryFiles.stream()
-                .forEach(libDesc -> filesToBeDownloaded.put(LIB_DIR + libDesc.getFilename(),
+                .forEach(libDesc -> filesToBeDownloaded.put(LIB_DIR + libDesc.getFileName(),
                                                             libDesc.getDownloadLink()));
         return filesToBeDownloaded;
     }

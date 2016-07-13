@@ -82,12 +82,12 @@ allprojects {
             java {
                 srcDir 'src/main/java/'
                 include('hubturbo/updater/**/*')
-                exclude('hubturbo/updater/UpdateDataGenerator.java')
+                exclude('hubturbo/updater/VersionDataGenerator.java')
                 include('address/util/FileUtil.java')
                 include('address/util/OsDetector.java')
                 include('address/util/ProgressAwareInputStream.java')
                 include('address/util/JsonUtil.java')
-                include('address/updater/VersionDescriptor.java')
+                include('address/updater/VersionData.java')
                 include('address/updater/LibraryDescriptor.java')
                 include('address/util/AppLogger.java')
                 include('address/util/LoggerManager.java')
@@ -102,7 +102,7 @@ allprojects {
                 exclude('lib/jxbrowser-*-*.jar') // platform specific jxbrowser
             }
         }
-        generateUpdateData {
+        generateVersionData {
             java {
                 srcDir 'src/main/java/'
             }
@@ -144,20 +144,20 @@ allprojects {
     }
 
     configurations {
-        generateUpdateDataCompile {
+        generateVersionDataCompile {
             extendsFrom compile
         }
     }
 
-    task generateUpdateData(type: JavaExec) {
+    task generateVersionData(type: JavaExec) {
         group = "Release"
 
         def arguments = project.ext.mainAppArchiveName + " ";
         arguments += configurations.runtime.files.collect { "$it.name" }.join(" ")
 
-        classpath = sourceSets.generateUpdateData.runtimeClasspath
+        classpath = sourceSets.generateVersionData.runtimeClasspath
 
-        main = 'hubturbo.updater.UpdateDataGenerator'
+        main = 'hubturbo.updater.VersionDataGenerator'
 
         args arguments.split()
     }
@@ -234,7 +234,7 @@ allprojects {
         doLast {
             println "A guide to create a release (after running this task)"
             println "====================================================="
-            println "(temp) to enable update, put UpdateData.json into update/ of the main executable"
+            println "(temp) to enable update, put VersionData.json into update/ of the main executable"
         }
     }
 
@@ -245,7 +245,7 @@ allprojects {
 
         from sourceSets.installer.output
         from(rootDir) {
-            include 'UpdateData.json'
+            include 'VersionData.json'
         }
 
         manifest {

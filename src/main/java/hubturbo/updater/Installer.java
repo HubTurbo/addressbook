@@ -1,7 +1,7 @@
 package hubturbo.updater;
 
 import address.updater.LibraryDescriptor;
-import address.updater.VersionDescriptor;
+import address.updater.VersionData;
 import address.util.*;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
@@ -113,22 +113,22 @@ public class Installer {
         Platform.runLater(() -> loadingLabel.setText("Downloading required components. Please wait."));
 
         String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream(UPDATE_DATA_RESOURCE));
-        VersionDescriptor versionDescriptor = JsonUtil.fromJsonString(json, VersionDescriptor.class);
-        List<LibraryDescriptor> osDependentLibraries = getOsDependentLibraries(versionDescriptor, OsDetector.getOs());
+        VersionData versionData = JsonUtil.fromJsonString(json, VersionData.class);
+        List<LibraryDescriptor> osDependentLibraries = getOsDependentLibraries(versionData, OsDetector.getOs());
         List<LibraryDescriptor> missingLibraries = getMissingLibraries(osDependentLibraries);
 
         int noOfMissingLibraries = missingLibraries.size();
         for (int i = 0; i < noOfMissingLibraries; i++) {
             LibraryDescriptor libraryToDownload = missingLibraries.get(i);
-            final String loadingLabelString = "Downloading " + (i + 1) + "/" + noOfMissingLibraries + ": " + libraryToDownload.getFilename();
+            final String loadingLabelString = "Downloading " + (i + 1) + "/" + noOfMissingLibraries + ": " + libraryToDownload.getFileName();
             Platform.runLater(() -> loadingLabel.setText(loadingLabelString));
 
-            File libFile = Paths.get(LIBRARY_DIR, libraryToDownload.getFilename()).toFile();
+            File libFile = Paths.get(LIBRARY_DIR, libraryToDownload.getFileName()).toFile();
             URL downloadLink = libraryToDownload.getDownloadLink();
             try {
                 downloadFile(libFile, downloadLink, progressBar);
             } catch (IOException e) {
-                System.out.println("Failed to download library " + libraryToDownload.getFilename());
+                System.out.println("Failed to download library " + libraryToDownload.getFileName());
                 throw e;
             }
         }
@@ -159,9 +159,9 @@ public class Installer {
         return conn.getContentLength();
     }
 
-    private ArrayList<LibraryDescriptor> getOsDependentLibraries(VersionDescriptor versionDescriptor,
+    private ArrayList<LibraryDescriptor> getOsDependentLibraries(VersionData versionData,
                                                                  OsDetector.Os os) {
-        return versionDescriptor.getLibraries().stream()
+        return versionData.getLibraries().stream()
                 .filter(libDesc -> libDesc.getOs() == os)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
@@ -174,7 +174,7 @@ public class Installer {
     private ArrayList<LibraryDescriptor> getMissingLibraries(List<LibraryDescriptor> requiredLibraries) {
         return requiredLibraries.stream()
                 .filter(libDesc -> {
-                    File libFile = Paths.get(LIBRARY_DIR, libDesc.getFilename()).toFile();
+                    File libFile = Paths.get(LIBRARY_DIR, libDesc.getFileName()).toFile();
                     return !isExistingLibrary(libFile, libDesc.getDownloadLink());
                 })
                 .collect(Collectors.toCollection(ArrayList::new));

@@ -53,7 +53,6 @@ public class Launcher extends Application {
             throw new IOException(ERROR_INSTALL, e);
         }
 
-
         Platform.runLater(() -> loadingLabel.setText("Launching AddressBook..."));
         try {
             startMainApplication();
@@ -88,7 +87,7 @@ public class Launcher extends Application {
     }
 
     private void showWaitingWindow(Stage stage) {
-        stage.setTitle("Launching address book");
+        stage.setTitle("Launcher");
         VBox windowMainLayout = new VBox();
         Scene scene = new Scene(windowMainLayout);
         stage.setScene(scene);

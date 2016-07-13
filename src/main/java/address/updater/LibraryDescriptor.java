@@ -21,7 +21,7 @@ public class LibraryDescriptor {
         this.os = os;
     }
 
-    public String getFilename() {
+    public String getFileName() {
         return filename;
     }
 

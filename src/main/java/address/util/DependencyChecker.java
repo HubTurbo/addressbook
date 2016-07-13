@@ -2,7 +2,7 @@ package address.util;
 
 import address.MainApp;
 import address.exceptions.DependencyCheckException;
-import address.updater.VersionDescriptor;
+import address.updater.VersionData;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -112,18 +112,18 @@ public class DependencyChecker {
     private void excludePlatformSpecificDependencies(List<String> dependencies) {
         String json = FileUtil.readFromInputStream(MainApp.class.getResourceAsStream("/UpdateData.json"));
 
-        VersionDescriptor versionDescriptor;
+        VersionData versionData;
 
         try {
-            versionDescriptor = JsonUtil.fromJsonString(json, VersionDescriptor.class);
+            versionData = JsonUtil.fromJsonString(json, VersionData.class);
         } catch (IOException e) {
             logger.warn("Failed to parse JSON data to process platform specific dependencies", e);
             return;
         }
 
-        List<String> librariesNotForCurrentMachine =  versionDescriptor.getLibraries().stream()
+        List<String> librariesNotForCurrentMachine =  versionData.getLibraries().stream()
                 .filter(libDesc -> libDesc.getOs() != OsDetector.Os.ANY && libDesc.getOs() != OsDetector.getOs())
-                .map(libDesc -> "lib/" + libDesc.getFilename())
+                .map(libDesc -> "lib/" + libDesc.getFileName())
                 .collect(Collectors.toList());
 
         dependencies.removeAll(librariesNotForCurrentMachine);
