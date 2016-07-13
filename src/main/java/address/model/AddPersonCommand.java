@@ -4,6 +4,7 @@ import static address.model.ChangeObjectInModelCommand.State.*;
 import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
 
 import address.events.BaseEvent;
+import address.events.CommandFinishedEvent;
 import address.events.CreatePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
@@ -25,12 +26,15 @@ import java.util.function.Supplier;
  */
 public class AddPersonCommand extends ChangePersonInModelCommand {
 
-    private static final AppLogger logger = LoggerManager.getLogger(AddPersonCommand.class);
+    public static final String COMMAND_TYPE = "Add Person";
 
     private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
     private ViewablePerson viewableToAdd;
     private final String addressbookName;
+
+    // Data snapshot for building result object
+    private ReadOnlyPerson personDataSnapshot = null; // null if command terminated before input composed
 
     /**
      * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
@@ -48,11 +52,6 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     protected ViewablePerson getViewableToAdd() {
         return viewableToAdd;
-    }
-
-    @Override
-    public String getName() {
-        return "Add Person " + (viewableToAdd == null ? "" : viewableToAdd.idString());
     }
 
     @Override
@@ -74,7 +73,13 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
             viewableToAdd.setChangeInProgress(NONE);
             model.unassignOngoingChangeForPerson(viewableToAdd.getId());
         }
-        model.trackFinishedCommand(this);
+        // personDataSnapshot == null means that the command was cancelled before any input was received
+        final String targetName = personDataSnapshot == null ? "" : personDataSnapshot.fullName();
+        final String targetIdString = personDataSnapshot == null ? "" : personDataSnapshot.idString();
+        eventRaiser.accept(new CommandFinishedEvent(
+                new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(), TARGET_TYPE,
+                        targetIdString, targetName, targetName)
+        ));
     }
 
     /**
@@ -89,9 +94,8 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
             viewableToAdd = model.addViewablePersonWithoutBacking(input);
             viewableToAdd.setChangeInProgress(ADDING);
         });
-        logger.debug("simulateResult: Going to add " + viewableToAdd.toString());
+        snapshotPersonData(viewableToAdd);
         model.assignOngoingChangeToPerson(viewableToAdd.getId(), this);
-        logger.debug("simulateResult: Added " + viewableToAdd.toString() + " to visible person list in model");
         return GRACE_PERIOD;
     }
 
@@ -108,6 +112,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         if (editInput.isPresent()) { // edit request confirmed
             input = editInput.get(); // update saved input
             PlatformExecUtil.runAndWait(() -> viewableToAdd.simulateUpdate(input));
+            snapshotPersonData(viewableToAdd);
         }
         return GRACE_PERIOD; // restart grace period
     }
@@ -137,9 +142,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         eventRaiser.accept(new CreatePersonOnRemoteRequestEvent(responseHolder, addressbookName, input));
         try {
             final Person backingPerson = new Person(responseHolder.get());
-            logger.debug("requestChangeToRemote -> id of viewable person before updating is " + backingPerson.getId());
 
-            logger.debug("requestChangeToRemote: Removing mapping for old id:" + getTargetPersonId());
             model.unassignOngoingChangeForPerson(getTargetPersonId()); // removes mapping for old id
 
             PlatformExecUtil.runAndWait(() -> {
@@ -147,7 +150,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
                 viewableToAdd.connectBackingObject(backingPerson); // changes id to that of backing person
                 model.assignOngoingChangeToPerson(backingPerson.getId(), this); // remap this change for the new id
             });
-            logger.debug("requestChangeToRemote -> id of viewable person updated to " + viewableToAdd.getId());
+            snapshotPersonData(viewableToAdd);
             return SUCCESSFUL;
         } catch (ExecutionException | InterruptedException e) {
             return FAILED;
@@ -169,6 +172,10 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void finishWithFailure() {
         finishWithCancel(); // TODO figure out failure handling
+    }
+
+    private void snapshotPersonData(ReadOnlyPerson data) {
+        personDataSnapshot = new Person(data);
     }
 
 }

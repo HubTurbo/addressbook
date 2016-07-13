@@ -1,16 +1,16 @@
 package address.ui;
 
 import address.controller.ActivityHistoryCardController;
-import address.model.CommandInfo;
+import address.model.SingleTargetCommandResult;
 import javafx.scene.control.ListCell;
 
 /**
  *
  */
-public class CommandInfoListViewCell extends ListCell<CommandInfo> {
+public class SingleTargetCommandResultListViewCell extends ListCell<SingleTargetCommandResult> {
 
     @Override
-    protected void updateItem(CommandInfo item, boolean empty) {
+    protected void updateItem(SingleTargetCommandResult item, boolean empty) {
         super.updateItem(item, empty);
         if (item == null || empty) {
             setGraphic(null);

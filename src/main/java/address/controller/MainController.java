@@ -4,6 +4,7 @@ import address.MainApp;
 import address.browser.BrowserManager;
 import address.events.*;
 import address.exceptions.DuplicateTagException;
+import address.model.SingleTargetCommandResult;
 import address.model.UserPrefs;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.ModelManager;
@@ -13,6 +14,7 @@ import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventType;
 import javafx.fxml.FXMLLoader;
@@ -72,6 +74,11 @@ public class MainController extends UiController{
     private StatusBarHeaderController statusBarHeaderController;
 
     private UnmodifiableObservableList<ReadOnlyViewablePerson> personList;
+    private final ObservableList<SingleTargetCommandResult> finishedCommandResults;
+
+    {
+        finishedCommandResults = FXCollections.observableArrayList();
+    }
 
     /**
      * Constructor for mainController
@@ -460,7 +467,7 @@ public class MainController extends UiController{
             dialogStage.getIcons().add(getImage(ICON_INFO));
             // Set the persons into the controller.
             ActivityHistoryController controller = loader.getController();
-            controller.setConnections(modelManager.getFinishedCommands());
+            controller.setConnections(finishedCommandResults);
             controller.init();
             dialogStage.show();
         } catch (IOException e) {
@@ -546,6 +553,11 @@ public class MainController extends UiController{
     private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event){
         logger.debug("Handling the minimize app window request");
         Platform.runLater(this::minimizeWindow);
+    }
+
+    @Subscribe
+    private void handleCommandFinishedEvent(CommandFinishedEvent evt) {
+        PlatformExecUtil.runAndWait(() -> finishedCommandResults.add(evt.result));
     }
 
     /**
