@@ -117,7 +117,7 @@ public class UpdateManager extends ComponentManager {
         }
 
         // Close app if wrong release channel - EA <-> stable
-        assert isOnSameReleaseChannel(latestVersion);
+        assert isOnSameReleaseChannel(latestVersion) : "Error: latest version found to be in the wrong release channel";
 
         if (currentVersion.compareTo(latestVersion) >= 0) {
             raise(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
@@ -233,7 +233,7 @@ public class UpdateManager extends ComponentManager {
             throw new UnsupportedOperationException("OS not supported for updating");
         }
 
-        List<LibraryDescriptor> librariesToDownload = getLibrariesToDownloadForOs(versionDescriptor, OsDetector.getOs());
+        List<LibraryDescriptor> librariesToDownload = getLibrariesForOs(versionDescriptor.getLibraries(), OsDetector.getOs());
 
         HashMap<String, URL> filesToBeDownloaded = getLibraryFilesDownloadLinks(librariesToDownload);
         filesToBeDownloaded.put(MAIN_APP_FILEPATH, versionDescriptor.getDownloadLinkForMainApp());
@@ -255,8 +255,15 @@ public class UpdateManager extends ComponentManager {
         return filesToBeDownloaded;
     }
 
-    private List<LibraryDescriptor> getLibrariesToDownloadForOs(VersionDescriptor versionDescriptor, OsDetector.Os Os) {
-        return versionDescriptor.getLibraries().stream()
+    /**
+     * Returns the list of libraries which are either universal or match the given os
+     *
+     * @param libraries
+     * @param Os
+     * @return
+     */
+    private List<LibraryDescriptor> getLibrariesForOs(List<LibraryDescriptor> libraries, OsDetector.Os Os) {
+        return libraries.stream()
                 .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == Os)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
