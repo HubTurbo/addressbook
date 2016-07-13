@@ -14,8 +14,7 @@ import org.controlsfx.control.StatusBar;
 import java.io.File;
 import java.util.concurrent.*;
 
-public class StatusBarFooterController extends UiController{
-    private  static final String ADDRESS_BOOK_LABEL_PREFIX = "Address Book: ";
+public class StatusBarFooterController extends UiController {
 
     @FXML
     private AnchorPane updaterStatusBarPane;
@@ -127,7 +126,6 @@ public class StatusBarFooterController extends UiController{
         Platform.runLater(() -> {
             updaterStatusBar.setText(ufe.toString());
             updaterStatusBar.setProgress(0.0);
-            updaterStatusBar.setText("");
             showSecondaryStatusBarLabel();
         });
     }
@@ -142,12 +140,11 @@ public class StatusBarFooterController extends UiController{
         Platform.runLater(() -> {
             updaterStatusBar.setText(ufe.toString());
             updaterStatusBar.setProgress(0.0);
-            updaterStatusBar.setText("");
             showSecondaryStatusBarLabel();
         });
     }
 
     private void updateSaveLocationDisplay(String addressBookName) {
-        secondaryStatusBarLabel.setText(ADDRESS_BOOK_LABEL_PREFIX + addressBookName);
+        secondaryStatusBarLabel.setText(addressBookName);
     }
 }

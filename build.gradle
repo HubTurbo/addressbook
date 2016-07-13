@@ -240,7 +240,7 @@ allprojects {
 
     createMainAppExecutable.dependsOn clean
 
-    task createInstallerJar(type: Jar) {
+    task createLauncherJar(type: Jar) {
         group = "Release"
 
         from sourceSets.installer.output
@@ -251,7 +251,7 @@ allprojects {
         manifest {
             attributes 'Implementation-Title': 'Addressbook',
                     'Implementation-Version': '1.0',
-                    'Main-Class': 'hubturbo.updater.Installer',
+                    'Main-Class': 'hubturbo.updater.Launcher',
                     'Class-Path': configurations.installerRuntime.files.collect { "lib/${it.name}" }.join(" ")
         }
 
@@ -262,7 +262,7 @@ allprojects {
         toolVersion = "0.7.5.201505241946"
     }
 
-    createInstallerJar.dependsOn createMainAppExecutable
+    createLauncherJar.dependsOn createMainAppExecutable
 }
 
 task wrapper(type: Wrapper) {

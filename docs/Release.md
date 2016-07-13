@@ -64,7 +64,7 @@ steps below.
  in which you can make relevant changes (for example changing version number and early access flag) before committing with
  the version of the software as the commit message.
 
-0. **Pre-requisite** Run `gradle` task `createInstallerJar` under `release` category
+0. **Pre-requisite** Run `gradle` task `createLauncherJar` under `release` category
   - This is to ensure that all binaries can be created successfully (i.e. no compile-time error).
   - If there is any compile-time error, resolve them first before continuing on the next step.
 1. Update version in `MainApp` and in `build.gradle`. If this is an early access version, set `IS_EARLY_ACCESS` in `MainApp`
@@ -78,7 +78,7 @@ as `true` and add `ea` at the end of version in `build.gradle`.
 4. Commit and push the  files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>` (with suffix `ea` if it's an early access version)
   - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `UpdateData.json`
 5. Create a release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
-6. Run `gradle` task `createInstallerJar` under `release` category (this must be run again to use the updated `UpdateData.json`)
+6. Run `gradle` task `createLauncherJar` under `release` category (this must be run again to use the updated `UpdateData.json`)
 7. Upload `addressbook.jar` to the latest release.
 8. Upload the following as binaries to the (`resource` release)[https://github.com/HubTurbo/addressbook/releases/tag/resources]:
   - resource-\<version\>.jar
@@ -121,9 +121,9 @@ data. To make it easier for developer to update only things that get updated, it
 libraries that do not change. Developers then need to update the new dependencies information (such as URL to download
 the libraries and the OS that needed them) manually.
 
-generateUpdateData has its own source set which includes everything - main application and installer - and its dependencies
+generateUpdateData has its own source set which includes everything - main application and launcher - and its dependencies
 are extended from main application compile dependencies. This is to make it easier for generateUpdateData to read any
-information it needs to create update data. The main class it uses is `installer/UpdateDataGenerator.java`
+information it needs to create update data. The main class it uses is `updater/UpdateDataGenerator.java`
 
 ### createJarUpdater
 Create Jar Updater executable file, which job is to apply updates to the JARs of the main application.
@@ -147,18 +147,18 @@ This task is not needed if you are running the app from IDE.
 Create the JAR of the main application. This task will also run all the other tasks required to enable the main app JAR
 to run, such as addJarUpdaterToMainApp and copyDependencyLibrariesToReleaseDir.
 
-### createInstallerJar
+### createLauncherJar
 Create the packed JAR to be provided to user to use. The packed JAR contains the main app executable and all the
 libraries needed for the main app executable to run. It will run the other tasks necessary to generate those files and
 keep them as resources.
 
-Installer is defined into its own source set to make it easier to compile.
+Launcher is defined into its own source set to make it easier to compile.
 
-Currently, Installer needs Jackson to parse the update data for dependency setting purposes. However, it is not compiled
-to Installer JAR; it will need `lib/[jackson].jar` to work. Those Jackson JARs are inside Installer JAR as resource, though,
-which will be unpacked anyway. Hence, JSON parsing in Installer must be called only after it unpacks itself.
+Currently, Launcher needs Jackson to parse the update data for dependency setting purposes. However, it is not compiled
+to Launcher JAR; it will need `lib/[jackson].jar` to work. Those Jackson JARs are inside Launcher JAR as resource, though,
+which will be unpacked anyway. Hence, JSON parsing in Launcher must be called only after it unpacks itself.
 
-Installer will launch the main application with `enable assertion` argument to enable assertion in production. On first
+Launcher will launch the main application with `enable assertion` argument to enable assertion in production. On first
 run, it will unpack the libraries JARs and the main app JAR then launch the main app. On the next runs, it acts as a
 launcher to enable assertion in production.
 
@@ -175,9 +175,9 @@ Instead of having to deal with text file of update data which is prone to error,
 uses to show what libraries have been changed in the latest version with fields to update the download links. Also,
 we can have a dropdown option for the OS which the libraries are needed in so developers don't need to type them manually.
 
-### Installer dependencies
-Currently Installer only has Jackson dependency which is easy to manage on compiling side and easy to control on program flow
-side. However, it will be better if dependencies of Installer to be compiled (i.e. converted to classes) and packed together
+### Launcher dependencies
+Currently Launcher only has Jackson dependency which is easy to manage on compiling side and easy to control on program flow
+side. However, it will be better if dependencies of Launcher to be compiled (i.e. converted to classes) and packed together
 into the JAR so that it does not need to depend on external JAR libraries which need to be unpacked before running
 some methods. It's also safer when there is a call to a library method early in the program, say Apache IO on file opening.
 In this case, use of ShadowJAR or tinkering around `gradle` system to compile libraries as classes into JAR should be considered.

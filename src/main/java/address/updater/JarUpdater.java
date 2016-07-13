@@ -15,18 +15,18 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * This class is meant to read update specifications from a file, then download and replace specified files
+ * This class is meant to read update specifications from a file, then replace specified files
  *
  * Note: This class will be compiled into a JAR on its own
  * If you made any changes to this class, run gradle task compileJarUpdater
  *
- * Options:
+ * Mandatory options:
  * --update-specification the update specification file on which files to be updated
  * --source-dir the main directory which files to be updated
  */
@@ -54,21 +54,23 @@ public class JarUpdater extends Application {
             try {
                 run();
             } catch (IllegalArgumentException e) {
+                logger.info("Illegal arguments provided: {}", e);
                 showInvalidProgramArgumentErrorDialog();
             } catch (IOException e) {
+                logger.info("Error running updater: {}", e);
                 showErrorOnUpdatingDialog();
             }
         });
     }
 
     private void showWaitingWindow(Stage stage) {
-        stage.setTitle("Updater");
         VBox windowMainLayout = new VBox();
         Scene scene = new Scene(windowMainLayout);
+
+        stage.setTitle("Updater");
         stage.setScene(scene);
 
         Label updatingLabel = getUpdatingLabel();
-
         windowMainLayout.getChildren().addAll(updatingLabel);
 
         stage.show();
@@ -76,36 +78,31 @@ public class JarUpdater extends Application {
 
     private Label getUpdatingLabel() {
         Label updatingLabel = new Label();
-        updatingLabel.setText("Applying update to application...");
+        updatingLabel.setText("Applying updates to application...");
         updatingLabel.setPadding(new Insets(50));
         return updatingLabel;
     }
 
     private void run() throws IllegalArgumentException, IOException {
-        HashMap<String, String> commandLineArgs = new HashMap<>(getParameters().getNamed());
-
+        Map<String, String> commandLineArgs = getParameters().getNamed();
         String updateSpecificationFilepath = commandLineArgs.get(UPDATE_SPECIFICATION_KEY);
         String sourceDir = commandLineArgs.get(SOURCE_DIR_KEY);
 
         if (updateSpecificationFilepath == null || sourceDir == null) {
-            logger.info("Error: File path or source dir is null.");
-            throw new IllegalArgumentException("Please specify the filepath to update specification " +
-                                               "and the source directory of the update files.");
-        } else {
-            logger.info("{}: {}", UPDATE_SPECIFICATION_KEY, updateSpecificationFilepath);
-            logger.info("{}: {}", SOURCE_DIR_KEY, sourceDir);
+            throw new IllegalArgumentException("updateSpecificationFilePath or sourceDir is null");
         }
 
-        List<String> localUpdateData;
+        logger.info("{}: {}", UPDATE_SPECIFICATION_KEY, updateSpecificationFilepath);
+        logger.info("{}: {}", SOURCE_DIR_KEY, sourceDir);
 
+        List<String> updateSpecifications;
         try {
-            localUpdateData = LocalUpdateSpecificationHelper.readLocalUpdateSpecFile(updateSpecificationFilepath);
+            updateSpecifications = LocalUpdateSpecificationHelper.readLocalUpdateSpecFile(updateSpecificationFilepath);
         } catch (IOException e) {
-            logger.info("Failed to read local update data");
-            throw e;
+            throw new IOException("Failed to read local update specification", e);
         }
-        logger.info("{} updates to be applied", localUpdateData.size());
-        applyUpdateToAllFiles(sourceDir, localUpdateData);
+        logger.info("{} updates to be applied", updateSpecifications.size());
+        applyUpdateToAllFiles(sourceDir, updateSpecifications);
         logger.info("Update successful");
 
         stop();
@@ -117,45 +114,68 @@ public class JarUpdater extends Application {
         System.exit(0);
     }
 
+    /**
+     * Attempts to replace files with files from sourceDir
+     *
+     * @param sourceDir
+     * @param filesToBeUpdated
+     * @throws IOException
+     */
     private void applyUpdateToAllFiles(String sourceDir, List<String> filesToBeUpdated) throws IOException {
         for (String fileToUpdate : filesToBeUpdated) {
-            applyUpdate(Paths.get(sourceDir, fileToUpdate), Paths.get(fileToUpdate));
+            updateFile(sourceDir, fileToUpdate);
         }
     }
 
     /**
-     * Applies update to a file.
-     *
-     * Technically replaces a file with a newer version with a guard to wait until the file is modifiable.
+     * Attempts to replace the file with a newer version
      *
      * In some platforms (Windows in particular), JAR file cannot be modified if it was executed and
      * the process it created has not ended yet. As such, we will make several tries with wait.
      */
-    private void applyUpdate(Path source, Path dest) throws IOException {
-        logger.info("Applying update for {}", dest);
+    private void updateFile(String sourceDir, String fileToUpdate) throws IOException {
+        logger.info("Applying update for {}", fileToUpdate);
+
+        Path source = Paths.get(sourceDir, fileToUpdate);
+        Path dest = Paths.get(fileToUpdate);
 
         if (!FileUtil.isFileExists(dest.toString())) {
             FileUtil.createParentDirsOfFile(dest.toFile());
         }
 
-        for (int i = 0; i < MAX_RETRIES; i++) {
-            try {
-                FileUtil.moveFile(source, dest, true);
-                return;
-            } catch (IOException e) {
-                logger.info("Failed to move file {} to {}. Might be due to original JAR still in use.",
-                        source.getFileName(), dest.getFileName());
+        int noOfRetries = 0;
+        while (!applyUpdate(source, dest)) {
+            if (++noOfRetries > MAX_RETRIES) {
+                throw new IOException("Jar file cannot be updated. Most likely it is in use by another process.");
             }
 
             try {
-                logger.info("Waiting for a while before trying again.");
+                logger.info("Waiting for {} milliseconds before trying again.", WAIT_TIME);
                 Thread.sleep(WAIT_TIME);
             } catch (InterruptedException e) {
-                logger.warn("Failed to wait for a while");
+                logger.warn("Failed to wait for a while: {}", e);
             }
         }
 
-        throw new IOException("Jar file cannot be updated. Most likely it is in use by another process.");
+    }
+
+    /**
+     * Attempts to replace the file at dest with the file at source
+     * Source file will not be kept
+     *
+     * @param source
+     * @param dest
+     * @return true if successful
+     */
+    private boolean applyUpdate(Path source, Path dest) {
+        try {
+            FileUtil.moveFile(source, dest, true);
+            return true;
+        } catch (IOException e) {
+            logger.info("Failed to move file {} to {}. Might be due to original JAR still in use.",
+                    source.getFileName(), dest.getFileName());
+            return false;
+        }
     }
 
     private void showInvalidProgramArgumentErrorDialog() {
