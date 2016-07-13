@@ -25,16 +25,13 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 /**
- * Unpack all JARs required to runUpdate addressbook onto the disk.
- *
- * Installer JAR will contain all of addressbook required JARs (libraries and dependencies) and
- * the main application JAR.
+ * Unpacks all JARs required to install addressbook onto the disk.
  */
 public class Installer {
     private static final String LIB_DIR = "lib";
     private static final Path MAIN_APP_FILEPATH = Paths.get(LIB_DIR, new File("resource.jar").getName());
 
-    public void runUpdate(Label label, ProgressBar progressBar) throws IOException {
+    public void runInstall(Label label, ProgressBar progressBar) throws IOException {
         try {
             createLibDir();
         } catch (IOException e) {
@@ -84,6 +81,7 @@ public class Installer {
                     continue;
                 }
 
+                // TODO: Don't extract files after first run, otherwise they might become older
                 // For other JARs, extract if existing files are of different sizes
                 if (filename.endsWith(".jar") && jarEntry.getSize() != extractDest.toFile().length()) {
                     try (InputStream in = jar.getInputStream(jarEntry)) {

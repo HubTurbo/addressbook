@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * This class is meant to read update specifications from a file, then download and replace specified files
+ * This class is meant to read update specifications from a file, then replace specified files
  *
  * Note: This class will be compiled into a JAR on its own
  * If you made any changes to this class, run gradle task compileJarUpdater

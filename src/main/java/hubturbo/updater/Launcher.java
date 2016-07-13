@@ -16,6 +16,12 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Launcher for the address book application
+ *
+ * Launcher JAR will contain all of addressbook required JARs (libraries and dependencies) and
+ * the main application JAR.
+ */
 public class Launcher extends Application {
     private static final String ERROR_INSTALL = "Failed to install";
     private static final String ERROR_TRY_AGAIN = "Please try again, or contact developer if it keeps failing.";
@@ -39,13 +45,14 @@ public class Launcher extends Application {
 
     private void run() throws IOException {
         Installer installer = new Installer();
-
+        loadingLabel = new Label("Installing...");
         try {
-            installer.runUpdate(loadingLabel, progressBar);
+            installer.runInstall(loadingLabel, progressBar);
         } catch (IOException e) {
             showErrorDialogAndQuit(ERROR_INSTALL, e.getMessage(), ERROR_TRY_AGAIN);
         }
 
+        loadingLabel = new Label("Launching AddressBook...");
         try {
             startMainApplication();
         } catch (IOException e) {
@@ -61,7 +68,6 @@ public class Launcher extends Application {
             alert.setTitle(title);
             alert.setHeaderText(headerText);
             alert.setContentText(contentText);
-
             alert.showAndWait();
             stop();
         });
@@ -80,15 +86,13 @@ public class Launcher extends Application {
     }
 
     private void showWaitingWindow(Stage stage) {
-        stage.setTitle("Starting address book");
+        stage.setTitle("Launching address book");
         VBox windowMainLayout = new VBox();
         Scene scene = new Scene(windowMainLayout);
         stage.setScene(scene);
 
-        loadingLabel = new Label("Initializing. Please wait.");
-
-        progressBar = new ProgressBar(-1.0);
-        progressBar.setPrefWidth(400);
+        loadingLabel = getLoadingLabel();
+        progressBar = getProgressBar();
 
         final VBox vb = new VBox();
         vb.setSpacing(30);
@@ -98,6 +102,16 @@ public class Launcher extends Application {
         windowMainLayout.getChildren().add(vb);
 
         stage.show();
+    }
+
+    private ProgressBar getProgressBar() {
+        ProgressBar progressBar = new ProgressBar(-1.0);
+        progressBar.setPrefWidth(400);
+        return progressBar;
+    }
+
+    private Label getLoadingLabel() {
+        return new Label("Initializing. Please wait.");
     }
 
     @Override
