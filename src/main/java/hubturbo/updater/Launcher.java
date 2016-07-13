@@ -78,7 +78,6 @@ public class Launcher extends Application {
         System.out.println("Starting main application");
 
         String classPath = File.pathSeparator + "lib" + File.separator + "*";
-
         String command = String.format("java -ea -cp %s address.MainApp", classPath);
 
         Runtime.getRuntime().exec(command, null, new File(System.getProperty("user.dir")));

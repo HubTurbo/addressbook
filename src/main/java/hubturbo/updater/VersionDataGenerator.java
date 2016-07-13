@@ -10,7 +10,6 @@ import address.util.JsonUtil;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -85,7 +84,7 @@ public class VersionDataGenerator {
         ArrayList<LibraryDescriptor> libraryDescriptors = new ArrayList<>();
         for (String libraryName : currentLibrariesNames) {
             try {
-                libraryDescriptors.add(new LibraryDescriptor(libraryName, getDownloadLinkForLib(libraryName), null));
+                libraryDescriptors.add(new LibraryDescriptor(libraryName, getDownloadLinkForLibrary(libraryName), null));
             } catch (MalformedURLException e) {
                 System.out.println("Failed to set download link for " + libraryName +
                         "; please update the download link manually");
@@ -98,12 +97,12 @@ public class VersionDataGenerator {
         return JsonUtil.fromJsonString(FileUtil.readFromFile(file), VersionData.class);
     }
 
-    private String getMainAppDownloadLink(String mainAppFilename) {
-        return BASE_DOWNLOAD_LINK + mainAppFilename;
+    private String getMainAppDownloadLink(String mainAppFileName) {
+        return BASE_DOWNLOAD_LINK + mainAppFileName;
     }
 
-    private URL getDownloadLinkForLib(String libFilename) throws MalformedURLException {
-        return new URL(BASE_DOWNLOAD_LINK + libFilename);
+    private String getDownloadLinkForLibrary(String libraryFileName) {
+        return BASE_DOWNLOAD_LINK + libraryFileName;
     }
 
     /**
@@ -111,6 +110,7 @@ public class VersionDataGenerator {
      * into matching libraryDescriptors in currentLibraryDescriptors
      *
      * Library descriptors are considered matching if they have the same file name
+     * This method assumes that the there are no same library descriptors in the a list
      * @param previousLibraryDescriptors
      * @param currentLibraryDescriptors
      */
