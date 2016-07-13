@@ -15,13 +15,13 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
     private AddressBook initialData = generateInitialData();
 
-    private AddressBook generateInitialData() {//TODO: create a better set of sample data
+    private AddressBook generateInitialData() {
         AddressBook ab = new AddressBook();
-        ab.addPerson(new Person("Person1", "Lastname1", 1));
-        ab.addPerson(new Person("Person2", "Lastname2", 2));
-        ab.addPerson(new Person("Person3", "Lastname3", 3));
-        ab.addPerson(new Person("Person4", "Lastname4", 4));
-        ab.addPerson(new Person("Person5", "Lastname5", 5));
+        ab.addPerson(new Person("John", "Wilson", 1));
+        ab.addPerson(new Person("John", "Lennon", 2));
+        ab.addPerson(new Person("Allan", "Turing", 3));
+        ab.addPerson(new Person("Obama", "Micheal", 4));
+        ab.addPerson(new Person("Pedo", "Lee", 5));
         return ab;
     }
 
@@ -36,18 +36,18 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         //======= shortcuts =======================
 
         personListPanel.use_LIST_ENTER_SHORTCUT();
-        assertTrue(personListPanel.isSelected("Person1", "Lastname1"));
+        assertTrue(personListPanel.isSelected("John", "Wilson"));
 
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
-        assertTrue(personListPanel.isSelected("Person4", "Lastname4"));
+        assertTrue(personListPanel.isSelected("Obama", "Micheal"));
 
         //======= sequences =========================
 
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
-        assertTrue(personListPanel.isSelected("Person5", "Lastname5"));
+        assertTrue(personListPanel.isSelected("Pedo", "Lee"));
 
         personListPanel.use_LIST_GOTO_TOP_SEQUENCE();
-        assertTrue(personListPanel.isSelected("Person1", "Lastname1"));
+        assertTrue(personListPanel.isSelected("John", "Wilson"));
 
 
         //======= accelerators =======================
@@ -55,21 +55,21 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
 
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
-        assertEquals("Person4 Lastname4", editPersonDialog.getFullName());
+        assertEquals("Obama Micheal", editPersonDialog.getFullName());
         editPersonDialog.clickCancel();
 
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        assertTrue(personListPanel.contains("Person4", "Lastname4")); // still in the list due to grace period
+        assertTrue(personListPanel.contains("Obama", "Micheal")); // still in the list due to grace period
         personListPanel.waitForGracePeriodToExpire();
-        assertFalse(personListPanel.contains("Person4", "Lastname4")); // removed from list after grace period
+        assertFalse(personListPanel.contains("Obama", "Micheal")); // removed from list after grace period
 
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
 
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        assertTrue(personListPanel.contains("Person3", "Lastname3")); // still in the list due to grace period
+        assertTrue(personListPanel.contains("Allan", "Turing")); // still in the list due to grace period
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         personListPanel.waitForGracePeriodToExpire();
-        assertTrue(personListPanel.contains("Person3", "Lastname3")); // still in the list even after grace period
+        assertTrue(personListPanel.contains("Allan", "Turing")); // still in the list even after grace period
 
         TagPersonDialogHandle tagPersonDialog = personListPanel.use_PERSON_TAG_ACCELERATOR();
         tagPersonDialog.close();
@@ -77,13 +77,13 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         //======== others ============================
 
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
-        assertTrue(personListPanel.isSelected("Person2", "Lastname2"));
+        assertTrue(personListPanel.isSelected("John", "Lennon"));
 
         personListPanel.navigateDown();
-        assertTrue(personListPanel.isSelected("Person3", "Lastname3"));
+        assertTrue(personListPanel.isSelected("Allan", "Turing"));
 
         personListPanel.navigateUp();
-        assertTrue(personListPanel.isSelected("Person2", "Lastname2"));
+        assertTrue(personListPanel.isSelected("John", "Lennon"));
 
         //======== hotkeys ============================
 

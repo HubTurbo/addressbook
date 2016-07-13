@@ -19,6 +19,7 @@ import java.util.concurrent.TimeoutException;
 public class GuiTestBase {
 
     TestApp testApp;
+    GuiRobot guiRobot = new GuiRobot(); //TODO: remove this from here, only *Handle objects should use the robot
 
     /* Handles to GUI elements present at the start up are created in advance
      *   for easy access from child classes.
