@@ -41,6 +41,8 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     private String saveFilePath;
     private String addressBookNameToUse;
 
+    public static final int GRACE_PERIOD_DURATION = 3;
+
     {
         personChangesInProgress = new HashMap<>();
         commandExecutor = Executors.newCachedThreadPool();
@@ -256,18 +258,15 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 //// Command utilities
 
     protected void execNewAddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever) {
-        final int GRACE_PERIOD_DURATION = 3;
         commandExecutor.execute(new AddPersonCommand(assignCommandId(), inputRetriever, GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
     }
 
     protected void execNewEditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> editInputRetriever) {
-        final int GRACE_PERIOD_DURATION = 3;
         commandExecutor.execute(new EditPersonCommand(assignCommandId(), target, editInputRetriever,
                 GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
     }
 
     protected void execNewDeletePersonCommand(ViewablePerson target) {
-        final int GRACE_PERIOD_DURATION = 3;
         commandExecutor.execute(new DeletePersonCommand(assignCommandId(), target, GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
     }
 

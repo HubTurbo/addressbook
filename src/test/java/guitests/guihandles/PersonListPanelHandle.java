@@ -2,17 +2,21 @@ package guitests.guihandles;
 
 
 import address.keybindings.Bindings;
+import address.model.ModelManager;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import guitests.GuiRobot;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides a handle for the panel containing the person list.
@@ -105,7 +109,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public FxRobot waitForGracePeriodToExpire() {
-        return guiRobot.sleep(4000);//TODO: tie the sleep duration to the actual grace period and implement a polling wait
+        return guiRobot.sleep((ModelManager.GRACE_PERIOD_DURATION + 1) * 1000);//TODO: Implement a polling wait
     }
 
     public void navigateUp() {
@@ -178,8 +182,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
         //Return false if any of the persons doesn't match
         for (int i = 0; i < persons.length; i++) {
-            if (!personsInList.get(startPosition + i).getFirstName().equals(persons[i].getFirstName())){
-                //TODO: use a stronger check (not the the first name
+            if (!personsInList.get(startPosition + i).fullName().equals(persons[i].fullName())){
                 return false;
             }
         }
@@ -212,9 +215,11 @@ public class PersonListPanelHandle extends GuiHandle {
         return guiRobot.lookup(CARD_PANE_ID).queryAll();
     }
 
-
     public List<PersonCardHandle> getSelectedCards() {
-        //TODO: implement this
-        throw new RuntimeException("Not implemented");
+        //TODO: To test this before using.
+        ObservableList<ReadOnlyViewablePerson> persons = getListView().getSelectionModel().getSelectedItems();
+        return persons.stream()
+                      .map(p -> getPersonCardHandle(new Person(p)))
+                      .collect(Collectors.toCollection(ArrayList::new));
     }
 }
