@@ -5,12 +5,14 @@ import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import guitests.GuiRobot;
+import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Provides a handle for the panel containing the person list.
@@ -18,9 +20,10 @@ import java.util.List;
 public class PersonListPanelHandle extends GuiHandle {
 
     public static final int NOT_FOUND = -1;
-    private String filterFieldId = "#filterField";
-    private String personListViewId = "#personListView";
-    String newButtonId = "#newButton";
+    public static final String CARD_PANE_ID = "#cardPane";
+    private static final String FILTER_FIELD_ID = "#filterField";
+    private static final String PERSON_LIST_VIEW_ID = "#personListView";
+    private static final String NEW_BUTTON_ID = "#newButton"; //TODO: convert to constants
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage);
@@ -38,13 +41,17 @@ public class PersonListPanelHandle extends GuiHandle {
         return getSelectedPerson().hasName(firstName, lastName);
     }
 
+    public boolean isSelected(Person person) {
+        return getSelectedPerson().hasName(person.getFirstName(), person.getLastName());
+    }
+
     public ReadOnlyViewablePerson getSelectedPerson() {
         ListView<ReadOnlyViewablePerson> personList = getListView();
         return personList.getSelectionModel().getSelectedItems().get(0);
     }
 
     public ListView<ReadOnlyViewablePerson> getListView() {
-        return (ListView<ReadOnlyViewablePerson>) getNode(personListViewId);
+        return (ListView<ReadOnlyViewablePerson>) getNode(PERSON_LIST_VIEW_ID);
     }
 
     public void use_PERSON_CHANGE_CANCEL_ACCELERATOR() {
@@ -122,20 +129,24 @@ public class PersonListPanelHandle extends GuiHandle {
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
+    public void clickOnPerson(Person person) {
+        guiRobot.clickOn(person.getFirstName());
+    }
+
     public void clickOnPerson(String personName) {
         guiRobot.clickOn(personName);
     }
 
     public void enterFilterAndApply(String filterText) {
-        typeTextField(filterFieldId, filterText);
+        typeTextField(FILTER_FIELD_ID, filterText);
     }
 
     public String getFilterText() {
-        return getTextFieldText(filterFieldId);
+        return getTextFieldText(FILTER_FIELD_ID);
     }
 
     public EditPersonDialogHandle clickNew() {
-        guiRobot.clickOn(newButtonId);
+        guiRobot.clickOn(NEW_BUTTON_ID);
         guiRobot.sleep(500);
         return new EditPersonDialogHandle(guiRobot, primaryStage);
     }
@@ -168,6 +179,7 @@ public class PersonListPanelHandle extends GuiHandle {
         //Return false if any of the persons doesn't match
         for (int i = 0; i < persons.length; i++) {
             if (!personsInList.get(startPosition + i).getFirstName().equals(persons[i].getFirstName())){
+                //TODO: use a stronger check (not the the first name
                 return false;
             }
         }
@@ -188,5 +200,21 @@ public class PersonListPanelHandle extends GuiHandle {
         return NOT_FOUND;
     }
 
-    
+    public PersonCardHandle getPersonCardHandle(Person person){
+        Set<Node> nodes = getAllCardNodes();
+        Node personCardNode = nodes.stream()
+                .filter( (n) -> new PersonCardHandle(guiRobot, primaryStage, n).isSamePerson(person))
+                .findFirst().get();
+        return new PersonCardHandle(guiRobot, primaryStage, personCardNode);
+    }
+
+    protected Set<Node> getAllCardNodes() {
+        return guiRobot.lookup(CARD_PANE_ID).queryAll();
+    }
+
+
+    public List<PersonCardHandle> getSelectedCards() {
+        //TODO: implement this
+        throw new RuntimeException("Not implemented");
+    }
 }

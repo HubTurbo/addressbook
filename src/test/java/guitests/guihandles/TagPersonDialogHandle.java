@@ -9,14 +9,14 @@ import javafx.stage.Stage;
  */
 public class TagPersonDialogHandle extends GuiHandle {
 
-    private String tagSearchFieldId = "#tagSearch";
+    private static final String TAG_SEARCH_FIELD_ID = "#tagSearch";
 
     public TagPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage);
     }
 
     public TagPersonDialogHandle enterSearchQuery(String queryText) {
-        typeTextField(tagSearchFieldId, queryText);
+        typeTextField(TAG_SEARCH_FIELD_ID, queryText);
         return this;
     }
 

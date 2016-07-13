@@ -101,18 +101,9 @@ public class PersonCardController extends UiController{
             }
             @Override
             protected String computeValue() {
-                StringBuilder sb = new StringBuilder();
-                if (person.getStreet().length() > 0){
-                    sb.append(person.getStreet()).append("\n");
-                }
-                if (person.getCity().length() > 0){
-                    sb.append(person.getCity()).append("\n");
-                }
-                if (person.getPostalCode().length() > 0){
-                    sb.append(person.getPostalCode());
-                }
-                return sb.toString();
+                return getAddressString(person.getStreet(), person.getCity(), person.getPostalCode());
             }
+
         });
         birthday.textProperty().bind(new StringBinding() {
             {
@@ -228,5 +219,20 @@ public class PersonCardController extends UiController{
 
     public HBox getLayout() {
         return cardPane;
+    }
+
+
+    public static String getAddressString(String street, String city, String postalCode) {
+        StringBuilder sb = new StringBuilder();
+        if (street.length() > 0){
+            sb.append(street).append(System.lineSeparator());
+        }
+        if (city.length() > 0){
+            sb.append(city).append(System.lineSeparator());
+        }
+        if (postalCode.length() > 0){
+            sb.append(postalCode);
+        }
+        return sb.toString();
     }
 }

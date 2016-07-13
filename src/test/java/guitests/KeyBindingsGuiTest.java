@@ -34,13 +34,8 @@ public class KeyBindingsGuiTest extends GuiTestBase {
     }
 
     @Override
-    protected ReadOnlyAddressBook getInitialData() {
+    protected AddressBook getInitialData() {
         return initialData;
-    }
-
-    @Override
-    protected CloudAddressBook getInitialCloudData() {
-        return TestUtil.generateCloudAddressBook(initialData);
     }
 
     @Test

@@ -2,8 +2,10 @@ package guitests;
 
 import address.TestApp;
 import address.events.EventManager;
+import address.model.datatypes.AddressBook;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.sync.cloud.model.CloudAddressBook;
+import address.testutil.TypicalTestData;
 import address.util.TestUtil;
 import guitests.guihandles.MainGuiHandle;
 import guitests.guihandles.MainMenuHandle;
@@ -26,6 +28,7 @@ public class GuiTestBase {
     protected MainGuiHandle mainGui;
     protected MainMenuHandle mainMenu;
     protected PersonListPanelHandle personListPanel;
+    protected TypicalTestData td = new TypicalTestData();
 
 
     @BeforeClass
@@ -47,20 +50,30 @@ public class GuiTestBase {
         });
         EventManager.clearSubscribers();
         testApp = (TestApp) FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation(),
-                                                     this::getInitialCloudData));
+                                                     this::selectFromInitialCloudData));
         FxToolkit.showStage();
     }
 
     /**
-     * Override this in child classes to set the initial data.
+     * Override this in child classes to set the initial local data.
      * Return null to use the data in the file specified in {@link #getDataFileLocation()}
      */
-    protected ReadOnlyAddressBook getInitialData() {
+    protected AddressBook getInitialData() {
         return TestUtil.generateSampleAddressBook();
     }
 
+    private CloudAddressBook selectFromInitialCloudData() {
+        return getInitialCloudData() == null
+            ?  TestUtil.generateCloudAddressBook(getInitialData())
+            : getInitialCloudData();
+    }
+
+    /**
+     * Override this in child classes to set the initial cloud data.
+     * If not overridden, cloud data will be the same as local data.
+     */
     protected CloudAddressBook getInitialCloudData() {
-        return TestUtil.generateSampleCloudAddressBook();
+        return null;
     }
 
     /**
