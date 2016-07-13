@@ -2,7 +2,7 @@ package address.keybindings;
 
 
 import address.events.*;
-import address.util.TestUtil;
+import address.testutil.TestUtil;
 import javafx.scene.input.KeyCombination;
 import org.junit.After;
 import org.junit.Assert;

@@ -1,4 +1,4 @@
-package address.util;
+package address.testutil;
 
 import address.exceptions.DataConversionException;
 import address.model.datatypes.AddressBook;

@@ -1,4 +1,4 @@
-package address.util;
+package address.testutil;
 
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;

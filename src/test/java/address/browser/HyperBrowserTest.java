@@ -1,7 +1,7 @@
 package address.browser;
 
 import address.util.PlatformExecUtil;
-import address.util.TestUtil;
+import address.testutil.TestUtil;
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.HyperBrowser;
 import hubturbo.embeddedbrowser.page.Page;

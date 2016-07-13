@@ -1,4 +1,4 @@
-package address.util;
+package address.testutil;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
