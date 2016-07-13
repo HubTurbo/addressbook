@@ -67,7 +67,7 @@ public class FullSystemTest extends GuiTestBase {
                 .as(NewTagDialogHandle.class);
         newTagDialog.enterTagName("company");
         newTagDialog.clickOk();
-        // assertTrue(manageTagsDialog.contains("company")); //TODO: implement the 'contains' method
+        assertTrue(manageTagsDialog.contains("company"));
         manageTagsDialog.dismiss(); //TODO: this line doesn't seem to work in headless mode
 
 

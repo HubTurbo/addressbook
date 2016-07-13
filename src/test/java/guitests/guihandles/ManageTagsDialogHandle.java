@@ -1,7 +1,16 @@
 package guitests.guihandles;
 
 import guitests.GuiRobot;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides a handle to the dialog used for managing tags.
@@ -11,4 +20,18 @@ public class ManageTagsDialogHandle extends GuiHandle {
         super(guiRobot, primaryStage);
     }
 
+    private ScrollPane getScrollPane() {
+        return (ScrollPane) getNode("#tagListTags");
+    }
+
+    public List<String> getListOfTagNames() {
+        ObservableList<Node> childrenUnmodifiable = ((VBox) getScrollPane().getContent()).getChildren();
+        return childrenUnmodifiable.stream().map(n -> ((Label) n.lookup("#tagName")).getText())
+                                            .collect(Collectors.toCollection(ArrayList::new));
+
+    }
+
+    public boolean contains(String value) {
+        return getListOfTagNames().stream().filter(value::equals).findAny().isPresent();
+    }
 }
