@@ -46,14 +46,15 @@ public class Launcher extends Application {
 
     private void run() throws IOException {
         Installer installer = new Installer();
-        loadingLabel.setText("Installing...");
+        Platform.runLater(() -> loadingLabel.setText("Installing..."));
         try {
             installer.runInstall(loadingLabel, progressBar);
         } catch (IOException e) {
             throw new IOException(ERROR_INSTALL, e);
         }
 
-        loadingLabel.setText("Launching AddressBook...");
+
+        Platform.runLater(() -> loadingLabel.setText("Launching AddressBook..."));
         try {
             startMainApplication();
         } catch (IOException e) {
