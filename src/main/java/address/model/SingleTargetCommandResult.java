@@ -20,7 +20,7 @@ public class SingleTargetCommandResult {
         }
     }
 
-    SingleTargetCommandResult(int commandId, String commandType, CommandStatus status, String targetType,
+    public SingleTargetCommandResult(int commandId, String commandType, CommandStatus status, String targetType,
                               String targetIdString, String targetNameBefore, String targetNameAfter) {
         this.commandId = commandId;
         this.targetIdString = targetIdString;

@@ -23,7 +23,7 @@ import java.util.function.Supplier;
  */
 public class DeletePersonCommand extends ChangePersonInModelCommand {
 
-    public static final String COMMAND_TYPE = "Delete Person";
+    public static final String COMMAND_TYPE = "Delete";
 
     private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;

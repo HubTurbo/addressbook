@@ -170,7 +170,7 @@ public class MainController extends UiController{
     }
 
     private void showHeaderStatusBar() {
-        statusBarHeaderController = new StatusBarHeaderController(this);
+        statusBarHeaderController = new StatusBarHeaderController(this, this.finishedCommandResults);
         AnchorPane sbPlaceHolder = (AnchorPane) rootLayout.lookup("#headerStatusbarPlaceholder");
 
         assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in rootLayout";

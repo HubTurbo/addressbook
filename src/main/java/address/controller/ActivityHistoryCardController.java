@@ -1,6 +1,7 @@
 package address.controller;
 
 import address.model.SingleTargetCommandResult;
+import address.util.CommandResultFormatter;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -11,7 +12,7 @@ import java.io.IOException;
 public class ActivityHistoryCardController {
 
     @FXML
-    private HBox mainPane;
+    private HBox activityHistoryCardMainpane;
 
     @FXML
     private Label activityLabel;
@@ -31,11 +32,11 @@ public class ActivityHistoryCardController {
 
     @FXML
     public void initialize() {
-        activityLabel.setText(result.commandTypeString + " " + result.status.toString());
+        activityLabel.setText(CommandResultFormatter.getStringRepresentation(result));
     }
 
     public HBox getLayout() {
-        return mainPane;
+        return activityHistoryCardMainpane;
     }
 
 }

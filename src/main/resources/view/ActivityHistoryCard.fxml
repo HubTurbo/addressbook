@@ -5,8 +5,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<HBox fx:id="mainPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<HBox fx:id="activityHistoryCardMainpane" minWidth="100.0" prefWidth="350.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-        <Label fx:id="activityLabel" ></Label>
+        <Label fx:id="activityLabel" wrapText="true"/>
    </children>
 </HBox>

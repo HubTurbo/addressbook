@@ -264,3 +264,9 @@
     -fx-font-size: 12px;
 }
 
+#activityHistoryCardMainpane {
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: lightgrey;
+    -fx-padding: 2 4 2 4;
+}
+

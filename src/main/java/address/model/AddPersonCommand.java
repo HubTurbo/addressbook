@@ -26,7 +26,7 @@ import java.util.function.Supplier;
  */
 public class AddPersonCommand extends ChangePersonInModelCommand {
 
-    public static final String COMMAND_TYPE = "Add Person";
+    public static final String COMMAND_TYPE = "Add";
 
     private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
