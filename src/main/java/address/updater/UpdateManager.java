@@ -38,13 +38,13 @@ public class UpdateManager extends ComponentManager {
     private static final String MSG_FAIL_DOWNLOAD_UPDATE = "Downloading update failed";
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR updater";
-    private static final String MSG_JAR_UPDATER_MISSING = "JAR Updater is missing";
     private static final String MSG_FAIL_UPDATE_NOT_SUPPORTED = "Update not supported on detected OS";
     private static final String MSG_FAIL_OBTAIN_DATA = "Error obtaining latest data";
     private static final String MSG_NO_UPDATE = "There is no update";
     private static final String MSG_FAIL_READ_LATEST_VERSION = "Error reading latest version";
     private static final String MSG_NO_NEWER_VERSION = "No newer version to be downloaded";
-    private static final String MSG_DIFF_CHANNEL = "VersionDescriptor is for wrong release channel - contact developer";
+    private static final String MSG_SKIP_DEVELOPER_ENVIRONMENT = "Developer environment detected; not performing update";
+    private static final String MSG_UPDATE_FINISHED = "Update will be applied on next launch";
     // --- End of Messages
 
     private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
@@ -82,6 +82,12 @@ public class UpdateManager extends ComponentManager {
     }
 
     private void checkForUpdate() {
+        if (!ManifestFileReader.isRunFromJar()) {
+            logger.info(MSG_SKIP_DEVELOPER_ENVIRONMENT);
+            raise(new UpdaterFinishedEvent(MSG_SKIP_DEVELOPER_ENVIRONMENT));
+            return;
+        }
+
         raise(new UpdaterInProgressEvent("Clearing local update specification file", -1));
         try {
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
@@ -113,7 +119,7 @@ public class UpdateManager extends ComponentManager {
         // Close app if wrong release channel - EA <-> stable
         assert isOnSameReleaseChannel(latestVersion);
 
-        // No newer version to update tos
+        // No newer version to update to
         if (currentVersion.compareTo(latestVersion) >= 0) {
             raise(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
             logger.debug(MSG_NO_NEWER_VERSION);
@@ -154,12 +160,6 @@ public class UpdateManager extends ComponentManager {
             return;
         }
         
-        if (!isJarUpdaterResourceExist()) {
-            raise(new UpdaterFailedEvent(MSG_JAR_UPDATER_MISSING));
-            logger.fatal(MSG_JAR_UPDATER_MISSING);
-            return;
-        }
-        
         try {
             extractJarUpdater();
         } catch (IOException e) {
@@ -168,13 +168,9 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        raise(new UpdaterFinishedEvent("Update will be applied on next launch"));
+        raise(new UpdaterFinishedEvent(MSG_UPDATE_FINISHED));
         isUpdateApplicable = true;
         downloadedVersions.add(latestVersion);
-    }
-
-    private boolean isJarUpdaterResourceExist() {
-        return new File(JAR_UPDATER_RESOURCE_PATH).exists();
     }
 
     /**
@@ -288,16 +284,18 @@ public class UpdateManager extends ComponentManager {
     }
 
     /**
-     * Extract the JarUpdater into an external jar to prepare for updating upon app closure
+     * Extract the JarUpdater resource into an external jar to prepare for updating upon app closure
      * Replaces any existing JarUpdater found
      *
      * @throws IOException
      */
     private void extractJarUpdater() throws IOException {
+        assert UpdateManager.class.getClassLoader().getResource(JAR_UPDATER_RESOURCE_PATH) != null : "Jar updater resource cannot be found";
+
         File jarUpdaterFile = new File(JAR_UPDATER_APP_PATH);
 
         if (!jarUpdaterFile.exists() && !jarUpdaterFile.createNewFile()) {
-            throw new IOException("Failed to create Jar Updater empty file");
+            throw new IOException("Failed to create jar updater empty file");
         }
 
         try (InputStream in = UpdateManager.class.getClassLoader().getResourceAsStream(JAR_UPDATER_RESOURCE_PATH)) {

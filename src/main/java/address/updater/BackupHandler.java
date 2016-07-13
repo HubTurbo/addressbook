@@ -1,10 +1,7 @@
 package address.updater;
 
 import address.MainApp;
-import address.util.AppLogger;
-import address.util.FileUtil;
-import address.util.LoggerManager;
-import address.util.Version;
+import address.util.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,12 +59,12 @@ public class BackupHandler {
      * Assumes that user has not tampered with the backup files' names
      */
     protected void cleanupBackups() {
-        logger.debug("Cleaning backups");
-
-        if (!hasCurrentVersionDependencies()) {
+        if (!ManifestFileReader.isRunFromJar()) {
             logger.info("Not running from JAR, will not clean backups");
             return;
         }
+        logger.debug("Cleaning backups");
+
 
         File backupDir = new File(BACKUP_DIR);
         List<String> backupFilesNames = getSortedBackupFilesNames(backupDir, BACKUP_FILENAME_REGEX);
@@ -171,11 +168,6 @@ public class BackupHandler {
         } catch (IOException e) {
             logger.warn("Failed to delete old backup file: {}", e);
         }
-    }
-
-    private boolean hasCurrentVersionDependencies() {
-        return dependencyHistoryHandler.getCurrentVersionDependencies() != null &&
-                !dependencyHistoryHandler.getCurrentVersionDependencies().isEmpty();
     }
 
     /**
