@@ -39,6 +39,7 @@ public class UpdateManager extends ComponentManager {
     private static final String MSG_FAIL_DOWNLOAD_UPDATE = "Downloading update failed";
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR updater";
+    private static final String MSG_JAR_UPDATER_MISSING = "JAR Updater is missing";
     private static final String MSG_FAIL_MAIN_APP_URL = "Main app download link is broken";
     private static final String MSG_NO_LATEST_DATA = "There is no latest data to be processed";
     private static final String MSG_NO_UPDATE = "There is no update";
@@ -157,7 +158,13 @@ public class UpdateManager extends ComponentManager {
             logger.debug(MSG_FAIL_CREATE_UPDATE_SPEC);
             return;
         }
-
+        
+        if (!isJarUpdaterResourceExist()) {
+            raise(new UpdaterFailedEvent(MSG_JAR_UPDATER_MISSING));
+            logger.fatal(MSG_JAR_UPDATER_MISSING);
+            return;
+        }
+        
         try {
             extractJarUpdater();
         } catch (IOException e) {
@@ -170,6 +177,10 @@ public class UpdateManager extends ComponentManager {
         this.isUpdateApplicable = true;
 
         downloadedVersions.add(latestVersion.get());
+    }
+
+    private boolean isJarUpdaterResourceExist() {
+        return new File(JAR_UPDATER_RESOURCE_PATH).exists();
     }
 
     /**
