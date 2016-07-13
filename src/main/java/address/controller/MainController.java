@@ -134,9 +134,9 @@ public class MainController extends UiController{
         // Show the scene containing the root layout.
         Scene scene = new Scene(rootLayout);
         scene.setOnKeyPressed(event -> raisePotentialEvent(new KeyBindingEvent(event)));
+        primaryStage.setScene(scene);
         setMinSize();
         setDefaultSize();
-        primaryStage.setScene(scene);
 
         // Give the rootController access to the main controller and modelManager
         RootLayoutController rootController = loader.getController();
@@ -546,7 +546,7 @@ public class MainController extends UiController{
     @Subscribe
     private void handleResizeAppRequestEvent(ResizeAppRequestEvent event){
         logger.debug("Handling the resize app window request");
-        Platform.runLater(this::resizeWindow);
+        Platform.runLater(this::handleResizeRequest);
     }
 
     @Subscribe
@@ -560,19 +560,6 @@ public class MainController extends UiController{
         PlatformExecUtil.runAndWait(() -> finishedCommandResults.add(evt.result));
     }
 
-    /**
-     * Toggles between maximized and default size.
-     * If not currently at the maximized size, goes to maximised size.
-     * If currently maximized, goes to default size.
-     */
-    private void resizeWindow() {
-        if (primaryStage.isMaximized()) {
-            setDefaultSize();
-        } else {
-            maximizeWindow();
-        }
-    }
-
     protected void setDefaultSize() {
         primaryStage.setHeight(prefs.getGuiSettings().getWindowHeight());
         primaryStage.setWidth(prefs.getGuiSettings().getWindowWidth());
@@ -580,8 +567,6 @@ public class MainController extends UiController{
             primaryStage.setX(prefs.getGuiSettings().getWindowCoordinates().getX());
             primaryStage.setY(prefs.getGuiSettings().getWindowCoordinates().getY());
         }
-        primaryStage.setMaximized(false);
-        primaryStage.setIconified(false);
     }
 
     private void setMinSize() {
@@ -594,9 +579,35 @@ public class MainController extends UiController{
         primaryStage.setMaximized(false);
     }
 
-    private void maximizeWindow() {
-        primaryStage.setMaximized(true);
-        primaryStage.setIconified(false);
+    private void handleResizeRequest() {
+        logger.info("Handling resize request.");
+        if (primaryStage.isIconified()) {
+            logger.debug("Cannot resize as window is iconified, attempting to show window instead.");
+            primaryStage.setIconified(false);
+        } else {
+            resizeWindow();
+        }
+    }
+
+    private void resizeWindow() {
+        logger.info("Resizing window");
+        // specially handle since stage operations on Mac seem to not be working as intended
+        if (OsDetector.isOnMac()) {
+            // refresh stage so that resizing effects (apart from the first resize after iconify-ing) are applied
+            // however, this will cause minor flinching in window visibility
+            primaryStage.hide(); // hide has to be called before setMaximized,
+                                 // or first resize attempt after iconify-ing will resize twice
+            primaryStage.show();
+
+            // on Mac, setMaximized seems to work like "setResize"
+            // isMaximized also does not seem to return the correct value
+            primaryStage.setMaximized(true);
+        } else {
+            primaryStage.setMaximized(!primaryStage.isMaximized());
+        }
+
+        logger.debug("Stage width: {}", primaryStage.getWidth());
+        logger.debug("Stage height: {}", primaryStage.getHeight());
     }
 
     public void stop() {

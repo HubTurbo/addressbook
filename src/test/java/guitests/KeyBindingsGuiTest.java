@@ -90,12 +90,14 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         mainGui.use_APP_MINIMIZE_HOTKEY();
         assertTrue(mainGui.isMinimized());
 
-        mainGui.use_APP_RESIZE_HOTKEY(); //maximize the window
+        mainGui.use_APP_RESIZE_HOTKEY(); // un-minimize window
+        assertFalse(mainGui.isMinimized());
+
+        mainGui.use_APP_RESIZE_HOTKEY(); // maximize the window
         assertTrue(mainGui.isMaximized());
 
-        mainGui.use_APP_RESIZE_HOTKEY(); //set window to default size
+        mainGui.use_APP_RESIZE_HOTKEY(); // set window to default size
         assertTrue(mainGui.isDefaultSize());
-
     }
 
 

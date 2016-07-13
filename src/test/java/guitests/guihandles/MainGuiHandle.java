@@ -1,6 +1,7 @@
 package guitests.guihandles;
 
 import address.keybindings.Bindings;
+import address.util.OsDetector;
 import guitests.GuiRobot;
 import javafx.stage.Stage;
 
@@ -31,7 +32,11 @@ public class MainGuiHandle extends GuiHandle{
     }
 
     public boolean isDefaultSize() {
-        return !primaryStage.isMaximized() && !primaryStage.isIconified();
+        if (OsDetector.isOnMac()) {
+            return !primaryStage.isIconified(); // TODO: Find a way to verify this on mac since isMaximized is always true
+        } else {
+            return !primaryStage.isMaximized() && !primaryStage.isIconified();
+        }
     }
 
     public void use_APP_MINIMIZE_HOTKEY() {
