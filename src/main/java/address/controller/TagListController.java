@@ -23,7 +23,7 @@ public class TagListController extends UiController{
     @FXML
     private AnchorPane mainPane;
     @FXML
-    private ScrollPane tags;
+    private ScrollPane tagListTags;
 
     public void setStage(Stage stage) {
         stage.getScene().setOnKeyPressed(e -> {
@@ -36,7 +36,7 @@ public class TagListController extends UiController{
     }
 
     public void setTags(ObservableList<Tag> tagList) {
-        tags.setContent(getTagsVBox(tagList, mainController));
+        tagListTags.setContent(getTagsVBox(tagList, mainController));
     }
 
     public void setMainController(MainController mainController) {
