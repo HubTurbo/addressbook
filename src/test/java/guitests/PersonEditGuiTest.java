@@ -1,5 +1,6 @@
 package guitests;
 
+import address.model.ModelManager;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.testutil.PersonBuilder;
@@ -7,7 +8,9 @@ import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import org.junit.Test;
 
-import static address.testutil.TestUtil.descOnFail;
+import java.util.concurrent.TimeUnit;
+
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -42,18 +45,18 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterNewValues(newAlice);
         editPersonDialog.pressEnter();
 
-        assertTrue(descOnFail(alicePersonCard, newAlice), alicePersonCard.isSamePerson(newAlice));
-        //TODO: write a more elegant function that uses assertEquals but compare two different types of objects
-
+        assertEquals(alicePersonCard, newAlice);
         //TODO: Confirm the right card is selected after the edit, as follows
         //assertEquals(1, personListPanel.getSelectedCards().size();
         //assertEquals(alicePersonCard, personListPanel.getSelectedCards().get(0);
+        assertTrue(alicePersonCard.isPendingStateCountDownVisible());
+        assertTrue(alicePersonCard.isPendingStateLabelVisible());
+        assertFalse(alicePersonCard.isPendingStateProgressIndicatorVisible());
+        assertTrue(alicePersonCard.getPendingStateLabel().equals("Edited"));
 
         //Confirm right values are displayed after grace period is over
-        guiRobot.sleep(5000); //wait for grace period
-        //TODO: link up to grace period
-        //TODO: confirm the person card display behave as expected during grace period
-        assertTrue(descOnFail(alicePersonCard, newAlice), alicePersonCard.isSamePerson(newAlice));
+        guiRobot.sleep(ModelManager.GRACE_PERIOD_DURATION + 1, TimeUnit.SECONDS); //wait for grace period
+        assertEquals(alicePersonCard, newAlice);
 
         //Confirm the underlying person object has the right values
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
