@@ -112,7 +112,7 @@ public class AddPersonCommandTest {
 
     @Test
     public void retrievingInput_cancelsCommand_whenEmptyInputOptionalRetrieved() {
-        final AddPersonCommand apc = new AddPersonCommand(0, Optional::empty, 0, null, modelManagerMock, ADDRESSBOOK_NAME);
+        final AddPersonCommand apc = new AddPersonCommand(0, Optional::empty, 0, e -> {}, modelManagerMock, ADDRESSBOOK_NAME);
         apc.run();
         assertEquals(apc.getState(), State.CANCELLED);
     }
@@ -161,7 +161,7 @@ public class AddPersonCommandTest {
     @Test
     public void interruptGracePeriod_withDeleteRequest_cancelsCommand() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1, null, modelManagerSpy, ADDRESSBOOK_NAME));
+        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1,  e -> {}, modelManagerSpy, ADDRESSBOOK_NAME));
 
         doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
         apc.deleteInGracePeriod(); // pre-specify apc will be interrupted by delete
@@ -176,7 +176,7 @@ public class AddPersonCommandTest {
     @Test
     public void interruptGracePeriod_withCancelRequest_undoesSimulation() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1, null, modelManagerSpy, ADDRESSBOOK_NAME));
+        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1,  e -> {}, modelManagerSpy, ADDRESSBOOK_NAME));
 
         doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
         apc.cancelInGracePeriod(); // pre-specify apc will be interrupted by cancel

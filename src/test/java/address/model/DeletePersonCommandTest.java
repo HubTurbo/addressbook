@@ -114,7 +114,7 @@ public class DeletePersonCommandTest {
     @Test
     public void interruptGracePeriod_withEditRequest_cancelsAndSpawnsEditCommand() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final DeletePersonCommand dpc = spy(new DeletePersonCommand(0, testTarget, 1, null, modelManagerSpy, ADDRESSBOOK_NAME));
+        final DeletePersonCommand dpc = spy(new DeletePersonCommand(0, testTarget, 1,  e -> {}, modelManagerSpy, ADDRESSBOOK_NAME));
         final Supplier<Optional<ReadOnlyPerson>> editInputRetriever = Optional::empty;
 
         doNothing().when(modelManagerSpy).execNewEditPersonCommand(any(), any());
@@ -130,7 +130,7 @@ public class DeletePersonCommandTest {
     @Test
     public void interruptGracePeriod_withCancelRequest_undoesSimulation() {
         // grace period duration must be non zero, will be interrupted immediately anyway
-        final DeletePersonCommand dpc = spy(new DeletePersonCommand(0, testTarget, 1, null, modelManagerSpy, ADDRESSBOOK_NAME));
+        final DeletePersonCommand dpc = spy(new DeletePersonCommand(0, testTarget, 1,  e -> {}, modelManagerSpy, ADDRESSBOOK_NAME));
         final Supplier<Optional<ReadOnlyPerson>> editInputRetriever = Optional::empty;
 
         modelManagerSpy.visibleModel().addPerson(testTarget);
