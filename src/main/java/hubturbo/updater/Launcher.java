@@ -23,9 +23,10 @@ import java.util.concurrent.Executors;
  * the main application JAR.
  */
 public class Launcher extends Application {
+    private static final String ERROR_LAUNCH = "Failed to launch";
     private static final String ERROR_INSTALL = "Failed to install";
-    private static final String ERROR_TRY_AGAIN = "Please try again, or contact developer if it keeps failing.";
     private static final String ERROR_RUNNING = "Failed to run application";
+    private static final String ERROR_TRY_AGAIN = "Please try again, or contact developer if it keeps failing.";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private ProgressBar progressBar;
@@ -38,21 +39,21 @@ public class Launcher extends Application {
             try {
                 run();
             } catch (IOException e) {
-                showErrorDialogAndQuit(ERROR_INSTALL, e.getMessage(), ERROR_TRY_AGAIN);
+                showErrorDialogAndQuit(ERROR_LAUNCH, e.getMessage(), ERROR_TRY_AGAIN);
             }
         });
     }
 
     private void run() throws IOException {
         Installer installer = new Installer();
-        loadingLabel = new Label("Installing...");
+        loadingLabel.setText("Installing...");
         try {
             installer.runInstall(loadingLabel, progressBar);
         } catch (IOException e) {
-            showErrorDialogAndQuit(ERROR_INSTALL, e.getMessage(), ERROR_TRY_AGAIN);
+            throw new IOException(ERROR_INSTALL, e);
         }
 
-        loadingLabel = new Label("Launching AddressBook...");
+        loadingLabel.setText("Launching AddressBook...");
         try {
             startMainApplication();
         } catch (IOException e) {

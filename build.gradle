@@ -251,7 +251,7 @@ allprojects {
         manifest {
             attributes 'Implementation-Title': 'Addressbook',
                     'Implementation-Version': '1.0',
-                    'Main-Class': 'hubturbo.updater.Launcher,
+                    'Main-Class': 'hubturbo.updater.Launcher',
                     'Class-Path': configurations.installerRuntime.files.collect { "lib/${it.name}" }.join(" ")
         }
 
