@@ -68,7 +68,7 @@ public class UpdateManager extends ComponentManager {
 
     public UpdateManager(Version currentVersion) {
         super();
-        this.isUpdateApplicable = false;
+        isUpdateApplicable = false;
         dependencyHistoryHandler = new DependencyHistoryHandler(currentVersion);
         backupHandler = new BackupHandler(currentVersion, dependencyHistoryHandler);
         this.currentVersion = currentVersion;
@@ -109,7 +109,7 @@ public class UpdateManager extends ComponentManager {
 
         Version latestVersion;
         try {
-            latestVersion = getLatestVersion(latestData);
+            latestVersion = getVersion(latestData);
         } catch (IllegalArgumentException e) {
             raise(new UpdaterFailedEvent(MSG_FAIL_READ_LATEST_VERSION));
             logger.fatal("Failed to obtain latest version data from downloaded data: {}", e);
@@ -119,7 +119,6 @@ public class UpdateManager extends ComponentManager {
         // Close app if wrong release channel - EA <-> stable
         assert isOnSameReleaseChannel(latestVersion);
 
-        // No newer version to update to
         if (currentVersion.compareTo(latestVersion) >= 0) {
             raise(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
             logger.debug(MSG_NO_NEWER_VERSION);
@@ -129,7 +128,7 @@ public class UpdateManager extends ComponentManager {
         raise(new UpdaterInProgressEvent("Collecting all update files to be downloaded", -1));
         HashMap<String, URL> filesToBeUpdated;
         try {
-            filesToBeUpdated = collectAllUpdateFilesToBeDownloaded(latestData);
+            filesToBeUpdated = getFilesToDownload(latestData);
         } catch (UnsupportedOperationException e) {
             raise(new UpdaterFailedEvent(MSG_FAIL_UPDATE_NOT_SUPPORTED));
             logger.debug("Update on detected OS is not supported: {}", e);
@@ -209,11 +208,11 @@ public class UpdateManager extends ComponentManager {
         }
     }
 
-    private Version getLatestVersion(VersionDescriptor versionDescriptor) throws IllegalArgumentException {
+    private Version getVersion(VersionDescriptor versionDescriptor) throws IllegalArgumentException {
         try {
             return Version.fromString(versionDescriptor.getVersion());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Failed to read latest version", e);
+            throw new IllegalArgumentException("Failed to read version", e);
         }
     }
 
@@ -222,65 +221,125 @@ public class UpdateManager extends ComponentManager {
     }
 
     /**
-     * Determines os-dependent library to download
+     * Determines library files to download
+     * Only suitable libraries for the detected operation system will be returned
+     *
      * @param versionDescriptor
      * @return
      * @throws UnsupportedOperationException if OS is unsupported for updating
      */
-    private HashMap<String, URL> collectAllUpdateFilesToBeDownloaded(VersionDescriptor versionDescriptor) throws UnsupportedOperationException {
-        OsDetector.Os machineOs = OsDetector.getOs();
-
-        if (machineOs == OsDetector.Os.UNKNOWN) {
+    private HashMap<String, URL> getFilesToDownload(VersionDescriptor versionDescriptor) throws UnsupportedOperationException {
+        if (OsDetector.getOs() == OsDetector.Os.UNKNOWN) {
             throw new UnsupportedOperationException("OS not supported for updating");
         }
 
-        HashMap<String, URL> filesToBeDownloaded = new HashMap<>();
+        List<LibraryDescriptor> librariesToDownload = getLibrariesToDownloadForOs(versionDescriptor, OsDetector.getOs());
 
+        HashMap<String, URL> filesToBeDownloaded = getLibraryFilesDownloadLinks(librariesToDownload);
         filesToBeDownloaded.put(MAIN_APP_FILEPATH, versionDescriptor.getDownloadLinkForMainApp());
-
-        versionDescriptor.getLibraries().stream()
-                .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == OsDetector.getOs())
-                .filter(libDesc -> !FileUtil.isFileExists(LIB_DIR + libDesc.getFilename()))
-                .forEach(libDesc -> filesToBeDownloaded.put(LIB_DIR + libDesc.getFilename(),
-                                                            libDesc.getDownloadLink()));
 
         return filesToBeDownloaded;
     }
 
     /**
+     * Converts a list of library files into a map of filenames and their respective download urls
+     *
+     * @param libraryFiles
+     * @return
+     */
+    private HashMap<String, URL> getLibraryFilesDownloadLinks(List<LibraryDescriptor> libraryFiles) {
+        HashMap<String, URL> filesToBeDownloaded = new HashMap<>();
+        libraryFiles.stream()
+                .forEach(libDesc -> filesToBeDownloaded.put(LIB_DIR + libDesc.getFilename(),
+                                                            libDesc.getDownloadLink()));
+        return filesToBeDownloaded;
+    }
+
+    private List<LibraryDescriptor> getLibrariesToDownloadForOs(VersionDescriptor versionDescriptor, OsDetector.Os Os) {
+        return versionDescriptor.getLibraries().stream()
+                .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == Os)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    /**
      * @param updateDir directory to store downloaded updates
+     * @param filesToBeUpdated files to download for update
      */
     private void downloadFilesToBeUpdated(File updateDir, HashMap<String, URL> filesToBeUpdated) throws IOException {
         if (!FileUtil.isDirExists(updateDir)) {
             Files.createDirectory(updateDir.toPath());
         }
 
-        int noOfFilesTobeDownloaded = filesToBeUpdated.keySet().size();
+        int totalFilesToDownload = filesToBeUpdated.keySet().size();
         int noOfFilesDownloaded = 0;
 
         for (String destFile : filesToBeUpdated.keySet()) {
             downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
             noOfFilesDownloaded++;
-            double progress = (1.0 * noOfFilesDownloaded) / noOfFilesTobeDownloaded;
+            double progress = (1.0 * noOfFilesDownloaded) / totalFilesToDownload;
             raise(new UpdaterInProgressEvent("Downloading updates", progress));
         }
     }
 
+    /**
+     * Downloads a file from source url into targetFile
+     *
+     * Creates targetFile is it does not exist, and replaces any existing targetFile
+     *
+     * @param targetFile
+     * @param source
+     * @throws IOException
+     */
     private void downloadFile(File targetFile, URL source) throws IOException {
-        try (InputStream in = source.openStream()) {
-            if (!FileUtil.createFile(targetFile)) {
-                logger.debug("File '{}' already exists", targetFile.getName());
-            }
-            Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new IOException("Failed to download update for " + targetFile, e);
+        InputStream in = getUrlStream(source);
+        createContentFile(targetFile, in);
+    }
+
+    /**
+     * Extracts a file from resourcePath into targetFile
+     *
+     * Creates targetFile is it does not exist, and replaces any existing targetFile
+     *
+     * @param targetFile
+     * @param resourcePath
+     * @throws IOException
+     */
+    private void extractFile(File targetFile, String resourcePath) throws IOException {
+        InputStream in = getResourceStream(resourcePath);
+        createContentFile(targetFile, in);
+    }
+
+    /**
+     * Writes a stream content into a target file
+     *
+     * Creates targetFile is it does not exist, and replaces any existing targetFile
+     *
+     * @param targetFile
+     * @param contentStream
+     * @throws IOException
+     */
+    private void createContentFile(File targetFile, InputStream contentStream) throws IOException {
+        createFile(targetFile);
+        Files.copy(contentStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private InputStream getResourceStream(String resourcePath) {
+        return UpdateManager.class.getClassLoader().getResourceAsStream(resourcePath);
+    }
+
+    private InputStream getUrlStream(URL source) throws IOException {
+        return source.openStream();
+    }
+
+    private void createFile(File targetFile) throws IOException {
+        if (!FileUtil.createFile(targetFile)) {
+            logger.debug("File '{}' already exists", targetFile.getName());
         }
     }
 
     private void createUpdateSpecification(HashMap<String, URL> filesToBeUpdated) throws IOException {
-        LocalUpdateSpecificationHelper.saveLocalUpdateSpecFile(
-                filesToBeUpdated.keySet().stream().collect(Collectors.toList())
-        );
+        List<String> listOfFileNames = filesToBeUpdated.keySet().stream().collect(Collectors.toList());
+        LocalUpdateSpecificationHelper.saveLocalUpdateSpecFile(listOfFileNames);
     }
 
     /**
@@ -297,9 +356,8 @@ public class UpdateManager extends ComponentManager {
         if (!jarUpdaterFile.exists() && !jarUpdaterFile.createNewFile()) {
             throw new IOException("Failed to create jar updater empty file");
         }
-
-        try (InputStream in = UpdateManager.class.getClassLoader().getResourceAsStream(JAR_UPDATER_RESOURCE_PATH)) {
-            Files.copy(in, jarUpdaterFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        try {
+            extractFile(jarUpdaterFile, JAR_UPDATER_RESOURCE_PATH);
         } catch (IOException e) {
             throw new IOException("Failed to extract jar updater", e);
         }
@@ -307,7 +365,7 @@ public class UpdateManager extends ComponentManager {
 
     private void writeDownloadedVersionsToFile(List<Version> downloadedVersions, File file) throws IOException {
         try {
-            if (FileUtil.isFileExists(file.toString())) {
+            if (!FileUtil.isFileExists(file.toString())) {
                 FileUtil.createFile(file);
             }
 
@@ -328,10 +386,8 @@ public class UpdateManager extends ComponentManager {
         }
     }
 
-    public void applyUpdate() {
-        if (!ManifestFileReader.isRunFromJar() || !this.isUpdateApplicable) {
-            return;
-        }
+    private void applyUpdate() {
+        if (!this.isUpdateApplicable) return;
 
         try {
             backupHandler.createAppBackup(currentVersion);
@@ -347,10 +403,9 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        String jarUpdaterAppPath = JAR_UPDATER_APP_PATH;
         String localUpdateSpecFilepath = LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
         String jarUpdaterCmdArguments = String.format("--update-specification=%s --source-dir=%s", localUpdateSpecFilepath, UPDATE_DIR);
-        String jarUpdaterCmd = String.format("java -jar %1$s %2$s", jarUpdaterAppPath, jarUpdaterCmdArguments);
+        String jarUpdaterCmd = String.format("java -jar %1$s %2$s", JAR_UPDATER_APP_PATH, jarUpdaterCmdArguments);
 
         logger.info("Starting jar updater with command: {}", jarUpdaterCmd);
 
