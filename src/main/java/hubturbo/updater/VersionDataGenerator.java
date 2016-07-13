@@ -41,13 +41,13 @@ public class VersionDataGenerator {
     public void generateNewVersionData(String[] args) {
         List<String> arguments = Arrays.asList(args);
 
-        VersionData previousVersionData;
+        Optional<VersionData> previousVersionData;
         try {
-            previousVersionData = readVersionDataFromFile(VERSION_DATA_FILE);
+            previousVersionData = Optional.of(readVersionDataFromFile(VERSION_DATA_FILE));
         } catch (IOException e) {
             System.out.println("Failed to read version data file");
             e.printStackTrace();
-            return;
+            previousVersionData = Optional.empty();
         }
 
         VersionData versionData = new VersionData();
@@ -64,9 +64,9 @@ public class VersionDataGenerator {
         ArrayList<String> currentLibrariesNames = new ArrayList<>(arguments.subList(1, arguments.size()));
         ArrayList<LibraryDescriptor> currentLibrariesDescriptors = convertToLibraryDescriptors(currentLibrariesNames);
 
-        transferOsInformation(previousVersionData.getLibraries(),
-                currentLibrariesDescriptors);
-
+        if (previousVersionData.isPresent()) {
+            transferOsInformation(previousVersionData.get() .getLibraries(), currentLibrariesDescriptors);
+        }
         versionData.setLibraries(currentLibrariesDescriptors);
 
         try {
