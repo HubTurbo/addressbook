@@ -19,7 +19,7 @@ public class DependencyChecker {
     private final String requiredJavaVersionString;
     private Runnable quitApp;
 
-    public DependencyChecker(String requiredJavaVersionString, Runnable quitApp) {
+    public  DependencyChecker(String requiredJavaVersionString, Runnable quitApp) {
         this.requiredJavaVersionString = requiredJavaVersionString;
         this.quitApp = quitApp;
     }
@@ -110,7 +110,7 @@ public class DependencyChecker {
     }
 
     private void excludePlatformSpecificDependencies(List<String> dependencies) {
-        String json = FileUtil.readFromInputStream(MainApp.class.getResourceAsStream("/UpdateData.json"));
+        String json = FileUtil.readFromInputStream(MainApp.class.getResourceAsStream("/VersionData.json"));
 
         VersionData versionData;
 

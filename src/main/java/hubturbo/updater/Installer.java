@@ -73,6 +73,7 @@ public class Installer {
             JarFile jar = new JarFile(getSelfJarFilename()); // Installer JAR
             Enumeration<JarEntry> enums = jar.entries();
             while (enums.hasMoreElements()) {
+
                 JarEntry jarEntry = enums.nextElement();
                 String fileName = jarEntry.getName();
                 if (fileName.endsWith(".jar")) {

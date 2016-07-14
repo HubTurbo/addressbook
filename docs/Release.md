@@ -69,16 +69,16 @@ steps below.
   - If there is any compile-time error, resolve them first before continuing on the next step.
 1. Update version in `MainApp` and in `build.gradle`. If this is an early access version, set `IS_EARLY_ACCESS` in `MainApp`
 as `true` and add `ea` at the end of version in `build.gradle`.
-2. Run `gradle` task `generateUpdateData` under `release` category
+2. Run `gradle` task `generateVersionData` under `release` category
   - The console will print a list of libraries which should be updated
-3. Open `UpdateData.json` and update the new fields accordingly
+3. Open `VersionData.json` and update the new fields accordingly
   - Put the link to download the new libraries. For now, we upload it to the new release we are going to create after this
   but the URL will follow GitHub release download link - `https://github.com/HubTurbo/addressbook/releases/download/<release version>/<filename>`.
   - Change the OS compatibility of the new libraries to ensure that only the libraries relevant to an OS will be loaded and checked
 4. Commit and push the  files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>` (with suffix `ea` if it's an early access version)
-  - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `UpdateData.json`
+  - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `VersionData.json`
 5. Create a release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
-6. Run `gradle` task `createLauncherJar` under `release` category (this must be run again to use the updated `UpdateData.json`)
+6. Run `gradle` task `createLauncherJar` under `release` category (this must be run again to use the updated `VersionData.json`)
 7. Upload `addressbook.jar` to the latest release.
 8. Upload the following as binaries to the (`resource` release)[https://github.com/HubTurbo/addressbook/releases/tag/resources]:
   - resource-\<version\>.jar
@@ -114,16 +114,16 @@ Several gradle tasks have been prepared to make it effortless to create a releas
 
 The following explains the tasks under `release` task category in gradle.
 
-### generateUpdateData
-Generates the update data (UpdateData.json) which will be used by user's application instance to know if it has an update
-and what to update. It reads the depencies of the latest version of addressbook and put those dependencies into the update
+### generateVersionData
+Generates the version data (VersionData.json) which will be used by user's application instance to know if it has an update
+and what to update. It reads the dependencies of the latest version of addressbook and put those dependencies into the version
 data. To make it easier for developer to update only things that get updated, it will use previous update data value for
 libraries that do not change. Developers then need to update the new dependencies information (such as URL to download
 the libraries and the OS that needed them) manually.
 
-generateUpdateData has its own source set which includes everything - main application and launcher - and its dependencies
-are extended from main application compile dependencies. This is to make it easier for generateUpdateData to read any
-information it needs to create update data. The main class it uses is `updater/UpdateDataGenerator.java`
+generateVersionData has its own source set which includes everything - main application and launcher - and its dependencies
+are extended from main application compile dependencies. This is to make it easier for generateVersionData to read any
+information it needs to create version data. The main class it uses is `updater/VersionDataGenerator.java`
 
 ### createJarUpdater
 Create Jar Updater executable file, which job is to apply updates to the JARs of the main application.
@@ -164,13 +164,13 @@ launcher to enable assertion in production.
 
 ## To be improved
 
-### Automate generateUpdateData
+### Automate generateVersionData
 Ideally, we don't need to host those libraries JAR on our own in GitHub release. We can grab the JARs from the Maven repositories
 that `gradle` uses to get those libraries. Unfortunately, the lack of documentation of `gradle` makes it impossible to
 get the URL of those JAR in the Maven repositories, hence the manual need to update the download links and upload the new
 libraries to GitHub release.
 
-### GUI for generateUpdateData
+### GUI for generateVersionData
 Instead of having to deal with text file of update data which is prone to error, we can have a GUI which generateUpdateData
 uses to show what libraries have been changed in the latest version with fields to update the download links. Also,
 we can have a dropdown option for the OS which the libraries are needed in so developers don't need to type them manually.
