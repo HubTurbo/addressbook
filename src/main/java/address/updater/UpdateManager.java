@@ -233,12 +233,19 @@ public class UpdateManager extends ComponentManager {
             throw new UnsupportedOperationException("OS not supported for updating");
         }
 
-        List<LibraryDescriptor> librariesToDownload = getLibrariesForOs(versionData.getLibraries(), OsDetector.getOs());
+        List<LibraryDescriptor> librariesForOs = getLibrariesForOs(versionData.getLibraries(), OsDetector.getOs());
+        List<LibraryDescriptor> librariesToDownload = getLibrariesToDownload(librariesForOs);
 
         HashMap<String, URL> filesToBeDownloaded = getLibraryFilesDownloadLinks(librariesToDownload);
         filesToBeDownloaded.put(MAIN_APP_FILEPATH, versionData.getDownloadLinkForMainApp());
 
         return filesToBeDownloaded;
+    }
+
+    private List<LibraryDescriptor> getLibrariesToDownload(List<LibraryDescriptor> requiredLibraryFiles) {
+        return requiredLibraryFiles.stream()
+                .filter(libDesc -> !FileUtil.isFileExists(LIB_DIR + libDesc.getFileName()))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
