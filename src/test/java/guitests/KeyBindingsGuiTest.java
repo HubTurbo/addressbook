@@ -14,11 +14,9 @@ import static org.junit.Assert.*;
  */
 public class KeyBindingsGuiTest extends GuiTestBase {
 
-    private AddressBook initialData = new TypicalTestData().book;
-
     @Override
     protected AddressBook getInitialData() {
-        return initialData;
+        return td.book;
     }
 
     @Test

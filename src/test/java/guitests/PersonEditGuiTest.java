@@ -48,6 +48,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(alicePersonCard, newAlice);
         assertEquals(1, personListPanel.getSelectedCards().size());
         assertEquals(alicePersonCard, personListPanel.getSelectedCards().get(0));
+
+        //Confirm pending state correctness
         assertTrue(alicePersonCard.isPendingStateCountDownVisible());
         assertTrue(alicePersonCard.isPendingStateLabelVisible());
         assertFalse(alicePersonCard.isPendingStateProgressIndicatorVisible());
@@ -60,8 +62,13 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Confirm the underlying person object has the right values
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 
-        //TODO: confirm again after the next sync
+        //confirm again after the next sync
+        guiRobot.sleep(getTestingConfig().getUpdateInterval());
+        assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
+
         //TODO: confirm other cards are unaffected
+
+
         //TODO: confirm the right card is selected after the edit
         //TODO: confirm status bar is updated correctly
 

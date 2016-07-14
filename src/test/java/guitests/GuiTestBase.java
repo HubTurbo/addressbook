@@ -6,6 +6,7 @@ import address.model.datatypes.AddressBook;
 import address.sync.cloud.model.CloudAddressBook;
 import address.testutil.TypicalTestData;
 import address.testutil.TestUtil;
+import address.util.Config;
 import guitests.guihandles.MainGuiHandle;
 import guitests.guihandles.MainMenuHandle;
 import guitests.guihandles.PersonListPanelHandle;
@@ -81,6 +82,10 @@ public class GuiTestBase {
      */
     protected String getDataFileLocation() {
         return TestApp.SAVE_LOCATION_FOR_TESTING;
+    }
+
+    public Config getTestingConfig() {
+        return testApp.getTestingConfig();
     }
 
     @After

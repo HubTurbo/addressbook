@@ -86,6 +86,10 @@ public class TestApp extends MainApp {
         remote.start(primaryStage);
     }
 
+    public Config getTestingConfig() {
+        return this.config;
+    }
+
     public void deregisterHotKeys(){
         keyBindingsManager.stop();
     }
