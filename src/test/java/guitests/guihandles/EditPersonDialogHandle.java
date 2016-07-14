@@ -24,6 +24,13 @@ public class EditPersonDialogHandle extends GuiHandle {
         super(guiRobot, primaryStage);
     }
 
+    public boolean isValidEditDialog() {
+        return getNode(FIRST_NAME_FIELD_ID) != null && getNode(LAST_NAME_FIELD_ID) != null
+               && getNode(STREET_FIELD_ID) != null && getNode(CITY_FIELD_ID) != null
+               && getNode(POSTAL_CODE_FIELD_ID) != null && getNode(BIRTHDAY_FIELD_ID) != null
+               && getNode(GITHUB_USER_NAME_FIELD_ID) != null && getNode(TAG_SEARCH_FIELD_ID) != null;
+    }
+
     public String getFirstName(){
         return getTextFieldText(FIRST_NAME_FIELD_ID);
     }

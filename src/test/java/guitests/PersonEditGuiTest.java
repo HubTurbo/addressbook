@@ -91,49 +91,18 @@ public class PersonEditGuiTest extends GuiTestBase {
             return;
         }
 
-        //Prepare new values for Alice
-        Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
-                .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
-                .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(td.colleagues, td.friends).build();
-
-        //Get a reference to the card displaying Alice's details
-        PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
-
-        //Edit Alice to change to new values
         personListPanel.rightClickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog = personListPanel.clickOnContextMenu(
                 PersonListPanelHandle.ContextMenuChoice.EDIT);
-        editPersonDialog.enterNewValues(newAlice);
-        editPersonDialog.pressEnter();
-
-        //Confirm pending state correctness
-        assertTrue(alicePersonCard.isPendingStateCountDownVisible());
-        assertTrue(alicePersonCard.isPendingStateLabelVisible());
-        assertFalse(alicePersonCard.isPendingStateProgressIndicatorVisible());
-        assertTrue(alicePersonCard.getPendingStateLabel().equals("Edited"));
+        assertTrue(editPersonDialog.isValidEditDialog());
     }
 
     @Test
     public void editPerson_usingEditButton() {
-        //Prepare new values for Alice
-        Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
-                .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
-                .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(td.colleagues, td.friends).build();
 
-        //Get a reference to the card displaying Alice's details
-        PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
-
-        //Edit Alice to change to new values
         personListPanel.clickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
-        editPersonDialog.enterNewValues(newAlice);
-        editPersonDialog.pressEnter();
-
-        //Confirm pending state correctness
-        assertTrue(alicePersonCard.isPendingStateCountDownVisible());
-        assertTrue(alicePersonCard.isPendingStateLabelVisible());
-        assertFalse(alicePersonCard.isPendingStateProgressIndicatorVisible());
-        assertTrue(alicePersonCard.getPendingStateLabel().equals("Edited"));
+        assertTrue(editPersonDialog.isValidEditDialog());
     }
 
     @Test
