@@ -33,7 +33,7 @@ public class Launcher extends Application {
     private static final String ERROR_RUNNING = "Failed to run application";
     private static final String ERROR_TRY_AGAIN = "Please try again, or contact developer if it keeps failing.";
     private static final String VERSION_DATA_RESOURCE = "/VersionData.json";
-    private static final String VERSION_DATA = "/VersionData.json";
+    private static final String VERSION_DATA = "VersionData.json";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private ProgressBar progressBar;
@@ -95,6 +95,7 @@ public class Launcher extends Application {
         Optional<VersionData> currentVersionData = getCurrentVersionData();
         if (!currentVersionData.isPresent()) return true;
         VersionData packedVersionData = getPackedVersionData();
+
         Version currentVersion = Version.fromString(currentVersionData.get().getVersion());
         Version packedVersion = Version.fromString(packedVersionData.getVersion());
         return packedVersion.compareTo(currentVersion) == 0;
