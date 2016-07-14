@@ -58,6 +58,8 @@ public class GuiTestBase {
         testApp = (TestApp) FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation(),
                                                      this::selectFromInitialCloudData));
         FxToolkit.showStage();
+        while(!stage.isShowing());
+        guiRobot.sleep(1000);
     }
 
     /**
@@ -72,10 +74,6 @@ public class GuiTestBase {
         return getInitialCloudData() == null
             ?  TestUtil.generateCloudAddressBook(getInitialData())
             : getInitialCloudData();
-    }
-
-    public boolean isShowing() {
-        return stage.isShowing();
     }
 
     /**

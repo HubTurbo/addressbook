@@ -18,11 +18,6 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         return td.book;
     }
 
-    @Before
-    public void before() {
-        while(!this.isShowing());
-    }
-
     @Test
     public void keyBindings() {
         //======= shortcuts =======================

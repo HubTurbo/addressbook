@@ -23,13 +23,7 @@ import static org.junit.Assert.*;
  * * Data validation. <br>
  */
 public class PersonEditGuiTest extends GuiTestBase {
-
-    @Before
-    public void before() {
-        //Wait for window to be shown.
-        while(!this.isShowing());
-    }
-
+    
     @Override
     protected AddressBook getInitialData() {
         return td.book;
