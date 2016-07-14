@@ -1,7 +1,10 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
+import guitests.guihandles.PersonListPanelHandle;
 import org.junit.Test;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 
@@ -32,7 +35,15 @@ public class PersonListGuiTest extends GuiTestBase {
         assertTrue(personListPanel.containsInOrder(td.charlie, td.benson, td.elizabeth, td.alice, td.dan));
 
         //drag the person at the middle and drop at the bottom
-        //TODO: implement this
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
+        personListPanel.edgeDrag(td.elizabeth.getFirstName(), PersonListPanelHandle.Direction.DOWN, 3, TimeUnit.SECONDS);
+        assertTrue(personListPanel.containsInOrder(td.charlie, td.benson, td.alice, td.dan, td.elizabeth));
+
+        //drag the person at the bottom and drop at the top
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(5);
+        personListPanel.edgeDrag(td.elizabeth.getFirstName(), PersonListPanelHandle.Direction.UP, 5, TimeUnit.SECONDS);
+        assertTrue(personListPanel.containsInOrder(td.elizabeth, td.charlie, td.benson, td.alice, td.dan));
+
     }
 
     @Test

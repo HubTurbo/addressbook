@@ -4,6 +4,7 @@ package guitests.guihandles;
 import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.ui.PersonListViewCell;
 import guitests.GuiRobot;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +34,10 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public enum ContextMenuChoice {
         EDIT, TAG, DELETE, CANCEL;
+    }
+
+    public enum Direction {
+        UP, DOWN;
     }
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
@@ -192,6 +198,25 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public void dragAndDrop(String firstNameOfPersonToDrag, String firstNameOfPersonToDropOn) {
         guiRobot.drag(firstNameOfPersonToDrag).dropTo(firstNameOfPersonToDropOn);
+    }
+
+    public void edgeDrag(String dragFrom, Direction direction, long dragDuration, TimeUnit timeunit) {
+        switch (direction) {
+            case UP:
+                double edgeMinY = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMinY()
+                                                                  + PersonListViewCell.SCROLL_AREA - 1;
+                double edgeMinX = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMinX()
+                                                                  + PersonListViewCell.SCROLL_AREA - 1;
+                guiRobot.drag(dragFrom).drag(edgeMinX, edgeMinY).sleep(dragDuration, timeunit).drop();
+                break;
+            case DOWN:
+                double edgeMaxY = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxY()
+                                                                  - PersonListViewCell.SCROLL_AREA + 1;
+                double edgeMaxX = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMinX()
+                                                                  + PersonListViewCell.SCROLL_AREA - 1;
+                guiRobot.drag(dragFrom).drag(edgeMaxX, edgeMaxY).sleep(dragDuration, timeunit).drop();
+                break;
+        }
     }
 
     /**

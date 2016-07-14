@@ -3,6 +3,8 @@ package guitests;
 import guitests.guihandles.*;
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.*;
 
 public class FullSystemTest extends GuiTestBase {
@@ -19,6 +21,7 @@ public class FullSystemTest extends GuiTestBase {
         newTagDialog = mainMenu.clickOn("Tags","New Tag")
                                .as(NewTagDialogHandle.class);
         newTagDialog.enterTagName("colleagues");
+        guiRobot.sleep(1, TimeUnit.SECONDS);
         assertEquals("colleagues", newTagDialog.getTagName());
         newTagDialog.clickOk();
 

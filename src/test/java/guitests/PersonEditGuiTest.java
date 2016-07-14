@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
  * * Data validation. <br>
  */
 public class PersonEditGuiTest extends GuiTestBase {
-    
+
     @Override
     protected AddressBook getInitialData() {
         return td.book;
@@ -45,6 +45,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         editPersonDialog.enterNewValues(newAlice);
         editPersonDialog.pressEnter();
+
+        guiRobot.sleep(1, TimeUnit.SECONDS);
 
         //Confirm pending state correctness
         assertTrue(alicePersonCard.isPendingStateCountDownVisible());
@@ -113,7 +115,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.use_LIST_GOTO_TOP_SEQUENCE();
         PersonCardHandle deletedCard = personListPanel.getPersonCardHandle(new Person(personListPanel.getSelectedPerson()));
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        guiRobot.sleep(ModelManager.GRACE_PERIOD_DURATION / 2, TimeUnit.SECONDS);
+        guiRobot.sleep(1, TimeUnit.SECONDS);
         assertTrue(deletedCard.isPendingStateCountDownVisible());
         assertTrue(deletedCard.isPendingStateLabelVisible());
         assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
