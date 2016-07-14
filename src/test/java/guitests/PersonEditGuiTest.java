@@ -7,6 +7,7 @@ import address.testutil.PersonBuilder;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.PersonListPanelHandle;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -22,6 +23,12 @@ import static org.junit.Assert.*;
  * * Data validation. <br>
  */
 public class PersonEditGuiTest extends GuiTestBase {
+
+    @Before
+    public void before() {
+        //Wait for window to be shown.
+        while(!this.isShowing());
+    }
 
     @Override
     protected AddressBook getInitialData() {

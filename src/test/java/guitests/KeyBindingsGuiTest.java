@@ -1,10 +1,9 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
-import address.model.datatypes.person.Person;
-import address.testutil.TypicalTestData;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.TagPersonDialogHandle;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -17,6 +16,11 @@ public class KeyBindingsGuiTest extends GuiTestBase {
     @Override
     protected AddressBook getInitialData() {
         return td.book;
+    }
+
+    @Before
+    public void before() {
+        while(!this.isShowing());
     }
 
     @Test

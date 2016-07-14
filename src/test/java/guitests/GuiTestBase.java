@@ -11,6 +11,7 @@ import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.MainGuiHandle;
 import guitests.guihandles.MainMenuHandle;
 import guitests.guihandles.PersonListPanelHandle;
+import javafx.stage.Stage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -31,6 +32,7 @@ public class GuiTestBase {
     protected PersonListPanelHandle personListPanel;
     protected HeaderStatusBarHandle statusBar;
     protected TypicalTestData td = new TypicalTestData();
+    private Stage stage;
 
 
     @BeforeClass
@@ -50,6 +52,7 @@ public class GuiTestBase {
             mainMenu = mainGui.getMainMenu();
             personListPanel = mainGui.getPersonListPanel();
             statusBar = mainGui.getStatusBar();
+            this.stage = stage;
         });
         EventManager.clearSubscribers();
         testApp = (TestApp) FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation(),
@@ -69,6 +72,10 @@ public class GuiTestBase {
         return getInitialCloudData() == null
             ?  TestUtil.generateCloudAddressBook(getInitialData())
             : getInitialCloudData();
+    }
+
+    public boolean isShowing() {
+        return stage.isShowing();
     }
 
     /**
