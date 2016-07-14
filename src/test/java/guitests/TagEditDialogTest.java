@@ -4,6 +4,8 @@ import javafx.scene.input.KeyCode;
 
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.base.NodeMatchers.hasText;
 
@@ -14,6 +16,7 @@ public class TagEditDialogTest extends GuiTestBase {
         verifyThat("#tagNameField", hasText("friends"));
 
         guiRobot.clickOn("#tagNameField").push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write("family");
+        guiRobot.sleep(1, TimeUnit.SECONDS);
         verifyThat("#tagNameField", hasText("family"));
 
         guiRobot.push(KeyCode.ENTER).doubleClickOn(guiRobot.targetWindow("List of Tags").lookup("family").tryQuery().get());

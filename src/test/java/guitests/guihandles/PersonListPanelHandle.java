@@ -204,16 +204,16 @@ public class PersonListPanelHandle extends GuiHandle {
         switch (direction) {
             case UP:
                 double edgeMinY = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMinY()
-                                                                  + PersonListViewCell.SCROLL_AREA - 1;
+                                                                  + PersonListViewCell.SCROLL_AREA / 2;
                 double edgeMinX = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMinX()
-                                                                  + PersonListViewCell.SCROLL_AREA - 1;
+                                                                  + this.getListView().getWidth() / 2;
                 guiRobot.drag(dragFrom).drag(edgeMinX, edgeMinY).sleep(dragDuration, timeunit).drop();
                 break;
             case DOWN:
                 double edgeMaxY = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxY()
-                                                                  - PersonListViewCell.SCROLL_AREA + 1;
+                                                                  - PersonListViewCell.SCROLL_AREA / 2;
                 double edgeMaxX = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMinX()
-                                                                  + PersonListViewCell.SCROLL_AREA - 1;
+                                                                  + this.getListView().getWidth() / 2;
                 guiRobot.drag(dragFrom).drag(edgeMaxX, edgeMaxY).sleep(dragDuration, timeunit).drop();
                 break;
         }
