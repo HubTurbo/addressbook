@@ -4,8 +4,10 @@ import address.model.datatypes.person.Person;
 import commons.DateTimeUtil;
 import guitests.GuiRobot;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.time.LocalDate;
+import java.util.NoSuchElementException;
 
 public class EditPersonDialogHandle extends GuiHandle {
 
@@ -29,6 +31,15 @@ public class EditPersonDialogHandle extends GuiHandle {
                && getNode(STREET_FIELD_ID) != null && getNode(CITY_FIELD_ID) != null
                && getNode(POSTAL_CODE_FIELD_ID) != null && getNode(BIRTHDAY_FIELD_ID) != null
                && getNode(GITHUB_USER_NAME_FIELD_ID) != null && getNode(TAG_SEARCH_FIELD_ID) != null;
+    }
+
+    public boolean isInputValidationErrorDialogShown() {
+        try{
+            Window window = guiRobot.window("Invalid Fields");
+            return window != null && window.isShowing();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
     }
 
     public String getFirstName(){

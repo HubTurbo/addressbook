@@ -7,7 +7,7 @@ import address.testutil.PersonBuilder;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.PersonListPanelHandle;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -109,6 +109,19 @@ public class PersonEditGuiTest extends GuiTestBase {
     }
 
     @Test
+    public void editPerson_dataValidation() {
+
+        personListPanel.clickOnPerson(td.alice);
+        EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
+        editPersonDialog.enterFirstName("Peter");
+        editPersonDialog.enterLastName("");
+        editPersonDialog.clickOk();
+        assertTrue(editPersonDialog.isInputValidationErrorDialogShown());
+        editPersonDialog.dissmissErrorMessage("Invalid Fields");
+        Assert.assertFalse(editPersonDialog.isInputValidationErrorDialogShown());
+    }
+
+    @Test
     public void cancelPerson_usingAccelerator() {
 
         //Delete
@@ -155,7 +168,7 @@ public class PersonEditGuiTest extends GuiTestBase {
                 .withStreet("Chengdu Panda Street").withCity("Chengdu").withPostalCode("PANDA")
                 .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
         addPersonDialog.enterNewValues(pandaWong);
-        addPersonDialog.pressEnter();
+        addPersonDialog.clickOk();
 
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
         PersonCardHandle pandaWongCardHandle = personListPanel.getSelectedCards().get(0);
@@ -166,10 +179,5 @@ public class PersonEditGuiTest extends GuiTestBase {
         guiRobot.sleep(1000);
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
     }
-
-    /* TODO:
-     * Test 'OK'
-     * Test data validation (just one case)
-     */
 
 }

@@ -36,12 +36,12 @@ public class PersonListGuiTest extends GuiTestBase {
 
         //drag the person at the middle and drop at the bottom
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
-        personListPanel.edgeDrag(td.elizabeth.getFirstName(), PersonListPanelHandle.Direction.DOWN, 3, TimeUnit.SECONDS);
+        personListPanel.edgeDrag(td.elizabeth.getFirstName(), PersonListPanelHandle.Direction.DOWN, 5, TimeUnit.SECONDS);
         assertTrue(personListPanel.containsInOrder(td.charlie, td.benson, td.alice, td.dan, td.elizabeth));
 
         //drag the person at the bottom and drop at the top
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(5);
-        personListPanel.edgeDrag(td.elizabeth.getFirstName(), PersonListPanelHandle.Direction.UP, 5, TimeUnit.SECONDS);
+        personListPanel.edgeDrag(td.elizabeth.getFirstName(), PersonListPanelHandle.Direction.UP, 7, TimeUnit.SECONDS);
         assertTrue(personListPanel.containsInOrder(td.elizabeth, td.charlie, td.benson, td.alice, td.dan));
 
     }
