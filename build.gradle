@@ -85,6 +85,7 @@ allprojects {
                 exclude('hubturbo/updater/VersionDataGenerator.java')
                 include('address/util/FileUtil.java')
                 include('address/util/OsDetector.java')
+                include('address/util/Version.java')
                 include('address/util/ProgressAwareInputStream.java')
                 include('address/util/JsonUtil.java')
                 include('address/updater/VersionData.java')
