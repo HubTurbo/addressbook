@@ -76,7 +76,7 @@ public class Installer {
 
                 JarEntry jarEntry = enums.nextElement();
                 String fileName = jarEntry.getName();
-                if (fileName.endsWith(".jar")) {
+                if (fileName.endsWith(".jar") || fileName.equals("VersionData.json")) {
                     Path extractDest = Paths.get(fileName);
 
                     // Only extract file if it is not present
