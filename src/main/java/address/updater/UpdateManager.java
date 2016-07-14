@@ -39,7 +39,7 @@ public class UpdateManager extends ComponentManager {
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR updater";
     private static final String MSG_FAIL_UPDATE_NOT_SUPPORTED = "Update not supported on detected OS";
-    private static final String MSG_FAIL_OBTAIN_DATA = "Error obtaining latest data";
+    private static final String MSG_FAIL_OBTAIN_LATEST_VERSION_DATA = "Unable to obtain latest version data. Update to the latest version might not be supported. Please manually download the latest version.";
     private static final String MSG_NO_UPDATE = "There is no update";
     private static final String MSG_FAIL_READ_LATEST_VERSION = "Error reading latest version";
     private static final String MSG_NO_NEWER_VERSION = "No newer version to be downloaded";
@@ -102,7 +102,7 @@ public class UpdateManager extends ComponentManager {
         try {
             latestData = getLatestDataFromServer();
         } catch (IOException e) {
-            raise(new UpdaterFailedEvent(MSG_FAIL_OBTAIN_DATA));
+            raise(new UpdaterFailedEvent(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA));
             logger.debug("Failed to obtain data from server: {}", e);
             return;
         }

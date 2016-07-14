@@ -220,7 +220,7 @@ allprojects {
         }
         archiveName = project.ext.mainAppArchiveName
         from(rootDir) {
-            include 'UpdateData.json'
+            include 'VersionData.json'
         }
     }
 

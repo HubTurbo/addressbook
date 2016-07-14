@@ -25,12 +25,12 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 /**
- * Unpacks all JARs required to run addressbook onto the disk.
+ * Unpacks any missing JARs required to run addressbook onto the disk.
  */
 public class Installer {
     private static final String LIBRARY_DIR = "lib";
     private static final Path MAIN_APP_FILEPATH = Paths.get(LIBRARY_DIR, new File("resource.jar").getName());
-    private static final String UPDATE_DATA_RESOURCE = "/UpdateData.json";
+    private static final String VERSION_DATA_RESOURCE = "/VersionData.json";
 
     public void runInstall(Label label, ProgressBar progressBar) throws IOException {
         try {
@@ -40,9 +40,9 @@ public class Installer {
         }
 
         try {
-            unpackAllJarsInsideSelf(label);
+            extractMissingJarFiles(label);
         } catch (IOException e) {
-            throw new IOException("Failed to unpack JARs.", e);
+            throw new IOException("Failed to extract JARs.", e);
         }
 
         try {
@@ -53,7 +53,7 @@ public class Installer {
     }
 
     /**
-     * Creates the directory to store libraries, if it hasn't been created
+     * Creates the directory and all its parent directories to store libraries, if they haven't been created
      *
      * @throws IOException
      */
@@ -62,15 +62,15 @@ public class Installer {
     }
 
     /**
-     * Unpacks all zipped jars inside this jar, into their appropriate directories
+     * Unpacks zipped jars inside this jar, into their appropriate directories,
+     * if they are not found in their destination
      * @throws IOException
      */
-    private void unpackAllJarsInsideSelf(Label label) throws IOException {
+    private void extractMissingJarFiles(Label label) throws IOException {
         System.out.println("Unpacking");
 
         try {
             JarFile jar = new JarFile(getSelfJarFilename()); // Installer JAR
-            Platform.runLater(() -> label.setText("jar file gotten..."));
             Enumeration<JarEntry> enums = jar.entries();
             while (enums.hasMoreElements()) {
                 JarEntry jarEntry = enums.nextElement();
@@ -78,9 +78,11 @@ public class Installer {
                 if (fileName.endsWith(".jar")) {
                     Path extractDest = Paths.get(fileName);
 
-
                     // Only extract file if it is not present
                     File resourceFile = extractDest.toFile();
+                    // TODO: installer should not blindly extract libraries since it might be outdated
+                    // outdated installer with outdated libraries could lead to extracting unnecessary library files
+                    // on each start-up
                     if (!resourceFile.exists()) {
                         Platform.runLater(() -> label.setText("Extracting file: " + resourceFile));
                         extractJarFile(jar, jarEntry, isResourceJar(fileName) ? MAIN_APP_FILEPATH : extractDest);
@@ -112,7 +114,7 @@ public class Installer {
         System.out.println("Getting platform specific components");
         Platform.runLater(() -> loadingLabel.setText("Downloading required components. Please wait."));
 
-        String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream(UPDATE_DATA_RESOURCE));
+        String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream(VERSION_DATA_RESOURCE));
         VersionData versionData = JsonUtil.fromJsonString(json, VersionData.class);
         List<LibraryDescriptor> osDependentLibraries = getOsDependentLibraries(versionData, OsDetector.getOs());
         List<LibraryDescriptor> missingLibraries = getMissingLibraries(osDependentLibraries);
@@ -148,10 +150,11 @@ public class Installer {
         int libDownloadFileSize;
         try {
             libDownloadFileSize = getLibraryDownloadFileSize(downloadLink);
+            if (libDownloadFileSize == -1) return false;
         } catch (IOException e) {
             return false;
         }
-        return libDownloadFileSize != -1 && libFile.exists() && libFile.length() == libDownloadFileSize;
+        return libFile.exists() && libFile.length() == libDownloadFileSize;
     }
 
     private int getLibraryDownloadFileSize(URL downloadLink) throws IOException {
