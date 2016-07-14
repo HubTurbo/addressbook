@@ -18,6 +18,7 @@ public class StatusBarHeaderController extends UiController{
         this.mainController = mainController;
         this.finishedCommands = finishedCommands;
         headerStatusBar = new StatusBar();
+        headerStatusBar.setId("headerStatusBar");
         headerStatusBar.getStyleClass().removeAll();
         headerStatusBar.getStyleClass().add("status-bar-with-border");
         headerStatusBar.setText("");

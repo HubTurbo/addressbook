@@ -5,6 +5,7 @@ import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.testutil.PersonBuilder;
 import guitests.guihandles.EditPersonDialogHandle;
+import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
 import org.junit.Test;
 
@@ -62,16 +63,26 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Confirm the underlying person object has the right values
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 
-        //confirm again after the next sync
+        //Confirm the right card is selected after the edit
+        assertEquals(1, personListPanel.getSelectedCards().size());
+        assertEquals(personListPanel.getSelectedCards().get(0), alicePersonCard);
+
+        //Confirm again after the next sync
         guiRobot.sleep(getTestingConfig().getUpdateInterval());
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 
-        //TODO: confirm other cards are unaffected
+        //Confirm other cards are unaffected
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1);
+        assertEquals(personListPanel.getPersonCardHandle(1), td.benson);
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
+        assertEquals(personListPanel.getPersonCardHandle(2), td.charlie);
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
+        assertEquals(personListPanel.getPersonCardHandle(3), td.dan);
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
+        assertEquals(personListPanel.getPersonCardHandle(4), td.elizabeth);
 
-
-        //TODO: confirm the right card is selected after the edit
-        //TODO: confirm status bar is updated correctly
-
+        //Confirm status bar is updated correctly
+        assertEquals(statusBar.getText(), "Alice Brown (old) -> Alicia Brownstone (new) has been edited successfully.");
     }
 
     /* TODO:

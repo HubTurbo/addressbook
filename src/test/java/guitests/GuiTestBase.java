@@ -7,6 +7,7 @@ import address.sync.cloud.model.CloudAddressBook;
 import address.testutil.TypicalTestData;
 import address.testutil.TestUtil;
 import address.util.Config;
+import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.MainGuiHandle;
 import guitests.guihandles.MainMenuHandle;
 import guitests.guihandles.PersonListPanelHandle;
@@ -28,6 +29,7 @@ public class GuiTestBase {
     protected MainGuiHandle mainGui;
     protected MainMenuHandle mainMenu;
     protected PersonListPanelHandle personListPanel;
+    protected HeaderStatusBarHandle statusBar;
     protected TypicalTestData td = new TypicalTestData();
 
 
@@ -47,6 +49,7 @@ public class GuiTestBase {
             mainGui = new MainGuiHandle(new GuiRobot(), stage);
             mainMenu = mainGui.getMainMenu();
             personListPanel = mainGui.getPersonListPanel();
+            statusBar = mainGui.getStatusBar();
         });
         EventManager.clearSubscribers();
         testApp = (TestApp) FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation(),

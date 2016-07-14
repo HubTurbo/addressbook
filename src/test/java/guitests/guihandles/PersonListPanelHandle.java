@@ -202,6 +202,10 @@ public class PersonListPanelHandle extends GuiHandle {
         return NOT_FOUND;
     }
 
+    public PersonCardHandle getPersonCardHandle(int index) {
+        return getPersonCardHandle(new Person(getListView().getItems().get(index)));
+    }
+
     public PersonCardHandle getPersonCardHandle(Person person){
         Set<Node> nodes = getAllCardNodes();
         Node personCardNode = nodes.stream()
