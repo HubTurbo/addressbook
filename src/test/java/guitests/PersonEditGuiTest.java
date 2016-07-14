@@ -46,9 +46,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.pressEnter();
 
         assertEquals(alicePersonCard, newAlice);
-        //TODO: Confirm the right card is selected after the edit, as follows
-        //assertEquals(1, personListPanel.getSelectedCards().size();
-        //assertEquals(alicePersonCard, personListPanel.getSelectedCards().get(0);
+        assertEquals(1, personListPanel.getSelectedCards().size());
+        assertEquals(alicePersonCard, personListPanel.getSelectedCards().get(0));
         assertTrue(alicePersonCard.isPendingStateCountDownVisible());
         assertTrue(alicePersonCard.isPendingStateLabelVisible());
         assertFalse(alicePersonCard.isPendingStateProgressIndicatorVisible());

@@ -215,7 +215,6 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public List<PersonCardHandle> getSelectedCards() {
-        //TODO: To test this before using.
         ObservableList<ReadOnlyViewablePerson> persons = getListView().getSelectionModel().getSelectedItems();
         return persons.stream()
                       .map(p -> getPersonCardHandle(new Person(p)))
