@@ -83,8 +83,15 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(statusBar.getText(), "Alice Brown (old) -> Alicia Brownstone (new) has been edited successfully.");
     }
 
+
     @Test
     public void editPerson_usingContextMenu() {
+
+        String headlessProperty = System.getProperty("testfx.headless");
+        if (headlessProperty != null && headlessProperty.equals("true")) {
+            return;
+        }
+
         //Prepare new values for Alice
         Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
                 .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
@@ -95,9 +102,8 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Edit Alice to change to new values
         personListPanel.rightClickOnPerson(td.alice);
-
-        EditPersonDialogHandle editPersonDialog =  personListPanel.clickOnContextMenu(
-                                                                    PersonListPanelHandle.ContextMenuChoice.EDIT);
+        EditPersonDialogHandle editPersonDialog = personListPanel.clickOnContextMenu(
+                PersonListPanelHandle.ContextMenuChoice.EDIT);
         editPersonDialog.enterNewValues(newAlice);
         editPersonDialog.pressEnter();
 
