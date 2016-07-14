@@ -12,6 +12,7 @@ import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
+import address.keybindings.KeyBindingsManager;
 import address.parser.qualifier.TrueQualifier;
 import address.ui.PersonListViewCell;
 import address.util.collections.FilteredList;
@@ -216,10 +217,12 @@ public class PersonOverviewController extends UiController{
 
         final MenuItem editMenuItem = initContextMenuItem("Edit",
                 getAcceleratorKeyCombo("PERSON_EDIT_ACCELERATOR").get(), this::handleEditPerson);
+        editMenuItem.setId("editMenuItem");
         editMenuItem.disableProperty().bind(shouldDisableEdit); // disable if multiple selected
 
         final MenuItem retryFailedMenuItem = initContextMenuItem("Retry",
                 getAcceleratorKeyCombo("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR").get(), this::handleRetryFailedCommands);
+        deleteMenuItem.setId("deleteMenuItem");
         retryFailedMenuItem.visibleProperty().bind(shouldAllowRetry);
 
         contextMenu.getItems().addAll(
@@ -238,6 +241,7 @@ public class PersonOverviewController extends UiController{
 
     private MenuItem initContextMenuItem(String name, KeyCombination accel, Runnable action) {
         final MenuItem menuItem = new MenuItem(name);
+        menuItem.setId(name.toLowerCase() + "MenuItem");
         menuItem.setAccelerator(accel);
         menuItem.setOnAction(e -> action.run());
         return menuItem;

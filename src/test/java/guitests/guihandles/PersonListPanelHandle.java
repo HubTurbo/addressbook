@@ -27,6 +27,11 @@ public class PersonListPanelHandle extends GuiHandle {
     private static final String FILTER_FIELD_ID = "#filterField";
     private static final String PERSON_LIST_VIEW_ID = "#personListView";
     private static final String NEW_BUTTON_ID = "#newButton"; //TODO: convert to constants
+    private static final String EDIT_BUTTON_ID = "#editButton";
+
+    public enum ContextMenuChoice {
+        EDIT, TAG, DELETE, CANCEL;
+    }
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage);
@@ -136,6 +141,30 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.clickOn(person.getFirstName());
     }
 
+    public void rightClickOnPerson(Person peron) {
+        guiRobot.rightClickOn(peron.getFirstName());
+    }
+
+    public EditPersonDialogHandle clickOnContextMenu(ContextMenuChoice choice) {
+        switch (choice) {
+            case EDIT:
+                clickOn("#editMenuItem");
+                guiRobot.sleep(500);
+                guiRobot.targetWindow(EditPersonDialogHandle.TITLE);
+                return new EditPersonDialogHandle(guiRobot, primaryStage);
+            case TAG:
+                clickOn("#tagMenuItem");
+                break;
+            case DELETE:
+                clickOn("#deleteMenuItem");
+                break;
+            case CANCEL:
+                clickOn("#cancelOperationMenuItem");
+                break;
+        }
+        return null;
+    }
+
     public void clickOnPerson(String personName) {
         guiRobot.clickOn(personName);
     }
@@ -150,6 +179,12 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public EditPersonDialogHandle clickNew() {
         guiRobot.clickOn(NEW_BUTTON_ID);
+        guiRobot.sleep(500);
+        return new EditPersonDialogHandle(guiRobot, primaryStage);
+    }
+
+    public EditPersonDialogHandle clickEdit() {
+        guiRobot.clickOn(EDIT_BUTTON_ID);
         guiRobot.sleep(500);
         return new EditPersonDialogHandle(guiRobot, primaryStage);
     }
