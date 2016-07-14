@@ -1,10 +1,9 @@
 package hubturbo.updater;
 
 import address.updater.LibraryDescriptor;
-import address.updater.VersionDescriptor;
+import address.updater.VersionData;
 import address.util.*;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 
@@ -26,28 +25,24 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 /**
- * Unpacks all JARs required to install addressbook onto the disk.
+ * Unpacks any missing JARs required to run addressbook onto the disk.
  */
 public class Installer {
-    private static final String LIB_DIR = "lib";
-    private static final Path MAIN_APP_FILEPATH = Paths.get(LIB_DIR, new File("resource.jar").getName());
+    private static final String LIBRARY_DIR = "lib";
+    private static final Path MAIN_APP_FILEPATH = Paths.get(LIBRARY_DIR, new File("resource.jar").getName());
+    private static final String VERSION_DATA_RESOURCE = "/VersionData.json";
 
     public void runInstall(Label label, ProgressBar progressBar) throws IOException {
         try {
-            createLibDir();
+            createLibraryDir();
         } catch (IOException e) {
-            System.out.println("Can't create lib directory");
-            throw new IOException("Failed to create directories", e);
+            throw new IOException("Failed to library directories", e);
         }
 
         try {
-            unpackAllJarsInsideSelf();
+            extractMissingJarFiles(label);
         } catch (IOException e) {
-            System.out.println("Failed to unpack all JARs");
-            throw new IOException("Failed to unpack files.", e);
-        } catch (URISyntaxException e) {
-            System.out.println("Failed to get self JAR");
-            throw new IOException("Failed to unpack files.", e);
+            throw new IOException("Failed to extract JARs.", e);
         }
 
         try {
@@ -57,45 +52,59 @@ public class Installer {
         }
     }
 
-    private void createLibDir() throws IOException {
-        FileUtil.createDirs(new File(LIB_DIR));
+    /**
+     * Creates the directory and all its parent directories to store libraries, if they haven't been created
+     *
+     * @throws IOException
+     */
+    private void createLibraryDir() throws IOException {
+        FileUtil.createDirs(new File(LIBRARY_DIR));
     }
 
-    private void unpackAllJarsInsideSelf() throws IOException, URISyntaxException {
+    /**
+     * Unpacks zipped jars inside this jar, into their appropriate directories,
+     * if they are not found in their destination
+     * @throws IOException
+     */
+    private void extractMissingJarFiles(Label label) throws IOException {
         System.out.println("Unpacking");
 
-        File installerFile = new File(getSelfJarFilename()); // JAR of this class
-        try (JarFile jar = new JarFile(installerFile)) {
-            for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements(); ) {
+        try {
+            JarFile jar = new JarFile(getSelfJarFilename()); // Installer JAR
+            Enumeration<JarEntry> enums = jar.entries();
+            while (enums.hasMoreElements()) {
+
                 JarEntry jarEntry = enums.nextElement();
+                String fileName = jarEntry.getName();
+                if (fileName.endsWith(".jar")) {
+                    Path extractDest = Paths.get(fileName);
 
-                String filename = jarEntry.getName();
-                Path extractDest = Paths.get(LIB_DIR, new File(filename).getName());
-
-                // For MainApp resource, only extract if it is not present
-                if (filename.startsWith("resource") && filename.endsWith(".jar")) {
-                    if (!MAIN_APP_FILEPATH.toFile().exists()) {
-                        try (InputStream in = jar.getInputStream(jarEntry)) {
-                            Files.copy(in, MAIN_APP_FILEPATH, StandardCopyOption.REPLACE_EXISTING);
-                        }
-                    }
-                    continue;
-                }
-
-                // TODO: Don't extract files after first run, otherwise they might become older
-                // For other JARs, extract if existing files are of different sizes
-                if (filename.endsWith(".jar") && jarEntry.getSize() != extractDest.toFile().length()) {
-                    try (InputStream in = jar.getInputStream(jarEntry)) {
-                        Files.copy(in, extractDest, StandardCopyOption.REPLACE_EXISTING);
+                    // Only extract file if it is not present
+                    File resourceFile = extractDest.toFile();
+                    // TODO: installer should not blindly extract libraries since it might be outdated
+                    // outdated installer with outdated libraries could lead to extracting unnecessary library files
+                    // on each start-up
+                    if (!resourceFile.exists()) {
+                        Platform.runLater(() -> label.setText("Extracting file: " + resourceFile));
+                        extractJarFile(jar, jarEntry, isResourceJar(fileName) ? MAIN_APP_FILEPATH : extractDest);
                     }
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Failed to extract libraries");
-            throw e;
+        } catch (URISyntaxException e) {
+            System.out.println("Failed to obtain self JAR");
+            throw new IOException("Failed to obtain self JAR", e);
         }
 
         System.out.println("Finished Unpacking");
+    }
+
+    private void extractJarFile(JarFile selfJar, JarEntry jarEntry, Path extractDest) throws IOException {
+        InputStream in = selfJar.getInputStream(jarEntry);
+        Files.copy(in, extractDest, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private boolean isResourceJar(String filename) {
+        return filename.startsWith("resource") && filename.endsWith(".jar");
     }
 
     private String getSelfJarFilename() throws URISyntaxException {
@@ -104,46 +113,75 @@ public class Installer {
 
     private void downloadPlatformSpecificComponents(Label loadingLabel, ProgressBar progressBar) throws IOException {
         System.out.println("Getting platform specific components");
+        Platform.runLater(() -> loadingLabel.setText("Downloading required components. Please wait."));
 
-        String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream("/UpdateData.json"));
+        String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream(VERSION_DATA_RESOURCE));
+        VersionData versionData = JsonUtil.fromJsonString(json, VersionData.class);
+        List<LibraryDescriptor> osDependentLibraries = getOsDependentLibraries(versionData, OsDetector.getOs());
+        List<LibraryDescriptor> missingLibraries = getMissingLibraries(osDependentLibraries);
 
-        VersionDescriptor versionDescriptor;
+        int noOfMissingLibraries = missingLibraries.size();
+        for (int i = 0; i < noOfMissingLibraries; i++) {
+            LibraryDescriptor libraryToDownload = missingLibraries.get(i);
+            final String loadingLabelString = "Downloading " + (i + 1) + "/" + noOfMissingLibraries + ": " + libraryToDownload.getFileName();
+            Platform.runLater(() -> loadingLabel.setText(loadingLabelString));
 
-        versionDescriptor = JsonUtil.fromJsonString(json, VersionDescriptor.class);
-
-        List<LibraryDescriptor> platformDependentLibraries =  versionDescriptor.getLibraries().stream()
-                .filter(libDesc -> libDesc.getOs() == OsDetector.getOs())
-                .collect(Collectors.toCollection(ArrayList::new));
-
-        for (LibraryDescriptor platformDependentLibrary : platformDependentLibraries) {
-            URL downloadLink = platformDependentLibrary.getDownloadLink();
-
-            File libFile = Paths.get("lib", platformDependentLibrary.getFilename()).toFile();
-
-            try {
-                URLConnection conn = downloadLink.openConnection();
-                int libDownloadFileSize = conn.getContentLength();
-                if (libDownloadFileSize != -1 && FileUtil.isFileExists(libFile.toString()) &&
-                        libFile.length() == libDownloadFileSize) {
-                    System.out.println("Library already exists: " + platformDependentLibrary.getFilename());
-                    break;
-                }
-            } catch (IOException e) {
-                System.out.println("Failed to get size of library; will proceed to download it: " +
-                        platformDependentLibrary.getFilename());
-            }
-            
-            Platform.runLater(() -> loadingLabel.setText("Downloading required components. Please wait."));
-
+            File libFile = Paths.get(LIBRARY_DIR, libraryToDownload.getFileName()).toFile();
+            URL downloadLink = libraryToDownload.getDownloadLink();
             try {
                 downloadFile(libFile, downloadLink, progressBar);
             } catch (IOException e) {
-                System.out.println("Failed to download library " + platformDependentLibrary.getFilename());
+                System.out.println("Failed to download library " + libraryToDownload.getFileName());
                 throw e;
             }
         }
 
         System.out.println("Finished downloading platform-dependent libraries");
+    }
+
+    /**
+     * Returns whether libFile is an existing library
+     * It is considered an existing library only if a file with the same name and size exists
+     *
+     * @param libFile
+     * @param downloadLink
+     * @return
+     */
+    private boolean isExistingLibrary(File libFile, URL downloadLink) {
+        int libDownloadFileSize;
+        try {
+            libDownloadFileSize = getLibraryDownloadFileSize(downloadLink);
+            if (libDownloadFileSize == -1) return false;
+        } catch (IOException e) {
+            return false;
+        }
+        return libFile.exists() && libFile.length() == libDownloadFileSize;
+    }
+
+    private int getLibraryDownloadFileSize(URL downloadLink) throws IOException {
+        URLConnection conn = downloadLink.openConnection();
+        return conn.getContentLength();
+    }
+
+    private ArrayList<LibraryDescriptor> getOsDependentLibraries(VersionData versionData,
+                                                                 OsDetector.Os os) {
+        return versionData.getLibraries().stream()
+                .filter(libDesc -> libDesc.getOs() == os)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    /**
+     * Filters the list of libraries for only missing libraries
+     * @param requiredLibraries
+     * @return
+     */
+    private ArrayList<LibraryDescriptor> getMissingLibraries(List<LibraryDescriptor> requiredLibraries) {
+        return requiredLibraries.stream()
+                .filter(libDesc -> {
+                    File libFile = Paths.get(LIBRARY_DIR, libDesc.getFileName()).toFile();
+                    return !isExistingLibrary(libFile, libDesc.getDownloadLink());
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
 
@@ -154,10 +192,10 @@ public class Installer {
             }
 
             URLConnection conn = source.openConnection();
-            ProgressAwareInputStream inWithProgress = new ProgressAwareInputStream(in, conn.getContentLength());
-            inWithProgress.setOnProgressListener(prog -> Platform.runLater(() -> progressBar.setProgress(prog)));
+            ProgressAwareInputStream inputStreamWithProgress = new ProgressAwareInputStream(in, conn.getContentLength());
+            inputStreamWithProgress.setOnProgressListener(prog -> Platform.runLater(() -> progressBar.setProgress(prog)));
 
-            Files.copy(inWithProgress, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(inputStreamWithProgress, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             System.out.println("Failed to download " + targetFile.toString());
             throw e;

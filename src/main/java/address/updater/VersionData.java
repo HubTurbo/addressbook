@@ -11,14 +11,14 @@ import java.util.ArrayList;
  * Lists latest application's version, main app download link and libraries descriptors
  */
 @JsonPropertyOrder({ "version", "mainApp", "libraries" })
-public class VersionDescriptor {
+public class VersionData {
     @JsonProperty("version")
     private String versionString;
     @JsonProperty("mainApp")
     private URL mainAppDownloadLink;
     private ArrayList<LibraryDescriptor> libraries = new ArrayList<>();
 
-    public VersionDescriptor() {} // required for serialization
+    public VersionData() {} // required for serialization
 
     public String getVersion() {
         return versionString;

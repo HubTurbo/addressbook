@@ -13,5 +13,4 @@ update/
 src/main/resources/updater/jarUpdater.jar
 src/test/data/sandbox/
 preferences.json
-config.json
 .$TEMP*

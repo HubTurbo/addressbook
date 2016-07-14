@@ -2,6 +2,7 @@ package address.updater;
 
 import address.util.OsDetector;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -15,13 +16,13 @@ public class LibraryDescriptor {
 
     public LibraryDescriptor() {} // required for serialization
 
-    public LibraryDescriptor(String filename, URL downloadLink, OsDetector.Os os) {
+    public LibraryDescriptor(String filename, String downloadLink, OsDetector.Os os) throws MalformedURLException {
         this.filename = filename;
-        this.downloadLink = downloadLink;
+        this.downloadLink = new URL(downloadLink);
         this.os = os;
     }
 
-    public String getFilename() {
+    public String getFileName() {
         return filename;
     }
 
@@ -33,8 +34,8 @@ public class LibraryDescriptor {
         return downloadLink;
     }
 
-    public void setDownloadLink(URL downloadLink) {
-        this.downloadLink = downloadLink;
+    public void setDownloadLink(String downloadLink) throws MalformedURLException {
+        this.downloadLink = new URL(downloadLink);
     }
 
     public OsDetector.Os getOs() {
