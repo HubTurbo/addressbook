@@ -19,7 +19,7 @@ import java.util.Optional;
  * This class is meant to help developers generate the latest app data into VersionData.json,
  * including the libraries and their download links
  *
- * To be used with gradle task generateNewVersionData to provide command line arguments, generally when creating a release
+ * To be used with gradle task generateVersionData to provide command line arguments, generally when creating a release
  * Command line arguments should be the name of libraries currently used, except the first argument which
  * should be the name of the main application
  */
