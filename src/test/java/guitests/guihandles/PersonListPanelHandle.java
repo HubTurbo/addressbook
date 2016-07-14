@@ -2,7 +2,6 @@ package guitests.guihandles;
 
 
 import address.keybindings.Bindings;
-import address.model.ModelManager;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import guitests.GuiRobot;
@@ -109,7 +108,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public FxRobot waitForGracePeriodToExpire() {
-        return guiRobot.sleep((ModelManager.GRACE_PERIOD_DURATION + 1) * 1000);//TODO: Implement a polling wait
+        return sleepForGracePeriod();//TODO: Implement a polling wait
     }
 
     public void navigateUp() {

@@ -1,14 +1,17 @@
 package guitests.guihandles;
 
 
+import address.model.ModelManager;
 import guitests.GuiRobot;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import org.testfx.api.FxRobot;
 
 import java.lang.reflect.Constructor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Base class for all GUI Handles used in testing.
@@ -33,6 +36,10 @@ public class GuiHandle {
         } catch (Exception e) {
             throw new RuntimeException("Cannot create gui handle of type " + clazz.getName(), e);
         }
+    }
+
+    public FxRobot sleepForGracePeriod() {
+        return guiRobot.sleep((ModelManager.GRACE_PERIOD_DURATION + 1), TimeUnit.SECONDS);
     }
 
     protected Node getNode(String query) {
