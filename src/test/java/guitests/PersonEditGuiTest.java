@@ -12,8 +12,7 @@ import org.junit.Test;
 import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * System tests for 'Edit person' feature.
@@ -59,7 +58,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
 
         //Confirm right values are displayed after grace period is over
-        guiRobot.sleep(ModelManager.GRACE_PERIOD_DURATION + 1, TimeUnit.SECONDS); //wait for grace period
+        personListPanel.sleepForGracePeriod();
         assertEquals(alicePersonCard, newAlice);
 
         //Confirm the underlying person object has the right values
@@ -137,8 +136,66 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(alicePersonCard.getPendingStateLabel().equals("Edited"));
     }
 
+    @Test
+    public void cancelPerson_usingAccelerator() {
+
+        //Delete
+        personListPanel.use_LIST_GOTO_TOP_SEQUENCE();
+        PersonCardHandle deletedCard = personListPanel.getPersonCardHandle(new Person(personListPanel.getSelectedPerson()));
+        personListPanel.use_PERSON_DELETE_ACCELERATOR();
+        guiRobot.sleep(ModelManager.GRACE_PERIOD_DURATION / 2, TimeUnit.SECONDS);
+        assertTrue(deletedCard.isPendingStateCountDownVisible());
+        assertTrue(deletedCard.isPendingStateLabelVisible());
+        assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
+        assertTrue(deletedCard.getPendingStateLabel().equals("Deleted"));
+        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
+        assertFalse(deletedCard.isPendingStateCountDownVisible());
+        assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
+        assertFalse(deletedCard.getPendingStateLabel().equals("Deleted"));
+        assertEquals(statusBar.getText(), "Delete operation on " + deletedCard.getFirstName() + " "
+                                          + deletedCard.getLastName() + " has been cancelled.");
+
+
+        //Edit
+        Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
+                .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
+                .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(td.colleagues, td.friends).build();
+
+        //Get a reference to the card displaying Alice's details
+        PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
+
+        //Edit Alice to change to new values
+        personListPanel.clickOnPerson(td.alice);
+        EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        editPersonDialog.enterNewValues(newAlice);
+        editPersonDialog.pressEnter();
+        assertNotEquals(alicePersonCard, td.alice);
+        assertEquals(alicePersonCard, newAlice);
+        guiRobot.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
+        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
+        assertEquals(alicePersonCard, td.alice);
+        assertEquals(statusBar.getText(), "Edit operation on " + alicePersonCard.getFirstName() + " "
+                                            + alicePersonCard.getLastName() + " has been cancelled.");
+
+        //New
+        EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
+        Person pandaWong = new PersonBuilder(td.alice.copy()).withFirstName("Panda").withLastName("Wong")
+                .withStreet("Chengdu Panda Street").withCity("Chengdu").withPostalCode("PANDA")
+                .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
+        addPersonDialog.enterNewValues(pandaWong);
+        addPersonDialog.pressEnter();
+
+        personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
+        PersonCardHandle pandaWongCardHandle = personListPanel.getSelectedCards().get(0);
+        assertNotNull(pandaWongCardHandle);
+        assertEquals(pandaWongCardHandle, pandaWong);
+        guiRobot.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
+        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
+        guiRobot.sleep(1000);
+        assertNull(personListPanel.getPersonCardHandle(pandaWong));
+    }
+
     /* TODO:
-     * Test 'Cancel'
      * Test 'OK'
      * Test data validation (just one case)
      */

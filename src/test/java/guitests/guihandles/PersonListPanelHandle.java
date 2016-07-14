@@ -14,6 +14,7 @@ import org.testfx.api.FxRobot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -243,10 +244,15 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public PersonCardHandle getPersonCardHandle(Person person){
         Set<Node> nodes = getAllCardNodes();
-        Node personCardNode = nodes.stream()
+        Optional<Node> personCardNode = nodes.stream()
                 .filter( (n) -> new PersonCardHandle(guiRobot, primaryStage, n).isSamePerson(person))
-                .findFirst().get();
-        return new PersonCardHandle(guiRobot, primaryStage, personCardNode);
+                .findFirst();
+        if (personCardNode.isPresent()) {
+            return new PersonCardHandle(guiRobot, primaryStage, personCardNode.get());
+        } else {
+            return null;
+        }
+
     }
 
     protected Set<Node> getAllCardNodes() {
