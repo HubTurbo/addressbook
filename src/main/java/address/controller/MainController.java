@@ -10,6 +10,7 @@ import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
+import address.updater.UpdateProgressNotifier;
 import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * The controller that creates the other controllers
@@ -72,6 +74,7 @@ public class MainController extends UiController{
     private UserPrefs prefs;
 
     private StatusBarHeaderController statusBarHeaderController;
+    private StatusBarFooterController statusBarFooterController;
 
     private UnmodifiableObservableList<ReadOnlyViewablePerson> personList;
     private final ObservableList<SingleTargetCommandResult> finishedCommandResults;
@@ -185,8 +188,8 @@ public class MainController extends UiController{
         FXMLLoader loader = loadFxml(fxmlResourcePath);
         GridPane gridPane = (GridPane) loadLoader(loader, "Error Loading footer status bar");
         gridPane.getStyleClass().add("grid-pane");
-        StatusBarFooterController controller = loader.getController();
-        controller.init(config.getUpdateInterval(), config.getAddressBookName());
+        statusBarFooterController = loader.getController();
+        statusBarFooterController.init(config.getUpdateInterval(), config.getAddressBookName());
         AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
         FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
         placeHolder.getChildren().add(gridPane);
@@ -541,6 +544,18 @@ public class MainController extends UiController{
 
     private void disableKeyboardShortcutOnNode(Node pane) {
         pane.addEventHandler(EventType.ROOT, event -> event.consume());
+    }
+
+    public Consumer<String> getUpdateMessageReader() {
+        return statusBarFooterController.getUpdateMessageReader();
+    }
+
+    public Consumer<UpdateProgressNotifier.Status> getUpdateStatusReader() {
+        return statusBarFooterController.getUpdateStatusReader();
+    }
+
+    public Consumer<Long> getUpdateProgressReader() {
+        return statusBarFooterController.getUpdateProgressReader();
     }
 
     @Subscribe

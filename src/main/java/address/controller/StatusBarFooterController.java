@@ -1,6 +1,7 @@
 package address.controller;
 
 import address.events.*;
+import address.updater.UpdateProgressNotifier;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
@@ -13,6 +14,10 @@ import org.controlsfx.control.StatusBar;
 
 import java.io.File;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
+
+import static address.updater.UpdateProgressNotifier.Status.FAILED;
+import static address.updater.UpdateProgressNotifier.Status.FINISHED;
 
 public class StatusBarFooterController extends UiController {
 
@@ -113,34 +118,24 @@ public class StatusBarFooterController extends UiController {
         }
     }
 
-    @Subscribe
-    public void handleUpdaterInProgressEvent(UpdaterInProgressEvent uipe) {
-        Platform.runLater(() -> {
-            updaterStatusBar.setText(uipe.toString());
-            updaterStatusBar.setProgress(uipe.getProgress());
-        });
+    public Consumer<String> getUpdateMessageReader() {
+        return message -> Platform.runLater(() -> updaterStatusBar.setText(message));
     }
 
-    @Subscribe
-    public void handleUpdaterCompletedEvent(UpdaterFinishedEvent ufe) {
-        Platform.runLater(() -> {
-            updaterStatusBar.setText(ufe.toString());
-            updaterStatusBar.setProgress(0.0);
-            showSecondaryStatusBarLabel();
-        });
+    public Consumer<Long> getUpdateProgressReader() {
+        return progress -> Platform.runLater(() -> updaterStatusBar.setProgress(progress));
     }
 
     private void showSecondaryStatusBarLabel() {
         secondaryStatusBarLabel.setVisible(true);
-        this.updaterStatusBar.getRightItems().add(secondaryStatusBarLabel);
+        updaterStatusBar.getRightItems().add(secondaryStatusBarLabel);
     }
 
-    @Subscribe
-    public void handleUpdaterFailedEvent(UpdaterFailedEvent ufe) {
-        Platform.runLater(() -> {
-            updaterStatusBar.setText(ufe.toString());
-            updaterStatusBar.setProgress(0.0);
-            showSecondaryStatusBarLabel();
+    public Consumer<UpdateProgressNotifier.Status> getUpdateStatusReader() {
+        return status -> Platform.runLater(() -> {
+            if (status == FAILED || status == FINISHED) {
+                showSecondaryStatusBarLabel();
+            }
         });
     }
 

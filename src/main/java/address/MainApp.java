@@ -8,6 +8,7 @@ import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
+import address.updater.UpdateProgressNotifier;
 import hubturbo.updater.UpdateManager;
 import address.util.*;
 
@@ -113,7 +114,7 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
-        if (ManifestFileReader.isRunFromJar()) updateManager.start();
+        if (ManifestFileReader.isRunFromJar()) updateManager.start(ui.getUpdateProgressNotifier());
         storageManager.start();
         syncManager.start();
     }

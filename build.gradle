@@ -84,7 +84,7 @@ allprojects {
             java {
                 srcDir 'src/main/java'
                 include('address/util/OsDetector.java')
-                include('hubturbo/updater/**/*')
+                include('address/updater/**/*')
                 include('address/util/Version.java')
                 include('address/util/VersionData.java')
                 include('address/util/LibraryDescriptor.java')
@@ -101,7 +101,7 @@ allprojects {
                 srcDir 'src/main/java'
                 include('hubturbo/updater/LocalUpdateSpecificationHelper.java')
                 include('hubturbo/updater/LocalUpdateSpecification.java')
-                include('hubturbo/updater/JarUpdater.java')
+                include('hubturbo/updater/UpdateMigrator.java')
             }
         }
         installer {

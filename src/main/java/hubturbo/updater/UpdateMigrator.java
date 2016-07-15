@@ -1,4 +1,4 @@
-package address.updater;
+package hubturbo.updater;
 
 import commons.FileUtil;
 import hubturbo.updater.LocalUpdateSpecificationHelper;
@@ -29,7 +29,7 @@ import java.util.concurrent.Executors;
  * --update-specification the update specification file on which files to be updated
  * --source-dir the main directory which files to be updated
  */
-public class JarUpdater extends Application {
+public class UpdateMigrator extends Application {
     private static final int MAX_RETRIES = 10;
     private static final int WAIT_TIME = 2000;
     private static final String UPDATE_SPECIFICATION_KEY = "update-specification";

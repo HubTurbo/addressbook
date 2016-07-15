@@ -1,5 +1,6 @@
 package hubturbo.updater;
 
+import address.updater.UpdateProgressNotifier;
 import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import commons.FileUtil;
@@ -35,7 +36,7 @@ public class UpdateManager {
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR installer";
     private static final String MSG_FAIL_UPDATE_NOT_SUPPORTED = "Update not supported on detected OS";
-    private static final String MSG_FAIL_OBTAIN_LATEST_VERSION_DATA = "Unable to obtain latest version data. Update to the latest version might not be supported. Please manually download the latest version.";
+    private static final String MSG_FAIL_OBTAIN_LATEST_VERSION_DATA = "Unable to obtain latest version data. Please manually download the latest version.";
     private static final String MSG_NO_UPDATE = "There is no update";
     private static final String MSG_FAIL_READ_LATEST_VERSION = "Error reading latest version";
     private static final String MSG_NO_NEWER_VERSION = "No newer version to be downloaded";
@@ -59,6 +60,7 @@ public class UpdateManager {
     private final BackupHandler backupHandler;
     private final Version currentVersion;
     private final List<Version> downloadedVersions;
+    private UpdateProgressNotifier updateProgressNotifier;
 
     private boolean isUpdateApplicable;
 
@@ -71,26 +73,27 @@ public class UpdateManager {
         downloadedVersions = getDownloadedVersionsFromFile(DOWNLOADED_VERSIONS_FILE);
     }
 
-    public void start() {
+    public void start(UpdateProgressNotifier updateProgressNotifier) {
+        this.updateProgressNotifier = updateProgressNotifier;
         pool.execute(backupHandler::cleanupBackups);
         pool.execute(this::checkForUpdate);
     }
 
     private void checkForUpdate() {
-        //raise(new UpdaterInProgressEvent("Clearing local update specification file", -1));
+        updateProgressNotifier.sendStatusInProgress("Clearing local update specification file", -1);
         try {
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
-            //    raise(new UpdaterFailedEvent(MSG_FAIL_DELETE_UPDATE_SPEC));
+            updateProgressNotifier.sendStatusFailed(MSG_FAIL_DELETE_UPDATE_SPEC);
             return;
         }
 
-        //raise(new UpdaterInProgressEvent("Getting data from server", -1));
+        updateProgressNotifier.sendStatusInProgress("Getting data from server", -1);
         VersionData latestData;
         try {
             latestData = getLatestDataFromServer();
         } catch (IOException e) {
-            //  raise(new UpdaterFailedEvent(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA));
+            updateProgressNotifier.sendStatusFailed(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA);
             return;
         }
 
@@ -98,7 +101,7 @@ public class UpdateManager {
         try {
             latestVersion = getVersion(latestData);
         } catch (IllegalArgumentException e) {
-            //raise(new UpdaterFailedEvent(MSG_FAIL_READ_LATEST_VERSION));
+            updateProgressNotifier.sendStatusFailed(MSG_FAIL_READ_LATEST_VERSION);
             return;
         }
 
@@ -106,48 +109,48 @@ public class UpdateManager {
         assert isOnSameReleaseChannel(latestVersion) : "Error: latest version found to be in the wrong release channel";
 
         if (currentVersion.compareTo(latestVersion) >= 0) {
-            //raise(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
+            updateProgressNotifier.sendStatusFinished(MSG_NO_NEWER_VERSION);
             return;
         }
 
-        //raise(new UpdaterInProgressEvent("Collecting all update files to be downloaded", -1));
+        updateProgressNotifier.sendStatusInProgress("Collecting all update files to be downloaded", -1);
         HashMap<String, URL> filesToBeUpdated;
         try {
             filesToBeUpdated = getFilesToDownload(latestData);
         } catch (UnsupportedOperationException e) {
-            //  raise(new UpdaterFailedEvent(MSG_FAIL_UPDATE_NOT_SUPPORTED));
+            updateProgressNotifier.sendStatusFailed(MSG_FAIL_UPDATE_NOT_SUPPORTED);
             return;
         }
 
         if (filesToBeUpdated.isEmpty()) {
-            //raise(new UpdaterFinishedEvent(MSG_NO_UPDATE));
+            updateProgressNotifier.sendStatusFinished(MSG_NO_UPDATE);
             return;
         }
 
         try {
             downloadFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
         } catch (IOException e) {
-            //raise(new UpdaterFailedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
+            updateProgressNotifier.sendStatusFailed(MSG_FAIL_DOWNLOAD_UPDATE);
             return;
         }
 
-        //raise(new UpdaterInProgressEvent("Finalizing updates", -1));
+        updateProgressNotifier.sendStatusInProgress("Finalizing updates", -1);
 
         try {
             createUpdateSpecification(filesToBeUpdated);
         } catch (IOException e) {
-            //  raise(new UpdaterFailedEvent(MSG_FAIL_CREATE_UPDATE_SPEC));
+            updateProgressNotifier.sendStatusFailed(MSG_FAIL_CREATE_UPDATE_SPEC);
             return;
         }
         
         try {
             extractJarUpdater();
         } catch (IOException e) {
-            //raise(new UpdaterFailedEvent(MSG_FAIL_EXTRACT_JAR_UPDATER));
+            updateProgressNotifier.sendStatusFailed(MSG_FAIL_EXTRACT_JAR_UPDATER);
             return;
         }
 
-//        raise(new UpdaterFinishedEvent(MSG_UPDATE_FINISHED));
+        updateProgressNotifier.sendStatusFinished(MSG_UPDATE_FINISHED);
         isUpdateApplicable = true;
         downloadedVersions.add(latestVersion);
     }
@@ -335,8 +338,8 @@ public class UpdateManager {
     }
 
     /**
-     * Extract the JarUpdater resource into an external jar to prepare for updating upon app closure
-     * Replaces any existing JarUpdater found
+     * Extract the UpdateMigrator resource into an external jar to prepare for updating upon app closure
+     * Replaces any existing UpdateMigrator found
      *
      * @throws IOException
      */
