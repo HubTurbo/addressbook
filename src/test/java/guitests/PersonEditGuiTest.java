@@ -116,15 +116,16 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterFirstName("Peter");
         editPersonDialog.enterLastName("");
         editPersonDialog.clickOk();
-        /* Throw IncompatibleClassChangeError
+
         assertTrue(editPersonDialog.isInputValidationErrorDialogShown());
         editPersonDialog.dissmissErrorMessage("Invalid Fields");
         Assert.assertFalse(editPersonDialog.isInputValidationErrorDialogShown());
-        */
+        
     }
 
     @Test
     public void cancelPerson_usingAccelerator() {
+
 
         //Delete
         personListPanel.use_LIST_GOTO_TOP_SEQUENCE();
@@ -180,6 +181,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         guiRobot.sleep(1000);
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
+
     }
 
 }
