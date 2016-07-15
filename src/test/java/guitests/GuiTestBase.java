@@ -4,9 +4,11 @@ import address.TestApp;
 import address.events.EventManager;
 import address.model.datatypes.AddressBook;
 import address.sync.cloud.model.CloudAddressBook;
+import address.testutil.ScreenShotRule;
 import address.testutil.TypicalTestData;
 import address.testutil.TestUtil;
 import address.util.Config;
+import com.google.common.io.Files;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.MainGuiHandle;
 import guitests.guihandles.MainMenuHandle;
@@ -15,11 +17,22 @@ import javafx.stage.Stage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestName;
+import org.loadui.testfx.GuiTest;
 import org.testfx.api.FxToolkit;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 public class GuiTestBase {
+
+    @Rule
+    public ScreenShotRule screenShotRule = new ScreenShotRule();
+
+    @Rule
+    public TestName name = new TestName();
 
     TestApp testApp;
     GuiRobot guiRobot = new GuiRobot(); //TODO: remove this from here, only *Handle objects should use the robot
@@ -97,9 +110,14 @@ public class GuiTestBase {
 
     @After
     public void cleanup() throws TimeoutException {
+        File file = GuiTest.captureScreenshot();
+        try {
+            Files.copy(file, new File(this.getClass().getName() + name.getMethodName() + ".png"));
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
         FxToolkit.cleanupStages();
         testApp.deregisterHotKeys();
     }
-
 
 }
