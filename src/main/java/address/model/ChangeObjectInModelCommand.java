@@ -2,12 +2,11 @@ package address.model;
 
 import address.util.AppLogger;
 import address.util.LoggerManager;
-import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 
 import java.util.Optional;
 import java.util.concurrent.*;
-import java.util.function.Supplier;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
 import static address.model.SingleTargetCommandResult.CommandStatus;
@@ -15,8 +14,6 @@ import static address.model.SingleTargetCommandResult.CommandStatus;
 /**
  * Framework-style superclass for all commands that would cause changes for single domain objects in the model,
  * and have it optimistically reflected on the UI. Internal logic approximates a finite state machine.
- * Abstract methods with return type  {@code State} are intended to implement state transition rules and command logic
- * through side effects.
  *
  * Should be run OUTSIDE THE FX THREAD because the {@link #run()} method involves blocking calls.
  */
@@ -24,22 +21,26 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
 
     public enum State {
         // Initial state
-        NEWLY_CREATED ("Newly Created"),
+        NEWLY_CREATED               ("Newly Created"),
 
         // Intermediate states
-        RETRIEVING_INPUT ("Retrieving Input"),
-        SIMULATING_RESULT ("Optimistically Simulating Result"),
-        GRACE_PERIOD ("Pending / Grace Period"),
-        CHECKING_AND_RESOLVING_REMOTE_CONFLICT ("Handling any Remote Conflicts"),
-        REQUESTING_REMOTE_CHANGE ("Request to Remote"),
+        RETRIEVING_INPUT            ("Retrieving Input"),
+        SIMULATING_RESULT           ("Optimistically Simulating Result"),
+        GRACE_PERIOD                ("Pending / Grace Period"),
+        CHECKING_REMOTE_CONFLICT    ("Checking Remote for Unseen Changes"),
+        REQUESTING_REMOTE_CHANGE    ("Requesting Change to Remote"),
+
+        // Requires resolution
+        CONFLICT_FOUND              ("Conflict on Remote"),
+        REQUEST_FAILED              ("Remote Request Failed", CommandStatus.FAILED),
 
         // Terminal states
-        CANCELLED ("Cancelled", CommandStatus.CANCELLED),
-        SUCCESSFUL ("Successful", CommandStatus.SUCCESSFUL),
-        FAILED ("Failed", CommandStatus.FAILED);
+        CANCELLED                   ("Cancelled", CommandStatus.CANCELLED),
+        SUCCESSFUL                  ("Successful", CommandStatus.SUCCESSFUL);
 
         private final String descr;
         private final Optional<CommandStatus> resultStatusMapping;
+
         State(String descr) {
             this.descr = descr;
             resultStatusMapping = Optional.empty();
@@ -48,10 +49,12 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
             this.descr = descr;
             this.resultStatusMapping = Optional.of(resultStatusMapping);
         }
+
         @Override
         public String toString() {
             return descr;
         }
+
         public CommandStatus toResultStatus() {
             if (resultStatusMapping.isPresent()) {
                 return resultStatusMapping.get();
@@ -59,23 +62,29 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
                 throw new UnsupportedOperationException();
             }
         }
+
+        /**
+         * @return true if this is one of the terminal states.
+         */
+        public boolean isTerminal() {
+            return this == CANCELLED || this == SUCCESSFUL;
+        }
     }
 
-    private static final AppLogger logger = LoggerManager.getLogger(ChangeObjectInModelCommand.class);
+    protected final AppLogger logger = LoggerManager.getLogger(this.getClass());
 
     private final int commandId;
 
-    private final CountDownLatch completionLatch;
     protected final int gracePeriodDurationInSeconds;
-    protected final ObjectProperty<State> state; // current state
+    protected final Property<State> state; // current state
 
-    // Alternate state transition path caused by an interrupting signal during the grace period
-    private CompletableFuture<Supplier<State>> overrideGracePeriod;
+    private final CountDownLatch completionLatch; // blocking completion flag
+    private final CountDownLatch cancelledLatch; // blocking cancellation flag
     
     {
-        completionLatch = new CountDownLatch(1);
+        completionLatch = new CountDownLatch(1); // irreversible flag
+        cancelledLatch = new CountDownLatch(1); // irreversible flag
         state = new SimpleObjectProperty<>(NEWLY_CREATED);
-        clearGracePeriodOverride();
     }
 
     protected ChangeObjectInModelCommand(int commandId, int gracePeriodDurationInSeconds) {
@@ -87,8 +96,18 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         return commandId;
     }
 
+    /**
+     * Blocks until this command finishes execution by reaching terminal state.
+     */
     public void waitForCompletion() throws InterruptedException {
         completionLatch.await();
+    }
+
+    /**
+     * Request to cancel this command.
+     */
+    void cancelCommand() {
+        cancelledLatch.countDown();
     }
 
     public State getState() {
@@ -100,60 +119,10 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     }
 
     /**
-     * @see #countdownGracePeriodAndHandleOverrides()
-     * @param alternateStateTransition will override the default grace period state transition
+     * Hook that runs before new states are handled
      */
-    protected void signalGracePeriodOverride(Supplier<State> alternateStateTransition) {
-        if (getState() != GRACE_PERIOD) {
-            LoggerManager.getLogger(this.getClass()).warn("Overriding signal received outside of grace period");
-        }
-        final boolean hasExistingValue = !overrideGracePeriod.complete(alternateStateTransition);
-        if (hasExistingValue) {
-            overrideGracePeriod.obtrudeValue(alternateStateTransition);
-        }
-    }
-
-    /**
-     * Clears any grace period overriding state transition functions such that
-     * {@link #countdownGracePeriodAndHandleOverrides()} will have to wait for any new overrides instead of using the
-     * previously existing override.
-     *
-     * @see #signalGracePeriodOverride(Supplier)
-     */
-    protected void clearGracePeriodOverride() {
-        overrideGracePeriod = new CompletableFuture<>();
-    }
-
-    @Override
-    public final void run() {
-        before();
-
-        // Runs FSM till one of terminal states is reached.
-        while (!isTerminal(getState())) {
-            logger.debug("HandleAndTransitionState before: " + getState().toString());
-            setState(handleAndTransitionState(getState()));
-            logger.debug("HandleAndTransitionState after: " + getState().toString());
-        }
-
-        logger.debug("Reached terminal state " + getState().toString());
-
-        // handle terminal states
-        switch (getState()) {
-        case CANCELLED :
-            finishWithCancel();
-            break;
-        case SUCCESSFUL :
-            finishWithSuccess();
-            break;
-        case FAILED :
-            finishWithFailure();
-            break;
-        default :
-            assert false;
-        }
-
-        after();
-        completionLatch.countDown();
+    protected void beforeState(State currentState) {
+        // override to inject code
     }
 
     /**
@@ -178,151 +147,141 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      */
     protected abstract void finishWithSuccess();
 
-    /**
-     * Runs when the terminal {@link State#FAILED} state is reached.
-     */
-    protected abstract void finishWithFailure();
+    @Override
+    public final void run() {
+        before();
 
-    /**
-     * @return true if {@code state} is one of the terminal states.
-     */
-    private boolean isTerminal(State state) {
-        return state == CANCELLED || state == SUCCESSFUL || state == FAILED;
+        // Runs FSM till one of terminal states is reached.
+        while (!getState().isTerminal()) {
+            logger.debug("Handling state: " + getState().name());
+            setState(handleAndTransitionState(getState()));
+        }
+
+        logger.debug("Reached terminal state " + getState().name());
+
+        // handle terminal states
+        beforeState(getState());
+        switch (getState()) {
+            case CANCELLED :
+                finishWithCancel();
+                break;
+            case SUCCESSFUL :
+                finishWithSuccess();
+                break;
+            default :
+                assert false;
+        }
+
+        after();
+        completionLatch.countDown();
     }
 
     /**
-     * FSM engine to multiplex and run side-effect logic and determine next state
+     * FSM engine to multiplex and run side-effect logic transition state
      * @param state state to be considered
      * @return next state
      */
     private State handleAndTransitionState(State state) {
+        beforeState(state);
         switch (state) {
-
-        case RETRIEVING_INPUT :
-            return retrieveInput();
-
-        case SIMULATING_RESULT :
-            return simulateResult();
-
-        case GRACE_PERIOD:
-            return countdownGracePeriodAndHandleOverrides();
-
-        case CHECKING_AND_RESOLVING_REMOTE_CONFLICT :
-            return checkAndHandleRemoteConflict();
-
-        case REQUESTING_REMOTE_CHANGE :
-            return requestChangeToRemote();
-
         case NEWLY_CREATED :
             return RETRIEVING_INPUT;
 
+        case RETRIEVING_INPUT :
+            return retrieveValidInput() ?
+                    SIMULATING_RESULT : CANCELLED;
+
+        case SIMULATING_RESULT :
+            simulateResult();
+            return GRACE_PERIOD;
+
+        case GRACE_PERIOD:
+            return gracePeriodCountdownAndTransition();
+
+        case CHECKING_REMOTE_CONFLICT:
+            return checkForRemoteConflict() ?
+                    CONFLICT_FOUND : REQUESTING_REMOTE_CHANGE;
+
+        case CONFLICT_FOUND:
+            handleRemoteConflict();
+            return CANCELLED; // Any recovery should be done by spawning a new command
+
+        case REQUESTING_REMOTE_CHANGE :
+            return requestRemoteChange() ?
+                    SUCCESSFUL : REQUEST_FAILED;
+
+        case REQUEST_FAILED:
+            handleRemoteRequestFailed();
+            return CANCELLED; // Any recovery should be done by spawning a new command
+
         default :
-            assert false : "Implement handling for any new states!";
-            throw new AssertionError("Incomplete implementation!");
+            throw new AssertionError("Incomplete implementation!"); // Implement handling for any new states!
         }
     }
 
     /**
      * Retrieves and stores command input via side effects.
-     * @return next state
+     * @see #simulateResult()
+     * @return true if valid input was received, false if invalid or cancelled.
      */
-    protected abstract State retrieveInput();
+    protected abstract boolean retrieveValidInput();
 
     /**
      * Optimistically simulates the result of this command.
-     * @return next state
+     * @see #retrieveValidInput()
      */
-    protected abstract State simulateResult();
+    protected abstract void simulateResult();
 
     /**
      * State transition for {@link State#GRACE_PERIOD}.
+     * This grace period phase allows the user to cancel the command with minimal cost.
      *
      * Updates {@link #handleChangeToSecondsLeftInGracePeriod(int)} whenever seconds remaining in the
      * grace period countdown changes.
      *
-     * This grace period phase allows signals to interrupt and override the execution and state transition path
-     * Partial support is offered for a 'cancel' signal.
-     * Some examples:
-     *      - a request to cancel and undo this command ({@link #cancelInGracePeriod()})
-     *      - a request to override this command with another command (eg. edit/delete)
-     * Such interruptions can change the execution path and which state comes next.
-     *
-     *
-     * @see #signalGracePeriodOverride(Supplier)
-     * @see #cancelInGracePeriod()
-     * @see #handleCancelInGracePeriod()
-     *
+     * @see #cancelCommand()
      * @return next state
      */
-    private State countdownGracePeriodAndHandleOverrides() {
-
-        beforeGracePeriod();
-
-        // Countdown loop that listens for any overriding signals
+    private State gracePeriodCountdownAndTransition() {
+        // Countdown loop, checks for cancel signal
         for (int i = gracePeriodDurationInSeconds; i > 0; i--) {
             handleChangeToSecondsLeftInGracePeriod(i);
 
             try {
-                // Wait for overriding signal issued during grace period; custom state transition
-                final State next = overrideGracePeriod.get(1, TimeUnit.SECONDS).get();
-                overrideGracePeriod = new CompletableFuture<>();
-                handleChangeToSecondsLeftInGracePeriod(0); // signify end of grace period
-                return next;
-
-            } catch (TimeoutException e) {
-                // no overriding signal this past second
-            } catch (InterruptedException | ExecutionException e) {
+                // wait 1 second for cancellation signal
+                if (cancelledLatch.await(1, TimeUnit.SECONDS)) {
+                    handleChangeToSecondsLeftInGracePeriod(0); // signify end of grace period
+                    return CANCELLED;
+                }
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        handleChangeToSecondsLeftInGracePeriod(0);
-        // default state transition
-        return CHECKING_AND_RESOLVING_REMOTE_CONFLICT;
+
+        handleChangeToSecondsLeftInGracePeriod(0); // signify end of grace period
+        return CHECKING_REMOTE_CONFLICT; // not cancelled
     }
 
     /**
-     * Hook that runs when the state enters {@link State#GRACE_PERIOD} right before the countdown starts.
-     */
-    protected abstract void beforeGracePeriod();
-
-    /**
      * Hook that gets called every time number of seconds left in the grace period changes.
-     * @see #countdownGracePeriodAndHandleOverrides()
+     * @see #gracePeriodCountdownAndTransition()
      */
     protected abstract void handleChangeToSecondsLeftInGracePeriod(int secondsLeft);
 
     /**
-     * Request to cancel this command. Only works if called while command is in the grace period state.
-     *
-     * @see #handleCancelInGracePeriod()
-     * @see #countdownGracePeriodAndHandleOverrides()
+     * Checks for any unseen remote changes to this command's target since this command was started.
+     * @see State#CONFLICT_FOUND
+     * @return true if a remote conflict was found, false otherwise.
      */
-    synchronized void cancelInGracePeriod() {
-        signalGracePeriodOverride(this::handleCancelInGracePeriod);
-    }
-
+    protected abstract boolean checkForRemoteConflict();
 
     /**
-     * When the 'cancel' overriding signal is received (from {@link #cancelInGracePeriod()}) during the grace period,
-     * this method takes over the state transition path and execution.
-     * Will be called from the {@link #run()} thread.
-     *
-     * @see #countdownGracePeriodAndHandleOverrides()
-     * @see #cancelInGracePeriod()
-     * @see State#CANCELLED
-     * @return next state
+     * Runs when {@link State#CONFLICT_FOUND} is reached.
+     * After this method completes, the command is {@link State#CANCELLED}, perform all prompts and informing the user
+     * in this method, then recovery should utilise a new command.
+     * @see #handleRemoteRequestFailed()
      */
-    protected abstract State handleCancelInGracePeriod();
-
-    /**
-     * State transition for {@link State#CHECKING_AND_RESOLVING_REMOTE_CONFLICT}
-     *
-     * Checks for any remote changes to this command's data object since this command was started,
-     * then handles any conflicts found.
-     *
-     * @return next state
-     */
-    protected abstract State checkAndHandleRemoteConflict();
+    protected abstract void handleRemoteConflict();
 
     /**
      * State transition for {@link State#REQUESTING_REMOTE_CHANGE}
@@ -331,8 +290,17 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      * Handles the response from the remote server.
      *
      * @see State#SUCCESSFUL
-     * @see State#FAILED
-     * @return next state
+     * @see State#REQUEST_FAILED
+     * @return true if the change was successful, false otherwise
      */
-    protected abstract State requestChangeToRemote();
+    protected abstract boolean requestRemoteChange();
+
+    /**
+     * Runs when {@link State#REQUEST_FAILED} is reached.
+     * After this method completes, the command is {@link State#CANCELLED}, perform all prompts and informing the user
+     * in this method, then recovery should utilise a new command.
+     * @see #handleRemoteConflict()
+     */
+    protected abstract void handleRemoteRequestFailed();
+
 }
