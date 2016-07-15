@@ -31,15 +31,15 @@ public class PersonCardHandle extends GuiHandle {
     }
 
     public boolean isPendingStateLabelVisible() {
-        return getNode(PENDING_STATE_LABEL_FIELD_ID).isVisible();
+        return node.lookup(PENDING_STATE_LABEL_FIELD_ID).isVisible();
     }
 
     public boolean isPendingStateProgressIndicatorVisible() {
-        return getNode(PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID).isVisible();
+        return node.lookup(PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID).isVisible();
     }
 
     public boolean isPendingStateCountDownVisible() {
-        return getNode(PENDING_STATE_COUNTDOWN_FIELD_ID).isVisible();
+        return node.lookup(PENDING_STATE_COUNTDOWN_FIELD_ID).isVisible();
     }
 
     public String getPendingStateLabel() {

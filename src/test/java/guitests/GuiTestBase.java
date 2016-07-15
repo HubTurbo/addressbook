@@ -59,7 +59,6 @@ public class GuiTestBase {
                                                      this::selectFromInitialCloudData));
         FxToolkit.showStage();
         while(!stage.isShowing());
-        guiRobot.sleep(5000);
     }
 
     /**

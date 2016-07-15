@@ -31,7 +31,7 @@ public class GuiHandle {
     public <T> T as(Class<? extends GuiHandle> clazz) {
         try {
             Constructor<?> ctor = clazz.getConstructor(GuiRobot.class, Stage.class);
-            Object object = ctor.newInstance(new Object[] { guiRobot, primaryStage });
+            Object object = ctor.newInstance(new Object[] { guiRobot, primaryStage});
             return (T)object;
         } catch (Exception e) {
             throw new RuntimeException("Cannot create gui handle of type " + clazz.getName(), e);

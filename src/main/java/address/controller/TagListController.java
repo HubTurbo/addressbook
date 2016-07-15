@@ -21,7 +21,7 @@ public class TagListController extends UiController{
     ModelManager modelManager;
 
     @FXML
-    private AnchorPane mainPane;
+    private AnchorPane tagListMainPane;
     @FXML
     private ScrollPane tagListTags;
 
