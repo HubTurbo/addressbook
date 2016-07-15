@@ -194,10 +194,12 @@ allprojects {
         }
     }
 
+    // Delete previous versions of commons.jar
     task deleteCommonsJar(type: Delete) {
         delete "lib/commons.jar"
     }
 
+    // Compile commons.jar
     task createCommonsJar(type: Jar) {
         archiveName = "commons.jar"
 
@@ -205,6 +207,7 @@ allprojects {
     }
     createCommonsJar.dependsOn deleteCommonsJar
 
+    // Copies generated jar into lib/
     task copyCommonsJarToLibrary(type: Copy) {
         from(tasks.createCommonsJar.destinationDir) {
             include("commons.jar")
@@ -213,10 +216,12 @@ allprojects {
     }
     copyCommonsJarToLibrary.dependsOn createCommonsJar
 
+    // Deletes previous version of updateMigrator.jar
     task deleteUpdateMigratorJar(type: Delete) {
         delete "lib/updateMigrator.jar"
     }
 
+    // Compiles updateMigrator.jar
     task createUpdateMigratorJar(type: Jar) {
         archiveName = "updateMigrator.jar"
 
@@ -225,9 +230,10 @@ allprojects {
         }
         from sourceSets.updateMigrator.output
     }
-    createUpdateMigratorJar.dependsOn copyCommonsJarToLibrary
+    createUpdateMigratorJar.dependsOn copyCommonsJarToLibrary // Update migrator requires commons.jar dependency
     createUpdateMigratorJar.dependsOn deleteUpdateMigratorJar
 
+    // Copies generated jar into resources folder: UpdateManager manager will launch this manually
     task copyUpdateMigratorJarToLibraryResource(type: Copy) {
         from(tasks.createUpdateMigratorJar.destinationDir) {
             include("updateMigrator.jar")
@@ -236,10 +242,12 @@ allprojects {
     }
     copyUpdateMigratorJarToLibraryResource.dependsOn createUpdateMigratorJar
 
+    // Deletes previous version of updater.jar
     task deleteUpdaterJar(type: Jar) {
         delete "lib/updater.jar"
     }
 
+    // Creates updater.jar
     task createUpdaterJar(type: Jar) {
         archiveName = "updater.jar"
 
@@ -248,6 +256,7 @@ allprojects {
     createUpdaterJar.dependsOn copyUpdateMigratorJarToLibraryResource
     createUpdaterJar.dependsOn deleteUpdaterJar
 
+    // Copies updater.jar to lib/
     task copyUpdaterJarToLibrary(type: Copy) {
         from(tasks.createUpdaterJar.destinationDir) {
             include "updater.jar"
@@ -256,6 +265,7 @@ allprojects {
     }
     copyUpdaterJarToLibrary.dependsOn createUpdaterJar
 
+    // Main application jar
     jar {
         archiveName = "resource.jar"
 
@@ -270,6 +280,7 @@ allprojects {
     }
     jar.dependsOn copyUpdaterJarToLibrary
 
+    // Copies main application into lib/
     task copyResourceToLibrary(type: Copy) {
         from(tasks.jar.destinationDir) {
             include('resource.jar')
@@ -278,8 +289,9 @@ allprojects {
     }
     copyResourceToLibrary.dependsOn jar
 
+    // Creates the installer, which will pack necessary classes for installation and all dependencies found in lib/
     task createInstallerJar(type: Jar) {
-        archiveName = "installer.jar"
+        archiveName = "addressbook.jar"
         from sourceSets.installer.output
 
         manifest {
@@ -288,6 +300,19 @@ allprojects {
         }
     }
     createInstallerJar.dependsOn copyResourceToLibrary
+
+     task generateVersionData(type: JavaExec) {
+        group = "Release"
+
+        def arguments = project.ext.mainAppArchiveName + " ";
+        arguments += configurations.runtime.files.collect { "$it.name" }.join(" ")
+
+        classpath = sourceSets.generateVersionData.runtimeClasspath
+
+        main = 'hubturbo.installer.VersionDataGenerator'
+
+        args arguments.split()
+    }
 
     jacoco {
         toolVersion = "0.7.5.201505241946"
