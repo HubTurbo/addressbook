@@ -12,11 +12,11 @@ public class UpdateProgressNotifier {
     }
 
     private Consumer<String> messageReader;
-    private Consumer<Long> progressReader;
+    private Consumer<Double> progressReader;
     private Consumer<Status> statusReader;
 
     public UpdateProgressNotifier(Consumer<String> messageReader,
-                                  Consumer<Long> progressReader,
+                                  Consumer<Double> progressReader,
                                   Consumer<Status> statusReader) {
         this.messageReader = messageReader;
         this.progressReader = progressReader;
@@ -27,7 +27,7 @@ public class UpdateProgressNotifier {
         messageReader.accept(updateMessage);
     }
 
-    private void sendUpdateProgress(long updateProgress) {
+    private void sendUpdateProgress(double updateProgress) {
         progressReader.accept(updateProgress);
     }
 
@@ -37,17 +37,17 @@ public class UpdateProgressNotifier {
 
     public void sendStatusFinished(String message) {
         sendUpdateMessage(message);
-        sendUpdateProgress(new Long("0"));
+        sendUpdateProgress(0.0);
         sendStatus(Status.FINISHED);
     }
 
     public void sendStatusFailed(String message) {
         sendUpdateMessage(message);
-        sendUpdateProgress(new Long("0"));
+        sendUpdateProgress(0.0);
         sendStatus(Status.FAILED);
     }
 
-    public void sendStatusInProgress(String message, long progress) {
+    public void sendStatusInProgress(String message, double progress) {
         sendUpdateMessage(message);
         sendUpdateProgress(progress);
         sendStatus(Status.IN_PROGRESS);

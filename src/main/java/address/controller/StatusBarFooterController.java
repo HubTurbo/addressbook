@@ -122,7 +122,7 @@ public class StatusBarFooterController extends UiController {
         return message -> Platform.runLater(() -> updaterStatusBar.setText(message));
     }
 
-    public Consumer<Long> getUpdateProgressReader() {
+    public Consumer<Double> getUpdateProgressReader() {
         return progress -> Platform.runLater(() -> updaterStatusBar.setProgress(progress));
     }
 

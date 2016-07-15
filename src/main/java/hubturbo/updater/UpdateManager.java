@@ -274,7 +274,7 @@ public class UpdateManager {
             downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
             noOfFilesDownloaded++;
             double progress = (1.0 * noOfFilesDownloaded) / totalFilesToDownload;
-            //raise(new UpdaterInProgressEvent("Downloading updates", progress));
+            updateProgressNotifier.sendStatusInProgress("Downloading updates", progress);
         }
     }
 

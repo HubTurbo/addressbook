@@ -554,7 +554,7 @@ public class MainController extends UiController{
         return statusBarFooterController.getUpdateStatusReader();
     }
 
-    public Consumer<Long> getUpdateProgressReader() {
+    public Consumer<Double> getUpdateProgressReader() {
         return statusBarFooterController.getUpdateProgressReader();
     }
 
