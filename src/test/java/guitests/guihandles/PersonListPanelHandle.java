@@ -53,7 +53,15 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public boolean isSelected(String firstName, String lastName) {
-        return getSelectedPerson().hasName(firstName, lastName);
+        int count = 0;
+        while(count < 10) {
+            if (getSelectedPerson().hasName(firstName, lastName)){
+                return true;
+            }
+            count ++;
+            guiRobot.sleep(500);
+        }
+        return false;
     }
 
     public boolean isSelected(Person person) {
