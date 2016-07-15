@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * Data required for the update will be downloaded in the background while the app is running,
  * and the updates will automatically be applied using a separate application only after the user closes the app
  */
-public class UpdateManager {
+public class Updater {
     public static final String UPDATE_DIR = "update";
 
     // --- Messages
@@ -64,7 +64,7 @@ public class UpdateManager {
 
     private boolean isUpdateApplicable;
 
-    public UpdateManager(Version currentVersion) {
+    public Updater(Version currentVersion) {
         super();
         isUpdateApplicable = false;
         dependencyHistoryHandler = new DependencyHistoryHandler(currentVersion);
@@ -321,7 +321,7 @@ public class UpdateManager {
     }
 
     private InputStream getResourceStream(String resourcePath) {
-        return UpdateManager.class.getClassLoader().getResourceAsStream(resourcePath);
+        return Updater.class.getClassLoader().getResourceAsStream(resourcePath);
     }
 
     private InputStream getUrlStream(URL source) throws IOException {
@@ -344,7 +344,7 @@ public class UpdateManager {
      * @throws IOException
      */
     private void extractJarUpdater() throws IOException {
-        assert UpdateManager.class.getClassLoader().getResource(JAR_UPDATER_RESOURCE_PATH) != null : "Jar installer resource cannot be found";
+        assert Updater.class.getClassLoader().getResource(JAR_UPDATER_RESOURCE_PATH) != null : "Jar installer resource cannot be found";
 
         File jarUpdaterFile = new File(JAR_UPDATER_APP_PATH);
 

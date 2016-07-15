@@ -8,8 +8,7 @@ import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
-import address.updater.UpdateProgressNotifier;
-import hubturbo.updater.UpdateManager;
+import hubturbo.updater.Updater;
 import address.util.*;
 
 import javafx.application.Application;
@@ -42,7 +41,7 @@ public class MainApp extends Application {
     protected StorageManager storageManager;
     protected ModelManager modelManager;
     protected SyncManager syncManager;
-    protected UpdateManager updateManager;
+    protected Updater updater;
     protected RemoteManager remoteManager;
     protected Ui ui;
     protected KeyBindingsManager keyBindingsManager;
@@ -79,11 +78,11 @@ public class MainApp extends Application {
         remoteManager = initRemoteManager(config);
         syncManager = initSyncManager(remoteManager, config);
         keyBindingsManager = initKeyBindingsManager();
-        updateManager = initUpdateManager(VERSION);
+        updater = initUpdateManager(VERSION);
     }
 
-    protected UpdateManager initUpdateManager(Version version) {
-        return new UpdateManager(version);
+    protected Updater initUpdateManager(Version version) {
+        return new Updater(version);
     }
 
     protected KeyBindingsManager initKeyBindingsManager() {
@@ -114,7 +113,7 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
-        if (ManifestFileReader.isRunFromJar()) updateManager.start(ui.getUpdateProgressNotifier());
+        if (ManifestFileReader.isRunFromJar()) updater.start(ui.getUpdateProgressNotifier());
         storageManager.start();
         syncManager.start();
     }
@@ -124,7 +123,7 @@ public class MainApp extends Application {
         logger.info("Stopping application.");
         ui.stop();
         storageManager.savePrefsToFile(userPrefs);
-        updateManager.stop();
+        updater.stop();
         syncManager.stop();
         keyBindingsManager.stop();
         quit();

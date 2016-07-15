@@ -2,9 +2,9 @@
 Updater has the main responsibility of updating the application to a newer version. In doing so,
 it does several things:
 
-- updates the application and the components it depends on, i.e. the libraries JAR that it uses
+- updates, in the background, the application and the components it depends on, i.e. the libraries JAR that it uses
 - maintains backups of the application so that user can use the application even if an update fails
-- maintains dependencies of current version and backup versions and clean up dependencies no longer used
+- maintains dependencies of kept versions and clean up dependencies no longer used
 
 ## How Updater updates the application
 Updater runs when the application starts. It will work as per the diagram below.
@@ -12,7 +12,7 @@ Updater runs when the application starts. It will work as per the diagram below.
 <img src="images/How Updater Works.jpg" width="600">
 
 Update to files will be applied when user closes the application. As a JAR file cannot modify itself,
-a proxy to modify the main application JAR (`addressbook.jar`) is used, named `jarUpdater.jar`. `jarUpdater.jar` will
+a proxy to modify the main application JAR (`addressbook.jar`) is used, named `updateMigrator.jar`. `updateMigrator.jar` will
 apply the update to files (in this case by replacing them with a newer version).
 
 ## Backups and Dependencies Maintenance

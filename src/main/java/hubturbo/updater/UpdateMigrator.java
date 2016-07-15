@@ -62,7 +62,7 @@ public class UpdateMigrator extends Application {
         VBox windowMainLayout = new VBox();
         Scene scene = new Scene(windowMainLayout);
 
-        stage.setTitle("UpdateManager");
+        stage.setTitle("Updater");
         stage.setScene(scene);
 
         Label updatingLabel = getUpdatingLabel();

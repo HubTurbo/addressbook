@@ -1,7 +1,7 @@
 package address.events;
 
 /**
- * An event triggered when UpdateManager failed updating.
+ * An event triggered when Updater failed updating.
  */
 public class UpdaterFailedEvent extends BaseEvent {
     private String message;

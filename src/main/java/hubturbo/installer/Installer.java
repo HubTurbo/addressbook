@@ -40,16 +40,7 @@ public class Installer {
             createLibraryDir();
         } catch (IOException e) {
             throw new IOException("Failed to library directories", e);
-        } catch (NoClassDefFoundError e) {
-            // To remove, only here for dependency checking
-            Platform.runLater(() -> label.setText("Error: " + e));
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
         }
-
 
         Platform.runLater(() -> label.setText("Extracting missing jar files"));
         try {
