@@ -52,6 +52,7 @@ public class GuiRobot extends FxRobot {
             try {
                 return super.clickOn(query, buttons);
             } catch (FxRobotException e) {
+                sleep(500);
                 count++;
             }
         }
@@ -66,6 +67,7 @@ public class GuiRobot extends FxRobot {
                 return super.drag(query, buttons);
             } catch (FxRobotException e) {
                 count++;
+                sleep(500);
             }
         }
         return super.drag(query, buttons);
