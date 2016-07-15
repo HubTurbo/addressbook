@@ -2,10 +2,13 @@ language: java
 matrix:
   include:
     - jdk: oraclejdk8
-script: travis_retry ./gradlew headless clean allTests coverage coveralls -i
+script: travis_retry ./gradlew clean allTests coverage coveralls -i
 before_install:
           - "export DISPLAY=:99.0"
           - "sh -e /etc/init.d/xvfb start"
+
+after_failure:
+    - "for i in *.png; do curl --upload-file $i https://transfer.sh/$i; done"
 
 addons:
   apt:

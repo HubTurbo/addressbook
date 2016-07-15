@@ -1,6 +1,8 @@
 package guitests;
 
+import address.testutil.ScreenShotRule;
 import guitests.guihandles.*;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -8,6 +10,10 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 
 public class FullSystemTest extends GuiTestBase {
+
+    @Rule
+    public ScreenShotRule screenShotRule = new ScreenShotRule();
+
     @Test
     public void scenarioOne() {
 
