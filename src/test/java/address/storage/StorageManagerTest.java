@@ -6,7 +6,7 @@ import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.model.datatypes.AddressBook;
 import address.util.Config;
-import address.util.FileUtil;
+import commons.FileUtil;
 import address.testutil.SerializableTestClass;
 import address.testutil.TestUtil;
 import org.junit.Before;

@@ -1,7 +1,7 @@
-package address.updater;
+package hubturbo.updater;
 
-import address.MainApp;
 import address.util.*;
+import commons.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
  * This class is meant to handle backups of the application
  */
 public class BackupHandler {
-    private static final AppLogger logger = LoggerManager.getLogger(BackupHandler.class);
     private static final int MAX_BACKUP_JAR_KEPT = 3;
     private static final String BACKUP_DIR = "past_versions";
     private static final String BACKUP_MARKER = "_";
@@ -41,10 +40,10 @@ public class BackupHandler {
      * Creates a backup unless app is already being run from backup JAR.
      */
     protected void createAppBackup(Version version) throws IOException, URISyntaxException {
-        File mainAppJar = FileUtil.getJarFileOfClass(MainApp.class);
+        //TODO: generate this dynamically, temp for updater refactoring
+        File mainAppJar = new File("lib/resource.jar");
 
         if (isRunFromBackupJar(mainAppJar)) {
-            logger.info("Run from a backup; not creating backup");
             return;
         }
 
@@ -59,13 +58,6 @@ public class BackupHandler {
      * Assumes that user has not tampered with the backup files' names
      */
     protected void cleanupBackups() {
-        if (!ManifestFileReader.isRunFromJar()) {
-            logger.info("Not running from JAR, will not clean backups");
-            return;
-        }
-        logger.debug("Cleaning backups");
-
-
         File backupDir = new File(BACKUP_DIR);
         List<String> backupFilesNames = getSortedBackupFilesNames(backupDir, BACKUP_FILENAME_REGEX);
         List<Version> backupVersions = getVersionsFromFileNames(backupFilesNames);
@@ -153,20 +145,18 @@ public class BackupHandler {
     }
 
     private void deleteDependencyFile(String dependencyFileName) {
-        logger.debug("Deleting {}", dependencyFileName);
         try {
             FileUtil.deleteFile(new File(dependencyFileName));
         } catch (IOException e) {
-            logger.warn("Failed to delete unused dependency: {}", dependencyFileName, e);
+            System.out.println("Failed to delete unused dependency: " + e);
         }
     }
 
     private void deleteBackupFile(String backupFileName) {
-        logger.debug("Deleting {}", backupFileName);
         try {
             FileUtil.deleteFile(BACKUP_DIR + File.separator + backupFileName);
         } catch (IOException e) {
-            logger.warn("Failed to delete old backup file: {}", e);
+            System.out.println("Failed to delete old backup file: " + e);
         }
     }
 
@@ -178,14 +168,12 @@ public class BackupHandler {
      */
     private List<String> getSortedBackupFilesNames(File backupDir, String backupFileNameRegex) {
         if (!FileUtil.isDirExists(backupDir)) {
-            logger.debug("No backup directory");
             return new ArrayList<>();
         }
 
         File[] backupFiles = backupDir.listFiles();
 
         if (backupFiles == null) {
-            logger.warn("Null list of backup files found.");
             return new ArrayList<>();
         }
 

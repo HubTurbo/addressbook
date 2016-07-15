@@ -10,7 +10,7 @@ lib/*
 config.json
 /*.xml
 update/
-src/main/resources/updater/jarUpdater.jar
+src/main/resources/updater/updateMigrator.jar
 src/test/data/sandbox/
 preferences.json
 .$TEMP*

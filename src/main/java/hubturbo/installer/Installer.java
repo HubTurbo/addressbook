@@ -1,8 +1,10 @@
-package hubturbo.updater;
+package hubturbo.installer;
 
-import address.updater.LibraryDescriptor;
-import address.updater.VersionData;
+import address.util.LibraryDescriptor;
+import address.util.VersionData;
 import address.util.*;
+import commons.FileUtil;
+import commons.JsonUtil;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -33,12 +35,23 @@ public class Installer {
     private static final String VERSION_DATA_RESOURCE = "/VersionData.json";
 
     public void runInstall(Label label, ProgressBar progressBar) throws IOException {
+        Platform.runLater(() -> label.setText("Creating lib dir"));
         try {
             createLibraryDir();
         } catch (IOException e) {
             throw new IOException("Failed to library directories", e);
+        } catch (NoClassDefFoundError e) {
+            // To remove, only here for dependency checking
+            Platform.runLater(() -> label.setText("Error: " + e));
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
         }
 
+
+        Platform.runLater(() -> label.setText("Extracting missing jar files"));
         try {
             extractMissingJarFiles(label);
         } catch (IOException e) {

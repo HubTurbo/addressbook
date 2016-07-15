@@ -1,7 +1,7 @@
 package address.events;
 
 /**
- * An event triggered when Updater has finished updating.
+ * An event triggered when UpdateManager has finished updating.
  */
 public class UpdaterFinishedEvent extends BaseEvent {
     private String message;

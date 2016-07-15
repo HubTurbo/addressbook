@@ -9,9 +9,9 @@ import java.util.function.Function;
 /**
  * Common functionality among all ViewableX classes:
  * eg.  - the ability to deactivate and reactivate syncing visible data with backing data (for optimistic ui updating)
- *      - common fields/references and constructor logic
+ *      - commons fields/references and constructor logic
  *      - maintains visible state separately from canonical state (see {@link #visible}, {@link #backing})
- *      - common application session-lifecycle state across all domain data objects
+ *      - commons application session-lifecycle state across all domain data objects
  *
  * Note: these status data fields should not be directly edited by users.
  */

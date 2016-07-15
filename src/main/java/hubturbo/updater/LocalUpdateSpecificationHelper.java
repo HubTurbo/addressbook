@@ -1,18 +1,15 @@
-package address.updater;
+package hubturbo.updater;
 
-import address.storage.StorageManager;
-import address.util.FileUtil;
-
+import commons.FileUtil;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
 /**
  * Manages the LocalUpdateSpecification file
  */
 public class LocalUpdateSpecificationHelper {
-    private static final String LOCAL_UPDATE_DATA_FILE = UpdateManager.UPDATE_DIR + File.separator +
+    private static final String LOCAL_UPDATE_DATA_FILE = "update" + File.separator +
                                                          "UpdateSpecification";
 
     public static String getLocalUpdateSpecFilepath() {
@@ -26,14 +23,14 @@ public class LocalUpdateSpecificationHelper {
     public static void saveLocalUpdateSpecFile(List<String> affectedFiles) throws IOException {
         LocalUpdateSpecification localUpdateSpecification = new LocalUpdateSpecification(affectedFiles);
 
-        StorageManager.serializeObjectToJsonFile(new File(LOCAL_UPDATE_DATA_FILE), localUpdateSpecification);
+        FileUtil.serializeObjectToJsonFile(new File(LOCAL_UPDATE_DATA_FILE), localUpdateSpecification);
     }
 
     /**
      * @return first item is destination folder, the rest are affected files
      */
     public static List<String> readLocalUpdateSpecFile(String filepath) throws IOException {
-        return StorageManager.deserializeObjectFromJsonFile(new File(filepath), LocalUpdateSpecification.class)
+        return FileUtil.deserializeObjectFromJsonFile(new File(filepath), LocalUpdateSpecification.class)
                 .getLocalFilesToBeUpdated();
     }
 }

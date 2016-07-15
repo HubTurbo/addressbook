@@ -2,7 +2,8 @@ package address.util;
 
 import address.MainApp;
 import address.exceptions.DependencyCheckException;
-import address.updater.VersionData;
+import commons.FileUtil;
+import commons.JsonUtil;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -25,6 +26,10 @@ public class DependencyChecker {
     }
 
     public void verify() {
+        if (!ManifestFileReader.isRunFromJar()) {
+            logger.info("Not run from Jar, skipping dependencies check");
+            return;
+        }
         logger.info("Verifying dependencies");
 
         try {
@@ -73,11 +78,6 @@ public class DependencyChecker {
 
     public void checkLibrariesDependency() throws DependencyCheckException {
         logger.info("Verifying dependency libraries are present");
-
-        if (!ManifestFileReader.isRunFromJar()) {
-            logger.info("Not running from JAR, will not run libraries check.");
-            return;
-        }
 
         List<String> missingDependencies = getMissingDependencies();
 

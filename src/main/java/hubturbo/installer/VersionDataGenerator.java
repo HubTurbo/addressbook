@@ -1,11 +1,11 @@
-package hubturbo.updater;
+package hubturbo.installer;
 
 import address.MainApp;
 import address.storage.StorageManager;
-import address.updater.LibraryDescriptor;
-import address.updater.VersionData;
-import address.util.FileUtil;
-import address.util.JsonUtil;
+import address.util.LibraryDescriptor;
+import address.util.VersionData;
+import commons.FileUtil;
+import commons.JsonUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +70,7 @@ public class VersionDataGenerator {
         versionData.setLibraries(currentLibrariesDescriptors);
 
         try {
-            StorageManager.serializeObjectToJsonFile(VERSION_DATA_FILE, versionData);
+            FileUtil.serializeObjectToJsonFile(VERSION_DATA_FILE, versionData);
         } catch (IOException e) {
             System.out.println("Failed to write new version data to file");
             e.printStackTrace();

@@ -1,4 +1,4 @@
-package address.updater;
+package address.util;
 
 import address.util.OsDetector;
 

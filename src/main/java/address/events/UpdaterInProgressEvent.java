@@ -1,7 +1,7 @@
 package address.events;
 
 /**
- * An event triggered when updater is updating.
+ * An event triggered when installer is updating.
  */
 public class UpdaterInProgressEvent extends BaseEvent{
 

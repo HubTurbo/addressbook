@@ -7,16 +7,14 @@ import address.storage.StorageManager;
 import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
-import address.sync.cloud.IRemote;
 import address.ui.Ui;
-import address.updater.UpdateManager;
+import hubturbo.updater.UpdateManager;
 import address.util.*;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.util.Map;
 
 /**
@@ -115,7 +113,7 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
-        updateManager.start();
+        if (ManifestFileReader.isRunFromJar()) updateManager.start();
         storageManager.start();
         syncManager.start();
     }

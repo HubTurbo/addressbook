@@ -1,12 +1,9 @@
-package address.updater;
+package hubturbo.updater;
 
-import address.events.UpdaterFailedEvent;
-import address.events.UpdaterFinishedEvent;
-import address.events.UpdaterInProgressEvent;
-import address.main.ComponentManager;
-import address.storage.StorageManager;
 import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import commons.FileUtil;
+import commons.JsonUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,15 +26,14 @@ import java.util.stream.Collectors;
  * Data required for the update will be downloaded in the background while the app is running,
  * and the updates will automatically be applied using a separate application only after the user closes the app
  */
-public class UpdateManager extends ComponentManager {
+public class UpdateManager {
     public static final String UPDATE_DIR = "update";
-    private static final AppLogger logger = LoggerManager.getLogger(UpdateManager.class);
 
     // --- Messages
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
     private static final String MSG_FAIL_DOWNLOAD_UPDATE = "Downloading update failed";
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
-    private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR updater";
+    private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR installer";
     private static final String MSG_FAIL_UPDATE_NOT_SUPPORTED = "Update not supported on detected OS";
     private static final String MSG_FAIL_OBTAIN_LATEST_VERSION_DATA = "Unable to obtain latest version data. Update to the latest version might not be supported. Please manually download the latest version.";
     private static final String MSG_NO_UPDATE = "There is no update";
@@ -76,34 +72,25 @@ public class UpdateManager extends ComponentManager {
     }
 
     public void start() {
-        logger.info("Starting update manager.");
         pool.execute(backupHandler::cleanupBackups);
         pool.execute(this::checkForUpdate);
     }
 
     private void checkForUpdate() {
-        if (!ManifestFileReader.isRunFromJar()) {
-            logger.info(MSG_SKIP_DEVELOPER_ENVIRONMENT);
-            raise(new UpdaterFinishedEvent(MSG_SKIP_DEVELOPER_ENVIRONMENT));
-            return;
-        }
-
-        raise(new UpdaterInProgressEvent("Clearing local update specification file", -1));
+        //raise(new UpdaterInProgressEvent("Clearing local update specification file", -1));
         try {
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
-            raise(new UpdaterFailedEvent(MSG_FAIL_DELETE_UPDATE_SPEC));
-            logger.debug("Failed to delete existing specification file: {}", e);
+            //    raise(new UpdaterFailedEvent(MSG_FAIL_DELETE_UPDATE_SPEC));
             return;
         }
 
-        raise(new UpdaterInProgressEvent("Getting data from server", -1));
+        //raise(new UpdaterInProgressEvent("Getting data from server", -1));
         VersionData latestData;
         try {
             latestData = getLatestDataFromServer();
         } catch (IOException e) {
-            raise(new UpdaterFailedEvent(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA));
-            logger.debug("Failed to obtain data from server: {}", e);
+            //  raise(new UpdaterFailedEvent(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA));
             return;
         }
 
@@ -111,8 +98,7 @@ public class UpdateManager extends ComponentManager {
         try {
             latestVersion = getVersion(latestData);
         } catch (IllegalArgumentException e) {
-            raise(new UpdaterFailedEvent(MSG_FAIL_READ_LATEST_VERSION));
-            logger.fatal("Failed to obtain latest version data from downloaded data: {}", e);
+            //raise(new UpdaterFailedEvent(MSG_FAIL_READ_LATEST_VERSION));
             return;
         }
 
@@ -120,54 +106,48 @@ public class UpdateManager extends ComponentManager {
         assert isOnSameReleaseChannel(latestVersion) : "Error: latest version found to be in the wrong release channel";
 
         if (currentVersion.compareTo(latestVersion) >= 0) {
-            raise(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
-            logger.debug(MSG_NO_NEWER_VERSION);
+            //raise(new UpdaterFinishedEvent(MSG_NO_NEWER_VERSION));
             return;
         }
 
-        raise(new UpdaterInProgressEvent("Collecting all update files to be downloaded", -1));
+        //raise(new UpdaterInProgressEvent("Collecting all update files to be downloaded", -1));
         HashMap<String, URL> filesToBeUpdated;
         try {
             filesToBeUpdated = getFilesToDownload(latestData);
         } catch (UnsupportedOperationException e) {
-            raise(new UpdaterFailedEvent(MSG_FAIL_UPDATE_NOT_SUPPORTED));
-            logger.debug("Update on detected OS is not supported: {}", e);
+            //  raise(new UpdaterFailedEvent(MSG_FAIL_UPDATE_NOT_SUPPORTED));
             return;
         }
 
         if (filesToBeUpdated.isEmpty()) {
-            raise(new UpdaterFinishedEvent(MSG_NO_UPDATE));
-            logger.debug(MSG_NO_UPDATE);
+            //raise(new UpdaterFinishedEvent(MSG_NO_UPDATE));
             return;
         }
 
         try {
             downloadFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
         } catch (IOException e) {
-            raise(new UpdaterFailedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
-            logger.debug(MSG_FAIL_DOWNLOAD_UPDATE);
+            //raise(new UpdaterFailedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
             return;
         }
 
-        raise(new UpdaterInProgressEvent("Finalizing updates", -1));
+        //raise(new UpdaterInProgressEvent("Finalizing updates", -1));
 
         try {
             createUpdateSpecification(filesToBeUpdated);
         } catch (IOException e) {
-            raise(new UpdaterFailedEvent(MSG_FAIL_CREATE_UPDATE_SPEC));
-            logger.debug("Failed to create update specification file: {}", e);
+            //  raise(new UpdaterFailedEvent(MSG_FAIL_CREATE_UPDATE_SPEC));
             return;
         }
         
         try {
             extractJarUpdater();
         } catch (IOException e) {
-            raise(new UpdaterFailedEvent(MSG_FAIL_EXTRACT_JAR_UPDATER));
-            logger.debug("Failed to extract jar updater: {}", e);
+            //raise(new UpdaterFailedEvent(MSG_FAIL_EXTRACT_JAR_UPDATER));
             return;
         }
 
-        raise(new UpdaterFinishedEvent(MSG_UPDATE_FINISHED));
+//        raise(new UpdaterFinishedEvent(MSG_UPDATE_FINISHED));
         isUpdateApplicable = true;
         downloadedVersions.add(latestVersion);
     }
@@ -187,7 +167,7 @@ public class UpdateManager extends ComponentManager {
         }
 
         try {
-            return StorageManager.deserializeObjectFromJsonFile(VERSION_DESCRIPTOR_FILE, VersionData.class);
+            return FileUtil.deserializeObjectFromJsonFile(VERSION_DESCRIPTOR_FILE, VersionData.class);
         } catch (IOException e) {
             throw new IOException("Failed to parse data from latest data file.", e);
         }
@@ -291,7 +271,7 @@ public class UpdateManager extends ComponentManager {
             downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
             noOfFilesDownloaded++;
             double progress = (1.0 * noOfFilesDownloaded) / totalFilesToDownload;
-            raise(new UpdaterInProgressEvent("Downloading updates", progress));
+            //raise(new UpdaterInProgressEvent("Downloading updates", progress));
         }
     }
 
@@ -346,9 +326,7 @@ public class UpdateManager extends ComponentManager {
     }
 
     private void createFile(File targetFile) throws IOException {
-        if (!FileUtil.createFile(targetFile)) {
-            logger.debug("File '{}' already exists", targetFile.getName());
-        }
+        FileUtil.createFile(targetFile);
     }
 
     private void createUpdateSpecification(HashMap<String, URL> filesToBeUpdated) throws IOException {
@@ -363,17 +341,17 @@ public class UpdateManager extends ComponentManager {
      * @throws IOException
      */
     private void extractJarUpdater() throws IOException {
-        assert UpdateManager.class.getClassLoader().getResource(JAR_UPDATER_RESOURCE_PATH) != null : "Jar updater resource cannot be found";
+        assert UpdateManager.class.getClassLoader().getResource(JAR_UPDATER_RESOURCE_PATH) != null : "Jar installer resource cannot be found";
 
         File jarUpdaterFile = new File(JAR_UPDATER_APP_PATH);
 
         if (!jarUpdaterFile.exists() && !jarUpdaterFile.createNewFile()) {
-            throw new IOException("Failed to create jar updater empty file");
+            throw new IOException("Failed to create jar installer empty file");
         }
         try {
             extractFile(jarUpdaterFile, JAR_UPDATER_RESOURCE_PATH);
         } catch (IOException e) {
-            throw new IOException("Failed to extract jar updater", e);
+            throw new IOException("Failed to extract jar installer", e);
         }
     }
 
@@ -383,7 +361,7 @@ public class UpdateManager extends ComponentManager {
                 FileUtil.createFile(file);
             }
 
-            StorageManager.serializeObjectToJsonFile(file, downloadedVersions);
+            FileUtil.serializeObjectToJsonFile(file, downloadedVersions);
         } catch (JsonProcessingException e) {
             throw new IOException("Failed to convert downloaded version to JSON", e);
         } catch (IOException e) {
@@ -395,7 +373,7 @@ public class UpdateManager extends ComponentManager {
         try {
             return JsonUtil.fromJsonStringToList(FileUtil.readFromFile(file), Version.class);
         } catch (IOException e) {
-            logger.warn("Failed to read downloaded version from file: {}", e);
+            System.out.println("Failed to read downloaded version from file: " + e);
             return new ArrayList<>();
         }
     }
@@ -406,14 +384,14 @@ public class UpdateManager extends ComponentManager {
         try {
             backupHandler.createAppBackup(currentVersion);
         } catch (IOException | URISyntaxException e) {
-            logger.warn("Failed to create backup of app; not applying update: {}", e);
+            System.out.println("Failed to create backup of app; not applying update: " + e);
             return;
         }
 
         try {
             writeDownloadedVersionsToFile(downloadedVersions, DOWNLOADED_VERSIONS_FILE);
         } catch (IOException e) {
-            logger.warn("Error writing downloaded versions to file: {}", e);
+            System.out.println("Error writing downloaded versions to file: " + e);
             return;
         }
 
@@ -421,12 +399,12 @@ public class UpdateManager extends ComponentManager {
         String jarUpdaterCmdArguments = String.format("--update-specification=%s --source-dir=%s", localUpdateSpecFilepath, UPDATE_DIR);
         String jarUpdaterCmd = String.format("java -jar %1$s %2$s", JAR_UPDATER_APP_PATH, jarUpdaterCmdArguments);
 
-        logger.info("Starting jar updater with command: {}", jarUpdaterCmd);
+        System.out.println("Starting jar installer");
 
         try {
             Runtime.getRuntime().exec(jarUpdaterCmd);
         } catch (IOException e) {
-            logger.debug("Failed to start jar updater: {}", e);
+            System.out.println("Failed to start jar installer.");
         }
     }
 

@@ -1,9 +1,8 @@
-package address.util;
+package commons;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,8 +60,6 @@ public class JsonUtil {
             .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
             .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
             .registerModule(new SimpleModule("SimpleModule").addSerializer(Level.class, new ToStringSerializer()).addDeserializer(Level.class, new LevelDeserializer(Level.class)));
-
-
 
     /**
      * Converts a given string representation of a JSON data to instance of a class
