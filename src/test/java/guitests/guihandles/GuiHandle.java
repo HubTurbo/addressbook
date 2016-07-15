@@ -2,6 +2,7 @@ package guitests.guihandles;
 
 
 import address.model.ModelManager;
+import com.google.common.base.Optional;
 import guitests.GuiRobot;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -9,6 +10,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
+import org.testfx.api.FxRobotException;
 
 import java.lang.reflect.Constructor;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +45,13 @@ public class GuiHandle {
     }
 
     protected Node getNode(String query) {
-        return guiRobot.lookup(query).tryQuery().get();
+        Optional<Node> nodeOptional = guiRobot.lookup(query).tryQuery();
+        int count = 0;
+        while (!nodeOptional.isPresent() && count < 10) {
+            guiRobot.sleep(500);
+            count ++;
+        }
+        return nodeOptional.get();
     }
 
     protected String getTextFieldText(String filedName) {
@@ -119,4 +127,5 @@ public class GuiHandle {
     protected String getTextFromLabel(String fieldId, Node parentNode) {
         return ((Label)guiRobot.from(parentNode).lookup(fieldId).tryQuery().get()).getText();
     }
+
 }

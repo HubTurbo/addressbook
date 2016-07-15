@@ -5,7 +5,9 @@ import address.keybindings.KeySequence;
 import address.testutil.TestUtil;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.MouseButton;
 import org.testfx.api.FxRobot;
+import org.testfx.api.FxRobotException;
 
 /**
  * Robot used to simulate user actions on the GUI.
@@ -41,5 +43,32 @@ public class GuiRobot extends FxRobot {
     public void pushKeySequence(KeySequence keySequence) {
         push((KeyCodeCombination)keySequence.getKeyCombination());
         push((KeyCodeCombination)keySequence.getSecondKeyCombination());
+    }
+
+    @Override
+    public FxRobot clickOn(String query, MouseButton... buttons) {
+        int count = 0;
+        while (count < 10) {
+            try {
+                return super.clickOn(query, buttons);
+            } catch (FxRobotException e) {
+                count++;
+            }
+        }
+        return super.clickOn(query, buttons);
+    }
+
+    @Override
+    public FxRobot drag(String query, MouseButton... buttons) {
+        int count = 0;
+        while (count < 10) {
+            try {
+                return super.drag(query, buttons);
+            } catch (FxRobotException e) {
+                count++;
+            }
+        }
+        return super.drag(query, buttons);
+
     }
 }
