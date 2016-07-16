@@ -204,7 +204,7 @@ allprojects {
             extendsFrom compile
         }
     }
-    
+
     task copyAllDependenciesToLibrary(type: Copy) {
         from(configurations.compile) {
             exclude('licence.jar')
@@ -270,7 +270,7 @@ allprojects {
 
         manifest {
             attributes "Main-Class": "hubturbo.installer.Launcher",
-                        "Class-Path": configurations.installerRuntime.files.collect { "lib/${it.name}" }.join(" ")
+                       "Class-Path": configurations.installerRuntime.files.collect { "lib/${it.name}" }.join(" ")
         }
     }
     createInstallerJar.dependsOn jar

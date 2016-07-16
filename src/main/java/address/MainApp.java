@@ -113,7 +113,11 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
-        if (ManifestFileReader.isRunFromJar()) updater.start(ui.getUpdateProgressNotifier());
+        if (ManifestFileReader.isRunFromJar()) {
+            updater.start(ui.getUpdateProgressNotifier());
+        } else {
+            ui.getUpdateProgressNotifier().sendStatusFinished("Developer environment; not running updater");
+        }
         storageManager.start();
         syncManager.start();
     }
