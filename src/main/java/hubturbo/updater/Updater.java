@@ -44,8 +44,8 @@ public class Updater {
     private static final String MSG_UPDATE_FINISHED = "Update will be applied on next launch";
     // --- End of Messages
 
-    private static final String JAR_UPDATER_RESOURCE_PATH = "updater/jarUpdater.jar";
-    private static final String JAR_UPDATER_APP_PATH = UPDATE_DIR + File.separator + "jarUpdater.jar";
+    private static final String JAR_UPDATER_RESOURCE_PATH = "updater/updateMigrator.jar";
+    private static final String JAR_UPDATER_APP_PATH = UPDATE_DIR + File.separator + "updateMigrator.jar";
     private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
     private static final String VERSION_DATA_ON_SERVER_STABLE =
             "https://raw.githubusercontent.com/HubTurbo/addressbook/stable/VersionData.json";

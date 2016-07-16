@@ -83,6 +83,7 @@ public class Installer {
                 if (fileName.endsWith(".jar") || fileName.equals("VersionData.json")) {
                     Path extractDest = Paths.get(fileName);
 
+                    System.out.println("Extract dest: " + extractDest);
                     // Only extract file if it is not present
                     File resourceFile = extractDest.toFile();
                     // TODO: installer should not blindly extract libraries since it might be outdated

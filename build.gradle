@@ -31,6 +31,9 @@ allprojects {
     targetCompatibility = JavaVersion.VERSION_1_8
 
     repositories {
+        flatDir {
+            dirs 'lib'
+        }
         jcenter()
         mavenCentral()
         maven { url "https://repo.eclipse.org/content/repositories/egit-releases/" }
@@ -56,10 +59,11 @@ allprojects {
         commonsIoVersion = '2.4'
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
-        jarUpdaterDestDir = 'src/main/resources/installer'
-        jarUpdaterArchiveName = 'jarUpdater.jar'
-        updaterDestDir = 'src/main/resources/updater'
-        commonsDestDir = 'src/main/resources/commons'
+        commonsArchiveName = 'commons.jar'
+        updaterArchiveName = 'updater.jar'
+        updateMigratorArchiveName = 'updateMigrator.jar'
+        installerArchiveName = 'addressbook.jar'
+        libDir = 'lib/'
     }
 
     jacocoTestReport {
@@ -75,6 +79,8 @@ allprojects {
             java {
                 srcDir 'src/main/java'
                 exclude('hubturbo/installer/**/*')
+                exclude('hubturbo/updater/**/*')
+                exclude('commons/**/*')
             }
             resources {
                 srcDir 'src/main/resources'
@@ -83,11 +89,16 @@ allprojects {
         updater {
             java {
                 srcDir 'src/main/java'
+                include('hubturbo/updater/**/*')
                 include('address/util/OsDetector.java')
                 include('address/updater/**/*')
                 include('address/util/Version.java')
                 include('address/util/VersionData.java')
                 include('address/util/LibraryDescriptor.java')
+            }
+            resources {
+                srcDir 'src/main/resources'
+                include('updater/updateMigrator.jar')
             }
         }
         commons {
@@ -102,6 +113,10 @@ allprojects {
                 include('hubturbo/updater/LocalUpdateSpecificationHelper.java')
                 include('hubturbo/updater/LocalUpdateSpecification.java')
                 include('hubturbo/updater/UpdateMigrator.java')
+            }
+            resources {
+                srcDir 'src/main/resources'
+                include('log4j2.json')
             }
         }
         installer {
@@ -126,7 +141,6 @@ allprojects {
             }
             resources {
                 srcDir "."
-                include(project.ext.mainAppArchiveName)
                 include('lib/*')
                 exclude('lib/jxbrowser-*-*.jar') // platform specific jxbrowser
                 include('VersionData.json')
@@ -155,8 +169,8 @@ allprojects {
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
         compile fileTree(dir: 'lib', include: 'licence.jar')
-        compile files("lib/updater.jar")
-        compile files("lib/commons.jar")
+        compile files("build/libs/commons.jar")
+        compile files("build/libs/updater.jar")
 
         testCompile "junit:junit:$junitVersion"
         testCompile "org.testfx:testfx-core:4.0.+"
@@ -178,9 +192,9 @@ allprojects {
         updaterCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         updaterCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         updaterCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-        updaterCompile files("lib/commons.jar")
+        updaterCompile files("build/libs/commons.jar")
 
-        updateMigratorCompile files("lib/commons.jar")
+        updateMigratorCompile files("build/libs/commons.jar")
 
         commonsCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         commonsCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
@@ -194,104 +208,90 @@ allprojects {
         }
     }
 
-    // Delete previous versions of commons.jar
-    task deleteCommonsJar(type: Delete) {
-        delete "lib/commons.jar"
-    }
-
     // Compile commons.jar
     task createCommonsJar(type: Jar) {
-        archiveName = "commons.jar"
+        archiveName = "$commonsArchiveName"
 
         from sourceSets.commons.output
     }
-    createCommonsJar.dependsOn deleteCommonsJar
-
-    // Copies generated jar into lib/
-    task copyCommonsJarToLibrary(type: Copy) {
-        from(tasks.createCommonsJar.destinationDir) {
-            include("commons.jar")
-        }
-        into "lib/"
-    }
-    copyCommonsJarToLibrary.dependsOn createCommonsJar
-
-    // Deletes previous version of updateMigrator.jar
-    task deleteUpdateMigratorJar(type: Delete) {
-        delete "lib/updateMigrator.jar"
-    }
+    createCommonsJar.dependsOn
 
     // Compiles updateMigrator.jar
     task createUpdateMigratorJar(type: Jar) {
-        archiveName = "updateMigrator.jar"
+        archiveName = "$updateMigratorArchiveName"
 
         manifest {
-            attributes "Main-Class": "address.updater.JarUpdater"
+            attributes "Main-Class": "hubturbo.updater.UpdateMigrator"
         }
         from sourceSets.updateMigrator.output
     }
-    createUpdateMigratorJar.dependsOn copyCommonsJarToLibrary // Update migrator requires commons.jar dependency
-    createUpdateMigratorJar.dependsOn deleteUpdateMigratorJar
+    createUpdateMigratorJar.dependsOn createCommonsJar // Update migrator requires commons.jar dependency
 
-    // Copies generated jar into resources folder: UpdateManager manager will launch this manually
+    // Copies generated jar into resources folder: Updater will launch this manually
     task copyUpdateMigratorJarToLibraryResource(type: Copy) {
         from(tasks.createUpdateMigratorJar.destinationDir) {
-            include("updateMigrator.jar")
+            include("$updateMigratorArchiveName")
         }
-        into "src/main/resources/updater" // temporarily only, since UpdateManager checks this dir to launch the migrator
+        into "src/main/resources/updater" // temporarily only, since Updater checks this dir to launch the migrator
     }
     copyUpdateMigratorJarToLibraryResource.dependsOn createUpdateMigratorJar
 
-    // Deletes previous version of updater.jar
-    task deleteUpdaterJar(type: Jar) {
-        delete "lib/updater.jar"
-    }
-
     // Creates updater.jar
     task createUpdaterJar(type: Jar) {
-        archiveName = "updater.jar"
+        archiveName = "$updaterArchiveName"
 
         from sourceSets.updater.output
     }
     createUpdaterJar.dependsOn copyUpdateMigratorJarToLibraryResource
-    createUpdaterJar.dependsOn deleteUpdaterJar
-
-    // Copies updater.jar to lib/
-    task copyUpdaterJarToLibrary(type: Copy) {
-        from(tasks.createUpdaterJar.destinationDir) {
-            include "updater.jar"
-        }
-        into "lib/"
-    }
-    copyUpdaterJarToLibrary.dependsOn createUpdaterJar
 
     // Main application jar
     jar {
-        archiveName = "resource.jar"
+        archiveName = "$mainAppArchiveName"
 
         from sourceSets.main.output
         from(rootDir) {
             include "VersionData.json"
+        }
+        from(tasks.createUpdaterJar.destinationDir) {
+            include "$updaterArchiveName"
         }
         manifest {
             attributes "Main-Class": "address.MainApp",
                         "Class-Path": configurations.runtime.files.collect { "lib/${it.name}" }.join(" ")
         }
     }
-    jar.dependsOn copyUpdaterJarToLibrary
+    jar.dependsOn createUpdaterJar
 
-    // Copies main application into lib/
+    // Copies main application into lib/ for installer to pack
     task copyResourceToLibrary(type: Copy) {
         from(tasks.jar.destinationDir) {
-            include('resource.jar')
+            include("$mainAppArchiveName")
         }
-        into "lib/"
+        into "$libDir"
     }
     copyResourceToLibrary.dependsOn jar
 
+    // Copies commons.jar into lib/ for installer to pack
+    task copyCommonsToLibrary(type: Copy) {
+        from(tasks.createCommonsJar.destinationDir) {
+            include("$commonsArchiveName")
+        }
+        into "$libDir"
+    }
+    copyCommonsToLibrary.dependsOn jar
+
+    // Copies updater.jar into lib/ for installer to pack
+    task copyUpdaterToLibrary(type: Copy) {
+        from(tasks.createUpdaterJar.destinationDir) {
+            include("$updaterArchiveName")
+        }
+        into "$libDir"
+    }
+    copyUpdaterToLibrary.dependsOn jar
+
     // Creates the installer, which will pack necessary classes for installation and all dependencies found in lib/
     task createInstallerJar(type: Jar) {
-        archiveName = "addressbook.jar"
+        archiveName = "$installerArchiveName"
         from sourceSets.installer.output
 
         manifest {
@@ -300,11 +300,14 @@ allprojects {
         }
     }
     createInstallerJar.dependsOn copyResourceToLibrary
+    createInstallerJar.dependsOn copyCommonsToLibrary
+    createInstallerJar.dependsOn copyUpdaterToLibrary
+    compileJava.dependsOn createUpdaterJar // main app requires updater.jar to compile
 
      task generateVersionData(type: JavaExec) {
         group = "Release"
 
-        def arguments = project.ext.mainAppArchiveName + " ";
+        def arguments = "$mainAppArchiveName";
         arguments += configurations.runtime.files.collect { "$it.name" }.join(" ")
 
         classpath = sourceSets.generateVersionData.runtimeClasspath
