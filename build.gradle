@@ -169,8 +169,9 @@ allprojects {
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
         compile fileTree(dir: 'lib', include: 'licence.jar')
-        compile files("build/libs/commons.jar")
-        compile files("build/libs/updater.jar")
+        // custom dependencies, which will be copied to $libDir before being packed into installer: different runtime path
+        compile files("lib/commons.jar")
+        compile files("lib/updater.jar")
 
         testCompile "junit:junit:$junitVersion"
         testCompile "org.testfx:testfx-core:4.0.+"
@@ -192,9 +193,9 @@ allprojects {
         updaterCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         updaterCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         updaterCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-        updaterCompile files("build/libs/commons.jar")
+        updaterCompile files("lib/commons.jar")
 
-        updateMigratorCompile files("build/libs/commons.jar")
+        updateMigratorCompile files("lib/commons.jar")
 
         commonsCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         commonsCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
@@ -213,8 +214,8 @@ allprojects {
         archiveName = "$commonsArchiveName"
 
         from sourceSets.commons.output
+        destinationDir = file("$libDir")
     }
-    createCommonsJar.dependsOn
 
     // Compiles updateMigrator.jar
     task createUpdateMigratorJar(type: Jar) {
@@ -224,25 +225,18 @@ allprojects {
             attributes "Main-Class": "hubturbo.updater.UpdateMigrator"
         }
         from sourceSets.updateMigrator.output
+        destinationDir = file("src/main/resources/updater") // temporarily only, since Updater checks this dir to launch the migrator
     }
     createUpdateMigratorJar.dependsOn createCommonsJar // Update migrator requires commons.jar dependency
-
-    // Copies generated jar into resources folder: Updater will launch this manually
-    task copyUpdateMigratorJarToLibraryResource(type: Copy) {
-        from(tasks.createUpdateMigratorJar.destinationDir) {
-            include("$updateMigratorArchiveName")
-        }
-        into "src/main/resources/updater" // temporarily only, since Updater checks this dir to launch the migrator
-    }
-    copyUpdateMigratorJarToLibraryResource.dependsOn createUpdateMigratorJar
 
     // Creates updater.jar
     task createUpdaterJar(type: Jar) {
         archiveName = "$updaterArchiveName"
 
         from sourceSets.updater.output
+        destinationDir = file("$libDir")
     }
-    createUpdaterJar.dependsOn copyUpdateMigratorJarToLibraryResource
+    createUpdaterJar.dependsOn createUpdateMigratorJar
 
     // Main application jar
     jar {
@@ -255,39 +249,15 @@ allprojects {
         from(tasks.createUpdaterJar.destinationDir) {
             include "$updaterArchiveName"
         }
+        destinationDir = file("$libDir")
         manifest {
             attributes "Main-Class": "address.MainApp",
                         "Class-Path": configurations.runtime.files.collect { "lib/${it.name}" }.join(" ")
         }
     }
     jar.dependsOn createUpdaterJar
-
-    // Copies main application into lib/ for installer to pack
-    task copyResourceToLibrary(type: Copy) {
-        from(tasks.jar.destinationDir) {
-            include("$mainAppArchiveName")
-        }
-        into "$libDir"
-    }
-    copyResourceToLibrary.dependsOn jar
-
-    // Copies commons.jar into lib/ for installer to pack
-    task copyCommonsToLibrary(type: Copy) {
-        from(tasks.createCommonsJar.destinationDir) {
-            include("$commonsArchiveName")
-        }
-        into "$libDir"
-    }
-    copyCommonsToLibrary.dependsOn jar
-
-    // Copies updater.jar into lib/ for installer to pack
-    task copyUpdaterToLibrary(type: Copy) {
-        from(tasks.createUpdaterJar.destinationDir) {
-            include("$updaterArchiveName")
-        }
-        into "$libDir"
-    }
-    copyUpdaterToLibrary.dependsOn jar
+    compileJava.dependsOn createUpdaterJar // jar adds compileJava, but it runs at the beginning (which fails without updater.jar)
+                                           // delay this until updater.jar is created
 
     // Creates the installer, which will pack necessary classes for installation and all dependencies found in lib/
     task createInstallerJar(type: Jar) {
@@ -299,12 +269,9 @@ allprojects {
                         "Class-Path": configurations.installerRuntime.files.collect { "lib/${it.name}" }.join(" ")
         }
     }
-    createInstallerJar.dependsOn copyResourceToLibrary
-    createInstallerJar.dependsOn copyCommonsToLibrary
-    createInstallerJar.dependsOn copyUpdaterToLibrary
-    compileJava.dependsOn createUpdaterJar // main app requires updater.jar to compile
+    createInstallerJar.dependsOn jar
 
-     task generateVersionData(type: JavaExec) {
+    task generateVersionData(type: JavaExec) {
         group = "Release"
 
         def arguments = "$mainAppArchiveName";
