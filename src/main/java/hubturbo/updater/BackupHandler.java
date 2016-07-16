@@ -118,8 +118,9 @@ public class BackupHandler {
      * @return
      */
     private ArrayList<String> getBackupFilesToDelete(List<String> backupFilesNames, int noOfBackupsToKeep) {
+        int noToDelete = Math.min(0, backupFilesNames.size() - noOfBackupsToKeep);
         return backupFilesNames.stream()
-                .limit(backupFilesNames.size() - noOfBackupsToKeep)
+                .limit(noToDelete)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 

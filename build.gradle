@@ -31,9 +31,6 @@ allprojects {
     targetCompatibility = JavaVersion.VERSION_1_8
 
     repositories {
-        flatDir {
-            dirs 'lib'
-        }
         jcenter()
         mavenCentral()
         maven { url "https://repo.eclipse.org/content/repositories/egit-releases/" }
@@ -168,8 +165,7 @@ allprojects {
         compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
-        compile fileTree(dir: 'lib', include: 'licence.jar')
-        // custom dependencies, which will be copied to $libDir before being packed into installer: different runtime path
+        compile files("lib/licence.jar")
         compile files("lib/commons.jar")
         compile files("lib/updater.jar")
 
@@ -208,6 +204,13 @@ allprojects {
             extendsFrom compile
         }
     }
+    
+    task copyAllDependenciesToLibrary(type: Copy) {
+        from(configurations.compile) {
+            exclude('licence.jar')
+        }
+        into "$libDir"
+    }
 
     // Compile commons.jar
     task createCommonsJar(type: Jar) {
@@ -216,6 +219,7 @@ allprojects {
         from sourceSets.commons.output
         destinationDir = file("$libDir")
     }
+    createCommonsJar.dependsOn copyAllDependenciesToLibrary
 
     // Compiles updateMigrator.jar
     task createUpdateMigratorJar(type: Jar) {
