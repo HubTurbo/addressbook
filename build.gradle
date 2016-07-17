@@ -260,7 +260,7 @@ allprojects {
         }
     }
     jar.dependsOn createUpdaterJar
-    compileJava.dependsOn createUpdaterJar // jar adds compileJava, but it runs at the beginning (which fails without updater.jar)
+    compileJava.mustRunAfter createUpdaterJar // jar adds compileJava, but it runs at the beginning (which fails without updater.jar)
                                            // delay this until updater.jar is created
 
     // Creates the installer, which will pack necessary classes for installation and all dependencies found in lib/
@@ -274,6 +274,7 @@ allprojects {
         }
     }
     createInstallerJar.dependsOn jar
+    compileInstallerJava.mustRunAfter jar // Compile installer only after its dependencies & resources are done
 
     task generateVersionData(type: JavaExec) {
         group = "Release"
