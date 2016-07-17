@@ -57,23 +57,24 @@ allprojects {
         slf4jSimpleVersion = '1.6.4'
         commonsIoVersion = '2.4'
 
-        mainAppArchiveName = 'resource-' + project.version + '.jar'
-        mainAppMainClass = 'address.MainApp'
-
         commonsArchiveName = 'commons.jar'
-
-        updaterArchiveName = 'updater.jar'
 
         updateMigratorArchiveName = 'updateMigrator.jar'
         updateMigratorMainClass = 'hubturbo.updater.UpdateMigrator'
+        updateMigratorDestinationDir = 'src/main/resources/updater' // Update the way updater locates updateMigrator.jar in Updater.java
+
+        updaterArchiveName = 'updater.jar'
+
+        mainAppArchiveName = 'resource-' + project.version + '.jar'
+        mainAppMainClass = 'address.MainApp'
 
         installerArchiveName = 'addressbook.jar'
         installerMainClass = 'hubturbo.installer.Launcher'
 
         licenceArchiveName = 'licence.jar'
+
         generateVersionDataMainClass = 'hubturbo.installer.VersionDataGenerator'
         libDir = 'lib'
-        updateMigratorDestinationDir = 'src/main/resources/updater' // Update the way updater locates updateMigrator.jar in Updater.java
     }
 
     jacocoTestReport {
@@ -150,7 +151,7 @@ allprojects {
             resources {
                 srcDir "."
                 include("$libDir/*")
-                exclude("$libDir/jxbrowser-*-*.jar") // platform specific jxbrowser
+                exclude("$libDir/jxbrowser-*-*.jar") // platform-specific jxbrowser
                 include('VersionData.json')
             }
         }
