@@ -68,8 +68,8 @@ allprojects {
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         mainAppMainClass = 'address.MainApp'
 
-        installerArchiveName = 'addressbook.jar'
-        installerMainClass = 'hubturbo.installer.Launcher'
+        installerArchiveName = 'installer.jar'
+        installerMainClass = 'hubturbo.installer.Installer'
 
         licenceArchiveName = 'licence.jar'
 
@@ -152,7 +152,14 @@ allprojects {
                 srcDir "."
                 include("$libDir/*")
                 exclude("$libDir/jxbrowser-*-*.jar") // platform-specific jxbrowser
+                include('addressbook.jar')
                 include('VersionData.json')
+            }
+        }
+        launcher {
+            java {
+                srcDir 'src/main/java'
+                include('hubturbo/launcher/Launcher.java')
             }
         }
         generateVersionData {
@@ -275,6 +282,18 @@ allprojects {
     compileJava.mustRunAfter createUpdaterJar // jar adds compileJava, but it runs at the beginning (which fails without updater.jar)
                                               // delay this until updater.jar is created
 
+    // Creates the launcher, which launches the main application with custom arguments
+    task createLauncherJar(type: Jar) {
+        archiveName = "addressbook.jar"
+        manifest {
+            attributes "Main-Class": "hubturbo.launcher.Launcher",
+                       "Class-Path": configurations.compile.files.collect { "$libDir/${it.name}" }.join(" ")
+        }
+        from sourceSets.launcher.output
+        destinationDir = file(".")
+    }
+    createLauncherJar.dependsOn jar
+
     // Creates the installer, which will pack necessary classes for installation and all dependencies found in lib/
     task createInstallerJar(type: Jar) {
         archiveName = "$installerArchiveName"
@@ -285,8 +304,8 @@ allprojects {
         }
         from sourceSets.installer.output
     }
-    createInstallerJar.dependsOn jar
-    compileInstallerJava.mustRunAfter jar // Compile installer only after its dependencies & resources are done
+    createInstallerJar.dependsOn createLauncherJar
+    compileInstallerJava.mustRunAfter createLauncherJar // Compile installer only after its dependencies & resources are done
 
     task generateVersionData(type: JavaExec) {
         main = "$generateVersionDataMainClass"
