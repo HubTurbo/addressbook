@@ -8,8 +8,6 @@ import java.io.InputStreamReader;
  * Detect what Operating System (OS) the application is running in
  */
 public class OsDetector {
-    private static final AppLogger logger = LoggerManager.getLogger(OsDetector.class);
-
     private static final String osName = System.getProperty("os.name");
 
     public enum Os {
@@ -65,7 +63,6 @@ public class OsDetector {
     }
 
     private static Architecture unknownArchitecture(Exception e) {
-        logger.info("Unknown Linux kernel architecture: {}", e.getLocalizedMessage());
         return Architecture.UNKNOWN;
     }
 

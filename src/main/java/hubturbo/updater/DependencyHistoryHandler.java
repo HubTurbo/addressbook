@@ -1,20 +1,21 @@
-package address.updater;
+package hubturbo.updater;
 
-import address.storage.StorageManager;
 import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import commons.FileUtil;
+import commons.JsonUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Tracks dependencies used by current version and backup versions of the application
  * Cleans up dependencies not used by mentioned versions
  */
 public class DependencyHistoryHandler {
-    private static final AppLogger logger = LoggerManager.getLogger(DependencyHistoryHandler.class);
     private static final File DEPENDENCY_HISTORY_FILE = new File("lib/dependency_history");
 
     private final Version currentVersion;
@@ -25,16 +26,14 @@ public class DependencyHistoryHandler {
 
         loadVersionDependencyHistory();
 
-        if (!ManifestFileReader.isRunFromJar()) {
-            logger.debug("Not running from JAR, will not update version dependencies");
-            return;
+        try {
+            VersionData versionData = FileUtil.deserializeObjectFromJsonFile(new File("VersionData.json"), VersionData.class);
+
+            List<String> libraryFileNames = versionData.getLibraries().stream().map(LibraryDescriptor::getFileName).collect(Collectors.toCollection(ArrayList::new));
+            updateVersionDependencies(currentVersion, libraryFileNames);
+        } catch (IOException e) {
+            System.out.println("Failed to parse data from latest data file." + e);
         }
-
-        Optional<List<String>> libraries = ManifestFileReader.getLibrariesInClasspathFromManifest();
-
-        assert libraries.isPresent() : "No libraries being used - should not happen";
-
-        updateVersionDependencies(currentVersion, libraries.get());
     }
 
     /**
@@ -61,7 +60,6 @@ public class DependencyHistoryHandler {
         while (it.hasNext()) {
             Map.Entry<Version, List<String>> entry = it.next();
             if (unusedVersions.contains(entry.getKey())) {
-                logger.debug("Removing {}", entry.getKey());
                 it.remove();
             }
         }
@@ -74,22 +72,21 @@ public class DependencyHistoryHandler {
             try {
                 FileUtil.createFile(DEPENDENCY_HISTORY_FILE);
             } catch (IOException e) {
-                logger.debug("Failed to create dependency file", e);
             }
         }
 
         try {
-            StorageManager.serializeObjectToJsonFile(DEPENDENCY_HISTORY_FILE, dependenciesForVersionsInUse);
+            FileUtil.serializeObjectToJsonFile(DEPENDENCY_HISTORY_FILE, dependenciesForVersionsInUse);
         } catch (JsonProcessingException e) {
-            logger.debug("Failed to convert dependencies to JSON", e);
+            System.out.println("Failed to convert dependencies to JSON" + e);
         } catch (IOException e) {
-            logger.debug("Failed to write dependencies to file", e);
+            System.out.println("Failed to write dependencies to file" + e);
         }
     }
 
     private void loadVersionDependencyHistory() {
         if (!DEPENDENCY_HISTORY_FILE.exists()) {
-            logger.debug("Dependencies file does not exist yet");
+            System.out.println("Dependencies file does not exist yet");
             return;
         }
 
@@ -98,7 +95,7 @@ public class DependencyHistoryHandler {
             dependenciesForVersionsInUse = JsonUtil.fromJsonStringToGivenType(json,
                     new TypeReference<HashMap<Version, List<String>>>() {});
         } catch (IOException e) {
-            logger.debug("Failed to read dependencies from file");
+            System.out.println("Failed to read dependencies from file");
             e.printStackTrace();
         }
     }

@@ -5,6 +5,7 @@ import address.model.datatypes.AddressBook;
 import address.storage.StorageAddressBook;
 import address.testutil.AddressBookBuilder;
 import address.testutil.TestUtil;
+import commons.FileUtil;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

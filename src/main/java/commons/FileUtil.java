@@ -1,4 +1,4 @@
-package address.util;
+package commons;
 
 import java.io.File;
 import java.io.IOException;
@@ -204,5 +204,18 @@ public class FileUtil {
     public static String getFileName(String filePath) {
         String[] pathComponents = filePath.split("/");
         return pathComponents[pathComponents.length - 1];
+    }
+
+    public static <T> void serializeObjectToJsonFile(File jsonFile, T objectToSerialize) throws IOException {
+        FileUtil.writeToFile(jsonFile, JsonUtil.toJsonString(objectToSerialize));
+    }
+
+    public static <T> T deserializeObjectFromJsonFile(File jsonFile, Class<T> classOfObjectToDeserialize)
+            throws IOException {
+        return JsonUtil.fromJsonString(FileUtil.readFromFile(jsonFile), classOfObjectToDeserialize);
+    }
+
+    public static void main(String[] args) {
+        System.out.println("WTF");
     }
 }

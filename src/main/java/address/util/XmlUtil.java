@@ -1,21 +1,17 @@
 package address.util;
 
 import address.exceptions.DataConversionException;
-import address.model.datatypes.person.Person;
-import address.model.datatypes.person.ReadOnlyPerson;
-import address.model.datatypes.tag.Tag;
+import commons.FileUtil;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 /**

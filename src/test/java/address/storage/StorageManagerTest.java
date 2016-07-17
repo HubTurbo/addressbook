@@ -6,7 +6,7 @@ import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.model.datatypes.AddressBook;
 import address.util.Config;
-import address.util.FileUtil;
+import commons.FileUtil;
 import address.testutil.SerializableTestClass;
 import address.testutil.TestUtil;
 import org.junit.Before;
@@ -222,7 +222,7 @@ public class StorageManagerTest {
         SerializableTestClass serializableTestClass = new SerializableTestClass();
         serializableTestClass.setTestValues();
 
-        StorageManager.serializeObjectToJsonFile(SERIALIZATION_FILE, serializableTestClass);
+        FileUtil.serializeObjectToJsonFile(SERIALIZATION_FILE, serializableTestClass);
 
         assertEquals(FileUtil.readFromFile(SERIALIZATION_FILE), SerializableTestClass.JSON_STRING_REPRESENTATION);
     }
@@ -231,7 +231,7 @@ public class StorageManagerTest {
     public void deserializeObjectFromJsonFile_noExceptionThrown() throws IOException {
         FileUtil.writeToFile(SERIALIZATION_FILE, SerializableTestClass.JSON_STRING_REPRESENTATION);
 
-        SerializableTestClass serializableTestClass = StorageManager
+        SerializableTestClass serializableTestClass = FileUtil
                 .deserializeObjectFromJsonFile(SERIALIZATION_FILE, SerializableTestClass.class);
 
         assertEquals(serializableTestClass.getName(), SerializableTestClass.getNameTestValue());

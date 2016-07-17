@@ -6,7 +6,7 @@ import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.model.datatypes.person.Person;
 import address.storage.StorageAddressBook;
-import address.util.JsonUtil;
+import commons.JsonUtil;
 
 import java.io.IOException;
 import java.time.LocalDate;

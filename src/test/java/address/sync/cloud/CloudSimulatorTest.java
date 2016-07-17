@@ -4,7 +4,7 @@ import address.exceptions.DataConversionException;
 import address.sync.cloud.model.CloudAddressBook;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
-import address.util.JsonUtil;
+import commons.JsonUtil;
 import org.junit.Before;
 import org.junit.Test;
 

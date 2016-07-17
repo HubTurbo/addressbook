@@ -38,6 +38,8 @@ allprojects {
         maven { url "http://maven.teamdev.com/repository/products" }
     }
 
+    // This part is similar to global variables
+    // Access them by using double-quoted strings (GStrings) and referencing by $ e.g. "Variable contains $Variable"
     project.ext {
         controlsFxVersion = '8.40.10'
         guavaVersion = '19.0'
@@ -55,9 +57,24 @@ allprojects {
         slf4jSimpleVersion = '1.6.4'
         commonsIoVersion = '2.4'
 
+        commonsArchiveName = 'commons.jar'
+
+        updateMigratorArchiveName = 'updateMigrator.jar'
+        updateMigratorMainClass = 'hubturbo.updater.UpdateMigrator'
+        updateMigratorDestinationDir = 'src/main/resources/updater' // Update the way updater locates updateMigrator.jar in Updater.java
+
+        updaterArchiveName = 'updater.jar'
+
         mainAppArchiveName = 'resource-' + project.version + '.jar'
-        jarUpdaterDestDir = 'src/main/resources/updater'
-        jarUpdaterArchiveName = 'jarUpdater.jar'
+        mainAppMainClass = 'address.MainApp'
+
+        installerArchiveName = 'addressbook.jar'
+        installerMainClass = 'hubturbo.installer.Launcher'
+
+        licenceArchiveName = 'licence.jar'
+
+        generateVersionDataMainClass = 'hubturbo.installer.VersionDataGenerator'
+        libDir = 'lib'
     }
 
     jacocoTestReport {
@@ -72,35 +89,70 @@ allprojects {
         main {
             java {
                 srcDir 'src/main/java'
-                exclude('hubturbo/updater/**/*')
+                include('address/**/*')
+                include('hubturbo/embeddedbrowser/**/*')
+                include('hubturbo/EmbeddedBrowser.java')
             }
             resources {
                 srcDir 'src/main/resources'
             }
         }
+        updater {
+            java {
+                srcDir 'src/main/java'
+                include('hubturbo/updater/**/*')
+                include('address/updater/**/*')
+                include('address/util/OsDetector.java')
+                include('address/util/Version.java')
+                include('address/util/VersionData.java')
+                include('address/util/LibraryDescriptor.java')
+            }
+            resources {
+                srcDir 'src/main/resources'
+                include('updater/updateMigrator.jar')
+            }
+        }
+        commons {
+            java {
+                srcDir 'src/main/java'
+                include('commons/**/*')
+            }
+        }
+        updateMigrator {
+            java {
+                srcDir 'src/main/java'
+                include('hubturbo/updater/LocalUpdateSpecificationHelper.java')
+                include('hubturbo/updater/LocalUpdateSpecification.java')
+                include('hubturbo/updater/UpdateMigrator.java')
+            }
+            resources {
+                srcDir 'src/main/resources'
+                include('log4j2.json')
+            }
+        }
         installer {
             java {
                 srcDir 'src/main/java/'
-                include('hubturbo/updater/**/*')
-                exclude('hubturbo/updater/VersionDataGenerator.java')
-                include('address/util/FileUtil.java')
+                include('hubturbo/embeddedbrowser/BrowserType.java')
+                include('hubturbo/installer/**/*')
+                exclude('hubturbo/installer/VersionDataGenerator.java')
+                include('address/events/BaseEvent.java')
                 include('address/util/OsDetector.java')
                 include('address/util/Version.java')
+                include('address/util/VersionData.java')
+                include('address/util/LibraryDescriptor.java')
                 include('address/util/ProgressAwareInputStream.java')
-                include('address/util/JsonUtil.java')
-                include('address/updater/VersionData.java')
-                include('address/updater/LibraryDescriptor.java')
                 include('address/util/AppLogger.java')
                 include('address/util/LoggerManager.java')
                 include('address/util/Config.java')
-                include('address/events/BaseEvent.java')
-                include('hubturbo/embeddedbrowser/BrowserType.java')
+                include('commons/FileUtil.java')
+                include('commons/JsonUtil.java')
             }
             resources {
-                srcDir jar.getArchivePath().getParent()
-                include(project.ext.mainAppArchiveName)
-                include('lib/*')
-                exclude('lib/jxbrowser-*-*.jar') // platform specific jxbrowser
+                srcDir "."
+                include("$libDir/*")
+                exclude("$libDir/jxbrowser-*-*.jar") // platform-specific jxbrowser
+                include('VersionData.json')
             }
         }
         generateVersionData {
@@ -125,7 +177,9 @@ allprojects {
         compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
-        compile fileTree(dir: 'lib', include: 'licence.jar')
+        compile files("$libDir/$licenceArchiveName")
+        compile files("$libDir/$commonsArchiveName")
+        compile files("$libDir/$updaterArchiveName")
 
         testCompile "junit:junit:$junitVersion"
         testCompile "org.testfx:testfx-core:4.0.+"
@@ -142,6 +196,19 @@ allprojects {
         installerCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         installerCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         installerCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+
+        updaterCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+        updaterCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
+        updaterCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
+        updaterCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+        updaterCompile files("$libDir/$commonsArchiveName")
+
+        updateMigratorCompile files("$libDir/$commonsArchiveName")
+
+        commonsCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+        commonsCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
+        commonsCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
+        commonsCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
     }
 
     configurations {
@@ -150,120 +217,87 @@ allprojects {
         }
     }
 
-    task generateVersionData(type: JavaExec) {
-        group = "Release"
-
-        def arguments = project.ext.mainAppArchiveName + " ";
-        arguments += configurations.runtime.files.collect { "$it.name" }.join(" ")
-
-        classpath = sourceSets.generateVersionData.runtimeClasspath
-
-        main = 'hubturbo.updater.VersionDataGenerator'
-
-        args arguments.split()
+    task copyAllDependenciesToLibrary(type: Copy) {
+        from(configurations.compile) {
+            exclude("$licenceArchiveName")
+        }
+        into "$libDir/"
     }
 
-    task removeCurrentJarUpdater(type: Delete) {
-        group = "Release"
+    // Compile commons.jar
+    task createCommonsJar(type: Jar) {
+        archiveName = "$commonsArchiveName"
 
-        delete project.ext.jarUpdaterDestDir + '/' + project.ext.jarUpdaterArchiveName
+        from sourceSets.commons.output
+        destinationDir = file("$libDir/")
     }
+    createCommonsJar.dependsOn copyAllDependenciesToLibrary
 
-    task createJarUpdater(type: Jar) {
-        group = "Release"
+    // Compiles updateMigrator.jar
+    task createUpdateMigratorJar(type: Jar) {
+        archiveName = "$updateMigratorArchiveName"
 
         manifest {
-            attributes 'Implementation-Title': 'Jar Updater',
-                    'Implementation-Version': '1.0',
-                    'Main-Class': 'address.updater.JarUpdater',
-                    // Add required JAR libraries into classpath
-                    'Class-Path': configurations.runtime.files.collect { "../lib/${it.name}" }.join(" ")
+            attributes "Main-Class": "$updateMigratorMainClass"
         }
+        from sourceSets.updateMigrator.output
+        destinationDir = file("$updateMigratorDestinationDir")
+    }
+    createUpdateMigratorJar.dependsOn createCommonsJar // Update migrator requires commons.jar dependency
 
-        archiveName = project.ext.jarUpdaterArchiveName
-        destinationDir = file(project.ext.jarUpdaterDestDir)
+    // Creates updater.jar
+    task createUpdaterJar(type: Jar) {
+        archiveName = "$updaterArchiveName"
 
-        // Specify classes needed for Jar Updater
-        from(sourceSets.main.output.resourcesDir) {
-            include 'log4j2.json'
+        from sourceSets.updater.output
+        destinationDir = file("$libDir/")
+    }
+    createUpdaterJar.dependsOn createUpdateMigratorJar
+
+    // Main application jar
+    jar {
+        archiveName = "$mainAppArchiveName"
+
+        manifest {
+            attributes "Main-Class": "$mainAppMainClass",
+                        "Class-Path": configurations.runtime.files.collect { "$libDir/${it.name}" }.join(" ")
         }
         from sourceSets.main.output
-        exclude '**/jarUpdater.jar'
-    }
-
-    createJarUpdater.dependsOn clean
-    createJarUpdater.dependsOn removeCurrentJarUpdater
-
-    task copyDependencyLibrariesToReleaseDir(type: Copy) {
-        group = "Release"
-
-        from configurations.compile
-        into file(jar.getArchivePath().getParent() + '/lib')
-    }
-
-
-    task addJarUpdaterToMainApp(type: Copy) {
-        group = "Release"
-        from(sourceSets.main.resources.srcDirs) {
-            include 'updater/jarUpdater.jar'
-        }
-        into sourceSets.main.output.resourcesDir
-    }
-
-    addJarUpdaterToMainApp.dependsOn createJarUpdater
-
-    jar {
-        manifest {
-            attributes 'Main-Class': 'address.MainApp',
-                    // Add required JAR libraries into classpath
-                    'Class-Path': configurations.runtime.files.collect { "lib/${it.name}" }.join(" ")
-
-        }
-        archiveName = project.ext.mainAppArchiveName
         from(rootDir) {
-            include 'VersionData.json'
+            include "VersionData.json"
         }
-    }
-
-    jar.dependsOn copyDependencyLibrariesToReleaseDir
-    jar.dependsOn addJarUpdaterToMainApp
-
-
-    task createMainAppExecutable(dependsOn: jar) {
-        group = "Release"
-
-        doLast {
-            println "A guide to create a release (after running this task)"
-            println "====================================================="
-            println "(temp) to enable update, put VersionData.json into update/ of the main executable"
+        from(tasks.createUpdaterJar.destinationDir) {
+            include "$updaterArchiveName"
         }
+        destinationDir = file("$libDir/")
     }
+    jar.dependsOn createUpdaterJar
+    compileJava.mustRunAfter createUpdaterJar // jar adds compileJava, but it runs at the beginning (which fails without updater.jar)
+                                              // delay this until updater.jar is created
 
-    createMainAppExecutable.dependsOn clean
+    // Creates the installer, which will pack necessary classes for installation and all dependencies found in lib/
+    task createInstallerJar(type: Jar) {
+        archiveName = "$installerArchiveName"
 
-    task createLauncherJar(type: Jar) {
-        group = "Release"
-
+        manifest {
+            attributes "Main-Class": "$installerMainClass",
+                       "Class-Path": configurations.installerRuntime.files.collect { "$libDir/${it.name}" }.join(" ")
+        }
         from sourceSets.installer.output
-        from(rootDir) {
-            include 'VersionData.json'
-        }
+    }
+    createInstallerJar.dependsOn jar
+    compileInstallerJava.mustRunAfter jar // Compile installer only after its dependencies & resources are done
 
-        manifest {
-            attributes 'Implementation-Title': 'Addressbook',
-                    'Implementation-Version': '1.0',
-                    'Main-Class': 'hubturbo.updater.Launcher',
-                    'Class-Path': configurations.installerRuntime.files.collect { "lib/${it.name}" }.join(" ")
-        }
-
-        archiveName = "addressbook.jar"
+    task generateVersionData(type: JavaExec) {
+        main = "$generateVersionDataMainClass"
+        def arguments = "$mainAppArchiveName" + configurations.runtime.files.collect { "$it.name" }.join(" ")
+        classpath = sourceSets.generateVersionData.runtimeClasspath
+        args arguments.split()
     }
 
     jacoco {
         toolVersion = "0.7.5.201505241946"
     }
-
-    createLauncherJar.dependsOn createMainAppExecutable
 }
 
 task wrapper(type: Wrapper) {

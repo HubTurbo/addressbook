@@ -1,8 +1,8 @@
 package address.updater;
 
 import address.testutil.TestUtil;
-import address.updater.LocalUpdateSpecificationHelper;
-import address.util.FileUtil;
+import hubturbo.updater.LocalUpdateSpecificationHelper;
+import commons.FileUtil;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -1,8 +1,7 @@
-package address.updater;
+package hubturbo.updater;
 
-import address.util.AppLogger;
-import address.util.FileUtil;
-import address.util.LoggerManager;
+import commons.FileUtil;
+import hubturbo.updater.LocalUpdateSpecificationHelper;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -30,9 +29,7 @@ import java.util.concurrent.Executors;
  * --update-specification the update specification file on which files to be updated
  * --source-dir the main directory which files to be updated
  */
-public class JarUpdater extends Application {
-    private static final AppLogger logger = LoggerManager.getLogger(JarUpdater.class);
-
+public class UpdateMigrator extends Application {
     private static final int MAX_RETRIES = 10;
     private static final int WAIT_TIME = 2000;
     private static final String UPDATE_SPECIFICATION_KEY = "update-specification";
@@ -54,10 +51,8 @@ public class JarUpdater extends Application {
             try {
                 run();
             } catch (IllegalArgumentException e) {
-                logger.info("Illegal arguments provided: {}", e);
                 showInvalidProgramArgumentErrorDialog();
             } catch (IOException e) {
-                logger.info("Error running updater: {}", e);
                 showErrorOnUpdatingDialog();
             }
         });
@@ -92,18 +87,13 @@ public class JarUpdater extends Application {
             throw new IllegalArgumentException("updateSpecificationFilePath or sourceDir is null");
         }
 
-        logger.info("{}: {}", UPDATE_SPECIFICATION_KEY, updateSpecificationFilepath);
-        logger.info("{}: {}", SOURCE_DIR_KEY, sourceDir);
-
         List<String> updateSpecifications;
         try {
             updateSpecifications = LocalUpdateSpecificationHelper.readLocalUpdateSpecFile(updateSpecificationFilepath);
         } catch (IOException e) {
             throw new IOException("Failed to read local update specification", e);
         }
-        logger.info("{} updates to be applied", updateSpecifications.size());
         applyUpdateToAllFiles(sourceDir, updateSpecifications);
-        logger.info("Update successful");
 
         stop();
     }
@@ -134,7 +124,6 @@ public class JarUpdater extends Application {
      * the process it created has not ended yet. As such, we will make several tries with wait.
      */
     private void updateFile(String sourceDir, String fileToUpdate) throws IOException {
-        logger.info("Applying update for {}", fileToUpdate);
 
         Path source = Paths.get(sourceDir, fileToUpdate);
         Path dest = Paths.get(fileToUpdate);
@@ -150,10 +139,8 @@ public class JarUpdater extends Application {
             }
 
             try {
-                logger.info("Waiting for {} milliseconds before trying again.", WAIT_TIME);
                 Thread.sleep(WAIT_TIME);
             } catch (InterruptedException e) {
-                logger.warn("Failed to wait for a while: {}", e);
             }
         }
 
@@ -172,14 +159,12 @@ public class JarUpdater extends Application {
             FileUtil.moveFile(source, dest, true);
             return true;
         } catch (IOException e) {
-            logger.info("Failed to move file {} to {}. Might be due to original JAR still in use.",
-                    source.getFileName(), dest.getFileName());
             return false;
         }
     }
 
     private void showInvalidProgramArgumentErrorDialog() {
-        showErrorDialog("Failed to run updater", ERROR_ON_RUNNING_APP_MESSAGE);
+        showErrorDialog("Failed to run installer", ERROR_ON_RUNNING_APP_MESSAGE);
     }
 
     private void showErrorOnUpdatingDialog() {

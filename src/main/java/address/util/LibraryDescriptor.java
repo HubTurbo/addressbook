@@ -1,6 +1,4 @@
-package address.updater;
-
-import address.util.OsDetector;
+package address.util;
 
 import java.net.MalformedURLException;
 import java.net.URL;

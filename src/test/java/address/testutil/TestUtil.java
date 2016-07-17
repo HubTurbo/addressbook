@@ -10,7 +10,7 @@ import address.storage.StorageAddressBook;
 import address.sync.cloud.model.CloudAddressBook;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
-import address.util.FileUtil;
+import commons.FileUtil;
 import address.util.OsDetector;
 import address.util.XmlUtil;
 import hubturbo.embeddedbrowser.BrowserType;
