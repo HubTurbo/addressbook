@@ -38,6 +38,8 @@ allprojects {
         maven { url "http://maven.teamdev.com/repository/products" }
     }
 
+    // This part is similar to global variables
+    // Access them by using double-quoted strings (GStrings) and referencing by $ e.g. "Variable contains $Variable"
     project.ext {
         controlsFxVersion = '8.40.10'
         guavaVersion = '19.0'
@@ -56,11 +58,22 @@ allprojects {
         commonsIoVersion = '2.4'
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
+        mainAppMainClass = 'address.MainApp'
+
         commonsArchiveName = 'commons.jar'
+
         updaterArchiveName = 'updater.jar'
+
         updateMigratorArchiveName = 'updateMigrator.jar'
+        updateMigratorMainClass = 'hubturbo.updater.UpdateMigrator'
+
         installerArchiveName = 'addressbook.jar'
-        libDir = 'lib/'
+        installerMainClass = 'hubturbo.installer.Launcher'
+
+        licenceArchiveName = 'licence.jar'
+        generateVersionDataMainClass = 'hubturbo.installer.VersionDataGenerator'
+        libDir = 'lib'
+        updateMigratorDestinationDir = 'src/main/resources/updater' // Update the way updater locates updateMigrator.jar in Updater.java
     }
 
     jacocoTestReport {
@@ -75,9 +88,9 @@ allprojects {
         main {
             java {
                 srcDir 'src/main/java'
-                exclude('hubturbo/installer/**/*')
-                exclude('hubturbo/updater/**/*')
-                exclude('commons/**/*')
+                include('address/**/*')
+                include('hubturbo/embeddedbrowser/**/*')
+                include('hubturbo/EmbeddedBrowser.java')
             }
             resources {
                 srcDir 'src/main/resources'
@@ -87,8 +100,8 @@ allprojects {
             java {
                 srcDir 'src/main/java'
                 include('hubturbo/updater/**/*')
-                include('address/util/OsDetector.java')
                 include('address/updater/**/*')
+                include('address/util/OsDetector.java')
                 include('address/util/Version.java')
                 include('address/util/VersionData.java')
                 include('address/util/LibraryDescriptor.java')
@@ -119,27 +132,25 @@ allprojects {
         installer {
             java {
                 srcDir 'src/main/java/'
+                include('hubturbo/embeddedbrowser/BrowserType.java')
                 include('hubturbo/installer/**/*')
                 exclude('hubturbo/installer/VersionDataGenerator.java')
-                include('address/util/FileUtil.java')
+                include('address/events/BaseEvent.java')
                 include('address/util/OsDetector.java')
                 include('address/util/Version.java')
                 include('address/util/VersionData.java')
                 include('address/util/LibraryDescriptor.java')
                 include('address/util/ProgressAwareInputStream.java')
-                include('address/util/JsonUtil.java')
                 include('address/util/AppLogger.java')
                 include('address/util/LoggerManager.java')
                 include('address/util/Config.java')
-                include('address/events/BaseEvent.java')
-                include('hubturbo/embeddedbrowser/BrowserType.java')
                 include('commons/FileUtil.java')
                 include('commons/JsonUtil.java')
             }
             resources {
                 srcDir "."
-                include('lib/*')
-                exclude('lib/jxbrowser-*-*.jar') // platform specific jxbrowser
+                include("$libDir/*")
+                exclude("$libDir/jxbrowser-*-*.jar") // platform specific jxbrowser
                 include('VersionData.json')
             }
         }
@@ -165,9 +176,9 @@ allprojects {
         compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
-        compile files("lib/licence.jar")
-        compile files("lib/commons.jar")
-        compile files("lib/updater.jar")
+        compile files("$libDir/$licenceArchiveName")
+        compile files("$libDir/$commonsArchiveName")
+        compile files("$libDir/$updaterArchiveName")
 
         testCompile "junit:junit:$junitVersion"
         testCompile "org.testfx:testfx-core:4.0.+"
@@ -189,9 +200,9 @@ allprojects {
         updaterCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         updaterCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         updaterCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-        updaterCompile files("lib/commons.jar")
+        updaterCompile files("$libDir/$commonsArchiveName")
 
-        updateMigratorCompile files("lib/commons.jar")
+        updateMigratorCompile files("$libDir/$commonsArchiveName")
 
         commonsCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         commonsCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
@@ -207,9 +218,9 @@ allprojects {
 
     task copyAllDependenciesToLibrary(type: Copy) {
         from(configurations.compile) {
-            exclude('licence.jar')
+            exclude("$licenceArchiveName")
         }
-        into "$libDir"
+        into "$libDir/"
     }
 
     // Compile commons.jar
@@ -217,7 +228,7 @@ allprojects {
         archiveName = "$commonsArchiveName"
 
         from sourceSets.commons.output
-        destinationDir = file("$libDir")
+        destinationDir = file("$libDir/")
     }
     createCommonsJar.dependsOn copyAllDependenciesToLibrary
 
@@ -226,10 +237,10 @@ allprojects {
         archiveName = "$updateMigratorArchiveName"
 
         manifest {
-            attributes "Main-Class": "hubturbo.updater.UpdateMigrator"
+            attributes "Main-Class": "$updateMigratorMainClass"
         }
         from sourceSets.updateMigrator.output
-        destinationDir = file("src/main/resources/updater") // temporarily only, since Updater checks this dir to launch the migrator
+        destinationDir = file("$updateMigratorDestinationDir")
     }
     createUpdateMigratorJar.dependsOn createCommonsJar // Update migrator requires commons.jar dependency
 
@@ -238,7 +249,7 @@ allprojects {
         archiveName = "$updaterArchiveName"
 
         from sourceSets.updater.output
-        destinationDir = file("$libDir")
+        destinationDir = file("$libDir/")
     }
     createUpdaterJar.dependsOn createUpdateMigratorJar
 
@@ -246,6 +257,10 @@ allprojects {
     jar {
         archiveName = "$mainAppArchiveName"
 
+        manifest {
+            attributes "Main-Class": "$mainAppMainClass",
+                        "Class-Path": configurations.runtime.files.collect { "$libDir/${it.name}" }.join(" ")
+        }
         from sourceSets.main.output
         from(rootDir) {
             include "VersionData.json"
@@ -253,39 +268,29 @@ allprojects {
         from(tasks.createUpdaterJar.destinationDir) {
             include "$updaterArchiveName"
         }
-        destinationDir = file("$libDir")
-        manifest {
-            attributes "Main-Class": "address.MainApp",
-                        "Class-Path": configurations.runtime.files.collect { "lib/${it.name}" }.join(" ")
-        }
+        destinationDir = file("$libDir/")
     }
     jar.dependsOn createUpdaterJar
     compileJava.mustRunAfter createUpdaterJar // jar adds compileJava, but it runs at the beginning (which fails without updater.jar)
-                                           // delay this until updater.jar is created
+                                              // delay this until updater.jar is created
 
     // Creates the installer, which will pack necessary classes for installation and all dependencies found in lib/
     task createInstallerJar(type: Jar) {
         archiveName = "$installerArchiveName"
-        from sourceSets.installer.output
 
         manifest {
-            attributes "Main-Class": "hubturbo.installer.Launcher",
-                       "Class-Path": configurations.installerRuntime.files.collect { "lib/${it.name}" }.join(" ")
+            attributes "Main-Class": "$installerMainClass",
+                       "Class-Path": configurations.installerRuntime.files.collect { "$libDir/${it.name}" }.join(" ")
         }
+        from sourceSets.installer.output
     }
     createInstallerJar.dependsOn jar
     compileInstallerJava.mustRunAfter jar // Compile installer only after its dependencies & resources are done
 
     task generateVersionData(type: JavaExec) {
-        group = "Release"
-
-        def arguments = "$mainAppArchiveName";
-        arguments += configurations.runtime.files.collect { "$it.name" }.join(" ")
-
+        main = "$generateVersionDataMainClass"
+        def arguments = "$mainAppArchiveName" + configurations.runtime.files.collect { "$it.name" }.join(" ")
         classpath = sourceSets.generateVersionData.runtimeClasspath
-
-        main = 'hubturbo.installer.VersionDataGenerator'
-
         args arguments.split()
     }
 
