@@ -126,45 +126,4 @@ public class EditPersonCommandTest {
         assertTrue(epc.getViewable().getBacking().dataFieldsEqual(inputData));
     }
 
-    // THIS TEST TAKES >=1 SECONDS BY DESIGN
-    @Test
-    public void interruptGracePeriod_withEditRequest_changesEditResult() {
-        // grace period duration must be non zero, will be interrupted immediately anyway
-        final EditPersonCommand epc = spy(new EditPersonCommand(0, testTarget, returnValidEmptyInput, 1, events::post, modelManagerSpy, ADDRESSBOOK_NAME));
-        final Supplier<Optional<ReadOnlyPerson>> editInputWrapper = inputRetrieverWrapper(inputData);
-
-        epc.overrideWithEditPerson(editInputWrapper); // pre-specify apc will be interrupted by edit
-        epc.run();
-
-        assertTrue(epc.getViewable().dataFieldsEqual(inputData));
-        assertTrue(epc.getViewable().getBacking().dataFieldsEqual(inputData));
-    }
-
-    @Test
-    public void interruptGracePeriod_withDeleteRequest_cancelsAndSpawnsDeleteCommand() {
-        // grace period duration must be non zero, will be interrupted immediately anyway
-        final EditPersonCommand epc = spy(new EditPersonCommand(0, testTarget, returnValidEmptyInput, 1,  e -> {}, modelManagerSpy, ADDRESSBOOK_NAME));
-
-        doNothing().when(modelManagerSpy).execNewDeletePersonCommand(any());
-        epc.overrideWithDeletePerson(); // pre-specify epc will be interrupted by delete
-
-        epc.run();
-
-        verify(modelManagerSpy).execNewDeletePersonCommand(testTarget);
-        assertEquals(epc.getState(), State.CANCELLED);
-    }
-
-    @Test
-    public void interruptGracePeriod_withCancelRequest_undoesSimulation() {
-        final ReadOnlyPerson targetSnapshot = new Person(testTarget);
-        // grace period duration must be non zero, will be interrupted immediately anyway
-        final EditPersonCommand epc = spy(new EditPersonCommand(0, testTarget, returnValidEmptyInput, 1,  e -> {}, modelManagerSpy, ADDRESSBOOK_NAME));
-
-        epc.cancelCommand(); // pre-specify epc will be interrupted by cancel
-
-        epc.run();
-
-        assertTrue(epc.getViewable().dataFieldsEqual(targetSnapshot));
-        assertEquals(epc.getState(), State.CANCELLED);
-    }
 }

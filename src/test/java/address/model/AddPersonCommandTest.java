@@ -143,46 +143,6 @@ public class AddPersonCommandTest {
         assertFinalStatesCorrectForSuccessfulAdd(apc, modelManagerSpy, inputData);
     }
 
-    // THIS TEST TAKES >=1 SECONDS BY DESIGN
-    @Test
-    public void interruptGracePeriod_withEditRequest_changesAddedPersonData() {
-        // grace period duration must be non zero, will be interrupted immediately anyway
-        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1, events::post, modelManagerSpy, ADDRESSBOOK_NAME));
-        final Supplier<Optional<ReadOnlyPerson>> editInputWrapper = inputRetrieverWrapper(TestUtil.generateSamplePersonWithAllData(1));
-
-        apc.overrideWithEditPerson(editInputWrapper); // pre-specify apc will be interrupted by edit
-        apc.run();
-
-        assertFinalStatesCorrectForSuccessfulAdd(apc, modelManagerSpy, editInputWrapper.get().get());
-    }
-
-    @Test
-    public void interruptGracePeriod_withDeleteRequest_cancelsCommand() {
-        // grace period duration must be non zero, will be interrupted immediately anyway
-        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1,  e -> {}, modelManagerSpy, ADDRESSBOOK_NAME));
-
-        apc.overrideWithDeletePerson(); // pre-specify apc will be interrupted by delete
-        apc.run();
-
-        assertTrue(modelManagerSpy.backingModel().getPersonList().isEmpty());
-        assertTrue(modelManagerSpy.visibleModel().getPersonList().isEmpty());
-        assertFalse(modelManagerSpy.personHasOngoingChange(apc.getViewableToAdd()));
-        assertEquals(apc.getState(), State.CANCELLED);
-    }
-
-    @Test
-    public void interruptGracePeriod_withCancelRequest_undoesSimulation() {
-        // grace period duration must be non zero, will be interrupted immediately anyway
-        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1,  e -> {}, modelManagerSpy, ADDRESSBOOK_NAME));
-
-        apc.cancelCommand(); // pre-specify apc will be interrupted by cancel
-        apc.run();
-
-        assertTrue(modelManagerSpy.backingModel().getPersonList().isEmpty());
-        assertTrue(modelManagerSpy.visibleModel().getPersonList().isEmpty());
-        assertFalse(modelManagerSpy.personHasOngoingChange(apc.getViewableToAdd()));
-        assertEquals(apc.getState(), State.CANCELLED);
-    }
 
     private void assertFinalStatesCorrectForSuccessfulAdd(AddPersonCommand command, ModelManager model, ReadOnlyPerson resultData) {
         assertEquals(command.getState(), State.SUCCESSFUL);
