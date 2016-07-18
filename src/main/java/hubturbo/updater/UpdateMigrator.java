@@ -1,6 +1,10 @@
 package hubturbo.updater;
 
+import address.util.Version;
+import address.util.VersionData;
 import commons.FileUtil;
+import commons.JsonUtil;
+import hubturbo.installer.Installer;
 import hubturbo.updater.LocalUpdateSpecificationHelper;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -12,6 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -37,6 +42,8 @@ public class UpdateMigrator extends Application {
     private static final String ERROR_ON_RUNNING_APP_MESSAGE = "Application not called properly, " +
                                                                "please contact developer.";
     private static final String ERROR_ON_UPDATING_MESSAGE = "There was an error in updating.";
+    private static final String UPDATE_DIR = "update";
+    private static final String JAR_UPDATER_APP_PATH = "updater.jar";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
 
@@ -55,6 +62,7 @@ public class UpdateMigrator extends Application {
             } catch (IOException e) {
                 showErrorOnUpdatingDialog();
             }
+            stop();
         });
     }
 
@@ -79,6 +87,11 @@ public class UpdateMigrator extends Application {
     }
 
     private void run() throws IllegalArgumentException, IOException {
+        Version curVersion = readCurrentVersionFromFile();
+        DependencyHistoryHandler dependencyHistoryHandler = new DependencyHistoryHandler(curVersion);
+        BackupHandler backupHandler = new BackupHandler(curVersion, dependencyHistoryHandler);
+        backupHandler.cleanupBackups();
+
         Map<String, String> commandLineArgs = getParameters().getNamed();
         String updateSpecificationFilepath = commandLineArgs.get(UPDATE_SPECIFICATION_KEY);
         String sourceDir = commandLineArgs.get(SOURCE_DIR_KEY);
@@ -96,6 +109,11 @@ public class UpdateMigrator extends Application {
         applyUpdateToAllFiles(sourceDir, updateSpecifications);
 
         stop();
+    }
+
+    private Version readCurrentVersionFromFile() throws IOException {
+        VersionData versionData = FileUtil.deserializeObjectFromJsonFile(new File("VersionData.json"), VersionData.class);
+        return Version.fromString(versionData.getVersion());
     }
 
     @Override

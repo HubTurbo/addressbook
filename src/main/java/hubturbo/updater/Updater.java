@@ -43,8 +43,6 @@ public class Updater {
     private static final String MSG_UPDATE_FINISHED = "Update will be applied on next launch";
     // --- End of Messages
 
-    private static final String JAR_UPDATER_RESOURCE_PATH = "updater/updateMigrator.jar";
-    private static final String JAR_UPDATER_APP_PATH = UPDATE_DIR + File.separator + "updateMigrator.jar";
     private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
     private static final String VERSION_DATA_ON_SERVER_STABLE =
             "https://raw.githubusercontent.com/HubTurbo/addressbook/stable/VersionData.json";
@@ -53,28 +51,21 @@ public class Updater {
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
     private static final String LIB_DIR = "lib" + File.separator;
     private static final String MAIN_APP_FILEPATH = LIB_DIR + "resource.jar";
+    public static final String MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA = "Error updating backup versions' data file";
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
-    private final DependencyHistoryHandler dependencyHistoryHandler;
-    private final BackupHandler backupHandler;
     private final Version currentVersion;
     private final List<Version> downloadedVersions;
     private UpdateProgressNotifier updateProgressNotifier;
 
-    private boolean isUpdateApplicable;
-
     public Updater(Version currentVersion) {
         super();
-        isUpdateApplicable = false;
-        dependencyHistoryHandler = new DependencyHistoryHandler(currentVersion);
-        backupHandler = new BackupHandler(currentVersion, dependencyHistoryHandler);
         this.currentVersion = currentVersion;
         downloadedVersions = getDownloadedVersionsFromFile(DOWNLOADED_VERSIONS_FILE);
     }
 
     public void start(UpdateProgressNotifier updateProgressNotifier) {
         this.updateProgressNotifier = updateProgressNotifier;
-        pool.execute(backupHandler::cleanupBackups);
         pool.execute(this::checkForUpdate);
     }
 
@@ -141,17 +132,16 @@ public class Updater {
             updateProgressNotifier.sendStatusFailed(MSG_FAIL_CREATE_UPDATE_SPEC);
             return;
         }
-        
+
+        downloadedVersions.add(latestVersion);
         try {
-            extractJarUpdater();
+            writeDownloadedVersionsToFile(downloadedVersions, DOWNLOADED_VERSIONS_FILE);
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_EXTRACT_JAR_UPDATER);
+            updateProgressNotifier.sendStatusFailed(MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA);
             return;
         }
 
         updateProgressNotifier.sendStatusFinished(MSG_UPDATE_FINISHED);
-        isUpdateApplicable = true;
-        downloadedVersions.add(latestVersion);
     }
 
     /**
@@ -336,27 +326,6 @@ public class Updater {
         LocalUpdateSpecificationHelper.saveLocalUpdateSpecFile(listOfFileNames);
     }
 
-    /**
-     * Extract the UpdateMigrator resource into an external jar to prepare for updating upon app closure
-     * Replaces any existing UpdateMigrator found
-     *
-     * @throws IOException
-     */
-    private void extractJarUpdater() throws IOException {
-        assert Updater.class.getClassLoader().getResource(JAR_UPDATER_RESOURCE_PATH) != null : "Jar installer resource cannot be found";
-
-        File jarUpdaterFile = new File(JAR_UPDATER_APP_PATH);
-
-        if (!jarUpdaterFile.exists() && !jarUpdaterFile.createNewFile()) {
-            throw new IOException("Failed to create jar installer empty file");
-        }
-        try {
-            extractFile(jarUpdaterFile, JAR_UPDATER_RESOURCE_PATH);
-        } catch (IOException e) {
-            throw new IOException("Failed to extract jar installer", e);
-        }
-    }
-
     private void writeDownloadedVersionsToFile(List<Version> downloadedVersions, File file) throws IOException {
         try {
             if (!FileUtil.isFileExists(file.toString())) {
@@ -378,39 +347,5 @@ public class Updater {
             System.out.println("Failed to read downloaded version from file: " + e);
             return new ArrayList<>();
         }
-    }
-
-    private void applyUpdate() {
-        if (!this.isUpdateApplicable) return;
-
-        try {
-            backupHandler.createAppBackup(currentVersion);
-        } catch (IOException | URISyntaxException e) {
-            System.out.println("Failed to create backup of app; not applying update: " + e);
-            return;
-        }
-
-        try {
-            writeDownloadedVersionsToFile(downloadedVersions, DOWNLOADED_VERSIONS_FILE);
-        } catch (IOException e) {
-            System.out.println("Error writing downloaded versions to file: " + e);
-            return;
-        }
-
-        String localUpdateSpecFilepath = LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
-        String jarUpdaterCmdArguments = String.format("--update-specification=%s --source-dir=%s", localUpdateSpecFilepath, UPDATE_DIR);
-        String jarUpdaterCmd = String.format("java -jar %1$s %2$s", JAR_UPDATER_APP_PATH, jarUpdaterCmdArguments);
-
-        System.out.println("Starting jar installer");
-
-        try {
-            Runtime.getRuntime().exec(jarUpdaterCmd);
-        } catch (IOException e) {
-            System.out.println("Failed to start jar installer.");
-        }
-    }
-
-    public void stop() {
-        applyUpdate();
     }
 }
