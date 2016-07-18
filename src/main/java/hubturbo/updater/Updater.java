@@ -40,7 +40,6 @@ public class Updater {
     private static final String MSG_NO_UPDATE = "There is no update";
     private static final String MSG_FAIL_READ_LATEST_VERSION = "Error reading latest version";
     private static final String MSG_NO_NEWER_VERSION = "No newer version to be downloaded";
-    private static final String MSG_SKIP_DEVELOPER_ENVIRONMENT = "Developer environment detected; not performing update";
     private static final String MSG_UPDATE_FINISHED = "Update will be applied on next launch";
     // --- End of Messages
 

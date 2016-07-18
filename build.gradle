@@ -265,10 +265,6 @@ allprojects {
     jar {
         archiveName = "$mainAppArchiveName"
 
-        manifest {
-            attributes "Main-Class": "$mainAppMainClass",
-                        "Class-Path": configurations.runtime.files.collect { "$libDir/${it.name}" }.join(" ")
-        }
         from sourceSets.main.output
         from(rootDir) {
             include "VersionData.json"
