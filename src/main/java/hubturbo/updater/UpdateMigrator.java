@@ -16,12 +16,12 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * This class is meant to read local update specifications from a file, then replace specified files
+ * This class is meant to perform pending updates that have been successfully downloaded
+ * It does so by reading local update specifications from a file, then replace specified files
  */
 public class UpdateMigrator extends Application {
     private static final int MAX_RETRIES = 10;
@@ -47,16 +47,19 @@ public class UpdateMigrator extends Application {
         });
     }
 
+    @Override
+    public void stop() {
+        Platform.exit();
+        System.exit(0);
+    }
+
     private void showWaitingWindow(Stage stage) {
-        VBox windowMainLayout = new VBox();
+        VBox windowMainLayout = new VBox(getUpdatingLabel());
+
         Scene scene = new Scene(windowMainLayout);
 
         stage.setTitle("Updater");
         stage.setScene(scene);
-
-        Label updatingLabel = getUpdatingLabel();
-        windowMainLayout.getChildren().addAll(updatingLabel);
-
         stage.show();
     }
 
@@ -74,30 +77,29 @@ public class UpdateMigrator extends Application {
         String sourceDir = Updater.UPDATE_DIR;
 
         System.out.println("Getting update specifications from: " + updateSpecificationFilePath);
-        Optional<List<String>> updateSpecifications = getUpdateSpecifications(updateSpecificationFilePath);
-        if (updateSpecifications.isPresent()) {
-            Version curVersion = readCurrentVersionFromFile();
-            BackupHandler backupHandler = new BackupHandler(curVersion);
-            System.out.println("Creating backup app for current version");
-            backupHandler.createAppBackup(curVersion);
-            System.out.println("Cleaning up backup apps");
-            backupHandler.cleanupBackups();
-            applyUpdateToAllFiles(sourceDir, updateSpecifications.get());
-            deleteUpdateSpec(updateSpecificationFilePath);
-        }
+        List<String> updateSpecifications = getUpdateSpecifications(updateSpecificationFilePath);
+
+        updateBackups();
+        applyUpdateToAllFiles(sourceDir, updateSpecifications);
+        deleteFile(updateSpecificationFilePath);
     }
 
-    private void deleteUpdateSpec(String updateSpecFilePath) throws IOException {
+    /**
+     * Creates a new backup for the current version, and cleans up backups
+     * @throws IOException
+     */
+    private void updateBackups() throws IOException {
+        BackupHandler backupHandler = new BackupHandler(readCurrentVersionFromFile());
+        backupHandler.createAppBackup();
+        backupHandler.cleanupBackups();
+    }
+
+    private void deleteFile(String updateSpecFilePath) throws IOException {
         FileUtil.deleteFile(updateSpecFilePath);
     }
 
-    private Optional<List<String>> getUpdateSpecifications(String updateSpecificationFilePath) {
-        try {
-            return Optional.of(LocalUpdateSpecificationHelper.readLocalUpdateSpecFile(updateSpecificationFilePath));
-        } catch (IOException e) {
-            System.out.println("No update specification found");
-            return Optional.empty();
-        }
+    private List<String> getUpdateSpecifications(String updateSpecificationFilePath) throws IOException {
+        return LocalUpdateSpecificationHelper.readLocalUpdateSpecFile(updateSpecificationFilePath);
     }
 
     private Version readCurrentVersionFromFile() throws IOException {
@@ -105,17 +107,11 @@ public class UpdateMigrator extends Application {
         return Version.fromString(versionData.getVersion());
     }
 
-    @Override
-    public void stop() {
-        Platform.exit();
-        System.exit(0);
-    }
-
     /**
-     * Attempts to replace files with files from sourceDir
+     * Attempts to update files with files from sourceDir
      *
      * @param sourceDir
-     * @param filesToBeUpdated
+     * @param filesToBeUpdated list of files' filepaths
      * @throws IOException
      */
     private void applyUpdateToAllFiles(String sourceDir, List<String> filesToBeUpdated) throws IOException {
@@ -134,28 +130,38 @@ public class UpdateMigrator extends Application {
     private void updateFile(String sourceDir, String fileToUpdate) throws IOException {
         Path source = Paths.get(sourceDir, fileToUpdate);
         Path dest = Paths.get(fileToUpdate);
+        createFileAndParentDirs(dest);
 
-        if (!FileUtil.isFileExists(dest.toString())) {
-            FileUtil.createParentDirsOfFile(dest.toFile());
+        for (int i = 0; i < MAX_RETRIES; i++) {
+            if (applyUpdate(source, dest)) return;
+            if (i != MAX_RETRIES - 1) sleepFor(WAIT_TIME);
         }
-
-        int noOfRetries = 0;
-        while (!applyUpdate(source, dest)) {
-            if (++noOfRetries > MAX_RETRIES) {
-                throw new IOException("Jar file cannot be updated. Most likely it is in use by another process.");
-            }
-
-            try {
-                Thread.sleep(WAIT_TIME);
-            } catch (InterruptedException e) {
-            }
-        }
+        throw new IOException("Jar file cannot be updated. Most likely it is in use by another process.");
 
     }
 
+    private void createFileAndParentDirs(Path dest) throws IOException {
+        if (!FileUtil.isFileExists(dest.toString())) {
+            FileUtil.createParentDirsOfFile(dest.toFile());
+        }
+    }
+
     /**
-     * Attempts to replace the file at dest with the file at source
-     * Source file will not be kept
+     * Attempts to sleep for a specified period
+     *
+     * @param sleepDurationInMilliseconds
+     */
+    private void sleepFor(int sleepDurationInMilliseconds) {
+        try {
+            Thread.sleep(sleepDurationInMilliseconds);
+        } catch (InterruptedException e) {
+            System.out.println("Error sleeping thread for: " + sleepDurationInMilliseconds);
+        }
+    }
+
+    /**
+     * Attempts to move the file from source to dest
+     * Source file will not be kept and destination file will be overwritten
      *
      * @param source
      * @param dest
@@ -171,7 +177,7 @@ public class UpdateMigrator extends Application {
     }
 
     private void showErrorOnUpdatingDialog(Exception e) {
-        showErrorDialog("Failed to update", ERROR_ON_UPDATING_MESSAGE, e.getMessage());
+        showErrorDialog("Failed to perform update", ERROR_ON_UPDATING_MESSAGE, e.getMessage());
     }
 
     private void showErrorDialog(String title, String header, String message) {
