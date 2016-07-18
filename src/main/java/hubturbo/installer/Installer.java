@@ -10,6 +10,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
@@ -38,12 +39,14 @@ import java.util.stream.Collectors;
 /**
  * Installer JAR will contain all of addressbook's required JARs (libraries and dependencies) and
  * the main application JAR.
+ *
+ * This class should only be run from the packed jar which contains the VersionData.json resource
  */
 public class Installer extends Application {
     private static final String LIBRARY_DIR = "lib";
-    private static final Path LAUNCHER_FILE_PATH = Paths.get("launcher.jar");
     private static final String VERSION_DATA_RESOURCE = "/VersionData.json";
     private static final String VERSION_DATA = "VersionData.json";
+    private static final String LAUNCHER_JAR = "addressbook.jar";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private ProgressBar progressBar;
@@ -52,16 +55,24 @@ public class Installer extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         showWaitingWindow(primaryStage);
-        Platform.runLater(() -> loadingLabel.setText("Installing..."));
         pool.execute(() -> {
             try {
                 if (shouldRunInstaller()) runInstall();
-                stop();
             } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
+                showErrorDialogAndQuit("Installation Error", "Error encountered during installation", e.getMessage());
             }
+            stop();
+        });
+    }
+
+    private void showErrorDialogAndQuit(String title, String headerText, String contentText) {
+        Platform.runLater(() -> {
+            final Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setHeaderText(headerText);
+            alert.setContentText(contentText);
+            alert.showAndWait();
+            stop();
         });
     }
 
@@ -72,7 +83,7 @@ public class Installer extends Application {
     }
 
     private void runInstall() throws IOException {
-        Platform.runLater(() -> loadingLabel.setText("Creating lib dir"));
+        Platform.runLater(() -> loadingLabel.setText("Creating lib directory"));
         try {
             createLibraryDir();
         } catch (IOException e) {
@@ -86,6 +97,7 @@ public class Installer extends Application {
             throw new IOException("Failed to extract JARs.", e);
         }
 
+        Platform.runLater(() -> loadingLabel.setText("Downloading required components. Please wait."));
         try {
             downloadPlatformSpecificComponents();
         } catch (IOException e) {
@@ -102,7 +114,7 @@ public class Installer extends Application {
     private void runLauncher() throws IOException {
         try {
             System.out.println("Starting launcher");
-            String command = "java -jar addressbook.jar";
+            String command = "java -jar " + LAUNCHER_JAR;
             Runtime.getRuntime().exec(command, null, new File(System.getProperty("user.dir")));
             System.out.println("Launcher started");
         } catch (IOException e) {
@@ -144,11 +156,6 @@ public class Installer extends Application {
     }
 
     private void showWaitingWindow(Stage stage) {
-        stage.setTitle("Installer");
-        VBox windowMainLayout = new VBox();
-        Scene scene = new Scene(windowMainLayout);
-        stage.setScene(scene);
-
         loadingLabel = getLoadingLabel();
         progressBar = getProgressBar();
 
@@ -157,8 +164,12 @@ public class Installer extends Application {
         vb.setPadding(new Insets(40));
         vb.setAlignment(Pos.CENTER);
         vb.getChildren().addAll(loadingLabel, progressBar);
-        windowMainLayout.getChildren().add(vb);
 
+        VBox windowMainLayout = new VBox(vb);
+        Scene scene = new Scene(windowMainLayout);
+
+        stage.setTitle("Installer");
+        stage.setScene(scene);
         stage.show();
     }
 
@@ -202,12 +213,9 @@ public class Installer extends Application {
                     System.out.println("Extract dest: " + extractDest);
                     // Only extract file if it is not present
                     File resourceFile = extractDest.toFile();
-                    // TODO: installer should not blindly extract libraries since it might be outdated
-                    // outdated installer with outdated libraries could lead to extracting unnecessary library files
-                    // on each start-up
                     if (!resourceFile.exists()) {
                         Platform.runLater(() -> loadingLabel.setText("Extracting file: " + resourceFile));
-                        extractJarFile(jar, jarEntry, isLauncherJar(fileName) ? LAUNCHER_FILE_PATH : extractDest);
+                        extractJarFile(jar, jarEntry, extractDest);
                     }
                 }
             }
@@ -224,17 +232,12 @@ public class Installer extends Application {
         Files.copy(in, extractDest, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private boolean isLauncherJar(String filename) {
-        return filename.startsWith("launcher") && filename.endsWith(".jar");
-    }
-
     private String getSelfJarFilename() throws URISyntaxException {
         return FileUtil.getJarFileOfClass(this.getClass()).getName();
     }
 
     private void downloadPlatformSpecificComponents() throws IOException {
         System.out.println("Getting platform specific components");
-        Platform.runLater(() -> loadingLabel.setText("Downloading required components. Please wait."));
 
         String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream(VERSION_DATA_RESOURCE));
         VersionData versionData = JsonUtil.fromJsonString(json, VersionData.class);

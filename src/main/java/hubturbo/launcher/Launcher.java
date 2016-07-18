@@ -12,6 +12,8 @@ import java.util.concurrent.Executors;
 
 /**
  * Launcher for the address book application
+ *
+ * This assumes that the application main class can be found in the library files (in lib folder)
  */
 public class Launcher extends Application {
     private static final String ERROR_LAUNCH = "Failed to launch";
