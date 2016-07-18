@@ -31,17 +31,17 @@ public class BackupHandler {
     private final Version currentVersion;
     private DependencyHistoryHandler dependencyHistoryHandler;
 
-    public BackupHandler(Version currentVersion, DependencyHistoryHandler dependencyHistoryHandler) {
+    public BackupHandler(Version currentVersion) {
         this.currentVersion = currentVersion;
-        this.dependencyHistoryHandler = dependencyHistoryHandler;
+        this.dependencyHistoryHandler = new DependencyHistoryHandler(currentVersion);
     }
 
     /**
      * Creates a backup unless app is already being run from backup JAR.
      */
-    protected void createAppBackup(Version version) throws IOException, URISyntaxException {
+    protected void createAppBackup() throws IOException {
         //TODO: generate this dynamically, temp for updater refactoring
-        File mainAppJar = new File("lib/resource.jar");
+        File mainAppJar = new File("lib/resource-" + currentVersion.toString() + ".jar");
 
         if (isRunFromBackupJar(mainAppJar)) {
             return;
@@ -49,7 +49,7 @@ public class BackupHandler {
 
         createBackupDirIfMissing();
         extractFile(BACKUP_INSTRUCTION_RESOURCE_PATH, BACKUP_INSTRUCTION_FILENAME);
-        makeBackupCopy(mainAppJar, version);
+        makeBackupCopy(mainAppJar, currentVersion);
     }
 
     /**
@@ -63,8 +63,7 @@ public class BackupHandler {
         List<Version> backupVersions = getVersionsFromFileNames(backupFilesNames);
 
         List<String> backupFilesToDelete = getBackupFilesToDelete(backupFilesNames, MAX_BACKUP_JAR_KEPT);
-        backupFilesToDelete.stream()
-                .forEach(this::deleteBackupFile);
+        backupFilesToDelete.forEach(this::deleteBackupFile);
 
         List<Version> deletedVersions = getVersionsFromFileNames(backupFilesToDelete);
         List<Version> retainedVersions = backupVersions.stream()
@@ -74,8 +73,7 @@ public class BackupHandler {
         Set<String> unusedDependencies = getUnusedDependencies(deletedVersions, retainedVersions,
                 dependencyHistoryHandler.getDependenciesTableForKnownVersions());
 
-        unusedDependencies.stream()
-                .forEach(this::deleteDependencyFile);
+        unusedDependencies.forEach(this::deleteDependencyFile);
 
         dependencyHistoryHandler.cleanUpUnusedDependencies(deletedVersions);
     }

@@ -127,7 +127,6 @@ public class MainApp extends Application {
         logger.info("Stopping application.");
         ui.stop();
         storageManager.savePrefsToFile(userPrefs);
-        updater.stop();
         syncManager.stop();
         keyBindingsManager.stop();
         quit();

@@ -34,7 +34,6 @@ public class Updater {
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
     private static final String MSG_FAIL_DOWNLOAD_UPDATE = "Downloading update failed";
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
-    private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR installer";
     private static final String MSG_FAIL_UPDATE_NOT_SUPPORTED = "Update not supported on detected OS";
     private static final String MSG_FAIL_OBTAIN_LATEST_VERSION_DATA = "Unable to obtain latest version data. Please manually download the latest version.";
     private static final String MSG_NO_UPDATE = "There is no update";
@@ -43,8 +42,6 @@ public class Updater {
     private static final String MSG_UPDATE_FINISHED = "Update will be applied on next launch";
     // --- End of Messages
 
-    private static final String JAR_UPDATER_RESOURCE_PATH = "updater/updateMigrator.jar";
-    private static final String JAR_UPDATER_APP_PATH = UPDATE_DIR + File.separator + "updateMigrator.jar";
     private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
     private static final String VERSION_DATA_ON_SERVER_STABLE =
             "https://raw.githubusercontent.com/HubTurbo/addressbook/stable/VersionData.json";
@@ -53,28 +50,21 @@ public class Updater {
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
     private static final String LIB_DIR = "lib" + File.separator;
     private static final String MAIN_APP_FILEPATH = LIB_DIR + "resource.jar";
+    public static final String MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA = "Error updating backup versions' data file";
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
-    private final DependencyHistoryHandler dependencyHistoryHandler;
-    private final BackupHandler backupHandler;
     private final Version currentVersion;
     private final List<Version> downloadedVersions;
     private UpdateProgressNotifier updateProgressNotifier;
 
-    private boolean isUpdateApplicable;
-
     public Updater(Version currentVersion) {
         super();
-        isUpdateApplicable = false;
-        dependencyHistoryHandler = new DependencyHistoryHandler(currentVersion);
-        backupHandler = new BackupHandler(currentVersion, dependencyHistoryHandler);
         this.currentVersion = currentVersion;
         downloadedVersions = getDownloadedVersionsFromFile(DOWNLOADED_VERSIONS_FILE);
     }
 
     public void start(UpdateProgressNotifier updateProgressNotifier) {
         this.updateProgressNotifier = updateProgressNotifier;
-        pool.execute(backupHandler::cleanupBackups);
         pool.execute(this::checkForUpdate);
     }
 
@@ -127,6 +117,12 @@ public class Updater {
         }
 
         try {
+            createUpdateDir();
+        } catch (IOException e) {
+            updateProgressNotifier.sendStatusFailed("Error creating update directory");
+        }
+
+        try {
             downloadFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
         } catch (IOException e) {
             updateProgressNotifier.sendStatusFailed(MSG_FAIL_DOWNLOAD_UPDATE);
@@ -141,17 +137,23 @@ public class Updater {
             updateProgressNotifier.sendStatusFailed(MSG_FAIL_CREATE_UPDATE_SPEC);
             return;
         }
-        
+
+        downloadedVersions.add(latestVersion);
         try {
-            extractJarUpdater();
+            writeDownloadedVersionsToFile(downloadedVersions, DOWNLOADED_VERSIONS_FILE);
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_EXTRACT_JAR_UPDATER);
+            updateProgressNotifier.sendStatusFailed(MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA);
             return;
         }
 
         updateProgressNotifier.sendStatusFinished(MSG_UPDATE_FINISHED);
-        isUpdateApplicable = true;
-        downloadedVersions.add(latestVersion);
+    }
+
+    private void createUpdateDir() throws IOException {
+        File updateDir = new File(UPDATE_DIR);
+        if (!FileUtil.isDirExists(updateDir)) {
+            Files.createDirectory(updateDir.toPath());
+        }
     }
 
     /**
@@ -238,9 +240,8 @@ public class Updater {
      */
     private HashMap<String, URL> getLibraryFilesDownloadLinks(List<LibraryDescriptor> libraryFiles) {
         HashMap<String, URL> filesToBeDownloaded = new HashMap<>();
-        libraryFiles.stream()
-                .forEach(libDesc -> filesToBeDownloaded.put(LIB_DIR + libDesc.getFileName(),
-                                                            libDesc.getDownloadLink()));
+        libraryFiles.forEach(libDesc -> filesToBeDownloaded.put(LIB_DIR + libDesc.getFileName(),
+                                                                libDesc.getDownloadLink()));
         return filesToBeDownloaded;
     }
 
@@ -262,10 +263,6 @@ public class Updater {
      * @param filesToBeUpdated files to download for update
      */
     private void downloadFilesToBeUpdated(File updateDir, HashMap<String, URL> filesToBeUpdated) throws IOException {
-        if (!FileUtil.isDirExists(updateDir)) {
-            Files.createDirectory(updateDir.toPath());
-        }
-
         int totalFilesToDownload = filesToBeUpdated.keySet().size();
         int noOfFilesDownloaded = 0;
 
@@ -292,20 +289,6 @@ public class Updater {
     }
 
     /**
-     * Extracts a file from resourcePath into targetFile
-     *
-     * Creates targetFile is it does not exist, and replaces any existing targetFile
-     *
-     * @param targetFile
-     * @param resourcePath
-     * @throws IOException
-     */
-    private void extractFile(File targetFile, String resourcePath) throws IOException {
-        InputStream in = getResourceStream(resourcePath);
-        createContentFile(targetFile, in);
-    }
-
-    /**
      * Writes a stream content into a target file
      *
      * Creates targetFile is it does not exist, and replaces any existing targetFile
@@ -319,10 +302,6 @@ public class Updater {
         Files.copy(contentStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private InputStream getResourceStream(String resourcePath) {
-        return Updater.class.getClassLoader().getResourceAsStream(resourcePath);
-    }
-
     private InputStream getUrlStream(URL source) throws IOException {
         return source.openStream();
     }
@@ -332,29 +311,9 @@ public class Updater {
     }
 
     private void createUpdateSpecification(HashMap<String, URL> filesToBeUpdated) throws IOException {
-        List<String> listOfFileNames = filesToBeUpdated.keySet().stream().collect(Collectors.toList());
-        LocalUpdateSpecificationHelper.saveLocalUpdateSpecFile(listOfFileNames);
-    }
-
-    /**
-     * Extract the UpdateMigrator resource into an external jar to prepare for updating upon app closure
-     * Replaces any existing UpdateMigrator found
-     *
-     * @throws IOException
-     */
-    private void extractJarUpdater() throws IOException {
-        assert Updater.class.getClassLoader().getResource(JAR_UPDATER_RESOURCE_PATH) != null : "Jar installer resource cannot be found";
-
-        File jarUpdaterFile = new File(JAR_UPDATER_APP_PATH);
-
-        if (!jarUpdaterFile.exists() && !jarUpdaterFile.createNewFile()) {
-            throw new IOException("Failed to create jar installer empty file");
-        }
-        try {
-            extractFile(jarUpdaterFile, JAR_UPDATER_RESOURCE_PATH);
-        } catch (IOException e) {
-            throw new IOException("Failed to extract jar installer", e);
-        }
+        List<String> listOfFiles = filesToBeUpdated.keySet().stream().collect(Collectors.toList());
+        listOfFiles.add("VersionData.json");
+        LocalUpdateSpecificationHelper.saveLocalUpdateSpecFile(listOfFiles);
     }
 
     private void writeDownloadedVersionsToFile(List<Version> downloadedVersions, File file) throws IOException {
@@ -378,39 +337,5 @@ public class Updater {
             System.out.println("Failed to read downloaded version from file: " + e);
             return new ArrayList<>();
         }
-    }
-
-    private void applyUpdate() {
-        if (!this.isUpdateApplicable) return;
-
-        try {
-            backupHandler.createAppBackup(currentVersion);
-        } catch (IOException | URISyntaxException e) {
-            System.out.println("Failed to create backup of app; not applying update: " + e);
-            return;
-        }
-
-        try {
-            writeDownloadedVersionsToFile(downloadedVersions, DOWNLOADED_VERSIONS_FILE);
-        } catch (IOException e) {
-            System.out.println("Error writing downloaded versions to file: " + e);
-            return;
-        }
-
-        String localUpdateSpecFilepath = LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
-        String jarUpdaterCmdArguments = String.format("--update-specification=%s --source-dir=%s", localUpdateSpecFilepath, UPDATE_DIR);
-        String jarUpdaterCmd = String.format("java -jar %1$s %2$s", JAR_UPDATER_APP_PATH, jarUpdaterCmdArguments);
-
-        System.out.println("Starting jar installer");
-
-        try {
-            Runtime.getRuntime().exec(jarUpdaterCmd);
-        } catch (IOException e) {
-            System.out.println("Failed to start jar installer.");
-        }
-    }
-
-    public void stop() {
-        applyUpdate();
     }
 }

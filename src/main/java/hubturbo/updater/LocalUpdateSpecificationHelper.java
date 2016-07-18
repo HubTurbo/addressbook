@@ -12,6 +12,10 @@ public class LocalUpdateSpecificationHelper {
     private static final String LOCAL_UPDATE_DATA_FILE = "update" + File.separator +
                                                          "UpdateSpecification";
 
+    public static boolean hasLocalUpdateSpecFile() {
+        return FileUtil.isFileExists(LOCAL_UPDATE_DATA_FILE);
+    }
+
     public static String getLocalUpdateSpecFilepath() {
         return LOCAL_UPDATE_DATA_FILE;
     }
