@@ -30,9 +30,9 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         CHECKING_REMOTE_CONFLICT    ("Checking Remote for Unseen Changes"),
         REQUESTING_REMOTE_CHANGE    ("Requesting Change to Remote"),
 
-        // Requires resolution
+        // Requires user intervention
         CONFLICT_FOUND              ("Conflict on Remote"),
-        REQUEST_FAILED              ("Remote Request Failed", CommandStatus.FAILED),
+        REQUEST_FAILED              ("Remote Request Failed"),
 
         // Terminal states
         CANCELLED                   ("Cancelled", CommandStatus.CANCELLED),
@@ -79,7 +79,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     protected final Property<State> state; // current state
 
     private final CountDownLatch completionLatch; // blocking completion flag
-    private final CountDownLatch cancelledLatch; // blocking cancellation flag
+    protected final CountDownLatch cancelledLatch; // blocking cancellation flag
     
     {
         completionLatch = new CountDownLatch(1); // irreversible flag
@@ -106,8 +106,25 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     /**
      * Request to cancel this command.
      */
-    void cancelCommand() {
+    public void cancelCommand() {
         cancelledLatch.countDown();
+    }
+
+    /**
+     * Blocks till a Cancel Command request is received.
+     * @see CountDownLatch#await()
+     */
+    protected void waitForCancelRequest() throws InterruptedException {
+        cancelledLatch.await();
+    }
+
+    /**
+     * Blocks for the specified amount of time, or till a Cancel Command request is received.
+     * @see CountDownLatch#await(long, TimeUnit)
+     * @return true if cancel request has been received, false if timeout
+     */
+    protected boolean waitForCancelRequest(long timeout, TimeUnit unit) throws InterruptedException {
+        return cancelledLatch.await(timeout, unit);
     }
 
     public State getState() {
@@ -211,7 +228,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
                     SUCCESSFUL : REQUEST_FAILED;
 
         case REQUEST_FAILED:
-            handleRemoteRequestFailed();
+            handleRequestFailed();
             return CANCELLED; // Any recovery should be done by spawning a new command
 
         default :
@@ -249,7 +266,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
 
             try {
                 // wait 1 second for cancellation signal
-                if (cancelledLatch.await(1, TimeUnit.SECONDS)) {
+                if (waitForCancelRequest(1, TimeUnit.SECONDS)) {
                     handleChangeToSecondsLeftInGracePeriod(0); // signify end of grace period
                     return CANCELLED;
                 }
@@ -279,7 +296,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      * Runs when {@link State#CONFLICT_FOUND} is reached.
      * After this method completes, the command is {@link State#CANCELLED}, perform all prompts and informing the user
      * in this method, then recovery should utilise a new command.
-     * @see #handleRemoteRequestFailed()
+     * @see #handleRequestFailed()
      */
     protected abstract void handleRemoteConflict();
 
@@ -301,6 +318,6 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      * in this method, then recovery should utilise a new command.
      * @see #handleRemoteConflict()
      */
-    protected abstract void handleRemoteRequestFailed();
+    protected abstract void handleRequestFailed();
 
 }

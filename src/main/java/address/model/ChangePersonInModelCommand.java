@@ -1,34 +1,34 @@
 package address.model;
 
 import address.model.datatypes.person.ReadOnlyPerson;
-import address.util.AppLogger;
-import address.util.LoggerManager;
 import address.util.PlatformExecUtil;
-
-import static address.model.ChangeObjectInModelCommand.State.*;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
  * Base class for individual-person level changes like add, edit, delete.
- * Adds some logic to {@link #checkAndHandleRemoteConflict()}.
- * Also extends {@link ChangeObjectInModelCommand} with 'edit' and 'delete' grace period overriding signalling methods:
- * {@link #editInGracePeriod(Supplier)}, {@link #deleteInGracePeriod()}.
  */
 public abstract class ChangePersonInModelCommand extends ChangeObjectInModelCommand {
 
     public static final String TARGET_TYPE = "Person";
-    private static final AppLogger logger = LoggerManager.getLogger(ChangePersonInModelCommand.class);
 
     protected Supplier<Optional<ReadOnlyPerson>> inputRetriever;
     protected ReadOnlyPerson input;
 
+    Optional<ReadOnlyPerson> remoteConflictData;
+    CompletableFuture<Runnable> recoveryCallback;
+
+    {
+        remoteConflictData = Optional.empty();
+    }
+
     /**
      * @param inputRetriever Will run on execution {@link #run()} thread. This should handle thread concurrency
-     *                       logic (eg. {@link PlatformExecUtil#call(Callable)} within itself.
-     *                       If the returned Optional is empty, the command will be cancelled.
+     *                       logic (eg. {@link PlatformExecUtil#call(Callable)} within itself. If the returned Optional
+     *                       is empty, it means input could not be retrieved and the command will be cancelled.
      */
     protected ChangePersonInModelCommand(int commandId, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
                                          int gracePeriodDurationInSeconds) {
@@ -37,98 +37,121 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
     }
 
     /**
-     * @return ID of the target (viewable) person of this command
+     * @return ID of the target person of this command
      */
     public abstract int getTargetPersonId();
 
+    /**
+     * Request to override this command with an edit command.
+     * @param editInputSupplier supplies input for the overriding edit command
+     */
+    public void overrideWithEditPerson(Supplier<Optional<ReadOnlyPerson>> editInputSupplier) {
+        assert !getState().isTerminal() : "Attempted to override a terminated command";
+        handleEditRequest(editInputSupplier);
+        cancelCommand();
+    }
+
+    /**
+     * Command-specific handling logic of an overriding edit request
+     * @see #overrideWithEditPerson(Supplier)
+     */
+    protected abstract void handleEditRequest(Supplier<Optional<ReadOnlyPerson>> editInputSupplier);
+
+    /**
+     * Request to override this command with a delete command.
+     * @see #overrideWithEditPerson(Supplier)
+     */
+    public void overrideWithDeletePerson() {
+        assert !getState().isTerminal() : "Attempted to override a terminated command";
+        handleDeleteRequest();
+        cancelCommand();
+    }
+
+    /**
+     * Command-specific handling logic of an overriding delete request
+     * @see #overrideWithDeletePerson()
+     */
+    protected abstract void handleDeleteRequest();
+
+    /**
+     * Resolve the remote conflict.
+     */
+    public void resolveConflict() {
+        assert getState() != State.CONFLICT_FOUND : "Attempted to resolve conflict for a command without a detected conflict";
+        handleResolveConflict();
+        cancelCommand();
+    }
+
+    /**
+     * Command specific handler logic for resolving a remote conflict
+     * @see #resolveConflict()
+     */
+    protected abstract void handleResolveConflict();
+
+    /**
+     * Request to retry the same command.
+     */
+    public void retry() {
+        assert getState() != State.REQUEST_FAILED : "Attempted to retry a command that has not failed";
+        handleRetry();
+        cancelCommand();
+    }
+
+    /**
+     * Command specific handling of retry
+     * @see #retry()
+     */
+    protected abstract void handleRetry();
+
     @Override
-    protected State retrieveInput() {
+    protected boolean retrieveValidInput() {
         final Optional<ReadOnlyPerson> retrieved = inputRetriever.get();
         if (retrieved.isPresent()) {
             this.input = retrieved.get();
             logger.debug("retrieveInput: Retrieving input " + retrieved.get().toString());
-            return SIMULATING_RESULT; // normal exec path
         }
-        // Problem retrieving input (most likely user cancelled input dialog or some exception occurred.
-        return CANCELLED;
+        // Not present = problem retrieving input (most likely user cancelled input dialog or some exception occurred.
+        return retrieved.isPresent();
     }
 
     @Override
-    protected void beforeGracePeriod() {
-        // Ensure that any override signals detected happen during the current grace period.
-        clearGracePeriodOverride();
-    }
-
-    /**
-     * Request to override this command with an edit command using {@code newInputSupplier} to supply input.
-     * Only works if the command is currently in the {@link State#GRACE_PERIOD} state.
-     *
-     * @see super#signalGracePeriodOverride(Supplier)
-     * @param newInputSupplier supplies input for the overriding edit command
-     */
-    synchronized void editInGracePeriod(Supplier<Optional<ReadOnlyPerson>> newInputSupplier) {
-        signalGracePeriodOverride(() -> handleEditInGracePeriod(newInputSupplier));
-    }
-
-    /**
-     * Request to override this command with a delete command.
-     * Only works if the command is currently in the {@link State#GRACE_PERIOD} state.
-     *
-     * @see super#signalGracePeriodOverride(Supplier)
-     * @see #editInGracePeriod(Supplier)
-     */
-    synchronized void deleteInGracePeriod() {
-        signalGracePeriodOverride(this::handleDeleteInGracePeriod);
-    }
-
-    /**
-     * When the 'edit' overriding signal is received (from {@link #editInGracePeriod(Supplier)}) during the grace period,
-     * this method takes over the state transition path and execution.
-     * Will be called from the {@link #run()} thread.
-     *
-     * @see #editInGracePeriod(Supplier)
-     * @see super#handleCancelInGracePeriod()
-     * @param editInputSupplier supplies data for the edit
-     * @return next state (current state will be {@link State#GRACE_PERIOD})
-     */
-    protected abstract State handleEditInGracePeriod(Supplier<Optional<ReadOnlyPerson>> editInputSupplier);
-
-    /**
-     * When the 'delete' overriding signal is received (from {@link #deleteInGracePeriod()}) during the grace period,
-     * this method takes over the state transition path and execution.
-     * Will be called from the {@link #run()} thread.
-     *
-     * @see #deleteInGracePeriod()
-     * @see super#handleCancelInGracePeriod()
-     * @return next state (current state will be {@link State#GRACE_PERIOD})
-     */
-    protected abstract State handleDeleteInGracePeriod();
-
-    @Override
-    protected State handleCancelInGracePeriod() {
-        return CANCELLED;
-    }
-
-    @Override
-    protected State checkAndHandleRemoteConflict() {
-        final Optional<ReadOnlyPerson> conflict = getRemoteConflict();
-        if (conflict.isPresent()) {
-            return resolveRemoteConflict(conflict.get());
-        } else {
-            return REQUESTING_REMOTE_CHANGE;
-        }
+    protected boolean checkForRemoteConflict() {
+        final Optional<ReadOnlyPerson> conflict = getRemoteConflictData();
+        return conflict.isPresent();
     }
 
     /**
      * Retrieves the remote's version of the Person in question if there was a conflicting change on the server.
      * @return contains the remote's version, else empty if no conflict
      */
-    protected abstract Optional<ReadOnlyPerson> getRemoteConflict();
+    protected abstract Optional<ReadOnlyPerson> getRemoteConflictData();
 
     /**
-     * Logic to handle the remote conflict.
-     * @param remoteVersion version of the Person on the remote server
-     * @return next state (current state will be {@link State#CHECKING_AND_RESOLVING_REMOTE_CONFLICT}
+     * Possible actions in conflict stage:
+     * @see #cancelCommand()
+     * @see #resolveConflict()
      */
-    protected abstract State resolveRemoteConflict(ReadOnlyPerson remoteVersion);
+    @Override
+    protected void handleRemoteConflict() {
+        try {
+            waitForCancelRequest();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Possible actions in request failed stage:
+     * @see #cancelCommand()
+     * @see #retry()
+     */
+    @Override
+    protected void handleRequestFailed() {
+        try {
+            waitForCancelRequest();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
