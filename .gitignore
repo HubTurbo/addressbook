@@ -3,6 +3,7 @@ build/
 .gradle/
 .idea/
 lib/*
+addressbook.jar
 !lib/licence.jar
 *.iml
 *.log
