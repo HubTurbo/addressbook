@@ -68,7 +68,7 @@ allprojects {
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         mainAppMainClass = 'address.MainApp'
 
-        installerArchiveName = 'installer.jar'
+        installerArchiveName = 'installer-' + project.version + '.jar'
         installerMainClass = 'hubturbo.installer.Installer'
 
         licenceArchiveName = 'licence.jar'
