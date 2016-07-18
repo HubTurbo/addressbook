@@ -3,7 +3,6 @@ package guitests;
 import address.model.datatypes.AddressBook;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.TagPersonDialogHandle;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -28,7 +27,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         assertTrue(personListPanel.isSelected("Alice", "Brown"));
 
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
-        guiRobot.sleep(1, TimeUnit.SECONDS);
+        personListPanel.sleep(1, TimeUnit.SECONDS);
         assertTrue(personListPanel.isSelected("Dan", "Edwards"));
 
         //======= sequences =========================

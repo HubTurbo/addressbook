@@ -22,7 +22,7 @@ public class FullSystemTest extends GuiTestBase {
         newTagDialog = mainMenu.clickOn("Tags","New Tag")
                                .as(NewTagDialogHandle.class);
         newTagDialog.enterTagName("colleagues");
-        guiRobot.sleep(1, TimeUnit.SECONDS);
+        newTagDialog.sleep(1, TimeUnit.SECONDS);
         assertEquals("colleagues", newTagDialog.getTagName());
         newTagDialog.clickOk();
 

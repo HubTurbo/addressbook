@@ -10,7 +10,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
-import org.testfx.api.FxRobotException;
 
 import java.lang.reflect.Constructor;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +41,10 @@ public class GuiHandle {
 
     public FxRobot sleepForGracePeriod() {
         return guiRobot.sleep((ModelManager.GRACE_PERIOD_DURATION + 1), TimeUnit.SECONDS);
+    }
+
+    public FxRobot sleep(long duration, TimeUnit timeunit) {
+        return guiRobot.sleep(duration, timeunit);
     }
 
     protected Node getNode(String query) {

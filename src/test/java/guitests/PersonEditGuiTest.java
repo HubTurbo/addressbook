@@ -46,7 +46,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterNewValues(newAlice);
         editPersonDialog.pressEnter();
 
-        guiRobot.sleep(1, TimeUnit.SECONDS);
+        personListPanel.sleep(1, TimeUnit.SECONDS);
 
         //Confirm pending state correctness
         assertTrue(alicePersonCard.isPendingStateCountDownVisible());
@@ -68,7 +68,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 
         //Confirm again after the next sync
-        guiRobot.sleep(getTestingConfig().getUpdateInterval());
+        personListPanel.sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 
         //Confirm other cards are unaffected
@@ -131,7 +131,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.use_LIST_GOTO_TOP_SEQUENCE();
         PersonCardHandle deletedCard = personListPanel.getPersonCardHandle(new Person(personListPanel.getSelectedPerson()));
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        guiRobot.sleep(1, TimeUnit.SECONDS);
+        personListPanel.sleep(1, TimeUnit.SECONDS);
         assertTrue(deletedCard.isPendingStateCountDownVisible());
         assertTrue(deletedCard.isPendingStateLabelVisible());
         assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
@@ -159,7 +159,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.pressEnter();
         assertNotEquals(alicePersonCard, td.alice);
         assertEquals(alicePersonCard, newAlice);
-        guiRobot.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
+        personListPanel.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertEquals(alicePersonCard, td.alice);
         assertEquals(statusBar.getText(), "Edit operation on " + alicePersonCard.getFirstName() + " "
@@ -177,9 +177,9 @@ public class PersonEditGuiTest extends GuiTestBase {
         PersonCardHandle pandaWongCardHandle = personListPanel.getSelectedCards().get(0);
         assertNotNull(pandaWongCardHandle);
         assertEquals(pandaWongCardHandle, pandaWong);
-        guiRobot.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
+        pandaWongCardHandle.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        guiRobot.sleep(1000);
+        pandaWongCardHandle.sleep(1, TimeUnit.SECONDS);
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
 
     }
