@@ -85,8 +85,7 @@ public class AddPersonCommandTest {
 
         when(modelManagerMock.addViewablePersonWithoutBacking(notNull(ReadOnlyPerson.class))).thenReturn(createdViewable);
 
-        // to stop the run at start of grace period (right after simulated change)
-        doThrow(InterruptAndTerminateException.class).when(apc).beforeGracePeriod();
+        doThrow(InterruptAndTerminateException.class).when(apc).afterState(State.SIMULATING_RESULT);
         thrown.expect(InterruptAndTerminateException.class);
 
         apc.run();
@@ -123,7 +122,7 @@ public class AddPersonCommandTest {
         final AddPersonCommand apc = spy(new AddPersonCommand(0, inputRetrieverWrapper(inputData), 0, null, modelManagerSpy, ADDRESSBOOK_NAME));
 
         // to stop the run at start of grace period (right after simulated change)
-        doThrow(new InterruptAndTerminateException()).when(apc).beforeGracePeriod();
+        doThrow(new InterruptAndTerminateException()).when(apc).afterState(State.SIMULATING_RESULT);
         thrown.expect(InterruptAndTerminateException.class);
 
         apc.run();
@@ -151,8 +150,7 @@ public class AddPersonCommandTest {
         final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1, events::post, modelManagerSpy, ADDRESSBOOK_NAME));
         final Supplier<Optional<ReadOnlyPerson>> editInputWrapper = inputRetrieverWrapper(TestUtil.generateSamplePersonWithAllData(1));
 
-        doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
-        apc.editInGracePeriod(editInputWrapper); // pre-specify apc will be interrupted by edit
+        apc.overrideWithEditPerson(editInputWrapper); // pre-specify apc will be interrupted by edit
         apc.run();
 
         assertFinalStatesCorrectForSuccessfulAdd(apc, modelManagerSpy, editInputWrapper.get().get());
@@ -163,8 +161,7 @@ public class AddPersonCommandTest {
         // grace period duration must be non zero, will be interrupted immediately anyway
         final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1,  e -> {}, modelManagerSpy, ADDRESSBOOK_NAME));
 
-        doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
-        apc.deleteInGracePeriod(); // pre-specify apc will be interrupted by delete
+        apc.overrideWithDeletePerson(); // pre-specify apc will be interrupted by delete
         apc.run();
 
         assertTrue(modelManagerSpy.backingModel().getPersonList().isEmpty());
@@ -178,8 +175,7 @@ public class AddPersonCommandTest {
         // grace period duration must be non zero, will be interrupted immediately anyway
         final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1,  e -> {}, modelManagerSpy, ADDRESSBOOK_NAME));
 
-        doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
-        apc.cancelInGracePeriod(); // pre-specify apc will be interrupted by cancel
+        apc.cancelCommand(); // pre-specify apc will be interrupted by cancel
         apc.run();
 
         assertTrue(modelManagerSpy.backingModel().getPersonList().isEmpty());

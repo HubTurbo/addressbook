@@ -91,8 +91,7 @@ public class DeletePersonCommandTest {
     public void optimisticUiUpdate_flagsDelete() {
         final DeletePersonCommand dpc = spy(new DeletePersonCommand(0, testTarget, 0, events::post, modelManagerSpy, ADDRESSBOOK_NAME));
 
-        // to stop the run at start of grace period (right after simulated change)
-        doThrow(new InterruptAndTerminateException()).when(dpc).beforeGracePeriod();
+        doThrow(new InterruptAndTerminateException()).when(dpc).afterState(State.SIMULATING_RESULT);
         thrown.expect(InterruptAndTerminateException.class);
 
         dpc.run();
@@ -118,8 +117,7 @@ public class DeletePersonCommandTest {
         final Supplier<Optional<ReadOnlyPerson>> editInputRetriever = Optional::empty;
 
         doNothing().when(modelManagerSpy).execNewEditPersonCommand(any(), any());
-        doNothing().when(dpc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
-        dpc.editInGracePeriod(editInputRetriever); // pre-specify dpc will be interrupted by delete
+        dpc.overrideWithEditPerson(editInputRetriever); // pre-specify dpc will be interrupted by delete
 
         dpc.run();
 
@@ -136,8 +134,7 @@ public class DeletePersonCommandTest {
         modelManagerSpy.visibleModel().addPerson(testTarget);
         modelManagerSpy.addPersonToBackingModelSilently(testTarget.getBacking());
 
-        doNothing().when(dpc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
-        dpc.cancelInGracePeriod(); // pre-specify dpc will be interrupted by cancel
+        dpc.cancelCommand(); // pre-specify dpc will be interrupted by cancel
 
         dpc.run();
 

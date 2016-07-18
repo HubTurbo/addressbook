@@ -143,6 +143,13 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     }
 
     /**
+     * Hook that runs after a state is handled
+     */
+    protected void afterState(State handledState) {
+        // override to inject code
+    }
+
+    /**
      * Setup hook (similar concept to junit {@code @Before})
      * Called first when this command starts running.
      */
@@ -175,8 +182,13 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         }
 
         logger.debug("Reached terminal state " + getState().name());
+        handleTerminalState();
 
-        // handle terminal states
+        after();
+        completionLatch.countDown();
+    }
+
+    private void handleTerminalState() {
         beforeState(getState());
         switch (getState()) {
             case CANCELLED :
@@ -188,9 +200,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
             default :
                 assert false;
         }
-
-        after();
-        completionLatch.countDown();
+        afterState(getState());
     }
 
     /**
@@ -200,40 +210,48 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      */
     private State handleAndTransitionState(State state) {
         beforeState(state);
+        final State next;
         switch (state) {
         case NEWLY_CREATED :
-            return RETRIEVING_INPUT;
+            next = RETRIEVING_INPUT;
+            break;
 
         case RETRIEVING_INPUT :
-            return retrieveValidInput() ?
-                    SIMULATING_RESULT : CANCELLED;
+            next = retrieveValidInput() ? SIMULATING_RESULT : CANCELLED;
+            break;
 
         case SIMULATING_RESULT :
             simulateResult();
-            return GRACE_PERIOD;
+            next = GRACE_PERIOD;
+            break;
 
         case GRACE_PERIOD:
-            return gracePeriodCountdownAndTransition();
+            next = gracePeriodCountdownAndTransition();
+            break;
 
         case CHECKING_REMOTE_CONFLICT:
-            return checkForRemoteConflict() ?
-                    CONFLICT_FOUND : REQUESTING_REMOTE_CHANGE;
+            next = checkForRemoteConflict() ? CONFLICT_FOUND : REQUESTING_REMOTE_CHANGE;
+            break;
 
         case CONFLICT_FOUND:
             handleRemoteConflict();
-            return CANCELLED; // Any recovery should be done by spawning a new command
+            next = CANCELLED; // Any recovery should be done by spawning a new command
+            break;
 
         case REQUESTING_REMOTE_CHANGE :
-            return requestRemoteChange() ?
-                    SUCCESSFUL : REQUEST_FAILED;
+            next = requestRemoteChange() ? SUCCESSFUL : REQUEST_FAILED;
+            break;
 
         case REQUEST_FAILED:
             handleRequestFailed();
-            return CANCELLED; // Any recovery should be done by spawning a new command
+            next = CANCELLED; // Any recovery should be done by spawning a new command
+            break;
 
         default :
             throw new AssertionError("Incomplete implementation!"); // Implement handling for any new states!
         }
+        afterState(state);
+        return next;
     }
 
     /**
