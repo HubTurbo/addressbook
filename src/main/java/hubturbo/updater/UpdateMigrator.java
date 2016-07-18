@@ -16,28 +16,16 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * This class is meant to read update specifications from a file, then replace specified files
- *
- * Note: This class will be compiled into a JAR on its own
- * If you made any changes to this class, run gradle task compileJarUpdater
- *
- * Mandatory options:
- * --update-specification the update specification file on which files to be updated
- * --source-dir the main directory which files to be updated
+ * This class is meant to read local update specifications from a file, then replace specified files
  */
 public class UpdateMigrator extends Application {
     private static final int MAX_RETRIES = 10;
     private static final int WAIT_TIME = 2000;
-    private static final String UPDATE_SPECIFICATION_KEY = "update-specification";
-    private static final String SOURCE_DIR_KEY = "source-dir";
-    private static final String ERROR_ON_RUNNING_APP_MESSAGE = "Application not called properly, " +
-                                                               "please contact developer.";
     private static final String ERROR_ON_UPDATING_MESSAGE = "There was an error in updating.";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
@@ -53,8 +41,6 @@ public class UpdateMigrator extends Application {
             try {
                 run();
                 stop();
-            } catch (IllegalArgumentException e) {
-                showInvalidProgramArgumentErrorDialog(e);
             } catch (IOException e) {
                 showErrorOnUpdatingDialog(e);
             }
@@ -82,13 +68,10 @@ public class UpdateMigrator extends Application {
     }
 
     private void run() throws IllegalArgumentException, IOException {
-        Map<String, String> commandLineArgs = getParameters().getNamed();
-        String updateSpecificationFilePath = commandLineArgs.get(UPDATE_SPECIFICATION_KEY);
-        String sourceDir = commandLineArgs.get(SOURCE_DIR_KEY);
+        if (!LocalUpdateSpecificationHelper.hasLocalUpdateSpecFile()) return;
 
-        if (updateSpecificationFilePath == null || sourceDir == null) {
-            throw new IllegalArgumentException("updateSpecificationFilePath or sourceDir is null");
-        }
+        String updateSpecificationFilePath = LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
+        String sourceDir = Updater.UPDATE_DIR;
 
         System.out.println("Getting update specifications from: " + updateSpecificationFilePath);
         Optional<List<String>> updateSpecifications = getUpdateSpecifications(updateSpecificationFilePath);
@@ -185,10 +168,6 @@ public class UpdateMigrator extends Application {
         } catch (IOException e) {
             return false;
         }
-    }
-
-    private void showInvalidProgramArgumentErrorDialog(Exception e) {
-        showErrorDialog("Failed to run migrator", ERROR_ON_RUNNING_APP_MESSAGE, e.getMessage());
     }
 
     private void showErrorOnUpdatingDialog(Exception e) {
