@@ -265,6 +265,9 @@ allprojects {
     jar {
         archiveName = "$mainAppArchiveName"
 
+        manifest {
+            attributes "Class-Path": configurations.runtime.files.collect { "$libDir/${it.name}" }.join(" ") // required for DependencyChecker
+        }
         from sourceSets.main.output
         from(rootDir) {
             include "VersionData.json"
