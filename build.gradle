@@ -59,10 +59,6 @@ allprojects {
 
         commonsArchiveName = 'commons.jar'
 
-        updateMigratorArchiveName = 'updateMigrator.jar'
-        updateMigratorMainClass = 'hubturbo.updater.UpdateMigrator'
-        updateMigratorDestinationDir = 'src/main/resources/updater' // Update the way updater locates updateMigrator.jar in Updater.java
-
         updaterArchiveName = 'updater.jar'
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
@@ -109,25 +105,12 @@ allprojects {
             }
             resources {
                 srcDir 'src/main/resources'
-                include('updater/updateMigrator.jar')
             }
         }
         commons {
             java {
                 srcDir 'src/main/java'
                 include('commons/**/*')
-            }
-        }
-        updateMigrator {
-            java {
-                srcDir 'src/main/java'
-                include('hubturbo/updater/LocalUpdateSpecificationHelper.java')
-                include('hubturbo/updater/LocalUpdateSpecification.java')
-                include('hubturbo/updater/UpdateMigrator.java')
-            }
-            resources {
-                srcDir 'src/main/resources'
-                include('log4j2.json')
             }
         }
         installer {
@@ -210,8 +193,6 @@ allprojects {
         updaterCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
         updaterCompile files("$libDir/$commonsArchiveName")
 
-        updateMigratorCompile files("$libDir/$commonsArchiveName")
-
         commonsCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         commonsCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         commonsCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
@@ -240,18 +221,6 @@ allprojects {
     }
     createCommonsJar.dependsOn copyAllDependenciesToLibrary
 
-    // Compiles updateMigrator.jar
-    task createUpdateMigratorJar(type: Jar) {
-        archiveName = "$updateMigratorArchiveName"
-
-        manifest {
-            attributes "Main-Class": "$updateMigratorMainClass"
-        }
-        from sourceSets.updateMigrator.output
-        destinationDir = file("$updateMigratorDestinationDir")
-    }
-    createUpdateMigratorJar.dependsOn createCommonsJar // Update migrator requires commons.jar dependency
-
     // Creates updater.jar
     task createUpdaterJar(type: Jar) {
         archiveName = "$updaterArchiveName"
@@ -259,7 +228,7 @@ allprojects {
         from sourceSets.updater.output
         destinationDir = file("$libDir/")
     }
-    createUpdaterJar.dependsOn createUpdateMigratorJar
+    createUpdaterJar.dependsOn createCommonsJar
 
     // Main application jar
     jar {

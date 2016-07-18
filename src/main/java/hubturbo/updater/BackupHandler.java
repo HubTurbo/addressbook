@@ -31,17 +31,17 @@ public class BackupHandler {
     private final Version currentVersion;
     private DependencyHistoryHandler dependencyHistoryHandler;
 
-    public BackupHandler(Version currentVersion, DependencyHistoryHandler dependencyHistoryHandler) {
+    public BackupHandler(Version currentVersion) {
         this.currentVersion = currentVersion;
-        this.dependencyHistoryHandler = dependencyHistoryHandler;
+        this.dependencyHistoryHandler = new DependencyHistoryHandler(currentVersion);
     }
 
     /**
      * Creates a backup unless app is already being run from backup JAR.
      */
-    protected void createAppBackup(Version version) throws IOException, URISyntaxException {
+    protected void createAppBackup(Version version) throws IOException {
         //TODO: generate this dynamically, temp for updater refactoring
-        File mainAppJar = new File("lib/resource.jar");
+        File mainAppJar = new File("lib/resource-" + version.toString() + ".jar");
 
         if (isRunFromBackupJar(mainAppJar)) {
             return;

@@ -3,9 +3,6 @@ package hubturbo.updater;
 import address.util.Version;
 import address.util.VersionData;
 import commons.FileUtil;
-import commons.JsonUtil;
-import hubturbo.installer.Installer;
-import hubturbo.updater.LocalUpdateSpecificationHelper;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -16,11 +13,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,8 +39,6 @@ public class UpdateMigrator extends Application {
     private static final String ERROR_ON_RUNNING_APP_MESSAGE = "Application not called properly, " +
                                                                "please contact developer.";
     private static final String ERROR_ON_UPDATING_MESSAGE = "There was an error in updating.";
-    private static final String UPDATE_DIR = "update";
-    private static final String JAR_UPDATER_APP_PATH = "updater.jar";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
 
@@ -57,12 +52,12 @@ public class UpdateMigrator extends Application {
         pool.execute(() -> {
             try {
                 run();
+                stop();
             } catch (IllegalArgumentException e) {
-                showInvalidProgramArgumentErrorDialog();
+                showInvalidProgramArgumentErrorDialog(e);
             } catch (IOException e) {
-                showErrorOnUpdatingDialog();
+                showErrorOnUpdatingDialog(e);
             }
-            stop();
         });
     }
 
@@ -87,28 +82,39 @@ public class UpdateMigrator extends Application {
     }
 
     private void run() throws IllegalArgumentException, IOException {
-        Version curVersion = readCurrentVersionFromFile();
-        DependencyHistoryHandler dependencyHistoryHandler = new DependencyHistoryHandler(curVersion);
-        BackupHandler backupHandler = new BackupHandler(curVersion, dependencyHistoryHandler);
-        backupHandler.cleanupBackups();
-
         Map<String, String> commandLineArgs = getParameters().getNamed();
-        String updateSpecificationFilepath = commandLineArgs.get(UPDATE_SPECIFICATION_KEY);
+        String updateSpecificationFilePath = commandLineArgs.get(UPDATE_SPECIFICATION_KEY);
         String sourceDir = commandLineArgs.get(SOURCE_DIR_KEY);
 
-        if (updateSpecificationFilepath == null || sourceDir == null) {
+        if (updateSpecificationFilePath == null || sourceDir == null) {
             throw new IllegalArgumentException("updateSpecificationFilePath or sourceDir is null");
         }
 
-        List<String> updateSpecifications;
-        try {
-            updateSpecifications = LocalUpdateSpecificationHelper.readLocalUpdateSpecFile(updateSpecificationFilepath);
-        } catch (IOException e) {
-            throw new IOException("Failed to read local update specification", e);
+        System.out.println("Getting update specifications from: " + updateSpecificationFilePath);
+        Optional<List<String>> updateSpecifications = getUpdateSpecifications(updateSpecificationFilePath);
+        if (updateSpecifications.isPresent()) {
+            Version curVersion = readCurrentVersionFromFile();
+            BackupHandler backupHandler = new BackupHandler(curVersion);
+            System.out.println("Creating backup app for current version");
+            backupHandler.createAppBackup(curVersion);
+            System.out.println("Cleaning up backup apps");
+            backupHandler.cleanupBackups();
+            applyUpdateToAllFiles(sourceDir, updateSpecifications.get());
+            deleteUpdateSpec(updateSpecificationFilePath);
         }
-        applyUpdateToAllFiles(sourceDir, updateSpecifications);
+    }
 
-        stop();
+    private void deleteUpdateSpec(String updateSpecFilePath) throws IOException {
+        FileUtil.deleteFile(updateSpecFilePath);
+    }
+
+    private Optional<List<String>> getUpdateSpecifications(String updateSpecificationFilePath) {
+        try {
+            return Optional.of(LocalUpdateSpecificationHelper.readLocalUpdateSpecFile(updateSpecificationFilePath));
+        } catch (IOException e) {
+            System.out.println("No update specification found");
+            return Optional.empty();
+        }
     }
 
     private Version readCurrentVersionFromFile() throws IOException {
@@ -131,6 +137,7 @@ public class UpdateMigrator extends Application {
      */
     private void applyUpdateToAllFiles(String sourceDir, List<String> filesToBeUpdated) throws IOException {
         for (String fileToUpdate : filesToBeUpdated) {
+            System.out.println("Updating file: " + fileToUpdate);
             updateFile(sourceDir, fileToUpdate);
         }
     }
@@ -142,7 +149,6 @@ public class UpdateMigrator extends Application {
      * the process it created has not ended yet. As such, we will make several tries with wait.
      */
     private void updateFile(String sourceDir, String fileToUpdate) throws IOException {
-
         Path source = Paths.get(sourceDir, fileToUpdate);
         Path dest = Paths.get(fileToUpdate);
 
@@ -181,17 +187,18 @@ public class UpdateMigrator extends Application {
         }
     }
 
-    private void showInvalidProgramArgumentErrorDialog() {
-        showErrorDialog("Failed to run installer", ERROR_ON_RUNNING_APP_MESSAGE);
+    private void showInvalidProgramArgumentErrorDialog(Exception e) {
+        showErrorDialog("Failed to run migrator", ERROR_ON_RUNNING_APP_MESSAGE, e.getMessage());
     }
 
-    private void showErrorOnUpdatingDialog() {
-        showErrorDialog("Failed to update", ERROR_ON_UPDATING_MESSAGE);
+    private void showErrorOnUpdatingDialog(Exception e) {
+        showErrorDialog("Failed to update", ERROR_ON_UPDATING_MESSAGE, e.getMessage());
     }
 
-    private void showErrorDialog(String header, String message) {
+    private void showErrorDialog(String title, String header, String message) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
             alert.setHeaderText(header);
             alert.setContentText(message);
             alert.showAndWait();

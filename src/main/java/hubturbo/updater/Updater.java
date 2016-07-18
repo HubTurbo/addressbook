@@ -34,7 +34,6 @@ public class Updater {
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
     private static final String MSG_FAIL_DOWNLOAD_UPDATE = "Downloading update failed";
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
-    private static final String MSG_FAIL_EXTRACT_JAR_UPDATER = "Failed to extract JAR installer";
     private static final String MSG_FAIL_UPDATE_NOT_SUPPORTED = "Update not supported on detected OS";
     private static final String MSG_FAIL_OBTAIN_LATEST_VERSION_DATA = "Unable to obtain latest version data. Please manually download the latest version.";
     private static final String MSG_NO_UPDATE = "There is no update";
@@ -118,6 +117,12 @@ public class Updater {
         }
 
         try {
+            createUpdateDir();
+        } catch (IOException e) {
+            updateProgressNotifier.sendStatusFailed("Error creating update directory");
+        }
+
+        try {
             downloadFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
         } catch (IOException e) {
             updateProgressNotifier.sendStatusFailed(MSG_FAIL_DOWNLOAD_UPDATE);
@@ -142,6 +147,13 @@ public class Updater {
         }
 
         updateProgressNotifier.sendStatusFinished(MSG_UPDATE_FINISHED);
+    }
+
+    private void createUpdateDir() throws IOException {
+        File updateDir = new File(UPDATE_DIR);
+        if (!FileUtil.isDirExists(updateDir)) {
+            Files.createDirectory(updateDir.toPath());
+        }
     }
 
     /**
@@ -228,9 +240,8 @@ public class Updater {
      */
     private HashMap<String, URL> getLibraryFilesDownloadLinks(List<LibraryDescriptor> libraryFiles) {
         HashMap<String, URL> filesToBeDownloaded = new HashMap<>();
-        libraryFiles.stream()
-                .forEach(libDesc -> filesToBeDownloaded.put(LIB_DIR + libDesc.getFileName(),
-                                                            libDesc.getDownloadLink()));
+        libraryFiles.forEach(libDesc -> filesToBeDownloaded.put(LIB_DIR + libDesc.getFileName(),
+                                                                libDesc.getDownloadLink()));
         return filesToBeDownloaded;
     }
 
@@ -252,10 +263,6 @@ public class Updater {
      * @param filesToBeUpdated files to download for update
      */
     private void downloadFilesToBeUpdated(File updateDir, HashMap<String, URL> filesToBeUpdated) throws IOException {
-        if (!FileUtil.isDirExists(updateDir)) {
-            Files.createDirectory(updateDir.toPath());
-        }
-
         int totalFilesToDownload = filesToBeUpdated.keySet().size();
         int noOfFilesDownloaded = 0;
 
@@ -282,20 +289,6 @@ public class Updater {
     }
 
     /**
-     * Extracts a file from resourcePath into targetFile
-     *
-     * Creates targetFile is it does not exist, and replaces any existing targetFile
-     *
-     * @param targetFile
-     * @param resourcePath
-     * @throws IOException
-     */
-    private void extractFile(File targetFile, String resourcePath) throws IOException {
-        InputStream in = getResourceStream(resourcePath);
-        createContentFile(targetFile, in);
-    }
-
-    /**
      * Writes a stream content into a target file
      *
      * Creates targetFile is it does not exist, and replaces any existing targetFile
@@ -309,10 +302,6 @@ public class Updater {
         Files.copy(contentStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private InputStream getResourceStream(String resourcePath) {
-        return Updater.class.getClassLoader().getResourceAsStream(resourcePath);
-    }
-
     private InputStream getUrlStream(URL source) throws IOException {
         return source.openStream();
     }
@@ -322,8 +311,9 @@ public class Updater {
     }
 
     private void createUpdateSpecification(HashMap<String, URL> filesToBeUpdated) throws IOException {
-        List<String> listOfFileNames = filesToBeUpdated.keySet().stream().collect(Collectors.toList());
-        LocalUpdateSpecificationHelper.saveLocalUpdateSpecFile(listOfFileNames);
+        List<String> listOfFiles = filesToBeUpdated.keySet().stream().collect(Collectors.toList());
+        listOfFiles.add("VersionData.json");
+        LocalUpdateSpecificationHelper.saveLocalUpdateSpecFile(listOfFiles);
     }
 
     private void writeDownloadedVersionsToFile(List<Version> downloadedVersions, File file) throws IOException {

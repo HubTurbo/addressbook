@@ -19,6 +19,7 @@ public class Launcher extends Application {
     private static final String ERROR_LAUNCH = "Failed to launch";
     private static final String ERROR_RUNNING = "Failed to run application";
     private static final String ERROR_TRY_AGAIN = "Please try again, or contact developer if it keeps failing.";
+    public static final String SPECIFICATION_FILE_PATH = "update/UpdateSpecification";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
 
@@ -34,8 +35,35 @@ public class Launcher extends Application {
     }
 
     private void run() throws IOException {
+        if (hasUpdate()) {
+            System.out.println("Update found");
+            Process process = runUpdateMigrator();
+            while (process.isAlive()) {}
+            System.out.println("Running main application");
+            runMainApplication();
+            stop();
+        }
+        System.out.println("No updates found.");
         runMainApplication();
         stop();
+    }
+
+    private boolean hasUpdate() {
+        File updateSpecificationFile = new File(SPECIFICATION_FILE_PATH);
+        return updateSpecificationFile.exists();
+    }
+
+    private Process runUpdateMigrator() throws IOException {
+        try {
+            String classPath = File.pathSeparator + "lib" + File.separator + "*";
+            String command = String.format("java -ea -cp %s hubturbo.updater.UpdateMigrator --update-specification=%s --source-dir=%s", classPath, SPECIFICATION_FILE_PATH, "update");
+            System.out.println("Starting updater migrator: " + command);
+            Process process = Runtime.getRuntime().exec(command, null, new File(System.getProperty("user.dir")));
+            System.out.println("Update migrator launched");
+            return process;
+        } catch (IOException e) {
+            throw new IOException(ERROR_RUNNING, e);
+        }
     }
 
     private void runMainApplication() throws IOException {
