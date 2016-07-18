@@ -81,7 +81,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     protected void after() {
         personDataAfterExecution = new Person(target);
         PlatformExecUtil.runAndWait(() -> {
-            target.setChangeInProgress(NONE);
+            target.clearChangeInProgress();
             target.continueSyncingWithBackingObject();
             target.forceSyncFromBacking();
         });
@@ -93,10 +93,9 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected State simulateResult() {
+    protected void simulateResult() {
         assert input != null;
         PlatformExecUtil.runAndWait(() -> target.simulateUpdate(input));
-        return GRACE_PERIOD;
     }
 
     @Override
@@ -105,44 +104,49 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected State handleEditInGracePeriod(Supplier<Optional<ReadOnlyPerson>> editInputSupplier) {
+    protected void handleEditRequest(Supplier<Optional<ReadOnlyPerson>> editInputSupplier) {
         // take details and update viewable, then restart grace period
         final Optional<ReadOnlyPerson> editInput = editInputSupplier.get();
         if (editInput.isPresent()) { // edit request confirmed
-            input = editInput.get(); // update saved input
-            PlatformExecUtil.runAndWait(() -> target.simulateUpdate(input));
+            cancelCommand();
+            model.execNewEditPersonCommand(target, () -> editInput);
         }
-        return GRACE_PERIOD; // restart grace period
     }
 
     @Override
-    protected State handleDeleteInGracePeriod() {
+    protected void handleDeleteRequest() {
+        cancelCommand();
         model.execNewDeletePersonCommand(target);
-        return CANCELLED;
     }
 
     @Override
-    protected Optional<ReadOnlyPerson> getRemoteConflict() {
+    protected void handleResolveConflict() {
+        // TODO
+    }
+
+    @Override
+    protected void handleRetry() {
+        cancelCommand();
+        model.execNewEditPersonCommand(target, () -> Optional.of(input));
+    }
+
+    @Override
+    protected Optional<ReadOnlyPerson> getRemoteConflictData() {
         return Optional.empty(); // TODO add after cloud individual check implemented
     }
 
     @Override
-    protected State resolveRemoteConflict(ReadOnlyPerson remoteVersion) {
-        return null;
-    }
-
-    @Override
-    protected State requestChangeToRemote() {
+    protected boolean requestRemoteChange() {
         assert input != null;
 
-        CompletableFuture<ReadOnlyPerson> responseHolder = new CompletableFuture<>();
+        final CompletableFuture<ReadOnlyPerson> responseHolder = new CompletableFuture<>();
         eventRaiser.accept(new UpdatePersonOnRemoteRequestEvent(responseHolder, addressbookName, target.getId(), input));
         try {
-            responseHolder.get();
-            PlatformExecUtil.runAndWait(() -> target.getBacking().update(input));
-            return SUCCESSFUL;
+            final ReadOnlyPerson remoteVersion = responseHolder.get();
+            PlatformExecUtil.runAndWait(() -> target.getBacking().update(remoteVersion));
+            return true;
         } catch (ExecutionException | InterruptedException e) {
-            return FAILED;
+            return false;
         }
     }
 
@@ -153,11 +157,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithSuccess() {
-        // nothing to do for now
+        // nothing to do, viewableperson's auto update will handle it
     }
 
-    @Override
-    protected void finishWithFailure() {
-        finishWithCancel(); // TODO figure out failure handling
-    }
 }

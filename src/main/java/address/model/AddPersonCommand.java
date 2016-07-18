@@ -108,6 +108,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     protected void handleEditRequest(Supplier<Optional<ReadOnlyPerson>> editInputSupplier) {
         final Optional<ReadOnlyPerson> editInput = editInputSupplier.get();
         if (editInput.isPresent()) { // edit request confirmed
+            cancelCommand();
             model.execNewAddPersonCommand(() -> editInput); // spawn new add request with the updated info
         }
     }
@@ -115,15 +116,17 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void handleDeleteRequest() {
         // do nothing, let it get cancelled
+        cancelCommand();
     }
 
     @Override
     protected void handleResolveConflict() {
-        // No conflicts possibl
+        // No conflicts possible
     }
 
     @Override
     protected void handleRetry() {
+        cancelCommand();
         model.execNewAddPersonCommand(() -> Optional.of(input));
     }
 
@@ -136,7 +139,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     protected boolean requestRemoteChange() {
         assert input != null;
 
-        CompletableFuture<ReadOnlyPerson> responseHolder = new CompletableFuture<>();
+        final CompletableFuture<ReadOnlyPerson> responseHolder = new CompletableFuture<>();
         eventRaiser.accept(new CreatePersonOnRemoteRequestEvent(responseHolder, addressbookName, input));
         try {
             backingFromRemote = new Person(responseHolder.get());

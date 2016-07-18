@@ -48,7 +48,6 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
     public void overrideWithEditPerson(Supplier<Optional<ReadOnlyPerson>> editInputSupplier) {
         assert !getState().isTerminal() : "Attempted to override a terminated command";
         handleEditRequest(editInputSupplier);
-        cancelCommand();
     }
 
     /**
@@ -64,7 +63,6 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
     public void overrideWithDeletePerson() {
         assert !getState().isTerminal() : "Attempted to override a terminated command";
         handleDeleteRequest();
-        cancelCommand();
     }
 
     /**
@@ -79,7 +77,6 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
     public void resolveConflict() {
         assert getState() != State.CONFLICT_FOUND : "Attempted to resolve conflict for a command without a detected conflict";
         handleResolveConflict();
-        cancelCommand();
     }
 
     /**
@@ -94,7 +91,6 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
     public void retry() {
         assert getState() != State.REQUEST_FAILED : "Attempted to retry a command that has not failed";
         handleRetry();
-        cancelCommand();
     }
 
     /**
