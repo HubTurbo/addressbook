@@ -3,7 +3,7 @@ build/
 .gradle/
 .idea/
 lib/*
-launcher-V*.*.*.jar
+launcher-*.*.*.jar
 !lib/licence.jar
 *.iml
 *.log

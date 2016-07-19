@@ -57,9 +57,9 @@ allprojects {
         commonsIoVersion = '2.4'
 
         // Commons, Update and Launcher versions to be updated here on release
-        commonsArchiveName = 'commons-V0.0.0.jar'
+        commonsArchiveName = 'commons-0.0.0.jar'
 
-        updaterArchiveName = "updater-V0.0.0.jar"
+        updaterArchiveName = "updater-0.0.0.jar"
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         mainAppMainClass = 'address.MainApp'
@@ -67,7 +67,7 @@ allprojects {
         installerArchiveName = 'installer-' + project.version + '.jar'
         installerMainClass = 'installer.Installer'
 
-        launcherArchiveName = "launcher-V0.0.0.jar"
+        launcherArchiveName = "launcher-0.0.0.jar"
         launcherMainClass = 'launcher.Launcher'
 
         licenceArchiveName = 'licence.jar'
@@ -192,8 +192,8 @@ allprojects {
 
     // Remove any old custom dependencies
     task deleteOldCustomDependenciesFromLibrary(type: Delete) {
-        delete fileTree(dir: ".", include: 'launcher-V*.*.*.jar')
-        delete fileTree(dir: "$libDir", includes: ['updater-V*.*.*.jar', 'commons-V*.*.*.jar'])
+        delete fileTree(dir: ".", include: 'launcher-*.*.*.jar')
+        delete fileTree(dir: "$libDir", includes: ['updater-*.*.*.jar', 'commons-*.*.*.jar'])
     }
 
     // copy dependencies from Gradle's cache
