@@ -17,6 +17,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ public class Updater {
     private static final String MSG_FAIL_READ_LATEST_VERSION = "Error reading latest version";
     private static final String MSG_NO_NEWER_VERSION = "No newer version to be downloaded";
     private static final String MSG_UPDATE_FINISHED = "Update will be applied on next launch";
+    private static final String MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA = "Error updating backup versions' data file";
     // --- End of Messages
 
     private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
@@ -50,7 +52,7 @@ public class Updater {
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
     private static final String LIB_DIR = "lib" + File.separator;
     private static final String MAIN_APP_FILEPATH = LIB_DIR + "resource.jar";
-    public static final String MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA = "Error updating backup versions' data file";
+    private static final String UPDATER_FILE_REGEX = "updater-V\\d.\\d.\\d.jar";
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final Version currentVersion;
@@ -98,7 +100,7 @@ public class Updater {
         assert isOnSameReleaseChannel(latestVersion) : "Error: latest version found to be in the wrong release channel";
 
         if (currentVersion.compareTo(latestVersion) >= 0) {
-            updateInformationNotifier.sendStatusFinishedWithoutUpgrade(MSG_NO_NEWER_VERSION);
+            updateInformationNotifier.sendStatusFinishedWithoutUpdaterUpgrade(MSG_NO_NEWER_VERSION);
             return;
         }
 
@@ -112,7 +114,7 @@ public class Updater {
         }
 
         if (filesToBeUpdated.isEmpty()) {
-            updateInformationNotifier.sendStatusFinishedWithoutUpgrade(MSG_NO_UPDATE);
+            updateInformationNotifier.sendStatusFinishedWithoutUpdaterUpgrade(MSG_NO_UPDATE);
             return;
         }
 
@@ -146,7 +148,15 @@ public class Updater {
             return;
         }
 
-        updateInformationNotifier.sendStatusFinishedWithUpgrade(MSG_UPDATE_FINISHED, "updater.jar"); // TODO: check specification to see if updater needs an update
+        Optional<String> updaterFile = filesToBeUpdated.keySet().stream()
+                                            .filter(file -> file.matches(UPDATER_FILE_REGEX))
+                                            .findAny();
+
+        if (updaterFile.isPresent()) {
+            updateInformationNotifier.sendStatusFinishedWithUpdaterUpgrade(MSG_UPDATE_FINISHED, updaterFile.get());
+        } else {
+            updateInformationNotifier.sendStatusFinishedWithoutUpdaterUpgrade(MSG_UPDATE_FINISHED);
+        }
     }
 
     private void createUpdateDir() throws IOException {

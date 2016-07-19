@@ -119,7 +119,7 @@ public class MainApp extends Application {
         logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
         if (ManifestFileReader.isRunFromJar()) {
-            updater.start(getUpdateInformationNotifier());
+            updater.start(getUpdateInformationNotifier(ui));
         } else {
             ui.getUpdateProgressNotifier().sendStatusFinished("Developer environment; not running updater");
         }
@@ -127,7 +127,7 @@ public class MainApp extends Application {
         syncManager.start();
     }
 
-    private UpdateInformationNotifier getUpdateInformationNotifier() {
+    protected UpdateInformationNotifier getUpdateInformationNotifier(Ui ui) {
         UpdateProgressNotifier updateProgressNotifier = ui.getUpdateProgressNotifier();
         return new UpdateInformationNotifier(
                 updateProgressNotifier::sendStatusFinished,

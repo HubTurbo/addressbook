@@ -22,11 +22,11 @@ public class UpdateInformationNotifier {
         this.upgradeUpdaterReader = upgradeUpdaterReader;
     }
 
-    public void sendStatusFinishedWithoutUpgrade(String message) {
+    public void sendStatusFinishedWithoutUpdaterUpgrade(String message) {
         statusFinishedReader.accept(message);
     }
 
-    public void sendStatusFinishedWithUpgrade(String message, String upgradeUpdater) {
+    public void sendStatusFinishedWithUpdaterUpgrade(String message, String upgradeUpdater) {
         statusFinishedReader.accept(message);
         upgradeUpdaterReader.accept(upgradeUpdater);
     }
