@@ -10,7 +10,6 @@ plugins {
 }
 
 allprojects {
-
     version = 'V1.3.0ea'
 
     apply plugin: 'idea'
@@ -57,19 +56,23 @@ allprojects {
         slf4jSimpleVersion = '1.6.4'
         commonsIoVersion = '2.4'
 
-        commonsArchiveName = 'commons.jar'
+        // Commons, Update and Launcher versions to be updated here on release
+        commonsArchiveName = 'commons-0.0.0.jar'
 
-        updaterArchiveName = 'updater.jar'
+        updaterArchiveName = "updater-0.0.0.jar"
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         mainAppMainClass = 'address.MainApp'
 
         installerArchiveName = 'installer-' + project.version + '.jar'
-        installerMainClass = 'hubturbo.installer.Installer'
+        installerMainClass = 'installer.Installer'
+
+        launcherArchiveName = "launcher-0.0.0.jar"
+        launcherMainClass = 'launcher.Launcher'
 
         licenceArchiveName = 'licence.jar'
 
-        generateVersionDataMainClass = 'hubturbo.installer.VersionDataGenerator'
+        generateVersionDataMainClass = 'address.util.VersionDataGenerator'
         libDir = 'lib'
     }
 
@@ -86,8 +89,8 @@ allprojects {
             java {
                 srcDir 'src/main/java'
                 include('address/**/*')
-                include('hubturbo/embeddedbrowser/**/*')
-                include('hubturbo/EmbeddedBrowser.java')
+                include('hubturbo/**/*')
+                include('commons/**/*')
             }
             resources {
                 srcDir 'src/main/resources'
@@ -96,12 +99,8 @@ allprojects {
         updater {
             java {
                 srcDir 'src/main/java'
-                include('hubturbo/updater/**/*')
-                include('address/updater/**/*')
-                include('address/util/OsDetector.java')
-                include('address/util/Version.java')
-                include('address/util/VersionData.java')
-                include('address/util/LibraryDescriptor.java')
+                include('updater/**/*')
+                include('commons/**/*')
             }
             resources {
                 srcDir 'src/main/resources'
@@ -116,33 +115,21 @@ allprojects {
         installer {
             java {
                 srcDir 'src/main/java/'
-                include('hubturbo/embeddedbrowser/BrowserType.java')
-                include('hubturbo/installer/**/*')
-                exclude('hubturbo/installer/VersionDataGenerator.java')
-                include('address/events/BaseEvent.java')
-                include('address/util/OsDetector.java')
-                include('address/util/Version.java')
-                include('address/util/VersionData.java')
-                include('address/util/LibraryDescriptor.java')
-                include('address/util/ProgressAwareInputStream.java')
-                include('address/util/AppLogger.java')
-                include('address/util/LoggerManager.java')
-                include('address/util/Config.java')
-                include('commons/FileUtil.java')
-                include('commons/JsonUtil.java')
+                include('installer/**/*')
+                include('commons/**/*')
             }
             resources {
                 srcDir "."
                 include("$libDir/*")
                 exclude("$libDir/jxbrowser-*-*.jar") // platform-specific jxbrowser
-                include('addressbook.jar')
+                include("$launcherArchiveName")
                 include('VersionData.json')
             }
         }
         launcher {
             java {
                 srcDir 'src/main/java'
-                include('hubturbo/launcher/Launcher.java')
+                include('launcher/**/*')
             }
         }
         generateVersionData {
@@ -205,14 +192,23 @@ allprojects {
         }
     }
 
+    // Remove any old custom dependencies
+    task deleteOldCustomDependenciesFromLibrary(type: Delete) {
+        delete fileTree(dir: ".", include: 'launcher-*.*.*.jar')
+        delete fileTree(dir: "$libDir", includes: ['updater-*.*.*.jar', 'commons-*.*.*.jar'])
+    }
+
+    // Copy downloaded dependencies from Gradle's cache into the library directory
     task copyAllDependenciesToLibrary(type: Copy) {
         from(configurations.compile) {
             exclude("$licenceArchiveName")
         }
         into "$libDir/"
     }
+    copyAllDependenciesToLibrary.dependsOn deleteOldCustomDependenciesFromLibrary
+    copyAllDependenciesToLibrary.dependsOn clean
 
-    // Compile commons.jar
+    // Commons jar
     task createCommonsJar(type: Jar) {
         archiveName = "$commonsArchiveName"
 
@@ -220,8 +216,9 @@ allprojects {
         destinationDir = file("$libDir/")
     }
     createCommonsJar.dependsOn copyAllDependenciesToLibrary
+    compileCommonsJava.mustRunAfter copyAllDependenciesToLibrary
 
-    // Creates updater.jar
+    // Updater jar
     task createUpdaterJar(type: Jar) {
         archiveName = "$updaterArchiveName"
 
@@ -252,9 +249,9 @@ allprojects {
 
     // Creates the launcher, which launches the main application with custom arguments
     task createLauncherJar(type: Jar) {
-        archiveName = "addressbook.jar"
+        archiveName = "$launcherArchiveName"
         manifest {
-            attributes "Main-Class": "hubturbo.launcher.Launcher",
+            attributes "Main-Class": "$launcherMainClass",
                        "Class-Path": configurations.compile.files.collect { "$libDir/${it.name}" }.join(" ")
         }
         from sourceSets.launcher.output
@@ -357,6 +354,8 @@ task guiUnitTests(type: AddressBookTest) {
 
 task unitTests(type: AddressBookTest) {
     include 'address/**'
+    include 'commons/**'
+    include 'hubturbo/**'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }

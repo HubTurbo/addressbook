@@ -1,4 +1,4 @@
-package address.util;
+package commons;
 
 import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import javafx.geometry.Orientation;

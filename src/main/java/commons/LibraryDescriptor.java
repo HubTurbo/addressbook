@@ -1,4 +1,4 @@
-package address.util;
+package commons;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,11 +10,11 @@ public class LibraryDescriptor {
 
     private String filename;
     private URL downloadLink;
-    private OsDetector.Os os;
+    private commons.OsDetector.Os os;
 
     public LibraryDescriptor() {} // required for serialization
 
-    public LibraryDescriptor(String filename, String downloadLink, OsDetector.Os os) throws MalformedURLException {
+    public LibraryDescriptor(String filename, String downloadLink, commons.OsDetector.Os os) throws MalformedURLException {
         this.filename = filename;
         this.downloadLink = new URL(downloadLink);
         this.os = os;
@@ -36,11 +36,11 @@ public class LibraryDescriptor {
         this.downloadLink = new URL(downloadLink);
     }
 
-    public OsDetector.Os getOs() {
+    public commons.OsDetector.Os getOs() {
         return os;
     }
 
-    public void setOs(OsDetector.Os os) {
+    public void setOs(commons.OsDetector.Os os) {
         this.os = os;
     }
 }

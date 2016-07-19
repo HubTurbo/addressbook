@@ -1,12 +1,10 @@
-package hubturbo.updater;
+package updater;
 
-import address.util.*;
-import commons.FileUtil;
+import commons.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -24,14 +22,14 @@ public class BackupHandler {
     private static final String BACKUP_MARKER = "_";
     private static final String BACKUP_FILENAME_STRING_FORMAT = "addressbook" + BACKUP_MARKER + "%s.jar";
     private static final String BACKUP_FILENAME_REGEX =
-            "addressbook" + BACKUP_MARKER + "(" + Version.VERSION_REGEX + ")\\.(jar|JAR)$";
+            "addressbook" + BACKUP_MARKER + "(" + commons.Version.VERSION_REGEX + ")\\.(jar|JAR)$";
     private static final String BACKUP_INSTRUCTION_FILENAME = "Instruction to use past versions.txt";
     private static final String BACKUP_INSTRUCTION_RESOURCE_PATH = "updater/Instruction to use past versions.txt";
 
-    private final Version currentVersion;
+    private final commons.Version currentVersion;
     private DependencyHistoryHandler dependencyHistoryHandler;
 
-    public BackupHandler(Version currentVersion) {
+    public BackupHandler(commons.Version currentVersion) {
         this.currentVersion = currentVersion;
         this.dependencyHistoryHandler = new DependencyHistoryHandler(currentVersion);
     }
@@ -60,13 +58,13 @@ public class BackupHandler {
     protected void cleanupBackups() {
         File backupDir = new File(BACKUP_DIR);
         List<String> backupFilesNames = getSortedBackupFilesNames(backupDir, BACKUP_FILENAME_REGEX);
-        List<Version> backupVersions = getVersionsFromFileNames(backupFilesNames);
+        List<commons.Version> backupVersions = getVersionsFromFileNames(backupFilesNames);
 
         List<String> backupFilesToDelete = getBackupFilesToDelete(backupFilesNames, MAX_BACKUP_JAR_KEPT);
         backupFilesToDelete.forEach(this::deleteBackupFile);
 
-        List<Version> deletedVersions = getVersionsFromFileNames(backupFilesToDelete);
-        List<Version> retainedVersions = backupVersions.stream()
+        List<commons.Version> deletedVersions = getVersionsFromFileNames(backupFilesToDelete);
+        List<commons.Version> retainedVersions = backupVersions.stream()
                 .filter(backupVersion -> !deletedVersions.contains(backupVersion))
                 .collect(Collectors.toCollection(ArrayList::new));
 
@@ -78,7 +76,7 @@ public class BackupHandler {
         dependencyHistoryHandler.cleanUpUnusedDependencies(deletedVersions);
     }
 
-    private void makeBackupCopy(File mainAppJar, Version version) throws IOException {
+    private void makeBackupCopy(File mainAppJar, commons.Version version) throws IOException {
         String backupFilename = getBackupFilename(version);
         FileUtil.copyFile(mainAppJar.toPath(), Paths.get(BACKUP_DIR, backupFilename), true);
     }
@@ -99,11 +97,11 @@ public class BackupHandler {
         return jar.getName().contains(BACKUP_MARKER);
     }
 
-    private String getBackupFilename(Version version) {
+    private String getBackupFilename(commons.Version version) {
         return String.format(BACKUP_FILENAME_STRING_FORMAT, version.toString());
     }
 
-    private ArrayList<Version> getVersionsFromFileNames(List<String> backupFilesToDelete) {
+    private ArrayList<commons.Version> getVersionsFromFileNames(List<String> backupFilesToDelete) {
         return backupFilesToDelete.stream()
                 .map(this::getVersionFromFileName)
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -129,14 +127,14 @@ public class BackupHandler {
      * @param dependenciesTable versions mapped to their dependencies
      * @return
      */
-    private Set<String> getDependenciesOfVersions(List<Version> versions, Map<Version, List<String>> dependenciesTable) {
+    private Set<String> getDependenciesOfVersions(List<commons.Version> versions, Map<commons.Version, List<String>> dependenciesTable) {
         return versions.stream()
                 .flatMap(storedVersion -> dependenciesTable.get(storedVersion).stream())
                 .collect(Collectors.toCollection(HashSet::new));
     }
 
-    private Set<String> getUnusedDependencies(List<Version> deletedVersions, List<Version> storedVersions,
-                                              Map<Version, List<String>> dependenciesTable) {
+    private Set<String> getUnusedDependencies(List<commons.Version> deletedVersions, List<commons.Version> storedVersions,
+                                              Map<commons.Version, List<String>> dependenciesTable) {
         Set<String> possiblyUnusedDependencies = getDependenciesOfVersions(deletedVersions, dependenciesTable);
         Set<String> requiredDependencies = getDependenciesOfVersions(storedVersions, dependenciesTable);
         possiblyUnusedDependencies.removeAll(requiredDependencies);
@@ -199,11 +197,11 @@ public class BackupHandler {
      * @param filename filename of addressbook backup JAR, in format "addressbook_V[major].[minor].[patch].jar"
      * @return version of backup JAR
      */
-    private Version getVersionFromFileName(String filename) {
+    private commons.Version getVersionFromFileName(String filename) {
         Pattern htJarBackupFilenamePattern = Pattern.compile(BACKUP_FILENAME_REGEX);
         Matcher htJarBackupFilenameMatcher = htJarBackupFilenamePattern.matcher(filename);
         assert htJarBackupFilenameMatcher.find() : "Invalid backup file name found" + filename;
 
-        return Version.fromString(htJarBackupFilenameMatcher.group(1));
+        return commons.Version.fromString(htJarBackupFilenameMatcher.group(1));
     }
 }

@@ -1,15 +1,14 @@
-package address.util;
+package commons;
 
-import address.exceptions.DataConversionException;
 import address.model.datatypes.AddressBook;
 import address.storage.StorageAddressBook;
 import address.testutil.AddressBookBuilder;
 import address.testutil.TestUtil;
-import commons.FileUtil;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
 
@@ -46,7 +45,7 @@ public class XmlUtilTest {
 
     @Test
     public void getDataFromFile_emptyFile_DataFormatMismatchException() throws Exception {
-        thrown.expect(DataConversionException.class);
+        thrown.expect(JAXBException.class);
         XmlUtil.getDataFromFile(EMPTY_FILE, AddressBook.class);
     }
 

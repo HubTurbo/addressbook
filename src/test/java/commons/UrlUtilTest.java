@@ -1,5 +1,6 @@
-package address.util;
+package commons;
 
+import commons.UrlUtil;
 import junit.framework.TestCase;
 
 import org.junit.Test;

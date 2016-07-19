@@ -1,4 +1,4 @@
-package address.util;
+package commons;
 
 import java.io.BufferedReader;
 import java.io.IOException;

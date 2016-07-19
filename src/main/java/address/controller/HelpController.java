@@ -1,7 +1,7 @@
 package address.controller;
 
 import address.MainApp;
-import address.util.FxViewUtil;
+import commons.FxViewUtil;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.fxbrowser.FxBrowserAdapter;
 import javafx.fxml.FXML;

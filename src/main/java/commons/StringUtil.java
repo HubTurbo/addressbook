@@ -1,4 +1,4 @@
-package address.util;
+package commons;
 
 /**
  * Helper functions for handling strings.

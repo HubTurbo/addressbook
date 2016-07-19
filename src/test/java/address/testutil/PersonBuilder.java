@@ -2,7 +2,7 @@ package address.testutil;
 
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
-import address.util.DateTimeUtil;
+import commons.DateTimeUtil;
 
 import java.util.Arrays;
 

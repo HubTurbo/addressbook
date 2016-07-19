@@ -12,7 +12,7 @@ import hubturbo.embeddedbrowser.page.Page;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.AppLogger;
 import address.util.LoggerManager;
-import address.util.UrlUtil;
+import commons.UrlUtil;
 import com.teamdev.jxbrowser.chromium.BrowserCore;
 import com.teamdev.jxbrowser.chromium.LoggerProvider;
 import com.teamdev.jxbrowser.chromium.internal.Environment;

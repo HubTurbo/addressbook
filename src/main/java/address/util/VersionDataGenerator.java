@@ -1,11 +1,8 @@
-package hubturbo.installer;
+package address.util;
 
 import address.MainApp;
-import address.storage.StorageManager;
-import address.util.LibraryDescriptor;
-import address.util.VersionData;
-import commons.FileUtil;
-import commons.JsonUtil;
+import commons.*;
+import commons.LibraryDescriptor;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +38,7 @@ public class VersionDataGenerator {
     public void generateNewVersionData(String[] args) {
         List<String> arguments = Arrays.asList(args);
 
-        Optional<VersionData> previousVersionData;
+        Optional<commons.VersionData> previousVersionData;
         try {
             previousVersionData = Optional.of(readVersionDataFromFile(VERSION_DATA_FILE));
         } catch (IOException e) {
@@ -50,7 +47,7 @@ public class VersionDataGenerator {
             previousVersionData = Optional.empty();
         }
 
-        VersionData versionData = new VersionData();
+        commons.VersionData versionData = new commons.VersionData();
         versionData.setVersion(MainApp.VERSION.toString());
 
         String mainAppDownloadLink = getMainAppDownloadLink(arguments.get(0));
@@ -62,7 +59,7 @@ public class VersionDataGenerator {
             return;
         }
         ArrayList<String> currentLibrariesNames = new ArrayList<>(arguments.subList(1, arguments.size()));
-        ArrayList<LibraryDescriptor> currentLibrariesDescriptors = convertToLibraryDescriptors(currentLibrariesNames);
+        ArrayList<commons.LibraryDescriptor> currentLibrariesDescriptors = convertToLibraryDescriptors(currentLibrariesNames);
 
         if (previousVersionData.isPresent()) {
             transferOsInformation(previousVersionData.get() .getLibraries(), currentLibrariesDescriptors);
@@ -80,11 +77,11 @@ public class VersionDataGenerator {
         notifyOfNewLibraries(currentLibrariesDescriptors);
     }
 
-    private ArrayList<LibraryDescriptor> convertToLibraryDescriptors(ArrayList<String> currentLibrariesNames) {
-        ArrayList<LibraryDescriptor> libraryDescriptors = new ArrayList<>();
+    private ArrayList<commons.LibraryDescriptor> convertToLibraryDescriptors(ArrayList<String> currentLibrariesNames) {
+        ArrayList<commons.LibraryDescriptor> libraryDescriptors = new ArrayList<>();
         for (String libraryName : currentLibrariesNames) {
             try {
-                libraryDescriptors.add(new LibraryDescriptor(libraryName, getDownloadLinkForLibrary(libraryName), null));
+                libraryDescriptors.add(new commons.LibraryDescriptor(libraryName, getDownloadLinkForLibrary(libraryName), null));
             } catch (MalformedURLException e) {
                 System.out.println("Failed to set download link for " + libraryName +
                         "; please update the download link manually");
@@ -93,8 +90,8 @@ public class VersionDataGenerator {
         return libraryDescriptors;
     }
 
-    private VersionData readVersionDataFromFile(File file) throws IOException {
-        return JsonUtil.fromJsonString(FileUtil.readFromFile(file), VersionData.class);
+    private commons.VersionData readVersionDataFromFile(File file) throws IOException {
+        return JsonUtil.fromJsonString(FileUtil.readFromFile(file), commons.VersionData.class);
     }
 
     private String getMainAppDownloadLink(String mainAppFileName) {
@@ -115,11 +112,11 @@ public class VersionDataGenerator {
      * @param currentLibraryDescriptors
      */
     private void transferOsInformation(
-            ArrayList<LibraryDescriptor> previousLibraryDescriptors,
-            ArrayList<LibraryDescriptor> currentLibraryDescriptors) {
+            ArrayList<commons.LibraryDescriptor> previousLibraryDescriptors,
+            ArrayList<commons.LibraryDescriptor> currentLibraryDescriptors) {
         currentLibraryDescriptors.stream()
                 .forEach(currentLibraryDescriptor -> {
-                    Optional<LibraryDescriptor> libraryDescriptorWithOsInformation = getMatchingLibraryDescriptor(currentLibraryDescriptor, previousLibraryDescriptors);
+                    Optional<commons.LibraryDescriptor> libraryDescriptorWithOsInformation = getMatchingLibraryDescriptor(currentLibraryDescriptor, previousLibraryDescriptors);
                     libraryDescriptorWithOsInformation.ifPresent(desc -> currentLibraryDescriptor.setOs(desc.getOs()));
                 });
     }
@@ -131,7 +128,7 @@ public class VersionDataGenerator {
      * @param prevLibraryDescriptors
      * @return
      */
-    private Optional<LibraryDescriptor> getMatchingLibraryDescriptor(LibraryDescriptor libraryDescriptor, List<LibraryDescriptor> prevLibraryDescriptors) {
+    private Optional<commons.LibraryDescriptor> getMatchingLibraryDescriptor(commons.LibraryDescriptor libraryDescriptor, List<commons.LibraryDescriptor> prevLibraryDescriptors) {
         return prevLibraryDescriptors.stream()
                 .filter(prevLibDesc -> prevLibDesc.getFileName().equals(libraryDescriptor.getFileName()))
                 .findFirst();

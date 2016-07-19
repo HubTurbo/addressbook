@@ -8,13 +8,18 @@ import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
-import hubturbo.updater.Updater;
+import address.updater.UpdateProgressNotifier;
+import address.updater.UpdaterUpgrader;
+import commons.UpdateInformationNotifier;
+import commons.Version;
+import updater.Updater;
 import address.util.*;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -28,7 +33,7 @@ public class MainApp extends Application {
     private static final int VERSION_PATCH = 0;
     private static final boolean VERSION_EARLY_ACCESS = true;
 
-    public static final Version VERSION = new Version(
+    public static final commons.Version VERSION = new commons.Version(
             VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EARLY_ACCESS);
 
     /**
@@ -78,10 +83,10 @@ public class MainApp extends Application {
         remoteManager = initRemoteManager(config);
         syncManager = initSyncManager(remoteManager, config);
         keyBindingsManager = initKeyBindingsManager();
-        updater = initUpdateManager(VERSION);
+        updater = initUpdater(VERSION);
     }
 
-    protected Updater initUpdateManager(Version version) {
+    protected Updater initUpdater(Version version) {
         return new Updater(version);
     }
 
@@ -114,12 +119,29 @@ public class MainApp extends Application {
         logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
         if (ManifestFileReader.isRunFromJar()) {
-            updater.start(ui.getUpdateProgressNotifier());
+            updater.start(getUpdateInformationNotifier(ui));
         } else {
             ui.getUpdateProgressNotifier().sendStatusFinished("Developer environment; not running updater");
         }
         storageManager.start();
         syncManager.start();
+    }
+
+    protected UpdateInformationNotifier getUpdateInformationNotifier(Ui ui) {
+        UpdateProgressNotifier updateProgressNotifier = ui.getUpdateProgressNotifier();
+        return new UpdateInformationNotifier(
+                updateProgressNotifier::sendStatusFinished,
+                updateProgressNotifier::sendStatusFailed,
+                updateProgressNotifier::sendStatusInProgress,
+                (upgradeUpdater) -> {
+                    UpdaterUpgrader updaterUpgrader = new UpdaterUpgrader(upgradeUpdater);
+                    try {
+                        updaterUpgrader.upgradeUpdater();
+                    } catch (IOException e) {
+                        logger.warn("Error upgrading updater: {}", e);
+                    }
+                }
+        );
     }
 
     @Override

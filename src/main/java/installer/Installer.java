@@ -1,10 +1,9 @@
-package hubturbo.installer;
+package installer;
 
-import address.util.LibraryDescriptor;
-import address.util.VersionData;
-import address.util.*;
-import commons.FileUtil;
-import commons.JsonUtil;
+import commons.LibraryDescriptor;
+import commons.Version;
+import commons.VersionData;
+import commons.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -16,9 +15,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -34,6 +31,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -46,7 +45,7 @@ public class Installer extends Application {
     private static final String LIBRARY_DIR = "lib";
     private static final String VERSION_DATA_RESOURCE = "/VersionData.json";
     private static final String VERSION_DATA = "VersionData.json";
-    private static final String LAUNCHER_JAR = "addressbook.jar";
+    private static final String LAUNCHER_JAR = "launcher-*.*.*.jar";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private ProgressBar progressBar;
@@ -111,10 +110,22 @@ public class Installer extends Application {
         }
     }
 
+    private String findLauncherFileName() throws FileNotFoundException {
+        File curDir = new File(".");
+        String[] curDirFilesNames = curDir.list();
+        if (curDirFilesNames == null) assert false : "Not given a directory to check for launcher!";
+        for (String fileName : curDirFilesNames) {
+            Pattern pattern = Pattern.compile(LAUNCHER_JAR);
+            Matcher matcher = pattern.matcher(fileName);
+            if (matcher.matches()) return fileName;
+        }
+        throw new FileNotFoundException("Launcher file not found!");
+    }
+
     private void runLauncher() throws IOException {
         try {
-            System.out.println("Starting launcher");
-            String command = "java -jar " + LAUNCHER_JAR;
+            String command = "java -jar " + findLauncherFileName();
+            System.out.println("Starting launcher: " + command);
             Runtime.getRuntime().exec(command, null, new File(System.getProperty("user.dir")));
             System.out.println("Launcher started");
         } catch (IOException e) {
@@ -241,7 +252,7 @@ public class Installer extends Application {
 
         String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream(VERSION_DATA_RESOURCE));
         VersionData versionData = JsonUtil.fromJsonString(json, VersionData.class);
-        List<LibraryDescriptor> osDependentLibraries = getOsDependentLibraries(versionData, OsDetector.getOs());
+        List<LibraryDescriptor> osDependentLibraries = getOsDependentLibraries(versionData, commons.OsDetector.getOs());
         List<LibraryDescriptor> missingLibraries = getMissingLibraries(osDependentLibraries);
 
         int noOfMissingLibraries = missingLibraries.size();
@@ -288,7 +299,7 @@ public class Installer extends Application {
     }
 
     private ArrayList<LibraryDescriptor> getOsDependentLibraries(VersionData versionData,
-                                                                 OsDetector.Os os) {
+                                                                 commons.OsDetector.Os os) {
         return versionData.getLibraries().stream()
                 .filter(libDesc -> libDesc.getOs() == os)
                 .collect(Collectors.toCollection(ArrayList::new));

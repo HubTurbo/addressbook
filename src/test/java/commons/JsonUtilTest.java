@@ -1,4 +1,4 @@
-package address.util;
+package commons;
 
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.ReadOnlyAddressBook;

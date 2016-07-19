@@ -1,7 +1,7 @@
-package hubturbo.updater;
+package updater;
 
-import address.util.Version;
-import address.util.VersionData;
+import commons.Version;
+import commons.VersionData;
 import commons.FileUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -13,11 +13,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static commons.UpdaterUtil.updateFile;
 
 /**
  * This class is meant to perform pending updates that have been successfully downloaded
@@ -117,62 +117,7 @@ public class UpdateMigrator extends Application {
     private void applyUpdateToAllFiles(String sourceDir, List<String> filesToBeUpdated) throws IOException {
         for (String fileToUpdate : filesToBeUpdated) {
             System.out.println("Updating file: " + fileToUpdate);
-            updateFile(sourceDir, fileToUpdate);
-        }
-    }
-
-    /**
-     * Attempts to replace the file with a newer version
-     *
-     * In some platforms (Windows in particular), JAR file cannot be modified if it was executed and
-     * the process it created has not ended yet. As such, we will make several tries with wait.
-     */
-    private void updateFile(String sourceDir, String fileToUpdate) throws IOException {
-        Path source = Paths.get(sourceDir, fileToUpdate);
-        Path dest = Paths.get(fileToUpdate);
-        createFileAndParentDirs(dest);
-
-        for (int i = 0; i < MAX_RETRIES; i++) {
-            if (applyUpdate(source, dest)) return;
-            if (i != MAX_RETRIES - 1) sleepFor(WAIT_TIME);
-        }
-        throw new IOException("Jar file cannot be updated. Most likely it is in use by another process.");
-
-    }
-
-    private void createFileAndParentDirs(Path dest) throws IOException {
-        if (!FileUtil.isFileExists(dest.toString())) {
-            FileUtil.createParentDirsOfFile(dest.toFile());
-        }
-    }
-
-    /**
-     * Attempts to sleep for a specified period
-     *
-     * @param sleepDurationInMilliseconds
-     */
-    private void sleepFor(int sleepDurationInMilliseconds) {
-        try {
-            Thread.sleep(sleepDurationInMilliseconds);
-        } catch (InterruptedException e) {
-            System.out.println("Error sleeping thread for: " + sleepDurationInMilliseconds);
-        }
-    }
-
-    /**
-     * Attempts to move the file from source to dest
-     * Source file will not be kept and destination file will be overwritten
-     *
-     * @param source
-     * @param dest
-     * @return true if successful
-     */
-    private boolean applyUpdate(Path source, Path dest) {
-        try {
-            FileUtil.moveFile(source, dest, true);
-            return true;
-        } catch (IOException e) {
-            return false;
+            updateFile(sourceDir, fileToUpdate, MAX_RETRIES, WAIT_TIME);
         }
     }
 

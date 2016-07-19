@@ -7,7 +7,7 @@ import java.util.Optional;
 import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
-import address.util.FxViewUtil;
+import commons.FxViewUtil;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 

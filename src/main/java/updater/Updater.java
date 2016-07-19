@@ -1,22 +1,23 @@
-package hubturbo.updater;
+package updater;
 
-import address.updater.UpdateProgressNotifier;
-import address.util.*;
+import commons.LibraryDescriptor;
+import commons.UpdateInformationNotifier;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import commons.FileUtil;
-import commons.JsonUtil;
+import commons.*;
+import commons.Version;
+import commons.VersionData;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -24,8 +25,12 @@ import java.util.stream.Collectors;
 /**
  * This class is meant to check with the server to determine if there is a newer version of the app to update to
  *
- * Data required for the update will be downloaded in the background while the app is running,
- * and the updates will automatically be applied using a separate application only after the user closes the app
+ * Data required for the update will be downloaded in the background while the app is running, and a local specification
+ * file will be produced for another component to read and do the update migration.
+ *
+ * The local specification file will not contain any updater files since it is assumed that the updater will
+ * immediately be upgraded after it notifies (through the given UpdateInformationNotifier) that there is an updater
+ * upgrade and closes.
  */
 public class Updater {
     public static final String UPDATE_DIR = "update";
@@ -40,6 +45,7 @@ public class Updater {
     private static final String MSG_FAIL_READ_LATEST_VERSION = "Error reading latest version";
     private static final String MSG_NO_NEWER_VERSION = "No newer version to be downloaded";
     private static final String MSG_UPDATE_FINISHED = "Update will be applied on next launch";
+    private static final String MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA = "Error updating backup versions' data file";
     // --- End of Messages
 
     private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
@@ -50,12 +56,12 @@ public class Updater {
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
     private static final String LIB_DIR = "lib" + File.separator;
     private static final String MAIN_APP_FILEPATH = LIB_DIR + "resource.jar";
-    public static final String MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA = "Error updating backup versions' data file";
+    private static final String UPDATER_FILE_REGEX = LIB_DIR + "updater-\\d\\.\\d\\.\\d\\.jar";
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final Version currentVersion;
     private final List<Version> downloadedVersions;
-    private UpdateProgressNotifier updateProgressNotifier;
+    private UpdateInformationNotifier updateInformationNotifier;
 
     public Updater(Version currentVersion) {
         super();
@@ -63,26 +69,26 @@ public class Updater {
         downloadedVersions = getDownloadedVersionsFromFile(DOWNLOADED_VERSIONS_FILE);
     }
 
-    public void start(UpdateProgressNotifier updateProgressNotifier) {
-        this.updateProgressNotifier = updateProgressNotifier;
+    public void start(UpdateInformationNotifier updateInformationNotifier) {
+        this.updateInformationNotifier = updateInformationNotifier;
         pool.execute(this::checkForUpdate);
     }
 
     private void checkForUpdate() {
-        updateProgressNotifier.sendStatusInProgress("Clearing local update specification file", -1);
+        updateInformationNotifier.sendStatusInProgress("Clearing local update specification file", -1);
         try {
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_DELETE_UPDATE_SPEC);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_DELETE_UPDATE_SPEC);
             return;
         }
 
-        updateProgressNotifier.sendStatusInProgress("Getting data from server", -1);
+        updateInformationNotifier.sendStatusInProgress("Getting data from server", -1);
         VersionData latestData;
         try {
             latestData = getLatestDataFromServer();
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA);
             return;
         }
 
@@ -90,7 +96,7 @@ public class Updater {
         try {
             latestVersion = getVersion(latestData);
         } catch (IllegalArgumentException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_READ_LATEST_VERSION);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_READ_LATEST_VERSION);
             return;
         }
 
@@ -98,43 +104,47 @@ public class Updater {
         assert isOnSameReleaseChannel(latestVersion) : "Error: latest version found to be in the wrong release channel";
 
         if (currentVersion.compareTo(latestVersion) >= 0) {
-            updateProgressNotifier.sendStatusFinished(MSG_NO_NEWER_VERSION);
+            updateInformationNotifier.sendStatusFinishedWithoutUpdaterUpgrade(MSG_NO_NEWER_VERSION);
             return;
         }
 
-        updateProgressNotifier.sendStatusInProgress("Collecting all update files to be downloaded", -1);
+        updateInformationNotifier.sendStatusInProgress("Collecting all update files to be downloaded", -1);
         HashMap<String, URL> filesToBeUpdated;
         try {
             filesToBeUpdated = getFilesToDownload(latestData);
         } catch (UnsupportedOperationException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_UPDATE_NOT_SUPPORTED);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_UPDATE_NOT_SUPPORTED);
             return;
         }
 
         if (filesToBeUpdated.isEmpty()) {
-            updateProgressNotifier.sendStatusFinished(MSG_NO_UPDATE);
+            updateInformationNotifier.sendStatusFinishedWithoutUpdaterUpgrade(MSG_NO_UPDATE);
             return;
         }
 
         try {
             createUpdateDir();
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed("Error creating update directory");
+            updateInformationNotifier.sendStatusFailed("Error creating update directory");
         }
 
         try {
             downloadFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_DOWNLOAD_UPDATE);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_DOWNLOAD_UPDATE);
             return;
         }
 
-        updateProgressNotifier.sendStatusInProgress("Finalizing updates", -1);
+        updateInformationNotifier.sendStatusInProgress("Finalizing updates", -1);
+        Optional<String> updaterFile = getUpdaterFile(filesToBeUpdated);
+        if (updaterFile.isPresent()) {
+            filesToBeUpdated.remove(updaterFile.get()); // remove updater from the set since we will be upgrading it before the app closes
+        }
 
         try {
             createUpdateSpecification(filesToBeUpdated);
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_CREATE_UPDATE_SPEC);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_CREATE_UPDATE_SPEC);
             return;
         }
 
@@ -142,11 +152,21 @@ public class Updater {
         try {
             writeDownloadedVersionsToFile(downloadedVersions, DOWNLOADED_VERSIONS_FILE);
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA);
             return;
         }
 
-        updateProgressNotifier.sendStatusFinished(MSG_UPDATE_FINISHED);
+        if (updaterFile.isPresent()) {
+            updateInformationNotifier.sendStatusFinishedWithUpdaterUpgrade(MSG_UPDATE_FINISHED, updaterFile.get());
+        } else {
+            updateInformationNotifier.sendStatusFinishedWithoutUpdaterUpgrade(MSG_UPDATE_FINISHED);
+        }
+    }
+
+    private Optional<String> getUpdaterFile(HashMap<String, URL> filesToBeUpdated) {
+        return filesToBeUpdated.keySet().stream()
+                .filter(file -> file.matches(UPDATER_FILE_REGEX))
+                .findAny();
     }
 
     private void createUpdateDir() throws IOException {
@@ -213,11 +233,11 @@ public class Updater {
      * @throws UnsupportedOperationException if OS is unsupported for updating
      */
     private HashMap<String, URL> getFilesToDownload(VersionData versionData) throws UnsupportedOperationException {
-        if (OsDetector.getOs() == OsDetector.Os.UNKNOWN) {
+        if (commons.OsDetector.getOs() == commons.OsDetector.Os.UNKNOWN) {
             throw new UnsupportedOperationException("OS not supported for updating");
         }
 
-        List<LibraryDescriptor> librariesForOs = getLibrariesForOs(versionData.getLibraries(), OsDetector.getOs());
+        List<LibraryDescriptor> librariesForOs = getLibrariesForOs(versionData.getLibraries(), commons.OsDetector.getOs());
         List<LibraryDescriptor> librariesToDownload = getLibrariesToDownload(librariesForOs);
 
         HashMap<String, URL> filesToBeDownloaded = getLibraryFilesDownloadLinks(librariesToDownload);
@@ -252,9 +272,9 @@ public class Updater {
      * @param Os
      * @return
      */
-    private List<LibraryDescriptor> getLibrariesForOs(List<LibraryDescriptor> libraries, OsDetector.Os Os) {
+    private List<LibraryDescriptor> getLibrariesForOs(List<LibraryDescriptor> libraries, commons.OsDetector.Os Os) {
         return libraries.stream()
-                .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == Os)
+                .filter(libDesc -> libDesc.getOs() == commons.OsDetector.Os.ANY || libDesc.getOs() == Os)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -270,7 +290,7 @@ public class Updater {
             downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
             noOfFilesDownloaded++;
             double progress = (1.0 * noOfFilesDownloaded) / totalFilesToDownload;
-            updateProgressNotifier.sendStatusInProgress("Downloading updates", progress);
+            updateInformationNotifier.sendStatusInProgress("Downloading updates", progress);
         }
     }
 

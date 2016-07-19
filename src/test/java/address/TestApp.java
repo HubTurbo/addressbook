@@ -80,7 +80,7 @@ public class TestApp extends MainApp {
     @Override
     public void start(Stage primaryStage) {
         ui.start(primaryStage);
-        updater.start(ui.getUpdateProgressNotifier());
+        updater.start(getUpdateInformationNotifier(ui));
         storageManager.start();
         syncManager.start();
         remote.start(primaryStage);

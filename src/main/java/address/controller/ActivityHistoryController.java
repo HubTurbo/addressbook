@@ -2,7 +2,7 @@ package address.controller;
 
 import address.model.SingleTargetCommandResult;
 import address.ui.SingleTargetCommandResultListViewCell;
-import address.util.FxViewUtil;
+import commons.FxViewUtil;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
