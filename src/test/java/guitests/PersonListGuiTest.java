@@ -72,6 +72,11 @@ public class PersonListGuiTest extends GuiTestBase {
 
     @Test
     public void dragAndDrop_multiplePersonCorrectDrag_listReordered() {
+
+        if (TestUtil.isHeadlessEnvironment()) {
+            return;
+        }
+
         assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
 
         personListPanel.dragAndDrop(Arrays.asList(new String[] {td.alice.getFirstName(), td.benson.getFirstName()}),

@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +50,14 @@ public class ManageTagsDialogHandle extends GuiHandle {
 
     public void changeEditTagDialogText(String text) {
         guiRobot.clickOn(EDIT_TAG_TEXT_FIELD).push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write(text);
+    }
+
+    public boolean isChangeEditTagDialogOpen() {
+        try{
+            return guiRobot.window("Edit Tag") != null;
+        } catch (NoSuchElementException e) {
+            return false;
+        }
     }
 
 

@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -45,6 +46,15 @@ public class TagEditDialogTest extends GuiTestBase {
         manageTagsDialogHandle.changeEditTagDialogText("changed tag");
         manageTagsDialogHandle.clickOk();
         assertTrue(manageTagsDialogHandle.contains("changed tag"));
+    }
+
+    @Test
+    public void updateTagTest_enterTagEsc_dialogClosed() {
+        ManageTagsDialogHandle manageTagsDialogHandle = mainMenu.clickOn("Tags", "Manage Tags")
+                .as(ManageTagsDialogHandle.class);
+        manageTagsDialogHandle.openEditTagDialog("friends");
+        manageTagsDialogHandle.dismiss();
+        assertFalse(manageTagsDialogHandle.isChangeEditTagDialogOpen());
     }
 
 }

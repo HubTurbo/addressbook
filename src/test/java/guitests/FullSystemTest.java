@@ -72,7 +72,7 @@ public class FullSystemTest extends GuiTestBase {
         newTagDialog.enterTagName("company");
         newTagDialog.clickOk();
         assertTrue(manageTagsDialog.contains("company"));
-        manageTagsDialog.dismiss(); //TODO: this line doesn't seem to work in headless mode
+        manageTagsDialog.dismiss();
 
 
         // UNABLE to launch file chooser in mac's headless mode
