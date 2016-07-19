@@ -22,7 +22,6 @@ public class UpdaterUtil {
         }
     }
 
-
     /**
      * Attempts to sleep for a specified period
      *
@@ -41,10 +40,16 @@ public class UpdaterUtil {
      *
      * In some platforms (Windows in particular), JAR file cannot be modified if it was executed and
      * the process it created has not ended yet. As such, we will make several tries with wait.
+     *
+     * @param sourceDir the (temp) directory which contains the newer version of the file
+     * @param fileToUpdatePath the path of the resulting file from the project directory
+     * @param maxRetries maximum number of retries
+     * @param waitTime amount of time to wait between retries
+     * @throws IOException
      */
-    public static void updateFile(String sourceDir, String fileToUpdate, int maxRetries, int waitTime) throws IOException {
-        Path source = Paths.get(sourceDir, fileToUpdate);
-        Path dest = Paths.get(fileToUpdate);
+    public static void updateFile(String sourceDir, String fileToUpdatePath, int maxRetries, int waitTime) throws IOException {
+        Path source = Paths.get(sourceDir, fileToUpdatePath);
+        Path dest = Paths.get(fileToUpdatePath);
         createFileAndParentDirs(dest);
 
         for (int i = 0; i < maxRetries; i++) {

@@ -25,8 +25,12 @@ import java.util.stream.Collectors;
 /**
  * This class is meant to check with the server to determine if there is a newer version of the app to update to
  *
- * Data required for the update will be downloaded in the background while the app is running,
- * and the updates will automatically be applied using a separate application only after the user closes the app
+ * Data required for the update will be downloaded in the background while the app is running, and a local specification
+ * file will be produced for another component to read and do the update migration.
+ *
+ * The local specification file will not contain any updater files since it is assumed that the updater will
+ * immediately be upgraded after it notifies (through the given UpdateInformationNotifier) that there is an updater
+ * upgrade and closes.
  */
 public class Updater {
     public static final String UPDATE_DIR = "update";
@@ -132,6 +136,10 @@ public class Updater {
         }
 
         updateInformationNotifier.sendStatusInProgress("Finalizing updates", -1);
+        Optional<String> updaterFile = getUpdaterFile(filesToBeUpdated);
+        if (updaterFile.isPresent()) {
+            filesToBeUpdated.remove(updaterFile.get()); // remove updater from the set since we will be upgrading it before the app closes
+        }
 
         try {
             createUpdateSpecification(filesToBeUpdated);
@@ -148,15 +156,17 @@ public class Updater {
             return;
         }
 
-        Optional<String> updaterFile = filesToBeUpdated.keySet().stream()
-                                            .filter(file -> file.matches(UPDATER_FILE_REGEX))
-                                            .findAny();
-
         if (updaterFile.isPresent()) {
             updateInformationNotifier.sendStatusFinishedWithUpdaterUpgrade(MSG_UPDATE_FINISHED, updaterFile.get());
         } else {
             updateInformationNotifier.sendStatusFinishedWithoutUpdaterUpgrade(MSG_UPDATE_FINISHED);
         }
+    }
+
+    private Optional<String> getUpdaterFile(HashMap<String, URL> filesToBeUpdated) {
+        return filesToBeUpdated.keySet().stream()
+                .filter(file -> file.matches(UPDATER_FILE_REGEX))
+                .findAny();
     }
 
     private void createUpdateDir() throws IOException {
