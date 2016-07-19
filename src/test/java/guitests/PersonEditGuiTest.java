@@ -4,6 +4,7 @@ import address.model.ModelManager;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.testutil.PersonBuilder;
+import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.PersonListPanelHandle;
@@ -90,8 +91,7 @@ public class PersonEditGuiTest extends GuiTestBase {
     @Test
     public void editPerson_usingContextMenu() {
 
-        String headlessProperty = System.getProperty("testfx.headless");
-        if (headlessProperty != null && headlessProperty.equals("true")) {
+        if (TestUtil.isHeadlessEnvironment()) {
             return;
         }
 
@@ -127,7 +127,6 @@ public class PersonEditGuiTest extends GuiTestBase {
     @Test
     public void cancelPerson_usingAccelerator() throws IOException {
 
-
         //Delete
         personListPanel.use_LIST_GOTO_TOP_SEQUENCE();
         PersonCardHandle deletedCard = personListPanel.getPersonCardHandle(new Person(personListPanel.getSelectedPerson()));
@@ -138,6 +137,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
         assertTrue(deletedCard.getPendingStateLabel().equals("Deleted"));
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
+        personListPanel.sleep(1, TimeUnit.SECONDS);
         assertFalse(deletedCard.isPendingStateCountDownVisible());
         assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
         assertFalse(deletedCard.getPendingStateLabel().equals("Deleted"));
