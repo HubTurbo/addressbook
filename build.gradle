@@ -190,12 +190,21 @@ allprojects {
         }
     }
 
+    // Remove any old custom dependencies
+    task deleteOldCustomDependenciesFromLibrary(type: Delete) {
+        delete fileTree(dir: ".", include: 'launcher-V*.*.*.jar')
+        delete fileTree(dir: "$libDir", includes: ['updater-V*.*.*.jar', 'commons-V*.*.*.jar'])
+    }
+
+    // copy dependencies from Gradle's cache
     task copyAllDependenciesToLibrary(type: Copy) {
         from(configurations.compile) {
             exclude("$licenceArchiveName")
         }
         into "$libDir/"
     }
+    copyAllDependenciesToLibrary.dependsOn deleteOldCustomDependenciesFromLibrary
+    copyAllDependenciesToLibrary.dependsOn clean
 
     // Compile commons.jar
     task createCommonsJar(type: Jar) {
@@ -205,6 +214,7 @@ allprojects {
         destinationDir = file("$libDir/")
     }
     createCommonsJar.dependsOn copyAllDependenciesToLibrary
+    compileCommonsJava.mustRunAfter copyAllDependenciesToLibrary
 
     // Creates updater.jar
     task createUpdaterJar(type: Jar) {
