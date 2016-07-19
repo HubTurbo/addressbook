@@ -573,8 +573,8 @@ public class MainController extends UiController{
     }
 
     @Subscribe
-    private void handleCommandFinishedEvent(CommandFinishedEvent evt) {
-        PlatformExecUtil.runAndWait(() -> finishedCommandResults.add(evt.result));
+    private void handleSingleTargetCommandResultEvent(SingleTargetCommandResultEvent evt) {
+        PlatformExecUtil.runAndWait(() -> finishedCommandResults.add(evt));
     }
 
     protected void setDefaultSize() {

@@ -3,6 +3,7 @@ package address.util;
 import address.events.SingleTargetCommandResultEvent;
 import org.junit.Test;
 
+import static address.events.SingleTargetCommandResultEvent.CommandStatus.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -13,9 +14,8 @@ public class CommandResultFormatterTest {
     @Test
     public void testGetStringRepresentation_addType_success() {
         SingleTargetCommandResultEvent command = new SingleTargetCommandResultEvent(1, "Add",
-                SingleTargetCommandResultEvent.CommandStatus.SUCCESSFUL,
-                "Person", "1", "Birdy Leow", "Birdy Leow");
-        String expectedOutput = "Birdy Leow has been added successfully.";
+                SUCCESSFUL, "Person", "1", "Birdy Leow", "Birdy Leow");
+        String expectedOutput = "Add Person [ Birdy Leow ] completed successfully.";
         String output = CommandResultFormatter.getStringRepresentation(command);
         assertEquals(expectedOutput, output);
     }
@@ -23,9 +23,8 @@ public class CommandResultFormatterTest {
     @Test
     public void testGetStringRepresentation_addType_fail() {
         SingleTargetCommandResultEvent command = new SingleTargetCommandResultEvent(1, "Add",
-                SingleTargetCommandResultEvent.CommandStatus.FAILED,
-                "Person", "1", "Birdy Leow", "Birdy Leow");
-        String expectedOutput = "Birdy Leow has been added unsuccessfully.";
+                REQUEST_FAILED, "Person", "1", "Birdy Leow", "Birdy Leow");
+        String expectedOutput = "Add Person [ Birdy Leow ] failed when making the change on the remote server.";
         String output = CommandResultFormatter.getStringRepresentation(command);
         assertEquals(expectedOutput, output);
     }
@@ -33,9 +32,8 @@ public class CommandResultFormatterTest {
     @Test
     public void testGetStringRepresentation_addType_cancelled() {
         SingleTargetCommandResultEvent command = new SingleTargetCommandResultEvent(1, "Add",
-                SingleTargetCommandResultEvent.CommandStatus.CANCELLED,
-                "Person", "1", "Birdy Leow", "Birdy Leow");
-        String expectedOutput = "Add operation on Birdy Leow has been cancelled.";
+                CANCELLED, "Person", "1", "Birdy Leow", "Birdy Leow");
+        String expectedOutput = "Add Person [ Birdy Leow ] was cancelled.";
         String output = CommandResultFormatter.getStringRepresentation(command);
         assertEquals(expectedOutput, output);
     }
@@ -43,9 +41,8 @@ public class CommandResultFormatterTest {
     @Test
     public void testGetStringRepresentation_editType_success() {
         SingleTargetCommandResultEvent command = new SingleTargetCommandResultEvent(1, "Edit",
-                SingleTargetCommandResultEvent.CommandStatus.SUCCESSFUL,
-                "Person", "1", "Birdy Leow", "Birdy Leow");
-        String expectedOutput = "Birdy Leow has been edited successfully.";
+                SUCCESSFUL, "Person", "1", "Birdy Leow", "Birdy Leow");
+        String expectedOutput = "Edit Person [ Birdy Leow ] completed successfully.";
         String output = CommandResultFormatter.getStringRepresentation(command);
         assertEquals(expectedOutput, output);
     }
@@ -53,9 +50,8 @@ public class CommandResultFormatterTest {
     @Test
     public void testGetStringRepresentation_editType_fail() {
         SingleTargetCommandResultEvent command = new SingleTargetCommandResultEvent(1, "Edit",
-                SingleTargetCommandResultEvent.CommandStatus.FAILED,
-                "Person", "1", "Birdy Leow", "Birdy Leow");
-        String expectedOutput = "Birdy Leow has been edited unsuccessfully.";
+                REQUEST_FAILED, "Person", "1", "Birdy Leow", "Birdy Leow");
+        String expectedOutput = "Edit Person [ Birdy Leow ] failed when making the change on the remote server.";
         String output = CommandResultFormatter.getStringRepresentation(command);
         assertEquals(expectedOutput, output);
     }
@@ -63,9 +59,8 @@ public class CommandResultFormatterTest {
     @Test
     public void testGetStringRepresentation_editType_cancelled() {
         SingleTargetCommandResultEvent command = new SingleTargetCommandResultEvent(1, "Edit",
-                SingleTargetCommandResultEvent.CommandStatus.CANCELLED,
-                "Person", "1", "Birdy Leow", "Birdy Leow");
-        String expectedOutput = "Edit operation on Birdy Leow has been cancelled.";
+                CANCELLED, "Person", "1", "Birdy Leow", "Birdy Leow");
+        String expectedOutput = "Edit Person [ Birdy Leow ] was cancelled.";
         String output = CommandResultFormatter.getStringRepresentation(command);
         assertEquals(expectedOutput, output);
     }
@@ -73,9 +68,8 @@ public class CommandResultFormatterTest {
     @Test
     public void testGetStringRepresentation_deleteType_success() {
         SingleTargetCommandResultEvent command = new SingleTargetCommandResultEvent(1, "Delete",
-                SingleTargetCommandResultEvent.CommandStatus.SUCCESSFUL,
-                "Person", "1", "Birdy Leow", "Birdy Leow");
-        String expectedOutput = "Birdy Leow has been deleted successfully.";
+                SUCCESSFUL, "Person", "1", "Birdy Leow", "Birdy Leow");
+        String expectedOutput = "Delete Person [ Birdy Leow ] completed successfully.";
         String output = CommandResultFormatter.getStringRepresentation(command);
         assertEquals(expectedOutput, output);
     }
@@ -83,9 +77,8 @@ public class CommandResultFormatterTest {
     @Test
     public void testGetStringRepresentation_deleteType_fail() {
         SingleTargetCommandResultEvent command = new SingleTargetCommandResultEvent(1, "Delete",
-                SingleTargetCommandResultEvent.CommandStatus.FAILED,
-                "Person", "1", "Birdy Leow", "Birdy Leow");
-        String expectedOutput = "Birdy Leow has been deleted unsuccessfully.";
+                REQUEST_FAILED, "Person", "1", "Birdy Leow", "Birdy Leow");
+        String expectedOutput = "Delete Person [ Birdy Leow ] failed when making the change on the remote server.";
         String output = CommandResultFormatter.getStringRepresentation(command);
         assertEquals(expectedOutput, output);
     }
@@ -93,9 +86,8 @@ public class CommandResultFormatterTest {
     @Test
     public void testGetStringRepresentation_deleteType_cancelled() {
         SingleTargetCommandResultEvent command = new SingleTargetCommandResultEvent(1, "Delete",
-                SingleTargetCommandResultEvent.CommandStatus.CANCELLED,
-                "Person", "1", "Birdy Leow", "Birdy Leow");
-        String expectedOutput = "Delete operation on Birdy Leow has been cancelled.";
+                CANCELLED, "Person", "1", "Birdy Leow", "Birdy Leow");
+        String expectedOutput = "Delete Person [ Birdy Leow ] was cancelled.";
         String output = CommandResultFormatter.getStringRepresentation(command);
         assertEquals(expectedOutput, output);
     }
