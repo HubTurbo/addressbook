@@ -7,6 +7,7 @@ import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.ui.PersonListViewCell;
 import guitests.GuiRobot;
 import javafx.collections.ObservableList;
+import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
@@ -34,10 +35,6 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public enum ContextMenuChoice {
         EDIT, TAG, DELETE, CANCEL;
-    }
-
-    public enum Direction {
-        UP, DOWN;
     }
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
@@ -208,7 +205,61 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.drag(firstNameOfPersonToDrag).dropTo(firstNameOfPersonToDropOn);
     }
 
-    public void edgeDrag(String dragFrom, Direction direction, long dragDuration, TimeUnit timeunit) {
+    public void dragAndDrop(List<String> listOfPersonsToDrag, String firstNameOfPersonToDropOn,
+                            int scrollAmount, VerticalDirection scrollDirection) {
+        guiRobot.press(KeyCode.SHORTCUT);
+        listOfPersonsToDrag.stream().forEach(p -> guiRobot.clickOn(p));
+        guiRobot.release(KeyCode.SHORTCUT);
+        guiRobot.drag(listOfPersonsToDrag.get(listOfPersonsToDrag.size() -1))
+                .scroll(scrollAmount, scrollDirection)
+                .dropTo(firstNameOfPersonToDropOn);
+    }
+
+    public void dragOutsideList(List<String> listOfPersonsToDrag) {
+        double posY = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxY()
+                - 50;
+        double posX = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxX()
+                + 100;
+        guiRobot.press(KeyCode.SHORTCUT);
+        listOfPersonsToDrag.stream().forEach(p -> guiRobot.clickOn(p));
+        guiRobot.release(KeyCode.SHORTCUT);
+        guiRobot.drag(listOfPersonsToDrag.get(listOfPersonsToDrag.size() -1))
+                .dropTo(posX, posY);
+    }
+
+    private void scrollToPerson(String firstName) {
+        Optional<ReadOnlyViewablePerson> person = getListView().getItems()
+                                                               .stream()
+                                                               .filter(p -> p.getFirstName()
+                                                               .equals(firstName)).findAny();
+        getListView().scrollTo(getListView().getItems().indexOf(person.get()));
+    }
+
+    public void dragOutsideList(String personToDrag) {
+        double posY = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxY()
+                - 50;
+        double posX = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxX()
+                + 100;
+        guiRobot.drag(personToDrag).dropTo(posX, posY);
+    }
+
+    public void dragOutsideApp(String personToDrag) {
+        double x = this.primaryStage.getScene().getX() + this.primaryStage.getScene().getWidth() + 10;
+        double y = this.primaryStage.getScene().getY() + this.primaryStage.getScene().getHeight() + 10;
+        guiRobot.drag(personToDrag).dropTo(x, y);
+    }
+
+    public void dragOutsideApp(List<String> listOfPersonsToDrag) {
+        double x = this.primaryStage.getScene().getX() + this.primaryStage.getScene().getWidth() + 10;
+        double y = this.primaryStage.getScene().getY() + this.primaryStage.getScene().getHeight() + 10;
+        guiRobot.press(KeyCode.SHORTCUT);
+        listOfPersonsToDrag.stream().forEach(p -> guiRobot.clickOn(p));
+        guiRobot.release(KeyCode.SHORTCUT);
+        guiRobot.drag(listOfPersonsToDrag.get(listOfPersonsToDrag.size() -1))
+                .dropTo(x, y);
+    }
+
+    public void edgeDrag(String dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
         switch (direction) {
             case UP:
                 double edgeMinY = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMinY()
@@ -235,6 +286,10 @@ public class PersonListPanelHandle extends GuiHandle {
         int indexOfFirstPerson = getPersonIndex(persons[0]);
         if(indexOfFirstPerson == NOT_FOUND) return false;
         return containsInOrder(indexOfFirstPerson, persons);
+    }
+
+    public void clearSelection() {
+        getListView().getSelectionModel().clearSelection();
     }
 
     /**

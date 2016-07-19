@@ -2,9 +2,10 @@ package guitests;
 
 import address.model.datatypes.AddressBook;
 import address.testutil.TestUtil;
-import guitests.guihandles.PersonListPanelHandle;
+import javafx.geometry.VerticalDirection;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
@@ -46,12 +47,12 @@ public class PersonListGuiTest extends GuiTestBase {
 
         //drag the person at the middle and drop at the bottom
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
-        personListPanel.edgeDrag(td.charlie.getFirstName(), PersonListPanelHandle.Direction.DOWN, 5, TimeUnit.SECONDS);
+        personListPanel.edgeDrag(td.charlie.getFirstName(), VerticalDirection.DOWN, 5, TimeUnit.SECONDS);
         assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.dan, td.elizabeth, td.charlie));
 
         //drag the person at the bottom and drop at the top
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
-        personListPanel.edgeDrag(td.elizabeth.getFirstName(), PersonListPanelHandle.Direction.UP, 7, TimeUnit.SECONDS);
+        personListPanel.edgeDrag(td.elizabeth.getFirstName(), VerticalDirection.UP, 7, TimeUnit.SECONDS);
         assertTrue(personListPanel.containsInOrder(td.elizabeth, td.alice, td.benson, td.dan, td.charlie));
     }
 
@@ -62,17 +63,30 @@ public class PersonListGuiTest extends GuiTestBase {
         personListPanel.dragAndDrop(td.charlie.getFirstName(), td.charlie.getFirstName());
         assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
 
-        //TODO: test for Dropping outside list
+        personListPanel.dragOutsideList(td.charlie.getFirstName());
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
+
+        personListPanel.dragOutsideApp(td.charlie.getFirstName());
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
     }
 
     @Test
     public void dragAndDrop_multiplePersonCorrectDrag_listReordered() {
-        //TODO: implement this
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
+
+        personListPanel.dragAndDrop(Arrays.asList(new String[] {td.alice.getFirstName(), td.benson.getFirstName()}),
+                                    td.dan.getFirstName(), 1, VerticalDirection.DOWN);
+        assertTrue(personListPanel.containsInOrder(td.charlie, td.alice, td.benson, td.dan, td.elizabeth));
     }
 
     @Test
     public void dragAndDrop_multiplePersonWrongDrag_listUnchanged() {
-        //TODO: implement this
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
+        personListPanel.dragOutsideList(Arrays.asList(new String[] {td.alice.getFirstName(), td.benson.getFirstName()}));
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
+        personListPanel.clearSelection();
+        personListPanel.dragOutsideApp(Arrays.asList(new String[] {td.alice.getFirstName(), td.benson.getFirstName()}));
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
     }
 
 }
