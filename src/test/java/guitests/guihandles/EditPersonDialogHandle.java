@@ -1,11 +1,15 @@
 package guitests.guihandles;
 
 import address.model.datatypes.person.Person;
-import commons.DateTimeUtil;
+import address.util.DateTimeUtil;
+import com.google.common.io.Files;
 import guitests.GuiRobot;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.loadui.testfx.GuiTest;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
 
@@ -105,18 +109,37 @@ public class EditPersonDialogHandle extends GuiHandle {
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
-    public void enterNewValues(Person newValues) {
+    public void enterNewValues(Person newValues) throws IOException {
+        File file = null;
         enterFirstName(newValues.getFirstName());
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("1.png"));
         enterLastName(newValues.getLastName());
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("2.png"));
         enterStreet(newValues.getStreet());
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("3.png"));
         enterCity(newValues.getCity());
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("4.png"));
         enterPostalCode(newValues.getPostalCode());
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("5.png"));
         enterBirthday(newValues.getBirthday());
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("6.png"));
         enterGithubId(newValues.getGithubUsername());
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("7.png"));
         TagPersonDialogHandle tagPersonDialog = openTagPersonDialog();
         newValues.getTagList().stream()
                 .forEach( (t) -> tagPersonDialog.enterSearchQuery(t.getName()).acceptSuggestedTag());
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("8.png"));
         tagPersonDialog.close();
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("9.png"));
     }
 
 
