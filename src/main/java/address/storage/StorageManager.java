@@ -7,7 +7,9 @@ import address.model.UserPrefs;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
+import address.util.AppLogger;
 import commons.FileUtil;
+import address.util.LoggerManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;

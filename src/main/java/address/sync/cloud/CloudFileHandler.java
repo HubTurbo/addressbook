@@ -4,8 +4,9 @@ import address.exceptions.DataConversionException;
 import address.sync.cloud.model.CloudAddressBook;
 import address.util.AppLogger;
 import address.util.LoggerManager;
-import address.util.XmlUtil;
+import commons.XmlUtil;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -33,9 +34,12 @@ public class CloudFileHandler {
         try {
             logger.info("Writing to cloud file '{}'.", cloudFile.getName());
             XmlUtil.saveDataToFile(cloudFile, CloudAddressBook);
-        } catch (FileNotFoundException | DataConversionException e) {
+        } catch (FileNotFoundException e) {
             logger.warn("Error writing to cloud file '{}'.", cloudFile.getName());
             throw e;
+        } catch (JAXBException e) {
+            logger.warn("Error writing to cloud file '{}'.", cloudFile.getName());
+            throw new DataConversionException(e);
         }
     }
 
@@ -98,9 +102,9 @@ public class CloudFileHandler {
         } catch (FileNotFoundException e) {
             logger.warn("Cloud file '{}' not found.", cloudFile.getName());
             throw e;
-        } catch (DataConversionException e) {
+        } catch (JAXBException e) {
             logger.warn("Error reading from cloud file '{}'.", cloudFile.getName());
-            throw e;
+            throw new DataConversionException(e);
         }
     }
 

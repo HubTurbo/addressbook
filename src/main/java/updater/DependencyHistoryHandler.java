@@ -1,10 +1,9 @@
-package hubturbo.updater;
+package updater;
 
-import address.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import commons.FileUtil;
-import commons.JsonUtil;
+import commons.*;
+import commons.LibraryDescriptor;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,16 +17,16 @@ import java.util.stream.Collectors;
 public class DependencyHistoryHandler {
     private static final File DEPENDENCY_HISTORY_FILE = new File("lib/dependency_history");
 
-    private final Version currentVersion;
-    private HashMap<Version, List<String>> dependenciesForVersionsInUse = new HashMap<>();
+    private final commons.Version currentVersion;
+    private HashMap<commons.Version, List<String>> dependenciesForVersionsInUse = new HashMap<>();
 
-    public DependencyHistoryHandler(Version currentVersion) {
+    public DependencyHistoryHandler(commons.Version currentVersion) {
         this.currentVersion = currentVersion;
 
         loadVersionDependencyHistory();
 
         try {
-            VersionData versionData = FileUtil.deserializeObjectFromJsonFile(new File("VersionData.json"), VersionData.class);
+            commons.VersionData versionData = FileUtil.deserializeObjectFromJsonFile(new File("VersionData.json"), commons.VersionData.class);
 
             List<String> libraryFileNames = versionData.getLibraries().stream().map(LibraryDescriptor::getFileName).collect(Collectors.toCollection(ArrayList::new));
             updateVersionDependencies(currentVersion, libraryFileNames);
@@ -39,7 +38,7 @@ public class DependencyHistoryHandler {
     /**
      * Updates the dependencies of a version of the application
      */
-    public void updateVersionDependencies(Version version, List<String> verDependencies) {
+    public void updateVersionDependencies(commons.Version version, List<String> verDependencies) {
         dependenciesForVersionsInUse.put(version, verDependencies);
         writeVersionDependencyHistory();
     }
@@ -47,18 +46,18 @@ public class DependencyHistoryHandler {
     /**
      * Gets dependencies for every version known
      */
-    public HashMap<Version, List<String>> getDependenciesTableForKnownVersions() {
+    public HashMap<commons.Version, List<String>> getDependenciesTableForKnownVersions() {
         return dependenciesForVersionsInUse;
     }
 
     /**
      * Deletes any unused dependencies
      */
-    public void cleanUpUnusedDependencies(List<Version> unusedVersions) {
-        Iterator<Map.Entry<Version, List<String>>> it = dependenciesForVersionsInUse.entrySet().iterator();
+    public void cleanUpUnusedDependencies(List<commons.Version> unusedVersions) {
+        Iterator<Map.Entry<commons.Version, List<String>>> it = dependenciesForVersionsInUse.entrySet().iterator();
 
         while (it.hasNext()) {
-            Map.Entry<Version, List<String>> entry = it.next();
+            Map.Entry<commons.Version, List<String>> entry = it.next();
             if (unusedVersions.contains(entry.getKey())) {
                 it.remove();
             }
@@ -93,7 +92,7 @@ public class DependencyHistoryHandler {
         try {
             String json = FileUtil.readFromFile(DEPENDENCY_HISTORY_FILE);
             dependenciesForVersionsInUse = JsonUtil.fromJsonStringToGivenType(json,
-                    new TypeReference<HashMap<Version, List<String>>>() {});
+                    new TypeReference<HashMap<commons.Version, List<String>>>() {});
         } catch (IOException e) {
             System.out.println("Failed to read dependencies from file");
             e.printStackTrace();

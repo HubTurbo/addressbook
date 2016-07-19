@@ -5,7 +5,6 @@ import address.events.*;
 import address.main.ComponentManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
-import address.model.datatypes.person.Person;
 import address.sync.task.*;
 import address.util.AppLogger;
 import address.util.Config;

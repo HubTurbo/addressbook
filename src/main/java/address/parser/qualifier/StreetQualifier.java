@@ -1,7 +1,7 @@
 package address.parser.qualifier;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
-import address.util.StringUtil;
+import commons.StringUtil;
 
 public class StreetQualifier implements Qualifier {
     private final String street;

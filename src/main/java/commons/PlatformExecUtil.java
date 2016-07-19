@@ -1,4 +1,4 @@
-package address.util;
+package commons;
 
 import javafx.application.Platform;
 

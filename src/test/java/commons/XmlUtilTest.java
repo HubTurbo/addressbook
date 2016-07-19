@@ -1,4 +1,4 @@
-package address.util;
+package commons;
 
 import address.exceptions.DataConversionException;
 import address.model.datatypes.AddressBook;
@@ -6,6 +6,7 @@ import address.storage.StorageAddressBook;
 import address.testutil.AddressBookBuilder;
 import address.testutil.TestUtil;
 import commons.FileUtil;
+import commons.XmlUtil;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

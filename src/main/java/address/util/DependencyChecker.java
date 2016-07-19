@@ -2,8 +2,8 @@ package address.util;
 
 import address.MainApp;
 import address.exceptions.DependencyCheckException;
-import commons.FileUtil;
-import commons.JsonUtil;
+import commons.*;
+import commons.VersionData;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -112,7 +112,7 @@ public class DependencyChecker {
     private void excludePlatformSpecificDependencies(List<String> dependencies) {
         String json = FileUtil.readFromInputStream(MainApp.class.getResourceAsStream("/VersionData.json"));
 
-        VersionData versionData;
+        commons.VersionData versionData;
 
         try {
             versionData = JsonUtil.fromJsonString(json, VersionData.class);
@@ -122,7 +122,7 @@ public class DependencyChecker {
         }
 
         List<String> librariesNotForCurrentMachine =  versionData.getLibraries().stream()
-                .filter(libDesc -> libDesc.getOs() != OsDetector.Os.ANY && libDesc.getOs() != OsDetector.getOs())
+                .filter(libDesc -> libDesc.getOs() != commons.OsDetector.Os.ANY && libDesc.getOs() != commons.OsDetector.getOs())
                 .map(libDesc -> "lib/" + libDesc.getFileName())
                 .collect(Collectors.toList());
 

@@ -3,9 +3,9 @@ package hubturbo.embeddedbrowser;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.page.Page;
 import address.util.AppLogger;
-import address.util.FxViewUtil;
+import commons.FxViewUtil;
 import address.util.LoggerManager;
-import address.util.UrlUtil;
+import commons.UrlUtil;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 

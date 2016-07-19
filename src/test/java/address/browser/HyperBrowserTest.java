@@ -1,11 +1,11 @@
 package address.browser;
 
-import address.util.PlatformExecUtil;
+import commons.PlatformExecUtil;
 import address.testutil.TestUtil;
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.HyperBrowser;
 import hubturbo.embeddedbrowser.page.Page;
-import address.util.UrlUtil;
+import commons.UrlUtil;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

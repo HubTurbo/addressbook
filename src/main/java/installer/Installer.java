@@ -1,10 +1,9 @@
-package hubturbo.installer;
+package installer;
 
-import address.util.LibraryDescriptor;
-import address.util.VersionData;
-import address.util.*;
-import commons.FileUtil;
-import commons.JsonUtil;
+import commons.LibraryDescriptor;
+import commons.Version;
+import commons.VersionData;
+import commons.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -241,7 +240,7 @@ public class Installer extends Application {
 
         String json = FileUtil.readFromInputStream(Installer.class.getResourceAsStream(VERSION_DATA_RESOURCE));
         VersionData versionData = JsonUtil.fromJsonString(json, VersionData.class);
-        List<LibraryDescriptor> osDependentLibraries = getOsDependentLibraries(versionData, OsDetector.getOs());
+        List<LibraryDescriptor> osDependentLibraries = getOsDependentLibraries(versionData, commons.OsDetector.getOs());
         List<LibraryDescriptor> missingLibraries = getMissingLibraries(osDependentLibraries);
 
         int noOfMissingLibraries = missingLibraries.size();
@@ -288,7 +287,7 @@ public class Installer extends Application {
     }
 
     private ArrayList<LibraryDescriptor> getOsDependentLibraries(VersionData versionData,
-                                                                 OsDetector.Os os) {
+                                                                 commons.OsDetector.Os os) {
         return versionData.getLibraries().stream()
                 .filter(libDesc -> libDesc.getOs() == os)
                 .collect(Collectors.toCollection(ArrayList::new));

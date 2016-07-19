@@ -1,4 +1,4 @@
-package address.util;
+package commons;
 
 import java.net.URL;
 import java.util.ArrayList;

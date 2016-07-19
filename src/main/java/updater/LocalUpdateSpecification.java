@@ -1,4 +1,4 @@
-package hubturbo.updater;
+package updater;
 
 import java.util.ArrayList;
 import java.util.List;

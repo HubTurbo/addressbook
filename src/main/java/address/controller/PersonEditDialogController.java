@@ -5,7 +5,7 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.AppLogger;
-import address.util.DateTimeUtil;
+import commons.DateTimeUtil;
 
 import address.util.LoggerManager;
 import javafx.application.Platform;

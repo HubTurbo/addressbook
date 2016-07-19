@@ -1,4 +1,4 @@
-package address.util;
+package installer;
 
 import java.io.IOException;
 import java.io.InputStream;

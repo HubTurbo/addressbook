@@ -1,7 +1,7 @@
 package address.storage;
 
 import address.model.datatypes.AddressBook;
-import address.util.XmlUtil;
+import commons.XmlUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

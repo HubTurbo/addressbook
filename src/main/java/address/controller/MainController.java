@@ -10,10 +10,11 @@ import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
-import address.updater.UpdateProgressNotifier;
+import commons.UpdateProgressNotifier;
 import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
+import commons.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -607,7 +608,7 @@ public class MainController extends UiController{
     private void resizeWindow() {
         logger.info("Resizing window");
         // specially handle since stage operations on Mac seem to not be working as intended
-        if (OsDetector.isOnMac()) {
+        if (commons.OsDetector.isOnMac()) {
             // refresh stage so that resizing effects (apart from the first resize after iconify-ing) are applied
             // however, this will cause minor flinching in window visibility
             primaryStage.hide(); // hide has to be called before setMaximized,

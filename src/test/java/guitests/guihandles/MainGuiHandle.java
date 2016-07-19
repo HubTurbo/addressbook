@@ -1,7 +1,7 @@
 package guitests.guihandles;
 
 import address.keybindings.Bindings;
-import address.util.OsDetector;
+import commons.OsDetector;
 import guitests.GuiRobot;
 import javafx.stage.Stage;
 

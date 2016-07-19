@@ -8,7 +8,7 @@ import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
-import hubturbo.updater.Updater;
+import updater.Updater;
 import address.util.*;
 
 import javafx.application.Application;
@@ -28,7 +28,7 @@ public class MainApp extends Application {
     private static final int VERSION_PATCH = 0;
     private static final boolean VERSION_EARLY_ACCESS = true;
 
-    public static final Version VERSION = new Version(
+    public static final commons.Version VERSION = new commons.Version(
             VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EARLY_ACCESS);
 
     /**
@@ -81,7 +81,7 @@ public class MainApp extends Application {
         updater = initUpdateManager(VERSION);
     }
 
-    protected Updater initUpdateManager(Version version) {
+    protected Updater initUpdateManager(commons.Version version) {
         return new Updater(version);
     }
 

@@ -65,11 +65,14 @@ allprojects {
         mainAppMainClass = 'address.MainApp'
 
         installerArchiveName = 'installer-' + project.version + '.jar'
-        installerMainClass = 'hubturbo.installer.Installer'
+        installerMainClass = 'installer.Installer'
+
+        launcherArchiveName = 'addressbook.jar'
+        launcherMainClass = 'launcher.Launcher'
 
         licenceArchiveName = 'licence.jar'
 
-        generateVersionDataMainClass = 'hubturbo.installer.VersionDataGenerator'
+        generateVersionDataMainClass = 'address.util.VersionDataGenerator'
         libDir = 'lib'
     }
 
@@ -86,8 +89,7 @@ allprojects {
             java {
                 srcDir 'src/main/java'
                 include('address/**/*')
-                include('hubturbo/embeddedbrowser/**/*')
-                include('hubturbo/EmbeddedBrowser.java')
+                include('hubturbo/**/*')
             }
             resources {
                 srcDir 'src/main/resources'
@@ -96,12 +98,7 @@ allprojects {
         updater {
             java {
                 srcDir 'src/main/java'
-                include('hubturbo/updater/**/*')
-                include('address/updater/**/*')
-                include('address/util/OsDetector.java')
-                include('address/util/Version.java')
-                include('address/util/VersionData.java')
-                include('address/util/LibraryDescriptor.java')
+                include('updater/**/*')
             }
             resources {
                 srcDir 'src/main/resources'
@@ -116,20 +113,8 @@ allprojects {
         installer {
             java {
                 srcDir 'src/main/java/'
-                include('hubturbo/embeddedbrowser/BrowserType.java')
-                include('hubturbo/installer/**/*')
-                exclude('hubturbo/installer/VersionDataGenerator.java')
-                include('address/events/BaseEvent.java')
-                include('address/util/OsDetector.java')
-                include('address/util/Version.java')
-                include('address/util/VersionData.java')
-                include('address/util/LibraryDescriptor.java')
-                include('address/util/ProgressAwareInputStream.java')
-                include('address/util/AppLogger.java')
-                include('address/util/LoggerManager.java')
-                include('address/util/Config.java')
-                include('commons/FileUtil.java')
-                include('commons/JsonUtil.java')
+                include('installer/**/*')
+                include('commons/**/*')
             }
             resources {
                 srcDir "."
@@ -142,7 +127,7 @@ allprojects {
         launcher {
             java {
                 srcDir 'src/main/java'
-                include('hubturbo/launcher/Launcher.java')
+                include('launcher/**/*')
             }
         }
         generateVersionData {
@@ -252,9 +237,9 @@ allprojects {
 
     // Creates the launcher, which launches the main application with custom arguments
     task createLauncherJar(type: Jar) {
-        archiveName = "addressbook.jar"
+        archiveName = "$launcherArchiveName"
         manifest {
-            attributes "Main-Class": "hubturbo.launcher.Launcher",
+            attributes "Main-Class": "$launcherMainClass",
                        "Class-Path": configurations.compile.files.collect { "$libDir/${it.name}" }.join(" ")
         }
         from sourceSets.launcher.output
@@ -357,6 +342,8 @@ task guiUnitTests(type: AddressBookTest) {
 
 task unitTests(type: AddressBookTest) {
     include 'address/**'
+    include 'commons/**'
+    include 'hubturbo/**'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }

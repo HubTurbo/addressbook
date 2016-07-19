@@ -1,7 +1,7 @@
-package hubturbo.updater;
+package updater;
 
-import address.util.Version;
-import address.util.VersionData;
+import commons.Version;
+import commons.VersionData;
 import commons.FileUtil;
 import javafx.application.Application;
 import javafx.application.Platform;

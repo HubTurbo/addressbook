@@ -5,7 +5,7 @@ import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import address.util.DragContainer;
-import address.util.FxViewUtil;
+import commons.FxViewUtil;
 import address.util.collections.ReorderedList;
 import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import javafx.collections.ObservableList;

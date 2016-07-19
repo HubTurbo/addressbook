@@ -1,7 +1,7 @@
 package guitests.guihandles;
 
 import address.model.datatypes.person.Person;
-import address.util.DateTimeUtil;
+import commons.DateTimeUtil;
 import guitests.GuiRobot;
 import javafx.stage.Stage;
 

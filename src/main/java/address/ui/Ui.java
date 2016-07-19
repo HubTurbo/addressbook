@@ -4,7 +4,7 @@ import address.MainApp;
 import address.controller.MainController;
 import address.model.ModelManager;
 import address.model.UserPrefs;
-import address.updater.UpdateProgressNotifier;
+import commons.UpdateProgressNotifier;
 import address.util.Config;
 import address.util.GuiSettings;
 import javafx.scene.control.Alert;

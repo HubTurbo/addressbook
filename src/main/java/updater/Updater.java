@@ -1,16 +1,16 @@
-package hubturbo.updater;
+package updater;
 
-import address.updater.UpdateProgressNotifier;
-import address.util.*;
+import commons.LibraryDescriptor;
+import commons.UpdateProgressNotifier;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import commons.FileUtil;
-import commons.JsonUtil;
+import commons.*;
+import commons.Version;
+import commons.VersionData;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -213,11 +213,11 @@ public class Updater {
      * @throws UnsupportedOperationException if OS is unsupported for updating
      */
     private HashMap<String, URL> getFilesToDownload(VersionData versionData) throws UnsupportedOperationException {
-        if (OsDetector.getOs() == OsDetector.Os.UNKNOWN) {
+        if (commons.OsDetector.getOs() == commons.OsDetector.Os.UNKNOWN) {
             throw new UnsupportedOperationException("OS not supported for updating");
         }
 
-        List<LibraryDescriptor> librariesForOs = getLibrariesForOs(versionData.getLibraries(), OsDetector.getOs());
+        List<LibraryDescriptor> librariesForOs = getLibrariesForOs(versionData.getLibraries(), commons.OsDetector.getOs());
         List<LibraryDescriptor> librariesToDownload = getLibrariesToDownload(librariesForOs);
 
         HashMap<String, URL> filesToBeDownloaded = getLibraryFilesDownloadLinks(librariesToDownload);
@@ -252,9 +252,9 @@ public class Updater {
      * @param Os
      * @return
      */
-    private List<LibraryDescriptor> getLibrariesForOs(List<LibraryDescriptor> libraries, OsDetector.Os Os) {
+    private List<LibraryDescriptor> getLibrariesForOs(List<LibraryDescriptor> libraries, commons.OsDetector.Os Os) {
         return libraries.stream()
-                .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == Os)
+                .filter(libDesc -> libDesc.getOs() == commons.OsDetector.Os.ANY || libDesc.getOs() == Os)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 

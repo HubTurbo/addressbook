@@ -1,4 +1,4 @@
-package address.updater;
+package commons;
 
 import java.util.function.Consumer;
 
