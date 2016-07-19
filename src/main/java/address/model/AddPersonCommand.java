@@ -9,8 +9,6 @@ import address.events.CreatePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
-import address.util.AppLogger;
-import address.util.LoggerManager;
 import address.util.PlatformExecUtil;
 
 import java.util.Optional;
@@ -31,6 +29,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
     private ViewablePerson viewableToAdd;
+    private Person backingFromRemote;
     private final String addressbookName;
 
     // Data snapshot for building result object
@@ -69,8 +68,8 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void after() {
-        if (viewableToAdd != null) {
-            viewableToAdd.setChangeInProgress(NONE);
+        if (viewableToAdd != null) { // the viewable was already added
+            viewableToAdd.clearChangeInProgress();
             model.unassignOngoingChangeForPerson(viewableToAdd.getId());
         }
         // personDataSnapshot == null means that the command was cancelled before any input was received
@@ -87,16 +86,16 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
      * It will have no backing person at first (backing person is connected only after remote confirmation)
      */
     @Override
-    protected State simulateResult() {
+    protected void simulateResult() {
         assert input != null;
         // create VP and add to model
         PlatformExecUtil.runAndWait(() -> {
             viewableToAdd = model.addViewablePersonWithoutBacking(input);
             viewableToAdd.setChangeInProgress(ADDING);
         });
-        snapshotPersonData(viewableToAdd);
+
         model.assignOngoingChangeToPerson(viewableToAdd.getId(), this);
-        return GRACE_PERIOD;
+        snapshotPersonData(viewableToAdd);
     }
 
     @Override
@@ -106,54 +105,47 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected State handleEditInGracePeriod(Supplier<Optional<ReadOnlyPerson>> editInputSupplier) {
-        // take details and update viewable, then restart grace period
+    protected void handleEditRequest(Supplier<Optional<ReadOnlyPerson>> editInputSupplier) {
         final Optional<ReadOnlyPerson> editInput = editInputSupplier.get();
         if (editInput.isPresent()) { // edit request confirmed
-            input = editInput.get(); // update saved input
-            PlatformExecUtil.runAndWait(() -> viewableToAdd.simulateUpdate(input));
-            snapshotPersonData(viewableToAdd);
+            cancelCommand();
+            model.execNewAddPersonCommand(() -> editInput); // spawn new add request with the updated info
         }
-        return GRACE_PERIOD; // restart grace period
     }
 
     @Override
-    protected State handleDeleteInGracePeriod() {
-        // undo the addition, no need to inform remote because nothing happened from their point of view.
-        return CANCELLED;
+    protected void handleDeleteRequest() {
+        // do nothing, let it get cancelled
+        cancelCommand();
     }
 
     @Override
-    protected Optional<ReadOnlyPerson> getRemoteConflict() {
+    protected void handleResolveConflict() {
+        // No conflicts possible
+    }
+
+    @Override
+    protected void handleRetry() {
+        cancelCommand();
+        model.execNewAddPersonCommand(() -> Optional.of(input));
+    }
+
+    @Override
+    protected Optional<ReadOnlyPerson> getRemoteConflictData() {
         return Optional.empty(); // no possible conflict for add command
     }
 
     @Override
-    protected State resolveRemoteConflict(ReadOnlyPerson remoteVersion) {
-        assert false; // no possible conflict for add command
-        return REQUESTING_REMOTE_CHANGE;
-    }
-
-    @Override
-    protected State requestChangeToRemote() {
+    protected boolean requestRemoteChange() {
         assert input != null;
 
-        CompletableFuture<ReadOnlyPerson> responseHolder = new CompletableFuture<>();
+        final CompletableFuture<ReadOnlyPerson> responseHolder = new CompletableFuture<>();
         eventRaiser.accept(new CreatePersonOnRemoteRequestEvent(responseHolder, addressbookName, input));
         try {
-            final Person backingPerson = new Person(responseHolder.get());
-
-            model.unassignOngoingChangeForPerson(getTargetPersonId()); // removes mapping for old id
-
-            PlatformExecUtil.runAndWait(() -> {
-                model.addPersonToBackingModelSilently(backingPerson); // so it wont trigger creation of another VP
-                viewableToAdd.connectBackingObject(backingPerson); // changes id to that of backing person
-                model.assignOngoingChangeToPerson(backingPerson.getId(), this); // remap this change for the new id
-            });
-            snapshotPersonData(viewableToAdd);
-            return SUCCESSFUL;
+            backingFromRemote = new Person(responseHolder.get());
+            return true;
         } catch (ExecutionException | InterruptedException e) {
-            return FAILED;
+            return false;
         }
     }
 
@@ -166,12 +158,13 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithSuccess() {
-        // maybe some logging
-    }
-
-    @Override
-    protected void finishWithFailure() {
-        finishWithCancel(); // TODO figure out failure handling
+        PlatformExecUtil.runAndWait(() -> {
+            model.addPersonToBackingModelSilently(backingFromRemote); // so it wont trigger creation of another VP
+            model.unassignOngoingChangeForPerson(getTargetPersonId()); // removes mapping for old id
+            viewableToAdd.connectBackingObject(backingFromRemote); // changes id to that of backing person
+            model.assignOngoingChangeToPerson(viewableToAdd.getId(), this); // remap this change for the new id
+        });
+        snapshotPersonData(viewableToAdd); // update snapshot for remote assigned id
     }
 
     private void snapshotPersonData(ReadOnlyPerson data) {

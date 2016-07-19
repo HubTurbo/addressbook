@@ -106,8 +106,7 @@ public class EditPersonCommandTest {
         final EditPersonCommand epc = spy(new EditPersonCommand(0, testTarget, inputRetrieverWrapper(inputData),
                 0, null, modelManagerSpy, ADDRESSBOOK_NAME));
 
-        // to stop the run at start of grace period (right after simulated change)
-        doThrow(new InterruptAndTerminateException()).when(epc).beforeGracePeriod();
+        doThrow(new InterruptAndTerminateException()).when(epc).afterState(State.SIMULATING_RESULT);
         thrown.expect(InterruptAndTerminateException.class);
 
         epc.run();
@@ -127,48 +126,4 @@ public class EditPersonCommandTest {
         assertTrue(epc.getViewable().getBacking().dataFieldsEqual(inputData));
     }
 
-    // THIS TEST TAKES >=1 SECONDS BY DESIGN
-    @Test
-    public void interruptGracePeriod_withEditRequest_changesEditResult() {
-        // grace period duration must be non zero, will be interrupted immediately anyway
-        final EditPersonCommand epc = spy(new EditPersonCommand(0, testTarget, returnValidEmptyInput, 1, events::post, modelManagerSpy, ADDRESSBOOK_NAME));
-        final Supplier<Optional<ReadOnlyPerson>> editInputWrapper = inputRetrieverWrapper(inputData);
-
-        doNothing().when(epc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
-        epc.editInGracePeriod(editInputWrapper); // pre-specify apc will be interrupted by edit
-        epc.run();
-
-        assertTrue(epc.getViewable().dataFieldsEqual(inputData));
-        assertTrue(epc.getViewable().getBacking().dataFieldsEqual(inputData));
-    }
-
-    @Test
-    public void interruptGracePeriod_withDeleteRequest_cancelsAndSpawnsDeleteCommand() {
-        // grace period duration must be non zero, will be interrupted immediately anyway
-        final EditPersonCommand epc = spy(new EditPersonCommand(0, testTarget, returnValidEmptyInput, 1,  e -> {}, modelManagerSpy, ADDRESSBOOK_NAME));
-
-        doNothing().when(modelManagerSpy).execNewDeletePersonCommand(any());
-        doNothing().when(epc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
-        epc.deleteInGracePeriod(); // pre-specify epc will be interrupted by delete
-
-        epc.run();
-
-        verify(modelManagerSpy).execNewDeletePersonCommand(testTarget);
-        assertEquals(epc.getState(), State.CANCELLED);
-    }
-
-    @Test
-    public void interruptGracePeriod_withCancelRequest_undoesSimulation() {
-        final ReadOnlyPerson targetSnapshot = new Person(testTarget);
-        // grace period duration must be non zero, will be interrupted immediately anyway
-        final EditPersonCommand epc = spy(new EditPersonCommand(0, testTarget, returnValidEmptyInput, 1,  e -> {}, modelManagerSpy, ADDRESSBOOK_NAME));
-
-        doNothing().when(epc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
-        epc.cancelInGracePeriod(); // pre-specify epc will be interrupted by cancel
-
-        epc.run();
-
-        assertTrue(epc.getViewable().dataFieldsEqual(targetSnapshot));
-        assertEquals(epc.getState(), State.CANCELLED);
-    }
 }

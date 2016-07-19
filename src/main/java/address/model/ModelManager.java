@@ -11,8 +11,6 @@ import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.*;
@@ -166,7 +164,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
                 PlatformExecUtil.callAndWait(userInputRetriever, Optional.empty());
 
         if (personHasOngoingChange(target)) {
-            getOngoingChangeForPerson(target.getId()).editInGracePeriod(fxThreadInputRetriever);
+            getOngoingChangeForPerson(target.getId()).overrideWithEditPerson(fxThreadInputRetriever);
         } else {
             final ViewablePerson toEdit = visibleModel.findPerson(target).get();
             execNewEditPersonCommand(toEdit, fxThreadInputRetriever);
@@ -210,7 +208,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         // handle edit commands for each target
         targets.forEach(target -> {
             if (personHasOngoingChange(target)) {
-                getOngoingChangeForPerson(target.getId()).editInGracePeriod(editInputRetrieverFactory.apply(target));
+                getOngoingChangeForPerson(target.getId()).overrideWithEditPerson(editInputRetrieverFactory.apply(target));
             } else {
                 final ViewablePerson toEdit = visibleModel.findPerson(target).get();
                 execNewEditPersonCommand(toEdit, editInputRetrieverFactory.apply(target));
@@ -224,7 +222,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      */
     public synchronized void deletePersonThroughUI(ReadOnlyPerson target) {
         if (personHasOngoingChange(target)) {
-            getOngoingChangeForPerson(target.getId()).deleteInGracePeriod();
+            getOngoingChangeForPerson(target.getId()).overrideWithDeletePerson();
         } else {
             final ViewablePerson toDelete = visibleModel.findPerson(target).get();
             execNewDeletePersonCommand(toDelete);
@@ -238,7 +236,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     public synchronized void cancelPersonChangeCommand(ReadOnlyPerson target) {
         final ChangePersonInModelCommand ongoingCommand = getOngoingChangeForPerson(target.getId());
         if (ongoingCommand != null) {
-            ongoingCommand.cancelInGracePeriod();
+            ongoingCommand.cancelCommand();
         }
     }
 

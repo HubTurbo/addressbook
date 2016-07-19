@@ -149,6 +149,10 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
         changeInProgress.setValue(currentChange);
     }
 
+    public void clearChangeInProgress() {
+        setChangeInProgress(NONE);
+    }
+
     /**
      * Updates the visible data, backing data remains untouched.
      */

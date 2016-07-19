@@ -65,7 +65,6 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
                 e.printStackTrace();
             }
         }
-        PlatformExecUtil.runAndWait(() -> target.setChangeInProgress(DELETING));
         model.assignOngoingChangeToPerson(target.getId(), this);
         target.stopSyncingWithBackingObject();
     }
@@ -73,7 +72,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void after() {
         PlatformExecUtil.runAndWait(() -> {
-            target.setChangeInProgress(NONE);
+            target.clearChangeInProgress();
             target.continueSyncingWithBackingObject();
             target.forceSyncFromBacking();
         });
@@ -86,9 +85,8 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected State simulateResult() {
-        // delete changeinprogress field already set in #before
-        return GRACE_PERIOD;
+    protected void simulateResult() {
+        PlatformExecUtil.runAndWait(() -> target.setChangeInProgress(DELETING));
     }
 
     @Override
@@ -97,38 +95,40 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected State handleEditInGracePeriod(Supplier<Optional<ReadOnlyPerson>> editInputSupplier) {
+    protected void handleEditRequest(Supplier<Optional<ReadOnlyPerson>> editInputSupplier) {
+        cancelCommand();
         model.execNewEditPersonCommand(target, editInputSupplier);
-        return CANCELLED;
     }
 
     @Override
-    protected State handleDeleteInGracePeriod() {
-        return GRACE_PERIOD; // nothing to be done
+    protected void handleDeleteRequest() {
+        // nothing to do here
     }
 
     @Override
-    protected Optional<ReadOnlyPerson> getRemoteConflict() {
+    protected void handleResolveConflict() {
+        // TODO
+    }
+
+    @Override
+    protected void handleRetry() {
+        cancelCommand();
+        model.execNewDeletePersonCommand(target);
+    }
+
+    @Override
+    protected Optional<ReadOnlyPerson> getRemoteConflictData() {
         return Optional.empty(); // TODO add after cloud individual check implemented
     }
 
     @Override
-    protected State resolveRemoteConflict(ReadOnlyPerson remoteVersion) {
-        assert false; // TODO figure out what to show to users
-        return null;
-    }
-
-    @Override
-    protected State requestChangeToRemote() {
-        // TODO: update when remote request api is complete
-        CompletableFuture<Boolean> responseHolder = new CompletableFuture<>();
+    protected boolean requestRemoteChange() {
+        final CompletableFuture<Boolean> responseHolder = new CompletableFuture<>();
         eventRaiser.accept(new DeletePersonOnRemoteRequestEvent(responseHolder, addressbookName, target.getId()));
         try {
-            responseHolder.get();
-            PlatformExecUtil.runAndWait(() -> model.backingModel().removePerson(target));
-            return SUCCESSFUL;
+            return responseHolder.get();
         } catch (ExecutionException | InterruptedException e) {
-            return FAILED;
+            return false;
         }
     }
 
@@ -139,11 +139,8 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithSuccess() {
-        // Nothing to do for now
+        // removing from backing will remove the front facing viewable too
+        PlatformExecUtil.runAndWait(() -> model.backingModel().removePerson(target));
     }
 
-    @Override
-    protected void finishWithFailure() {
-        finishWithCancel(); // TODO figure out failure handling
-    }
 }
