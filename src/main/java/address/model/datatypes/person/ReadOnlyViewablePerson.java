@@ -20,6 +20,11 @@ public interface ReadOnlyViewablePerson extends ReadOnlyPerson, ReadOnlyViewable
         NONE
     }
 
+    enum S {
+        GRACE_PERIOD,
+
+    }
+
     ChangeInProgress getChangeInProgress();
     ReadOnlyProperty<ChangeInProgress> changeInProgressProperty();
 

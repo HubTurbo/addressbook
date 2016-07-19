@@ -1,13 +1,13 @@
 package address.util;
 
-import address.model.SingleTargetCommandResult;
+import address.events.SingleTargetCommandResultEvent;
 
 /**
  * Contains method to present the SingleTargetCommandResult data.
  */
 public final class CommandResultFormatter {
 
-    public static String getStringRepresentation(SingleTargetCommandResult result) {
+    public static String getStringRepresentation(SingleTargetCommandResultEvent result) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(getNameRepresentation(result.targetNameBeforeExecution, result.targetNameAfterExecution));

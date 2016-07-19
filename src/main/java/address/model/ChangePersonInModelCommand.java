@@ -133,12 +133,15 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      */
     @Override
     protected void handleRemoteConflict() {
+        whenRemoteConflictDetected();
         try {
             waitForCancelRequest();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
+
+    protected abstract void whenRemoteConflictDetected();
 
     /**
      * Possible actions in request failed stage:
@@ -147,11 +150,14 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      */
     @Override
     protected void handleRequestFailed() {
+        whenRemoteRequestFailed();
         try {
             waitForCancelRequest();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
+
+    protected abstract void whenRemoteRequestFailed();
 
 }

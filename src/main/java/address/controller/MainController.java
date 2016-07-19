@@ -4,7 +4,7 @@ import address.MainApp;
 import address.browser.BrowserManager;
 import address.events.*;
 import address.exceptions.DuplicateTagException;
-import address.model.SingleTargetCommandResult;
+import address.events.SingleTargetCommandResultEvent;
 import address.model.UserPrefs;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.ModelManager;
@@ -79,7 +79,7 @@ public class MainController extends UiController{
     private StatusBarFooterController statusBarFooterController;
 
     private UnmodifiableObservableList<ReadOnlyViewablePerson> personList;
-    private final ObservableList<SingleTargetCommandResult> finishedCommandResults;
+    private final ObservableList<SingleTargetCommandResultEvent> finishedCommandResults;
 
     {
         finishedCommandResults = FXCollections.observableArrayList();

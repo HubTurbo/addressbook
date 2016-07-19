@@ -1,6 +1,6 @@
 package address.controller;
 
-import address.model.SingleTargetCommandResult;
+import address.events.SingleTargetCommandResultEvent;
 import address.ui.SingleTargetCommandResultListViewCell;
 import commons.FxViewUtil;
 import javafx.collections.ObservableList;
@@ -16,14 +16,14 @@ public class ActivityHistoryController {
     @FXML
     private AnchorPane mainPane;
 
-    private ObservableList<SingleTargetCommandResult> results;
+    private ObservableList<SingleTargetCommandResultEvent> results;
 
-    public void setConnections(ObservableList<SingleTargetCommandResult> results) {
+    public void setConnections(ObservableList<SingleTargetCommandResultEvent> results) {
         this.results = results;
     }
 
     public void init() {
-        ListView<SingleTargetCommandResult> listView = new ListView<>();
+        ListView<SingleTargetCommandResultEvent> listView = new ListView<>();
         listView.setItems(results);
         listView.setCellFactory(lv -> new SingleTargetCommandResultListViewCell());
         FxViewUtil.applyAnchorBoundaryParameters(listView, 0.0, 0.0, 0.0, 0.0);

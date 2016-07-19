@@ -1,13 +1,15 @@
-package address.model;
+package address.events;
 
 /**
  * Immutable data wrapper object representing the result of a completed command.
  */
-public class SingleTargetCommandResult {
+public class SingleTargetCommandResultEvent extends BaseEvent {
 
     public enum CommandStatus {
+        REMOTE_CONFLICT ("Remote Conflict"),
+        REQUEST_FAILED ("Request Failed"),
+
         SUCCESSFUL ("Successful"),
-        FAILED ("Failed"),
         CANCELLED ("Cancelled");
 
         private final String descr;
@@ -20,8 +22,8 @@ public class SingleTargetCommandResult {
         }
     }
 
-    public SingleTargetCommandResult(int commandId, String commandType, CommandStatus status, String targetType,
-                              String targetIdString, String targetNameBefore, String targetNameAfter) {
+    public SingleTargetCommandResultEvent(int commandId, String commandType, CommandStatus status, String targetType,
+                                          String targetIdString, String targetNameBefore, String targetNameAfter) {
         this.commandId = commandId;
         this.targetIdString = targetIdString;
         this.status = status;
@@ -67,4 +69,10 @@ public class SingleTargetCommandResult {
      * will be same as {@link #targetNameBeforeExecution} if there was no name change
      */
     public final String targetNameAfterExecution;
+
+    @Override
+    public String toString() {
+        return String.format("User command #%d finished execution (%s): Target [%s %s]",
+                commandId, status.toString(), targetTypeString, targetIdString);
+    }
 }

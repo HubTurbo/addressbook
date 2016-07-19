@@ -1,11 +1,10 @@
 package address.model;
 
-import static address.model.ChangeObjectInModelCommand.State.*;
 import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
 
 import address.events.BaseEvent;
-import address.events.CommandFinishedEvent;
 import address.events.DeletePersonOnRemoteRequestEvent;
+import address.events.SingleTargetCommandResultEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
@@ -77,11 +76,10 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
             target.forceSyncFromBacking();
         });
         model.unassignOngoingChangeForPerson(target.getId());
-        final String targetName = personDataBeforeExecution.fullName(); // no name changes for deletes
-        eventRaiser.accept(new CommandFinishedEvent(
-                new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(), TARGET_TYPE,
-                        target.idString(), targetName, targetName)
-        ));
+
+        // catches CANCELLED and SUCCESS
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+                TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
     }
 
     @Override
@@ -119,6 +117,18 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     @Override
     protected Optional<ReadOnlyPerson> getRemoteConflictData() {
         return Optional.empty(); // TODO add after cloud individual check implemented
+    }
+
+    @Override
+    protected void whenRemoteConflictDetected() {
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+                TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
+    }
+
+    @Override
+    protected void whenRemoteRequestFailed() {
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+                TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
     }
 
     @Override

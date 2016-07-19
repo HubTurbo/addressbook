@@ -1,10 +1,9 @@
 package address.model;
 
-import static address.model.ChangeObjectInModelCommand.State.*;
 import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
 
 import address.events.BaseEvent;
-import address.events.CommandFinishedEvent;
+import address.events.SingleTargetCommandResultEvent;
 import address.events.UpdatePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
@@ -86,10 +85,10 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
             target.forceSyncFromBacking();
         });
         model.unassignOngoingChangeForPerson(target.getId());
-        eventRaiser.accept(new CommandFinishedEvent(
-                new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(), TARGET_TYPE,
-                        target.idString(), personDataBeforeExecution.fullName(), personDataAfterExecution.fullName())
-        ));
+
+        // catches CANCELLED and SUCCESS
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+                TARGET_TYPE, target.idString(), personDataBeforeExecution.fullName(), personDataAfterExecution.fullName()));
     }
 
     @Override
@@ -133,6 +132,18 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected Optional<ReadOnlyPerson> getRemoteConflictData() {
         return Optional.empty(); // TODO add after cloud individual check implemented
+    }
+
+    @Override
+    protected void whenRemoteConflictDetected() {
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+                TARGET_TYPE, target.idString(), personDataBeforeExecution.fullName(), input.fullName()));
+    }
+
+    @Override
+    protected void whenRemoteRequestFailed() {
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+                TARGET_TYPE, target.idString(), personDataBeforeExecution.fullName(), input.fullName()));
     }
 
     @Override

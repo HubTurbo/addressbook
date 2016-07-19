@@ -1,11 +1,10 @@
 package address.model;
 
-import static address.model.ChangeObjectInModelCommand.State.*;
 import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
 
 import address.events.BaseEvent;
-import address.events.CommandFinishedEvent;
 import address.events.CreatePersonOnRemoteRequestEvent;
+import address.events.SingleTargetCommandResultEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
@@ -75,10 +74,10 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         // personDataSnapshot == null means that the command was cancelled before any input was received
         final String targetName = personDataSnapshot == null ? "" : personDataSnapshot.fullName();
         final String targetIdString = personDataSnapshot == null ? "" : personDataSnapshot.idString();
-        eventRaiser.accept(new CommandFinishedEvent(
-                new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(), TARGET_TYPE,
-                        targetIdString, targetName, targetName)
-        ));
+
+        // catches CANCELLED and SUCCESS
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+                TARGET_TYPE, targetIdString, targetName, targetName));
     }
 
     /**
@@ -133,6 +132,18 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected Optional<ReadOnlyPerson> getRemoteConflictData() {
         return Optional.empty(); // no possible conflict for add command
+    }
+
+    @Override
+    protected void whenRemoteConflictDetected() {
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+                TARGET_TYPE, viewableToAdd.idString(), viewableToAdd.fullName(), viewableToAdd.fullName()));
+    }
+
+    @Override
+    protected void whenRemoteRequestFailed() {
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+                TARGET_TYPE, viewableToAdd.idString(), viewableToAdd.fullName(), viewableToAdd.fullName()));
     }
 
     @Override

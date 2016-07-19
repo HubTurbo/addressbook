@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.*;
 
 import static address.model.ChangeObjectInModelCommand.State.*;
-import static address.model.SingleTargetCommandResult.CommandStatus;
+import static address.events.SingleTargetCommandResultEvent.CommandStatus;
 
 /**
  * Framework-style superclass for all commands that would cause changes for single domain objects in the model,
@@ -31,8 +31,8 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         REQUESTING_REMOTE_CHANGE    ("Requesting Change to Remote"),
 
         // Requires user intervention
-        CONFLICT_FOUND              ("Conflict on Remote"),
-        REQUEST_FAILED              ("Remote Request Failed"),
+        CONFLICT_FOUND              ("Conflict on Remote", CommandStatus.REMOTE_CONFLICT),
+        REQUEST_FAILED              ("Remote Request Failed", CommandStatus.REQUEST_FAILED),
 
         // Terminal states
         CANCELLED                   ("Cancelled", CommandStatus.CANCELLED),
