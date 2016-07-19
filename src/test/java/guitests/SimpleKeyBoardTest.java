@@ -8,6 +8,7 @@ import org.loadui.testfx.GuiTest;
 import java.io.File;
 import java.io.IOException;
 
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -36,7 +37,7 @@ public class SimpleKeyBoardTest extends GuiTestBase{
         file = GuiTest.captureScreenshot();
         Files.copy(file, new File("13.png"));
 
-
+        fail();
     }
 
 
