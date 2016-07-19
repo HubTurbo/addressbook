@@ -2,12 +2,15 @@ package guitests;
 
 import address.model.datatypes.AddressBook;
 import com.google.common.io.Files;
+import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import org.junit.Test;
 import org.loadui.testfx.GuiTest;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertTrue;
@@ -39,8 +42,10 @@ public class SimpleKeyBoardTest extends GuiTestBase {
         Files.copy(file, new File("12.png"));
 
         robot.clickOn("Alice");
-        robot.push(KeyCode.E);
-        robot.clickOn("#firstNameField").push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write("wahaha");
+        robot.push(KeyCode.E).sleep(500);
+        Node node = robot.lookup("#firstNameField").query();
+        robot.clickOn(node, MouseButton.PRIMARY);
+        robot.push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write("wahaha");
         file = GuiTest.captureScreenshot();
         Files.copy(file, new File("13.png"));
         fail();
