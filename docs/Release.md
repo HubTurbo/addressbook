@@ -60,26 +60,26 @@ If this is release of a new version, merge `master` branch to `early-access` bra
 is release to public on a polished early access version, merge `early-access` branch to `stable` branch then run the
 steps below.
 
-*In merging the branches to create a release, use `git merge --no-commit --no-ff` so that a merge commit won't be made,
+\*In merging the branches to create a release, use `git merge --no-commit --no-ff` so that a merge commit won't be made,
  in which you can make relevant changes (for example changing version number and early access flag) before committing with
  the version of the software as the commit message.
 
-0. **Pre-requisite** Run `gradle` task `createLauncherJar` under `release` category
+0. **Pre-requisite** Run `gradle` task `createInstallerJar` under `release` category
   - This is to ensure that all binaries can be created successfully (i.e. no compile-time error).
   - If there is any compile-time error, resolve them first before continuing on the next step.
-1. Update version in `MainApp` and in `build.gradle`. If this is an early access version, set `IS_EARLY_ACCESS` in `MainApp`
+1. Update versions (address book and its custom dependencies) in `MainApp` and in `build.gradle`. If this is an early access version, set `IS_EARLY_ACCESS` in `MainApp`
 as `true` and add `ea` at the end of version in `build.gradle`.
 2. Run `gradle` task `generateVersionData` under `release` category
-  - The console will print a list of libraries which should be updated
+  - The console will print a list of libraries which needs to be updated for the new version
 3. Open `VersionData.json` and update the new fields accordingly
-  - Put the link to download the new libraries. For now, we upload it to the new release we are going to create after this
+  - Put the link to download the new libraries. For now, we upload the new release we are about to create after this
   but the URL will follow GitHub release download link - `https://github.com/HubTurbo/addressbook/releases/download/<release version>/<filename>`.
   - Change the OS compatibility of the new libraries to ensure that only the libraries relevant to an OS will be loaded and checked
 4. Commit and push the  files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>` (with suffix `ea` if it's an early access version)
   - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `VersionData.json`
 5. Create a release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
-6. Run `gradle` task `createLauncherJar` under `release` category (this must be run again to use the updated `VersionData.json`)
-7. Upload `addressbook.jar` to the latest release.
+6. Run `gradle` task `createInstallerJar` under `release` category (this must be run again to use the updated `MainApp.java`, `build.gradle` and `VersionData.json`)
+7. Upload `installer-V*.*.*.jar` found at `build/libs` to the latest release.
 8. Upload the following as binaries to the (`resource` release)[https://github.com/HubTurbo/addressbook/releases/tag/resources]:
   - resource-\<version\>.jar
   - all the jars inside `lib` directory which are mentioned in (2)
@@ -112,55 +112,32 @@ Several gradle tasks have been prepared to make it effortless to create a releas
 
 ## Gradle Tasks for Release
 
-The following explains the tasks under `release` task category in gradle.
+The following explains the Gradle tasks that are required for a release.
 
 ### generateVersionData
 Generates the version data (VersionData.json) which will be used by user's application instance to know if it has an update
 and what to update. It reads the dependencies of the latest version of addressbook and put those dependencies into the version
-data. To make it easier for developer to update only things that get updated, it will use previous update data value for
-libraries that do not change. Developers then need to update the new dependencies information (such as URL to download
+data. To make it easier for developer to update only things that got updated, it will use previous version's values for
+libraries that did not change. Developers then need to update the new dependencies information (such as URL to download
 the libraries and the OS that needed them) manually.
 
-generateVersionData has its own source set which includes everything - main application and launcher - and its dependencies
-are extended from main application compile dependencies. This is to make it easier for generateVersionData to read any
-information it needs to create version data. The main class it uses is `updater/VersionDataGenerator.java`
+generateVersionData has its own source set which includes everything and its dependencies are extended from main application compile dependencies. This is to make it easier for generateVersionData to read any information it needs to create version data. The main class it uses is `addressbook/util/VersionDataGenerator.java`
 
-### createJarUpdater
-Create Jar Updater executable file, which job is to apply updates to the JARs of the main application.
-Use this task if you would like to only test Jar Updater.
+### createCommonsJar
+Creates the commons jar dependency. This jar contains the classes found in the `commons` package, including `FileUtil` and `OsDetector`, and is used as a dependency for most components.
 
-Its custom source set is defined in the task itself instead of as a separate configuration.
-
-### addJarUpdaterToMainApp
-Include Jar Updater into the main application for it to update itself.
-
-This task is necessary as `gradle` will run `processResource` of the main app before compiling the classes, hence
-outputting the Jar Updater JAR into resource directory will be ignored (since it has been processed); it needs to be
-copied manually to the resource output directory before the main application JAR is packaged, i.e. creating executables.
-
-### copyDependencyLibrariesToReleaseDir
-As JARs of addressbook libraries will be kept separate from the main app, they will be needed to run the main app JAR.
-Use this task to copy the JARs of the libraries into the release directory if you are testing the JAR of the main app.
-This task is not needed if you are running the app from IDE.
-
-### createMainAppExecutable
-Create the JAR of the main application. This task will also run all the other tasks required to enable the main app JAR
-to run, such as addJarUpdaterToMainApp and copyDependencyLibrariesToReleaseDir.
+### createUpdaterJar
+Creates the updater jar dependency. This file contains the updater components which are required for both the downloading of updated resources/dependencies as well as the migration of the application to a newer version.
 
 ### createLauncherJar
-Create the packed JAR to be provided to user to use. The packed JAR contains the main app executable and all the
+Creates launcher executable file, where its job is to apply pending updates as well as launch the main application with custom arguments.
+
+### createInstallerJar
+Creates the executable packed JAR to be provided to user to use. The packed JAR contains the main app executable and all the
 libraries needed for the main app executable to run. It will run the other tasks necessary to generate those files and
 keep them as resources.
 
-Launcher is defined into its own source set to make it easier to compile.
-
-Currently, Launcher needs Jackson to parse the update data for dependency setting purposes. However, it is not compiled
-to Launcher JAR; it will need `lib/[jackson].jar` to work. Those Jackson JARs are inside Launcher JAR as resource, though,
-which will be unpacked anyway. Hence, JSON parsing in Launcher must be called only after it unpacks itself.
-
-Launcher will launch the main application with `enable assertion` argument to enable assertion in production. On first
-run, it will unpack the libraries JARs and the main app JAR then launch the main app. On the next runs, it acts as a
-launcher to enable assertion in production.
+On first run, it will unpack the libraries JARs and the main app JAR then runs the launcher. On the next runs, it simply attempts to restore any missing files if the current version is not newer than the installer's (i.e. has not been updated) then simply runs the launch.
 
 ## To be improved
 
@@ -175,9 +152,5 @@ Instead of having to deal with text file of update data which is prone to error,
 uses to show what libraries have been changed in the latest version with fields to update the download links. Also,
 we can have a dropdown option for the OS which the libraries are needed in so developers don't need to type them manually.
 
-### Launcher dependencies
-Currently Launcher only has Jackson dependency which is easy to manage on compiling side and easy to control on program flow
-side. However, it will be better if dependencies of Launcher to be compiled (i.e. converted to classes) and packed together
-into the JAR so that it does not need to depend on external JAR libraries which need to be unpacked before running
-some methods. It's also safer when there is a call to a library method early in the program, say Apache IO on file opening.
-In this case, use of ShadowJAR or tinkering around `gradle` system to compile libraries as classes into JAR should be considered.
+### Installer dependencies
+Use of ShadowJAR should be considered to enable logging.

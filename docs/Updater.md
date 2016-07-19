@@ -1,28 +1,13 @@
 # Updater
-Updater has the main responsibility of updating the application to a newer version. In doing so,
-it does several things:
+Compiled as a separate updater jar which contains key classes to perform updates - downloading of dependencies as well as update migration. It is typically named as `updater-<MAJOR>.<MINOR>.<PATCH>.jar`.
 
-- updates, in the background, the application and the components it depends on, i.e. the libraries JAR that it uses
-- maintains backups of the application so that user can use the application even if an update fails
-- maintains dependencies of kept versions and clean up dependencies no longer used
+## How does the update work
+Updater jar contains the `Updater` class which is required for making updates.
+The main application has the updater jar as a dependency, so it is able to use its functionalities.
 
-## How Updater updates the application
-Updater runs when the application starts. It will work as per the diagram below.
-
-<img src="images/How Updater Works.jpg" width="600">
-
-Update to files will be applied when user closes the application. As a JAR file cannot modify itself,
-a proxy to modify the main application JAR (`addressbook.jar`) is used, named `updateMigrator.jar`. `updateMigrator.jar` will
-apply the update to files (in this case by replacing them with a newer version).
-
-## Backups and Dependencies Maintenance
-A backup of the application will be created before applying update, i.e. upon closing the application. Dependencies
-of all backup versions are remembered so that they will not be deleted erroneously.
-
-Several backups will be kept to allow user to roll back to older versions if update keeps failing. Once the amount of
-backups exceeds the max number of backups stored (specified in `BackupHandler`), the oldest backup version will be
-removed. If there are dependencies which are no longer used as the oldest backup version is removed, those dependencies
-will be removed as well so as not to take up disk space unnecessarily.
-
-Backups will be stored at the root folder with its version appended into the name, e.g. `addressbook_V0.1.0.jar`. To use
-a backup version, open the JAR file of that backup version.
+Upon instancing the `Updater` object and starting it, the updater will check for the latest version on the server.
+It will then determine if the current application needs to be updated, download the new resources and produce a update specification file containing all the information required for the application to be migrated to the next version.
+ - If the application needs to be updated, and the updater jar is part of the update, the main application will attempt to upgrade the updater jar immediately after it finishes its job and closes
+    - This is because on Windows, the updater jar cannot replace itself when it is running
+ - Therefore, the updater jar will exclude the information about itself from the update specification file
+Upon the next initialization of the application through the launcher, the launcher will check if there are pending updates (from the update specification file), and does the upgrade if required.
