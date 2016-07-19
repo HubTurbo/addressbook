@@ -90,6 +90,7 @@ allprojects {
                 srcDir 'src/main/java'
                 include('address/**/*')
                 include('hubturbo/**/*')
+                include('commons/**/*')
             }
             resources {
                 srcDir 'src/main/resources'
@@ -99,6 +100,7 @@ allprojects {
             java {
                 srcDir 'src/main/java'
                 include('updater/**/*')
+                include('commons/**/*')
             }
             resources {
                 srcDir 'src/main/resources'
@@ -196,7 +198,7 @@ allprojects {
         delete fileTree(dir: "$libDir", includes: ['updater-*.*.*.jar', 'commons-*.*.*.jar'])
     }
 
-    // copy dependencies from Gradle's cache
+    // Copy downloaded dependencies from Gradle's cache into the library directory
     task copyAllDependenciesToLibrary(type: Copy) {
         from(configurations.compile) {
             exclude("$licenceArchiveName")
@@ -206,7 +208,7 @@ allprojects {
     copyAllDependenciesToLibrary.dependsOn deleteOldCustomDependenciesFromLibrary
     copyAllDependenciesToLibrary.dependsOn clean
 
-    // Compile commons.jar
+    // Commons jar
     task createCommonsJar(type: Jar) {
         archiveName = "$commonsArchiveName"
 
@@ -216,7 +218,7 @@ allprojects {
     createCommonsJar.dependsOn copyAllDependenciesToLibrary
     compileCommonsJava.mustRunAfter copyAllDependenciesToLibrary
 
-    // Creates updater.jar
+    // Updater jar
     task createUpdaterJar(type: Jar) {
         archiveName = "$updaterArchiveName"
 
