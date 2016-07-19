@@ -44,7 +44,8 @@ public class SimpleKeyBoardTest extends GuiTestBase {
         robot.clickOn("Alice");
         robot.push(KeyCode.E).sleep(500);
         Node node = robot.lookup("#firstNameField").query();
-        robot.clickOn(node, MouseButton.PRIMARY).sleep(2000);
+        node.requestFocus();
+        //robot.clickOn(node, MouseButton.PRIMARY).sleep(2000);
         assertTrue(node.isFocused());
         robot.push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write("wahaha");
         file = GuiTest.captureScreenshot();
