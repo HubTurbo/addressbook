@@ -3,6 +3,7 @@ package guitests;
 import address.model.datatypes.AddressBook;
 import com.google.common.io.Files;
 import javafx.scene.Node;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import org.junit.Test;
@@ -43,11 +44,12 @@ public class SimpleKeyBoardTest extends GuiTestBase {
 
         robot.clickOn("Alice");
         robot.push(KeyCode.E).sleep(500);
-        Node node = robot.lookup("#firstNameField").query();
-        node.requestFocus();
+        TextField node = robot.lookup("#firstNameField").query();
+        node.setText("wahaha");
+       // node.requestFocus();
         //robot.clickOn(node, MouseButton.PRIMARY).sleep(2000);
-        assertTrue(node.isFocused());
-        robot.push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write("wahaha");
+        //assertTrue(node.isFocused());
+       // robot.push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write("wahaha");
         file = GuiTest.captureScreenshot();
         Files.copy(file, new File("13.png"));
         fail();
