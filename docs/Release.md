@@ -1,6 +1,6 @@
 # Release
 ## Versioning
-Addressbook version has the format of `V<MAJOR>.<MINOR>.<PATCH>` with suffix of `ea` if it is an early access, e.g.
+An `addressbook` version has the format of `V<MAJOR>.<MINOR>.<PATCH>` with suffix of `ea` if it is an early access, e.g.
 `V1.0.0ea` for early access version and `V1.0.0` for stable version.
 
 - `MAJOR` version is bumped up when a release introduces major changes to the application.
@@ -10,7 +10,7 @@ Addressbook version has the format of `V<MAJOR>.<MINOR>.<PATCH>` with suffix of 
 This versioning system is loosely based on [Semantic Versioning](http://semver.org/).
 
 ## Release cycle
-Addressbook has 3 branches for release, namely `master`, `early-access` and `stable`:
+`addressbook` has 3 branches for release, namely `master`, `early-access` and `stable`:
 - `master` : development will occur in this branch.
 - `early-access`: when we have a release candidate from master, the latest commit in `master` will be merged to this
 branch and an early access release will be made for people to try out the new features. This release candidate will be
@@ -56,59 +56,60 @@ References to how teams have multiple release channel:
 - http://blog.rust-lang.org/2014/10/30/Stability.html
 
 ## How to create a release
-If this is release of a new version, merge `master` branch to `early-access` branch then run the steps below. If this
-is release to public on a polished early access version, merge `early-access` branch to `stable` branch then run the
-steps below.
-
-\*In merging the branches to create a release, use `git merge --no-commit --no-ff` so that a merge commit won't be made,
- in which you can make relevant changes (for example changing version number and early access flag) before committing with
+1. Merge the appropriate branches  
+ - Releasing an early-access version: Merge `master` branch to `early-access` branch.  
+Releasing a stable version: Merge `early-access` branch to `stable` branch.
+    - \*Use `git merge --no-commit --no-ff` so that a merge commit won't be made, in which you can make relevant changes (for example changing version number and early access flag) before committing with
  the version of the software as the commit message.
 
-0. **Pre-requisite** Run `gradle` task `createInstallerJar` under `release` category
-  - This is to ensure that all binaries can be created successfully (i.e. no compile-time error).
-  - If there is any compile-time error, resolve them first before continuing on the next step.
-1. Update versions (address book and its custom dependencies) in `MainApp` and in `build.gradle`. If this is an early access version, set `IS_EARLY_ACCESS` in `MainApp`
+2. Ensure that binaries can be compiled
+  - Run `gradle` task `createInstallerJar`
+    - If there is any compile-time error, resolve them first before continuing on the next step.
+3. Update version numberings
+  - Update the version of the application and its dependencies in `MainApp` and in `build.gradle`. If this is an early access version, set `IS_EARLY_ACCESS` in `MainApp`
 as `true` and add `ea` at the end of version in `build.gradle`.
-2. Run `gradle` task `generateVersionData` under `release` category
+4. Update version data
+  - Run `gradle` task `generateVersionData`
   - The console will print a list of libraries which needs to be updated for the new version
-3. Open `VersionData.json` and update the new fields accordingly
+  - Open `VersionData.json` and update the new fields accordingly
   - Put the link to download the new libraries. For now, we upload the new release we are about to create after this
   but the URL will follow GitHub release download link - `https://github.com/HubTurbo/addressbook/releases/download/<release version>/<filename>`.
   - Change the OS compatibility of the new libraries to ensure that only the libraries relevant to an OS will be loaded and checked
-4. Commit and push the  files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>` (with suffix `ea` if it's an early access version)
+5. Create a new commit
+  - Commit and push the  files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>` (with suffix `ea` if it's an early access version)
   - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `VersionData.json`
-5. Create a release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
-6. Run `gradle` task `createInstallerJar` under `release` category (this must be run again to use the updated `MainApp.java`, `build.gradle` and `VersionData.json`)
-7. Upload `installer-V*.*.*.jar` found at `build/libs` to the latest release.
-8. Upload the following as binaries to the (`resource` release)[https://github.com/HubTurbo/addressbook/releases/tag/resources]:
+6. Draft a new release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
+7. Create the release JAR by running the Gradle task `createInstallerJar`
+  - this must be run again to use the updated `MainApp.java`, `build.gradle` and `VersionData.json`
+8. Upload the generated `installer-V*.*.*.jar` found at `build/libs` to the latest release.
+9. Upload the following as binaries to the (`resource` release)[https://github.com/HubTurbo/addressbook/releases/tag/resources]:
   - resource-\<version\>.jar
-  - all the jars inside `lib` directory which are mentioned in (2)
+  - all the jars inside `lib` directory which are mentioned in (4)
 
 ## More About Release
-Addressbook is configured to be released as a [non-fat JAR](http://stackoverflow.com/questions/19150811/what-is-a-fat-jar),
-that is, libraries that it depends on will not be included inside the Addressbook JAR. Instead, the JARs of these libraries
-will be put in `lib` folder at the same level of Addressbook JAR for the application to run and setting the classpath of
-Addressbook JAR to include the `lib` folder.
+The main application of `addressbook` is configured to be released as a [non-fat JAR](http://stackoverflow.com/questions/19150811/what-is-a-fat-jar),
+that is, libraries that it depends on will not be included inside the `addressbook` JAR itself. Instead, the JARs of these libraries
+will be put in `lib` folder which can then be included during runtime by setting the classpath to include the `lib` folder.
 
 For example:
 ```
 addressbook/
-  |-> addressbook.jar
+  |-> launcher.jar
   |-> lib/
        |-> apache-commons-io.jar
        |-> apache-logging.jar
        |-> jxbrowser.jar
+       |-> resource.jar
 ```
 
-This set-up is used to reduce the size of updates to be downloaded whenever a new version of Addressbook is released. With
+This set-up is used to reduce the size of updates to be downloaded whenever a new version of `addressbook` is released. With
 this set-up, only main application JAR and libraries that need to be updated will be downloaded, essentially reducing the
 time taken to download updates.
 
-To give convenience to user in preparing such application set-up, the whole set-up mentioned above is packed into 1 JAR file
-which will self-unpack itself on first run and start the main app from then onwards whenever it is opened (essentially
-a wrapper to the main application).
+For convenience, the whole set-up mentioned above is packed into 1 JAR file
+which will self-unpack itself on first run. It can be deleted after installation, and the main application can be launched through the launcher instead.
 
-Several gradle tasks have been prepared to make it effortless to create a release of Addressbook with the set-up mentioned above.
+Several gradle tasks have been prepared to make it effortless to create a release of `addressbook` with the set-up mentioned above.
 
 ## Gradle Tasks for Release
 
@@ -116,12 +117,12 @@ The following explains the Gradle tasks that are required for a release.
 
 ### generateVersionData
 Generates the version data (VersionData.json) which will be used by user's application instance to know if it has an update
-and what to update. It reads the dependencies of the latest version of addressbook and put those dependencies into the version
-data. To make it easier for developer to update only things that got updated, it will use previous version's values for
+and what to update. It reads the dependencies of the latest version of `addressbook` and put those dependencies into the version
+data. To make it easier for developer, it will use previous version's values for
 libraries that did not change. Developers then need to update the new dependencies information (such as URL to download
 the libraries and the OS that needed them) manually.
 
-generateVersionData has its own source set which includes everything and its dependencies are extended from main application compile dependencies. This is to make it easier for generateVersionData to read any information it needs to create version data. The main class it uses is `addressbook/util/VersionDataGenerator.java`
+`generateVersionData` has its own source set which includes everything and its dependencies are extended from main application compile dependencies. This is to make it easier for generateVersionData to read any information it needs to create version data. The main class it uses is `addressbook/util/VersionDataGenerator.java`
 
 ### createCommonsJar
 Creates the commons jar dependency. This jar contains the classes found in the `commons` package, including `FileUtil` and `OsDetector`, and is used as a dependency for most components.
@@ -133,11 +134,11 @@ Creates the updater jar dependency. This file contains the updater components wh
 Creates launcher executable file, where its job is to apply pending updates as well as launch the main application with custom arguments.
 
 ### createInstallerJar
-Creates the executable packed JAR to be provided to user to use. The packed JAR contains the main app executable and all the
-libraries needed for the main app executable to run. It will run the other tasks necessary to generate those files and
-keep them as resources.
+Creates the executable packed JAR for the user to download and use. The packed JAR contains the main application and all the libraries needed for the main application to run.
 
-On first run, it will unpack the libraries JARs and the main app JAR then runs the launcher. On the next runs, it simply attempts to restore any missing files if the current version is not newer than the installer's (i.e. has not been updated) then simply runs the launch.
+Note that running this will also run the other mentioned tasks in a specified order. See `build.gradle` for more details (`dependsOn`/`mustRunAfter`).
+
+On first run, it unpacks the libraries and the main application, then runs the launcher. On subsequent runs, it simply attempts to restore any missing files if the current version is not newer than the installer's (i.e. has not been updated) then simply runs the launcher. However, it is expected that the user will delete this file after installation.
 
 ## To be improved
 
