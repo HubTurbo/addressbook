@@ -52,7 +52,7 @@ public class Updater {
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
     private static final String LIB_DIR = "lib" + File.separator;
     private static final String MAIN_APP_FILEPATH = LIB_DIR + "resource.jar";
-    private static final String UPDATER_FILE_REGEX = "updater-\\d.\\d.\\d.jar";
+    private static final String UPDATER_FILE_REGEX = LIB_DIR + "updater-\\d\\.\\d\\.\\d\\.jar";
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final Version currentVersion;
