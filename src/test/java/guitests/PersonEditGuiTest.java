@@ -10,6 +10,7 @@ import guitests.guihandles.PersonListPanelHandle;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertFalse;
@@ -30,7 +31,7 @@ public class PersonEditGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void editPerson_usingAccelerator() {
+    public void editPerson_usingAccelerator() throws IOException {
 
         //Prepare new values for Alice
         Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
@@ -124,7 +125,7 @@ public class PersonEditGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void cancelPerson_usingAccelerator() {
+    public void cancelPerson_usingAccelerator() throws IOException {
 
 
         //Delete

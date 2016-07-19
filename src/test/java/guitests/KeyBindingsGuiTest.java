@@ -5,7 +5,6 @@ import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.TagPersonDialogHandle;
 import org.junit.Test;
 
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -27,7 +26,6 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         assertTrue(personListPanel.isSelected("Alice", "Brown"));
 
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
-        personListPanel.sleep(1, TimeUnit.SECONDS);
         assertTrue(personListPanel.isSelected("Dan", "Edwards"));
 
         //======= sequences =========================
