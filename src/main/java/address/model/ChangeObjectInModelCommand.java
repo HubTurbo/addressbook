@@ -79,11 +79,15 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     protected final Property<State> state; // current state
 
     private final CountDownLatch completionLatch; // blocking completion flag
-    protected final CountDownLatch cancelledLatch; // blocking cancellation flag
+    private final CountDownLatch cancelledLatch; // blocking cancellation flag
+    private CountDownLatch pauseGracePeriodLatch;
+    private CountDownLatch resumeGracePeriodLatch;
     
     {
         completionLatch = new CountDownLatch(1); // irreversible flag
         cancelledLatch = new CountDownLatch(1); // irreversible flag
+        pauseGracePeriodLatch = new CountDownLatch(1);
+        resumeGracePeriodLatch = new CountDownLatch(1);
         state = new SimpleObjectProperty<>(NEWLY_CREATED);
     }
 
@@ -107,7 +111,9 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      * Request to cancel this command.
      */
     public void cancelCommand() {
+        pauseGracePeriod();
         cancelledLatch.countDown();
+        resumeGracePeriod();
     }
 
     /**
@@ -125,6 +131,10 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      */
     protected boolean waitForCancelRequest(long timeout, TimeUnit unit) throws InterruptedException {
         return cancelledLatch.await(timeout, unit);
+    }
+
+    protected boolean isCancelRequested() {
+        return cancelledLatch.getCount() == 0;
     }
 
     public State getState() {
@@ -281,12 +291,17 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         // Countdown loop, checks for cancel signal
         for (int i = gracePeriodDurationInSeconds; i > 0; i--) {
             handleChangeToSecondsLeftInGracePeriod(i);
-
             try {
-                // wait 1 second for cancellation signal
-                if (waitForCancelRequest(1, TimeUnit.SECONDS)) {
-                    handleChangeToSecondsLeftInGracePeriod(0); // signify end of grace period
-                    return CANCELLED;
+                // wait 1 second each time for interruptions
+                if (pauseGracePeriodLatch.await(1, TimeUnit.SECONDS)) {
+                    pauseGracePeriodLatch = new CountDownLatch(1); // reset for future pauses
+                    resumeGracePeriodLatch.await(); // wait to resume execution
+                    resumeGracePeriodLatch = new CountDownLatch(1); // reset for future pauses
+                    if (isCancelRequested()) {
+                        handleChangeToSecondsLeftInGracePeriod(0); // end grace period
+                        return CANCELLED;
+                    }
+                    i = gracePeriodDurationInSeconds; // unpaused but not cancelled, reset countdown
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -295,6 +310,14 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
 
         handleChangeToSecondsLeftInGracePeriod(0); // signify end of grace period
         return CHECKING_REMOTE_CONFLICT; // not cancelled
+    }
+
+    protected void pauseGracePeriod() {
+        pauseGracePeriodLatch.countDown();
+    }
+
+    protected void resumeGracePeriod() {
+        resumeGracePeriodLatch.countDown();
     }
 
     /**

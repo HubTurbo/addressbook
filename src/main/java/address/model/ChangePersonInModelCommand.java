@@ -47,7 +47,9 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      */
     public void overrideWithEditPerson(Supplier<Optional<ReadOnlyPerson>> editInputSupplier) {
         assert !getState().isTerminal() : "Attempted to override a terminated command";
+        pauseGracePeriod();
         handleEditRequest(editInputSupplier);
+        resumeGracePeriod();
     }
 
     /**
@@ -62,7 +64,9 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      */
     public void overrideWithDeletePerson() {
         assert !getState().isTerminal() : "Attempted to override a terminated command";
+        pauseGracePeriod();
         handleDeleteRequest();
+        resumeGracePeriod();
     }
 
     /**
