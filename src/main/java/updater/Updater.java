@@ -1,7 +1,7 @@
 package updater;
 
 import commons.LibraryDescriptor;
-import commons.UpdateProgressNotifier;
+import commons.UpdateInformationNotifier;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import commons.*;
 import commons.Version;
@@ -55,7 +55,7 @@ public class Updater {
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final Version currentVersion;
     private final List<Version> downloadedVersions;
-    private UpdateProgressNotifier updateProgressNotifier;
+    private UpdateInformationNotifier updateInformationNotifier;
 
     public Updater(Version currentVersion) {
         super();
@@ -63,26 +63,26 @@ public class Updater {
         downloadedVersions = getDownloadedVersionsFromFile(DOWNLOADED_VERSIONS_FILE);
     }
 
-    public void start(UpdateProgressNotifier updateProgressNotifier) {
-        this.updateProgressNotifier = updateProgressNotifier;
+    public void start(UpdateInformationNotifier updateInformationNotifier) {
+        this.updateInformationNotifier = updateInformationNotifier;
         pool.execute(this::checkForUpdate);
     }
 
     private void checkForUpdate() {
-        updateProgressNotifier.sendStatusInProgress("Clearing local update specification file", -1);
+        updateInformationNotifier.sendStatusInProgress("Clearing local update specification file", -1);
         try {
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_DELETE_UPDATE_SPEC);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_DELETE_UPDATE_SPEC);
             return;
         }
 
-        updateProgressNotifier.sendStatusInProgress("Getting data from server", -1);
+        updateInformationNotifier.sendStatusInProgress("Getting data from server", -1);
         VersionData latestData;
         try {
             latestData = getLatestDataFromServer();
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA);
             return;
         }
 
@@ -90,7 +90,7 @@ public class Updater {
         try {
             latestVersion = getVersion(latestData);
         } catch (IllegalArgumentException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_READ_LATEST_VERSION);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_READ_LATEST_VERSION);
             return;
         }
 
@@ -98,43 +98,43 @@ public class Updater {
         assert isOnSameReleaseChannel(latestVersion) : "Error: latest version found to be in the wrong release channel";
 
         if (currentVersion.compareTo(latestVersion) >= 0) {
-            updateProgressNotifier.sendStatusFinished(MSG_NO_NEWER_VERSION);
+            updateInformationNotifier.sendStatusFinishedWithoutUpgrade(MSG_NO_NEWER_VERSION);
             return;
         }
 
-        updateProgressNotifier.sendStatusInProgress("Collecting all update files to be downloaded", -1);
+        updateInformationNotifier.sendStatusInProgress("Collecting all update files to be downloaded", -1);
         HashMap<String, URL> filesToBeUpdated;
         try {
             filesToBeUpdated = getFilesToDownload(latestData);
         } catch (UnsupportedOperationException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_UPDATE_NOT_SUPPORTED);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_UPDATE_NOT_SUPPORTED);
             return;
         }
 
         if (filesToBeUpdated.isEmpty()) {
-            updateProgressNotifier.sendStatusFinished(MSG_NO_UPDATE);
+            updateInformationNotifier.sendStatusFinishedWithoutUpgrade(MSG_NO_UPDATE);
             return;
         }
 
         try {
             createUpdateDir();
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed("Error creating update directory");
+            updateInformationNotifier.sendStatusFailed("Error creating update directory");
         }
 
         try {
             downloadFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_DOWNLOAD_UPDATE);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_DOWNLOAD_UPDATE);
             return;
         }
 
-        updateProgressNotifier.sendStatusInProgress("Finalizing updates", -1);
+        updateInformationNotifier.sendStatusInProgress("Finalizing updates", -1);
 
         try {
             createUpdateSpecification(filesToBeUpdated);
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_CREATE_UPDATE_SPEC);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_CREATE_UPDATE_SPEC);
             return;
         }
 
@@ -142,11 +142,11 @@ public class Updater {
         try {
             writeDownloadedVersionsToFile(downloadedVersions, DOWNLOADED_VERSIONS_FILE);
         } catch (IOException e) {
-            updateProgressNotifier.sendStatusFailed(MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA);
+            updateInformationNotifier.sendStatusFailed(MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA);
             return;
         }
 
-        updateProgressNotifier.sendStatusFinished(MSG_UPDATE_FINISHED);
+        updateInformationNotifier.sendStatusFinishedWithUpgrade(MSG_UPDATE_FINISHED, "updater.jar"); // TODO: check specification to see if updater needs an update
     }
 
     private void createUpdateDir() throws IOException {
@@ -270,7 +270,7 @@ public class Updater {
             downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
             noOfFilesDownloaded++;
             double progress = (1.0 * noOfFilesDownloaded) / totalFilesToDownload;
-            updateProgressNotifier.sendStatusInProgress("Downloading updates", progress);
+            updateInformationNotifier.sendStatusInProgress("Downloading updates", progress);
         }
     }
 

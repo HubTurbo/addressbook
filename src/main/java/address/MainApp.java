@@ -8,6 +8,10 @@ import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
+import address.updater.UpdateProgressNotifier;
+import address.updater.UpdaterUpgrader;
+import commons.UpdateInformationNotifier;
+import commons.Version;
 import updater.Updater;
 import address.util.*;
 
@@ -15,6 +19,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -78,10 +83,10 @@ public class MainApp extends Application {
         remoteManager = initRemoteManager(config);
         syncManager = initSyncManager(remoteManager, config);
         keyBindingsManager = initKeyBindingsManager();
-        updater = initUpdateManager(VERSION);
+        updater = initUpdater(VERSION);
     }
 
-    protected Updater initUpdateManager(commons.Version version) {
+    protected Updater initUpdater(Version version) {
         return new Updater(version);
     }
 
@@ -114,12 +119,29 @@ public class MainApp extends Application {
         logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
         if (ManifestFileReader.isRunFromJar()) {
-            updater.start(ui.getUpdateProgressNotifier());
+            updater.start(getUpdateInformationNotifier());
         } else {
             ui.getUpdateProgressNotifier().sendStatusFinished("Developer environment; not running updater");
         }
         storageManager.start();
         syncManager.start();
+    }
+
+    private UpdateInformationNotifier getUpdateInformationNotifier() {
+        UpdateProgressNotifier updateProgressNotifier = ui.getUpdateProgressNotifier();
+        return new UpdateInformationNotifier(
+                updateProgressNotifier::sendStatusFinished,
+                updateProgressNotifier::sendStatusFailed,
+                updateProgressNotifier::sendStatusInProgress,
+                (upgradeUpdater) -> {
+                    UpdaterUpgrader updaterUpgrader = new UpdaterUpgrader(upgradeUpdater);
+                    try {
+                        updaterUpgrader.upgradeUpdater();
+                    } catch (IOException e) {
+                        logger.warn("Error upgrading updater: {}", e);
+                    }
+                }
+        );
     }
 
     @Override
