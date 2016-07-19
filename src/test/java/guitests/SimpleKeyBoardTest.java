@@ -1,5 +1,6 @@
 package guitests;
 
+import address.model.datatypes.AddressBook;
 import com.google.common.io.Files;
 import javafx.scene.input.KeyCode;
 import org.junit.Test;
@@ -14,7 +15,12 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by YL Lim on 19/7/2016.
  */
-public class SimpleKeyBoardTest extends GuiTestBase{
+public class SimpleKeyBoardTest extends GuiTestBase {
+
+    @Override
+    protected AddressBook getInitialData() {
+        return td.book;
+    }
 
     @Test
     public void testKeyBoard() throws IOException {
@@ -31,12 +37,12 @@ public class SimpleKeyBoardTest extends GuiTestBase{
         robot.push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1);
         file = GuiTest.captureScreenshot();
         Files.copy(file, new File("12.png"));
-        assertTrue(robot.lookup("#filterField").tryQuery().get().isFocused());
-        robot.push(KeyCode.D);
+
+        robot.clickOn("Alice");
         robot.push(KeyCode.E);
+        robot.clickOn("#firstNameField").push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write("wahaha");
         file = GuiTest.captureScreenshot();
         Files.copy(file, new File("13.png"));
-
         fail();
     }
 
