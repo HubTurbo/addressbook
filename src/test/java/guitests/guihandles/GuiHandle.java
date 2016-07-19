@@ -77,7 +77,8 @@ public class GuiHandle {
      * @param newText
      */
     protected void typeTextField(String textFieldId, String newText) {
-        guiRobot.doubleClickOn(textFieldId)
+        guiRobot.clickOn(textFieldId)
+                .push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1)
                 .write(newText)
         ;
     }
