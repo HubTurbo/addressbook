@@ -82,16 +82,23 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 */
         //Confirm other cards are unaffected
-        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1);
-        assertTrue(personListPanel.isSelected(td.alice));
-        personListPanel.clearSelection();
-        personListPanel.focusOnMainApp();
+
+        //personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1);
+        //assertTrue(personListPanel.isSelected(td.alice));
+        personListPanel.clickOnPerson("Alice");
+        personListPanel.sleep(1, TimeUnit.SECONDS);
+        //personListPanel.clearSelection();
+        //personListPanel.focusOnMainApp();
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
-        assertTrue(personListPanel.isSelected(td.benson));
+        personListPanel.sleep(1, TimeUnit.SECONDS);
+        //assertTrue(personListPanel.isSelected(td.benson));
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
-        assertTrue(personListPanel.isSelected(td.charlie));
+        personListPanel.sleep(1, TimeUnit.SECONDS);
+        //assertTrue(personListPanel.isSelected(td.charlie));
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
-        assertTrue(personListPanel.isSelected(td.dan));
+        personListPanel.sleep(1, TimeUnit.SECONDS);
+        //assertTrue(personListPanel.isSelected(td.dan));
+        fail();
 
         //Confirm status bar is updated correctly
         //assertEquals(statusBar.getText(), "Alice Brown (old) -> Alicia Brownstone (new) has been edited successfully.");
