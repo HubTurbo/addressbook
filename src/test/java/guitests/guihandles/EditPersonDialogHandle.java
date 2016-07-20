@@ -15,7 +15,8 @@ import java.util.NoSuchElementException;
 
 public class EditPersonDialogHandle extends GuiHandle {
 
-    public static final String TITLE = "Edit Person";
+    public static final String EDIT_TITLE = "Edit Person";
+    public static final String ADD_TITLE = "New Person";
     private static final String FIRST_NAME_FIELD_ID = "#firstNameField";
     private static final String LAST_NAME_FIELD_ID = "#lastNameField";
     private static final String STREET_FIELD_ID = "#streetField";
@@ -26,9 +27,9 @@ public class EditPersonDialogHandle extends GuiHandle {
     private static final String TAG_SEARCH_FIELD_ID = "#tagList";
     private static final String CANCEL_BUTTON_TEXT = "Cancel";
 
-    public EditPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
+    public EditPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage, String stageTitle) {
         super(guiRobot, primaryStage);
-        focusOnWindow(TITLE);
+        focusOnWindow(stageTitle);
     }
 
     public boolean isValidEditDialog() {

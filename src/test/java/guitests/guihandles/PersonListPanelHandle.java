@@ -141,7 +141,7 @@ public class PersonListPanelHandle extends GuiHandle {
     public EditPersonDialogHandle use_PERSON_EDIT_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_EDIT_ACCELERATOR);
         guiRobot.sleep(500);
-        return new EditPersonDialogHandle(guiRobot, primaryStage);
+        return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
     }
 
     public TagPersonDialogHandle use_PERSON_TAG_ACCELERATOR() {
@@ -165,7 +165,7 @@ public class PersonListPanelHandle extends GuiHandle {
             case EDIT:
                 clickOn("#editMenuItem");
                 guiRobot.sleep(500);
-                return new EditPersonDialogHandle(guiRobot, primaryStage);
+                return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
             case TAG:
                 clickOn("#tagMenuItem");
                 break;
@@ -199,13 +199,13 @@ public class PersonListPanelHandle extends GuiHandle {
     public EditPersonDialogHandle clickNew() {
         guiRobot.clickOn(NEW_BUTTON_ID);
         guiRobot.sleep(500);
-        return new EditPersonDialogHandle(guiRobot, primaryStage);
+        return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.ADD_TITLE);
     }
 
     public EditPersonDialogHandle clickEdit() {
         guiRobot.clickOn(EDIT_BUTTON_ID);
         guiRobot.sleep(500);
-        return new EditPersonDialogHandle(guiRobot, primaryStage);
+        return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.ADD_TITLE);
     }
 
     public void dragAndDrop(String firstNameOfPersonToDrag, String firstNameOfPersonToDropOn) {
