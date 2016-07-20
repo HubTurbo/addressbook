@@ -89,7 +89,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         //personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1);
         //assertTrue(personListPanel.isSelected(td.alice));
         //personListPanel.clickOnPerson(td.alice);
-        personListPanel.getListView().requestFocus();
+        personListPanel.focusListView();
         File file;
         file = GuiTest.captureScreenshot();
         Files.copy(file, new File("key1.png"));

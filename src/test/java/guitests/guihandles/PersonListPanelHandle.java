@@ -179,6 +179,11 @@ public class PersonListPanelHandle extends GuiHandle {
         return null;
     }
 
+
+    public void focusListView() {
+        guiRobot.interact(() -> this.getListView().requestFocus());
+    }
+
     public void clickOnPerson(String personName) {
         guiRobot.clickOn(personName);
     }
