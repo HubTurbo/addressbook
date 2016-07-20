@@ -274,7 +274,7 @@ allprojects {
 
     task generateVersionData(type: JavaExec) {
         main = "$generateVersionDataMainClass"
-        def arguments = "$mainAppArchiveName" + configurations.runtime.files.collect { "$it.name" }.join(" ")
+        def arguments = "$mainAppArchiveName " + "$launcherArchiveName " + configurations.runtime.files.collect { "$it.name" }.join(" ")
         classpath = sourceSets.generateVersionData.runtimeClasspath
         args arguments.split()
     }

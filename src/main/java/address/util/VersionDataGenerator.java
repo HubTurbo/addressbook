@@ -1,8 +1,10 @@
 package address.util;
 
 import address.MainApp;
-import commons.*;
+import commons.FileUtil;
+import commons.JsonUtil;
 import commons.LibraryDescriptor;
+import commons.VersionData;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,45 +33,36 @@ public class VersionDataGenerator {
     }
 
     /**
-     * Attempts to generate data based on the given arguments
+     * Attempts to generate data based on the given library list
      *
-     * @param args at least 2 jar filenames, with first being the resource app
+     * @param curLibraries at least 2 jar filenames, with first being the resource app
      */
-    public void generateNewVersionData(String[] args) {
-        List<String> arguments = Arrays.asList(args);
+    public void generateNewVersionData(String[] curLibraries) {
+        List<String> curLibraryList = Arrays.asList(curLibraries);
 
-        Optional<commons.VersionData> previousVersionData;
+        System.out.println("Libraries found: " + curLibraryList);
+        Optional<VersionData> previousVersionData;
         try {
             previousVersionData = Optional.of(readVersionDataFromFile(VERSION_DATA_FILE));
         } catch (IOException e) {
-            System.out.println("Failed to read version data file");
-            e.printStackTrace();
+            System.out.println("Warning: Failed to read previous version data file.");
             previousVersionData = Optional.empty();
         }
 
-        commons.VersionData versionData = new commons.VersionData();
+        VersionData versionData = new VersionData();
         versionData.setVersion(MainApp.VERSION.toString());
 
-        String mainAppDownloadLink = getMainAppDownloadLink(arguments.get(0));
-        try {
-            versionData.setMainAppDownloadLink(mainAppDownloadLink);
-        } catch (MalformedURLException e) {
-            System.out.println("MainApp download link is a malformed URL");
-            e.printStackTrace();
-            return;
-        }
-        ArrayList<String> currentLibrariesNames = new ArrayList<>(arguments.subList(1, arguments.size()));
-        ArrayList<commons.LibraryDescriptor> currentLibrariesDescriptors = convertToLibraryDescriptors(currentLibrariesNames);
+        List<LibraryDescriptor> currentLibrariesDescriptors = convertToLibraryDescriptors(curLibraryList);
 
         if (previousVersionData.isPresent()) {
-            transferOsInformation(previousVersionData.get() .getLibraries(), currentLibrariesDescriptors);
+            transferOsInformation(previousVersionData.get().getLibraries(), currentLibrariesDescriptors);
         }
         versionData.setLibraries(currentLibrariesDescriptors);
 
         try {
             FileUtil.serializeObjectToJsonFile(VERSION_DATA_FILE, versionData);
         } catch (IOException e) {
-            System.out.println("Failed to write new version data to file");
+            System.out.println("Error: Failed to write new version data to file");
             e.printStackTrace();
             return;
         }
@@ -77,25 +70,21 @@ public class VersionDataGenerator {
         notifyOfNewLibraries(currentLibrariesDescriptors);
     }
 
-    private ArrayList<commons.LibraryDescriptor> convertToLibraryDescriptors(ArrayList<String> currentLibrariesNames) {
-        ArrayList<commons.LibraryDescriptor> libraryDescriptors = new ArrayList<>();
-        for (String libraryName : currentLibrariesNames) {
+    private List<LibraryDescriptor> convertToLibraryDescriptors(List<String> librariesNames) {
+        List<LibraryDescriptor> libraryDescriptors = new ArrayList<>();
+        for (String libraryName : librariesNames) {
             try {
-                libraryDescriptors.add(new commons.LibraryDescriptor(libraryName, getDownloadLinkForLibrary(libraryName), null));
+                libraryDescriptors.add(new LibraryDescriptor(libraryName, getDownloadLinkForLibrary(libraryName), null));
             } catch (MalformedURLException e) {
-                System.out.println("Failed to set download link for " + libraryName +
+                System.out.println("Warning: Failed to set download link for " + libraryName +
                         "; please update the download link manually");
             }
         }
         return libraryDescriptors;
     }
 
-    private commons.VersionData readVersionDataFromFile(File file) throws IOException {
-        return JsonUtil.fromJsonString(FileUtil.readFromFile(file), commons.VersionData.class);
-    }
-
-    private String getMainAppDownloadLink(String mainAppFileName) {
-        return BASE_DOWNLOAD_LINK + mainAppFileName;
+    private VersionData readVersionDataFromFile(File file) throws IOException {
+        return JsonUtil.fromJsonString(FileUtil.readFromFile(file), VersionData.class);
     }
 
     private String getDownloadLinkForLibrary(String libraryFileName) {
@@ -111,14 +100,12 @@ public class VersionDataGenerator {
      * @param previousLibraryDescriptors
      * @param currentLibraryDescriptors
      */
-    private void transferOsInformation(
-            ArrayList<commons.LibraryDescriptor> previousLibraryDescriptors,
-            ArrayList<commons.LibraryDescriptor> currentLibraryDescriptors) {
-        currentLibraryDescriptors.stream()
-                .forEach(currentLibraryDescriptor -> {
-                    Optional<commons.LibraryDescriptor> libraryDescriptorWithOsInformation = getMatchingLibraryDescriptor(currentLibraryDescriptor, previousLibraryDescriptors);
-                    libraryDescriptorWithOsInformation.ifPresent(desc -> currentLibraryDescriptor.setOs(desc.getOs()));
-                });
+    private void transferOsInformation(List<LibraryDescriptor> previousLibraryDescriptors,
+                                       List<LibraryDescriptor> currentLibraryDescriptors) {
+        currentLibraryDescriptors.forEach(currentLibraryDescriptor -> {
+            Optional<LibraryDescriptor> libraryDescriptorWithOsInformation = getMatchingLibraryDescriptor(currentLibraryDescriptor, previousLibraryDescriptors);
+            libraryDescriptorWithOsInformation.ifPresent(desc -> currentLibraryDescriptor.setOs(desc.getOs()));
+        });
     }
 
     /**
@@ -128,16 +115,15 @@ public class VersionDataGenerator {
      * @param prevLibraryDescriptors
      * @return
      */
-    private Optional<commons.LibraryDescriptor> getMatchingLibraryDescriptor(commons.LibraryDescriptor libraryDescriptor, List<commons.LibraryDescriptor> prevLibraryDescriptors) {
+    private Optional<LibraryDescriptor> getMatchingLibraryDescriptor(LibraryDescriptor libraryDescriptor, List<LibraryDescriptor> prevLibraryDescriptors) {
         return prevLibraryDescriptors.stream()
                 .filter(prevLibDesc -> prevLibDesc.getFileName().equals(libraryDescriptor.getFileName()))
                 .findFirst();
     }
 
-    private void notifyOfNewLibraries(ArrayList<LibraryDescriptor> libraryDescriptors) {
+    private void notifyOfNewLibraries(List<LibraryDescriptor> libraryDescriptors) {
         System.out.println("------------------------------------------------------------");
-        System.out.println("New libraries to be uploaded");
-        System.out.println("For each library below, get download URL and set its OS:");
+        System.out.println("For each updated library below, modify download URL if needed and set its OS:");
         libraryDescriptors.stream().filter(libDesc -> libDesc.getOs() == null)
                 .forEach(libDesc -> System.out.println(libDesc.getFileName()));
         System.out.println("------------------------------------------------------------");

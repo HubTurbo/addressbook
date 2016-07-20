@@ -54,9 +54,7 @@ public class UpdaterUpgrader {
      */
     private String getFileNameOfRegexMatch(String[] curDirFilesNames, String regex) throws FileNotFoundException {
         for (String fileName : curDirFilesNames) {
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(fileName);
-            if (matcher.matches()) return fileName;
+            if (fileName.matches(regex)) return fileName;
         }
         throw new FileNotFoundException("Updater file not found!");
     }
