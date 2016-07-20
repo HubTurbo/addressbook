@@ -66,8 +66,8 @@ Releasing a stable version: Merge `early-access` branch to `stable` branch.
   - Run `gradle` task `createInstallerJar`
     - If there is any compile-time error, resolve them first before continuing on the next step.
 3. Update version numberings
-  - Update the version of the application and its dependencies in `MainApp` and in `build.gradle`. If this is an early access version, set `IS_EARLY_ACCESS` in `MainApp`
-as `true` and add `ea` at the end of version in `build.gradle`.
+  - Update the version of the application and its dependencies in `MainApp` and in `build.gradle`. If this is an early access version, set `IS_EARLY_ACCESS` in `MainApp` as `true` and add `ea` at the end of version in `build.gradle`.
+    - For custom dependencies, manually check the commits to see if a package has been modified since the last release. If it has, modify its version numbering (usually bumping the minor or major version, according to semantic versioning).
 4. Update version data
   - Run `gradle` task `generateVersionData`
   - The console will print a list of libraries which needs to be updated for the new version
@@ -76,7 +76,7 @@ as `true` and add `ea` at the end of version in `build.gradle`.
   but the URL will follow GitHub release download link - `https://github.com/HubTurbo/addressbook/releases/download/<release version>/<filename>`.
   - Change the OS compatibility of the new libraries to ensure that only the libraries relevant to an OS will be loaded and checked
 5. Create a new commit
-  - Commit and push the  files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>` (with suffix `ea` if it's an early access version)
+  - Commit and push the files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>` (with suffix `ea` if it's an early access version)
   - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `VersionData.json`
 6. Draft a new release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
 7. Create the release JAR by running the Gradle task `createInstallerJar`
