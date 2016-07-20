@@ -45,7 +45,7 @@ public class VersionDataGenerator {
         try {
             previousVersionData = Optional.of(readVersionDataFromFile(VERSION_DATA_FILE));
         } catch (IOException e) {
-            System.out.println("Warning: Failed to read previous version data file: " + e.getMessage());
+            System.out.println("Warning: Failed to read previous version data file.");
             previousVersionData = Optional.empty();
         }
 
@@ -123,8 +123,7 @@ public class VersionDataGenerator {
 
     private void notifyOfNewLibraries(List<LibraryDescriptor> libraryDescriptors) {
         System.out.println("------------------------------------------------------------");
-        System.out.println("New libraries to be uploaded");
-        System.out.println("For each library below, get download URL and set its OS:");
+        System.out.println("For each updated library below, modify download URL if needed and set its OS:");
         libraryDescriptors.stream().filter(libDesc -> libDesc.getOs() == null)
                 .forEach(libDesc -> System.out.println(libDesc.getFileName()));
         System.out.println("------------------------------------------------------------");
