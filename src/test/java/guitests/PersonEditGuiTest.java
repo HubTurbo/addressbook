@@ -186,6 +186,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.pressEnter();
 
         personListPanel.focusOnMainApp();
+        personListPanel.clickOnPerson(newAlice);
 
         assertNotEquals(alicePersonCard, td.alice);
         assertEquals(alicePersonCard, newAlice);
@@ -206,6 +207,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.focusOnMainApp();
 
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
+        personListPanel.clickOnPerson(pandaWong);
         PersonCardHandle pandaWongCardHandle = personListPanel.getSelectedCards().get(0);
         assertNotNull(pandaWongCardHandle);
         assertEquals(pandaWongCardHandle, pandaWong);

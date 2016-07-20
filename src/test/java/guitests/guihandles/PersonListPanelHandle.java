@@ -205,7 +205,7 @@ public class PersonListPanelHandle extends GuiHandle {
     public EditPersonDialogHandle clickEdit() {
         guiRobot.clickOn(EDIT_BUTTON_ID);
         guiRobot.sleep(500);
-        return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.ADD_TITLE);
+        return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
     }
 
     public void dragAndDrop(String firstNameOfPersonToDrag, String firstNameOfPersonToDropOn) {
