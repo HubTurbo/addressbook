@@ -28,6 +28,7 @@ public class EditPersonDialogHandle extends GuiHandle {
 
     public EditPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage);
+        focusOnWindow(TITLE);
     }
 
     public boolean isValidEditDialog() {
@@ -106,7 +107,6 @@ public class EditPersonDialogHandle extends GuiHandle {
     public TagPersonDialogHandle openTagPersonDialog() {
         guiRobot.clickOn(TAG_SEARCH_FIELD_ID)
                 .sleep(200); // wait for opening animation
-        focusOnLastOpenedWindow();
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 

@@ -15,7 +15,6 @@ public class MainMenuHandle extends GuiHandle {
 
     public GuiHandle clickOn(String... menuText) {
         Arrays.stream(menuText).forEach((menuItem) -> guiRobot.clickOn(menuItem));
-        focusOnLastOpenedWindow();
         return this;
     }
 }

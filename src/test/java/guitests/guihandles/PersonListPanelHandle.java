@@ -139,8 +139,6 @@ public class PersonListPanelHandle extends GuiHandle {
     public EditPersonDialogHandle use_PERSON_EDIT_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_EDIT_ACCELERATOR);
         guiRobot.sleep(500);
-        focusOnLastOpenedWindow();
-        //guiRobot.targetWindow(EditPersonDialogHandle.TITLE);
         return new EditPersonDialogHandle(guiRobot, primaryStage);
     }
 
@@ -164,7 +162,6 @@ public class PersonListPanelHandle extends GuiHandle {
             case EDIT:
                 clickOn("#editMenuItem");
                 guiRobot.sleep(500);
-                focusOnLastOpenedWindow();
                 return new EditPersonDialogHandle(guiRobot, primaryStage);
             case TAG:
                 clickOn("#tagMenuItem");

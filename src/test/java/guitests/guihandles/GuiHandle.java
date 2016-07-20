@@ -41,9 +41,15 @@ public class GuiHandle {
         }
     }
 
-    public void focusOnLastOpenedWindow() {
+    public void focusOnWindow(String stageTitle) {
         //List<Window> windows = guiRobot.listTargetWindows();
-        guiRobot.interact(() -> guiRobot.targetWindow().requestFocus());
+        guiRobot.interact(() -> guiRobot.listTargetWindows()
+                                        .stream()
+                                        .filter(w
+                                                -> w instanceof Stage
+                                                    && ((Stage)w).getTitle().equals(stageTitle)).findAny()
+                                                                                                .get()
+                                                                                                .requestFocus());
     }
     public void focusOnMainApp() {
 
