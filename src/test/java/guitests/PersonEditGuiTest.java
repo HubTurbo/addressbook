@@ -99,20 +99,20 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
         personListPanel.sleep(1, TimeUnit.SECONDS);
         file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("key1.png"));
+        Files.copy(file, new File("key2.png"));
         System.out.println("Selected Person: " + personListPanel.getSelectedPerson().toString());
 
         //assertTrue(personListPanel.isSelected(td.benson));
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
         personListPanel.sleep(1, TimeUnit.SECONDS);
         file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("key1.png"));
+        Files.copy(file, new File("key3.png"));
         System.out.println("Selected Person: " + personListPanel.getSelectedPerson().toString());
         //assertTrue(personListPanel.isSelected(td.charlie));
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
         personListPanel.sleep(1, TimeUnit.SECONDS);
         file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("key1.png"));
+        Files.copy(file, new File("key4.png"));
         System.out.println("Selected Person: " + personListPanel.getSelectedPerson().toString());
         //assertTrue(personListPanel.isSelected(td.dan));
         fail();
