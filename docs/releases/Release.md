@@ -77,9 +77,7 @@ Releasing a stable version: Merge `early-access` branch to `stable` branch.
       - Information of unchanged libraries will be copied from the old `VersionData.json`
       - The console will print a list of libraries which needs to be updated for the new version
   - Upload the main application and its updated dependencies (all found in `lib`)
-    - For the main application
-      `resource-\<version\>.jar`, we will upload the new release we are about to create after this, the URL will follow GitHub release download link: `https://github.com/HubTurbo/addressbook/releases/download/<release version>/<filename>`.
-    - For other components and dependencies, upload them to https://github.com/HubTurbo/addressbook/releases/tag/Resources
+    - Upload them to https://github.com/HubTurbo/addressbook/releases/tag/Resources
   - Open `VersionData.json` and manually update the new fields accordingly
     - Fill in the links to download the new libraries.
     - Change the OS compatibility of the new libraries to ensure that only the libraries relevant to an OS will be loaded and checked
