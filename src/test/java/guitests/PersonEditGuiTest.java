@@ -83,13 +83,13 @@ public class PersonEditGuiTest extends GuiTestBase {
 */
         //Confirm other cards are unaffected
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1);
-        assertEquals(personListPanel.getPersonCardHandle(1), td.benson);
+        assertTrue(personListPanel.isSelected(td.alice));
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
-        assertEquals(personListPanel.getPersonCardHandle(2), td.charlie);
+        assertTrue(personListPanel.isSelected(td.benson));
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
-        assertEquals(personListPanel.getPersonCardHandle(3), td.dan);
+        assertTrue(personListPanel.isSelected(td.charlie));
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
-        assertEquals(personListPanel.getPersonCardHandle(4), td.elizabeth);
+        assertTrue(personListPanel.isSelected(td.dan));
 
         //Confirm status bar is updated correctly
         //assertEquals(statusBar.getText(), "Alice Brown (old) -> Alicia Brownstone (new) has been edited successfully.");
