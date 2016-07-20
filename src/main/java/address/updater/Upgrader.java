@@ -1,6 +1,5 @@
 package address.updater;
 
-import commons.FileUtil;
 import commons.UpdaterUtil;
 
 import java.io.File;
@@ -8,11 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
- * This class is meant to replace the old components with the new components
+ * This class is meant to replace the old components with new components
  */
 public class Upgrader {
-    private static final int MAX_RETRIES = 10;
-    private static final int WAIT_TIME = 2000;
     private static final String UPDATE_DIR = "update";
     private static final String LIB_DIR = "lib";
     private static final String CUR_DIR = ".";
@@ -30,33 +27,32 @@ public class Upgrader {
     /**
      * Attempts to upgrade the updater file if required
      *
-     * Assumes that the new version has the same path from UPDATE_DIR
+     * Assumes that the new version has the same path starting from UPDATE_DIR
      *
      * @throws IOException
      */
     public void upgradeUpdaterIfRequired() throws IOException {
         if (updaterFileName == null) return;
-
-        UpdaterUtil.deleteFile(findComponentFileName(LIB_DIR, UPDATER_FILE_REGEX), MAX_RETRIES, WAIT_TIME);
-        UpdaterUtil.updateFile(UPDATE_DIR, updaterFileName, MAX_RETRIES, WAIT_TIME);
+        UpdaterUtil.deleteFile(findComponentFileName(LIB_DIR, UPDATER_FILE_REGEX));
+        UpdaterUtil.updateFile(UPDATE_DIR, updaterFileName);
     }
 
     /**
      * Attempts to upgrade the launcher file
      *
-     * Assumes that the new version has the same path from UPDATE_DIR
+     * Assumes that the new version has the same path starting from UPDATE_DIR
      *
      * @throws IOException
      */
     public void upgradeLauncher() throws IOException {
-        UpdaterUtil.deleteFile(findComponentFileName(CUR_DIR, LAUNCHER_FILE_REGEX), MAX_RETRIES, WAIT_TIME);
-        UpdaterUtil.updateFile(UPDATE_DIR, launcherFileName, MAX_RETRIES, WAIT_TIME);
+        UpdaterUtil.deleteFile(findComponentFileName(CUR_DIR, LAUNCHER_FILE_REGEX));
+        UpdaterUtil.updateFile(UPDATE_DIR, launcherFileName);
     }
 
     /**
      * Finds, in the directory at dirPath, a file name that matches the given regex
      *
-     * @param dirPath
+     * @param dirPath must be a valid directory
      * @param regex
      * @return
      * @throws FileNotFoundException
@@ -71,15 +67,15 @@ public class Upgrader {
     /**
      * Attempts to get the file which matching file name as the given regex
      *
-     * @param curDirFilesNames
+     * @param fileNames
      * @param regex
      * @return file name of matching file
      * @throws FileNotFoundException if no file name matches the given regex
      */
-    private String getFileNameOfRegexMatch(String[] curDirFilesNames, String regex) throws FileNotFoundException {
-        for (String fileName : curDirFilesNames) {
+    private String getFileNameOfRegexMatch(String[] fileNames, String regex) throws FileNotFoundException {
+        for (String fileName : fileNames) {
             if (fileName.matches(regex)) return fileName;
         }
-        throw new FileNotFoundException("File not found!");
+        throw new FileNotFoundException("File matching " + regex + " not found!");
     }
 }

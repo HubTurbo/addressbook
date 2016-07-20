@@ -1,5 +1,6 @@
 package updater;
 
+import commons.UpdaterUtil;
 import commons.Version;
 import commons.VersionData;
 import commons.FileUtil;
@@ -17,15 +18,11 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static commons.UpdaterUtil.updateFile;
-
 /**
  * This class is meant to perform pending updates that have been successfully downloaded
- * It does so by reading local update specifications from a file, then replace specified files
+ * It does so by reading local update specifications from a file, and then replacing specified files
  */
 public class UpdateMigrator extends Application {
-    private static final int MAX_RETRIES = 10;
-    private static final int WAIT_TIME = 2000;
     private static final String ERROR_ON_UPDATING_MESSAGE = "There was an error in updating.";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
@@ -81,7 +78,7 @@ public class UpdateMigrator extends Application {
 
         updateBackups();
         applyUpdateToAllFiles(sourceDir, updateSpecifications);
-        deleteFile(updateSpecificationFilePath);
+        UpdaterUtil.deleteFile(updateSpecificationFilePath);
     }
 
     /**
@@ -92,10 +89,6 @@ public class UpdateMigrator extends Application {
         BackupHandler backupHandler = new BackupHandler(readCurrentVersionFromFile());
         backupHandler.createAppBackup();
         backupHandler.cleanupBackups();
-    }
-
-    private void deleteFile(String updateSpecFilePath) throws IOException {
-        FileUtil.deleteFile(updateSpecFilePath);
     }
 
     private List<String> getUpdateSpecifications(String updateSpecificationFilePath) throws IOException {
@@ -117,7 +110,7 @@ public class UpdateMigrator extends Application {
     private void applyUpdateToAllFiles(String sourceDir, List<String> filesToBeUpdated) throws IOException {
         for (String fileToUpdate : filesToBeUpdated) {
             System.out.println("Updating file: " + fileToUpdate);
-            updateFile(sourceDir, fileToUpdate, MAX_RETRIES, WAIT_TIME);
+            UpdaterUtil.updateFile(sourceDir, fileToUpdate);
         }
     }
 

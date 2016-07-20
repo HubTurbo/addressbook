@@ -5,6 +5,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class UpdaterUtil {
+    private static final int DEFAULT_MAX_RETRIES = 10;
+    private static final int DEFAULT_WAIT_TIME_BETWEEN_RETRIES = 2000;
     /**
      * Attempts to move the file from source to dest
      * Source file will not be kept and destination file will be overwritten
@@ -78,6 +80,26 @@ public class UpdaterUtil {
             if (i != maxRetries - 1) sleepFor(waitTime);
         }
         throw new IOException("File " + fileToDeletePath + " cannot be deleted. Most likely it is in use by another process.");
+    }
+
+    /**
+     * Attempts to update the target file with default number of retries and wait time
+     *
+     * @param sourceDir
+     * @param fileToUpdatePath
+     * @throws IOException
+     */
+    public static void updateFile(String sourceDir, String fileToUpdatePath) throws IOException {
+        updateFile(sourceDir, fileToUpdatePath, DEFAULT_MAX_RETRIES, DEFAULT_WAIT_TIME_BETWEEN_RETRIES);
+    }
+
+    /**
+     * Attempts to delete the target file with default number of retries and wait time
+     * @param fileToDeletePath
+     * @throws IOException
+     */
+    public static void deleteFile(String fileToDeletePath) throws IOException {
+        deleteFile(fileToDeletePath, DEFAULT_MAX_RETRIES, DEFAULT_WAIT_TIME_BETWEEN_RETRIES);
     }
 
     private static boolean applyDelete(String filePath) {
