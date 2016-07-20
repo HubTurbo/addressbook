@@ -10,7 +10,7 @@ plugins {
 }
 
 allprojects {
-    version = 'V1.4.0ea'
+    version = 'V1.4.1ea'
 
     apply plugin: 'idea'
     apply plugin: 'java'
@@ -59,7 +59,7 @@ allprojects {
         // Commons and Updater versions to be updated here on release
         commonsArchiveName = 'commons-0.0.0.jar'
 
-        updaterArchiveName = "updater-0.0.0.jar"
+        updaterArchiveName = "updater-0.0.1.jar"
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         mainAppMainClass = 'address.MainApp'

@@ -30,7 +30,7 @@ public class MainApp extends Application {
 
     private static final int VERSION_MAJOR = 1;
     private static final int VERSION_MINOR = 4;
-    private static final int VERSION_PATCH = 0;
+    private static final int VERSION_PATCH = 1;
     private static final boolean VERSION_EARLY_ACCESS = true;
 
     public static final commons.Version VERSION = new commons.Version(
