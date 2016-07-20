@@ -36,7 +36,8 @@ public class Upgrader {
      */
     public void upgradeUpdaterIfRequired() throws IOException {
         if (updaterFileName == null) return;
-        FileUtil.deleteFile(findComponentFileName(LIB_DIR, UPDATER_FILE_REGEX));
+
+        UpdaterUtil.deleteFile(findComponentFileName(LIB_DIR, UPDATER_FILE_REGEX), MAX_RETRIES, WAIT_TIME);
         UpdaterUtil.updateFile(UPDATE_DIR, updaterFileName, MAX_RETRIES, WAIT_TIME);
     }
 
@@ -48,10 +49,18 @@ public class Upgrader {
      * @throws IOException
      */
     public void upgradeLauncher() throws IOException {
-        FileUtil.deleteFile(findComponentFileName(CUR_DIR, LAUNCHER_FILE_REGEX));
+        UpdaterUtil.deleteFile(findComponentFileName(CUR_DIR, LAUNCHER_FILE_REGEX), MAX_RETRIES, WAIT_TIME);
         UpdaterUtil.updateFile(UPDATE_DIR, launcherFileName, MAX_RETRIES, WAIT_TIME);
     }
 
+    /**
+     * Finds, in the directory at dirPath, a file name that matches the given regex
+     *
+     * @param dirPath
+     * @param regex
+     * @return
+     * @throws FileNotFoundException
+     */
     private String findComponentFileName(String dirPath, String regex) throws FileNotFoundException {
         File curDir = new File(dirPath);
         String[] curDirFilesNames = curDir.list();

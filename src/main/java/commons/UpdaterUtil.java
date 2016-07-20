@@ -58,7 +58,35 @@ public class UpdaterUtil {
             if (applyUpdate(source, dest)) return;
             if (i != maxRetries - 1) sleepFor(waitTime);
         }
-        throw new IOException("Jar file cannot be updated. Most likely it is in use by another process.");
+        throw new IOException("File " + fileToUpdatePath + " cannot be updated. Most likely it is in use by another process.");
+    }
+
+    /**
+     * Attempts to delete the target file
+     *
+     * In some platforms (Windows in particular), JAR file cannot be modified if it was executed and
+     * the process it created has not ended yet. As such, we will make several tries with wait.
+     *
+     * @param fileToDeletePath the file to delete from the project directory
+     * @param maxRetries maximum number of retries
+     * @param waitTime amount of time to wait between retries
+     * @throws IOException
+     */
+    public static void deleteFile(String fileToDeletePath, int maxRetries, int waitTime) throws IOException {
+        for (int i = 0; i < maxRetries; i++) {
+            if (applyDelete(fileToDeletePath)) return;
+            if (i != maxRetries - 1) sleepFor(waitTime);
+        }
+        throw new IOException("File " + fileToDeletePath + " cannot be deleted. Most likely it is in use by another process.");
+    }
+
+    private static boolean applyDelete(String filePath) {
+        try {
+            FileUtil.deleteFile(filePath);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     private static void createFileAndParentDirs(Path dest) throws IOException {
