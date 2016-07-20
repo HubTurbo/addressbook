@@ -84,13 +84,12 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 */
-        //Confirm other cards are unaffected
-        personListPanel.sleep(30, TimeUnit.SECONDS);
+        //Confirm other cards are unaffected.
 
         //personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1);
         //assertTrue(personListPanel.isSelected(td.alice));
-        personListPanel.clickOnPerson("Alice");
-        personListPanel.sleep(1, TimeUnit.SECONDS);
+        //personListPanel.clickOnPerson(td.alice);
+        personListPanel.getListView().requestFocus();
         File file;
         file = GuiTest.captureScreenshot();
         Files.copy(file, new File("key1.png"));
