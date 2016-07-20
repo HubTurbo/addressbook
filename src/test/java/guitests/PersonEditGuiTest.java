@@ -73,6 +73,9 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Confirm the underlying person object has the right values
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 
+        personListPanel.focusOnMainApp();
+
+
         //Confirm again after the next sync
         personListPanel.sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
