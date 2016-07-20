@@ -55,8 +55,8 @@ public class Updater {
             "https://raw.githubusercontent.com/HubTurbo/addressbook/early-access/VersionData.json";
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
     private static final String LIB_DIR = "lib" + File.separator;
-    private static final String MAIN_APP_FILEPATH = LIB_DIR + "resource.jar";
     private static final String UPDATER_FILE_REGEX = LIB_DIR + "updater-\\d\\.\\d\\.\\d\\.jar";
+    private static final String LAUNCHER_FILE_REGEX = "launcher-V\\d\\.\\d\\.\\d\\.jar";
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final Version currentVersion;
@@ -240,10 +240,7 @@ public class Updater {
         List<LibraryDescriptor> librariesForOs = getLibrariesForOs(versionData.getLibraries(), commons.OsDetector.getOs());
         List<LibraryDescriptor> librariesToDownload = getLibrariesToDownload(librariesForOs);
 
-        HashMap<String, URL> filesToBeDownloaded = getLibraryFilesDownloadLinks(librariesToDownload);
-        filesToBeDownloaded.put(MAIN_APP_FILEPATH, versionData.getDownloadLinkForMainApp());
-
-        return filesToBeDownloaded;
+        return getLibraryFilesDownloadLinks(librariesToDownload);
     }
 
     private List<LibraryDescriptor> getLibrariesToDownload(List<LibraryDescriptor> requiredLibraryFiles) {
@@ -253,16 +250,26 @@ public class Updater {
     }
 
     /**
-     * Converts a list of library files into a map of filenames and their respective download urls
+     * Converts a list of library files into a map of file paths and their respective download urls
      *
      * @param libraryFiles
      * @return
      */
     private HashMap<String, URL> getLibraryFilesDownloadLinks(List<LibraryDescriptor> libraryFiles) {
         HashMap<String, URL> filesToBeDownloaded = new HashMap<>();
-        libraryFiles.forEach(libDesc -> filesToBeDownloaded.put(LIB_DIR + libDesc.getFileName(),
-                                                                libDesc.getDownloadLink()));
+        libraryFiles.forEach(libDesc -> {
+            String filePath = getFilePath(libDesc.getFileName());
+            filesToBeDownloaded.put(filePath, libDesc.getDownloadLink());
+        });
         return filesToBeDownloaded;
+    }
+
+    private String getFilePath(String fileName) {
+        if (fileName.matches(LAUNCHER_FILE_REGEX)) {
+            return fileName;
+        } else {
+            return LIB_DIR + fileName;
+        }
     }
 
     /**

@@ -6,17 +6,16 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Lists latest application's version, main app download link and libraries descriptors
  */
-@JsonPropertyOrder({ "version", "mainApp", "libraries" })
+@JsonPropertyOrder({ "version", "libraries" })
 public class VersionData {
     @JsonProperty("version")
     private String versionString;
-    @JsonProperty("mainApp")
-    private URL mainAppDownloadLink;
-    private ArrayList<LibraryDescriptor> libraries = new ArrayList<>();
+    private List<LibraryDescriptor> libraries = new ArrayList<>();
 
     public VersionData() {} // required for serialization
 
@@ -28,19 +27,11 @@ public class VersionData {
         this.versionString = versionString;
     }
 
-    public void setMainAppDownloadLink(String mainAppDownloadLinkString) throws MalformedURLException {
-        this.mainAppDownloadLink = new URL(mainAppDownloadLinkString);
-    }
-
-    public void setLibraries(ArrayList<LibraryDescriptor> libraries) {
+    public void setLibraries(List<LibraryDescriptor> libraries) {
         this.libraries = libraries;
     }
 
-    public ArrayList<LibraryDescriptor> getLibraries() {
+    public List<LibraryDescriptor> getLibraries() {
         return libraries;
-    }
-
-    public URL getDownloadLinkForMainApp() {
-        return mainAppDownloadLink;
     }
 }
