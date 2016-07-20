@@ -1,12 +1,12 @@
 {
-  "version" : "V1.5.0ea",
+  "version" : "V1.5.1ea",
   "libraries" : [ {
-    "filename" : "resource-V1.5.0ea.jar",
-    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/Resources/resource-V1.5.0ea.jar",
+    "filename" : "resource-V1.5.1ea.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/Resources/resource-V1.5.1ea.jar",
     "os" : "ANY"
   }, {
-    "filename" : "addressbook-V1.5.0ea.jar",
-    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/Resources/addressbook-V1.5.0ea.jar",
+    "filename" : "addressbook-V1.5.1ea.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/Resources/addressbook-V1.5.1ea.jar",
     "os" : "ANY"
   }, {
     "filename" : "licence.jar",
