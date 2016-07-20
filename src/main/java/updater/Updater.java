@@ -53,7 +53,7 @@ public class Updater {
     private static final String VERSION_DATA_ON_SERVER_EARLY_ACCESS =
             "https://raw.githubusercontent.com/HubTurbo/addressbook/early-access/VersionData.json";
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
-    private static final String LIB_DIR = "lib" + File.separator;
+    private static final String LIB_DIR = "lib/";
     private static final String UPDATER_FILE_REGEX = LIB_DIR + "updater-\\d\\.\\d\\.\\d\\.jar";
     private static final String LAUNCHER_FILE_REGEX = "addressbook-V\\d\\.\\d\\.\\d(ea)?\\.jar";
 
