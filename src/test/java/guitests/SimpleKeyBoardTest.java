@@ -7,11 +7,13 @@ import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.stage.Window;
 import org.junit.Test;
 import org.loadui.testfx.GuiTest;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import static junit.framework.TestCase.fail;
@@ -46,7 +48,9 @@ public class SimpleKeyBoardTest extends GuiTestBase {
         robot.clickOn("Alice");
         robot.push(KeyCode.E).sleep(500);
 
-        robot.targetWindow("Edit Person");
+        List<Window> windows = robot.listTargetWindows();
+
+        robot.targetWindow(windows.get(1));
 
         //TextField node = robot.lookup("#firstNameField").query();
        // doubleClickOnNode(robot, node);
