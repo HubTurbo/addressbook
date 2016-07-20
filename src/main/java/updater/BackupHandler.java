@@ -47,7 +47,7 @@ public class BackupHandler {
 
         createBackupDirIfMissing();
         extractFile(BACKUP_INSTRUCTION_RESOURCE_PATH, BACKUP_INSTRUCTION_FILENAME);
-        makeBackupCopy(mainAppJar, currentVersion);
+        saveAppAsBackup(mainAppJar, currentVersion);
     }
 
     /**
@@ -76,9 +76,9 @@ public class BackupHandler {
         dependencyHistoryHandler.cleanUpUnusedDependencies(deletedVersions);
     }
 
-    private void makeBackupCopy(File mainAppJar, commons.Version version) throws IOException {
+    private void saveAppAsBackup(File mainAppJar, commons.Version version) throws IOException {
         String backupFilename = getBackupFilename(version);
-        FileUtil.copyFile(mainAppJar.toPath(), Paths.get(BACKUP_DIR, backupFilename), true);
+        FileUtil.moveFile(mainAppJar.toPath(), Paths.get(BACKUP_DIR, backupFilename), true);
     }
 
     private void createBackupDirIfMissing() throws IOException {
