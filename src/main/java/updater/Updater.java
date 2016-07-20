@@ -170,7 +170,7 @@ public class Updater {
 
     private String getLauncherFile(HashMap<String, URL> filesToBeUpdated) {
         return filesToBeUpdated.keySet().stream()
-                .filter(file -> file.matches(UPDATER_FILE_REGEX))
+                .filter(file -> file.matches(LAUNCHER_FILE_REGEX))
                 .findAny()
                 .get();
     }
