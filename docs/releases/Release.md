@@ -64,30 +64,29 @@ References to how teams have multiple release channel:
  - Releasing an early-access version: Merge `master` branch to `early-access` branch.  
 Releasing a stable version: Merge `early-access` branch to `stable` branch.
     - \*Use `git merge --no-commit --no-ff` (LOCALLY) so that a merge commit won't be made, in which you can make relevant changes (e.g. changing version number and early access flag) before committing with the version of the software as the commit message.
-2. Ensure that binaries can be compiled
-  - Run `gradle` task `createInstallerJar`
-    - If there is any compile-time error, resolve them first before continuing on to the next step.
-3. Update version numberings
+2. Update version numberings
   - Update the versions of the application and its dependencies in `MainApp` and in `build.gradle`.
     - If the main application is an early access version, set `IS_EARLY_ACCESS` in `MainApp` as `true` and add `ea` at the end of version in `build.gradle`.
     - For custom dependencies, manually check the commits to see if its package has been modified since the last release. If it has, modify its version numbering (usually bumping the minor or major version, according to semantic versioning).
-4. Update version data
+3. Compile the custom dependencies
+  - Run `gradle` task `createInstallerJar`
+3. Update version data
+  - Upload all updated libraries
+    - Upload them to https://github.com/HubTurbo/addressbook/releases/tag/Resources
   - Run `gradle` task `generateVersionData`
     - Generates a `VersionData.json` containing the updated list of libraries and their information
       - Information of unchanged libraries will be copied from the old `VersionData.json`
       - The console will print a list of libraries which needs to be updated for the new version
-  - Upload the main application and its updated dependencies (all found in `lib`)
-    - Upload them to https://github.com/HubTurbo/addressbook/releases/tag/Resources
   - Open `VersionData.json` and manually update the new fields accordingly
     - Fill in the links to download the new libraries.
     - Change the OS compatibility of the new libraries to ensure that only the libraries relevant to an OS will be loaded and checked
-5. Create a new commit
+4. Create a new commit
   - Commit and push the files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>` (with suffix `ea` if it's an early access version)
   - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `VersionData.json`
-6. Draft a new release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
-7. Create the release JAR by running the Gradle task `createInstallerJar`
-  - this must be run again to use the updated `MainApp.java`, `build.gradle` and `VersionData.json`
-8. Upload the generated `installer-V*.*.*.jar` found at `build/libs` to the latest release.
+5. Draft a new release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
+6. Create the release JAR by running the Gradle task `createInstallerJar`
+  - this must be run again to use the updated `VersionData.json`
+7. Upload the generated `installer-V*.*.*.jar` found at `build/libs` to the latest release.
 
 ## More About Release
 The main application of `addressbook` is configured to be released as a [non-fat JAR](http://stackoverflow.com/questions/19150811/what-is-a-fat-jar),
