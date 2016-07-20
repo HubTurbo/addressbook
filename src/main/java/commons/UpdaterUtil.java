@@ -41,6 +41,8 @@ public class UpdaterUtil {
      * In some platforms (Windows in particular), JAR file cannot be modified if it was executed and
      * the process it created has not ended yet. As such, we will make several tries with wait.
      *
+     * Source file will not be kept
+     *
      * @param sourceDir the (temp) directory which contains the newer version of the file
      * @param fileToUpdatePath the path of the resulting file from the project directory
      * @param maxRetries maximum number of retries

@@ -41,7 +41,6 @@ public class Updater {
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_UPDATE_NOT_SUPPORTED = "Update not supported on detected OS";
     private static final String MSG_FAIL_OBTAIN_LATEST_VERSION_DATA = "Unable to obtain latest version data. Please manually download the latest version.";
-    private static final String MSG_NO_UPDATE = "There is no update";
     private static final String MSG_FAIL_READ_LATEST_VERSION = "Error reading latest version";
     private static final String MSG_NO_NEWER_VERSION = "No newer version to be downloaded";
     private static final String MSG_UPDATE_FINISHED = "Update will be applied on next launch";
@@ -105,7 +104,7 @@ public class Updater {
         assert isOnSameReleaseChannel(latestVersion) : "Error: latest version found to be in the wrong release channel";
 
         if (currentVersion.compareTo(latestVersion) >= 0) {
-            updateInformationNotifier.sendStatusFinishedWithoutUpdaterUpgrade(MSG_NO_NEWER_VERSION);
+            updateInformationNotifier.sendStatusFinishedWithoutUpdates(MSG_NO_NEWER_VERSION);
             return;
         }
 
@@ -118,10 +117,7 @@ public class Updater {
             return;
         }
 
-        if (filesToBeUpdated.isEmpty()) {
-            updateInformationNotifier.sendStatusFinishedWithoutUpdaterUpgrade(MSG_NO_UPDATE);
-            return;
-        }
+        assert !filesToBeUpdated.isEmpty() : "No files to be updated"; // at least launcher and main app must be updated
 
         try {
             createUpdateDir();
@@ -138,9 +134,11 @@ public class Updater {
 
         updateInformationNotifier.sendStatusInProgress("Finalizing updates", -1);
         Optional<String> updaterFile = getUpdaterFile(filesToBeUpdated);
+        String launcherFile = getLauncherFile(filesToBeUpdated);
         if (updaterFile.isPresent()) {
             filesToBeUpdated.remove(updaterFile.get()); // remove updater from the set since we will be upgrading it before the app closes
         }
+        filesToBeUpdated.remove(launcherFile);
 
         try {
             createUpdateSpecification(filesToBeUpdated);
@@ -158,9 +156,9 @@ public class Updater {
         }
 
         if (updaterFile.isPresent()) {
-            updateInformationNotifier.sendStatusFinishedWithUpdaterUpgrade(MSG_UPDATE_FINISHED, updaterFile.get());
+            updateInformationNotifier.sendStatusFinishedWithUpdaterUpgrade(MSG_UPDATE_FINISHED, launcherFile, updaterFile.get());
         } else {
-            updateInformationNotifier.sendStatusFinishedWithoutUpdaterUpgrade(MSG_UPDATE_FINISHED);
+            updateInformationNotifier.sendStatusFinishedWithoutUpdaterUpgrade(MSG_UPDATE_FINISHED, launcherFile);
         }
     }
 
@@ -168,6 +166,13 @@ public class Updater {
         return filesToBeUpdated.keySet().stream()
                 .filter(file -> file.matches(UPDATER_FILE_REGEX))
                 .findAny();
+    }
+
+    private String getLauncherFile(HashMap<String, URL> filesToBeUpdated) {
+        return filesToBeUpdated.keySet().stream()
+                .filter(file -> file.matches(LAUNCHER_FILE_REGEX))
+                .findAny()
+                .get();
     }
 
     private void createUpdateDir() throws IOException {

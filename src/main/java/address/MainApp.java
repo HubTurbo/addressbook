@@ -9,7 +9,7 @@ import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
 import address.updater.UpdateProgressNotifier;
-import address.updater.UpdaterUpgrader;
+import address.updater.Upgrader;
 import commons.UpdateInformationNotifier;
 import commons.Version;
 import updater.Updater;
@@ -29,8 +29,8 @@ public class MainApp extends Application {
     private static final AppLogger logger = LoggerManager.getLogger(MainApp.class);
 
     private static final int VERSION_MAJOR = 1;
-    private static final int VERSION_MINOR = 4;
-    private static final int VERSION_PATCH = 1;
+    private static final int VERSION_MINOR = 5;
+    private static final int VERSION_PATCH = 0;
     private static final boolean VERSION_EARLY_ACCESS = true;
 
     public static final commons.Version VERSION = new commons.Version(
@@ -133,10 +133,11 @@ public class MainApp extends Application {
                 updateProgressNotifier::sendStatusFinished,
                 updateProgressNotifier::sendStatusFailed,
                 updateProgressNotifier::sendStatusInProgress,
-                (upgradeUpdater) -> {
-                    UpdaterUpgrader updaterUpgrader = new UpdaterUpgrader(upgradeUpdater);
+                (launcherFilePath, updaterFilePath) -> {
+                    Upgrader upgrader = new Upgrader(launcherFilePath, updaterFilePath.orElse(null));
                     try {
-                        updaterUpgrader.upgradeUpdater();
+                        upgrader.upgradeUpdaterIfRequired();
+                        upgrader.upgradeLauncher();
                     } catch (IOException e) {
                         logger.warn("Error upgrading updater: {}", e);
                     }

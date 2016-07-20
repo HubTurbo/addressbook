@@ -1,12 +1,12 @@
 {
-  "version" : "V1.4.1ea",
+  "version" : "V1.5.0ea",
   "libraries" : [ {
-    "filename" : "resource-V1.4.1ea.jar",
-    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/Resources/resource-V1.4.1ea.jar",
+    "filename" : "resource-V1.5.0ea.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/Resources/resource-V1.5.0ea.jar",
     "os" : "ANY"
   }, {
-    "filename" : "addressbook-V1.4.1ea.jar",
-    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/Resources/addressbook-V1.4.1ea.jar",
+    "filename" : "addressbook-V1.5.0ea.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/Resources/addressbook-V1.5.0ea.jar",
     "os" : "ANY"
   }, {
     "filename" : "licence.jar",
@@ -17,8 +17,8 @@
     "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/Resources/commons-0.0.0.jar",
     "os" : "ANY"
   }, {
-    "filename" : "updater-0.0.1.jar",
-    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/Resources/updater-0.0.1.jar",
+    "filename" : "updater-0.0.2.jar",
+    "downloadLink" : "https://github.com/HubTurbo/addressbook/releases/download/Resources/updater-0.0.2.jar",
     "os" : "ANY"
   }, {
     "filename" : "log4j-api-2.6.jar",

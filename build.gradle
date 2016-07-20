@@ -10,7 +10,7 @@ plugins {
 }
 
 allprojects {
-    version = 'V1.4.1ea'
+    version = 'V1.5.0ea'
 
     apply plugin: 'idea'
     apply plugin: 'java'
@@ -59,7 +59,7 @@ allprojects {
         // Commons and Updater versions to be updated here on release
         commonsArchiveName = 'commons-0.0.0.jar'
 
-        updaterArchiveName = "updater-0.0.1.jar"
+        updaterArchiveName = "updater-0.0.2.jar"
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         mainAppMainClass = 'address.MainApp'
@@ -194,8 +194,8 @@ allprojects {
 
     // Remove any old custom dependencies
     task deleteOldCustomDependenciesFromLibrary(type: Delete) {
-        delete fileTree(dir: ".", include: 'launcher-*.*.*.jar')
-        delete fileTree(dir: "$libDir", includes: ['updater-*.*.*.jar', 'commons-*.*.*.jar'])
+        delete fileTree(dir: ".", include: 'addressbook-V*.*.*.jar')
+        delete fileTree(dir: "$libDir", includes: ['updater-*.*.*.jar', 'commons-*.*.*.jar', 'resource-V*.*.*.jar'])
     }
 
     // Copy downloaded dependencies from Gradle's cache into the library directory
