@@ -4,6 +4,8 @@ import address.MainApp;
 import address.controller.MainController;
 import address.model.ModelManager;
 import address.model.UserPrefs;
+import address.updater.UpdateProgressNotifier;
+import commons.UpdateInformationNotifier;
 import address.util.Config;
 import address.util.GuiSettings;
 import javafx.scene.control.Alert;
@@ -15,6 +17,7 @@ import javafx.stage.Stage;
 public class Ui {
     MainController mainController;
     UserPrefs pref;
+    UpdateProgressNotifier updateProgressNotifier;
 
     public Ui(MainApp mainApp, ModelManager modelManager, Config config, UserPrefs pref){
         mainController = new MainController(mainApp, modelManager, config, pref);
@@ -23,10 +26,17 @@ public class Ui {
 
     public void start(Stage primaryStage) {
         mainController.start(primaryStage);
+        updateProgressNotifier = new UpdateProgressNotifier(mainController.getUpdateMessageReader(),
+                                                            mainController.getUpdateProgressReader(),
+                                                            mainController.getUpdateStatusReader());
     }
 
     public void showAlertDialogAndWait(Alert.AlertType alertType, String alertTitle, String headerText, String contentText) {
         mainController.showAlertDialogAndWait(alertType, alertTitle, headerText, contentText);
+    }
+
+    public UpdateProgressNotifier getUpdateProgressNotifier() {
+        return updateProgressNotifier;
     }
 
     public void stop() {

@@ -1,7 +1,7 @@
 package address.sync.cloud;
 
 import address.util.AppLogger;
-import address.util.JsonUtil;
+import commons.JsonUtil;
 import address.util.LoggerManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 

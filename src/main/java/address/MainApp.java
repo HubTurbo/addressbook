@@ -7,16 +7,19 @@ import address.storage.StorageManager;
 import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
-import address.sync.cloud.IRemote;
 import address.ui.Ui;
-import address.updater.UpdateManager;
+import address.updater.UpdateProgressNotifier;
+import address.updater.UpdaterUpgrader;
+import commons.UpdateInformationNotifier;
+import commons.Version;
+import updater.Updater;
 import address.util.*;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -26,11 +29,11 @@ public class MainApp extends Application {
     private static final AppLogger logger = LoggerManager.getLogger(MainApp.class);
 
     private static final int VERSION_MAJOR = 1;
-    private static final int VERSION_MINOR = 3;
+    private static final int VERSION_MINOR = 4;
     private static final int VERSION_PATCH = 0;
     private static final boolean VERSION_EARLY_ACCESS = true;
 
-    public static final Version VERSION = new Version(
+    public static final commons.Version VERSION = new commons.Version(
             VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EARLY_ACCESS);
 
     /**
@@ -43,7 +46,7 @@ public class MainApp extends Application {
     protected StorageManager storageManager;
     protected ModelManager modelManager;
     protected SyncManager syncManager;
-    protected UpdateManager updateManager;
+    protected Updater updater;
     protected RemoteManager remoteManager;
     protected Ui ui;
     protected KeyBindingsManager keyBindingsManager;
@@ -80,11 +83,11 @@ public class MainApp extends Application {
         remoteManager = initRemoteManager(config);
         syncManager = initSyncManager(remoteManager, config);
         keyBindingsManager = initKeyBindingsManager();
-        updateManager = initUpdateManager(VERSION);
+        updater = initUpdater(VERSION);
     }
 
-    protected UpdateManager initUpdateManager(Version version) {
-        return new UpdateManager(version);
+    protected Updater initUpdater(Version version) {
+        return new Updater(version);
     }
 
     protected KeyBindingsManager initKeyBindingsManager() {
@@ -115,9 +118,30 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
-        updateManager.start();
+        if (ManifestFileReader.isRunFromJar()) {
+            updater.start(getUpdateInformationNotifier(ui));
+        } else {
+            ui.getUpdateProgressNotifier().sendStatusFinished("Developer environment; not running updater");
+        }
         storageManager.start();
         syncManager.start();
+    }
+
+    protected UpdateInformationNotifier getUpdateInformationNotifier(Ui ui) {
+        UpdateProgressNotifier updateProgressNotifier = ui.getUpdateProgressNotifier();
+        return new UpdateInformationNotifier(
+                updateProgressNotifier::sendStatusFinished,
+                updateProgressNotifier::sendStatusFailed,
+                updateProgressNotifier::sendStatusInProgress,
+                (upgradeUpdater) -> {
+                    UpdaterUpgrader updaterUpgrader = new UpdaterUpgrader(upgradeUpdater);
+                    try {
+                        updaterUpgrader.upgradeUpdater();
+                    } catch (IOException e) {
+                        logger.warn("Error upgrading updater: {}", e);
+                    }
+                }
+        );
     }
 
     @Override
@@ -125,7 +149,6 @@ public class MainApp extends Application {
         logger.info("Stopping application.");
         ui.stop();
         storageManager.savePrefsToFile(userPrefs);
-        updateManager.stop();
         syncManager.stop();
         keyBindingsManager.stop();
         quit();

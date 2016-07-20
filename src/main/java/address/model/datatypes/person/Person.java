@@ -309,7 +309,24 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 
     @Override
     public String toString() {
-        return "Person " + idString() + ": " + fullName();
+        return "Person [" + idString() + "][" + fullName()
+                + "][Street:" + getStreet()
+                + "][City:" + getCity()
+                + "][Postal code:" + getPostalCode()
+                + "][Birthday:" + birthdayString()
+                + "][GitHub Username:" + getGithubUsername()
+                + "][" + tagsString() + "]";
+    }
+
+    public Person copy() {
+        Person copy = new Person(this.getFirstName(), this.getLastName(), this.getId());
+        copy.setBirthday(this.getBirthday());
+        copy.setCity(this.getCity());
+        copy.setPostalCode(this.getPostalCode());
+        copy.setStreet(this.getStreet());
+        copy.setGithubUsername(this.getGithubUsername());
+        copy.setTags(this.getTags());
+        return copy;
     }
 
 }

@@ -1,9 +1,6 @@
 package address.controller;
 
 import address.MainApp;
-import address.events.CreateAddressBookOnRemoteRequestEvent;
-import address.events.LoadDataRequestEvent;
-import address.events.SaveDataRequestEvent;
 import address.keybindings.KeyBindingsManager;
 import address.model.ModelManager;
 import address.util.AppLogger;
@@ -11,17 +8,13 @@ import address.util.LoggerManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
-import javafx.stage.FileChooser;
-
-import java.io.File;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * The controller for the root layout. The root layout provides the basic
  * application layout containing a menu bar and space where other JavaFX
  * elements can be placed.
  */
-public class RootLayoutController extends UiController{
+public class RootLayoutController extends UiController {
     private static AppLogger logger = LoggerManager.getLogger(RootLayoutController.class);
 
     private MainController mainController;

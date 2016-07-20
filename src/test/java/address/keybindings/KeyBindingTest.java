@@ -3,7 +3,7 @@ package address.keybindings;
 
 import address.events.AcceleratorIgnoredEvent;
 import address.events.BaseEvent;
-import address.util.OsDetector;
+import commons.OsDetector;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import org.junit.Rule;

@@ -1,7 +1,7 @@
 package address.browser;
 
-import address.util.PlatformExecUtil;
-import address.util.TestUtil;
+import commons.PlatformExecUtil;
+import address.testutil.TestUtil;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;

@@ -1,20 +1,12 @@
 package guitests;
 
-import address.keybindings.Bindings;
 import address.model.datatypes.AddressBook;
-import address.model.datatypes.ReadOnlyAddressBook;
 import address.model.datatypes.person.Person;
-import address.util.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.TagPersonDialogHandle;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import address.sync.cloud.model.CloudAddressBook;
-import address.sync.cloud.model.CloudPerson;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Tests key bindings through the GUI
@@ -34,13 +26,8 @@ public class KeyBindingsGuiTest extends GuiTestBase {
     }
 
     @Override
-    protected ReadOnlyAddressBook getInitialData() {
+    protected AddressBook getInitialData() {
         return initialData;
-    }
-
-    @Override
-    protected CloudAddressBook getInitialCloudData() {
-        return TestUtil.generateCloudAddressBook(initialData);
     }
 
     @Test
@@ -103,12 +90,14 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         mainGui.use_APP_MINIMIZE_HOTKEY();
         assertTrue(mainGui.isMinimized());
 
-        mainGui.use_APP_RESIZE_HOTKEY(); //maximize the window
+        mainGui.use_APP_RESIZE_HOTKEY(); // un-minimize window
+        assertFalse(mainGui.isMinimized());
+
+        mainGui.use_APP_RESIZE_HOTKEY(); // maximize the window
         assertTrue(mainGui.isMaximized());
 
-        mainGui.use_APP_RESIZE_HOTKEY(); //set window to default size
+        mainGui.use_APP_RESIZE_HOTKEY(); // set window to default size
         assertTrue(mainGui.isDefaultSize());
-
     }
 
 

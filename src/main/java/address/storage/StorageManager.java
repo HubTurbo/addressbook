@@ -7,6 +7,9 @@ import address.model.UserPrefs;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
+import address.util.AppLogger;
+import commons.FileUtil;
+import address.util.LoggerManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -65,7 +68,7 @@ public class StorageManager extends ComponentManager {
 
     private static void createAndWriteToConfigFile(File configFile, Config config) {
         try {
-            serializeObjectToJsonFile(configFile, config);
+            FileUtil.serializeObjectToJsonFile(configFile, config);
         } catch (IOException e) {
             logger.warn("Error writing to config file {}.", configFile);
         }
@@ -97,7 +100,7 @@ public class StorageManager extends ComponentManager {
      */
     private static Config readFromConfigFile(File configFile) {
         try {
-            return deserializeObjectFromJsonFile(configFile, Config.class);
+            return FileUtil.deserializeObjectFromJsonFile(configFile, Config.class);
         } catch (IOException e) {
             logger.warn("Error reading from config file {}: {}", configFile, e);
             return new Config();
@@ -168,7 +171,7 @@ public class StorageManager extends ComponentManager {
      */
     public void savePrefsToFile(UserPrefs prefs) {
         try {
-            serializeObjectToJsonFile(userPrefsFile, prefs);
+            FileUtil.serializeObjectToJsonFile(userPrefsFile, prefs);
         } catch (IOException e) {
             raise(new FileSavingExceptionEvent(e, userPrefsFile));
         }
@@ -183,7 +186,7 @@ public class StorageManager extends ComponentManager {
 
         try {
             logger.debug("Attempting to load prefs from file: {}", prefsFile);
-            prefs = deserializeObjectFromJsonFile(prefsFile, UserPrefs.class);
+            prefs = FileUtil.deserializeObjectFromJsonFile(prefsFile, UserPrefs.class);
         } catch (IOException e) {
             logger.debug("Error loading prefs from file: {}", e);
         }
@@ -235,14 +238,5 @@ public class StorageManager extends ComponentManager {
     public ReadOnlyAddressBook getData() throws FileNotFoundException, DataConversionException {
         logger.debug("Attempting to read data from file: {}", saveFile);
         return XmlFileStorage.loadDataFromSaveFile(saveFile);
-    }
-
-    public static <T> void serializeObjectToJsonFile(File jsonFile, T objectToSerialize) throws IOException {
-        FileUtil.writeToFile(jsonFile, JsonUtil.toJsonString(objectToSerialize));
-    }
-
-    public static <T> T deserializeObjectFromJsonFile(File jsonFile, Class<T> classOfObjectToDeserialize)
-            throws IOException {
-        return JsonUtil.fromJsonString(FileUtil.readFromFile(jsonFile), classOfObjectToDeserialize);
     }
 }

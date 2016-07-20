@@ -6,7 +6,7 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.Config;
-import address.util.TestUtil;
+import address.testutil.TestUtil;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import org.junit.*;
@@ -85,8 +85,7 @@ public class AddPersonCommandTest {
 
         when(modelManagerMock.addViewablePersonWithoutBacking(notNull(ReadOnlyPerson.class))).thenReturn(createdViewable);
 
-        // to stop the run at start of grace period (right after simulated change)
-        doThrow(InterruptAndTerminateException.class).when(apc).beforeGracePeriod();
+        doThrow(InterruptAndTerminateException.class).when(apc).afterState(State.SIMULATING_RESULT);
         thrown.expect(InterruptAndTerminateException.class);
 
         apc.run();
@@ -112,7 +111,7 @@ public class AddPersonCommandTest {
 
     @Test
     public void retrievingInput_cancelsCommand_whenEmptyInputOptionalRetrieved() {
-        final AddPersonCommand apc = new AddPersonCommand(0, Optional::empty, 0, null, modelManagerMock, ADDRESSBOOK_NAME);
+        final AddPersonCommand apc = new AddPersonCommand(0, Optional::empty, 0, e -> {}, modelManagerMock, ADDRESSBOOK_NAME);
         apc.run();
         assertEquals(apc.getState(), State.CANCELLED);
     }
@@ -123,7 +122,7 @@ public class AddPersonCommandTest {
         final AddPersonCommand apc = spy(new AddPersonCommand(0, inputRetrieverWrapper(inputData), 0, null, modelManagerSpy, ADDRESSBOOK_NAME));
 
         // to stop the run at start of grace period (right after simulated change)
-        doThrow(new InterruptAndTerminateException()).when(apc).beforeGracePeriod();
+        doThrow(new InterruptAndTerminateException()).when(apc).afterState(State.SIMULATING_RESULT);
         thrown.expect(InterruptAndTerminateException.class);
 
         apc.run();
@@ -144,49 +143,6 @@ public class AddPersonCommandTest {
         assertFinalStatesCorrectForSuccessfulAdd(apc, modelManagerSpy, inputData);
     }
 
-    // THIS TEST TAKES >=1 SECONDS BY DESIGN
-    @Test
-    public void interruptGracePeriod_withEditRequest_changesAddedPersonData() {
-        // grace period duration must be non zero, will be interrupted immediately anyway
-        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1, events::post, modelManagerSpy, ADDRESSBOOK_NAME));
-        final Supplier<Optional<ReadOnlyPerson>> editInputWrapper = inputRetrieverWrapper(TestUtil.generateSamplePersonWithAllData(1));
-
-        doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
-        apc.editInGracePeriod(editInputWrapper); // pre-specify apc will be interrupted by edit
-        apc.run();
-
-        assertFinalStatesCorrectForSuccessfulAdd(apc, modelManagerSpy, editInputWrapper.get().get());
-    }
-
-    @Test
-    public void interruptGracePeriod_withDeleteRequest_cancelsCommand() {
-        // grace period duration must be non zero, will be interrupted immediately anyway
-        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1, null, modelManagerSpy, ADDRESSBOOK_NAME));
-
-        doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
-        apc.deleteInGracePeriod(); // pre-specify apc will be interrupted by delete
-        apc.run();
-
-        assertTrue(modelManagerSpy.backingModel().getPersonList().isEmpty());
-        assertTrue(modelManagerSpy.visibleModel().getPersonList().isEmpty());
-        assertFalse(modelManagerSpy.personHasOngoingChange(apc.getViewableToAdd()));
-        assertEquals(apc.getState(), State.CANCELLED);
-    }
-
-    @Test
-    public void interruptGracePeriod_withCancelRequest_undoesSimulation() {
-        // grace period duration must be non zero, will be interrupted immediately anyway
-        final AddPersonCommand apc = spy(new AddPersonCommand(0, returnValidEmptyInput, 1, null, modelManagerSpy, ADDRESSBOOK_NAME));
-
-        doNothing().when(apc).beforeGracePeriod(); // don't wipe interrupt code injection when grace period starts
-        apc.cancelInGracePeriod(); // pre-specify apc will be interrupted by cancel
-        apc.run();
-
-        assertTrue(modelManagerSpy.backingModel().getPersonList().isEmpty());
-        assertTrue(modelManagerSpy.visibleModel().getPersonList().isEmpty());
-        assertFalse(modelManagerSpy.personHasOngoingChange(apc.getViewableToAdd()));
-        assertEquals(apc.getState(), State.CANCELLED);
-    }
 
     private void assertFinalStatesCorrectForSuccessfulAdd(AddPersonCommand command, ModelManager model, ReadOnlyPerson resultData) {
         assertEquals(command.getState(), State.SUCCESSFUL);

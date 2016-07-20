@@ -4,16 +4,22 @@ import address.MainApp;
 import address.browser.BrowserManager;
 import address.events.*;
 import address.exceptions.DuplicateTagException;
+import address.model.SingleTargetCommandResult;
 import address.model.UserPrefs;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
+import address.updater.UpdateProgressNotifier;
+import commons.UpdateInformationNotifier;
 import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
+import commons.*;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventType;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -35,6 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * The controller that creates the other controllers
@@ -69,8 +76,14 @@ public class MainController extends UiController{
     private UserPrefs prefs;
 
     private StatusBarHeaderController statusBarHeaderController;
+    private StatusBarFooterController statusBarFooterController;
 
     private UnmodifiableObservableList<ReadOnlyViewablePerson> personList;
+    private final ObservableList<SingleTargetCommandResult> finishedCommandResults;
+
+    {
+        finishedCommandResults = FXCollections.observableArrayList();
+    }
 
     /**
      * Constructor for mainController
@@ -126,9 +139,9 @@ public class MainController extends UiController{
         // Show the scene containing the root layout.
         Scene scene = new Scene(rootLayout);
         scene.setOnKeyPressed(event -> raisePotentialEvent(new KeyBindingEvent(event)));
+        primaryStage.setScene(scene);
         setMinSize();
         setDefaultSize();
-        primaryStage.setScene(scene);
 
         // Give the rootController access to the main controller and modelManager
         RootLayoutController rootController = loader.getController();
@@ -162,7 +175,7 @@ public class MainController extends UiController{
     }
 
     private void showHeaderStatusBar() {
-        statusBarHeaderController = new StatusBarHeaderController(this);
+        statusBarHeaderController = new StatusBarHeaderController(this, this.finishedCommandResults);
         AnchorPane sbPlaceHolder = (AnchorPane) rootLayout.lookup("#headerStatusbarPlaceholder");
 
         assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in rootLayout";
@@ -177,8 +190,8 @@ public class MainController extends UiController{
         FXMLLoader loader = loadFxml(fxmlResourcePath);
         GridPane gridPane = (GridPane) loadLoader(loader, "Error Loading footer status bar");
         gridPane.getStyleClass().add("grid-pane");
-        StatusBarFooterController controller = loader.getController();
-        controller.init(config.getUpdateInterval(), config.getAddressBookName());
+        statusBarFooterController = loader.getController();
+        statusBarFooterController.init(config.getUpdateInterval(), config.getAddressBookName());
         AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
         FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
         placeHolder.getChildren().add(gridPane);
@@ -420,6 +433,7 @@ public class MainController extends UiController{
         Scene scene = new Scene(page);
         Stage dialogStage = loadDialogStage("Help", null, scene);
         dialogStage.getIcons().add(getImage(ICON_HELP));
+        dialogStage.setMaximized(true);
         // Show the dialog and wait until the user closes it
         dialogStage.showAndWait();
     }
@@ -458,7 +472,7 @@ public class MainController extends UiController{
             dialogStage.getIcons().add(getImage(ICON_INFO));
             // Set the persons into the controller.
             ActivityHistoryController controller = loader.getController();
-            controller.setConnections(modelManager.getFinishedCommands());
+            controller.setConnections(finishedCommandResults);
             controller.init();
             dialogStage.show();
         } catch (IOException e) {
@@ -526,13 +540,30 @@ public class MainController extends UiController{
 
     public void showPersonWebPage() {
         AnchorPane pane = (AnchorPane) rootLayout.lookup("#personWebpage");
+        disableKeyboardShortcutOnNode(pane);
         pane.getChildren().add(browserManager.getHyperBrowserView());
+    }
+
+    private void disableKeyboardShortcutOnNode(Node pane) {
+        pane.addEventHandler(EventType.ROOT, event -> event.consume());
+    }
+
+    public Consumer<String> getUpdateMessageReader() {
+        return statusBarFooterController.getUpdateMessageReader();
+    }
+
+    public Consumer<UpdateProgressNotifier.Status> getUpdateStatusReader() {
+        return statusBarFooterController.getUpdateStatusReader();
+    }
+
+    public Consumer<Double> getUpdateProgressReader() {
+        return statusBarFooterController.getUpdateProgressReader();
     }
 
     @Subscribe
     private void handleResizeAppRequestEvent(ResizeAppRequestEvent event){
         logger.debug("Handling the resize app window request");
-        Platform.runLater(this::resizeWindow);
+        Platform.runLater(this::handleResizeRequest);
     }
 
     @Subscribe
@@ -541,17 +572,9 @@ public class MainController extends UiController{
         Platform.runLater(this::minimizeWindow);
     }
 
-    /**
-     * Toggles between maximized and default size.
-     * If not currently at the maximized size, goes to maximised size.
-     * If currently maximized, goes to default size.
-     */
-    private void resizeWindow() {
-        if (primaryStage.isMaximized()) {
-            setDefaultSize();
-        } else {
-            maximizeWindow();
-        }
+    @Subscribe
+    private void handleCommandFinishedEvent(CommandFinishedEvent evt) {
+        PlatformExecUtil.runAndWait(() -> finishedCommandResults.add(evt.result));
     }
 
     protected void setDefaultSize() {
@@ -561,8 +584,6 @@ public class MainController extends UiController{
             primaryStage.setX(prefs.getGuiSettings().getWindowCoordinates().getX());
             primaryStage.setY(prefs.getGuiSettings().getWindowCoordinates().getY());
         }
-        primaryStage.setMaximized(false);
-        primaryStage.setIconified(false);
     }
 
     private void setMinSize() {
@@ -575,9 +596,35 @@ public class MainController extends UiController{
         primaryStage.setMaximized(false);
     }
 
-    private void maximizeWindow() {
-        primaryStage.setMaximized(true);
-        primaryStage.setIconified(false);
+    private void handleResizeRequest() {
+        logger.info("Handling resize request.");
+        if (primaryStage.isIconified()) {
+            logger.debug("Cannot resize as window is iconified, attempting to show window instead.");
+            primaryStage.setIconified(false);
+        } else {
+            resizeWindow();
+        }
+    }
+
+    private void resizeWindow() {
+        logger.info("Resizing window");
+        // specially handle since stage operations on Mac seem to not be working as intended
+        if (commons.OsDetector.isOnMac()) {
+            // refresh stage so that resizing effects (apart from the first resize after iconify-ing) are applied
+            // however, this will cause minor flinching in window visibility
+            primaryStage.hide(); // hide has to be called before setMaximized,
+                                 // or first resize attempt after iconify-ing will resize twice
+            primaryStage.show();
+
+            // on Mac, setMaximized seems to work like "setResize"
+            // isMaximized also does not seem to return the correct value
+            primaryStage.setMaximized(true);
+        } else {
+            primaryStage.setMaximized(!primaryStage.isMaximized());
+        }
+
+        logger.debug("Stage width: {}", primaryStage.getWidth());
+        logger.debug("Stage height: {}", primaryStage.getHeight());
     }
 
     public void stop() {

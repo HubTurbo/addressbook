@@ -1,6 +1,6 @@
 package address.browser;
 
-import address.util.TestUtil;
+import address.testutil.TestUtil;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
 import org.junit.AfterClass;

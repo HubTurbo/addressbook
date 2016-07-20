@@ -2,7 +2,7 @@ package address.storage;
 
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
-import address.util.XmlUtil;
+import commons.XmlUtil;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

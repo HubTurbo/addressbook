@@ -11,7 +11,6 @@ import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.keybindings.KeyBindingsManager;
 import address.parser.qualifier.TrueQualifier;
-import address.status.PersonDeletedStatus;
 import address.ui.PersonListViewCell;
 import address.util.collections.FilteredList;
 import address.util.AppLogger;
@@ -123,10 +122,7 @@ public class PersonOverviewController extends UiController{
             showInvalidSelectionAlert();
         } else {
             selected.stream()
-                    .forEach(target -> {
-                        mainController.getStatusBarHeaderController().postStatus(new PersonDeletedStatus(target));
-                        modelManager.deletePersonThroughUI(target);
-                    });
+                    .forEach(target -> modelManager.deletePersonThroughUI(target));
         }
     }
 

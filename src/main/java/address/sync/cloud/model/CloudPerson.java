@@ -1,7 +1,7 @@
 package address.sync.cloud.model;
 
-import address.util.XmlUtil.LocalDateAdapter;
-import address.util.XmlUtil.LocalDateTimeAdapter;
+import commons.XmlUtil.LocalDateAdapter;
+import commons.XmlUtil.LocalDateTimeAdapter;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

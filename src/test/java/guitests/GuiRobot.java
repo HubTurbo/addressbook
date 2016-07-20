@@ -2,7 +2,7 @@ package guitests;
 
 import address.keybindings.KeyBinding;
 import address.keybindings.KeySequence;
-import address.util.TestUtil;
+import address.testutil.TestUtil;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import org.testfx.api.FxRobot;

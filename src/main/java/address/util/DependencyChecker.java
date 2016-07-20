@@ -2,7 +2,8 @@ package address.util;
 
 import address.MainApp;
 import address.exceptions.DependencyCheckException;
-import address.updater.VersionDescriptor;
+import commons.*;
+import commons.VersionData;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -19,12 +20,16 @@ public class DependencyChecker {
     private final String requiredJavaVersionString;
     private Runnable quitApp;
 
-    public DependencyChecker(String requiredJavaVersionString, Runnable quitApp) {
+    public  DependencyChecker(String requiredJavaVersionString, Runnable quitApp) {
         this.requiredJavaVersionString = requiredJavaVersionString;
         this.quitApp = quitApp;
     }
 
     public void verify() {
+        if (!ManifestFileReader.isRunFromJar()) {
+            logger.info("Not run from Jar, skipping dependencies check");
+            return;
+        }
         logger.info("Verifying dependencies");
 
         try {
@@ -74,11 +79,6 @@ public class DependencyChecker {
     public void checkLibrariesDependency() throws DependencyCheckException {
         logger.info("Verifying dependency libraries are present");
 
-        if (!ManifestFileReader.isRunFromJar()) {
-            logger.info("Not running from JAR, will not run libraries check.");
-            return;
-        }
-
         List<String> missingDependencies = getMissingDependencies();
 
         if (!missingDependencies.isEmpty()) {
@@ -110,20 +110,20 @@ public class DependencyChecker {
     }
 
     private void excludePlatformSpecificDependencies(List<String> dependencies) {
-        String json = FileUtil.readFromInputStream(MainApp.class.getResourceAsStream("/UpdateData.json"));
+        String json = FileUtil.readFromInputStream(MainApp.class.getResourceAsStream("/VersionData.json"));
 
-        VersionDescriptor versionDescriptor;
+        commons.VersionData versionData;
 
         try {
-            versionDescriptor = JsonUtil.fromJsonString(json, VersionDescriptor.class);
+            versionData = JsonUtil.fromJsonString(json, VersionData.class);
         } catch (IOException e) {
             logger.warn("Failed to parse JSON data to process platform specific dependencies", e);
             return;
         }
 
-        List<String> librariesNotForCurrentMachine =  versionDescriptor.getLibraries().stream()
-                .filter(libDesc -> libDesc.getOs() != OsDetector.Os.ANY && libDesc.getOs() != OsDetector.getOs())
-                .map(libDesc -> "lib/" + libDesc.getFilename())
+        List<String> librariesNotForCurrentMachine =  versionData.getLibraries().stream()
+                .filter(libDesc -> libDesc.getOs() != commons.OsDetector.Os.ANY && libDesc.getOs() != commons.OsDetector.getOs())
+                .map(libDesc -> "lib/" + libDesc.getFileName())
                 .collect(Collectors.toList());
 
         dependencies.removeAll(librariesNotForCurrentMachine);

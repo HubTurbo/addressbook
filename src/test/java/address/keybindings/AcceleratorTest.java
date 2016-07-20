@@ -1,6 +1,6 @@
 package address.keybindings;
 
-import address.util.OsDetector;
+import commons.OsDetector;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

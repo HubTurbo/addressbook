@@ -2,7 +2,7 @@ package address.model.datatypes.person;
 
 import address.model.datatypes.ExtractableObservables;
 import address.model.datatypes.tag.Tag;
-import address.util.DateTimeUtil;
+import commons.DateTimeUtil;
 import address.util.collections.UnmodifiableObservableList;
 import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import javafx.beans.Observable;

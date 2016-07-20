@@ -11,8 +11,9 @@ import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
 
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
+import address.util.AppLogger;
+import address.util.LoggerManager;
+import commons.PlatformExecUtil;
 import javafx.collections.ObservableList;
 
 import java.util.*;
@@ -34,7 +35,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     private final ViewableAddressBook visibleModel;
 
     private final Map<Integer, ChangePersonInModelCommand> personChangesInProgress;
-    private final ObservableList<ChangeObjectInModelCommand> finishedCommands;
     private final Executor commandExecutor;
     private final AtomicInteger commandCounter;
 
@@ -44,7 +44,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     {
         personChangesInProgress = new HashMap<>();
         commandExecutor = Executors.newCachedThreadPool();
-        finishedCommands = FXCollections.observableArrayList();
         commandCounter = new AtomicInteger(0);
     }
 
@@ -91,10 +90,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     }
 
 //// EXPOSING MODEL
-
-    public UnmodifiableObservableList<CommandInfo> getFinishedCommands() {
-        return new UnmodifiableObservableList<>(finishedCommands);
-    }
 
     /**
      * @return all persons in visible model IN AN UNMODIFIABLE VIEW
@@ -172,7 +167,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
                 PlatformExecUtil.callAndWait(userInputRetriever, Optional.empty());
 
         if (personHasOngoingChange(target)) {
-            getOngoingChangeForPerson(target.getId()).editInGracePeriod(fxThreadInputRetriever);
+            getOngoingChangeForPerson(target.getId()).overrideWithEditPerson(fxThreadInputRetriever);
         } else {
             final ViewablePerson toEdit = visibleModel.findPerson(target).get();
             execNewEditPersonCommand(toEdit, fxThreadInputRetriever);
@@ -216,7 +211,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         // handle edit commands for each target
         targets.forEach(target -> {
             if (personHasOngoingChange(target)) {
-                getOngoingChangeForPerson(target.getId()).editInGracePeriod(editInputRetrieverFactory.apply(target));
+                getOngoingChangeForPerson(target.getId()).overrideWithEditPerson(editInputRetrieverFactory.apply(target));
             } else {
                 final ViewablePerson toEdit = visibleModel.findPerson(target).get();
                 execNewEditPersonCommand(toEdit, editInputRetrieverFactory.apply(target));
@@ -230,7 +225,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      */
     public synchronized void deletePersonThroughUI(ReadOnlyPerson target) {
         if (personHasOngoingChange(target)) {
-            getOngoingChangeForPerson(target.getId()).deleteInGracePeriod();
+            getOngoingChangeForPerson(target.getId()).overrideWithDeletePerson();
         } else {
             final ViewablePerson toDelete = visibleModel.findPerson(target).get();
             execNewDeletePersonCommand(toDelete);
@@ -244,7 +239,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     public synchronized void cancelPersonChangeCommand(ReadOnlyPerson target) {
         final ChangePersonInModelCommand ongoingCommand = getOngoingChangeForPerson(target.getId());
         if (ongoingCommand != null) {
-            ongoingCommand.cancelInGracePeriod();
+            ongoingCommand.cancelCommand();
         }
     }
 
@@ -305,10 +300,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
     boolean personHasOngoingChange(int personId) {
         return personChangesInProgress.containsKey(personId);
-    }
-
-    void trackFinishedCommand(ChangeObjectInModelCommand finished) {
-        Platform.runLater(() -> finishedCommands.add(finished));
     }
 
     int assignCommandId() {

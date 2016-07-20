@@ -1,6 +1,7 @@
 package address.controller;
 
-import address.model.CommandInfo;
+import address.model.SingleTargetCommandResult;
+import address.util.CommandResultFormatter;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -8,21 +9,18 @@ import javafx.scene.layout.HBox;
 
 import java.io.IOException;
 
-/**
- * TODO: Bind CommandInfo. Currently CommandInfo doesn't use Property class yet.
- */
 public class ActivityHistoryCardController {
 
     @FXML
-    private HBox mainPane;
+    private HBox activityHistoryCardMainpane;
 
     @FXML
     private Label activityLabel;
 
-    private CommandInfo info;
+    private SingleTargetCommandResult result;
 
-    public ActivityHistoryCardController(CommandInfo info) {
-        this.info = info;
+    public ActivityHistoryCardController(SingleTargetCommandResult result) {
+        this.result = result;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/view/ActivityHistoryCard.fxml"));
         fxmlLoader.setController(this);
         try {
@@ -34,11 +32,11 @@ public class ActivityHistoryCardController {
 
     @FXML
     public void initialize() {
-        activityLabel.setText(info.getName() + " " + info.statusString());
+        activityLabel.setText(CommandResultFormatter.getStringRepresentation(result));
     }
 
     public HBox getLayout() {
-        return mainPane;
+        return activityHistoryCardMainpane;
     }
 
 }

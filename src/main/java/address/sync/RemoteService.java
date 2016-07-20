@@ -8,7 +8,7 @@ import address.sync.cloud.RemoteResponse;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
 import address.util.AppLogger;
-import address.util.JsonUtil;
+import commons.JsonUtil;
 import address.util.LoggerManager;
 
 import java.io.*;
