@@ -45,8 +45,7 @@ public class VersionDataGenerator {
         try {
             previousVersionData = Optional.of(readVersionDataFromFile(VERSION_DATA_FILE));
         } catch (IOException e) {
-            System.out.println("Warning: Failed to read previous version data file");
-            e.printStackTrace();
+            System.out.println("Warning: Failed to read previous version data file: " + e.getMessage());
             previousVersionData = Optional.empty();
         }
 
@@ -71,9 +70,9 @@ public class VersionDataGenerator {
         notifyOfNewLibraries(currentLibrariesDescriptors);
     }
 
-    private List<LibraryDescriptor> convertToLibraryDescriptors(List<String> currentLibrariesNames) {
+    private List<LibraryDescriptor> convertToLibraryDescriptors(List<String> librariesNames) {
         List<LibraryDescriptor> libraryDescriptors = new ArrayList<>();
-        for (String libraryName : currentLibrariesNames) {
+        for (String libraryName : librariesNames) {
             try {
                 libraryDescriptors.add(new LibraryDescriptor(libraryName, getDownloadLinkForLibrary(libraryName), null));
             } catch (MalformedURLException e) {
