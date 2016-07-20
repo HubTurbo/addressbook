@@ -49,9 +49,8 @@ public class SimpleKeyBoardTest extends GuiTestBase {
         robot.push(KeyCode.E).sleep(500);
 
         //List<Window> windows = robot.listTargetWindows();
-
-        robot.targetWindow("Edit Person");
-        //robot.interact(() -> windows.get(2).requestFocus());
+        //robot.targetWindow().requestFocus();
+        robot.interact(() -> robot.targetWindow().requestFocus());
 
         TextField node = robot.lookup("#firstNameField").query();
        // doubleClickOnNode(robot, node);
