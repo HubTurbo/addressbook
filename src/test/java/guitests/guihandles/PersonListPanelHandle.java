@@ -4,6 +4,7 @@ package guitests.guihandles;
 import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.testutil.TestUtil;
 import address.ui.PersonListViewCell;
 import guitests.GuiRobot;
 import javafx.collections.ObservableList;
@@ -11,6 +12,7 @@ import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Stage;
 import org.testfx.api.FxRobot;
 
@@ -81,31 +83,31 @@ public class PersonListPanelHandle extends GuiHandle {
     public void use_LIST_JUMP_TO_INDEX_SHORTCUT(int index) {
         switch (index) {
             case 1:
-                guiRobot.push(KeyCode.CONTROL, KeyCode.DIGIT1);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT1}));
                 break;
             case 2:
-                guiRobot.push(KeyCode.CONTROL, KeyCode.DIGIT2);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT2}));
                 break;
             case 3:
-                guiRobot.push(KeyCode.CONTROL, KeyCode.DIGIT3);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT3}));
                 break;
             case 4:
-                guiRobot.push(KeyCode.CONTROL, KeyCode.DIGIT4);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT4}));
                 break;
             case 5:
-                guiRobot.push(KeyCode.CONTROL, KeyCode.DIGIT5);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT5}));
                 break;
             case 6:
-                guiRobot.push(KeyCode.CONTROL, KeyCode.DIGIT6);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT6}));
                 break;
             case 7:
-                guiRobot.push(KeyCode.CONTROL, KeyCode.DIGIT7);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT7}));
                 break;
             case 8:
-                guiRobot.push(KeyCode.CONTROL, KeyCode.DIGIT8);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT8}));
                 break;
             case 9:
-                guiRobot.push(KeyCode.CONTROL, KeyCode.DIGIT9);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT9}));
                 break;
             default:
                 throw new RuntimeException("Unsupported shortcut");
