@@ -85,6 +85,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1);
         assertTrue(personListPanel.isSelected(td.alice));
         personListPanel.clearSelection();
+        personListPanel.focusOnMainApp();
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
         assertTrue(personListPanel.isSelected(td.benson));
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
