@@ -194,8 +194,8 @@ allprojects {
 
     // Remove any old custom dependencies
     task deleteOldCustomDependenciesFromLibrary(type: Delete) {
-        delete fileTree(dir: ".", include: 'launcher-*.*.*.jar')
-        delete fileTree(dir: "$libDir", includes: ['updater-*.*.*.jar', 'commons-*.*.*.jar'])
+        delete fileTree(dir: ".", include: 'addressbook-V*.*.*.jar')
+        delete fileTree(dir: "$libDir", includes: ['updater-*.*.*.jar', 'commons-*.*.*.jar', 'resource-V*.*.*.jar'])
     }
 
     // Copy downloaded dependencies from Gradle's cache into the library directory
