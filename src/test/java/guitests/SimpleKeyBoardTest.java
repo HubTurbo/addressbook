@@ -50,8 +50,8 @@ public class SimpleKeyBoardTest extends GuiTestBase {
 
         List<Window> windows = robot.listTargetWindows();
 
-        //robot.targetWindow(windows.get(1));
-        robot.interact(() -> windows.get(2).requestFocus());
+        robot.targetWindow(windows.get(2));
+        //robot.interact(() -> windows.get(2).requestFocus());
 
         TextField node = robot.lookup("#firstNameField").query();
        // doubleClickOnNode(robot, node);
