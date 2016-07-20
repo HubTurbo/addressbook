@@ -264,7 +264,7 @@ public class MainController extends UiController{
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(primaryStage);
         dialogStage.initStyle(StageStyle.TRANSPARENT);
-
+        dialogStage.setTitle(TagSelectionEditDialogController.STAGE_TITLE);
         Scene scene = new Scene(pane, Color.TRANSPARENT);
         dialogStage.setScene(scene);
 

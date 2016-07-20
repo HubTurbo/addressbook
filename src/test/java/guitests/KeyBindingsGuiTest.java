@@ -25,6 +25,8 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         personListPanel.use_LIST_ENTER_SHORTCUT();
         assertTrue(personListPanel.isSelected("Alice", "Brown"));
 
+        personListPanel.clickOnListView();
+
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
         assertTrue(personListPanel.isSelected("Dan", "Edwards"));
 
@@ -45,6 +47,9 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         assertEquals("Dan Edwards", editPersonDialog.getFullName());
         editPersonDialog.clickCancel();
 
+        personListPanel.focusOnMainApp();
+        personListPanel.clickOnListView();
+
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
         assertTrue(personListPanel.contains("Dan", "Edwards")); // still in the list due to grace period
         personListPanel.waitForGracePeriodToExpire();
@@ -60,6 +65,9 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         TagPersonDialogHandle tagPersonDialog = personListPanel.use_PERSON_TAG_ACCELERATOR();
         tagPersonDialog.close();
+
+        personListPanel.focusOnMainApp();
+        personListPanel.clickOnListView();
 
         //======== others ============================
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
