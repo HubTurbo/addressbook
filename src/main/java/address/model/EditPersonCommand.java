@@ -1,6 +1,6 @@
 package address.model;
 
-import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandType.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.*;
 
 import address.events.BaseEvent;
 import address.events.SingleTargetCommandResultEvent;
@@ -27,7 +27,6 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
 
     private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
-    private final ViewablePerson target;
     private final String addressbookName;
 
     // Person state snapshots
@@ -51,13 +50,9 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
         this.addressbookName = addressbookName;
     }
 
-    protected ViewablePerson getViewable() {
-        return target;
-    }
-
     @Override
     public int getTargetPersonId() {
-        return target.getId();
+        return getViewable().getId();
     }
 
     @Override
@@ -70,7 +65,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
                 assert false;
             }
         }
-        PlatformExecUtil.runAndWait(() -> target.setOngoingCommandType(EDITING));
+        PlatformExecUtil.runAndWait(() -> target.setOngoingCommandType(OngoingCommandType.EDITING));
         model.assignOngoingChangeToPerson(target.getId(), this);
         target.stopSyncingWithBackingObject();
         personDataBeforeExecution = new Person(target);
@@ -95,11 +90,6 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     protected void simulateResult() {
         assert input != null;
         PlatformExecUtil.runAndWait(() -> target.simulateUpdate(input));
-    }
-
-    @Override
-    protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
-        PlatformExecUtil.runAndWait(() -> target.setSecondsLeftInPendingState(secondsLeft));
     }
 
     @Override
@@ -135,15 +125,17 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected void whenRemoteConflictDetected() {
+    protected void handleRemoteConflict() {
         eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
                 TARGET_TYPE, target.idString(), personDataBeforeExecution.fullName(), input.fullName()));
+        super.handleRemoteConflict();
     }
 
     @Override
-    protected void whenRemoteRequestFailed() {
+    protected void handleRequestFailed() {
         eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
                 TARGET_TYPE, target.idString(), personDataBeforeExecution.fullName(), input.fullName()));
+        super.handleRequestFailed();
     }
 
     @Override

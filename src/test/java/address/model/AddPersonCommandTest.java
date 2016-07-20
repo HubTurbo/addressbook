@@ -127,10 +127,10 @@ public class AddPersonCommandTest {
 
         apc.run();
 
-        assertTrue(apc.getViewableToAdd().dataFieldsEqual(inputData)); // same data as input
+        assertTrue(apc.getViewable().dataFieldsEqual(inputData)); // same data as input
         assertEquals(modelManagerSpy.visibleModel().getPersonList().size(), 1); // only 1 viewable
         assertTrue(modelManagerSpy.backingModel().getPersonList().isEmpty()); // simulation wont affect backing
-        assertSame(modelManagerSpy.visibleModel().getPersonList().get(0), apc.getViewableToAdd()); // same ref
+        assertSame(modelManagerSpy.visibleModel().getPersonList().get(0), apc.getViewable()); // same ref
     }
 
     @Test
@@ -139,7 +139,7 @@ public class AddPersonCommandTest {
         final AddPersonCommand apc = new AddPersonCommand(0, inputRetrieverWrapper(inputData), 0, events::post, modelManagerSpy, ADDRESSBOOK_NAME);
 
         apc.run();
-        assertFalse(modelManagerSpy.personHasOngoingChange(apc.getViewableToAdd()));
+        assertFalse(modelManagerSpy.personHasOngoingChange(apc.getViewable()));
         assertFinalStatesCorrectForSuccessfulAdd(apc, modelManagerSpy, inputData);
     }
 
@@ -151,7 +151,7 @@ public class AddPersonCommandTest {
 
         final ViewablePerson viewablePersonFromModel = model.visibleModel().getPersons().get(0);
         final Person backingPersonFromModel = model.backingModel().getPersons().get(0);
-        assertSame(viewablePersonFromModel, command.getViewableToAdd()); // reference check
+        assertSame(viewablePersonFromModel, command.getViewable()); // reference check
         assertSame(viewablePersonFromModel.getBacking(), backingPersonFromModel); // backing connected properly to visible
         assertTrue(viewablePersonFromModel.dataFieldsEqual(resultData));
         assertTrue(backingPersonFromModel.dataFieldsEqual(resultData));

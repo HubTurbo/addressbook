@@ -1,12 +1,13 @@
 package address.model;
 
-import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandType.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.*;
 
 import address.events.BaseEvent;
 import address.events.CreatePersonOnRemoteRequestEvent;
 import address.events.SingleTargetCommandResultEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;
 import commons.PlatformExecUtil;
 
@@ -27,7 +28,6 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
-    private ViewablePerson viewableToAdd;
     private Person backingFromRemote;
     private final String addressbookName;
 
@@ -48,16 +48,12 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         this.addressbookName = addressbookName;
     }
 
-    protected ViewablePerson getViewableToAdd() {
-        return viewableToAdd;
-    }
-
     @Override
     public int getTargetPersonId() {
-        if (viewableToAdd == null) {
+        if (target == null) {
             throw new IllegalStateException("Add person command has not created the proposed ViewablePerson yet.");
         }
-        return viewableToAdd.getId();
+        return target.getId();
     }
 
     @Override
@@ -67,9 +63,9 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void after() {
-        if (viewableToAdd != null) { // the viewable was already added
-            viewableToAdd.clearOngoingCommand();
-            model.unassignOngoingChangeForPerson(viewableToAdd.getId());
+        if (target != null) { // the viewable was already added
+            target.clearOngoingCommand();
+            model.unassignOngoingChangeForPerson(target.getId());
         }
         // personDataSnapshot == null means that the command was cancelled before any input was received
         final String targetName = personDataSnapshot == null ? "" : personDataSnapshot.fullName();
@@ -89,18 +85,12 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         assert input != null;
         // create VP and add to model
         PlatformExecUtil.runAndWait(() -> {
-            viewableToAdd = model.addViewablePersonWithoutBacking(input);
-            viewableToAdd.setOngoingCommandType(ADDING);
+            target = model.addViewablePersonWithoutBacking(input);
+            target.setOngoingCommandType(OngoingCommandType.ADDING);
         });
 
-        model.assignOngoingChangeToPerson(viewableToAdd.getId(), this);
-        snapshotPersonData(viewableToAdd);
-    }
-
-    @Override
-    protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
-        assert viewableToAdd != null;
-        PlatformExecUtil.runAndWait(() -> viewableToAdd.setSecondsLeftInPendingState(secondsLeft));
+        model.assignOngoingChangeToPerson(target.getId(), this);
+        snapshotPersonData(target);
     }
 
     @Override
@@ -135,15 +125,17 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected void whenRemoteConflictDetected() {
+    protected void handleRemoteConflict() {
         eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
-                TARGET_TYPE, viewableToAdd.idString(), viewableToAdd.fullName(), viewableToAdd.fullName()));
+                TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
+        super.handleRemoteConflict();
     }
 
     @Override
-    protected void whenRemoteRequestFailed() {
+    protected void handleRequestFailed() {
         eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
-                TARGET_TYPE, viewableToAdd.idString(), viewableToAdd.fullName(), viewableToAdd.fullName()));
+                TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
+        super.handleRequestFailed();
     }
 
     @Override
@@ -162,8 +154,8 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void finishWithCancel() {
-        if (viewableToAdd != null) {
-            PlatformExecUtil.runAndWait(() -> model.visibleModel().removePerson(viewableToAdd.getId()));
+        if (target != null) {
+            PlatformExecUtil.runAndWait(() -> model.visibleModel().removePerson(target.getId()));
         }
     }
 
@@ -172,10 +164,10 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         PlatformExecUtil.runAndWait(() -> {
             model.addPersonToBackingModelSilently(backingFromRemote); // so it wont trigger creation of another VP
             model.unassignOngoingChangeForPerson(getTargetPersonId()); // removes mapping for old id
-            viewableToAdd.connectBackingObject(backingFromRemote); // changes id to that of backing person
-            model.assignOngoingChangeToPerson(viewableToAdd.getId(), this); // remap this change for the new id
+            target.connectBackingObject(backingFromRemote); // changes id to that of backing person
+            model.assignOngoingChangeToPerson(target.getId(), this); // remap this change for the new id
         });
-        snapshotPersonData(viewableToAdd); // update snapshot for remote assigned id
+        snapshotPersonData(target); // update snapshot for remote assigned id
     }
 
     private void snapshotPersonData(ReadOnlyPerson data) {

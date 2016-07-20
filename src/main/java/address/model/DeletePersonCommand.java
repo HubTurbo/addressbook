@@ -1,6 +1,6 @@
 package address.model;
 
-import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandType.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.*;
 
 import address.events.BaseEvent;
 import address.events.DeletePersonOnRemoteRequestEvent;
@@ -26,7 +26,6 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
 
     private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
-    private final ViewablePerson target;
     private final String addressbookName;
 
     // Person state snapshots
@@ -43,10 +42,6 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
         this.model = model;
         this.eventRaiser = eventRaiser;
         this.addressbookName = addressbookName;
-    }
-
-    protected ViewablePerson getViewable() {
-        return target;
     }
 
     @Override
@@ -84,12 +79,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void simulateResult() {
-        PlatformExecUtil.runAndWait(() -> target.setOngoingCommandType(DELETING));
-    }
-
-    @Override
-    protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
-        PlatformExecUtil.runAndWait(() -> target.setSecondsLeftInPendingState(secondsLeft));
+        PlatformExecUtil.runAndWait(() -> target.setOngoingCommandType(OngoingCommandType.DELETING));
     }
 
     @Override
@@ -120,15 +110,17 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     }
 
     @Override
-    protected void whenRemoteConflictDetected() {
+    protected void handleRemoteConflict() {
         eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
                 TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
+        super.handleRemoteConflict();
     }
 
     @Override
-    protected void whenRemoteRequestFailed() {
+    protected void handleRequestFailed() {
         eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
                 TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
+        super.handleRequestFailed();
     }
 
     @Override

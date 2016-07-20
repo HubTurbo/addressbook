@@ -1,5 +1,6 @@
 package address.model.datatypes.person;
 
+import address.model.ChangeObjectInModelCommand;
 import address.model.datatypes.ReadOnlyViewableDataType;
 import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyProperty;
@@ -31,10 +32,29 @@ public interface ReadOnlyViewablePerson extends ReadOnlyPerson, ReadOnlyViewable
 
     enum OngoingCommandState {
         GRACE_PERIOD,
-        SENDING_REQUEST, // both checking for conflicts and the actual request
+        SYNCING_TO_REMOTE, // both checking for conflicts and the actual request
         REMOTE_CONFLICT,
         REQUEST_FAILED,
-        INVALID // no ongoing command
+        INVALID; // no ongoing command
+        public static OngoingCommandState fromCommandState(ChangeObjectInModelCommand.CommandState cmdState) {
+            switch (cmdState) {
+                case GRACE_PERIOD:
+                    return GRACE_PERIOD;
+
+                case CHECKING_REMOTE_CONFLICT:
+                case REQUESTING_REMOTE_CHANGE: // Fallthrough
+                    return SYNCING_TO_REMOTE;
+
+                case CONFLICT_FOUND:
+                    return REMOTE_CONFLICT;
+
+                case REQUEST_FAILED:
+                    return REQUEST_FAILED;
+
+                default:
+                    return INVALID;
+            }
+        }
     }
 
     OngoingCommandType getOngoingCommandType();

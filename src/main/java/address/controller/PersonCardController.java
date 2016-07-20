@@ -130,8 +130,8 @@ public class PersonCardController extends UiController {
 
     private void handleCommandState(OngoingCommandState state) {
         commandStateDisplayRootNode.setVisible(state != OngoingCommandState.INVALID);
-        remoteRequestOngoingIndicator.setVisible(state == OngoingCommandState.SENDING_REQUEST);
-        commandStateInfoLabel.setVisible(state != OngoingCommandState.SENDING_REQUEST);
+        remoteRequestOngoingIndicator.setVisible(state == OngoingCommandState.SYNCING_TO_REMOTE);
+        commandStateInfoLabel.setVisible(state != OngoingCommandState.SYNCING_TO_REMOTE);
         switch (state) {
             case REMOTE_CONFLICT:
                 commandStateInfoLabel.setText("CONFLICT");

@@ -270,7 +270,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      * @see #cancelCommand()
      * @return next state
      */
-    private CommandState gracePeriodCountdownAndTransition() {
+    protected CommandState gracePeriodCountdownAndTransition() {
         // Countdown loop, checks for cancel signal
         for (int i = gracePeriodDurationInSeconds; i > 0; i--) {
             handleChangeToSecondsLeftInGracePeriod(i);

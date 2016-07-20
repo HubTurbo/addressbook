@@ -1,6 +1,9 @@
 package address.model;
 
+import static address.model.datatypes.person.ReadOnlyViewablePerson.*;
+
 import address.model.datatypes.person.ReadOnlyPerson;
+import address.model.datatypes.person.ViewablePerson;
 import commons.PlatformExecUtil;
 
 import java.util.Optional;
@@ -17,6 +20,7 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
 
     protected Supplier<Optional<ReadOnlyPerson>> inputRetriever;
     protected ReadOnlyPerson input;
+    protected ViewablePerson target;
 
     Optional<ReadOnlyPerson> remoteConflictData;
     CompletableFuture<Runnable> recoveryCallback;
@@ -34,6 +38,10 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
                                          int gracePeriodDurationInSeconds) {
         super(commandId, gracePeriodDurationInSeconds);
         this.inputRetriever = inputRetriever;
+    }
+
+    protected ViewablePerson getViewable() {
+        return target;
     }
 
     /**
@@ -104,6 +112,14 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
     protected abstract void handleRetry();
 
     @Override
+    protected void beforeState(CommandState state) {
+        if (target != null) {
+            PlatformExecUtil.runAndWait(() -> target.setOngoingCommandState(OngoingCommandState.fromCommandState(state)));
+        }
+        super.beforeState(state);
+    }
+
+    @Override
     protected boolean retrieveValidInput() {
         final Optional<ReadOnlyPerson> retrieved = inputRetriever.get();
         if (retrieved.isPresent()) {
@@ -112,6 +128,12 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
         }
         // Not present = problem retrieving input (most likely user cancelled input dialog or some exception occurred.
         return retrieved.isPresent();
+    }
+
+    @Override
+    protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
+        assert target != null;
+        PlatformExecUtil.runAndWait(() -> target.setSecondsLeftInPendingState(secondsLeft));
     }
 
     @Override
@@ -133,15 +155,12 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      */
     @Override
     protected void handleRemoteConflict() {
-        whenRemoteConflictDetected();
         try {
             waitForCancelRequest();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
-
-    protected abstract void whenRemoteConflictDetected();
 
     /**
      * Possible actions in request failed stage:
@@ -150,14 +169,10 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      */
     @Override
     protected void handleRequestFailed() {
-        whenRemoteRequestFailed();
         try {
             waitForCancelRequest();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
-
-    protected abstract void whenRemoteRequestFailed();
-
 }
