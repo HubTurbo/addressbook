@@ -41,7 +41,7 @@ public class Launcher extends Application {
 
     private void runUpdateMigratorAndWait() throws IOException {
         try {
-            String command = String.format("java -ea -cp %s UpdateMigrator", CLASS_PATH_REGEX);
+            String command = String.format("java -ea -cp %s updater.UpdateMigrator", CLASS_PATH_REGEX);
             System.out.println("Starting updater migrator: " + command);
             Process process = Runtime.getRuntime().exec(command, null, new File(System.getProperty("user.dir")));
             System.out.println("Update migrator launched");
