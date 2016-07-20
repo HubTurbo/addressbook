@@ -10,14 +10,18 @@ It is an address book application. Data are stored in an XML file.
 It periodically syncs data in the primary XML file with another mirror file.
 
 # More Information
-- [Keyboard Shortcuts](docs/KeyboardShortcuts.md)
-- [Configuration](docs/Configuration.md)
-- [Testing](docs/Testing.md)
-- [Release Management](docs/Release.md)
-- [Cloud Simulation](docs/CloudSimulation.md)
+Main application
+- [Keyboard Shortcuts](docs/addressbook/KeyboardShortcuts.md)
+- [Configuration](docs/addressbook/Configuration.md)
+- [Cloud Simulation](docs/addressbook/CloudSimulation.md)
+
+Testing
+- [Testing](docs/testing/Testing.md)
+
+Releases
+- [Release Management](docs/releases/Release.md)
 
 # Acknowledgements
 Some parts of the code has been adapted from http://code.makery.ch
 
 The application embedded help page uses bootstrap template from http://bootply.com
-
