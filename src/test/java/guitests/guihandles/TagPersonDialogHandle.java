@@ -1,5 +1,6 @@
 package guitests.guihandles;
 
+import address.controller.TagSelectionEditDialogController;
 import guitests.GuiRobot;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
@@ -13,6 +14,7 @@ public class TagPersonDialogHandle extends GuiHandle {
 
     public TagPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage);
+        focusOnWindow(TagSelectionEditDialogController.STAGE_TITLE);
     }
 
     public TagPersonDialogHandle enterSearchQuery(String queryText) {
