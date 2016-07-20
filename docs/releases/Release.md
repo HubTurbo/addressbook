@@ -70,23 +70,23 @@ Releasing a stable version: Merge `early-access` branch to `stable` branch.
     - For custom dependencies, manually check the commits to see if its package has been modified since the last release. If it has, modify its version numbering (usually bumping the minor or major version, according to semantic versioning).
 3. Compile the custom dependencies
   - Run `gradle` task `createInstallerJar`
-3. Update version data
-  - Upload all updated libraries
-    - Upload them to https://github.com/HubTurbo/addressbook/releases/tag/Resources
+4. Update version data
   - Run `gradle` task `generateVersionData`
     - Generates a `VersionData.json` containing the updated list of libraries and their information
       - Information of unchanged libraries will be copied from the old `VersionData.json`
       - The console will print a list of libraries which needs to be updated for the new version
+  - Upload all updated libraries
+    - Upload them to https://github.com/HubTurbo/addressbook/releases/tag/Resources
   - Open `VersionData.json` and manually update the new fields accordingly
     - Fill in the links to download the new libraries.
     - Change the OS compatibility of the new libraries to ensure that only the libraries relevant to an OS will be loaded and checked
-4. Create a new commit
+5. Create a new commit
   - Commit and push the files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>` (with suffix `ea` if it's an early access version)
   - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `VersionData.json`
-5. Draft a new release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
-6. Create the release JAR by running the Gradle task `createInstallerJar`
+6. Draft a new release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
+7. Create the release JAR by running the Gradle task `createInstallerJar`
   - this must be run again to use the updated `VersionData.json`
-7. Upload the generated `installer-V*.*.*.jar` found at `build/libs` to the latest release.
+8. Upload the generated `installer-V*.*.*.jar` found at `build/libs` to the latest release.
 
 ## More About Release
 The main application of `addressbook` is configured to be released as a [non-fat JAR](http://stackoverflow.com/questions/19150811/what-is-a-fat-jar),
