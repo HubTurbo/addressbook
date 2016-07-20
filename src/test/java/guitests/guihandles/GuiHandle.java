@@ -9,9 +9,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.testfx.api.FxRobot;
 
 import java.lang.reflect.Constructor;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,6 +39,15 @@ public class GuiHandle {
         } catch (Exception e) {
             throw new RuntimeException("Cannot create gui handle of type " + clazz.getName(), e);
         }
+    }
+
+    public void focusOnLastOpenedWindow() {
+        //List<Window> windows = guiRobot.listTargetWindows();
+        guiRobot.interact(() -> guiRobot.targetWindow().requestFocus());
+    }
+    public void focusOnMainApp() {
+
+        guiRobot.interact(() -> guiRobot.listTargetWindows().get(0).requestFocus());
     }
 
     public FxRobot sleepForGracePeriod() {
