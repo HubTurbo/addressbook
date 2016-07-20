@@ -3,13 +3,10 @@ package address.controller;
 import java.io.IOException;
 import java.util.Optional;
 
-
 import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import commons.FxViewUtil;
-import javafx.animation.FadeTransition;
-import javafx.application.Platform;
 
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleStringProperty;
@@ -22,17 +19,10 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.util.Duration;
 
-public class PersonCardController extends UiController{
+import static address.model.datatypes.person.ReadOnlyViewablePerson.*;
 
-    private enum PendingState {
-        COUNTING_DOWN, SYNCING, SYNCING_DONE
-    }
-
-    public static final String DELETING_PENDING_STATE_MESSAGE = "Deleted";
-    public static final String EDITING_PENDING_STATE_MESSAGE = "Edited";
-    public static final String CREATED_PENDING_STATE_MESSAGE = "Created";
+public class PersonCardController extends UiController {
 
     @FXML
     private HBox cardPane;
@@ -48,25 +38,18 @@ public class PersonCardController extends UiController{
     private Label birthday;
     @FXML
     private Label tags;
+
     @FXML
-    private Label pendingStateLabel;
+    private HBox commandStateDisplayRootNode;
     @FXML
-    private ProgressIndicator syncIndicator;
+    private Label commandTypeLabel;
     @FXML
-    private HBox pendingStateHolder;
+    private ProgressIndicator remoteRequestOngoingIndicator;
     @FXML
-    private Label pendingCountdownIndicator;
+    private Label commandStateInfoLabel;
 
     private ReadOnlyViewablePerson person;
-    private FadeTransition deleteTransition;
     private StringProperty idTooltipString = new SimpleStringProperty("");
-
-    {
-        deleteTransition = new FadeTransition(Duration.millis(1000), cardPane);
-        deleteTransition.setFromValue(1.0);
-        deleteTransition.setToValue(0.1);
-        deleteTransition.setCycleCount(1);
-    }
 
     public PersonCardController(ReadOnlyViewablePerson person) {
         this.person = person;
@@ -82,14 +65,17 @@ public class PersonCardController extends UiController{
 
     @FXML
     public void initialize() {
+        bindDisplayedPersonData();
+        initCommandStateDisplay();
+        initIdTooltip();
+    }
 
+    private void bindDisplayedPersonData() {
         if (person.getGithubUsername().length() > 0) {
             setProfileImage();
         }
-
         FxViewUtil.configureCircularImageView(profileImage);
 
-        initIdTooltip();
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
 
@@ -103,26 +89,20 @@ public class PersonCardController extends UiController{
             protected String computeValue() {
                 return getAddressString(person.getStreet(), person.getCity(), person.getPostalCode());
             }
-
         });
         birthday.textProperty().bind(new StringBinding() {
             {
                 bind(person.birthdayProperty()); //Bind property at instance initializer
             }
-
             @Override
             protected String computeValue() {
-                if (person.birthdayString().length() > 0){
-                    return "DOB: " + person.birthdayString();
-                }
-                return "";
+                return person.birthdayString().length() > 0 ? "DOB: " + person.birthdayString() : "";
             }
         });
         tags.textProperty().bind(new StringBinding() {
             {
                 bind(person.getObservableTagList()); //Bind property at instance initializer
             }
-
             @Override
             protected String computeValue() {
                 return person.tagsString();
@@ -134,55 +114,31 @@ public class PersonCardController extends UiController{
                 setProfileImage();
             }
         });
-        if (person.getSecondsLeftInPendingState() > 0) {
-            setPendingStateMessage(person.getChangeInProgress());
-            pendingStateHolder.setVisible(true);
-            pendingCountdownIndicator.setVisible(true);
-        }
-        person.secondsLeftInPendingStateProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.intValue() > 0) {
-                setPendingStateMessage(person.getChangeInProgress());
-                setVisibilitySettings(PendingState.COUNTING_DOWN);
-            } else {
-                cardPane.setStyle(null);
-                setPendingStateMessage(person.getChangeInProgress());
-                setVisibilitySettings(PendingState.SYNCING);
-                person.onRemoteIdConfirmed((Integer id) -> {
-                    setVisibilitySettings(PendingState.SYNCING_DONE);
-                    pendingStateLabel.setText("");
-                });
-            }
-        });
-        pendingCountdownIndicator.textProperty().bind(person.secondsLeftInPendingStateProperty().asString());
     }
 
-    private void setVisibilitySettings(PendingState state) {
+    private void initCommandStateDisplay() {
+        // will be overwritten/hidden if not in grace period by below calls
+        commandStateInfoLabel.setText("" + person.getSecondsLeftInPendingState());
+        handleCommandState(person.getOngoingCommandState());
+        commandTypeLabel.setText(person.getOngoingCommandType().toString());
+
+        person.ongoingCommandStateProperty().addListener((obs, old, newVal) -> handleCommandState(newVal));
+        person.ongoingCommandTypeProperty().addListener((obs, old, newVal) -> commandTypeLabel.setText(newVal.toString()));
+        person.secondsLeftInPendingStateProperty().addListener(prop -> // invalidation listener on purpose!
+                commandStateInfoLabel.setText("" + person.getSecondsLeftInPendingState()));
+    }
+
+    private void handleCommandState(OngoingCommandState state) {
+        commandStateDisplayRootNode.setVisible(state != OngoingCommandState.INVALID);
+        remoteRequestOngoingIndicator.setVisible(state == OngoingCommandState.SENDING_REQUEST);
+        commandStateInfoLabel.setVisible(state != OngoingCommandState.SENDING_REQUEST);
         switch (state) {
-            case COUNTING_DOWN:
-                pendingStateHolder.setVisible(true);
-                pendingCountdownIndicator.setVisible(true);
+            case REMOTE_CONFLICT:
+                commandStateInfoLabel.setText("CONFLICT");
                 break;
-            case SYNCING:
-                pendingStateHolder.setVisible(true);
-                pendingCountdownIndicator.setVisible(false);
-                syncIndicator.setVisible(true);
+            case REQUEST_FAILED:
+                commandStateInfoLabel.setText("FAILED");
                 break;
-            case SYNCING_DONE:
-                syncIndicator.setVisible(false);
-                pendingStateHolder.setVisible(false);
-                break;
-        }
-    }
-
-    private void setPendingStateMessage(ReadOnlyViewablePerson.ChangeInProgress changeInProgress) {
-
-
-        if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.ADDING) {
-            pendingStateLabel.setText(CREATED_PENDING_STATE_MESSAGE);
-        } else if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.EDITING) {
-            pendingStateLabel.setText(EDITING_PENDING_STATE_MESSAGE);
-        } else if (changeInProgress == ReadOnlyViewablePerson.ChangeInProgress.DELETING) {
-            pendingStateLabel.setText(DELETING_PENDING_STATE_MESSAGE);
         }
     }
 
@@ -211,10 +167,6 @@ public class PersonCardController extends UiController{
                 }
             }).start();
         }
-    }
-
-    public void handleDelete() {
-        Platform.runLater(() -> deleteTransition.play());
     }
 
     public HBox getLayout() {

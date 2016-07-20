@@ -68,7 +68,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void after() {
         if (viewableToAdd != null) { // the viewable was already added
-            viewableToAdd.clearChangeInProgress();
+            viewableToAdd.clearOngoingCommand();
             model.unassignOngoingChangeForPerson(viewableToAdd.getId());
         }
         // personDataSnapshot == null means that the command was cancelled before any input was received
@@ -90,7 +90,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         // create VP and add to model
         PlatformExecUtil.runAndWait(() -> {
             viewableToAdd = model.addViewablePersonWithoutBacking(input);
-            viewableToAdd.setChangeInProgress(ADDING);
+            viewableToAdd.setOngoingCommandType(ADDING);
         });
 
         model.assignOngoingChangeToPerson(viewableToAdd.getId(), this);

@@ -92,7 +92,7 @@ public class DeletePersonCommandTest {
         thrown.expect(InterruptAndTerminateException.class);
 
         dpc.run();
-        verify(testTarget).setChangeInProgress(ReadOnlyViewablePerson.OngoingCommandType.DELETING);
+        verify(testTarget).setOngoingCommandType(ReadOnlyViewablePerson.OngoingCommandType.DELETING);
     }
 
     @Test

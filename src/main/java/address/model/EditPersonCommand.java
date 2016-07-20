@@ -70,7 +70,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
                 assert false;
             }
         }
-        PlatformExecUtil.runAndWait(() -> target.setChangeInProgress(EDITING));
+        PlatformExecUtil.runAndWait(() -> target.setOngoingCommandType(EDITING));
         model.assignOngoingChangeToPerson(target.getId(), this);
         target.stopSyncingWithBackingObject();
         personDataBeforeExecution = new Person(target);
@@ -80,7 +80,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     protected void after() {
         personDataAfterExecution = new Person(target);
         PlatformExecUtil.runAndWait(() -> {
-            target.clearChangeInProgress();
+            target.clearOngoingCommand();
             target.continueSyncingWithBackingObject();
             target.forceSyncFromBacking();
         });

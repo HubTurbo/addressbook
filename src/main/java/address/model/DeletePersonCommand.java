@@ -71,7 +71,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void after() {
         PlatformExecUtil.runAndWait(() -> {
-            target.clearChangeInProgress();
+            target.clearOngoingCommand();
             target.continueSyncingWithBackingObject();
             target.forceSyncFromBacking();
         });
@@ -84,7 +84,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void simulateResult() {
-        PlatformExecUtil.runAndWait(() -> target.setChangeInProgress(DELETING));
+        PlatformExecUtil.runAndWait(() -> target.setOngoingCommandType(DELETING));
     }
 
     @Override

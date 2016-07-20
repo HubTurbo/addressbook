@@ -13,20 +13,34 @@ import java.util.stream.Stream;
  */
 public interface ReadOnlyViewablePerson extends ReadOnlyPerson, ReadOnlyViewableDataType {
 
-    enum ChangeInProgress {
-        ADDING,
-        EDITING,
-        DELETING,
-        NONE
+    enum OngoingCommandType {
+        ADDING ("Adding"),
+        EDITING ("Editing"),
+        DELETING ("Deleting"),
+        NONE ("None");
+
+        final String message;
+        OngoingCommandType(String msg) {
+            message = msg;
+        }
+        @Override
+        public String toString() {
+            return message;
+        }
     }
 
-    enum S {
+    enum OngoingCommandState {
         GRACE_PERIOD,
-
+        SENDING_REQUEST, // both checking for conflicts and the actual request
+        REMOTE_CONFLICT,
+        REQUEST_FAILED,
+        INVALID // no ongoing command
     }
 
-    ChangeInProgress getChangeInProgress();
-    ReadOnlyProperty<ChangeInProgress> changeInProgressProperty();
+    OngoingCommandType getOngoingCommandType();
+    ReadOnlyProperty<OngoingCommandType> ongoingCommandTypeProperty();
+    OngoingCommandState getOngoingCommandState();
+    ReadOnlyProperty<OngoingCommandState> ongoingCommandStateProperty();
 
     /**
      * @return whether this person exists on the remote server
@@ -58,5 +72,7 @@ public interface ReadOnlyViewablePerson extends ReadOnlyPerson, ReadOnlyViewable
                 .toArray(Observable[]::new);
     }
 
-    boolean hasName(String firstName, String lastName);
+    default boolean hasName(String firstName, String lastName) {
+        return getFirstName().equals(firstName) && getLastName().equals(lastName);
+    }
 }

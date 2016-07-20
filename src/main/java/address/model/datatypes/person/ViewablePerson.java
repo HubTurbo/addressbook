@@ -1,6 +1,7 @@
 package address.model.datatypes.person;
 
-import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandState.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandType.*;
 
 import address.model.datatypes.UniqueData;
 import address.model.datatypes.Viewable;
@@ -35,11 +36,13 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
      * can only be changed by {@link #connectBackingObject}
      */
     private int id;
-    private final Property<ChangeInProgress> changeInProgress;
+    private final Property<OngoingCommandType> ongoingCommandType;
+    private final Property<OngoingCommandState> ongoingCommandState;
 
     {
         remoteIdConfirmationHandlers = new ArrayList<>();
-        changeInProgress = new SimpleObjectProperty<>(NONE);
+        ongoingCommandType = new SimpleObjectProperty<>(NONE);
+        ongoingCommandState = new SimpleObjectProperty<>(INVALID);
     }
 
     /**
@@ -136,21 +139,36 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
 //// OPTIMISTIC UPDATING
 
     @Override
-    public ChangeInProgress getChangeInProgress() {
-        return changeInProgress.getValue();
+    public OngoingCommandType getOngoingCommandType() {
+        return ongoingCommandType.getValue();
     }
 
     @Override
-    public ReadOnlyProperty<ChangeInProgress> changeInProgressProperty() {
-        return changeInProgress;
+    public ReadOnlyProperty<OngoingCommandType> ongoingCommandTypeProperty() {
+        return ongoingCommandType;
     }
 
-    public void setChangeInProgress(ChangeInProgress currentChange) {
-        changeInProgress.setValue(currentChange);
+    @Override
+    public OngoingCommandState getOngoingCommandState() {
+        return ongoingCommandState.getValue();
     }
 
-    public void clearChangeInProgress() {
-        setChangeInProgress(NONE);
+    @Override
+    public ReadOnlyProperty<OngoingCommandState> ongoingCommandStateProperty() {
+        return ongoingCommandState;
+    }
+
+    public void setOngoingCommandType(OngoingCommandType type) {
+        ongoingCommandType.setValue(type);
+    }
+
+    public void setOngoingCommandState(OngoingCommandState state) {
+        ongoingCommandState.setValue(state);
+    }
+
+    public void clearOngoingCommand() {
+        setOngoingCommandType(NONE);
+        setOngoingCommandState(INVALID);
     }
 
     /**
@@ -290,12 +308,6 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
         return visible.tagsString();
     }
 
-
-    @Override
-    public boolean hasName(String firstName, String lastName) {
-        return firstNameProperty().getValue().equals(firstName)
-                && lastNameProperty().getValue().equals(lastName);
-    }
     /**
      * Use backing Person for comparison.
      */
