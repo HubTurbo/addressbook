@@ -205,7 +205,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         addPersonDialog.clickOk();
 
         personListPanel.focusOnMainApp();
-
+        personListPanel.clickOnListView();
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
         personListPanel.clickOnPerson(pandaWong);
         PersonCardHandle pandaWongCardHandle = personListPanel.getSelectedCards().get(0);

@@ -76,6 +76,12 @@ public class PersonListPanelHandle extends GuiHandle {
         return (ListView<ReadOnlyViewablePerson>) getNode(PERSON_LIST_VIEW_ID);
     }
 
+    public void clickOnListView() {
+        double x = getListView().localToScreen(getListView().getLayoutBounds()).getMinX() + getListView().getWidth() / 2;
+        double y = getListView().localToScreen(getListView().getLayoutBounds()).getMinY() + getListView().getHeight() / 2;
+        guiRobot.clickOn(x, y);
+    }
+
     public void use_PERSON_CHANGE_CANCEL_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_CANCEL_COMMAND_ACCELERATOR);
     }
