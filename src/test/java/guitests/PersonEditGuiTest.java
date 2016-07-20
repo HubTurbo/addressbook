@@ -74,6 +74,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 
         personListPanel.focusOnMainApp();
+        personListPanel.enterFilterAndApply("haha");
 
 
         //Confirm again after the next sync
