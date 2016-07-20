@@ -47,14 +47,15 @@ public class SimpleKeyBoardTest extends GuiTestBase {
         robot.push(KeyCode.E).sleep(500);
 
 
-        TextField node = robot.lookup("#firstNameField").query();
-        doubleClickOnNode(robot, node);
+        //TextField node = robot.lookup("#firstNameField").query();
+       // doubleClickOnNode(robot, node);
         robot.write("wahaha");
+        robot.push(KeyCode.TAB);
 
-        node = robot.lookup("#lastNameField").query();
-        doubleClickOnNode(robot, node);
+        //node = robot.lookup("#lastNameField").query();
+        //doubleClickOnNode(robot, node);
         robot.write("hehehe");
-        
+
         file = GuiTest.captureScreenshot();
         Files.copy(file, new File("13.png"));
         fail();
