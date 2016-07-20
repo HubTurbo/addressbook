@@ -2,6 +2,7 @@ package guitests;
 
 import address.model.datatypes.AddressBook;
 import com.google.common.io.Files;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -44,15 +45,26 @@ public class SimpleKeyBoardTest extends GuiTestBase {
 
         robot.clickOn("Alice");
         robot.push(KeyCode.E).sleep(500);
+
+
         TextField node = robot.lookup("#firstNameField").query();
-        node.setText("wahaha");
-       // node.requestFocus();
-        //robot.clickOn(node, MouseButton.PRIMARY).sleep(2000);
-        //assertTrue(node.isFocused());
-       // robot.push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write("wahaha");
+        doubleClickOnNode(robot, node);
+        robot.write("wahaha");
+
+        node = robot.lookup("#lastNameField").query();
+        doubleClickOnNode(robot, node);
+        robot.write("hehehe");
+        
         file = GuiTest.captureScreenshot();
         Files.copy(file, new File("13.png"));
         fail();
+    }
+
+    public void doubleClickOnNode(GuiRobot robot, TextField node) {
+        Bounds bounds = node.localToScreen(node.getBoundsInLocal());
+        double x = bounds.getMinX() + bounds.getWidth() /2;
+        double y = bounds.getMinY() + bounds.getHeight() / 2;
+        robot.doubleClickOn(x, y);
     }
 
 
