@@ -121,6 +121,7 @@ public class PersonEditDialogController extends EditDialogController {
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(this.dialogStage);
             dialogStage.initStyle(StageStyle.TRANSPARENT);
+            dialogStage.setTitle(TagSelectionEditDialogController.STAGE_TITLE);
 
             Scene scene = new Scene(pane, Color.TRANSPARENT);
             dialogStage.setScene(scene);
