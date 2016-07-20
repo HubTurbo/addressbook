@@ -45,7 +45,7 @@ public class Installer extends Application {
     private static final String LIBRARY_DIR = "lib";
     private static final String VERSION_DATA_RESOURCE = "/VersionData.json";
     private static final String VERSION_DATA = "VersionData.json";
-    private static final String LAUNCHER_JAR = "launcher-*.*.*.jar";
+    private static final String LAUNCHER_JAR = "addressbook-V*.*.*.jar";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private ProgressBar progressBar;

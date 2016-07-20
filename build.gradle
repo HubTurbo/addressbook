@@ -56,7 +56,7 @@ allprojects {
         slf4jSimpleVersion = '1.6.4'
         commonsIoVersion = '2.4'
 
-        // Commons, Update and Launcher versions to be updated here on release
+        // Commons and Updater versions to be updated here on release
         commonsArchiveName = 'commons-0.0.0.jar'
 
         updaterArchiveName = "updater-0.0.0.jar"
@@ -67,7 +67,7 @@ allprojects {
         installerArchiveName = 'installer-' + project.version + '.jar'
         installerMainClass = 'installer.Installer'
 
-        launcherArchiveName = "launcher-0.0.0.jar"
+        launcherArchiveName = 'addressbook-' + project.version + '.jar'
         launcherMainClass = 'launcher.Launcher'
 
         licenceArchiveName = 'licence.jar'

@@ -56,7 +56,7 @@ public class Updater {
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
     private static final String LIB_DIR = "lib" + File.separator;
     private static final String UPDATER_FILE_REGEX = LIB_DIR + "updater-\\d\\.\\d\\.\\d\\.jar";
-    private static final String LAUNCHER_FILE_REGEX = "launcher-V\\d\\.\\d\\.\\d\\.jar";
+    private static final String LAUNCHER_FILE_REGEX = "addressbook-V\\d\\.\\d\\.\\d\\.jar";
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final Version currentVersion;
