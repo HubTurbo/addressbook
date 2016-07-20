@@ -82,6 +82,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 */
         //Confirm other cards are unaffected
+        personListPanel.sleep(30, TimeUnit.SECONDS);
 
         //personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1);
         //assertTrue(personListPanel.isSelected(td.alice));
