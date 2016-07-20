@@ -52,7 +52,6 @@ public class GuiHandle {
                                                                                                 .requestFocus());
     }
     public void focusOnMainApp() {
-
         guiRobot.interact(() -> guiRobot.listTargetWindows().get(0).requestFocus());
     }
 

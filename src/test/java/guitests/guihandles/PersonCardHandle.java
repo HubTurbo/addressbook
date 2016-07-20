@@ -31,16 +31,16 @@ public class PersonCardHandle extends GuiHandle {
     }
 
     public boolean isPendingStateLabelVisible() {
-        return node.lookup(PENDING_STATE_LABEL_FIELD_ID).isVisible();
+        return guiRobot.lookup(PENDING_STATE_LABEL_FIELD_ID).query().isVisible();
     }
 
     public boolean isPendingStateProgressIndicatorVisible() {
-        return node.lookup(PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID).isVisible();
+        return guiRobot.lookup(PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID).query().isVisible();
     }
 
     public boolean isPendingStateCountDownVisible() {
         focusOnMainApp();
-        return node.lookup(PENDING_STATE_COUNTDOWN_FIELD_ID).isVisible();
+        return guiRobot.lookup(PENDING_STATE_COUNTDOWN_FIELD_ID).query().isVisible();
     }
 
     public String getPendingStateLabel() {
