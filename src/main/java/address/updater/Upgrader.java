@@ -1,15 +1,20 @@
 package address.updater;
 
+import address.util.AppLogger;
+import address.util.LoggerManager;
 import commons.UpdaterUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * This class is meant to replace the old components with new components
  */
 public class Upgrader {
+    private static final AppLogger logger = LoggerManager.getLogger(Upgrader.class);
     private static final String UPDATE_DIR = "update";
     private static final String LIB_DIR = "lib";
     private static final String CUR_DIR = ".";
@@ -18,6 +23,8 @@ public class Upgrader {
 
     private String updaterFileName;
     private String launcherFileName;
+
+    private final ExecutorService pool = Executors.newSingleThreadExecutor();
 
     public Upgrader(String launcherFileName, String updaterFileName) {
         this.launcherFileName = launcherFileName;
@@ -32,9 +39,15 @@ public class Upgrader {
      * @throws IOException
      */
     public void upgradeUpdaterIfRequired() throws IOException {
-        if (updaterFileName == null) return;
-        UpdaterUtil.deleteFile(findComponentFileName(LIB_DIR, UPDATER_FILE_REGEX));
-        UpdaterUtil.updateFile(UPDATE_DIR, updaterFileName);
+        pool.execute(() -> {
+            if (updaterFileName == null) return;
+            try {
+                UpdaterUtil.deleteFile(findComponentFileName(LIB_DIR, UPDATER_FILE_REGEX));
+                UpdaterUtil.updateFile(UPDATE_DIR, updaterFileName);
+            } catch (IOException e) {
+                logger.warn("Error updating updater: {}", e);
+            }
+        });
     }
 
     /**
@@ -45,8 +58,14 @@ public class Upgrader {
      * @throws IOException
      */
     public void upgradeLauncher() throws IOException {
-        UpdaterUtil.deleteFile(findComponentFileName(CUR_DIR, LAUNCHER_FILE_REGEX));
-        UpdaterUtil.updateFile(UPDATE_DIR, launcherFileName);
+        pool.execute(() -> {
+            try {
+                UpdaterUtil.deleteFile(findComponentFileName(CUR_DIR, LAUNCHER_FILE_REGEX));
+                UpdaterUtil.updateFile(UPDATE_DIR, launcherFileName);
+            } catch (IOException e) {
+                logger.warn("Error updating launcher: {}", e);
+            }
+        });
     }
 
     /**
