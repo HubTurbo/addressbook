@@ -42,6 +42,10 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Get a reference to the card displaying Alice's details
         PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
 
+        if (alicePersonCard == null) {
+            System.out.println("alicePersonCard is null");
+        }
+
         //Edit Alice to change to new values
         personListPanel.clickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
@@ -51,10 +55,10 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.sleep(1, TimeUnit.SECONDS);
 
         //Confirm pending state correctness
-        //assertTrue(alicePersonCard.isPendingStateCountDownVisible());
-        //assertTrue(alicePersonCard.isPendingStateLabelVisible());
-        //assertFalse(alicePersonCard.isPendingStateProgressIndicatorVisible());
-        //assertTrue(alicePersonCard.getPendingStateLabel().equals("Edited"));
+        assertTrue(alicePersonCard.isPendingStateCountDownVisible());
+        assertTrue(alicePersonCard.isPendingStateLabelVisible());
+        assertFalse(alicePersonCard.isPendingStateProgressIndicatorVisible());
+        assertTrue(alicePersonCard.getPendingStateLabel().equals("Edited"));
 
         //Confirm the right card is selected after the edit
         assertEquals(alicePersonCard, newAlice);
@@ -133,7 +137,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
         personListPanel.sleep(1, TimeUnit.SECONDS);
         //assertTrue(deletedCard.isPendingStateCountDownVisible());
-        //assertTrue(deletedCard.isPendingStateLabelVisible());
+       // assertTrue(deletedCard.isPendingStateLabelVisible());
         //assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
         //assertTrue(deletedCard.getPendingStateLabel().equals("Deleted"));
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();

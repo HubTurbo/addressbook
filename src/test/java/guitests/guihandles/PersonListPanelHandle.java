@@ -150,6 +150,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public void clickOnPerson(Person person) {
+        System.out.println("Target window name: " + ((Stage)guiRobot.targetWindow()).getTitle());
         guiRobot.clickOn(person.getFirstName());
     }
 

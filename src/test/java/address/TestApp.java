@@ -83,7 +83,7 @@ public class TestApp extends MainApp {
         updateManager.start();
         storageManager.start();
         syncManager.start();
-        //remote.start(primaryStage);
+        remote.start(primaryStage);
     }
 
     public Config getTestingConfig() {

@@ -42,17 +42,19 @@ public class GuiHandle {
     }
 
     public void focusOnWindow(String stageTitle) {
-        //List<Window> windows = guiRobot.listTargetWindows();
-        guiRobot.interact(() -> guiRobot.listTargetWindows()
-                                        .stream()
-                                        .filter(w
-                                                -> w instanceof Stage
-                                                    && ((Stage)w).getTitle().equals(stageTitle)).findAny()
-                                                                                                .get()
-                                                                                                .requestFocus());
+        Window window = guiRobot.listTargetWindows()
+                .stream()
+                .filter(w
+                        -> w instanceof Stage
+                        && ((Stage)w).getTitle().equals(stageTitle)).findAny()
+                .get();
+        guiRobot.targetWindow(window);
+        guiRobot.interact(() -> window.requestFocus());
     }
     public void focusOnMainApp() {
-        guiRobot.interact(() -> guiRobot.listTargetWindows().get(0).requestFocus());
+        Window window = guiRobot.listTargetWindows().stream().filter(w -> w instanceof Stage && ((Stage)w).getTitle().equals("Test App")).findAny().get();
+        guiRobot.targetWindow(window);
+        guiRobot.interact(() -> window.requestFocus());
     }
 
     public FxRobot sleepForGracePeriod() {
@@ -101,6 +103,7 @@ public class GuiHandle {
     }
 
     public void pressEnter() {
+        System.out.println("Target window name: " + ((Stage)guiRobot.targetWindow()).getTitle());
         guiRobot.type(KeyCode.ENTER);
     }
 
