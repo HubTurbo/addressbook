@@ -9,7 +9,7 @@ import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
 import address.updater.UpdateProgressNotifier;
-import address.updater.UpdaterUpgrader;
+import address.updater.Upgrader;
 import commons.UpdateInformationNotifier;
 import commons.Version;
 import updater.Updater;
@@ -133,10 +133,11 @@ public class MainApp extends Application {
                 updateProgressNotifier::sendStatusFinished,
                 updateProgressNotifier::sendStatusFailed,
                 updateProgressNotifier::sendStatusInProgress,
-                (upgradeUpdater) -> {
-                    UpdaterUpgrader updaterUpgrader = new UpdaterUpgrader(upgradeUpdater);
+                (launcherFilePath, updaterFilePath) -> {
+                    Upgrader upgrader = new Upgrader(launcherFilePath, updaterFilePath.orElse(null));
                     try {
-                        updaterUpgrader.upgradeUpdater();
+                        upgrader.upgradeUpdaterIfRequired();
+                        upgrader.upgradeLauncher();
                     } catch (IOException e) {
                         logger.warn("Error upgrading updater: {}", e);
                     }
