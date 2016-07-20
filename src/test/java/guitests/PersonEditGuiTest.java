@@ -5,12 +5,15 @@ import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.testutil.PersonBuilder;
 import address.testutil.TestUtil;
+import com.google.common.io.Files;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.PersonListPanelHandle;
 import org.junit.Assert;
 import org.junit.Test;
+import org.loadui.testfx.GuiTest;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -88,16 +91,29 @@ public class PersonEditGuiTest extends GuiTestBase {
         //assertTrue(personListPanel.isSelected(td.alice));
         personListPanel.clickOnPerson("Alice");
         personListPanel.sleep(1, TimeUnit.SECONDS);
+        File file;
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("key1.png"));
         //personListPanel.clearSelection();
         //personListPanel.focusOnMainApp();
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
         personListPanel.sleep(1, TimeUnit.SECONDS);
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("key1.png"));
+        System.out.println("Selected Person: " + personListPanel.getSelectedPerson().toString());
+
         //assertTrue(personListPanel.isSelected(td.benson));
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
         personListPanel.sleep(1, TimeUnit.SECONDS);
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("key1.png"));
+        System.out.println("Selected Person: " + personListPanel.getSelectedPerson().toString());
         //assertTrue(personListPanel.isSelected(td.charlie));
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
         personListPanel.sleep(1, TimeUnit.SECONDS);
+        file = GuiTest.captureScreenshot();
+        Files.copy(file, new File("key1.png"));
+        System.out.println("Selected Person: " + personListPanel.getSelectedPerson().toString());
         //assertTrue(personListPanel.isSelected(td.dan));
         fail();
 
