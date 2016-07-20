@@ -1,6 +1,6 @@
 package address.model;
 
-import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandType.*;
 
 import address.events.BaseEvent;
 import address.events.CreatePersonOnRemoteRequestEvent;
@@ -76,7 +76,7 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
         final String targetIdString = personDataSnapshot == null ? "" : personDataSnapshot.idString();
 
         // catches CANCELLED and SUCCESS
-        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
                 TARGET_TYPE, targetIdString, targetName, targetName));
     }
 
@@ -136,13 +136,13 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void whenRemoteConflictDetected() {
-        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
                 TARGET_TYPE, viewableToAdd.idString(), viewableToAdd.fullName(), viewableToAdd.fullName()));
     }
 
     @Override
     protected void whenRemoteRequestFailed() {
-        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
                 TARGET_TYPE, viewableToAdd.idString(), viewableToAdd.fullName(), viewableToAdd.fullName()));
     }
 

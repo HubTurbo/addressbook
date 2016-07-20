@@ -3,7 +3,7 @@ package address.util;
 import address.events.SingleTargetCommandResultEvent;
 import org.junit.Test;
 
-import static address.events.SingleTargetCommandResultEvent.CommandStatus.*;
+import static address.events.SingleTargetCommandResultEvent.ResultState.*;
 import static org.junit.Assert.assertEquals;
 
 /**

@@ -1,7 +1,7 @@
 package address.model;
 
 import address.events.CreatePersonOnRemoteRequestEvent;
-import address.model.ChangeObjectInModelCommand.State;
+import address.model.ChangeObjectInModelCommand.CommandState;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
@@ -85,7 +85,7 @@ public class AddPersonCommandTest {
 
         when(modelManagerMock.addViewablePersonWithoutBacking(notNull(ReadOnlyPerson.class))).thenReturn(createdViewable);
 
-        doThrow(InterruptAndTerminateException.class).when(apc).afterState(State.SIMULATING_RESULT);
+        doThrow(InterruptAndTerminateException.class).when(apc).afterState(CommandState.SIMULATING_RESULT);
         thrown.expect(InterruptAndTerminateException.class);
 
         apc.run();
@@ -113,7 +113,7 @@ public class AddPersonCommandTest {
     public void retrievingInput_cancelsCommand_whenEmptyInputOptionalRetrieved() {
         final AddPersonCommand apc = new AddPersonCommand(0, Optional::empty, 0, e -> {}, modelManagerMock, ADDRESSBOOK_NAME);
         apc.run();
-        assertEquals(apc.getState(), State.CANCELLED);
+        assertEquals(apc.getState(), CommandState.CANCELLED);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class AddPersonCommandTest {
         final AddPersonCommand apc = spy(new AddPersonCommand(0, inputRetrieverWrapper(inputData), 0, null, modelManagerSpy, ADDRESSBOOK_NAME));
 
         // to stop the run at start of grace period (right after simulated change)
-        doThrow(new InterruptAndTerminateException()).when(apc).afterState(State.SIMULATING_RESULT);
+        doThrow(new InterruptAndTerminateException()).when(apc).afterState(CommandState.SIMULATING_RESULT);
         thrown.expect(InterruptAndTerminateException.class);
 
         apc.run();
@@ -145,7 +145,7 @@ public class AddPersonCommandTest {
 
 
     private void assertFinalStatesCorrectForSuccessfulAdd(AddPersonCommand command, ModelManager model, ReadOnlyPerson resultData) {
-        assertEquals(command.getState(), State.SUCCESSFUL);
+        assertEquals(command.getState(), CommandState.SUCCESSFUL);
         assertEquals(model.visibleModel().getPersonList().size(), 1); // only 1 viewable
         assertEquals(model.backingModel().getPersonList().size(), 1); // only 1 backing
 

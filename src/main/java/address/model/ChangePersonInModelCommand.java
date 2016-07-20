@@ -79,7 +79,7 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      * Resolve the remote conflict.
      */
     public void resolveConflict() {
-        assert getState() != State.CONFLICT_FOUND : "Attempted to resolve conflict for a command without a detected conflict";
+        assert getState() != CommandState.CONFLICT_FOUND : "Attempted to resolve conflict for a command without a detected conflict";
         handleResolveConflict();
     }
 
@@ -93,7 +93,7 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      * Request to retry the same command.
      */
     public void retry() {
-        assert getState() != State.REQUEST_FAILED : "Attempted to retry a command that has not failed";
+        assert getState() != CommandState.REQUEST_FAILED : "Attempted to retry a command that has not failed";
         handleRetry();
     }
 

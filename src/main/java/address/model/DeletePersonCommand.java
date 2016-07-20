@@ -1,6 +1,6 @@
 package address.model;
 
-import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandType.*;
 
 import address.events.BaseEvent;
 import address.events.DeletePersonOnRemoteRequestEvent;
@@ -78,7 +78,7 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
         model.unassignOngoingChangeForPerson(target.getId());
 
         // catches CANCELLED and SUCCESS
-        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
                 TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
     }
 
@@ -121,13 +121,13 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
 
     @Override
     protected void whenRemoteConflictDetected() {
-        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
                 TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
     }
 
     @Override
     protected void whenRemoteRequestFailed() {
-        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState().toResultStatus(),
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
                 TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
     }
 

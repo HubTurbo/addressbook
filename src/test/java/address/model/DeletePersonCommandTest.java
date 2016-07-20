@@ -1,8 +1,7 @@
 package address.model;
 
 import address.events.DeletePersonOnRemoteRequestEvent;
-import address.model.ChangeObjectInModelCommand.State;
-import address.model.datatypes.person.ReadOnlyPerson;
+import address.model.ChangeObjectInModelCommand.CommandState;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.util.Config;
@@ -15,9 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Optional;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -91,11 +88,11 @@ public class DeletePersonCommandTest {
     public void optimisticUiUpdate_flagsDelete() {
         final DeletePersonCommand dpc = spy(new DeletePersonCommand(0, testTarget, 0, events::post, modelManagerSpy, ADDRESSBOOK_NAME));
 
-        doThrow(new InterruptAndTerminateException()).when(dpc).afterState(State.SIMULATING_RESULT);
+        doThrow(new InterruptAndTerminateException()).when(dpc).afterState(CommandState.SIMULATING_RESULT);
         thrown.expect(InterruptAndTerminateException.class);
 
         dpc.run();
-        verify(testTarget).setChangeInProgress(ReadOnlyViewablePerson.ChangeInProgress.DELETING);
+        verify(testTarget).setChangeInProgress(ReadOnlyViewablePerson.OngoingCommandType.DELETING);
     }
 
     @Test
