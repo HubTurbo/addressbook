@@ -46,6 +46,7 @@ public class SimpleKeyBoardTest extends GuiTestBase {
         robot.clickOn("Alice");
         robot.push(KeyCode.E).sleep(500);
 
+        robot.targetWindow("Edit Person");
 
         //TextField node = robot.lookup("#firstNameField").query();
        // doubleClickOnNode(robot, node);
