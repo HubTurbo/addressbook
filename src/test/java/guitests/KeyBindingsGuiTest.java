@@ -25,7 +25,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
     @Test
     public void keyBindings() {
         //======= shortcuts =======================
-
+/*
         personListPanel.use_LIST_ENTER_SHORTCUT();
         assertTrue(personListPanel.isSelected("Alice", "Brown"));
 
@@ -109,11 +109,18 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
 */
 
+        mainGui.use_APP_MINIMIZE_HOTKEY();
+        mainGui.sleep(2, TimeUnit.SECONDS);
+        assertTrue(mainGui.isMinimized());
+        TestUtil.captureScreenShot("MINIMIZED");
+
+        System.out.println("isIconified" + mainGui.isIconified());
+
         mainGui.use_APP_RESIZE_HOTKEY(); // un-minimize window
         mainGui.sleep(2, TimeUnit.SECONDS);
         //assertFalse(mainGui.isMinimized()); // mainGui.isMinimized() gives wrong result in travis
 
-        TestUtil.captureScreenShot("maximizewindow");
+        TestUtil.captureScreenShot("showwindow");
 
         System.out.println("isIconified" + mainGui.isIconified());
 
@@ -121,7 +128,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         mainGui.sleep(2, TimeUnit.SECONDS);
         //assertTrue(mainGui.isDefaultSize());
 
-        TestUtil.captureScreenShot("defaultwindow");
+        TestUtil.captureScreenShot("maxwindow");
 
         System.out.println("isIconified" + mainGui.isIconified());
 
