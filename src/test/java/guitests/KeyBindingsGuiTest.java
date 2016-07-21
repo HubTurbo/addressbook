@@ -50,7 +50,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         editPersonDialog.clickCancel();
 
         personListPanel.focusOnMainApp();
-        personListPanel.clickOnListView();
+        personListPanel.clickOnPerson(td.dan);
 
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
         assertTrue(personListPanel.contains("Dan", "Edwards")); // still in the list due to grace period
@@ -90,11 +90,11 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         mainGui.sleep(2, TimeUnit.SECONDS);
         assertTrue(mainGui.isMinimized());
 
-/*
+
         mainGui.use_APP_RESIZE_HOTKEY(); // un-minimize window
         mainGui.sleep(2, TimeUnit.SECONDS);
         assertFalse(mainGui.isMinimized());
-*/
+
 
         mainGui.use_APP_RESIZE_HOTKEY(); // maximize the window
         mainGui.sleep(2, TimeUnit.SECONDS);
