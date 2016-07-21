@@ -1,7 +1,6 @@
 package address.controller;
 
 import address.events.*;
-import address.update.UpdateProgressNotifier;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import commons.DateTimeUtil;
@@ -15,10 +14,6 @@ import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.StatusBar;
 
 import java.util.concurrent.*;
-import java.util.function.Consumer;
-
-import static address.update.UpdateProgressNotifier.Status.FAILED;
-import static address.update.UpdateProgressNotifier.Status.FINISHED;
 
 public class StatusBarFooterController extends UiController {
 
