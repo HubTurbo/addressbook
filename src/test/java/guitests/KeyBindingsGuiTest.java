@@ -84,8 +84,13 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         //======== hotkeys ============================
 
-        mainGui.focusOnMainApp();
-        personListPanel.clickOnListView();
+        TestUtil.captureScreenShot("after tag edit and jumping");
+
+        mainGui.sleepForGracePeriod();
+
+        TestUtil.captureScreenShot("after grace period");
+
+        /*
 
         mainGui.use_APP_MINIMIZE_HOTKEY();
         mainGui.sleep(2, TimeUnit.SECONDS);
@@ -107,7 +112,9 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         mainGui.sleep(2, TimeUnit.SECONDS);
         TestUtil.captureScreenShot("APP_RESIZE_HOTKEY_1");
         assertTrue(mainGui.isDefaultSize());
+        */
         fail();
+
     }
 
 
