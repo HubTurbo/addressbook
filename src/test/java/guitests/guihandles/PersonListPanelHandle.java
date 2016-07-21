@@ -55,7 +55,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public void use_PERSON_CHANGE_CANCEL_ACCELERATOR() {
-        guiRobot.push(new Bindings().PERSON_CHANGE_CANCEL_ACCELERATOR);
+        guiRobot.push(new Bindings().PERSON_CANCEL_COMMAND_ACCELERATOR);
     }
 
     public void use_LIST_JUMP_TO_INDEX_SHORTCUT(int index) {

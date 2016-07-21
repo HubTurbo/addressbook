@@ -98,11 +98,12 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
     protected abstract void handleResolveConflict();
 
     /**
-     * Request to retry the same command.
+     * Request to retry the same command. Only works if state is {@link CommandState#REQUEST_FAILED}
      */
     public void retry() {
-        assert getState() != CommandState.REQUEST_FAILED : "Attempted to retry a command that has not failed";
-        handleRetry();
+        if (getState() == CommandState.REQUEST_FAILED) {
+            handleRetry();
+        }
     }
 
     /**
