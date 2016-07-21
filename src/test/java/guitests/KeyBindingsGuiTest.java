@@ -106,13 +106,14 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         System.out.println("isIconified" + mainGui.isIconified());
 
-        /*
+        mainGui.focusOnMainApp();
+
         mainGui.use_APP_RESIZE_HOTKEY(); // un-minimize window
         mainGui.sleep(2, TimeUnit.SECONDS);
         TestUtil.captureScreenShot("APP_RESIZE_HOTKEY_1");
-        //assertFalse(mainGui.isMinimized()); // mainGui.isMinimized() gives wrong result in travis
+        assertFalse(mainGui.isMinimized()); // mainGui.isMinimized() gives wrong result in travis
 
-
+/*
         mainGui.use_APP_RESIZE_HOTKEY(); // maximize the window
         mainGui.sleep(2, TimeUnit.SECONDS);
         //assertTrue(mainGui.isMaximized());
