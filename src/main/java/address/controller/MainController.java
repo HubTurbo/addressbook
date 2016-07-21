@@ -580,6 +580,7 @@ public class MainController extends UiController{
     }
 
     private void minimizeWindow() {
+        logger.info("minimizing app");
         primaryStage.setIconified(true);
         primaryStage.setMaximized(false);
     }
