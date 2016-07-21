@@ -83,10 +83,11 @@ Releasing a stable version: Merge `early-access` branch to `stable` branch.
 5. Create a new commit
   - Commit and push the files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>` (with suffix `ea` if it's an early access version)
   - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `VersionData.json`
-6. Draft a new release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
-7. Create the release JAR by running the Gradle task `createInstallerJar`
+6. Create the release JAR by running the Gradle task `createInstallerJar`
   - this must be run again to use the updated `VersionData.json`
+7. Draft a new release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
 8. Upload the generated `installer-V*.*.*.jar` found at `build/libs` to the latest release.
+9. Publish!
 
 ## More About Release
 The main application of `addressbook` is configured to be released as a [non-fat JAR](http://stackoverflow.com/questions/19150811/what-is-a-fat-jar),
