@@ -13,7 +13,7 @@ after_failure:
 addons:
   apt:
     packages:
-      - oracle-java8-installer
+      - oracle-java9-installer
 
 sudo: required
 dist: trusty
