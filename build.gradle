@@ -7,6 +7,7 @@
 
 plugins {
     id "com.github.kt3k.coveralls" version "2.4.0"
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
 allprojects {
@@ -59,7 +60,7 @@ allprojects {
         // Commons and Updater versions to be updated here on release
         commonsArchiveName = 'commons-0.0.0.jar'
 
-        updaterArchiveName = "update-0.0.3.jar"
+        updaterArchiveName = "updater.jar"
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         mainAppMainClass = 'address.MainApp'
@@ -100,7 +101,7 @@ allprojects {
         updater {
             java {
                 srcDir 'src/main/java'
-                include('update/**/*')
+                include('updater/**/*')
                 include('commons/**/*')
             }
             resources {
@@ -219,10 +220,15 @@ allprojects {
     compileCommonsJava.mustRunAfter copyAllDependenciesToLibrary
 
     // Updater jar
-    task createUpdaterJar(type: Jar) {
+    task createUpdaterJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
         archiveName = "$updaterArchiveName"
 
         from sourceSets.updater.output
+        
+        manifest {
+            attributes "Main-Class": "updater.UpdateMigrator"
+        }
+        configurations = [project.configurations.updaterCompile]
         destinationDir = file("$updaterDestDir/")
     }
     createUpdaterJar.dependsOn createCommonsJar

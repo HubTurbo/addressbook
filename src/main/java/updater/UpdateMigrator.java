@@ -24,6 +24,8 @@ import java.util.concurrent.Executors;
  * It does so by reading local update specifications from a file, and then replacing specified files
  */
 public class UpdateMigrator extends Application {
+    private static final String CUR_DIR = ".";
+    private static final String LAUNCHER_FILE_REGEX = "addressbook-V\\d\\.\\d\\.\\d(ea)?\\.jar";
     private static final String ERROR_ON_UPDATING_MESSAGE = "There was an error in updating.";
     private static final String UPDATE_DIR = "update";
 
@@ -78,6 +80,7 @@ public class UpdateMigrator extends Application {
         List<String> updateSpecifications = getUpdateSpecifications(updateSpecificationFilePath);
 
         updateBackups();
+        deleteLaunchers();
         applyUpdateToAllFiles(UPDATE_DIR, updateSpecifications);
         UpdaterUtil.deleteFile(updateSpecificationFilePath);
     }
@@ -128,5 +131,39 @@ public class UpdateMigrator extends Application {
             alert.showAndWait();
             stop();
         });
+    }
+
+
+    /**
+     * Attempts to upgrade the launcher file
+     *
+     * Assumes that the new version has the same path from UPDATE_DIR
+     *
+     * @throws IOException
+     */
+    public void deleteLaunchers() throws IOException {
+        FileUtil.deleteFile(findComponentFileName(CUR_DIR, LAUNCHER_FILE_REGEX));
+    }
+
+    private String findComponentFileName(String dirPath, String regex) throws FileNotFoundException {
+        File curDir = new File(dirPath);
+        String[] curDirFilesNames = curDir.list();
+        if (curDirFilesNames == null) assert false : "Not given a directory to check for component!";
+        return dirPath + File.separator + getFileNameOfRegexMatch(curDirFilesNames, regex);
+    }
+
+    /**
+     * Attempts to get the file which matching file name as the given regex
+     *
+     * @param curDirFilesNames
+     * @param regex
+     * @return file name of matching file
+     * @throws FileNotFoundException if no file name matches the given regex
+     */
+    private String getFileNameOfRegexMatch(String[] curDirFilesNames, String regex) throws FileNotFoundException {
+        for (String fileName : curDirFilesNames) {
+            if (fileName.matches(regex)) return fileName;
+        }
+        throw new FileNotFoundException("File not found!");
     }
 }

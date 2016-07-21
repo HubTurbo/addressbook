@@ -128,7 +128,7 @@ public class StatusBarFooterController extends UiController {
     private void handleApplicationUpdateInProgressEvent(ApplicationUpdateInProgressEvent auipe) {
         Platform.runLater(() -> {
             updaterStatusBar.setText(auipe.getMessage());
-            updaterStatusBar.setProgress(0);
+            updaterStatusBar.setProgress(auipe.getProgress());
         });
     }
 

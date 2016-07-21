@@ -4,6 +4,8 @@ import address.events.ApplicationUpdateFailedEvent;
 import address.events.ApplicationUpdateFinishedEvent;
 import address.events.ApplicationUpdateInProgressEvent;
 import address.main.ComponentManager;
+import address.util.AppLogger;
+import address.util.LoggerManager;
 import address.util.ManifestFileReader;
 import commons.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
  */
 public class UpdateManager extends ComponentManager {
     public static final String UPDATE_DIR = "update";
+    private static final AppLogger logger = LoggerManager.getLogger(UpdateManager.class);
 
     // --- Messages
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
@@ -51,6 +54,7 @@ public class UpdateManager extends ComponentManager {
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
     private static final String LIB_DIR = "lib/";
     private static final String LAUNCHER_FILE_REGEX = "addressbook-V\\d\\.\\d\\.\\d(ea)?\\.jar";
+    private static final String UPDATER_FILE_NAME = "updater.jar";
 
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
@@ -73,15 +77,16 @@ public class UpdateManager extends ComponentManager {
 
     public void stop() {
         if (!shouldRunUpdater) return;
-        pool.execute(this::scheduleUpdater);
+        scheduleUpdater();
     }
 
     private void scheduleUpdater() {
+        logger.info("Scheduling updater");
         try {
             extractUpdaterJar();
             runUpdater();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.fatal("Error scheduling updater: {}", e);
         }
     }
 
@@ -104,15 +109,16 @@ public class UpdateManager extends ComponentManager {
     }
 
     private void extractUpdaterJar() throws IOException {
-        extractFile(new File("update/updater.jar"), "updater/updater.jar");
+        logger.info("Extracting updater jar to: " + UPDATER_FILE_NAME);
+        extractFile(new File(UPDATER_FILE_NAME), "updater/updater.jar");
     }
 
     private void runUpdater() throws IOException {
         try {
-            String command = String.format("java -jar %s", "update/*.jar");
-            System.out.println("Starting updater: " + command);
+            String command = "java -jar " + UPDATER_FILE_NAME;
+            logger.debug("Starting updater: {}", command);
             Runtime.getRuntime().exec(command, null, new File(System.getProperty("user.dir")));
-            System.out.println("Updater launched");
+            logger.debug("Updater launched");
         } catch (IOException e) {
             throw new IOException("Error launching updater", e);
         }

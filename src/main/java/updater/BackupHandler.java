@@ -1,6 +1,5 @@
 package updater;
 
-import address.update.DependencyHistoryHandler;
 import commons.*;
 
 import java.io.File;

@@ -126,6 +126,7 @@ public class MainApp extends Application {
         storageManager.savePrefsToFile(userPrefs);
         syncManager.stop();
         keyBindingsManager.stop();
+        updateManager.stop();
         quit();
     }
 
