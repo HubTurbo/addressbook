@@ -12,6 +12,7 @@ public class NewTagDialogHandle extends GuiHandle {
 
     public NewTagDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage);
+        focusOnWindow("New Tag");
     }
 
     public String getTagName() {

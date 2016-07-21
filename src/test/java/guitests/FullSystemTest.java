@@ -22,13 +22,13 @@ public class FullSystemTest extends GuiTestBase {
         newTagDialog = mainMenu.clickOn("Tags","New Tag")
                                .as(NewTagDialogHandle.class);
         newTagDialog.enterTagName("colleagues");
-        newTagDialog.sleep(1, TimeUnit.SECONDS);
         assertEquals("colleagues", newTagDialog.getTagName());
         newTagDialog.clickOk();
 
+        newTagDialog.focusOnMainApp();
+
         //Edit Hans Muster to John Tan, and edit details
         personListPanel.clickOnPerson("Muster");
-        //personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1);
         assertTrue(personListPanel.isSelected("Hans", "Muster"));
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         editPersonDialog.enterFirstName("John").enterLastName("Tan")
@@ -42,6 +42,7 @@ public class FullSystemTest extends GuiTestBase {
         assertEquals("Singapore", editPersonDialog.getCity());
         assertEquals("john123", editPersonDialog.getGithubUserName());
         editPersonDialog.pressEnter();
+        mainGui.focusOnMainApp();
 
         //Filter persons list with 'colleagues' tag
         personListPanel.enterFilterAndApply("tag:colleagues");
@@ -63,6 +64,8 @@ public class FullSystemTest extends GuiTestBase {
         newPersonDialog.enterLastName("Lee");
         newPersonDialog.clickOk();
         assertTrue(personListPanel.contains("Ming", "Lee"));
+
+        mainGui.focusOnMainApp();
 
         //Create a new tag 'company' using the 'Manage Tags' dialog
         ManageTagsDialogHandle manageTagsDialog = mainMenu.clickOn("Tags", "Manage Tags")
