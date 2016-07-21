@@ -45,6 +45,8 @@ public class PersonListGuiTest extends GuiTestBase {
             return;
         }
 
+        personListPanel.clickOnListView();
+
         //drag the person at the middle and drop at the bottom
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
         personListPanel.edgeDrag(td.charlie.getFirstName(), VerticalDirection.DOWN, 5, TimeUnit.SECONDS);
