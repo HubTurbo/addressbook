@@ -599,6 +599,8 @@ public class MainController extends UiController{
 
     private void resizeWindow() {
         logger.info("Resizing window");
+        logger.info("Before: Stage width: {}", primaryStage.getWidth());
+        logger.info("Before: Stage height: {}", primaryStage.getHeight());
         // specially handle since stage operations on Mac seem to not be working as intended
         if (commons.OsDetector.isOnMac()) {
             // refresh stage so that resizing effects (apart from the first resize after iconify-ing) are applied
@@ -616,8 +618,8 @@ public class MainController extends UiController{
             logger.info("After: stage is " + primaryStage.isMaximized());
         }
 
-        logger.info("Stage width: {}", primaryStage.getWidth());
-        logger.info("Stage height: {}", primaryStage.getHeight());
+        logger.info("After: Stage width: {}", primaryStage.getWidth());
+        logger.info("After: Stage height: {}", primaryStage.getHeight());
     }
 
     public void stop() {
