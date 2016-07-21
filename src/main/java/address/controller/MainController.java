@@ -106,7 +106,7 @@ public class MainController extends UiController{
     public void start(Stage primaryStage) {
         logger.info("Starting main controller.");
         this.primaryStage = primaryStage;
-        this.primaryStage.setMaximized(true);
+        primaryStage.initStyle(StageStyle.DECORATED);
         this.browserManager.start();
         primaryStage.setTitle(config.getAppTitle());
 
@@ -141,8 +141,8 @@ public class MainController extends UiController{
         Scene scene = new Scene(rootLayout);
         scene.setOnKeyPressed(event -> raisePotentialEvent(new KeyBindingEvent(event)));
         primaryStage.setScene(scene);
-        //setMinSize();
-        //setDefaultSize();
+        setMinSize();
+        setDefaultSize();
 
         // Give the rootController access to the main controller and modelManager
         RootLayoutController rootController = loader.getController();
@@ -567,12 +567,15 @@ public class MainController extends UiController{
     }
 
     protected void setDefaultSize() {
+        /*
         primaryStage.setHeight(prefs.getGuiSettings().getWindowHeight());
         primaryStage.setWidth(prefs.getGuiSettings().getWindowWidth());
         if (prefs.getGuiSettings().getWindowCoordinates() != null) {
             primaryStage.setX(prefs.getGuiSettings().getWindowCoordinates().getX());
             primaryStage.setY(prefs.getGuiSettings().getWindowCoordinates().getY());
         }
+        */
+        this.primaryStage.setMaximized(true);
     }
 
     private void setMinSize() {
