@@ -225,9 +225,6 @@ allprojects {
 
         from sourceSets.updater.output
         
-        manifest {
-            attributes "Main-Class": "updater.UpdateMigrator"
-        }
         configurations = [project.configurations.updaterCompile]
         destinationDir = file("$updaterDestDir/")
     }

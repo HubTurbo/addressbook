@@ -90,6 +90,7 @@ public class UpdateMigrator extends Application {
      * @throws IOException
      */
     private void updateBackups() throws IOException {
+        System.out.println("Updating backups");
         BackupHandler backupHandler = new BackupHandler(readCurrentVersionFromFile());
         backupHandler.createAppBackup();
         backupHandler.cleanupBackups();
@@ -118,8 +119,8 @@ public class UpdateMigrator extends Application {
         }
     }
 
-    private void showErrorOnUpdatingDialog(Exception e) {
-        showErrorDialog("Failed to perform update", ERROR_ON_UPDATING_MESSAGE, e.getMessage());
+    private void showErrorOnUpdatingDialog(IOException e) {
+        showErrorDialog("Failed to perform update", ERROR_ON_UPDATING_MESSAGE, e.toString());
     }
 
     private void showErrorDialog(String title, String header, String message) {
@@ -142,6 +143,7 @@ public class UpdateMigrator extends Application {
      * @throws IOException
      */
     public void deleteLaunchers() throws IOException {
+        System.out.println("Deleting launchers");
         FileUtil.deleteFile(findComponentFileName(CUR_DIR, LAUNCHER_FILE_REGEX));
     }
 

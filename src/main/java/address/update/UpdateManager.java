@@ -54,7 +54,7 @@ public class UpdateManager extends ComponentManager {
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
     private static final String LIB_DIR = "lib/";
     private static final String LAUNCHER_FILE_REGEX = "addressbook-V\\d\\.\\d\\.\\d(ea)?\\.jar";
-    private static final String UPDATER_FILE_NAME = "updater.jar";
+    private static final String UPDATER_FILE_PATH = "update/updater.jar";
 
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
@@ -109,13 +109,13 @@ public class UpdateManager extends ComponentManager {
     }
 
     private void extractUpdaterJar() throws IOException {
-        logger.info("Extracting updater jar to: " + UPDATER_FILE_NAME);
-        extractFile(new File(UPDATER_FILE_NAME), "updater/updater.jar");
+        logger.info("Extracting updater jar to: " + UPDATER_FILE_PATH);
+        extractFile(new File(UPDATER_FILE_PATH), "updater/updater.jar");
     }
 
     private void runUpdater() throws IOException {
         try {
-            String command = "java -jar " + UPDATER_FILE_NAME;
+            String command = "java -cp " + UPDATER_FILE_PATH + " updater.UpdateMigrator";
             logger.debug("Starting updater: {}", command);
             Runtime.getRuntime().exec(command, null, new File(System.getProperty("user.dir")));
             logger.debug("Updater launched");
