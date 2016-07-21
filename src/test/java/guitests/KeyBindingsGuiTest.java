@@ -6,6 +6,8 @@ import guitests.guihandles.TagPersonDialogHandle;
 import org.junit.Test;
 
 
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.*;
 
 /**
@@ -82,15 +84,19 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         //======== hotkeys ============================
 
         mainGui.use_APP_MINIMIZE_HOTKEY();
+        mainGui.sleep(2, TimeUnit.SECONDS);
         assertTrue(mainGui.isMinimized());
 
         mainGui.use_APP_RESIZE_HOTKEY(); // un-minimize window
+        mainGui.sleep(2, TimeUnit.SECONDS);
         assertFalse(mainGui.isMinimized());
 
         mainGui.use_APP_RESIZE_HOTKEY(); // maximize the window
+        mainGui.sleep(2, TimeUnit.SECONDS);
         assertTrue(mainGui.isMaximized());
 
         mainGui.use_APP_RESIZE_HOTKEY(); // set window to default size
+        mainGui.sleep(2, TimeUnit.SECONDS);
         assertTrue(mainGui.isDefaultSize());
     }
 
