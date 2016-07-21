@@ -97,13 +97,16 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         TestUtil.captureScreenShot("afterclicking");
 
-        /*
+
 
         mainGui.use_APP_MINIMIZE_HOTKEY();
         mainGui.sleep(2, TimeUnit.SECONDS);
         assertTrue(mainGui.isMinimized());
         TestUtil.captureScreenShot("MINIMIZED");
 
+        System.out.println("isIconified" + mainGui.isIconified());
+
+        /*
         mainGui.use_APP_RESIZE_HOTKEY(); // un-minimize window
         mainGui.sleep(2, TimeUnit.SECONDS);
         TestUtil.captureScreenShot("APP_RESIZE_HOTKEY_1");
