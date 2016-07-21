@@ -8,18 +8,14 @@ import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
-import address.updater.UpdateProgressNotifier;
-import address.updater.Upgrader;
-import commons.UpdateInformationNotifier;
 import commons.Version;
-import updater.Updater;
+import address.update.Updater;
 import address.util.*;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -119,30 +115,12 @@ public class MainApp extends Application {
         logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
         if (ManifestFileReader.isRunFromJar()) {
-            updater.start(getUpdateInformationNotifier(ui));
+            updater.start(ui.getUpdateProgressNotifier());
         } else {
-            ui.getUpdateProgressNotifier().sendStatusFinished("Developer environment; not running updater");
+            ui.getUpdateProgressNotifier().sendStatusFinished("Developer environment; not running update");
         }
         storageManager.start();
         syncManager.start();
-    }
-
-    protected UpdateInformationNotifier getUpdateInformationNotifier(Ui ui) {
-        UpdateProgressNotifier updateProgressNotifier = ui.getUpdateProgressNotifier();
-        return new UpdateInformationNotifier(
-                updateProgressNotifier::sendStatusFinished,
-                updateProgressNotifier::sendStatusFailed,
-                updateProgressNotifier::sendStatusInProgress,
-                (launcherFilePath, updaterFilePath) -> {
-                    Upgrader upgrader = new Upgrader(launcherFilePath, updaterFilePath.orElse(null));
-                    try {
-                        upgrader.upgradeUpdaterIfRequired();
-                        upgrader.upgradeLauncher();
-                    } catch (IOException e) {
-                        logger.warn("Error upgrading updater: {}", e);
-                    }
-                }
-        );
     }
 
     @Override

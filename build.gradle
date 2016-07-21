@@ -59,7 +59,7 @@ allprojects {
         // Commons and Updater versions to be updated here on release
         commonsArchiveName = 'commons-0.0.0.jar'
 
-        updaterArchiveName = "updater-0.0.3.jar"
+        updaterArchiveName = "update-0.0.3.jar"
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         mainAppMainClass = 'address.MainApp'
@@ -99,7 +99,7 @@ allprojects {
         updater {
             java {
                 srcDir 'src/main/java'
-                include('updater/**/*')
+                include('update/**/*')
                 include('commons/**/*')
             }
             resources {
@@ -195,7 +195,7 @@ allprojects {
     // Remove any old custom dependencies
     task deleteOldCustomDependenciesFromLibrary(type: Delete) {
         delete fileTree(dir: ".", include: 'addressbook-V*.*.*.jar')
-        delete fileTree(dir: "$libDir", includes: ['updater-*.*.*.jar', 'commons-*.*.*.jar', 'resource-V*.*.*.jar'])
+        delete fileTree(dir: "$libDir", includes: ['update-*.*.*.jar', 'commons-*.*.*.jar', 'resource-V*.*.*.jar'])
     }
 
     // Copy downloaded dependencies from Gradle's cache into the library directory
@@ -244,8 +244,8 @@ allprojects {
         destinationDir = file("$libDir/")
     }
     jar.dependsOn createUpdaterJar
-    compileJava.mustRunAfter createUpdaterJar // jar adds compileJava, but it runs at the beginning (which fails without updater.jar)
-                                              // delay this until updater.jar is created
+    compileJava.mustRunAfter createUpdaterJar // jar adds compileJava, but it runs at the beginning (which fails without update.jar)
+                                              // delay this until update.jar is created
 
     // Creates the launcher, which launches the main application with custom arguments
     task createLauncherJar(type: Jar) {

@@ -1,7 +1,7 @@
 package hubturbo.updater;
 
 import address.testutil.TestUtil;
-import updater.LocalUpdateSpecificationHelper;
+import address.update.LocalUpdateSpecificationHelper;
 import commons.FileUtil;
 import org.junit.Before;
 import org.junit.Test;

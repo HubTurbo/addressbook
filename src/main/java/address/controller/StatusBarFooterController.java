@@ -1,7 +1,7 @@
 package address.controller;
 
 import address.events.*;
-import address.updater.UpdateProgressNotifier;
+import address.update.UpdateProgressNotifier;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import commons.DateTimeUtil;
@@ -17,8 +17,8 @@ import org.controlsfx.control.StatusBar;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
-import static address.updater.UpdateProgressNotifier.Status.FAILED;
-import static address.updater.UpdateProgressNotifier.Status.FINISHED;
+import static address.update.UpdateProgressNotifier.Status.FAILED;
+import static address.update.UpdateProgressNotifier.Status.FINISHED;
 
 public class StatusBarFooterController extends UiController {
 

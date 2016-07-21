@@ -1,5 +1,7 @@
 package updater;
 
+import address.update.LocalUpdateSpecificationHelper;
+import address.update.Updater;
 import commons.UpdaterUtil;
 import commons.Version;
 import commons.VersionData;

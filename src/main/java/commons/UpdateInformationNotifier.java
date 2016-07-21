@@ -5,7 +5,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * This class is meant as a way for the updater to notify the main application of its progress
+ * This class is meant as a way for the update to notify the main application of its progress
  */
 public class UpdateInformationNotifier {
     private Consumer<String> statusFinishedReader;
