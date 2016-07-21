@@ -11,7 +11,7 @@ plugins {
 }
 
 allprojects {
-    version = 'V1.6.0ea'
+    version = 'V1.6.1ea'
 
     apply plugin: 'idea'
     apply plugin: 'java'
@@ -58,7 +58,7 @@ allprojects {
         commonsIoVersion = '2.4'
 
         // Commons and Updater versions to be updated here on release
-        commonsArchiveName = 'commons-0.0.1.jar'
+        commonsArchiveName = 'commons-0.0.2.jar'
 
         updaterArchiveName = "updater.jar"
 
