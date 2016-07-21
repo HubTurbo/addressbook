@@ -84,11 +84,11 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         //======== hotkeys ============================
 
-        TestUtil.captureScreenShot("after tag edit and jumping");
+        TestUtil.captureScreenShot("aftertageditandjumping");
 
         mainGui.sleepForGracePeriod();
 
-        TestUtil.captureScreenShot("after grace period");
+        TestUtil.captureScreenShot("aftergraceperiod");
 
         /*
 
