@@ -15,6 +15,3 @@ addons:
     packages:
       - oracle-java8-installer
 
-os:
-  - osx
-

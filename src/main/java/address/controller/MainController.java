@@ -588,13 +588,13 @@ public class MainController extends UiController{
 
     private void handleResizeRequest() {
         logger.info("Handling resize request.");
-        if (primaryStage.isIconified()) {
-            logger.info("iconified window, showing window instead.");
-            logger.debug("Cannot resize as window is iconified, attempting to show window instead.");
-            primaryStage.setIconified(false);
-        } else {
+        //if (primaryStage.isIconified()) {
+        //    logger.info("iconified window, showing window instead.");
+        //    logger.debug("Cannot resize as window is iconified, attempting to show window instead.");
+        //    primaryStage.setIconified(false);
+        //} else {
             resizeWindow();
-        }
+       // }
     }
 
     private void resizeWindow() {
