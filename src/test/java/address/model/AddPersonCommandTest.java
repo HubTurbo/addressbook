@@ -1,7 +1,7 @@
 package address.model;
 
 import address.events.CreatePersonOnRemoteRequestEvent;
-import address.model.ChangeObjectInModelCommand.State;
+import address.model.ChangeObjectInModelCommand.CommandState;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
@@ -85,7 +85,7 @@ public class AddPersonCommandTest {
 
         when(modelManagerMock.addViewablePersonWithoutBacking(notNull(ReadOnlyPerson.class))).thenReturn(createdViewable);
 
-        doThrow(InterruptAndTerminateException.class).when(apc).afterState(State.SIMULATING_RESULT);
+        doThrow(InterruptAndTerminateException.class).when(apc).afterState(CommandState.SIMULATING_RESULT);
         thrown.expect(InterruptAndTerminateException.class);
 
         apc.run();
@@ -113,7 +113,7 @@ public class AddPersonCommandTest {
     public void retrievingInput_cancelsCommand_whenEmptyInputOptionalRetrieved() {
         final AddPersonCommand apc = new AddPersonCommand(0, Optional::empty, 0, e -> {}, modelManagerMock, ADDRESSBOOK_NAME);
         apc.run();
-        assertEquals(apc.getState(), State.CANCELLED);
+        assertEquals(apc.getState(), CommandState.CANCELLED);
     }
 
     @Test
@@ -122,15 +122,15 @@ public class AddPersonCommandTest {
         final AddPersonCommand apc = spy(new AddPersonCommand(0, inputRetrieverWrapper(inputData), 0, null, modelManagerSpy, ADDRESSBOOK_NAME));
 
         // to stop the run at start of grace period (right after simulated change)
-        doThrow(new InterruptAndTerminateException()).when(apc).afterState(State.SIMULATING_RESULT);
+        doThrow(new InterruptAndTerminateException()).when(apc).afterState(CommandState.SIMULATING_RESULT);
         thrown.expect(InterruptAndTerminateException.class);
 
         apc.run();
 
-        assertTrue(apc.getViewableToAdd().dataFieldsEqual(inputData)); // same data as input
+        assertTrue(apc.getViewable().dataFieldsEqual(inputData)); // same data as input
         assertEquals(modelManagerSpy.visibleModel().getPersonList().size(), 1); // only 1 viewable
         assertTrue(modelManagerSpy.backingModel().getPersonList().isEmpty()); // simulation wont affect backing
-        assertSame(modelManagerSpy.visibleModel().getPersonList().get(0), apc.getViewableToAdd()); // same ref
+        assertSame(modelManagerSpy.visibleModel().getPersonList().get(0), apc.getViewable()); // same ref
     }
 
     @Test
@@ -139,19 +139,19 @@ public class AddPersonCommandTest {
         final AddPersonCommand apc = new AddPersonCommand(0, inputRetrieverWrapper(inputData), 0, events::post, modelManagerSpy, ADDRESSBOOK_NAME);
 
         apc.run();
-        assertFalse(modelManagerSpy.personHasOngoingChange(apc.getViewableToAdd()));
+        assertFalse(modelManagerSpy.personHasOngoingChange(apc.getViewable()));
         assertFinalStatesCorrectForSuccessfulAdd(apc, modelManagerSpy, inputData);
     }
 
 
     private void assertFinalStatesCorrectForSuccessfulAdd(AddPersonCommand command, ModelManager model, ReadOnlyPerson resultData) {
-        assertEquals(command.getState(), State.SUCCESSFUL);
+        assertEquals(command.getState(), CommandState.SUCCESSFUL);
         assertEquals(model.visibleModel().getPersonList().size(), 1); // only 1 viewable
         assertEquals(model.backingModel().getPersonList().size(), 1); // only 1 backing
 
         final ViewablePerson viewablePersonFromModel = model.visibleModel().getPersons().get(0);
         final Person backingPersonFromModel = model.backingModel().getPersons().get(0);
-        assertSame(viewablePersonFromModel, command.getViewableToAdd()); // reference check
+        assertSame(viewablePersonFromModel, command.getViewable()); // reference check
         assertSame(viewablePersonFromModel.getBacking(), backingPersonFromModel); // backing connected properly to visible
         assertTrue(viewablePersonFromModel.dataFieldsEqual(resultData));
         assertTrue(backingPersonFromModel.dataFieldsEqual(resultData));

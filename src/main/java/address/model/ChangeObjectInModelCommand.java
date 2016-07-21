@@ -8,8 +8,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import java.util.Optional;
 import java.util.concurrent.*;
 
-import static address.model.ChangeObjectInModelCommand.State.*;
-import static address.model.SingleTargetCommandResult.CommandStatus;
+import static address.model.ChangeObjectInModelCommand.CommandState.*;
+import static address.events.SingleTargetCommandResultEvent.ResultState;
 
 /**
  * Framework-style superclass for all commands that would cause changes for single domain objects in the model,
@@ -19,7 +19,7 @@ import static address.model.SingleTargetCommandResult.CommandStatus;
  */
 public abstract class ChangeObjectInModelCommand implements Runnable {
 
-    public enum State {
+    public enum CommandState {
         // Initial state
         NEWLY_CREATED               ("Newly Created"),
 
@@ -35,34 +35,17 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         REQUEST_FAILED              ("Remote Request Failed"),
 
         // Terminal states
-        CANCELLED                   ("Cancelled", CommandStatus.CANCELLED),
-        SUCCESSFUL                  ("Successful", CommandStatus.SUCCESSFUL);
+        CANCELLED                   ("Cancelled"),
+        SUCCESSFUL                  ("Successful");
 
         private final String descr;
-        private final Optional<CommandStatus> resultStatusMapping;
-
-        State(String descr) {
+        CommandState(String descr) {
             this.descr = descr;
-            resultStatusMapping = Optional.empty();
         }
-        State(String descr, CommandStatus resultStatusMapping) {
-            this.descr = descr;
-            this.resultStatusMapping = Optional.of(resultStatusMapping);
-        }
-
         @Override
         public String toString() {
             return descr;
         }
-
-        public CommandStatus toResultStatus() {
-            if (resultStatusMapping.isPresent()) {
-                return resultStatusMapping.get();
-            } else {
-                throw new UnsupportedOperationException();
-            }
-        }
-
         /**
          * @return true if this is one of the terminal states.
          */
@@ -76,7 +59,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     private final int commandId;
 
     protected final int gracePeriodDurationInSeconds;
-    protected final Property<State> state; // current state
+    protected final Property<CommandState> state; // current state
 
     private final CountDownLatch completionLatch; // blocking completion flag
     private final CountDownLatch cancelledLatch; // blocking cancellation flag
@@ -137,25 +120,25 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
         return cancelledLatch.getCount() == 0;
     }
 
-    public State getState() {
+    public CommandState getState() {
         return state.getValue();
     }
 
-    void setState(State newState) {
+    void setState(CommandState newState) {
         state.setValue(newState);
     }
 
     /**
      * Hook that runs before new states are handled
      */
-    protected void beforeState(State currentState) {
+    protected void beforeState(CommandState currentState) {
         // override to inject code
     }
 
     /**
      * Hook that runs after a state is handled
      */
-    protected void afterState(State handledState) {
+    protected void afterState(CommandState handledState) {
         // override to inject code
     }
 
@@ -172,12 +155,12 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     protected abstract void after();
 
     /**
-     * Runs when the terminal {@link State#CANCELLED} state is reached.
+     * Runs when the terminal {@link CommandState#CANCELLED} state is reached.
      */
     protected abstract void finishWithCancel();
 
     /**
-     * Runs when the terminal {@link State#SUCCESSFUL} state is reached.
+     * Runs when the terminal {@link CommandState#SUCCESSFUL} state is reached.
      */
     protected abstract void finishWithSuccess();
 
@@ -218,9 +201,9 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      * @param state state to be considered
      * @return next state
      */
-    private State handleAndTransitionState(State state) {
+    private CommandState handleAndTransitionState(CommandState state) {
         beforeState(state);
-        final State next;
+        final CommandState next;
         switch (state) {
         case NEWLY_CREATED :
             next = RETRIEVING_INPUT;
@@ -278,7 +261,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
     protected abstract void simulateResult();
 
     /**
-     * State transition for {@link State#GRACE_PERIOD}.
+     * State transition for {@link CommandState#GRACE_PERIOD}.
      * This grace period phase allows the user to cancel the command with minimal cost.
      *
      * Updates {@link #handleChangeToSecondsLeftInGracePeriod(int)} whenever seconds remaining in the
@@ -287,7 +270,7 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
      * @see #cancelCommand()
      * @return next state
      */
-    private State gracePeriodCountdownAndTransition() {
+    protected CommandState gracePeriodCountdownAndTransition() {
         // Countdown loop, checks for cancel signal
         for (int i = gracePeriodDurationInSeconds; i > 0; i--) {
             handleChangeToSecondsLeftInGracePeriod(i);
@@ -328,34 +311,34 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
 
     /**
      * Checks for any unseen remote changes to this command's target since this command was started.
-     * @see State#CONFLICT_FOUND
+     * @see CommandState#CONFLICT_FOUND
      * @return true if a remote conflict was found, false otherwise.
      */
     protected abstract boolean checkForRemoteConflict();
 
     /**
-     * Runs when {@link State#CONFLICT_FOUND} is reached.
-     * After this method completes, the command is {@link State#CANCELLED}, perform all prompts and informing the user
+     * Runs when {@link CommandState#CONFLICT_FOUND} is reached.
+     * After this method completes, the command is {@link CommandState#CANCELLED}, perform all prompts and informing the user
      * in this method, then recovery should utilise a new command.
      * @see #handleRequestFailed()
      */
     protected abstract void handleRemoteConflict();
 
     /**
-     * State transition for {@link State#REQUESTING_REMOTE_CHANGE}
+     * State transition for {@link CommandState#REQUESTING_REMOTE_CHANGE}
      *
      * Sends a request for the change encapsulated by this command to be performed on the remote.
      * Handles the response from the remote server.
      *
-     * @see State#SUCCESSFUL
-     * @see State#REQUEST_FAILED
+     * @see CommandState#SUCCESSFUL
+     * @see CommandState#REQUEST_FAILED
      * @return true if the change was successful, false otherwise
      */
     protected abstract boolean requestRemoteChange();
 
     /**
-     * Runs when {@link State#REQUEST_FAILED} is reached.
-     * After this method completes, the command is {@link State#CANCELLED}, perform all prompts and informing the user
+     * Runs when {@link CommandState#REQUEST_FAILED} is reached.
+     * After this method completes, the command is {@link CommandState#CANCELLED}, perform all prompts and informing the user
      * in this method, then recovery should utilise a new command.
      * @see #handleRemoteConflict()
      */

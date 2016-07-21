@@ -70,7 +70,7 @@ public class KeyBindingsManagerTest {
         ArrayList<Accelerator> accelerators = new ArrayList<>();
         Accelerator personEditAccelerator = new Bindings().PERSON_EDIT_ACCELERATOR;
         accelerators.add(personEditAccelerator);
-        accelerators.add(new Bindings().PERSON_CHANGE_CANCEL_ACCELERATOR);
+        accelerators.add(new Bindings().PERSON_CANCEL_COMMAND_ACCELERATOR);
 
         // Verify checking for non-existent accelerator
         assertEquals(Optional.empty(), keyBindingsManager.getAcceleratorKeyCombo("non existent"));

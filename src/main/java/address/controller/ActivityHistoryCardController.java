@@ -1,6 +1,6 @@
 package address.controller;
 
-import address.model.SingleTargetCommandResult;
+import address.events.SingleTargetCommandResultEvent;
 import address.util.CommandResultFormatter;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,9 +17,9 @@ public class ActivityHistoryCardController {
     @FXML
     private Label activityLabel;
 
-    private SingleTargetCommandResult result;
+    private SingleTargetCommandResultEvent result;
 
-    public ActivityHistoryCardController(SingleTargetCommandResult result) {
+    public ActivityHistoryCardController(SingleTargetCommandResultEvent result) {
         this.result = result;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/view/ActivityHistoryCard.fxml"));
         fxmlLoader.setController(this);
