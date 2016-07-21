@@ -39,6 +39,7 @@ public class UpdateManager extends ComponentManager {
     private static final String MSG_FAIL_DOWNLOAD_UPDATE = "Downloading update failed";
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_UPDATE_NOT_SUPPORTED = "Update not supported on detected OS";
+    private static final String MSG_NOT_UPDATING_DEVELOPER_ENV = "Developer env detected; not updating";
     private static final String MSG_FAIL_OBTAIN_LATEST_VERSION_DATA = "Unable to obtain latest version data. Please manually download the latest version.";
     private static final String MSG_FAIL_READ_LATEST_VERSION = "Error reading latest version";
     private static final String MSG_NO_NEWER_VERSION = "No newer version to be downloaded";
@@ -71,7 +72,10 @@ public class UpdateManager extends ComponentManager {
     }
 
     public void start() {
-        if (!ManifestFileReader.isRunFromJar()) return;
+        if (!ManifestFileReader.isRunFromJar()) {
+            raise(new ApplicationUpdateFinishedEvent(MSG_NOT_UPDATING_DEVELOPER_ENV));
+            return;
+        }
         pool.execute(this::checkForUpdate);
     }
 
