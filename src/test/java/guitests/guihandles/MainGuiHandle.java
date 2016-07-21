@@ -1,5 +1,6 @@
 package guitests.guihandles;
 
+import address.TestApp;
 import address.keybindings.Bindings;
 import commons.OsDetector;
 import guitests.GuiRobot;
@@ -11,7 +12,7 @@ import javafx.stage.Stage;
 public class MainGuiHandle extends GuiHandle{
 
     public MainGuiHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage);
+        super(guiRobot, primaryStage, TestApp.APP_TITLE);
     }
 
     public PersonListPanelHandle getPersonListPanel(){

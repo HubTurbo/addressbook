@@ -28,8 +28,7 @@ public class EditPersonDialogHandle extends GuiHandle {
     private static final String CANCEL_BUTTON_TEXT = "Cancel";
 
     public EditPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage, String stageTitle) {
-        super(guiRobot, primaryStage);
-        focusOnWindow(stageTitle);
+        super(guiRobot, primaryStage, stageTitle);
     }
 
     public boolean isValidEditDialog() {

@@ -1,5 +1,6 @@
 package guitests.guihandles;
 
+import address.controller.MainController;
 import guitests.GuiRobot;
 import javafx.stage.Stage;
 
@@ -11,8 +12,7 @@ public class NewTagDialogHandle extends GuiHandle {
     private static final String TAG_NAME_FIELD_ID = "#tagNameField";
 
     public NewTagDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage);
-        focusOnWindow("New Tag");
+        super(guiRobot, primaryStage, MainController.STAGE_TITLE_NEW_TAG);
     }
 
     public String getTagName() {

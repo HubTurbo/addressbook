@@ -1,5 +1,6 @@
 package guitests.guihandles;
 
+import address.TestApp;
 import address.controller.PersonCardController;
 import address.model.datatypes.person.Person;
 import guitests.GuiRobot;
@@ -22,11 +23,11 @@ public class PersonCardHandle extends GuiHandle {
     private Node node;
 
     public PersonCardHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage);
+        super(guiRobot, primaryStage, TestApp.APP_TITLE);
     }
 
     public PersonCardHandle(GuiRobot guiRobot, Stage primaryStage, Node node){
-        super(guiRobot, primaryStage);
+        super(guiRobot, primaryStage, TestApp.APP_TITLE);
         this.node = node;
     }
 

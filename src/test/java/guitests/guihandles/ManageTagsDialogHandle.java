@@ -1,5 +1,6 @@
 package guitests.guihandles;
 
+import address.controller.MainController;
 import guitests.GuiRobot;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -22,7 +23,7 @@ public class ManageTagsDialogHandle extends GuiHandle {
     public static final String EDIT_TAG_TEXT_FIELD = "#tagNameField";
 
     public ManageTagsDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage);
+        super(guiRobot, primaryStage, MainController.STAGE_TITLE_MANAGE_TAG_DIALOG);
     }
 
     private ScrollPane getScrollPane() {
@@ -42,6 +43,7 @@ public class ManageTagsDialogHandle extends GuiHandle {
 
     public void openEditTagDialog(String tag) {
         guiRobot.doubleClickOn(tag);
+        focusOnWindow("Edit Tag");
     }
 
     public String getEditTagDialogText() {

@@ -1,6 +1,7 @@
 package guitests.guihandles;
 
 
+import address.TestApp;
 import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
@@ -40,7 +41,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage);
+        super(guiRobot, primaryStage, TestApp.APP_TITLE);
     }
 
     public void use_LIST_ENTER_SHORTCUT() {

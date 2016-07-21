@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
  * Stage, initially selected and full list of tags should be set before showing stage
  */
 public class TagSelectionEditDialogController extends EditDialogController {
-    public static final String STAGE_TITLE = "Tag Selection";
     private static final String TRANSITION_END = "end";
     private static final int TAG_LABEL_WIDTH = 235;
     private static final String STYLE_SELECTED_BACKGROUND = "-fx-background-color: blue;";

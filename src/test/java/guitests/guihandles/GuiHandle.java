@@ -2,6 +2,7 @@ package guitests.guihandles;
 
 
 import address.model.ModelManager;
+import address.util.LoggerManager;
 import com.google.common.base.Optional;
 import guitests.GuiRobot;
 import javafx.scene.Node;
@@ -15,6 +16,8 @@ import org.testfx.api.FxRobot;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Base class for all GUI Handles used in testing.
@@ -22,10 +25,13 @@ import java.util.concurrent.TimeUnit;
 public class GuiHandle {
     protected final GuiRobot guiRobot;
     protected final Stage primaryStage;
+    protected final String stageTitle;
 
-    public GuiHandle(GuiRobot guiRobot, Stage primaryStage) {
+    public GuiHandle(GuiRobot guiRobot, Stage primaryStage, String stageTitle) {
         this.guiRobot = guiRobot;
         this.primaryStage = primaryStage;
+        this.stageTitle = stageTitle;
+        focusOnSelf();
     }
 
     /**
@@ -42,19 +48,30 @@ public class GuiHandle {
     }
 
     public void focusOnWindow(String stageTitle) {
-        Window window = guiRobot.listTargetWindows()
+        java.util.Optional<Window> window = guiRobot.listTargetWindows()
                 .stream()
                 .filter(w
                         -> w instanceof Stage
-                        && ((Stage)w).getTitle().equals(stageTitle)).findAny()
-                .get();
-        guiRobot.targetWindow(window);
-        guiRobot.interact(() -> window.requestFocus());
+                        && ((Stage)w).getTitle().equals(stageTitle)).findAny();
+
+        if(!window.isPresent()) {
+            LoggerManager.getLogger(this.getClass()).fatal("Can't find stage " + stageTitle + ", Therefore, aborting focusing");
+            return;
+        }
+
+        guiRobot.targetWindow(window.get());
+        guiRobot.interact(() -> window.get().requestFocus());
     }
     public void focusOnMainApp() {
-        Window window = guiRobot.listTargetWindows().stream().filter(w -> w instanceof Stage && ((Stage)w).getTitle().equals("Test App")).findAny().get();
-        guiRobot.targetWindow(window);
-        guiRobot.interact(() -> window.requestFocus());
+        java.util.Optional<Window> window = guiRobot.listTargetWindows().stream().filter(w -> w instanceof Stage && ((Stage)w).getTitle().equals("Test App")).findAny();
+
+        if(!window.isPresent()) {
+            LoggerManager.getLogger(this.getClass()).fatal("Can't find Main App Stage");
+            throw new RuntimeException("Can't find Main App Stage");
+        }
+
+        guiRobot.targetWindow(window.get());
+        guiRobot.interact(() -> window.get().requestFocus());
         System.out.println("focusOnMainApp Target window name: " + ((Stage)guiRobot.targetWindow()).getTitle());
     }
 
@@ -150,6 +167,10 @@ public class GuiHandle {
 
     protected String getTextFromLabel(String fieldId, Node parentNode) {
         return ((Label)guiRobot.from(parentNode).lookup(fieldId).tryQuery().get()).getText();
+    }
+
+    public void focusOnSelf() {
+        focusOnWindow(stageTitle);
     }
 
 }
