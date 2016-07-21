@@ -611,11 +611,13 @@ public class MainController extends UiController{
             // isMaximized also does not seem to return the correct value
             primaryStage.setMaximized(true);
         } else {
+            logger.info("stage is " + primaryStage.isMaximized());
             primaryStage.setMaximized(!primaryStage.isMaximized());
+            logger.info("After: stage is " + primaryStage.isMaximized());
         }
 
-        logger.debug("Stage width: {}", primaryStage.getWidth());
-        logger.debug("Stage height: {}", primaryStage.getHeight());
+        logger.info("Stage width: {}", primaryStage.getWidth());
+        logger.info("Stage height: {}", primaryStage.getHeight());
     }
 
     public void stop() {
