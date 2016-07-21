@@ -1,6 +1,4 @@
-package updater;
-
-import commons.FileUtil;
+package commons;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,7 +1,6 @@
 package address.controller;
 
 import address.events.*;
-import address.updater.UpdateProgressNotifier;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import commons.DateTimeUtil;
@@ -15,10 +14,6 @@ import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.StatusBar;
 
 import java.util.concurrent.*;
-import java.util.function.Consumer;
-
-import static address.updater.UpdateProgressNotifier.Status.FAILED;
-import static address.updater.UpdateProgressNotifier.Status.FINISHED;
 
 public class StatusBarFooterController extends UiController {
 
@@ -119,25 +114,36 @@ public class StatusBarFooterController extends UiController {
         }
     }
 
-    public Consumer<String> getUpdateMessageReader() {
-        return message -> Platform.runLater(() -> updaterStatusBar.setText(message));
+
+    @Subscribe
+    private void handleApplicationUpdateFailedEvent(ApplicationUpdateFailedEvent aufe) {
+        Platform.runLater(() -> {
+            updaterStatusBar.setText(aufe.getMessage());
+            updaterStatusBar.setProgress(0);
+            showSecondaryStatusBarLabel();
+        });
     }
 
-    public Consumer<Double> getUpdateProgressReader() {
-        return progress -> Platform.runLater(() -> updaterStatusBar.setProgress(progress));
+    @Subscribe
+    private void handleApplicationUpdateInProgressEvent(ApplicationUpdateInProgressEvent auipe) {
+        Platform.runLater(() -> {
+            updaterStatusBar.setText(auipe.getMessage());
+            updaterStatusBar.setProgress(auipe.getProgress());
+        });
+    }
+
+    @Subscribe
+    private void handleApplicationUpdateFinishedEvent(ApplicationUpdateFinishedEvent aufe) {
+        Platform.runLater(() -> {
+            updaterStatusBar.setText(aufe.getMessage());
+            updaterStatusBar.setProgress(0);
+            showSecondaryStatusBarLabel();
+        });
     }
 
     private void showSecondaryStatusBarLabel() {
         secondaryStatusBarLabel.setVisible(true);
         updaterStatusBar.getRightItems().add(secondaryStatusBarLabel);
-    }
-
-    public Consumer<UpdateProgressNotifier.Status> getUpdateStatusReader() {
-        return status -> Platform.runLater(() -> {
-            if (status == FAILED || status == FINISHED) {
-                showSecondaryStatusBarLabel();
-            }
-        });
     }
 
     private void updateSaveLocationDisplay(String addressBookName) {

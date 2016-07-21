@@ -8,18 +8,14 @@ import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
-import address.updater.UpdateProgressNotifier;
-import address.updater.Upgrader;
-import commons.UpdateInformationNotifier;
+import address.update.UpdateManager;
 import commons.Version;
-import updater.Updater;
 import address.util.*;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -46,7 +42,7 @@ public class MainApp extends Application {
     protected StorageManager storageManager;
     protected ModelManager modelManager;
     protected SyncManager syncManager;
-    protected Updater updater;
+    protected UpdateManager updateManager;
     protected RemoteManager remoteManager;
     protected Ui ui;
     protected KeyBindingsManager keyBindingsManager;
@@ -83,11 +79,11 @@ public class MainApp extends Application {
         remoteManager = initRemoteManager(config);
         syncManager = initSyncManager(remoteManager, config);
         keyBindingsManager = initKeyBindingsManager();
-        updater = initUpdater(VERSION);
+        updateManager = initUpdateManager(VERSION);
     }
 
-    protected Updater initUpdater(Version version) {
-        return new Updater(version);
+    protected UpdateManager initUpdateManager(Version version) {
+        return new UpdateManager(version);
     }
 
     protected KeyBindingsManager initKeyBindingsManager() {
@@ -118,31 +114,9 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
-        if (ManifestFileReader.isRunFromJar()) {
-            updater.start(getUpdateInformationNotifier(ui));
-        } else {
-            ui.getUpdateProgressNotifier().sendStatusFinished("Developer environment; not running updater");
-        }
+        updateManager.start();
         storageManager.start();
         syncManager.start();
-    }
-
-    protected UpdateInformationNotifier getUpdateInformationNotifier(Ui ui) {
-        UpdateProgressNotifier updateProgressNotifier = ui.getUpdateProgressNotifier();
-        return new UpdateInformationNotifier(
-                updateProgressNotifier::sendStatusFinished,
-                updateProgressNotifier::sendStatusFailed,
-                updateProgressNotifier::sendStatusInProgress,
-                (launcherFilePath, updaterFilePath) -> {
-                    Upgrader upgrader = new Upgrader(launcherFilePath, updaterFilePath.orElse(null));
-                    try {
-                        upgrader.upgradeUpdaterIfRequired();
-                        upgrader.upgradeLauncher();
-                    } catch (IOException e) {
-                        logger.warn("Error upgrading updater: {}", e);
-                    }
-                }
-        );
     }
 
     @Override
@@ -152,6 +126,7 @@ public class MainApp extends Application {
         storageManager.savePrefsToFile(userPrefs);
         syncManager.stop();
         keyBindingsManager.stop();
+        updateManager.stop();
         quit();
     }
 
