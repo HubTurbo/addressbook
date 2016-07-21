@@ -1,5 +1,5 @@
 # Updater
-A separate updater jar which contains key classes to perform data migration from one version to another. It is typically named as `updater-<MAJOR>.<MINOR>.<PATCH>.jar`.
+A separate updater jar which contains key classes to perform data migration from one version to another. It is typically named as `updater.jar`.
 
 ## How does the update work
 The main application has the updater jar as an internal resource.
