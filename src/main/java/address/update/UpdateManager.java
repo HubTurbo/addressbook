@@ -1,11 +1,14 @@
-package updater;
+package address.update;
 
-import commons.LibraryDescriptor;
-import commons.UpdateInformationNotifier;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import address.events.ApplicationUpdateFailedEvent;
+import address.events.ApplicationUpdateFinishedEvent;
+import address.events.ApplicationUpdateInProgressEvent;
+import address.main.ComponentManager;
+import address.util.AppLogger;
+import address.util.LoggerManager;
+import address.util.ManifestFileReader;
 import commons.*;
-import commons.Version;
-import commons.VersionData;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,29 +20,26 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
  * This class is meant to check with the server to determine if there is a newer version of the app to update to
- *
+ * <p>
  * Data required for the update will be downloaded in the background while the app is running, and a local specification
  * file will be produced for another component to read and do the update migration.
- *
- * The local specification file will not contain any updater files since it is assumed that the updater will
- * immediately be upgraded after it notifies (through the given UpdateInformationNotifier) that there is an updater
- * upgrade and closes.
  */
-public class Updater {
+public class UpdateManager extends ComponentManager {
     public static final String UPDATE_DIR = "update";
+    private static final AppLogger logger = LoggerManager.getLogger(UpdateManager.class);
 
     // --- Messages
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
     private static final String MSG_FAIL_DOWNLOAD_UPDATE = "Downloading update failed";
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_UPDATE_NOT_SUPPORTED = "Update not supported on detected OS";
+    private static final String MSG_NOT_UPDATING_DEVELOPER_ENV = "Developer env detected; not updating";
     private static final String MSG_FAIL_OBTAIN_LATEST_VERSION_DATA = "Unable to obtain latest version data. Please manually download the latest version.";
     private static final String MSG_FAIL_READ_LATEST_VERSION = "Error reading latest version";
     private static final String MSG_NO_NEWER_VERSION = "No newer version to be downloaded";
@@ -54,41 +54,95 @@ public class Updater {
             "https://raw.githubusercontent.com/HubTurbo/addressbook/early-access/VersionData.json";
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
     private static final String LIB_DIR = "lib/";
-    private static final String UPDATER_FILE_REGEX = LIB_DIR + "updater-\\d\\.\\d\\.\\d\\.jar";
     private static final String LAUNCHER_FILE_REGEX = "addressbook-V\\d\\.\\d\\.\\d(ea)?\\.jar";
+    private static final String UPDATER_FILE_PATH = "update/updater.jar";
 
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final Version currentVersion;
     private final List<Version> downloadedVersions;
-    private UpdateInformationNotifier updateInformationNotifier;
 
-    public Updater(Version currentVersion) {
+    private boolean shouldRunUpdater;
+
+    public UpdateManager(Version currentVersion) {
         super();
         this.currentVersion = currentVersion;
         downloadedVersions = getDownloadedVersionsFromFile(DOWNLOADED_VERSIONS_FILE);
+        shouldRunUpdater = false;
     }
 
-    public void start(UpdateInformationNotifier updateInformationNotifier) {
-        this.updateInformationNotifier = updateInformationNotifier;
+    public void start() {
+        if (!ManifestFileReader.isRunFromJar()) {
+            raise(new ApplicationUpdateFinishedEvent(MSG_NOT_UPDATING_DEVELOPER_ENV));
+            return;
+        }
         pool.execute(this::checkForUpdate);
     }
 
+    public void stop() {
+        if (!shouldRunUpdater) return;
+        scheduleUpdater();
+    }
+
+    private void scheduleUpdater() {
+        logger.info("Scheduling updater");
+        try {
+            extractUpdaterJar();
+            runUpdater();
+        } catch (IOException e) {
+            logger.fatal("Error scheduling updater: {}", e);
+        }
+    }
+
+    /**
+     * Extracts a file from resourcePath into targetFile
+     *
+     * Creates targetFile is it does not exist, and replaces any existing targetFile
+     *
+     * @param targetFile
+     * @param resourcePath
+     * @throws IOException
+     */
+    private void extractFile(File targetFile, String resourcePath) throws IOException {
+        InputStream in = getResourceStream(resourcePath);
+        createContentFile(targetFile, in);
+    }
+
+    private InputStream getResourceStream(String resourcePath) {
+        return UpdateManager.class.getClassLoader().getResourceAsStream(resourcePath);
+    }
+
+    private void extractUpdaterJar() throws IOException {
+        logger.info("Extracting updater jar to: " + UPDATER_FILE_PATH);
+        extractFile(new File(UPDATER_FILE_PATH), "updater/updater.jar");
+    }
+
+    private void runUpdater() throws IOException {
+        try {
+            String command = "java -cp " + UPDATER_FILE_PATH + " updater.UpdateMigrator";
+            logger.debug("Starting updater: {}", command);
+            Runtime.getRuntime().exec(command, null, new File(System.getProperty("user.dir")));
+            logger.debug("Updater launched");
+        } catch (IOException e) {
+            throw new IOException("Error launching updater", e);
+        }
+    }
+
     private void checkForUpdate() {
-        updateInformationNotifier.sendStatusInProgress("Clearing local update specification file", -1);
+        raise(new ApplicationUpdateInProgressEvent("Clearing local update specification file", -1));
         try {
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
-            updateInformationNotifier.sendStatusFailed(MSG_FAIL_DELETE_UPDATE_SPEC);
+            raise(new ApplicationUpdateFailedEvent(MSG_FAIL_DELETE_UPDATE_SPEC));
             return;
         }
 
-        updateInformationNotifier.sendStatusInProgress("Getting data from server", -1);
+        raise(new ApplicationUpdateInProgressEvent("Getting data from server", -1));
         VersionData latestData;
         try {
             latestData = getLatestDataFromServer();
         } catch (IOException e) {
-            updateInformationNotifier.sendStatusFailed(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA);
+            raise(new ApplicationUpdateFailedEvent(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA));
             return;
         }
 
@@ -96,7 +150,7 @@ public class Updater {
         try {
             latestVersion = getVersion(latestData);
         } catch (IllegalArgumentException e) {
-            updateInformationNotifier.sendStatusFailed(MSG_FAIL_READ_LATEST_VERSION);
+            raise(new ApplicationUpdateFailedEvent(MSG_FAIL_READ_LATEST_VERSION));
             return;
         }
 
@@ -104,16 +158,16 @@ public class Updater {
         assert isOnSameReleaseChannel(latestVersion) : "Error: latest version found to be in the wrong release channel";
 
         if (currentVersion.compareTo(latestVersion) >= 0) {
-            updateInformationNotifier.sendStatusFinishedWithoutUpdates(MSG_NO_NEWER_VERSION);
+            raise(new ApplicationUpdateFinishedEvent(MSG_NO_NEWER_VERSION));
             return;
         }
 
-        updateInformationNotifier.sendStatusInProgress("Collecting all update files to be downloaded", -1);
+        raise(new ApplicationUpdateInProgressEvent("Collecting all update files to be downloaded", -1));
         HashMap<String, URL> filesToBeUpdated;
         try {
             filesToBeUpdated = getFilesToDownload(latestData);
         } catch (UnsupportedOperationException e) {
-            updateInformationNotifier.sendStatusFailed(MSG_FAIL_UPDATE_NOT_SUPPORTED);
+            raise(new ApplicationUpdateFailedEvent(MSG_FAIL_UPDATE_NOT_SUPPORTED));
             return;
         }
 
@@ -122,28 +176,22 @@ public class Updater {
         try {
             createUpdateDir();
         } catch (IOException e) {
-            updateInformationNotifier.sendStatusFailed("Error creating update directory");
+            raise(new ApplicationUpdateFailedEvent("Error creating update directory"));
         }
 
         try {
             downloadFilesToBeUpdated(new File(UPDATE_DIR), filesToBeUpdated);
         } catch (IOException e) {
-            updateInformationNotifier.sendStatusFailed(MSG_FAIL_DOWNLOAD_UPDATE);
+            raise(new ApplicationUpdateFailedEvent(MSG_FAIL_DOWNLOAD_UPDATE));
             return;
         }
 
-        updateInformationNotifier.sendStatusInProgress("Finalizing updates", -1);
-        Optional<String> updaterFile = getUpdaterFile(filesToBeUpdated);
-        String launcherFile = getLauncherFile(filesToBeUpdated);
-        if (updaterFile.isPresent()) {
-            filesToBeUpdated.remove(updaterFile.get()); // remove updater from the set since we will be upgrading it before the app closes
-        }
-        filesToBeUpdated.remove(launcherFile);
+        raise(new ApplicationUpdateInProgressEvent("Finalizing updates", -1));
 
         try {
             createUpdateSpecification(filesToBeUpdated);
         } catch (IOException e) {
-            updateInformationNotifier.sendStatusFailed(MSG_FAIL_CREATE_UPDATE_SPEC);
+            raise(new ApplicationUpdateFailedEvent(MSG_FAIL_CREATE_UPDATE_SPEC));
             return;
         }
 
@@ -151,28 +199,12 @@ public class Updater {
         try {
             writeDownloadedVersionsToFile(downloadedVersions, DOWNLOADED_VERSIONS_FILE);
         } catch (IOException e) {
-            updateInformationNotifier.sendStatusFailed(MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA);
+            raise(new ApplicationUpdateFailedEvent(MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA));
             return;
         }
 
-        if (updaterFile.isPresent()) {
-            updateInformationNotifier.sendStatusFinishedWithUpdaterUpgrade(MSG_UPDATE_FINISHED, launcherFile, updaterFile.get());
-        } else {
-            updateInformationNotifier.sendStatusFinishedWithoutUpdaterUpgrade(MSG_UPDATE_FINISHED, launcherFile);
-        }
-    }
-
-    private Optional<String> getUpdaterFile(HashMap<String, URL> filesToBeUpdated) {
-        return filesToBeUpdated.keySet().stream()
-                .filter(file -> file.matches(UPDATER_FILE_REGEX))
-                .findAny();
-    }
-
-    private String getLauncherFile(HashMap<String, URL> filesToBeUpdated) {
-        return filesToBeUpdated.keySet().stream()
-                .filter(file -> file.matches(LAUNCHER_FILE_REGEX))
-                .findAny()
-                .get();
+        raise(new ApplicationUpdateFinishedEvent(MSG_UPDATE_FINISHED));
+        shouldRunUpdater = true;
     }
 
     private void createUpdateDir() throws IOException {
@@ -292,7 +324,7 @@ public class Updater {
     }
 
     /**
-     * @param updateDir directory to store downloaded updates
+     * @param updateDir        directory to store downloaded updates
      * @param filesToBeUpdated files to download for update
      */
     private void downloadFilesToBeUpdated(File updateDir, HashMap<String, URL> filesToBeUpdated) throws IOException {
@@ -303,13 +335,13 @@ public class Updater {
             downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
             noOfFilesDownloaded++;
             double progress = (1.0 * noOfFilesDownloaded) / totalFilesToDownload;
-            updateInformationNotifier.sendStatusInProgress("Downloading updates", progress);
+            raise(new ApplicationUpdateInProgressEvent("Downloading updates", progress));
         }
     }
 
     /**
      * Downloads a file from source url into targetFile
-     *
+     * <p>
      * Creates targetFile is it does not exist, and replaces any existing targetFile
      *
      * @param targetFile
@@ -323,7 +355,7 @@ public class Updater {
 
     /**
      * Writes a stream content into a target file
-     *
+     * <p>
      * Creates targetFile is it does not exist, and replaces any existing targetFile
      *
      * @param targetFile

@@ -1,7 +1,7 @@
 package address.model;
 
 import address.events.UpdatePersonOnRemoteRequestEvent;
-import address.model.ChangeObjectInModelCommand.State;
+import address.model.ChangeObjectInModelCommand.CommandState;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
@@ -98,7 +98,7 @@ public class EditPersonCommandTest {
     public void retrievingInput_cancelsCommand_whenEmptyInputOptionalRetrieved() {
         final EditPersonCommand epc = new EditPersonCommand(0, testTarget, Optional::empty, 0,  e -> {}, modelManagerMock, ADDRESSBOOK_NAME);
         epc.run();
-        assertEquals(epc.getState(), State.CANCELLED);
+        assertEquals(epc.getState(), CommandState.CANCELLED);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class EditPersonCommandTest {
         final EditPersonCommand epc = spy(new EditPersonCommand(0, testTarget, inputRetrieverWrapper(inputData),
                 0, null, modelManagerSpy, ADDRESSBOOK_NAME));
 
-        doThrow(new InterruptAndTerminateException()).when(epc).afterState(State.SIMULATING_RESULT);
+        doThrow(new InterruptAndTerminateException()).when(epc).afterState(CommandState.SIMULATING_RESULT);
         thrown.expect(InterruptAndTerminateException.class);
 
         epc.run();

@@ -1,5 +1,6 @@
 package address.model.datatypes.person;
 
+import address.model.ChangeObjectInModelCommand;
 import address.model.datatypes.ReadOnlyViewableDataType;
 import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyProperty;
@@ -13,15 +14,53 @@ import java.util.stream.Stream;
  */
 public interface ReadOnlyViewablePerson extends ReadOnlyPerson, ReadOnlyViewableDataType {
 
-    enum ChangeInProgress {
-        ADDING,
-        EDITING,
-        DELETING,
-        NONE
+    enum OngoingCommandType {
+        ADDING ("Adding"),
+        EDITING ("Editing"),
+        DELETING ("Deleting"),
+        NONE ("None");
+
+        final String message;
+        OngoingCommandType(String msg) {
+            message = msg;
+        }
+        @Override
+        public String toString() {
+            return message;
+        }
     }
 
-    ChangeInProgress getChangeInProgress();
-    ReadOnlyProperty<ChangeInProgress> changeInProgressProperty();
+    enum OngoingCommandState {
+        GRACE_PERIOD,
+        SYNCING_TO_REMOTE, // both checking for conflicts and the actual request
+        REMOTE_CONFLICT,
+        REQUEST_FAILED,
+        INVALID; // no ongoing command
+        public static OngoingCommandState fromCommandState(ChangeObjectInModelCommand.CommandState cmdState) {
+            switch (cmdState) {
+                case GRACE_PERIOD:
+                    return GRACE_PERIOD;
+
+                case CHECKING_REMOTE_CONFLICT:
+                case REQUESTING_REMOTE_CHANGE: // Fallthrough
+                    return SYNCING_TO_REMOTE;
+
+                case CONFLICT_FOUND:
+                    return REMOTE_CONFLICT;
+
+                case REQUEST_FAILED:
+                    return REQUEST_FAILED;
+
+                default:
+                    return INVALID;
+            }
+        }
+    }
+
+    OngoingCommandType getOngoingCommandType();
+    ReadOnlyProperty<OngoingCommandType> ongoingCommandTypeProperty();
+    OngoingCommandState getOngoingCommandState();
+    ReadOnlyProperty<OngoingCommandState> ongoingCommandStateProperty();
 
     /**
      * @return whether this person exists on the remote server
@@ -53,5 +92,7 @@ public interface ReadOnlyViewablePerson extends ReadOnlyPerson, ReadOnlyViewable
                 .toArray(Observable[]::new);
     }
 
-    boolean hasName(String firstName, String lastName);
+    default boolean hasName(String firstName, String lastName) {
+        return getFirstName().equals(firstName) && getLastName().equals(lastName);
+    }
 }

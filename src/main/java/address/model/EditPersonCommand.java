@@ -1,10 +1,9 @@
 package address.model;
 
-import static address.model.ChangeObjectInModelCommand.State.*;
-import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.*;
 
 import address.events.BaseEvent;
-import address.events.CommandFinishedEvent;
+import address.events.SingleTargetCommandResultEvent;
 import address.events.UpdatePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
@@ -28,7 +27,6 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
 
     private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
-    private final ViewablePerson target;
     private final String addressbookName;
 
     // Person state snapshots
@@ -52,13 +50,9 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
         this.addressbookName = addressbookName;
     }
 
-    protected ViewablePerson getViewable() {
-        return target;
-    }
-
     @Override
     public int getTargetPersonId() {
-        return target.getId();
+        return getViewable().getId();
     }
 
     @Override
@@ -71,7 +65,7 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
                 assert false;
             }
         }
-        PlatformExecUtil.runAndWait(() -> target.setChangeInProgress(EDITING));
+        PlatformExecUtil.runAndWait(() -> target.setOngoingCommandType(OngoingCommandType.EDITING));
         model.assignOngoingChangeToPerson(target.getId(), this);
         target.stopSyncingWithBackingObject();
         personDataBeforeExecution = new Person(target);
@@ -81,26 +75,21 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     protected void after() {
         personDataAfterExecution = new Person(target);
         PlatformExecUtil.runAndWait(() -> {
-            target.clearChangeInProgress();
+            target.clearOngoingCommand();
             target.continueSyncingWithBackingObject();
             target.forceSyncFromBacking();
         });
         model.unassignOngoingChangeForPerson(target.getId());
-        eventRaiser.accept(new CommandFinishedEvent(
-                new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(), TARGET_TYPE,
-                        target.idString(), personDataBeforeExecution.fullName(), personDataAfterExecution.fullName())
-        ));
+
+        // catches CANCELLED and SUCCESS
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(), TARGET_TYPE,
+                target.idString(), personDataBeforeExecution.fullName(), personDataAfterExecution.fullName()));
     }
 
     @Override
     protected void simulateResult() {
         assert input != null;
         PlatformExecUtil.runAndWait(() -> target.simulateUpdate(input));
-    }
-
-    @Override
-    protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
-        PlatformExecUtil.runAndWait(() -> target.setSecondsLeftInPendingState(secondsLeft));
     }
 
     @Override
@@ -133,6 +122,20 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
     @Override
     protected Optional<ReadOnlyPerson> getRemoteConflictData() {
         return Optional.empty(); // TODO add after cloud individual check implemented
+    }
+
+    @Override
+    protected void handleRemoteConflict() {
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
+                TARGET_TYPE, target.idString(), personDataBeforeExecution.fullName(), input.fullName()));
+        super.handleRemoteConflict();
+    }
+
+    @Override
+    protected void handleRequestFailed() {
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
+                TARGET_TYPE, target.idString(), personDataBeforeExecution.fullName(), input.fullName()));
+        super.handleRequestFailed();
     }
 
     @Override

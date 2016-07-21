@@ -1,5 +1,7 @@
 package updater;
 
+import commons.LocalUpdateSpecificationHelper;
+import commons.UpdaterUtil;
 import commons.Version;
 import commons.VersionData;
 import commons.FileUtil;
@@ -17,16 +19,15 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static commons.UpdaterUtil.updateFile;
-
 /**
  * This class is meant to perform pending updates that have been successfully downloaded
- * It does so by reading local update specifications from a file, then replace specified files
+ * It does so by reading local update specifications from a file, and then replacing specified files
  */
 public class UpdateMigrator extends Application {
-    private static final int MAX_RETRIES = 10;
-    private static final int WAIT_TIME = 2000;
+    private static final String CUR_DIR = ".";
+    private static final String LAUNCHER_FILE_REGEX = "addressbook-V\\d\\.\\d\\.\\d(ea)?\\.jar";
     private static final String ERROR_ON_UPDATING_MESSAGE = "There was an error in updating.";
+    private static final String UPDATE_DIR = "update";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
 
@@ -58,7 +59,7 @@ public class UpdateMigrator extends Application {
 
         Scene scene = new Scene(windowMainLayout);
 
-        stage.setTitle("Updater");
+        stage.setTitle("UpdateManager");
         stage.setScene(scene);
         stage.show();
     }
@@ -74,14 +75,14 @@ public class UpdateMigrator extends Application {
         if (!LocalUpdateSpecificationHelper.hasLocalUpdateSpecFile()) return;
 
         String updateSpecificationFilePath = LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
-        String sourceDir = Updater.UPDATE_DIR;
 
         System.out.println("Getting update specifications from: " + updateSpecificationFilePath);
         List<String> updateSpecifications = getUpdateSpecifications(updateSpecificationFilePath);
 
         updateBackups();
-        applyUpdateToAllFiles(sourceDir, updateSpecifications);
-        deleteFile(updateSpecificationFilePath);
+        deleteLaunchers();
+        applyUpdateToAllFiles(UPDATE_DIR, updateSpecifications);
+        UpdaterUtil.deleteFile(updateSpecificationFilePath);
     }
 
     /**
@@ -89,13 +90,10 @@ public class UpdateMigrator extends Application {
      * @throws IOException
      */
     private void updateBackups() throws IOException {
+        System.out.println("Updating backups");
         BackupHandler backupHandler = new BackupHandler(readCurrentVersionFromFile());
         backupHandler.createAppBackup();
         backupHandler.cleanupBackups();
-    }
-
-    private void deleteFile(String updateSpecFilePath) throws IOException {
-        FileUtil.deleteFile(updateSpecFilePath);
     }
 
     private List<String> getUpdateSpecifications(String updateSpecificationFilePath) throws IOException {
@@ -117,12 +115,12 @@ public class UpdateMigrator extends Application {
     private void applyUpdateToAllFiles(String sourceDir, List<String> filesToBeUpdated) throws IOException {
         for (String fileToUpdate : filesToBeUpdated) {
             System.out.println("Updating file: " + fileToUpdate);
-            updateFile(sourceDir, fileToUpdate, MAX_RETRIES, WAIT_TIME);
+            UpdaterUtil.updateFile(sourceDir, fileToUpdate);
         }
     }
 
-    private void showErrorOnUpdatingDialog(Exception e) {
-        showErrorDialog("Failed to perform update", ERROR_ON_UPDATING_MESSAGE, e.getMessage());
+    private void showErrorOnUpdatingDialog(IOException e) {
+        showErrorDialog("Failed to perform update", ERROR_ON_UPDATING_MESSAGE, e.toString());
     }
 
     private void showErrorDialog(String title, String header, String message) {
@@ -134,5 +132,40 @@ public class UpdateMigrator extends Application {
             alert.showAndWait();
             stop();
         });
+    }
+
+
+    /**
+     * Attempts to upgrade the launcher file
+     *
+     * Assumes that the new version has the same path from UPDATE_DIR
+     *
+     * @throws IOException
+     */
+    public void deleteLaunchers() throws IOException {
+        System.out.println("Deleting launchers");
+        FileUtil.deleteFile(findComponentFileName(CUR_DIR, LAUNCHER_FILE_REGEX));
+    }
+
+    private String findComponentFileName(String dirPath, String regex) throws FileNotFoundException {
+        File curDir = new File(dirPath);
+        String[] curDirFilesNames = curDir.list();
+        if (curDirFilesNames == null) assert false : "Not given a directory to check for component!";
+        return dirPath + File.separator + getFileNameOfRegexMatch(curDirFilesNames, regex);
+    }
+
+    /**
+     * Attempts to get the file which matching file name as the given regex
+     *
+     * @param curDirFilesNames
+     * @param regex
+     * @return file name of matching file
+     * @throws FileNotFoundException if no file name matches the given regex
+     */
+    private String getFileNameOfRegexMatch(String[] curDirFilesNames, String regex) throws FileNotFoundException {
+        for (String fileName : curDirFilesNames) {
+            if (fileName.matches(regex)) return fileName;
+        }
+        throw new FileNotFoundException("File not found!");
     }
 }

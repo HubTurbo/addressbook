@@ -7,10 +7,11 @@
 
 plugins {
     id "com.github.kt3k.coveralls" version "2.4.0"
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
 allprojects {
-    version = 'V1.5.2ea'
+    version = 'V1.6.0ea'
 
     apply plugin: 'idea'
     apply plugin: 'java'
@@ -57,9 +58,9 @@ allprojects {
         commonsIoVersion = '2.4'
 
         // Commons and Updater versions to be updated here on release
-        commonsArchiveName = 'commons-0.0.0.jar'
+        commonsArchiveName = 'commons-0.0.1.jar'
 
-        updaterArchiveName = "updater-0.0.3.jar"
+        updaterArchiveName = "updater.jar"
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         mainAppMainClass = 'address.MainApp'
@@ -74,6 +75,7 @@ allprojects {
 
         generateVersionDataMainClass = 'address.util.VersionDataGenerator'
         libDir = 'lib'
+        updaterDestDir = 'src/main/resources/updater'
     }
 
     jacocoTestReport {
@@ -156,7 +158,6 @@ allprojects {
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
         compile files("$libDir/$licenceArchiveName")
         compile files("$libDir/$commonsArchiveName")
-        compile files("$libDir/$updaterArchiveName")
 
         testCompile "junit:junit:$junitVersion"
         testCompile "org.testfx:testfx-core:4.0.+"
@@ -195,7 +196,7 @@ allprojects {
     // Remove any old custom dependencies
     task deleteOldCustomDependenciesFromLibrary(type: Delete) {
         delete fileTree(dir: ".", include: 'addressbook-V*.*.*.jar')
-        delete fileTree(dir: "$libDir", includes: ['updater-*.*.*.jar', 'commons-*.*.*.jar', 'resource-V*.*.*.jar'])
+        delete fileTree(dir: "$libDir", includes: ['commons-*.*.*.jar', 'resource-V*.*.*.jar'])
     }
 
     // Copy downloaded dependencies from Gradle's cache into the library directory
@@ -219,11 +220,13 @@ allprojects {
     compileCommonsJava.mustRunAfter copyAllDependenciesToLibrary
 
     // Updater jar
-    task createUpdaterJar(type: Jar) {
+    task createUpdaterJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
         archiveName = "$updaterArchiveName"
 
         from sourceSets.updater.output
-        destinationDir = file("$libDir/")
+        
+        configurations = [project.configurations.updaterCompile]
+        destinationDir = file("$updaterDestDir/")
     }
     createUpdaterJar.dependsOn createCommonsJar
 
@@ -244,8 +247,8 @@ allprojects {
         destinationDir = file("$libDir/")
     }
     jar.dependsOn createUpdaterJar
-    compileJava.mustRunAfter createUpdaterJar // jar adds compileJava, but it runs at the beginning (which fails without updater.jar)
-                                              // delay this until updater.jar is created
+    compileJava.mustRunAfter createUpdaterJar // jar adds compileJava, but it runs at the beginning (which fails without update.jar)
+                                              // delay this until update.jar is created
 
     // Creates the launcher, which launches the main application with custom arguments
     task createLauncherJar(type: Jar) {

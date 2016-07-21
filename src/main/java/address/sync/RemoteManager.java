@@ -127,6 +127,7 @@ public class RemoteManager {
      */
     public Optional<Person> createPerson(String addressBookName, ReadOnlyPerson person) throws IOException {
         ExtractedRemoteResponse<Person> response = remoteService.createPerson(addressBookName, person);
+        logger.warn("Create person on remote request response code : " + response.getResponseCode());
         return response.getData();
     }
 
@@ -153,6 +154,7 @@ public class RemoteManager {
      */
     public Optional<Person> updatePerson(String addressBookName, int personId, ReadOnlyPerson updatedPerson) throws IOException {
         ExtractedRemoteResponse<Person> response = remoteService.updatePerson(addressBookName, personId, updatedPerson);
+        logger.warn("Update person on remote request response code : " + response.getResponseCode());
         return response.getData();
     }
 
@@ -190,7 +192,11 @@ public class RemoteManager {
      */
     public boolean deletePerson(String addressBookName, int personId) throws IOException {
         ExtractedRemoteResponse<Void> response = remoteService.deletePerson(addressBookName, personId);
-        return response.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT;
+        if (response.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT) {
+            return true;
+        }
+        logger.warn("Delete person on remote request response code : " + response.getResponseCode());
+        return false;
     }
 
     /**

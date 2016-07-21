@@ -142,7 +142,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         return visibleModel;
     }
 
-//// MODEL CHANGE COMMANDS
+//// UI COMMANDS
 
     /**
      * Request to create a person. Simulates the change optimistically until remote confirmation, and provides a grace
@@ -236,12 +236,24 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      * Request to cancel any ongoing commands (add, edit, delete etc.) on the target person. Only works if the
      * ongoing command is in the pending state.
      */
-    public synchronized void cancelPersonChangeCommand(ReadOnlyPerson target) {
+    public synchronized void cancelPersonCommand(ReadOnlyPerson target) {
         final ChangePersonInModelCommand ongoingCommand = getOngoingChangeForPerson(target.getId());
         if (ongoingCommand != null) {
             ongoingCommand.cancelCommand();
         }
     }
+
+    /**
+     * Request to retry any failed commands
+     */
+    public synchronized void retryFailedPersonCommand(ReadOnlyPerson target) {
+        final ChangePersonInModelCommand ongoingCommand = getOngoingChangeForPerson(target.getId());
+        if (ongoingCommand != null) {
+            ongoingCommand.retry();
+        }
+    }
+
+//// Command utilities
 
     protected void execNewAddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever) {
         final int GRACE_PERIOD_DURATION = 3;

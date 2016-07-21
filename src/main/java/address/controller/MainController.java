@@ -4,14 +4,12 @@ import address.MainApp;
 import address.browser.BrowserManager;
 import address.events.*;
 import address.exceptions.DuplicateTagException;
-import address.model.SingleTargetCommandResult;
+import address.events.SingleTargetCommandResultEvent;
 import address.model.UserPrefs;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
-import address.updater.UpdateProgressNotifier;
-import commons.UpdateInformationNotifier;
 import address.util.*;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
@@ -41,7 +39,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * The controller that creates the other controllers
@@ -79,7 +76,7 @@ public class MainController extends UiController{
     private StatusBarFooterController statusBarFooterController;
 
     private UnmodifiableObservableList<ReadOnlyViewablePerson> personList;
-    private final ObservableList<SingleTargetCommandResult> finishedCommandResults;
+    private final ObservableList<SingleTargetCommandResultEvent> finishedCommandResults;
 
     {
         finishedCommandResults = FXCollections.observableArrayList();
@@ -548,18 +545,6 @@ public class MainController extends UiController{
         pane.addEventHandler(EventType.ROOT, event -> event.consume());
     }
 
-    public Consumer<String> getUpdateMessageReader() {
-        return statusBarFooterController.getUpdateMessageReader();
-    }
-
-    public Consumer<UpdateProgressNotifier.Status> getUpdateStatusReader() {
-        return statusBarFooterController.getUpdateStatusReader();
-    }
-
-    public Consumer<Double> getUpdateProgressReader() {
-        return statusBarFooterController.getUpdateProgressReader();
-    }
-
     @Subscribe
     private void handleResizeAppRequestEvent(ResizeAppRequestEvent event){
         logger.debug("Handling the resize app window request");
@@ -573,8 +558,8 @@ public class MainController extends UiController{
     }
 
     @Subscribe
-    private void handleCommandFinishedEvent(CommandFinishedEvent evt) {
-        PlatformExecUtil.runAndWait(() -> finishedCommandResults.add(evt.result));
+    private void handleSingleTargetCommandResultEvent(SingleTargetCommandResultEvent evt) {
+        PlatformExecUtil.runAndWait(() -> finishedCommandResults.add(evt));
     }
 
     protected void setDefaultSize() {

@@ -1,11 +1,10 @@
 package address.model;
 
-import static address.model.ChangeObjectInModelCommand.State.*;
-import static address.model.datatypes.person.ReadOnlyViewablePerson.ChangeInProgress.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.*;
 
 import address.events.BaseEvent;
-import address.events.CommandFinishedEvent;
 import address.events.DeletePersonOnRemoteRequestEvent;
+import address.events.SingleTargetCommandResultEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
@@ -27,7 +26,6 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
 
     private final Consumer<BaseEvent> eventRaiser;
     private final ModelManager model;
-    private final ViewablePerson target;
     private final String addressbookName;
 
     // Person state snapshots
@@ -44,10 +42,6 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
         this.model = model;
         this.eventRaiser = eventRaiser;
         this.addressbookName = addressbookName;
-    }
-
-    protected ViewablePerson getViewable() {
-        return target;
     }
 
     @Override
@@ -72,26 +66,20 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     @Override
     protected void after() {
         PlatformExecUtil.runAndWait(() -> {
-            target.clearChangeInProgress();
+            target.clearOngoingCommand();
             target.continueSyncingWithBackingObject();
             target.forceSyncFromBacking();
         });
         model.unassignOngoingChangeForPerson(target.getId());
-        final String targetName = personDataBeforeExecution.fullName(); // no name changes for deletes
-        eventRaiser.accept(new CommandFinishedEvent(
-                new SingleTargetCommandResult(getCommandId(), COMMAND_TYPE, getState().toResultStatus(), TARGET_TYPE,
-                        target.idString(), targetName, targetName)
-        ));
+
+        // catches CANCELLED and SUCCESS
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
+                TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
     }
 
     @Override
     protected void simulateResult() {
-        PlatformExecUtil.runAndWait(() -> target.setChangeInProgress(DELETING));
-    }
-
-    @Override
-    protected void handleChangeToSecondsLeftInGracePeriod(int secondsLeft) {
-        PlatformExecUtil.runAndWait(() -> target.setSecondsLeftInPendingState(secondsLeft));
+        PlatformExecUtil.runAndWait(() -> target.setOngoingCommandType(OngoingCommandType.DELETING));
     }
 
     @Override
@@ -119,6 +107,20 @@ public class DeletePersonCommand extends ChangePersonInModelCommand {
     @Override
     protected Optional<ReadOnlyPerson> getRemoteConflictData() {
         return Optional.empty(); // TODO add after cloud individual check implemented
+    }
+
+    @Override
+    protected void handleRemoteConflict() {
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
+                TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
+        super.handleRemoteConflict();
+    }
+
+    @Override
+    protected void handleRequestFailed() {
+        eventRaiser.accept(new SingleTargetCommandResultEvent(getCommandId(), COMMAND_TYPE, getState(),
+                TARGET_TYPE, target.idString(), target.fullName(), target.fullName()));
+        super.handleRequestFailed();
     }
 
     @Override

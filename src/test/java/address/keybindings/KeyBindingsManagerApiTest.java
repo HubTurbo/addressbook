@@ -58,7 +58,8 @@ public class KeyBindingsManagerApiTest {
         verifyHotkey(new ResizeAppRequestEvent(), "CTRL + SHIFT + X");
         verifyHotkey(new ResizeAppRequestEvent(), "META + SHIFT + X");
 
-        verifyAccelerator("PERSON_CHANGE_CANCEL_ACCELERATOR", "SHORTCUT + Z");
+        verifyAccelerator("PERSON_CANCEL_COMMAND_ACCELERATOR", "SHORTCUT + Z");
+        verifyAccelerator("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR", "SHORTCUT + Y");
         verifyAccelerator("HELP_PAGE_ACCELERATOR", "F1");
          /*====== other keys ======================================================*/
 

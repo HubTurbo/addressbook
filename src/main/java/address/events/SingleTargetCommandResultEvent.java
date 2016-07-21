@@ -1,17 +1,37 @@
-package address.model;
+package address.events;
+
+import address.model.ChangeObjectInModelCommand.CommandState;
 
 /**
  * Immutable data wrapper object representing the result of a completed command.
  */
-public class SingleTargetCommandResult {
+public class SingleTargetCommandResultEvent extends BaseEvent {
 
-    public enum CommandStatus {
+    public enum ResultState {
+        REMOTE_CONFLICT ("Remote Conflict"),
+        REQUEST_FAILED ("Request Failed"),
+
         SUCCESSFUL ("Successful"),
-        FAILED ("Failed"),
         CANCELLED ("Cancelled");
 
+        public static ResultState fromCommandState(CommandState commandState) {
+            switch (commandState) {
+                case CANCELLED :
+                    return CANCELLED;
+                case CONFLICT_FOUND :
+                    return REMOTE_CONFLICT;
+                case REQUEST_FAILED :
+                    return REQUEST_FAILED;
+                case SUCCESSFUL :
+                    return SUCCESSFUL;
+                default :
+                    assert false : "This state is not terminal nor user intervention required";
+                    throw new IllegalArgumentException();
+            }
+        }
+
         private final String descr;
-        CommandStatus(String descr) {
+        ResultState(String descr) {
             this.descr = descr;
         }
         @Override
@@ -20,11 +40,11 @@ public class SingleTargetCommandResult {
         }
     }
 
-    public SingleTargetCommandResult(int commandId, String commandType, CommandStatus status, String targetType,
-                              String targetIdString, String targetNameBefore, String targetNameAfter) {
+    public SingleTargetCommandResultEvent(int commandId, String commandType, CommandState status, String targetType,
+                                          String targetIdString, String targetNameBefore, String targetNameAfter) {
         this.commandId = commandId;
         this.targetIdString = targetIdString;
-        this.status = status;
+        this.status = ResultState.fromCommandState(status);
         commandTypeString = commandType;
         targetTypeString = targetType;
         targetNameBeforeExecution = targetNameBefore;
@@ -44,7 +64,7 @@ public class SingleTargetCommandResult {
     /**
      * string representation of the final status of this command
      */
-    public final CommandStatus status;
+    public final ResultState status;
 
     /**
      * string representation of target's type
@@ -67,4 +87,10 @@ public class SingleTargetCommandResult {
      * will be same as {@link #targetNameBeforeExecution} if there was no name change
      */
     public final String targetNameAfterExecution;
+
+    @Override
+    public String toString() {
+        return String.format("User command #%d finished execution (%s): Target [%s %s]",
+                commandId, status.toString(), targetTypeString, targetIdString);
+    }
 }
