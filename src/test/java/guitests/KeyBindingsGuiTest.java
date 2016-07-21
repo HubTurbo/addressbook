@@ -4,6 +4,7 @@ import address.model.datatypes.AddressBook;
 import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.TagPersonDialogHandle;
+import javafx.stage.Screen;
 import org.junit.Test;
 
 
@@ -84,11 +85,17 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         //======== hotkeys ============================
 
+        System.out.println("isIconified" + mainGui.isIconified());
+
         TestUtil.captureScreenShot("aftertageditandjumping");
 
         mainGui.sleepForGracePeriod();
 
         TestUtil.captureScreenShot("aftergraceperiod");
+
+        personListPanel.clickOnPerson(td.elizabeth);
+
+        TestUtil.captureScreenShot("afterclicking");
 
         /*
 
