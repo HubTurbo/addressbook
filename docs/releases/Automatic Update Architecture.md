@@ -5,8 +5,8 @@ For more detailed information of the individual components, please see:
  - [Launcher](Launcher.md)
  - [Updater](Updater.md)
  
- For more detailed information on how we make a release with this architecture, please see:
-  - [Release](Release.md)
+For more detailed information on how we make a release with this architecture, please see:
+ - [Release](Release.md)
 
 ## Flow of application
 1. The user downloads the `installer` from the website, and saves it in a desired directory.
@@ -17,7 +17,7 @@ For more detailed information of the individual components, please see:
 3. `Installer` also starts the `launcher` before it closes.
 4. `Launcher` launches the `main application` with its run-time dependencies, as well as any desired arguments.
 5. The `main application` runs, and checks for updates in the background. 
-    - If there is an update, it will download any required libraries, produce a specification file with information about these files and extract an internal `updater` resource. Required libraries may also include a new version of the `launcher`.
+    - If there is an update, it will download any required libraries, produce a specification file with information about these files and extract an internal `updater` resource in preparation for the upgrade. Required libraries may also include a new version of the `launcher`.
 6. Upon exit of the main application, the extracted `updater` resource is executed.
     - This JAR is a fat JAR and already contains required dependencies e.g. to read the specification file.
 7. The `updater` resource will read the specification file, and perform the needed operations for version upgrade.
