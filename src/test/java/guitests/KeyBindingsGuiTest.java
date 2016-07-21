@@ -1,6 +1,7 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
+import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.TagPersonDialogHandle;
 import org.junit.Test;
@@ -89,20 +90,24 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         mainGui.use_APP_MINIMIZE_HOTKEY();
         mainGui.sleep(2, TimeUnit.SECONDS);
         assertTrue(mainGui.isMinimized());
-
+        TestUtil.captureScreenShot("MINIMIZED");
 
         mainGui.use_APP_RESIZE_HOTKEY(); // un-minimize window
         mainGui.sleep(2, TimeUnit.SECONDS);
-        //assertFalse(mainGui.isMinimized()); mainGui.isMinimized() gives wrong result in travis
+        TestUtil.captureScreenShot("APP_RESIZE_HOTKEY_1");
+        //assertFalse(mainGui.isMinimized()); // mainGui.isMinimized() gives wrong result in travis
 
 
         mainGui.use_APP_RESIZE_HOTKEY(); // maximize the window
         mainGui.sleep(2, TimeUnit.SECONDS);
-        assertTrue(mainGui.isMaximized());
+        //assertTrue(mainGui.isMaximized());
+        TestUtil.captureScreenShot("APP_RESIZE_HOTKEY_2");
 
         mainGui.use_APP_RESIZE_HOTKEY(); // set window to default size
         mainGui.sleep(2, TimeUnit.SECONDS);
+        TestUtil.captureScreenShot("APP_RESIZE_HOTKEY_1");
         assertTrue(mainGui.isDefaultSize());
+        fail();
     }
 
 

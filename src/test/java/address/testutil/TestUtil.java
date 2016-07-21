@@ -10,6 +10,7 @@ import address.storage.StorageAddressBook;
 import address.sync.cloud.model.CloudAddressBook;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
+import com.google.common.io.Files;
 import commons.FileUtil;
 import commons.OsDetector;
 import commons.XmlUtil;
@@ -20,9 +21,11 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import junit.framework.AssertionFailedError;
+import org.loadui.testfx.GuiTest;
 import org.testfx.api.FxToolkit;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -197,6 +200,15 @@ public class TestUtil {
             }
         }
         return keyCodes;
+    }
+
+    public static void captureScreenShot(String fileName) {
+        File file = GuiTest.captureScreenshot();
+        try {
+            Files.copy(file, new File("fileName"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static String descOnFail(Object... comparedObjects) {
