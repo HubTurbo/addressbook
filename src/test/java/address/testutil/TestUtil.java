@@ -205,7 +205,7 @@ public class TestUtil {
     public static void captureScreenShot(String fileName) {
         File file = GuiTest.captureScreenshot();
         try {
-            Files.copy(file, new File(fileName));
+            Files.copy(file, new File(fileName + ".png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
