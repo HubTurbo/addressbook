@@ -114,6 +114,8 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         //assertTrue(mainGui.isMinimized());
         //TestUtil.captureScreenShot("MINIMIZED");
 
+        TestUtil.captureScreenShot("initwindow");
+
         System.out.println("isIconified" + mainGui.isIconified());
 
         mainGui.use_APP_RESIZE_HOTKEY(); // max window
