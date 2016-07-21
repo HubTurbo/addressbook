@@ -74,6 +74,7 @@ allprojects {
 
         generateVersionDataMainClass = 'address.util.VersionDataGenerator'
         libDir = 'lib'
+        updaterDestDir = 'src/main/resources/updater'
     }
 
     jacocoTestReport {
@@ -156,7 +157,6 @@ allprojects {
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
         compile files("$libDir/$licenceArchiveName")
         compile files("$libDir/$commonsArchiveName")
-        compile files("$libDir/$updaterArchiveName")
 
         testCompile "junit:junit:$junitVersion"
         testCompile "org.testfx:testfx-core:4.0.+"
@@ -223,7 +223,7 @@ allprojects {
         archiveName = "$updaterArchiveName"
 
         from sourceSets.updater.output
-        destinationDir = file("$libDir/")
+        destinationDir = file("$updaterDestDir/")
     }
     createUpdaterJar.dependsOn createCommonsJar
 

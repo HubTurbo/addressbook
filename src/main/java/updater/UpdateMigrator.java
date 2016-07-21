@@ -1,7 +1,6 @@
 package updater;
 
-import address.update.LocalUpdateSpecificationHelper;
-import address.update.Updater;
+import commons.LocalUpdateSpecificationHelper;
 import commons.UpdaterUtil;
 import commons.Version;
 import commons.VersionData;
@@ -26,6 +25,7 @@ import java.util.concurrent.Executors;
  */
 public class UpdateMigrator extends Application {
     private static final String ERROR_ON_UPDATING_MESSAGE = "There was an error in updating.";
+    private static final String UPDATE_DIR = "update";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
 
@@ -57,7 +57,7 @@ public class UpdateMigrator extends Application {
 
         Scene scene = new Scene(windowMainLayout);
 
-        stage.setTitle("Updater");
+        stage.setTitle("UpdateManager");
         stage.setScene(scene);
         stage.show();
     }
@@ -73,13 +73,12 @@ public class UpdateMigrator extends Application {
         if (!LocalUpdateSpecificationHelper.hasLocalUpdateSpecFile()) return;
 
         String updateSpecificationFilePath = LocalUpdateSpecificationHelper.getLocalUpdateSpecFilepath();
-        String sourceDir = Updater.UPDATE_DIR;
 
         System.out.println("Getting update specifications from: " + updateSpecificationFilePath);
         List<String> updateSpecifications = getUpdateSpecifications(updateSpecificationFilePath);
 
         updateBackups();
-        applyUpdateToAllFiles(sourceDir, updateSpecifications);
+        applyUpdateToAllFiles(UPDATE_DIR, updateSpecifications);
         UpdaterUtil.deleteFile(updateSpecificationFilePath);
     }
 

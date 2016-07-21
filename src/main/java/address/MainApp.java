@@ -8,8 +8,8 @@ import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
+import address.update.UpdateManager;
 import commons.Version;
-import address.update.Updater;
 import address.util.*;
 
 import javafx.application.Application;
@@ -42,7 +42,7 @@ public class MainApp extends Application {
     protected StorageManager storageManager;
     protected ModelManager modelManager;
     protected SyncManager syncManager;
-    protected Updater updater;
+    protected UpdateManager updateManager;
     protected RemoteManager remoteManager;
     protected Ui ui;
     protected KeyBindingsManager keyBindingsManager;
@@ -79,11 +79,11 @@ public class MainApp extends Application {
         remoteManager = initRemoteManager(config);
         syncManager = initSyncManager(remoteManager, config);
         keyBindingsManager = initKeyBindingsManager();
-        updater = initUpdater(VERSION);
+        updateManager = initUpdateManager(VERSION);
     }
 
-    protected Updater initUpdater(Version version) {
-        return new Updater(version);
+    protected UpdateManager initUpdateManager(Version version) {
+        return new UpdateManager(version);
     }
 
     protected KeyBindingsManager initKeyBindingsManager() {
@@ -114,11 +114,7 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
-        if (ManifestFileReader.isRunFromJar()) {
-            updater.start(ui.getUpdateProgressNotifier());
-        } else {
-            ui.getUpdateProgressNotifier().sendStatusFinished("Developer environment; not running update");
-        }
+        updateManager.start();
         storageManager.start();
         syncManager.start();
     }

@@ -25,17 +25,10 @@ public class Ui {
 
     public void start(Stage primaryStage) {
         mainController.start(primaryStage);
-        updateProgressNotifier = new UpdateProgressNotifier(mainController.getUpdateMessageReader(),
-                                                            mainController.getUpdateProgressReader(),
-                                                            mainController.getUpdateStatusReader());
     }
 
     public void showAlertDialogAndWait(Alert.AlertType alertType, String alertTitle, String headerText, String contentText) {
         mainController.showAlertDialogAndWait(alertType, alertTitle, headerText, contentText);
-    }
-
-    public UpdateProgressNotifier getUpdateProgressNotifier() {
-        return updateProgressNotifier;
     }
 
     public void stop() {

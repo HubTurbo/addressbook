@@ -547,18 +547,6 @@ public class MainController extends UiController{
         pane.addEventHandler(EventType.ROOT, event -> event.consume());
     }
 
-    public Consumer<String> getUpdateMessageReader() {
-        return statusBarFooterController.getUpdateMessageReader();
-    }
-
-    public Consumer<UpdateProgressNotifier.Status> getUpdateStatusReader() {
-        return statusBarFooterController.getUpdateStatusReader();
-    }
-
-    public Consumer<Double> getUpdateProgressReader() {
-        return statusBarFooterController.getUpdateProgressReader();
-    }
-
     @Subscribe
     private void handleResizeAppRequestEvent(ResizeAppRequestEvent event){
         logger.debug("Handling the resize app window request");
