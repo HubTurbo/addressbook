@@ -445,7 +445,7 @@ public class CloudSimulator implements IRemote {
 
     private List<CloudPerson> filterPersonsByTime(List<CloudPerson> personList, LocalDateTime time) {
         return personList.stream()
-                .filter(person -> !person.getLastUpdatedAt().isBefore(time))
+                .filter(person -> person.getLastUpdatedAt().isAfter(time))
                 .collect(Collectors.toList());
     }
 

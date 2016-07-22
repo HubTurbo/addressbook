@@ -1,5 +1,6 @@
 package address.sync.cloud.model;
 
+import address.storage.StoragePerson;
 import commons.XmlUtil.LocalDateAdapter;
 import commons.XmlUtil.LocalDateTimeAdapter;
 
@@ -24,10 +25,9 @@ public class CloudPerson {
     private boolean isDeleted;
 
     private LocalDateTime lastUpdatedAt;
-
     private LocalDate birthday;
 
-    public CloudPerson() {
+    {
         this.id = 0;
         this.tags = new ArrayList<>();
         this.firstName = "";
@@ -39,11 +39,11 @@ public class CloudPerson {
         this.isDeleted = false;
     }
 
+    public CloudPerson() {}
+
     public CloudPerson(String firstName, String lastName) {
-        this();
         this.firstName = firstName;
-        this.lastName = lastName;
-        setLastUpdatedAt(LocalDateTime.now());
+        this.lastName = lastName;;
     }
 
     public CloudPerson(String firstName, String lastName, int id) {
@@ -60,8 +60,7 @@ public class CloudPerson {
     }
 
     public void setId(int id) {
-        this.id = id;
-        setLastUpdatedAt(LocalDateTime.now());
+        this.id = id;;
     }
 
 
@@ -71,8 +70,7 @@ public class CloudPerson {
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
-        setLastUpdatedAt(LocalDateTime.now());
+        this.firstName = firstName;;
     }
 
     @XmlElement(name = "lastName")
@@ -81,8 +79,7 @@ public class CloudPerson {
     }
 
     public void setLastName(String lastName) {
-        this.lastName = lastName;
-        setLastUpdatedAt(LocalDateTime.now());
+        this.lastName = lastName;;
     }
 
     @XmlElement(name = "street")
@@ -91,8 +88,7 @@ public class CloudPerson {
     }
 
     public void setStreet(String street) {
-        this.street = street;
-        setLastUpdatedAt(LocalDateTime.now());
+        this.street = street;;
     }
 
     @XmlElement(name = "city")
@@ -101,8 +97,7 @@ public class CloudPerson {
     }
 
     public void setCity(String city) {
-        this.city = city;
-        setLastUpdatedAt(LocalDateTime.now());
+        this.city = city;;
     }
 
     @XmlElement(name = "postalCode")
@@ -111,8 +106,7 @@ public class CloudPerson {
     }
 
     public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
-        setLastUpdatedAt(LocalDateTime.now());
+        this.postalCode = postalCode;;
     }
 
     @XmlElement(name = "githubUsername")
@@ -121,8 +115,7 @@ public class CloudPerson {
     }
 
     public void setGithubUsername(String githubUsername) {
-        this.githubUsername = githubUsername;
-        setLastUpdatedAt(LocalDateTime.now());
+        this.githubUsername = githubUsername;;
     }
 
     @XmlElement(name = "tags")
@@ -131,8 +124,7 @@ public class CloudPerson {
     }
 
     public void setTags(List<CloudTag> tags) {
-        this.tags = tags;
-        setLastUpdatedAt(LocalDateTime.now());
+        this.tags = tags;;
     }
 
     @XmlElement(name = "deleted")
@@ -141,8 +133,7 @@ public class CloudPerson {
     }
 
     public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
-        setLastUpdatedAt(LocalDateTime.now());
+        isDeleted = deleted;;
     }
 
     @XmlElement(name = "lastUpdatedAt")
@@ -151,7 +142,7 @@ public class CloudPerson {
         return lastUpdatedAt;
     }
 
-    private void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
+    public void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
         this.lastUpdatedAt = lastUpdatedAt;
     }
 
@@ -162,8 +153,7 @@ public class CloudPerson {
     }
 
     public void setBirthday(LocalDate birthday) {
-        this.birthday = birthday;
-        setLastUpdatedAt(LocalDateTime.now());
+        this.birthday = birthday;;
     }
 
     public void updatedBy(CloudPerson updatedPerson) {
@@ -183,36 +173,4 @@ public class CloudPerson {
         return this.firstName != null && this.lastName != null && tags != null;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        CloudPerson that = (CloudPerson) o;
-
-        if (id != that.id) return false;
-        if (isDeleted != that.isDeleted) return false;
-        if (firstName != null ? !firstName.equals(that.firstName) : that.firstName != null) return false;
-        if (lastName != null ? !lastName.equals(that.lastName) : that.lastName != null) return false;
-        if (street != null ? !street.equals(that.street) : that.street != null) return false;
-        if (city != null ? !city.equals(that.city) : that.city != null) return false;
-        if (postalCode != null ? !postalCode.equals(that.postalCode) : that.postalCode != null) return false;
-        if (tags != null ? !tags.equals(that.tags) : that.tags != null) return false;
-        return birthday != null ? birthday.equals(that.birthday) : that.birthday == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id;
-        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
-        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-        result = 31 * result + (street != null ? street.hashCode() : 0);
-        result = 31 * result + (city != null ? city.hashCode() : 0);
-        result = 31 * result + (postalCode != null ? postalCode.hashCode() : 0);
-        result = 31 * result + (tags != null ? tags.hashCode() : 0);
-        result = 31 * result + (isDeleted ? 1 : 0);
-        result = 31 * result + (birthday != null ? birthday.hashCode() : 0);
-        return result;
-    }
 }
