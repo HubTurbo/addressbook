@@ -49,10 +49,10 @@ public class PersonEditGuiTest extends GuiTestBase {
         mainGui.sleep(1, TimeUnit.SECONDS);
 
         //Confirm pending state correctness
-        assertTrue(alicePersonCard.isPendingStateCountDownVisible());
+        assertTrue(alicePersonCard.isPendingStateRootVisible());
         assertTrue(alicePersonCard.isPendingStateLabelVisible());
         assertFalse(alicePersonCard.isPendingStateProgressIndicatorVisible());
-        assertTrue(alicePersonCard.getPendingStateLabel().equals("Edited"));
+        assertTrue(alicePersonCard.getPendingStateLabel().equals("Editing"));
 
         //Confirm the right card is selected after the edit
         assertEquals(alicePersonCard, newAlice);
@@ -82,7 +82,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(personListPanel.getPersonCardHandle(3), td.dan);
 
         //Confirm status bar is updated correctly
-        assertEquals(statusBar.getText(), "Alice Brown (old) -> Alicia Brownstone (new) has been edited successfully.");
+        assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] completed successfully.");
     }
 
 
@@ -125,17 +125,17 @@ public class PersonEditGuiTest extends GuiTestBase {
         PersonCardHandle deletedCard = personListPanel.getPersonCardHandle(new Person(personListPanel.getSelectedPerson()));
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
         mainGui.sleep(1, TimeUnit.SECONDS);
-        assertTrue(deletedCard.isPendingStateCountDownVisible());
+        assertTrue(deletedCard.isPendingStateRootVisible());
         assertTrue(deletedCard.isPendingStateLabelVisible());
         assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
-        assertTrue(deletedCard.getPendingStateLabel().equals("Deleted"));
+        assertTrue(deletedCard.getPendingStateLabel().equals("Deleting"));
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         mainGui.sleep(1, TimeUnit.SECONDS);
-        assertFalse(deletedCard.isPendingStateCountDownVisible());
+        assertFalse(deletedCard.isPendingStateRootVisible());
         assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
-        assertFalse(deletedCard.getPendingStateLabel().equals("Deleted"));
-        assertEquals(statusBar.getText(), "Delete operation on " + deletedCard.getFirstName() + " "
-                                          + deletedCard.getLastName() + " has been cancelled.");
+        assertFalse(deletedCard.getPendingStateLabel().equals("Deleting"));
+        assertEquals(statusBar.getText(), "Delete Person [ " + deletedCard.getFirstName() + " "
+                                          + deletedCard.getLastName() + " ] was cancelled.");
 
 
         //Edit
@@ -160,8 +160,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         mainGui.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertEquals(alicePersonCard, td.alice);
-        assertEquals(statusBar.getText(), "Edit operation on " + alicePersonCard.getFirstName() + " "
-                                            + alicePersonCard.getLastName() + " has been cancelled.");
+        assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] was cancelled.");
 
         //New
         EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();

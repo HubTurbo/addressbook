@@ -5,7 +5,6 @@ import address.controller.PersonCardController;
 import address.model.datatypes.person.Person;
 import guitests.GuiRobot;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 /**
@@ -16,9 +15,9 @@ public class PersonCardHandle extends GuiHandle {
     private static final String LAST_NAME_FIELD_ID = "#lastName";
     private static final String ADDRESS_FIELD_ID = "#address";
     private static final String BIRTHDAY_FIELD_ID = "#birthday";
-    private static final String PENDING_STATE_LABEL_FIELD_ID = "#pendingStateLabel";
-    private static final String PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID = "#syncIndicator";
-    private static final String PENDING_STATE_COUNTDOWN_FIELD_ID = "#pendingCountdownIndicator";
+    private static final String PENDING_STATE_LABEL_FIELD_ID = "#commandTypeLabel";
+    private static final String PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID = "#remoteRequestOngoingIndicator";
+    private static final String PENDING_STATE_ROOT_FIELD_ID = "#commandStateDisplayRootNode";
 
     private Node node;
 
@@ -39,9 +38,10 @@ public class PersonCardHandle extends GuiHandle {
         return guiRobot.lookup(PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID).query().isVisible();
     }
 
-    public boolean isPendingStateCountDownVisible() {
-        return guiRobot.lookup(PENDING_STATE_COUNTDOWN_FIELD_ID).query().isVisible();
+    public boolean isPendingStateRootVisible() {
+        return guiRobot.lookup(PENDING_STATE_ROOT_FIELD_ID).query().isVisible();
     }
+
 
     public String getPendingStateLabel() {
         return getTextFromLabel(PENDING_STATE_LABEL_FIELD_ID);
