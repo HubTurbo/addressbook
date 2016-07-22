@@ -364,7 +364,24 @@ task unitTests(type: AddressBookTest) {
     }
 }
 
+task headfulTests(type: AddressBookTest) {
+    include 'guitests/FullSystemTest.class'
+    jacoco {
+        destinationFile = new File("${buildDir}/jacoco/test.exec")
+    }
+}
+
+task headlessTests(type: AddressBookTest) {
+    //include ''
+    jacoco {
+        destinationFile = new File("${buildDir}/jacoco/test.exec")
+    }
+}
+headlessTests.setHeadless()
+
 task allTests(type: AddressBookTest) {
+    exclude headfulTests.includes
+    exclude headlessTests.includes
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
