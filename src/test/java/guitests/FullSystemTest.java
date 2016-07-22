@@ -61,6 +61,7 @@ public class FullSystemTest extends GuiTestBase {
         EditPersonDialogHandle newPersonDialog = personListPanel.clickNew();
         newPersonDialog.enterFirstName("Ming").clickOk();
         newPersonDialog.dissmissErrorMessage("Invalid Fields");
+        newPersonDialog.focusOnSelf();
         newPersonDialog.enterLastName("Lee");
         newPersonDialog.clickOk();
         assertTrue(personListPanel.contains("Ming", "Lee"));

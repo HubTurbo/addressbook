@@ -74,9 +74,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Confirm other cards are unaffected.
         personListPanel.clickOnListView();
-        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1); //To make alice card visible
-        assertEquals(personListPanel.getPersonCardHandle(0), td.alice);
-        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2); //To make sure the card is visible
         assertEquals(personListPanel.getPersonCardHandle(1), td.benson);
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
         assertEquals(personListPanel.getPersonCardHandle(2), td.charlie);

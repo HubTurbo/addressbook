@@ -97,10 +97,10 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         assertTrue(mainGui.isMinimized());
 
         mainGui.use_APP_RESIZE_HOTKEY(); // max window
-        assertFalse(mainGui.isMinimized()); // mainGui.isMinimized() gives wrong result in travis headfull
+        assertTrue(mainGui.isDefaultSize()); // mainGui.isMinimized() gives wrong result in travis headfull
 
         mainGui.use_APP_RESIZE_HOTKEY(); // set window to default size
-        assertTrue(mainGui.isDefaultSize());
+        assertTrue(mainGui.isMaximized());
     }
 
 

@@ -41,6 +41,7 @@ public class GuiHandle {
     }
 
     public void focusOnWindow(String stageTitle) {
+        LoggerManager.getLogger(this.getClass()).info("Focusing " + stageTitle);
         java.util.Optional<Window> window = guiRobot.listTargetWindows()
                 .stream()
                 .filter(w
@@ -54,6 +55,7 @@ public class GuiHandle {
 
         guiRobot.targetWindow(window.get());
         guiRobot.interact(() -> window.get().requestFocus());
+        LoggerManager.getLogger(this.getClass()).info("Finishing focus " + stageTitle);
     }
 
     protected Node getNode(String query) {
@@ -133,7 +135,7 @@ public class GuiHandle {
     }
 
     public void dissmissErrorMessage(String errorDialogTitle) {
-        guiRobot.targetWindow(errorDialogTitle);
+        focusOnWindow(errorDialogTitle);
         clickOk();
     }
 
