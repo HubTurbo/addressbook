@@ -186,6 +186,11 @@ public class PersonListPanelHandle extends GuiHandle {
         fireContextMenuEvent();
     }
 
+    /**
+     * Clicks on the context menu.
+     * @param choice The item in the context menu that is to be clicked.
+     * @return TODO: handle other return type also.
+     */
     public EditPersonDialogHandle clickOnContextMenu(ContextMenuChoice choice) {
         switch (choice) {
             case EDIT:
@@ -205,11 +210,6 @@ public class PersonListPanelHandle extends GuiHandle {
         return null;
     }
 
-
-    public void focusListView() {
-        guiRobot.interact(() -> this.getListView().requestFocus());
-    }
-
     public void clickOnPerson(String personName) {
         guiRobot.clickOn(personName);
     }
@@ -222,23 +222,39 @@ public class PersonListPanelHandle extends GuiHandle {
         return getTextFieldText(FILTER_FIELD_ID);
     }
 
+    /**
+     * Clicks the New button, which will open the edit dialog for creating new person.
+     * @return The EditPersonDialogHandle handler.
+     */
     public EditPersonDialogHandle clickNew() {
         guiRobot.clickOn(NEW_BUTTON_ID);
         guiRobot.sleep(500);
         return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.ADD_TITLE);
     }
 
+    /**
+     * Clicks the Edit button, which will open the edit dialog.
+     * @return The EditPersonDialogHandle handler.
+     */
     public EditPersonDialogHandle clickEdit() {
         guiRobot.clickOn(EDIT_BUTTON_ID);
         guiRobot.sleep(500);
         return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
     }
 
+    /**
+     * Drag and drop the person card.
+     * @param firstNameOfPersonToDrag The text which identify the card to be dragged.
+     * @param firstNameOfPersonToDropOn The text which identify the card to be dropped on top of.
+     */
     public void dragAndDrop(String firstNameOfPersonToDrag, String firstNameOfPersonToDropOn) {
         guiRobot.drag(firstNameOfPersonToDrag).dropTo(firstNameOfPersonToDropOn);
     }
 
-
+    /**
+     * Drags the person cards outside of the listview.
+     * @param listOfPersonsToDrag The texts which identify the cards to be dragged.
+     */
     public void dragOutsideList(List<String> listOfPersonsToDrag) {
         double posY = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxY()
                 - 50;
@@ -251,14 +267,10 @@ public class PersonListPanelHandle extends GuiHandle {
                 .dropTo(posX, posY);
     }
 
-    private void scrollToPerson(String firstName) {
-        Optional<ReadOnlyViewablePerson> person = getListView().getItems()
-                                                               .stream()
-                                                               .filter(p -> p.getFirstName()
-                                                               .equals(firstName)).findAny();
-        getListView().scrollTo(getListView().getItems().indexOf(person.get()));
-    }
-
+    /**
+     * Drag card outside of the listview.
+     * @param personToDrag The text which identify the card to be dragged.
+     */
     public void dragOutsideList(String personToDrag) {
         double posY = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxY()
                 - 50;
@@ -267,12 +279,20 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.drag(personToDrag).dropTo(posX, posY);
     }
 
+    /**
+     * Drag card outside of the Test App.
+     * @param personToDrag The text which identify the card to be dragged.
+     */
     public void dragOutsideApp(String personToDrag) {
         double x = this.primaryStage.getScene().getX() + this.primaryStage.getScene().getWidth() + 10;
         double y = this.primaryStage.getScene().getY() + this.primaryStage.getScene().getHeight() + 10;
         guiRobot.drag(personToDrag).dropTo(x, y);
     }
 
+    /**
+     * Drags cards outside of the Test App.
+     * @param listOfPersonsToDrag The texts which identify the cards to be dragged.
+     */
     public void dragOutsideApp(List<String> listOfPersonsToDrag) {
         double x = this.primaryStage.getScene().getX() + this.primaryStage.getScene().getWidth() + 10;
         double y = this.primaryStage.getScene().getY() + this.primaryStage.getScene().getHeight() + 10;
@@ -283,31 +303,13 @@ public class PersonListPanelHandle extends GuiHandle {
                 .dropTo(x, y);
     }
 
-    public void edgeDrag(List<String> dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
-        switch (direction) {
-            case UP:
-                double edgeMinY = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMinY()
-                                                                  + PersonListViewCell.SCROLL_AREA / 2 - 3;
-                double edgeMinX = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMinX()
-                                                                  + this.getListView().getWidth() / 2;
-                guiRobot.press(TestUtil.scrub(new KeyCode[] {KeyCode.SHORTCUT})[0]);
-                dragFrom.stream().forEach(p -> guiRobot.clickOn(p));
-                guiRobot.release(TestUtil.scrub(new KeyCode[] {KeyCode.SHORTCUT})[0]);
-                guiRobot.drag(dragFrom.get(dragFrom.size() - 1)).drag(edgeMinX, edgeMinY).sleep(dragDuration, timeunit).drop();
-                break;
-            case DOWN:
-                double edgeMaxY = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMaxY()
-                                                                  - PersonListViewCell.SCROLL_AREA / 2;
-                double edgeMaxX = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMinX()
-                                                                  + this.getListView().getWidth() / 2;
-                guiRobot.press(TestUtil.scrub(new KeyCode[] {KeyCode.SHORTCUT})[0]);
-                dragFrom.stream().forEach(p -> guiRobot.clickOn(p));
-                guiRobot.release(TestUtil.scrub(new KeyCode[] {KeyCode.SHORTCUT})[0]);
-                guiRobot.drag(dragFrom.get(dragFrom.size() - 1)).drag(edgeMaxX, edgeMaxY).sleep(dragDuration, timeunit).drop();
-                break;
-        }
-    }
-
+    /**
+     * Drags card to the top or bottom edge of the listview.
+     * @param dragFrom The text which identify the card to be dragged.
+     * @param direction To the top or bottom edge of the listview.
+     * @param dragDuration Drag duration
+     * @param timeunit Timeunit for the duration.
+     */
     public void edgeDrag(String dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
         switch (direction) {
             case UP:

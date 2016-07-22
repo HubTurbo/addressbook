@@ -2,14 +2,11 @@ package guitests.guihandles;
 
 import address.model.datatypes.person.Person;
 import address.util.DateTimeUtil;
-import com.google.common.io.Files;
+
 import guitests.GuiRobot;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import org.loadui.testfx.GuiTest;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
 
@@ -123,6 +120,4 @@ public class EditPersonDialogHandle extends GuiHandle {
                 .forEach( (t) -> tagPersonDialog.enterSearchQuery(t.getName()).acceptSuggestedTag());
         tagPersonDialog.close();
     }
-
-
 }

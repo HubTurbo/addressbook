@@ -1,7 +1,5 @@
 package guitests.guihandles;
 
-
-import address.model.ModelManager;
 import address.util.LoggerManager;
 import com.google.common.base.Optional;
 import guitests.GuiRobot;
@@ -11,13 +9,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import org.testfx.api.FxRobot;
 
 import java.lang.reflect.Constructor;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Base class for all GUI Handles used in testing.
