@@ -47,6 +47,7 @@ public class GuiRobot extends FxRobot {
 
     @Override
     public FxRobot clickOn(String query, MouseButton... buttons) {
+        //Busy waiting implementation to fix issue when app window is not brought up to screen yet.
         int count = 0;
         while (count < 10) {
             try {
@@ -61,6 +62,7 @@ public class GuiRobot extends FxRobot {
 
     @Override
     public FxRobot drag(String query, MouseButton... buttons) {
+        //Busy waiting implementation to fix issue when app window is not brought up to screen yet.
         int count = 0;
         while (count < 10) {
             try {

@@ -213,7 +213,7 @@ public class PersonOverviewController extends UiController{
     }
 
     private ContextMenu createContextMenu() {
-        logger.info("Creating context menu for listview card");
+        logger.debug("Creating context menu for listview card");
         final ContextMenu contextMenu = new ContextMenu();
 
         final MenuItem editMenuItem = initContextMenuItem("Edit",
@@ -237,7 +237,7 @@ public class PersonOverviewController extends UiController{
                 retryFailedMenuItem
         );
         contextMenu.setId("personListContextMenu");
-        logger.info("context menu for listview card created" + contextMenu.toString());
+        logger.debug("context menu for listview card created" + contextMenu.toString());
         return contextMenu;
     }
 

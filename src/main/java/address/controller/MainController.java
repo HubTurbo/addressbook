@@ -45,6 +45,8 @@ import java.util.Optional;
  */
 public class MainController extends UiController{
     public static final String STAGE_TITLE_TAG_SELECTION = "Tag Selection";
+    public static final String STAGE_TITLE_MANAGE_TAG_DIALOG = "List of Tags";
+    public static final String STAGE_TITLE_NEW_TAG = "New Tag";
     private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
     private static final String FXML_ACTIVITY_HISTORY = "/view/ActivityHistory.fxml";
     private static final String FXML_HELP = "/view/Help.fxml";
@@ -63,8 +65,6 @@ public class MainController extends UiController{
     private static final String ICON_HELP = "/images/help_icon.png";
     public static final int MIN_HEIGHT = 600;
     public static final int MIN_WIDTH = 450;
-    public static final String STAGE_TITLE_MANAGE_TAG_DIALOG = "List of Tags";
-    public static final String STAGE_TITLE_NEW_TAG = "New Tag";
 
     private Stage primaryStage;
     private VBox rootLayout;
@@ -106,7 +106,6 @@ public class MainController extends UiController{
     public void start(Stage primaryStage) {
         logger.info("Starting main controller.");
         this.primaryStage = primaryStage;
-        primaryStage.initStyle(StageStyle.DECORATED);
         this.browserManager.start();
         primaryStage.setTitle(config.getAppTitle());
 
@@ -589,19 +588,17 @@ public class MainController extends UiController{
 
     private void handleResizeRequest() {
         logger.info("Handling resize request.");
-        //if (primaryStage.isIconified()) {
-        //    logger.info("iconified window, showing window instead.");
-        //    logger.debug("Cannot resize as window is iconified, attempting to show window instead.");
-        //    primaryStage.setIconified(false);
-        //} else {
+        if (primaryStage.isIconified()) {
+            logger.info("iconified window, showing window instead.");
+            logger.debug("Cannot resize as window is iconified, attempting to show window instead.");
+            primaryStage.setIconified(false);
+        } else {
             resizeWindow();
-       // }
+        }
     }
 
     private void resizeWindow() {
         logger.info("Resizing window");
-        logger.info("Before: Stage width: {}", primaryStage.getWidth());
-        logger.info("Before: Stage height: {}", primaryStage.getHeight());
         // specially handle since stage operations on Mac seem to not be working as intended
         if (commons.OsDetector.isOnMac()) {
             // refresh stage so that resizing effects (apart from the first resize after iconify-ing) are applied
@@ -614,13 +611,11 @@ public class MainController extends UiController{
             // isMaximized also does not seem to return the correct value
             primaryStage.setMaximized(true);
         } else {
-            logger.info("stage is " + primaryStage.isMaximized());
             primaryStage.setMaximized(!primaryStage.isMaximized());
-            logger.info("After: stage is " + primaryStage.isMaximized());
         }
 
-        logger.info("After: Stage width: {}", primaryStage.getWidth());
-        logger.info("After: Stage height: {}", primaryStage.getHeight());
+        logger.debug("After: Stage width: {}", primaryStage.getWidth());
+        logger.debug("After: Stage height: {}", primaryStage.getHeight());
     }
 
     public void stop() {
