@@ -1,6 +1,7 @@
 package address.keybindings;
 
 
+import address.testutil.TestUtil;
 import javafx.scene.input.KeyCodeCombination;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,13 +36,13 @@ public class KeySequenceTest {
     @Test
     public void getSecondKeyCombination() throws Exception {
         KeySequence keySequence = new KeySequence("Sample Key Sequence", KeyBindingTest.ALT_A, KeyBindingTest.SHIFT_B, KeyBindingTest.SAMPLE_EVENT);
-        assertEquals("Shift+B", keySequence.getSecondKeyCombination().getDisplayText());
+        assertEquals(TestUtil.getOsDependentKeyCombinationString("Shift+B"), keySequence.getSecondKeyCombination().getDisplayText());
     }
 
     @Test
     public void toStringMethod() throws Exception {
         KeySequence keySequence = new KeySequence("Sample Key Sequence", KeyBindingTest.ALT_A, KeyBindingTest.SHIFT_B, KeyBindingTest.SAMPLE_EVENT);
-        assertEquals("Key sequence Sample Key Sequence Alt+A, Shift+B", keySequence.toString());
+        assertEquals(TestUtil.getOsDependentKeyCombinationString("Key sequence Sample Key Sequence Alt+A, Shift+B"), keySequence.toString());
     }
 
     @Test
