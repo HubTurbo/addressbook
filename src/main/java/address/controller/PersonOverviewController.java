@@ -223,7 +223,7 @@ public class PersonOverviewController extends UiController{
 
         final MenuItem retryFailedMenuItem = initContextMenuItem("Retry",
                 getAcceleratorKeyCombo("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR").get(), this::handleRetryFailedCommands);
-        deleteMenuItem.setId("deleteMenuItem");
+        retryFailedMenuItem.setId("retryFailedMenuItem");
         retryFailedMenuItem.visibleProperty().bind(shouldAllowRetry);
 
         contextMenu.getItems().addAll(

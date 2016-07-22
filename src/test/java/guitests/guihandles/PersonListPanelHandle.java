@@ -204,7 +204,7 @@ public class PersonListPanelHandle extends GuiHandle {
                 clickOn("#deleteMenuItem");
                 break;
             case CANCEL:
-                clickOn("#cancelOperationMenuItem");
+                clickOn("#cancelMenuItem");
                 break;
         }
         return null;

@@ -4,7 +4,7 @@ import address.TestApp;
 import address.keybindings.Bindings;
 import address.model.ModelManager;
 import address.util.LoggerManager;
-import address.util.OsDetector;
+import commons.OsDetector;
 import guitests.GuiRobot;
 import javafx.stage.Stage;
 import javafx.stage.Window;
