@@ -13,5 +13,5 @@ after_failure:
 addons:
   apt:
     packages:
-      - oracle-java9-installer
+      - oracle-java8-installer
 
