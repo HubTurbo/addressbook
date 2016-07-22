@@ -1,9 +1,9 @@
 package address.keybindings;
 
+import address.testutil.TestUtil;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
 
 public class ShortcutTest {
 
@@ -11,11 +11,11 @@ public class ShortcutTest {
 
     @Test
     public void getKeyCombination() throws Exception {
-        assertEquals("Alt+A", shortcut.getKeyCombination().getDisplayText());
+        assertEquals(TestUtil.getOsDependentKeyCombinationString("Alt+A"), shortcut.getKeyCombination().getDisplayText());
     }
 
     @Test
     public void toStringMethod() throws Exception {
-        assertEquals("Keyboard shortcut Dummy shortcut Alt+A", shortcut.toString());
+        assertEquals(TestUtil.getOsDependentKeyCombinationString("Keyboard shortcut Dummy shortcut Alt+A"), shortcut.toString());
     }
 }

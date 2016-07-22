@@ -276,4 +276,12 @@ public class TestUtil {
         method.setAccessible(true);
         return method;
     }
+
+    public static String getOsDependentKeyCombinationString(String keyCombinationString) {
+        if (!OsDetector.isOnMac()) return keyCombinationString;
+        return keyCombinationString.replaceAll("Alt\\+", "⌥")
+                .replaceAll("Meta\\+", "⌘")
+                .replaceAll("Shift\\+", "⇧");
+
+    }
 }
