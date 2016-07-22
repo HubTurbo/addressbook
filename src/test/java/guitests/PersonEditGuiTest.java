@@ -4,7 +4,6 @@ import address.model.ModelManager;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.testutil.PersonBuilder;
-import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.PersonListPanelHandle;
@@ -40,10 +39,6 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Get a reference to the card displaying Alice's details
         PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
-
-        if (alicePersonCard == null) {
-            System.out.println("alicePersonCard is null");
-        }
 
         //Edit Alice to change to new values
         personListPanel.clickOnPerson(td.alice);
@@ -95,8 +90,6 @@ public class PersonEditGuiTest extends GuiTestBase {
 
     @Test
     public void editPerson_usingContextMenu() {
-
-        mainGui.focusOnMainApp();
         personListPanel.rightClickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog = personListPanel.clickOnContextMenu(
                 PersonListPanelHandle.ContextMenuChoice.EDIT);
@@ -106,7 +99,6 @@ public class PersonEditGuiTest extends GuiTestBase {
 
     @Test
     public void editPerson_usingEditButton() {
-
         personListPanel.clickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
         assertTrue(editPersonDialog.isValidEditDialog());
@@ -131,7 +123,6 @@ public class PersonEditGuiTest extends GuiTestBase {
     public void cancelPerson_usingAccelerator() {
 
         //Delete
-        //personListPanel.use_LIST_GOTO_TOP_SEQUENCE();
         personListPanel.clickOnPerson(td.alice);
         PersonCardHandle deletedCard = personListPanel.getPersonCardHandle(new Person(personListPanel.getSelectedPerson()));
         personListPanel.use_PERSON_DELETE_ACCELERATOR();

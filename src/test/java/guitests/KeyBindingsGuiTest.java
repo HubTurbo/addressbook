@@ -25,7 +25,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
     @Test
     public void keyBindings() {
         //======= shortcuts =======================
-/*
+
         personListPanel.use_LIST_ENTER_SHORTCUT();
         assertTrue(personListPanel.isSelected("Alice", "Brown"));
 
@@ -51,12 +51,12 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         assertEquals("Dan Edwards", editPersonDialog.getFullName());
         editPersonDialog.clickCancel();
 
-        personListPanel.focusOnMainApp();
+        mainGui.focusOnMainApp();
         personListPanel.clickOnPerson(td.dan);
 
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
         assertTrue(personListPanel.contains("Dan", "Edwards")); // still in the list due to grace period
-        personListPanel.waitForGracePeriodToExpire();
+        mainGui.sleepForGracePeriod();
         assertFalse(personListPanel.contains("Dan", "Edwards")); // removed from list after grace period
 
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
@@ -64,13 +64,13 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
         assertTrue(personListPanel.contains("Charlie", "Davidson")); // still in the list due to grace period
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        personListPanel.waitForGracePeriodToExpire();
+        mainGui.sleepForGracePeriod();
         assertTrue(personListPanel.contains("Charlie", "Davidson")); // still in the list even after grace period
 
         TagPersonDialogHandle tagPersonDialog = personListPanel.use_PERSON_TAG_ACCELERATOR();
         tagPersonDialog.close();
 
-        personListPanel.focusOnMainApp();
+        mainGui.focusOnMainApp();
         personListPanel.clickOnListView();
 
         //======== others ============================
@@ -83,60 +83,24 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         personListPanel.navigateUp();
         assertTrue(personListPanel.isSelected("Benson", "Christopher Dean"));
 
-        //======== hotkeys ============================
+    }
 
-        System.out.println("isIconified" + mainGui.isIconified());
+    /**
+     * Tests the hotkeys of the application
+     * Doesn't work in headfull travis ci.
+     */
+    @Test
+    public void testHotKeys() {
+        personListPanel.clickOnListView();
 
-        TestUtil.captureScreenShot("aftertageditandjumping");
-
-        mainGui.sleepForGracePeriod();
-
-        TestUtil.captureScreenShot("aftergraceperiod");
-
-        personListPanel.clickOnPerson(td.elizabeth);
-
-        TestUtil.captureScreenShot("afterclicking");
-
-        mainGui.focusOnMainApp();
-
-        /*
         mainGui.use_APP_MINIMIZE_HOTKEY();
-        mainGui.sleep(2, TimeUnit.SECONDS);
         assertTrue(mainGui.isMinimized());
-        TestUtil.captureScreenShot("MINIMIZED");
-
-        System.out.println("isIconified" + mainGui.isIconified());
-
-*/
-
-        //mainGui.use_APP_MINIMIZE_HOTKEY();
-        //mainGui.sleep(2, TimeUnit.SECONDS);
-        //assertTrue(mainGui.isMinimized());
-        //TestUtil.captureScreenShot("MINIMIZED");
-
-        TestUtil.captureScreenShot("initwindow");
-        mainGui.sleep(10, TimeUnit.SECONDS);
-        /*
-        System.out.println("isIconified" + mainGui.isIconified());
 
         mainGui.use_APP_RESIZE_HOTKEY(); // max window
-        mainGui.sleep(2, TimeUnit.SECONDS);
-        //assertFalse(mainGui.isMinimized()); // mainGui.isMinimized() gives wrong result in travis
-
-        TestUtil.captureScreenShot("maxwindow");
-
-        System.out.println("isIconified" + mainGui.isIconified());
+        assertFalse(mainGui.isMinimized()); // mainGui.isMinimized() gives wrong result in travis headfull
 
         mainGui.use_APP_RESIZE_HOTKEY(); // set window to default size
-        mainGui.sleep(2, TimeUnit.SECONDS);
-        //assertTrue(mainGui.isDefaultSize());
-
-        TestUtil.captureScreenShot("normalwindow");
-
-        System.out.println("isIconified" + mainGui.isIconified());
-*/
-        fail();
-
+        assertTrue(mainGui.isDefaultSize());
     }
 
 

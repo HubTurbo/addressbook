@@ -62,19 +62,6 @@ public class PersonListGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void dragAndDrop_multiplePersonCorrectDrag_listReordered() {
-
-        personListPanel.clickOnListView();
-        personListPanel.clearSelection();
-        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
-
-        personListPanel.edgeDrag(Arrays.asList(new String[] {td.alice.getFirstName(), td.benson.getFirstName()}),
-                                VerticalDirection.DOWN, 7, TimeUnit.SECONDS);
-
-        assertTrue(personListPanel.containsInOrder(td.charlie, td.dan, td.elizabeth, td.alice, td.benson));
-    }
-
-    @Test
     public void dragAndDrop_multiplePersonWrongDrag_listUnchanged() {
         assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
         personListPanel.dragOutsideList(Arrays.asList(new String[] {td.alice.getFirstName(), td.benson.getFirstName()}));

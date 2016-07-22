@@ -101,7 +101,6 @@ public class GuiHandle {
     }
 
     public void pressEnter() {
-        System.out.println("Press enterTarget window name: " + ((Stage)guiRobot.targetWindow()).getTitle());
         guiRobot.type(KeyCode.ENTER);
     }
 
