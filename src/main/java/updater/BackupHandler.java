@@ -38,7 +38,6 @@ public class BackupHandler {
      * Creates a backup unless app is already being run from backup JAR.
      */
     protected void createAppBackup() throws IOException {
-        //TODO: generate this dynamically, temp for update refactoring
         File mainAppJar = new File("lib/resource-" + currentVersion.toString() + ".jar");
 
         if (isRunFromBackupJar(mainAppJar)) {

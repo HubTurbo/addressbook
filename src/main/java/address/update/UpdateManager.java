@@ -33,30 +33,35 @@ import java.util.stream.Collectors;
 public class UpdateManager extends ComponentManager {
     public static final String UPDATE_DIR = "update";
     private static final AppLogger logger = LoggerManager.getLogger(UpdateManager.class);
-
     // --- Messages
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
     private static final String MSG_FAIL_DOWNLOAD_UPDATE = "Downloading update failed";
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_UPDATE_NOT_SUPPORTED = "Update not supported on detected OS";
-    private static final String MSG_NOT_UPDATING_DEVELOPER_ENV = "Developer env detected; not updating";
+    private static final String MSG_FAIL_CREATE_UPDATE_DIRECTORY = "Error creating update directory";
     private static final String MSG_FAIL_OBTAIN_LATEST_VERSION_DATA = "Unable to obtain latest version data. Please manually download the latest version.";
     private static final String MSG_FAIL_READ_LATEST_VERSION = "Error reading latest version";
-    private static final String MSG_NO_NEWER_VERSION = "No newer version to be downloaded";
-    private static final String MSG_UPDATE_FINISHED = "Update will be applied on next launch";
     private static final String MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA = "Error updating backup versions' data file";
+    private static final String MSG_IN_PROGRESS_FINALIZING_UPDATES = "Finalizing updates";
+    private static final String MSG_IN_PROGRESS_COLLECTING_UPDATE_FILES = "Collecting all update files to be downloaded";
+    private static final String MSG_IN_PROGRESS_DOWNLOADING_LATEST_VERSION_DATA = "Downloading latest version data from server";
+    private static final String MSG_IN_PROGRESS_READING_LATEST_SERVER_DATA = "Reading downloaded latest version data";
+    private static final String MSG_IN_PROGRESS_READING_LATEST_VERSION = "Reading latest version";
+    private static final String MSG_IN_PROGRESS_CHECKING_IF_UPDATE_REQUIRED = "Checking if update is required";
+    private static final String MSG_IN_PROGRESS_DELETING_PREVIOUS_SPECIFICATION_FILE = "Clearing local update specification file";
+    private static final String MSG_FINISHED_DEVELOPER_ENV = "Developer env detected; not updating";
+    private static final String MSG_FINISHED_UP_TO_DATE = "Up-to-date";
+    private static final String MSG_FINISHED_UPDATE = "Update will be applied on next launch";
     // --- End of Messages
-
-    private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
     private static final String VERSION_DATA_ON_SERVER_STABLE =
             "https://raw.githubusercontent.com/HubTurbo/addressbook/stable/VersionData.json";
     private static final String VERSION_DATA_ON_SERVER_EARLY_ACCESS =
             "https://raw.githubusercontent.com/HubTurbo/addressbook/early-access/VersionData.json";
+    private static final File DOWNLOADED_VERSIONS_FILE = new File(UPDATE_DIR + File.separator + "downloaded_versions");
     private static final File VERSION_DESCRIPTOR_FILE = new File(UPDATE_DIR + File.separator + "VersionData.json");
     private static final String LIB_DIR = "lib/";
     private static final String LAUNCHER_FILE_REGEX = "addressbook-V\\d\\.\\d\\.\\d(ea)?\\.jar";
     private static final String UPDATER_FILE_PATH = "update/updater.jar";
-
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
     private final Version currentVersion;
@@ -73,18 +78,21 @@ public class UpdateManager extends ComponentManager {
 
     public void start() {
         if (!ManifestFileReader.isRunFromJar()) {
-            raise(new ApplicationUpdateFinishedEvent(MSG_NOT_UPDATING_DEVELOPER_ENV));
+            raise(new ApplicationUpdateFinishedEvent(MSG_FINISHED_DEVELOPER_ENV));
             return;
         }
         pool.execute(this::checkForUpdate);
     }
 
     public void stop() {
-        if (!shouldRunUpdater) return;
-        scheduleUpdater();
+        if (!shouldRunUpdater) {
+            logger.info("Not running updater.");
+            return;
+        }
+        startUpdater();
     }
 
-    private void scheduleUpdater() {
+    private void startUpdater() {
         logger.info("Scheduling updater");
         try {
             extractUpdaterJar();
@@ -128,8 +136,25 @@ public class UpdateManager extends ComponentManager {
         }
     }
 
+    /**
+     * Read latest data containing version information as well as the required libraries
+     */
+    private VersionData readLatestVersionData(File latestVersionDataFile) throws IOException {
+        return FileUtil.deserializeObjectFromJsonFile(latestVersionDataFile, VersionData.class);
+    }
+
+    /**
+     * Downloads the latest version data from the server into latestVersionDataFile
+     * @param latestVersionDataFile
+     * @throws IOException
+     */
+    private void downloadLatestVersionDataFromServer(File latestVersionDataFile) throws IOException {
+        URL latestDataFileUrl = getLatestVersionDataUrl(currentVersion.isEarlyAccess());
+        downloadFile(latestVersionDataFile, latestDataFileUrl);
+    }
+
     private void checkForUpdate() {
-        raise(new ApplicationUpdateInProgressEvent("Clearing local update specification file", -1));
+        raise(new ApplicationUpdateInProgressEvent(MSG_IN_PROGRESS_DELETING_PREVIOUS_SPECIFICATION_FILE, -1));
         try {
             LocalUpdateSpecificationHelper.clearLocalUpdateSpecFile();
         } catch (IOException e) {
@@ -137,15 +162,24 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        raise(new ApplicationUpdateInProgressEvent("Getting data from server", -1));
-        VersionData latestData;
+        raise(new ApplicationUpdateInProgressEvent(MSG_IN_PROGRESS_DOWNLOADING_LATEST_VERSION_DATA, -1));
         try {
-            latestData = getLatestDataFromServer();
+            downloadLatestVersionDataFromServer(VERSION_DESCRIPTOR_FILE);
         } catch (IOException e) {
             raise(new ApplicationUpdateFailedEvent(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA));
             return;
         }
 
+        raise(new ApplicationUpdateInProgressEvent(MSG_IN_PROGRESS_READING_LATEST_SERVER_DATA, -1));
+        VersionData latestData;
+        try {
+            latestData = readLatestVersionData(VERSION_DESCRIPTOR_FILE);
+        } catch (IOException e) {
+            raise(new ApplicationUpdateFailedEvent(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA));
+            return;
+        }
+
+        raise(new ApplicationUpdateInProgressEvent(MSG_IN_PROGRESS_READING_LATEST_VERSION, -1));
         Version latestVersion;
         try {
             latestVersion = getVersion(latestData);
@@ -157,12 +191,13 @@ public class UpdateManager extends ComponentManager {
         // Close app if wrong release channel - EA <-> stable
         assert isOnSameReleaseChannel(latestVersion) : "Error: latest version found to be in the wrong release channel";
 
+        raise(new ApplicationUpdateInProgressEvent(MSG_IN_PROGRESS_CHECKING_IF_UPDATE_REQUIRED, -1));
         if (currentVersion.compareTo(latestVersion) >= 0) {
-            raise(new ApplicationUpdateFinishedEvent(MSG_NO_NEWER_VERSION));
+            raise(new ApplicationUpdateFinishedEvent(MSG_FINISHED_UP_TO_DATE));
             return;
         }
 
-        raise(new ApplicationUpdateInProgressEvent("Collecting all update files to be downloaded", -1));
+        raise(new ApplicationUpdateInProgressEvent(MSG_IN_PROGRESS_COLLECTING_UPDATE_FILES, -1));
         HashMap<String, URL> filesToBeUpdated;
         try {
             filesToBeUpdated = getFilesToDownload(latestData);
@@ -176,7 +211,7 @@ public class UpdateManager extends ComponentManager {
         try {
             createUpdateDir();
         } catch (IOException e) {
-            raise(new ApplicationUpdateFailedEvent("Error creating update directory"));
+            raise(new ApplicationUpdateFailedEvent(MSG_FAIL_CREATE_UPDATE_DIRECTORY));
         }
 
         try {
@@ -186,7 +221,7 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        raise(new ApplicationUpdateInProgressEvent("Finalizing updates", -1));
+        raise(new ApplicationUpdateInProgressEvent(MSG_IN_PROGRESS_FINALIZING_UPDATES, -1));
 
         try {
             createUpdateSpecification(filesToBeUpdated);
@@ -203,7 +238,7 @@ public class UpdateManager extends ComponentManager {
             return;
         }
 
-        raise(new ApplicationUpdateFinishedEvent(MSG_UPDATE_FINISHED));
+        raise(new ApplicationUpdateFinishedEvent(MSG_FINISHED_UPDATE));
         shouldRunUpdater = true;
     }
 
@@ -214,26 +249,6 @@ public class UpdateManager extends ComponentManager {
         }
     }
 
-    /**
-     * Get latest data from the server, containing version information as well as the required libraries
-     */
-    private VersionData getLatestDataFromServer() throws IOException {
-        URL latestDataFileUrl;
-
-        latestDataFileUrl = getLatestVersionDataUrl(currentVersion.isEarlyAccess());
-
-        try {
-            downloadFile(VERSION_DESCRIPTOR_FILE, latestDataFileUrl);
-        } catch (IOException e) {
-            throw new IOException("Failed to download latest data", e);
-        }
-
-        try {
-            return FileUtil.deserializeObjectFromJsonFile(VERSION_DESCRIPTOR_FILE, VersionData.class);
-        } catch (IOException e) {
-            throw new IOException("Failed to parse data from latest data file.", e);
-        }
-    }
 
     private URL getLatestVersionDataUrl(boolean isEarlyAccess) {
         try {
@@ -251,11 +266,7 @@ public class UpdateManager extends ComponentManager {
     }
 
     private Version getVersion(VersionData versionData) throws IllegalArgumentException {
-        try {
-            return Version.fromString(versionData.getVersion());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Failed to read version", e);
-        }
+        return Version.fromString(versionData.getVersion());
     }
 
     private boolean isOnSameReleaseChannel(Version version) {
