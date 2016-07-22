@@ -63,7 +63,7 @@ References to how teams have multiple release channel:
 1. Merge the appropriate branches  
  - Releasing an early-access version: Merge `master` branch to `early-access` branch.  
 Releasing a stable version: Merge `early-access` branch to `stable` branch.
-    - \*Use `git merge --no-commit --no-ff` (LOCALLY) so that a merge commit won't be made, in which you can make relevant changes (e.g. changing version number and early access flag) before committing with the version of the software as the commit message.
+    - Use `git merge <branch> --no-commit --no-ff` (LOCALLY) so that a merge commit won't be made, in which you can make relevant changes (e.g. changing version number and early access flag) before committing with the version of the software as the commit message.
 2. Update version numberings
   - Update the versions of the application and its dependencies in `MainApp` and in `build.gradle`.
     - If the main application is an early access version, set `IS_EARLY_ACCESS` in `MainApp` as `true` and add `ea` at the end of version in `build.gradle`.
@@ -71,22 +71,25 @@ Releasing a stable version: Merge `early-access` branch to `stable` branch.
 3. Compile the custom dependencies
   - Run `gradle` task `createInstallerJar`
 4. Update version data
-  - Run `gradle` task `generateVersionData`
-    - Generates a `VersionData.json` containing the updated list of libraries and their information
+  - Generate partially-updated `VersionData.json` containing the list of libraries and information
+    - Run `gradle` task `generateVersionData`
       - Information of unchanged libraries will be copied from the old `VersionData.json`
-      - The console will print a list of libraries which needs to be updated for the new version
+      - The console will print a list of libraries which needs to be manually updated for the new version
   - Upload all updated libraries
     - Upload them to https://github.com/HubTurbo/addressbook/releases/tag/Resources
-  - Open `VersionData.json` and manually update the new fields accordingly
+  - Update `VersionData.json`
+    - Open `VersionData.json` and manually update the new fields accordingly
     - Fill in the links to download the new libraries.
     - Change the OS compatibility of the new libraries to ensure that only the libraries relevant to an OS will be loaded and checked
 5. Create a new commit
   - Commit and push the files for release - name the commit `V<MAJOR>.<MINOR>.<PATCH>` (with suffix `ea` if it's an early access version)
-  - This is so that the git tag that GitHub release creates will appropriately tag the commit with updated `VersionData.json`
-6. Draft a new release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
-7. Create the release JAR by running the Gradle task `createInstallerJar`
+    - This is so that the following GitHub release (done in Step 7) will appropriately tag this commit containing the updated `VersionData.json`
+6. Create the release JAR by running the Gradle task `createInstallerJar`
   - this must be run again to use the updated `VersionData.json`
+7. Draft a new release in [GitHub](https://github.com/HubTurbo/addressbook/releases) and tag the corresponding branch (`early-access` or `stable`)
+  - Use the version number for both the tag and the title.
 8. Upload the generated `installer-V*.*.*.jar` found at `build/libs` to the latest release.
+9. Publish!
 
 ## More About Release
 The main application of `addressbook` is configured to be released as a [non-fat JAR](http://stackoverflow.com/questions/19150811/what-is-a-fat-jar),
@@ -119,10 +122,7 @@ The following explains the Gradle tasks that are required for a release.
 
 #### generateVersionData
 Generates the version data (VersionData.json) which will be used by user's application instance to know if it has an update
-and what to update. It reads the dependencies of the latest version of `addressbook` and put those dependencies into the version
-data. To make it easier for developer, it will use previous version's values for
-libraries that did not change. Developers then need to update the new dependencies information (such as URL to download
-the libraries and the OS that needed them) manually.
+and what to update. It reads the dependencies of the latest version of `addressbook` and put those dependencies into the version data. To make it easier for developers, it will use previous version's values for libraries that did not change. Developers then need to manually update the new dependencies information (e.g. download link, OS they are meant for).
 
 `generateVersionData` has its own source set which includes everything and its dependencies are extended from main application compile dependencies. This is to make it easier for generateVersionData to read any information it needs to create version data. The main class it uses is `addressbook/util/VersionDataGenerator.java`
 
@@ -132,8 +132,12 @@ Creates the commons jar dependency. This jar contains the classes found in the `
 #### createUpdaterJar
 Creates the updater jar dependency. This file contains the updater components which are required for both the downloading of updated resources/dependencies as well as the migration of the application to a newer version.
 
+See: [Updater](Updater.md)
+
 #### createLauncherJar
 Creates launcher executable file, where its job is to apply pending updates as well as launch the main application with custom arguments.
+
+See: [Launcher](Launcher.md)
 
 #### createInstallerJar
 Creates the executable packed JAR for the user to download and use. The packed JAR contains the main application and all the libraries needed for the main application to run.

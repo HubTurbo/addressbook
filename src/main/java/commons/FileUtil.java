@@ -214,8 +214,4 @@ public class FileUtil {
             throws IOException {
         return JsonUtil.fromJsonString(FileUtil.readFromFile(jsonFile), classOfObjectToDeserialize);
     }
-
-    public static void main(String[] args) {
-        System.out.println("WTF");
-    }
 }
