@@ -49,10 +49,6 @@ public class MainGuiHandle extends GuiHandle{
         }
     }
 
-    public boolean isIconified() {
-        return primaryStage.isIconified();
-    }
-
     public void use_APP_MINIMIZE_HOTKEY() {
         guiRobot.push(new Bindings().APP_MINIMIZE_HOTKEY.get(0));
         guiRobot.sleep(1000);
