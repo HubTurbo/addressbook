@@ -364,7 +364,34 @@ task unitTests(type: AddressBookTest) {
     }
 }
 
+// Task to run specified tests in headful mode
+task headfulTests(type: AddressBookTest) {
+    // include 'guitests/FullSystemTest.class'
+    jacoco {
+        destinationFile = new File("${buildDir}/jacoco/test.exec")
+    }
+}
+headfulTests.onlyIf {
+    headfulTests.includes.size() > 0
+}
+
+// Task to run specified tests in headless mode
+task headlessTests(type: AddressBookTest) {
+    // include ''
+    jacoco {
+        destinationFile = new File("${buildDir}/jacoco/test.exec")
+    }
+}
+headlessTests.onlyIf {
+    headlessTests.includes.size() > 0
+}
+headlessTests.setHeadless()
+
+// Task to run all tests asides from those specified in headfulTests and headlessTests
+// Test mode depends on whether headless task has been run
 task allTests(type: AddressBookTest) {
+    exclude headfulTests.includes
+    exclude headlessTests.includes
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
