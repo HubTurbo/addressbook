@@ -3,6 +3,7 @@ package address.keybindings;
 
 import address.events.AcceleratorIgnoredEvent;
 import address.events.BaseEvent;
+import address.testutil.TestUtil;
 import commons.OsDetector;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -13,8 +14,6 @@ import org.junit.rules.ExpectedException;
 import static org.junit.Assert.assertEquals;
 
 public class KeyBindingTest {
-    private static final String ALT_STRING = OsDetector.isOnMac() ? "⌥" : "Alt+";
-
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -45,7 +44,7 @@ public class KeyBindingTest {
 
     @Test
     public void getText() {
-        assertEquals(SAMPLE_KEYBINDING_NAME + " " + ALT_STRING + "A", keyBinding.getDisplayText());
+        assertEquals(TestUtil.getOsDependentKeyCombinationString(SAMPLE_KEYBINDING_NAME + " Alt+A"), keyBinding.getDisplayText());
     }
 
     @Test
