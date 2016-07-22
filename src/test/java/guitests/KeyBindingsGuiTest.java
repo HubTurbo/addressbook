@@ -27,20 +27,20 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         //======= shortcuts =======================
 
         personListPanel.use_LIST_ENTER_SHORTCUT();
-        assertTrue(personListPanel.isSelected("Alice", "Brown"));
+        assertTrue(personListPanel.isSelected(td.alice));
 
         personListPanel.clickOnListView();
 
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
-        assertTrue(personListPanel.isSelected("Dan", "Edwards"));
+        assertTrue(personListPanel.isSelected(td.dan));
 
         //======= sequences =========================
 
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
-        assertTrue(personListPanel.isSelected("Elizabeth", "F. Green"));
+        assertTrue(personListPanel.isSelected(td.elizabeth));
 
         personListPanel.use_LIST_GOTO_TOP_SEQUENCE();
-        assertTrue(personListPanel.isSelected("Alice", "Brown"));
+        assertTrue(personListPanel.isSelected(td.alice));
 
 
         //======= accelerators =======================

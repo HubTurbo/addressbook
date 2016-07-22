@@ -8,7 +8,6 @@ import address.testutil.ScreenShotRule;
 import address.testutil.TypicalTestData;
 import address.testutil.TestUtil;
 import address.util.Config;
-import com.google.common.io.Files;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.MainGuiHandle;
 import guitests.guihandles.MainMenuHandle;
@@ -23,7 +22,6 @@ import org.loadui.testfx.GuiTest;
 import org.testfx.api.FxToolkit;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 public class GuiTestBase {
@@ -111,11 +109,7 @@ public class GuiTestBase {
     @After
     public void cleanup() throws TimeoutException {
         File file = GuiTest.captureScreenshot();
-        try {
-            Files.copy(file, new File(this.getClass().getName() + name.getMethodName() + ".png"));
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
+        TestUtil.renameFile(file, this.getClass().getName() + name.getMethodName() + ".png");
         FxToolkit.cleanupStages();
         testApp.deregisterHotKeys();
     }

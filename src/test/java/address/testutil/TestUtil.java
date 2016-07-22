@@ -16,6 +16,9 @@ import commons.OsDetector;
 import commons.XmlUtil;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -287,5 +290,48 @@ public class TestUtil {
         Method method = objectClass.getDeclaredMethod(methodName);
         method.setAccessible(true);
         return method;
+    }
+
+    public static void renameFile(File file, String newFileName) {
+        try {
+            Files.copy(file, new File(newFileName));
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    /**
+     * Gets mid point of a node relative to the screen.
+     * @param node
+     * @return
+     */
+    public static Point2D getScreenMidPoint(Node node) {
+        double x = getScreenPos(node).getMinX() + node.getLayoutBounds().getWidth() / 2;
+        double y = getScreenPos(node).getMinY() + node.getLayoutBounds().getHeight() / 2;
+        return new Point2D(x,y);
+    }
+
+    /**
+     * Gets mid point of a node relative to its scene.
+     * @param node
+     * @return
+     */
+    public static Point2D getSceneMidPoint(Node node) {
+        double x = getScenePos(node).getMinX() + node.getLayoutBounds().getWidth() / 2;
+        double y = getScenePos(node).getMinY() + node.getLayoutBounds().getHeight() / 2;
+        return new Point2D(x,y);
+    }
+
+    /**
+     * Gets the bound of the node relative to the parent scene.
+     * @param node
+     * @return
+     */
+    public static Bounds getScenePos(Node node) {
+        return node.localToScene(node.getBoundsInLocal());
+    }
+
+    public static Bounds getScreenPos(Node node) {
+        return node.localToScreen(node.getBoundsInLocal());
     }
 }

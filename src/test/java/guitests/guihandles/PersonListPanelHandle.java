@@ -10,8 +10,10 @@ import address.ui.PersonListViewCell;
 import guitests.GuiRobot;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
+import javafx.geometry.Point2D;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
@@ -66,7 +68,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public boolean isSelected(Person person) {
-        return getSelectedPerson().hasName(person.getFirstName(), person.getLastName());
+        return this.isSelected(person.getFirstName(), person.getLastName());
     }
 
     public ReadOnlyViewablePerson getSelectedPerson() {
@@ -83,20 +85,19 @@ public class PersonListPanelHandle extends GuiHandle {
      * In order for headfull testing to work in travis ci, listview needs to be clicked before firing hot keys.
      */
     public void clickOnListView() {
-        double x = getListView().localToScreen(getListView().getLayoutBounds()).getMinX() + getListView().getWidth() / 2;
-        double y = getListView().localToScreen(getListView().getLayoutBounds()).getMinY() + getListView().getHeight() / 2;
-        guiRobot.clickOn(x, y);
+        Point2D point= TestUtil.getScreenMidPoint(getListView());
+        guiRobot.clickOn(point.getX(), point.getY());
     }
 
     /**
      * Fires ContextMenuEvent which shows a contextmenu in the middle of the Listview.
      */
     private void fireContextMenuEvent() {
-        double x = getListView().localToScreen(getListView().getLayoutBounds()).getMinX() + getListView().getWidth() / 2;
-        double y = getListView().localToScreen(getListView().getLayoutBounds()).getMinY() + getListView().getHeight() / 2;
-        double sceneX = getListView().localToScene(getListView().getLayoutBounds()).getMinX() + getListView().getWidth() / 2;
-        double sceneY = getListView().localToScene(getListView().getLayoutBounds()).getMinY() + getListView().getHeight() / 2;
-        Event event = new ContextMenuEvent(ContextMenuEvent.CONTEXT_MENU_REQUESTED, sceneX, sceneY, x, y, false, new PickResult(getListView(), x, y));
+        Point2D screenPoint = TestUtil.getScreenMidPoint(getListView());
+        Point2D scenePoint = TestUtil.getSceneMidPoint(getListView());
+        Event event = new ContextMenuEvent(ContextMenuEvent.CONTEXT_MENU_REQUESTED, scenePoint.getX(), scenePoint.getY(),
+                                           screenPoint.getX(), screenPoint.getY(), false,
+                                           new PickResult(getListView(), screenPoint.getX(), screenPoint.getY()));
         guiRobot.interact(() -> Event.fireEvent(getListView(), event));
     }
 
@@ -182,6 +183,7 @@ public class PersonListPanelHandle extends GuiHandle {
     public void rightClickOnPerson(Person person) {
         //Instead of using guiRobot.rightCickOn(), We will be firing off contextmenu request manually.
         //As there is a bug in monocle that doesn't show contextmenu by actual right clicking.
+        //Refer to https://github.com/TestFX/Monocle/issues/12
         clickOnPerson(person);
         fireContextMenuEvent();
     }
@@ -256,14 +258,12 @@ public class PersonListPanelHandle extends GuiHandle {
      * @param listOfPersonsToDrag The texts which identify the cards to be dragged.
      */
     public void dragOutsideList(List<String> listOfPersonsToDrag) {
-        double posY = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxY()
-                - 50;
-        double posX = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxX()
-                + 100;
+        double posY = TestUtil.getScenePos(getListView()).getMaxY() - 50;
+        double posX = TestUtil.getScenePos(getListView()).getMaxX() + 100;
         guiRobot.press(KeyCode.SHORTCUT);
         listOfPersonsToDrag.stream().forEach(p -> guiRobot.clickOn(p));
         guiRobot.release(KeyCode.SHORTCUT);
-        guiRobot.drag(listOfPersonsToDrag.get(listOfPersonsToDrag.size() -1))
+        guiRobot.drag(listOfPersonsToDrag.get(listOfPersonsToDrag.size() - 1))
                 .dropTo(posX, posY);
     }
 
@@ -272,10 +272,8 @@ public class PersonListPanelHandle extends GuiHandle {
      * @param personToDrag The text which identify the card to be dragged.
      */
     public void dragOutsideList(String personToDrag) {
-        double posY = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxY()
-                - 50;
-        double posX = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxX()
-                + 100;
+        double posY = TestUtil.getScenePos(getListView()).getMaxY() - 50;
+        double posX = TestUtil.getScenePos(getListView()).getMaxX() + 100;
         guiRobot.drag(personToDrag).dropTo(posX, posY);
     }
 
@@ -284,9 +282,17 @@ public class PersonListPanelHandle extends GuiHandle {
      * @param personToDrag The text which identify the card to be dragged.
      */
     public void dragOutsideApp(String personToDrag) {
-        double x = this.primaryStage.getScene().getX() + this.primaryStage.getScene().getWidth() + 10;
-        double y = this.primaryStage.getScene().getY() + this.primaryStage.getScene().getHeight() + 10;
+        double x = getSceneMaxX(this.primaryStage.getScene()) + 10;
+        double y = getSceneMaxY(this.primaryStage.getScene()) + 10;
         guiRobot.drag(personToDrag).dropTo(x, y);
+    }
+
+    private double getSceneMaxX(Scene scene) {
+        return scene.getX() + scene.getWidth();
+    }
+
+    private double getSceneMaxY(Scene scene) {
+        return scene.getX() + scene.getHeight();
     }
 
     /**

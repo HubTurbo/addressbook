@@ -13,7 +13,7 @@ public class TagPersonDialogHandle extends GuiHandle {
     private static final String TAG_SEARCH_FIELD_ID = "#tagSearch";
 
     public TagPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage, MainController.STAGE_TITLE_TAG_SELECTION);
+        super(guiRobot, primaryStage, MainController.DIALOG_TITLE_TAG_SELECTION);
     }
 
     public TagPersonDialogHandle enterSearchQuery(String queryText) {

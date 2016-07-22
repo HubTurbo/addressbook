@@ -44,9 +44,10 @@ import java.util.Optional;
  * The controller that creates the other controllers
  */
 public class MainController extends UiController{
-    public static final String STAGE_TITLE_TAG_SELECTION = "Tag Selection";
-    public static final String STAGE_TITLE_MANAGE_TAG_DIALOG = "List of Tags";
-    public static final String STAGE_TITLE_NEW_TAG = "New Tag";
+    public static final String DIALOG_TITLE_TAG_SELECTION = "Tag Selection";
+    public static final String DIALOG_TITLE_TAG_LIST = "List of Tags";
+    public static final String DIALOG_TITLE_TAG_NEW = "New Tag";
+    public static final String DIALOG_TITLE_TAG_EDIT = "Edit Tag";
     private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
     private static final String FXML_ACTIVITY_HISTORY = "/view/ActivityHistory.fxml";
     private static final String FXML_HELP = "/view/Help.fxml";
@@ -267,7 +268,7 @@ public class MainController extends UiController{
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(primaryStage);
         dialogStage.initStyle(StageStyle.TRANSPARENT);
-        dialogStage.setTitle(STAGE_TITLE_TAG_SELECTION);
+        dialogStage.setTitle(DIALOG_TITLE_TAG_SELECTION);
         Scene scene = new Scene(pane, Color.TRANSPARENT);
         dialogStage.setScene(scene);
 
@@ -312,7 +313,7 @@ public class MainController extends UiController{
     public boolean addTagData() {
         Optional<Tag> newTag = Optional.of(new Tag());
         do {
-            newTag = getTagDataInput(newTag.get(), STAGE_TITLE_NEW_TAG);
+            newTag = getTagDataInput(newTag.get(), DIALOG_TITLE_TAG_NEW);
         } while (newTag.isPresent() && !isAddSuccessful(newTag.get()));
 
         return newTag.isPresent();
@@ -328,7 +329,7 @@ public class MainController extends UiController{
     public boolean editTagData(Tag tag) {
         Optional<Tag> editedTag = Optional.of(tag);
         do {
-            editedTag = getTagDataInput(editedTag.get(), "Edit Tag");
+            editedTag = getTagDataInput(editedTag.get(), DIALOG_TITLE_TAG_EDIT);
         } while (editedTag.isPresent() && !isUpdateSuccessful(tag, editedTag.get()));
 
         return editedTag.isPresent();
@@ -407,7 +408,7 @@ public class MainController extends UiController{
         AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading tag list view");
 
         Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage(STAGE_TITLE_MANAGE_TAG_DIALOG, primaryStage, scene);
+        Stage dialogStage = loadDialogStage(DIALOG_TITLE_TAG_LIST, primaryStage, scene);
 
         // Set the tag into the controller.
         TagListController tagListController = loader.getController();
@@ -614,8 +615,7 @@ public class MainController extends UiController{
             primaryStage.setMaximized(!primaryStage.isMaximized());
         }
 
-        logger.debug("After: Stage width: {}", primaryStage.getWidth());
-        logger.debug("After: Stage height: {}", primaryStage.getHeight());
+        logger.debug("After: Stage width: " + primaryStage.getWidth() + " Stage Height: " + primaryStage.getHeight());
     }
 
     public void stop() {

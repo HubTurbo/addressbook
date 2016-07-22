@@ -49,10 +49,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         mainGui.sleep(1, TimeUnit.SECONDS);
 
         //Confirm pending state correctness
-        assertTrue(alicePersonCard.isPendingStateRootVisible());
-        assertTrue(alicePersonCard.isPendingStateLabelVisible());
-        assertFalse(alicePersonCard.isPendingStateProgressIndicatorVisible());
-        assertTrue(alicePersonCard.getPendingStateLabel().equals("Editing"));
+        assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
 
         //Confirm the right card is selected after the edit
         assertEquals(alicePersonCard, newAlice);
@@ -125,17 +122,13 @@ public class PersonEditGuiTest extends GuiTestBase {
         PersonCardHandle deletedCard = personListPanel.getPersonCardHandle(new Person(personListPanel.getSelectedPerson()));
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
         mainGui.sleep(1, TimeUnit.SECONDS);
-        assertTrue(deletedCard.isPendingStateRootVisible());
-        assertTrue(deletedCard.isPendingStateLabelVisible());
-        assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
-        assertTrue(deletedCard.getPendingStateLabel().equals("Deleting"));
+        assertTrue(deletedCard.isShowingGracePeriod("Deleting"));
+
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         mainGui.sleep(1, TimeUnit.SECONDS);
-        assertFalse(deletedCard.isPendingStateRootVisible());
-        assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
-        assertFalse(deletedCard.getPendingStateLabel().equals("Deleting"));
+        assertFalse(deletedCard.isShowingGracePeriod("Deleting"));
         assertEquals(statusBar.getText(), "Delete Person [ " + deletedCard.getFirstName() + " "
-                                          + deletedCard.getLastName() + " ] was cancelled.");
+                     + deletedCard.getLastName() + " ] was cancelled.");
 
 
         //Edit
@@ -177,7 +170,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         PersonCardHandle pandaWongCardHandle = personListPanel.getSelectedCards().get(0);
         assertNotNull(pandaWongCardHandle);
         assertEquals(pandaWongCardHandle, pandaWong);
-        mainGui.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
+        mainGui.sleep(1, TimeUnit.SECONDS);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         mainGui.sleep(1, TimeUnit.SECONDS);
         assertNull(personListPanel.getPersonCardHandle(pandaWong));

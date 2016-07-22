@@ -7,6 +7,9 @@ import guitests.GuiRobot;
 import javafx.scene.Node;
 import javafx.stage.Stage;
 
+import static junit.framework.TestCase.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Provides a handle to a person card in the person list panel.
  */
@@ -30,16 +33,21 @@ public class PersonCardHandle extends GuiHandle {
         this.node = node;
     }
 
-    public boolean isPendingStateLabelVisible() {
+    private boolean isPendingStateLabelVisible() {
         return guiRobot.lookup(PENDING_STATE_LABEL_FIELD_ID).query().isVisible();
     }
 
-    public boolean isPendingStateProgressIndicatorVisible() {
+    private boolean isPendingStateProgressIndicatorVisible() {
         return guiRobot.lookup(PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID).query().isVisible();
     }
 
-    public boolean isPendingStateRootVisible() {
+    private boolean isPendingStateRootVisible() {
         return guiRobot.lookup(PENDING_STATE_ROOT_FIELD_ID).query().isVisible();
+    }
+
+    public boolean isShowingGracePeriod(String displayText) {
+        return this.isPendingStateRootVisible() && this.isPendingStateLabelVisible()
+               && !this.isPendingStateProgressIndicatorVisible() && this.getPendingStateLabel().equals(displayText);
     }
 
 
@@ -78,17 +86,15 @@ public class PersonCardHandle extends GuiHandle {
     public boolean equals(Object obj) {
         if (obj instanceof Person) {
             Person person = (Person) obj;
-            return getFirstName().equals(person.getFirstName())
-                    && getLastName().equals(person.getLastName())
-                    && getAddress().equals(PersonCardController.getAddressString(person.getStreet(),
-                    person.getCity(), person.getPostalCode()));
+            return getFirstName().equals(person.getFirstName()) && getLastName().equals(person.getLastName())
+                   && getAddress().equals(PersonCardController.getAddressString(person.getStreet(), person.getCity(),
+                                                                                person.getPostalCode()));
         }
 
         if(obj instanceof PersonCardHandle) {
             PersonCardHandle handle = (PersonCardHandle) obj;
-            return getFirstName().equals(handle.getFirstName())
-                    && getLastName().equals(handle.getLastName())
-                    && getAddress().equals(handle.getAddress()) && getBirthday().equals(handle.getBirthday());
+            return getFirstName().equals(handle.getFirstName()) && getLastName().equals(handle.getLastName())
+                   && getAddress().equals(handle.getAddress()) && getBirthday().equals(handle.getBirthday());
         }
 
         return super.equals(obj);

@@ -1,5 +1,6 @@
 package guitests.guihandles;
 
+import address.util.AppLogger;
 import address.util.LoggerManager;
 import com.google.common.base.Optional;
 import guitests.GuiRobot;
@@ -19,6 +20,8 @@ public class GuiHandle {
     protected final GuiRobot guiRobot;
     protected final Stage primaryStage;
     protected final String stageTitle;
+
+    private final AppLogger logger = LoggerManager.getLogger(this.getClass());
 
     public GuiHandle(GuiRobot guiRobot, Stage primaryStage, String stageTitle) {
         this.guiRobot = guiRobot;
@@ -41,7 +44,7 @@ public class GuiHandle {
     }
 
     public void focusOnWindow(String stageTitle) {
-        LoggerManager.getLogger(this.getClass()).info("Focusing " + stageTitle);
+        logger.info("Focusing " + stageTitle);
         java.util.Optional<Window> window = guiRobot.listTargetWindows()
                 .stream()
                 .filter(w
@@ -49,13 +52,13 @@ public class GuiHandle {
                         && ((Stage)w).getTitle().equals(stageTitle)).findAny();
 
         if(!window.isPresent()) {
-            LoggerManager.getLogger(this.getClass()).fatal("Can't find stage " + stageTitle + ", Therefore, aborting focusing");
+            logger.fatal("Can't find stage " + stageTitle + ", Therefore, aborting focusing");
             return;
         }
 
         guiRobot.targetWindow(window.get());
         guiRobot.interact(() -> window.get().requestFocus());
-        LoggerManager.getLogger(this.getClass()).info("Finishing focus " + stageTitle);
+        logger.info("Finishing focus " + stageTitle);
     }
 
     protected Node getNode(String query) {

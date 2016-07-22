@@ -21,29 +21,31 @@ import java.util.stream.Collectors;
 public class ManageTagsDialogHandle extends GuiHandle {
 
     public static final String EDIT_TAG_TEXT_FIELD = "#tagNameField";
+    public static final String TAG_LIST_SCROLL_PANE_FIELD_ID = "#tagListScrollPane";
+    public static final String TAG_NAME_FIELD_ID = "#tagName";
 
     public ManageTagsDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage, MainController.STAGE_TITLE_MANAGE_TAG_DIALOG);
+        super(guiRobot, primaryStage, MainController.DIALOG_TITLE_TAG_LIST);
     }
 
     private ScrollPane getScrollPane() {
-        return (ScrollPane) getNode("#tagListTags");
+        return (ScrollPane) getNode(TAG_LIST_SCROLL_PANE_FIELD_ID);
     }
 
-    public List<String> getListOfTagNames() {
+    public List<String> getTagNames() {
         ObservableList<Node> childrenUnmodifiable = ((VBox) getScrollPane().getContent()).getChildren();
-        return childrenUnmodifiable.stream().map(n -> ((Label) n.lookup("#tagName")).getText())
+        return childrenUnmodifiable.stream().map(n -> ((Label) n.lookup(TAG_NAME_FIELD_ID)).getText())
                                             .collect(Collectors.toCollection(ArrayList::new));
 
     }
 
     public boolean contains(String value) {
-        return getListOfTagNames().stream().filter(value::equals).findAny().isPresent();
+        return getTagNames().stream().filter(value::equals).findAny().isPresent();
     }
 
     public void openEditTagDialog(String tag) {
         guiRobot.doubleClickOn(tag);
-        focusOnWindow("Edit Tag");
+        focusOnWindow(MainController.DIALOG_TITLE_TAG_EDIT);
     }
 
     public String getEditTagDialogText() {
@@ -56,7 +58,7 @@ public class ManageTagsDialogHandle extends GuiHandle {
 
     public boolean isChangeEditTagDialogOpen() {
         try{
-            return guiRobot.window("Edit Tag") != null;
+            return guiRobot.window(MainController.DIALOG_TITLE_TAG_EDIT) != null;
         } catch (NoSuchElementException e) {
             return false;
         }

@@ -68,16 +68,6 @@ public class MainGuiHandle extends GuiHandle{
     }
 
     public void focusOnMainApp() {
-        java.util.Optional<Window> window = guiRobot.listTargetWindows().stream().filter(w -> w instanceof Stage && ((Stage)w).getTitle().equals("Test App")).findAny();
-
-        if(!window.isPresent()) {
-            LoggerManager.getLogger(this.getClass()).fatal("Can't find Main App Stage");
-            throw new RuntimeException("Can't find Main App Stage");
-        }
-
-        guiRobot.targetWindow(window.get());
-        guiRobot.interact(() -> window.get().requestFocus());
-        LoggerManager.getLogger(this.getClass()).debug("Focused target window name: "
-                + ((Stage)guiRobot.targetWindow()).getTitle());
+        this.focusOnWindow(TestApp.APP_TITLE);
     }
 }
