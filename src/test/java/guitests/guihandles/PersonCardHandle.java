@@ -40,7 +40,6 @@ public class PersonCardHandle extends GuiHandle {
     }
 
     public boolean isPendingStateCountDownVisible() {
-        focusOnMainApp();
         return guiRobot.lookup(PENDING_STATE_COUNTDOWN_FIELD_ID).query().isVisible();
     }
 

@@ -25,7 +25,7 @@ public class FullSystemTest extends GuiTestBase {
         assertEquals("colleagues", newTagDialog.getTagName());
         newTagDialog.clickOk();
 
-        newTagDialog.focusOnMainApp();
+        mainGui.focusOnMainApp();
 
         //Edit Hans Muster to John Tan, and edit details
         personListPanel.clickOnPerson("Muster");

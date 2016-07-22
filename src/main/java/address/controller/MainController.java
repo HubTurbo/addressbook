@@ -567,15 +567,12 @@ public class MainController extends UiController{
     }
 
     protected void setDefaultSize() {
-        /*
         primaryStage.setHeight(prefs.getGuiSettings().getWindowHeight());
         primaryStage.setWidth(prefs.getGuiSettings().getWindowWidth());
         if (prefs.getGuiSettings().getWindowCoordinates() != null) {
             primaryStage.setX(prefs.getGuiSettings().getWindowCoordinates().getX());
             primaryStage.setY(prefs.getGuiSettings().getWindowCoordinates().getY());
         }
-        */
-        this.primaryStage.setMaximized(true);
     }
 
     private void setMinSize() {

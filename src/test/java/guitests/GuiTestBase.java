@@ -71,7 +71,7 @@ public class GuiTestBase {
                                                      this::selectFromInitialCloudData));
         FxToolkit.showStage();
         while(!stage.isShowing());
-        personListPanel.focusOnMainApp();
+        mainGui.focusOnMainApp();
     }
 
     /**

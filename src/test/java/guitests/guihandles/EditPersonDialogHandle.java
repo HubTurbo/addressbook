@@ -17,7 +17,7 @@ public class EditPersonDialogHandle extends GuiHandle {
 
     public static final String EDIT_TITLE = "Edit Person";
     public static final String ADD_TITLE = "New Person";
-    private static final String FIRST_NAME_FIELD_ID = "#firstNameField";
+    public static final String FIRST_NAME_FIELD_ID = "#firstNameField";
     private static final String LAST_NAME_FIELD_ID = "#lastNameField";
     private static final String STREET_FIELD_ID = "#streetField";
     private static final String CITY_FIELD_ID = "#cityField";
@@ -110,37 +110,18 @@ public class EditPersonDialogHandle extends GuiHandle {
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
-    public void enterNewValues(Person newValues) throws IOException {
-        File file = null;
+    public void enterNewValues(Person newValues) {
         enterFirstName(newValues.getFirstName());
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("1.png"));
         enterLastName(newValues.getLastName());
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("2.png"));
         enterStreet(newValues.getStreet());
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("3.png"));
         enterCity(newValues.getCity());
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("4.png"));
         enterPostalCode(newValues.getPostalCode());
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("5.png"));
         enterBirthday(newValues.getBirthday());
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("6.png"));
         enterGithubId(newValues.getGithubUsername());
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("7.png"));
         TagPersonDialogHandle tagPersonDialog = openTagPersonDialog();
         newValues.getTagList().stream()
                 .forEach( (t) -> tagPersonDialog.enterSearchQuery(t.getName()).acceptSuggestedTag());
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("8.png"));
         tagPersonDialog.close();
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("9.png"));
     }
 
 

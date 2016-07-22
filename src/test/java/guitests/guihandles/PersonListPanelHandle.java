@@ -9,13 +9,14 @@ import address.testutil.TestUtil;
 import address.ui.PersonListViewCell;
 import guitests.GuiRobot;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.PickResult;
 import javafx.stage.Stage;
-import org.testfx.api.FxRobot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,10 +78,26 @@ public class PersonListPanelHandle extends GuiHandle {
         return (ListView<ReadOnlyViewablePerson>) getNode(PERSON_LIST_VIEW_ID);
     }
 
+    /**
+     * Clicks on the middle of the Listview.
+     * In order for headfull testing to work in travis ci, listview needs to be clicked before firing hot keys.
+     */
     public void clickOnListView() {
         double x = getListView().localToScreen(getListView().getLayoutBounds()).getMinX() + getListView().getWidth() / 2;
         double y = getListView().localToScreen(getListView().getLayoutBounds()).getMinY() + getListView().getHeight() / 2;
         guiRobot.clickOn(x, y);
+    }
+
+    /**
+     * Fires ContextMenuEvent which shows a contextmenu in the middle of the Listview.
+     */
+    private void fireContextMenuEvent() {
+        double x = getListView().localToScreen(getListView().getLayoutBounds()).getMinX() + getListView().getWidth() / 2;
+        double y = getListView().localToScreen(getListView().getLayoutBounds()).getMinY() + getListView().getHeight() / 2;
+        double sceneX = getListView().localToScene(getListView().getLayoutBounds()).getMinX() + getListView().getWidth() / 2;
+        double sceneY = getListView().localToScene(getListView().getLayoutBounds()).getMinY() + getListView().getHeight() / 2;
+        Event event = new ContextMenuEvent(ContextMenuEvent.CONTEXT_MENU_REQUESTED, sceneX, sceneY, x, y, false, new PickResult(getListView(), x, y));
+        guiRobot.interact(() -> Event.fireEvent(getListView(), event));
     }
 
     public void use_PERSON_CHANGE_CANCEL_ACCELERATOR() {
@@ -133,10 +150,6 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.push(new Bindings().PERSON_DELETE_ACCELERATOR);
     }
 
-    public FxRobot waitForGracePeriodToExpire() {
-        return sleepForGracePeriod();//TODO: Implement a polling wait
-    }
-
     public void navigateUp() {
         guiRobot.push(KeyCode.UP);
     }
@@ -159,12 +172,18 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public void clickOnPerson(Person person) {
-        System.out.println("Target window name: " + ((Stage)guiRobot.targetWindow()).getTitle());
         guiRobot.clickOn(person.getFirstName());
     }
 
-    public void rightClickOnPerson(Person peron) {
-        guiRobot.rightClickOn(peron.getFirstName());
+    /**
+     * Right click on Person to show context menu.
+     * @param person
+     */
+    public void rightClickOnPerson(Person person) {
+        //Instead of using guiRobot.rightCickOn(), We will be firing off contextmenu request manually.
+        //As there is a bug in monocle that doesn't show contextmenu by actual right clicking.
+        clickOnPerson(person);
+        fireContextMenuEvent();
     }
 
     public EditPersonDialogHandle clickOnContextMenu(ContextMenuChoice choice) {
@@ -219,15 +238,6 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.drag(firstNameOfPersonToDrag).dropTo(firstNameOfPersonToDropOn);
     }
 
-    public void dragAndDrop(List<String> listOfPersonsToDrag, String firstNameOfPersonToDropOn,
-                            int scrollAmount, VerticalDirection scrollDirection) {
-        guiRobot.press(KeyCode.SHORTCUT);
-        listOfPersonsToDrag.stream().forEach(p -> guiRobot.clickOn(p));
-        guiRobot.release(KeyCode.SHORTCUT);
-        guiRobot.drag(listOfPersonsToDrag.get(listOfPersonsToDrag.size() -1))
-                .scroll(scrollAmount, scrollDirection)
-                .dropTo(firstNameOfPersonToDropOn);
-    }
 
     public void dragOutsideList(List<String> listOfPersonsToDrag) {
         double posY = this.getListView().localToScene(this.getListView().getBoundsInLocal()).getMaxY()
@@ -273,20 +283,45 @@ public class PersonListPanelHandle extends GuiHandle {
                 .dropTo(x, y);
     }
 
-    public void edgeDrag(String dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
+    public void edgeDrag(List<String> dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
         switch (direction) {
             case UP:
                 double edgeMinY = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMinY()
-                                                                  + PersonListViewCell.SCROLL_AREA / 2;
+                                                                  + PersonListViewCell.SCROLL_AREA / 2 - 3;
                 double edgeMinX = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMinX()
                                                                   + this.getListView().getWidth() / 2;
-                guiRobot.drag(dragFrom).drag(edgeMinX, edgeMinY).sleep(dragDuration, timeunit).drop();
+                guiRobot.press(TestUtil.scrub(new KeyCode[] {KeyCode.SHORTCUT})[0]);
+                dragFrom.stream().forEach(p -> guiRobot.clickOn(p));
+                guiRobot.release(TestUtil.scrub(new KeyCode[] {KeyCode.SHORTCUT})[0]);
+                guiRobot.drag(dragFrom.get(dragFrom.size() - 1)).drag(edgeMinX, edgeMinY).sleep(dragDuration, timeunit).drop();
                 break;
             case DOWN:
                 double edgeMaxY = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMaxY()
                                                                   - PersonListViewCell.SCROLL_AREA / 2;
                 double edgeMaxX = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMinX()
                                                                   + this.getListView().getWidth() / 2;
+                guiRobot.press(TestUtil.scrub(new KeyCode[] {KeyCode.SHORTCUT})[0]);
+                dragFrom.stream().forEach(p -> guiRobot.clickOn(p));
+                guiRobot.release(TestUtil.scrub(new KeyCode[] {KeyCode.SHORTCUT})[0]);
+                guiRobot.drag(dragFrom.get(dragFrom.size() - 1)).drag(edgeMaxX, edgeMaxY).sleep(dragDuration, timeunit).drop();
+                break;
+        }
+    }
+
+    public void edgeDrag(String dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
+        switch (direction) {
+            case UP:
+                double edgeMinY = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMinY()
+                        + PersonListViewCell.SCROLL_AREA / 2 - 3;
+                double edgeMinX = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMinX()
+                        + this.getListView().getWidth() / 2;
+                guiRobot.drag(dragFrom).drag(edgeMinX, edgeMinY).sleep(dragDuration, timeunit).drop();
+                break;
+            case DOWN:
+                double edgeMaxY = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMaxY()
+                        - PersonListViewCell.SCROLL_AREA / 2;
+                double edgeMaxX = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMinX()
+                        + this.getListView().getWidth() / 2;
                 guiRobot.drag(dragFrom).drag(edgeMaxX, edgeMaxY).sleep(dragDuration, timeunit).drop();
                 break;
         }

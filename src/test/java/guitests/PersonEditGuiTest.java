@@ -5,16 +5,12 @@ import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.testutil.PersonBuilder;
 import address.testutil.TestUtil;
-import com.google.common.io.Files;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.PersonListPanelHandle;
 import org.junit.Assert;
 import org.junit.Test;
-import org.loadui.testfx.GuiTest;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertFalse;
@@ -35,7 +31,7 @@ public class PersonEditGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void editPerson_usingAccelerator() throws IOException {
+    public void editPerson_usingAccelerator() {
 
         //Prepare new values for Alice
         Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
@@ -55,7 +51,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterNewValues(newAlice);
         editPersonDialog.pressEnter();
 
-        personListPanel.sleep(1, TimeUnit.SECONDS);
+        mainGui.sleep(1, TimeUnit.SECONDS);
 
         //Confirm pending state correctness
         assertTrue(alicePersonCard.isPendingStateCountDownVisible());
@@ -70,7 +66,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
 
         //Confirm right values are displayed after grace period is over
-        personListPanel.sleepForGracePeriod();
+        mainGui.sleepForGracePeriod();
         assertEquals(alicePersonCard, newAlice);
 
         //Confirm the underlying person object has the right values
@@ -78,35 +74,19 @@ public class PersonEditGuiTest extends GuiTestBase {
 
 
         //Confirm again after the next sync
-        personListPanel.sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
+        mainGui.sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 
         //Confirm other cards are unaffected.
-
-        //personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1);
-        //assertTrue(personListPanel.isSelected(td.alice));
-        personListPanel.clickOnPerson(newAlice);
-        File file;
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("key1.png"));
-        assertTrue(personListPanel.isSelected(newAlice));
+        personListPanel.clickOnListView();
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1); //To make alice card visible
+        assertEquals(personListPanel.getPersonCardHandle(0), td.alice);
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("key2.png"));
-        System.out.println("Selected Person: " + personListPanel.getSelectedPerson().toString());
-
-        assertTrue(personListPanel.isSelected(td.benson));
+        assertEquals(personListPanel.getPersonCardHandle(1), td.benson);
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("key3.png"));
-        System.out.println("Selected Person: " + personListPanel.getSelectedPerson().toString());
-        assertTrue(personListPanel.isSelected(td.charlie));
+        assertEquals(personListPanel.getPersonCardHandle(2), td.charlie);
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
-        personListPanel.sleep(1, TimeUnit.SECONDS);
-        file = GuiTest.captureScreenshot();
-        Files.copy(file, new File("key4.png"));
-        System.out.println("Selected Person: " + personListPanel.getSelectedPerson().toString());
-        assertTrue(personListPanel.isSelected(td.dan));
+        assertEquals(personListPanel.getPersonCardHandle(3), td.dan);
 
         //Confirm status bar is updated correctly
         assertEquals(statusBar.getText(), "Alice Brown (old) -> Alicia Brownstone (new) has been edited successfully.");
@@ -116,15 +96,13 @@ public class PersonEditGuiTest extends GuiTestBase {
     @Test
     public void editPerson_usingContextMenu() {
 
-        if (TestUtil.isHeadlessEnvironment()) {
-            return;
-        }
-
+        mainGui.focusOnMainApp();
         personListPanel.rightClickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog = personListPanel.clickOnContextMenu(
                 PersonListPanelHandle.ContextMenuChoice.EDIT);
         assertTrue(editPersonDialog.isValidEditDialog());
     }
+
 
     @Test
     public void editPerson_usingEditButton() {
@@ -150,20 +128,20 @@ public class PersonEditGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void cancelPerson_usingAccelerator() throws IOException {
+    public void cancelPerson_usingAccelerator() {
 
         //Delete
         //personListPanel.use_LIST_GOTO_TOP_SEQUENCE();
         personListPanel.clickOnPerson(td.alice);
         PersonCardHandle deletedCard = personListPanel.getPersonCardHandle(new Person(personListPanel.getSelectedPerson()));
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        personListPanel.sleep(1, TimeUnit.SECONDS);
+        mainGui.sleep(1, TimeUnit.SECONDS);
         assertTrue(deletedCard.isPendingStateCountDownVisible());
         assertTrue(deletedCard.isPendingStateLabelVisible());
         assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
         assertTrue(deletedCard.getPendingStateLabel().equals("Deleted"));
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        personListPanel.sleep(1, TimeUnit.SECONDS);
+        mainGui.sleep(1, TimeUnit.SECONDS);
         assertFalse(deletedCard.isPendingStateCountDownVisible());
         assertFalse(deletedCard.isPendingStateProgressIndicatorVisible());
         assertFalse(deletedCard.getPendingStateLabel().equals("Deleted"));
@@ -185,12 +163,12 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterNewValues(newAlice);
         editPersonDialog.pressEnter();
 
-        personListPanel.focusOnMainApp();
+        mainGui.focusOnMainApp();
         personListPanel.clickOnPerson(newAlice);
 
         assertNotEquals(alicePersonCard, td.alice);
         assertEquals(alicePersonCard, newAlice);
-        personListPanel.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
+        mainGui.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertEquals(alicePersonCard, td.alice);
         assertEquals(statusBar.getText(), "Edit operation on " + alicePersonCard.getFirstName() + " "
@@ -204,18 +182,19 @@ public class PersonEditGuiTest extends GuiTestBase {
         addPersonDialog.enterNewValues(pandaWong);
         addPersonDialog.clickOk();
 
-        personListPanel.focusOnMainApp();
+        mainGui.focusOnMainApp();
         personListPanel.clickOnListView();
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
         personListPanel.clickOnPerson(pandaWong);
         PersonCardHandle pandaWongCardHandle = personListPanel.getSelectedCards().get(0);
         assertNotNull(pandaWongCardHandle);
         assertEquals(pandaWongCardHandle, pandaWong);
-        pandaWongCardHandle.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
+        mainGui.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        pandaWongCardHandle.sleep(1, TimeUnit.SECONDS);
+        mainGui.sleep(1, TimeUnit.SECONDS);
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
 
     }
+
 
 }

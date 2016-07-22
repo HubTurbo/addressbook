@@ -39,26 +39,12 @@ public class PersonListGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void dragAndDrop_edgeDrag_listReordered() {
-
-        if (TestUtil.isHeadlessEnvironment()) {
-            return;
-        }
-
+    public void dragAndDrop_edgeDragDown_listReordered() {
         personListPanel.clickOnListView();
-
         //drag the person at the middle and drop at the bottom
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
         personListPanel.edgeDrag(td.charlie.getFirstName(), VerticalDirection.DOWN, 5, TimeUnit.SECONDS);
         assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.dan, td.elizabeth, td.charlie));
-
-        //drag the person at the bottom and drop at the top
-        /* Not working in travis ci, could be there is a imaginary application header bar which is included in the
-        // calculation of Y axis.
-        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
-        personListPanel.edgeDrag(td.elizabeth.getFirstName(), VerticalDirection.UP, 7, TimeUnit.SECONDS);
-        assertTrue(personListPanel.containsInOrder(td.elizabeth, td.alice, td.benson, td.dan, td.charlie));
-        */
     }
 
     @Test
@@ -78,15 +64,14 @@ public class PersonListGuiTest extends GuiTestBase {
     @Test
     public void dragAndDrop_multiplePersonCorrectDrag_listReordered() {
 
-        if (TestUtil.isHeadlessEnvironment()) {
-            return;
-        }
-
+        personListPanel.clickOnListView();
+        personListPanel.clearSelection();
         assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
 
-        personListPanel.dragAndDrop(Arrays.asList(new String[] {td.alice.getFirstName(), td.benson.getFirstName()}),
-                                    td.dan.getFirstName(), 1, VerticalDirection.DOWN);
-        assertTrue(personListPanel.containsInOrder(td.charlie, td.alice, td.benson, td.dan, td.elizabeth));
+        personListPanel.edgeDrag(Arrays.asList(new String[] {td.alice.getFirstName(), td.benson.getFirstName()}),
+                                VerticalDirection.DOWN, 7, TimeUnit.SECONDS);
+
+        assertTrue(personListPanel.containsInOrder(td.charlie, td.dan, td.elizabeth, td.alice, td.benson));
     }
 
     @Test

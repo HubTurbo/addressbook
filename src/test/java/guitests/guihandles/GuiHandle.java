@@ -62,26 +62,6 @@ public class GuiHandle {
         guiRobot.targetWindow(window.get());
         guiRobot.interact(() -> window.get().requestFocus());
     }
-    public void focusOnMainApp() {
-        java.util.Optional<Window> window = guiRobot.listTargetWindows().stream().filter(w -> w instanceof Stage && ((Stage)w).getTitle().equals("Test App")).findAny();
-
-        if(!window.isPresent()) {
-            LoggerManager.getLogger(this.getClass()).fatal("Can't find Main App Stage");
-            throw new RuntimeException("Can't find Main App Stage");
-        }
-
-        guiRobot.targetWindow(window.get());
-        guiRobot.interact(() -> window.get().requestFocus());
-        System.out.println("focusOnMainApp Target window name: " + ((Stage)guiRobot.targetWindow()).getTitle());
-    }
-
-    public FxRobot sleepForGracePeriod() {
-        return guiRobot.sleep((ModelManager.GRACE_PERIOD_DURATION + 1), TimeUnit.SECONDS);
-    }
-
-    public FxRobot sleep(long duration, TimeUnit timeunit) {
-        return guiRobot.sleep(duration, timeunit);
-    }
 
     protected Node getNode(String query) {
         Optional<Node> nodeOptional = guiRobot.lookup(query).tryQuery();
