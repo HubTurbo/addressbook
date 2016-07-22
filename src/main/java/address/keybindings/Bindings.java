@@ -1,6 +1,10 @@
 package address.keybindings;
 
 import address.events.*;
+import address.events.controller.JumpToListRequestEvent;
+import address.events.controller.MinimizeAppRequestEvent;
+import address.events.controller.ResizeAppRequestEvent;
+import address.events.hotkey.KeyBindingEvent;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 

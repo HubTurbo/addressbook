@@ -1,6 +1,6 @@
 package address.controller;
 
-import address.events.SingleTargetCommandResultEvent;
+import address.events.model.SingleTargetCommandResultEvent;
 import address.ui.SingleTargetCommandResultListViewCell;
 import commons.FxViewUtil;
 import javafx.collections.ObservableList;

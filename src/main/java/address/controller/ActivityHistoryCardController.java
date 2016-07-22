@@ -1,6 +1,6 @@
 package address.controller;
 
-import address.events.SingleTargetCommandResultEvent;
+import address.events.model.SingleTargetCommandResultEvent;
 import address.util.CommandResultFormatter;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

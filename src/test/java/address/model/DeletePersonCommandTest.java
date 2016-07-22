@@ -1,6 +1,6 @@
 package address.model;
 
-import address.events.DeletePersonOnRemoteRequestEvent;
+import address.events.sync.DeletePersonOnRemoteRequestEvent;
 import address.model.ChangeObjectInModelCommand.CommandState;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;

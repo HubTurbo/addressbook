@@ -1,7 +1,7 @@
 package address.ui;
 
 import address.controller.ActivityHistoryCardController;
-import address.events.SingleTargetCommandResultEvent;
+import address.events.model.SingleTargetCommandResultEvent;
 import javafx.scene.control.ListCell;
 
 /**

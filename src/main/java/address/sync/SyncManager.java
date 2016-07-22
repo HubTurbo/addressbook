@@ -1,7 +1,7 @@
 package address.sync;
 
 
-import address.events.*;
+import address.events.sync.*;
 import address.main.ComponentManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;

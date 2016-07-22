@@ -5,11 +5,9 @@ import address.util.LoggerManager;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 
-import java.util.Optional;
 import java.util.concurrent.*;
 
 import static address.model.ChangeObjectInModelCommand.CommandState.*;
-import static address.events.SingleTargetCommandResultEvent.ResultState;
 
 /**
  * Framework-style superclass for all commands that would cause changes for single domain objects in the model,

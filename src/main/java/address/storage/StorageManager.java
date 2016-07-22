@@ -1,6 +1,7 @@
 package address.storage;
 
-import address.events.*;
+import address.events.model.LocalModelChangedEvent;
+import address.events.storage.*;
 import address.exceptions.DataConversionException;
 import address.main.ComponentManager;
 import address.model.UserPrefs;
@@ -108,7 +109,7 @@ public class StorageManager extends ComponentManager {
     }
 
     /**
-     *  Raises a {@link address.events.FileOpeningExceptionEvent} if there was any problem in reading data from the file
+     *  Raises a {@link FileOpeningExceptionEvent} if there was any problem in reading data from the file
      *  or if the file is not in the correct format.
      */
     @Subscribe

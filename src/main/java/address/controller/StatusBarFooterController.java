@@ -1,6 +1,11 @@
 package address.controller;
 
-import address.events.*;
+import address.events.sync.SyncCompletedEvent;
+import address.events.sync.SyncFailedEvent;
+import address.events.sync.SyncStartedEvent;
+import address.events.update.ApplicationUpdateFailedEvent;
+import address.events.update.ApplicationUpdateFinishedEvent;
+import address.events.update.ApplicationUpdateInProgressEvent;
 import address.util.*;
 import com.google.common.eventbus.Subscribe;
 import commons.DateTimeUtil;

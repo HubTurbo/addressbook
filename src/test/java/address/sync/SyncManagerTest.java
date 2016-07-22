@@ -1,8 +1,8 @@
 package address.sync;
 
-import address.events.CreatePersonOnRemoteRequestEvent;
+import address.events.sync.CreatePersonOnRemoteRequestEvent;
 import address.events.EventManager;
-import address.events.SyncFailedEvent;
+import address.events.sync.SyncFailedEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.sync.task.CreatePersonOnRemoteTask;

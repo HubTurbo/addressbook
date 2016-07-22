@@ -2,9 +2,13 @@ package address.controller;
 
 import address.MainApp;
 import address.browser.BrowserManager;
-import address.events.*;
+import address.events.controller.MinimizeAppRequestEvent;
+import address.events.controller.ResizeAppRequestEvent;
+import address.events.hotkey.KeyBindingEvent;
+import address.events.storage.FileOpeningExceptionEvent;
+import address.events.storage.FileSavingExceptionEvent;
 import address.exceptions.DuplicateTagException;
-import address.events.SingleTargetCommandResultEvent;
+import address.events.model.SingleTargetCommandResultEvent;
 import address.model.UserPrefs;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.ModelManager;

@@ -1,6 +1,6 @@
 package address.util;
 
-import address.events.SingleTargetCommandResultEvent;
+import address.events.model.SingleTargetCommandResultEvent;
 
 /**
  * Contains method to present the SingleTargetCommandResult data.

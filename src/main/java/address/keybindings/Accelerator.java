@@ -1,9 +1,7 @@
 package address.keybindings;
 
-import address.events.AcceleratorIgnoredEvent;
+import address.events.hotkey.AcceleratorIgnoredEvent;
 import javafx.scene.input.KeyCombination;
-
-import java.util.Optional;
 
 /**
  * Represents a shortcut that is also a keyboard accelerator.

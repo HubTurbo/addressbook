@@ -2,7 +2,6 @@ package address.controller;
 
 import address.events.BaseEvent;
 import address.events.EventManager;
-import address.events.KeyBindingEvent;
 
 /**
  * Parent class for all controllers.
