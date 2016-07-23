@@ -56,7 +56,7 @@ public class PersonListPanelController extends UiController{
     @FXML
     private TextField filterField;
 
-    private Ui ui; //TODO: remove this dependency (see RootLayoutController for an example)
+    private Ui ui; //TODO: remove this dependency (see MainWindowController for an example)
     private ModelManager modelManager;
     private FilteredList<ReadOnlyViewablePerson> filteredPersonList;
     private Parser parser;

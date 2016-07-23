@@ -15,8 +15,8 @@ import javafx.scene.control.MenuItem;
  * application layout containing a menu bar and space where other JavaFX
  * elements can be placed.
  */
-public class RootLayoutController extends UiController {
-    private static AppLogger logger = LoggerManager.getLogger(RootLayoutController.class);
+public class MainWindowController extends UiController {
+    private static AppLogger logger = LoggerManager.getLogger(MainWindowController.class);
 
     private Ui ui; //TODO: remove this dependency as per TODOs given in methods below
     private ModelManager modelManager;
@@ -25,7 +25,7 @@ public class RootLayoutController extends UiController {
     @FXML
     private MenuItem helpMenuItem;
 
-    public RootLayoutController() {
+    public MainWindowController() {
         super();
     }
 

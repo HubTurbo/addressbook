@@ -11,12 +11,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- * The View class for the RootLayout.
+ * The View class for the MainWindow.
  */
-public class RootLayoutView extends BaseView{
+public class MainWindowView extends BaseView{
 
     public static final String PERSON_LIST_PANEL_ID = "#personListPanel";
-    private static final AppLogger logger = LoggerManager.getLogger(RootLayoutView.class);
+    private static final AppLogger logger = LoggerManager.getLogger(MainWindowView.class);
     private static final String ICON_LOCATION = "/images/address_book_32.png";
     public static final int MIN_HEIGHT = 600;
     public static final int MIN_WIDTH = 450;
@@ -25,10 +25,10 @@ public class RootLayoutView extends BaseView{
 
     @Override
     String getFxmlFileName() {
-        return "RootLayout.fxml";
+        return "MainWindow.fxml";
     }
 
-    public RootLayoutView(Stage primaryStage, String appTitle, UserPrefs prefs) {
+    public MainWindowView(Stage primaryStage, String appTitle, UserPrefs prefs) {
         super(primaryStage);
         createMainWindow(appTitle, prefs);
         rootLayout = (VBox) mainNode;

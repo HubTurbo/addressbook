@@ -12,14 +12,14 @@ import javafx.stage.Stage;
 /**
  * The root layout of the main App Window.
  */
-public class RootLayout extends BaseUiPart{
-    private RootLayoutView view;
-    private RootLayoutController controller;
+public class MainWindow extends BaseUiPart{
+    private MainWindowView view;
+    private MainWindowController controller;
 
-    public RootLayout(Stage primaryStage, String appTitle, UserPrefs prefs, MainApp mainApp,
+    public MainWindow(Stage primaryStage, String appTitle, UserPrefs prefs, MainApp mainApp,
                       Ui ui, ModelManager modelManager) {
         super(primaryStage);
-        view = new RootLayoutView(primaryStage, appTitle, prefs);
+        view = new MainWindowView(primaryStage, appTitle, prefs);
         controller = view.getLoader().getController();
         controller.setConnections(mainApp, ui, modelManager);
         controller.setStage(primaryStage);

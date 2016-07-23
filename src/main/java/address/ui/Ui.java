@@ -71,7 +71,7 @@ public class Ui{
     private UserPrefs prefs;
 
     //Parts of the main UI
-    private RootLayout rootLayout;
+    private MainWindow mainWindow;
     private PersonListPanel personListPanel;
     private BrowserManager browserManager;
 
@@ -103,8 +103,8 @@ public class Ui{
         try {
             logger.info("Starting main controller.");
 
-            rootLayout = createRootLayout(primaryStage);
-            rootLayout.show();
+            mainWindow = createRootLayout(primaryStage);
+            mainWindow.show();
 
             personListPanel = createPersonListPanel();
 
@@ -120,7 +120,7 @@ public class Ui{
     }
 
     public void stop() {
-        Stage stage = rootLayout.getPrimaryStage();
+        Stage stage = mainWindow.getPrimaryStage();
         GuiSettings guiSettings = new GuiSettings(stage.getWidth(), stage.getHeight(),
                 (int) stage.getX(), (int) stage.getY());
         prefs.setGuiSettings(guiSettings);
@@ -132,12 +132,12 @@ public class Ui{
      * Initializes the root layout and tries to load the last opened
      * person file.
      */
-    public RootLayout createRootLayout(Stage primaryStage) {
+    public MainWindow createRootLayout(Stage primaryStage) {
         logger.debug("Initializing root layout.");
-        RootLayout rootLayout = new RootLayout(primaryStage, config.getAppTitle(), prefs, mainApp, this, modelManager);
-        rootLayout.setKeyEventHandler(this::handleKeyEvent);
-        rootLayout.setAccelerators();
-        return rootLayout;
+        MainWindow mainWindow = new MainWindow(primaryStage, config.getAppTitle(), prefs, mainApp, this, modelManager);
+        mainWindow.setKeyEventHandler(this::handleKeyEvent);
+        mainWindow.setAccelerators();
+        return mainWindow;
     }
 
     private void handleKeyEvent(KeyEvent keyEvent) {
@@ -149,7 +149,7 @@ public class Ui{
      */
     public PersonListPanel createPersonListPanel() {
         logger.debug("Loading person list panel.");
-        return new PersonListPanel(rootLayout.getPrimaryStage(), rootLayout.getPersonListSlot(), this, modelManager, personList);
+        return new PersonListPanel(mainWindow.getPrimaryStage(), mainWindow.getPersonListSlot(), this, modelManager, personList);
     }
 
     public StatusBarHeaderController getStatusBarHeaderController() {
@@ -158,9 +158,9 @@ public class Ui{
 
     private void showHeaderStatusBar() {
         statusBarHeaderController = new StatusBarHeaderController(this, this.finishedCommandResults);
-        AnchorPane sbPlaceHolder = rootLayout.getAnchorPane("#headerStatusbarPlaceholder");
+        AnchorPane sbPlaceHolder = mainWindow.getAnchorPane("#headerStatusbarPlaceholder");
 
-        assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in rootLayout";
+        assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in mainWindow";
 
         FxViewUtil.applyAnchorBoundaryParameters(statusBarHeaderController.getHeaderStatusBarView(), 0.0, 0.0, 0.0, 0.0);
         sbPlaceHolder.getChildren().add(statusBarHeaderController.getHeaderStatusBarView());
@@ -174,7 +174,7 @@ public class Ui{
         gridPane.getStyleClass().add("grid-pane");
         statusBarFooterController = loader.getController();
         statusBarFooterController.init(config.getUpdateInterval(), config.getAddressBookName());
-        AnchorPane placeHolder = rootLayout.getAnchorPane("#footerStatusbarPlaceholder");
+        AnchorPane placeHolder = mainWindow.getAnchorPane("#footerStatusbarPlaceholder");
         FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
         placeHolder.getChildren().add(gridPane);
     }
@@ -215,7 +215,7 @@ public class Ui{
         AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading person edit dialog");
 
         Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage(dialogTitle, rootLayout.getPrimaryStage(), scene);
+        Stage dialogStage = loadDialogStage(dialogTitle, mainWindow.getPrimaryStage(), scene);
         dialogStage.getIcons().add(getImage(ICON_EDIT));
 
         scene.setOnKeyPressed(event -> {
@@ -249,7 +249,7 @@ public class Ui{
         // Create the dialog Stage.
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.WINDOW_MODAL);
-        dialogStage.initOwner(rootLayout.getPrimaryStage());
+        dialogStage.initOwner(mainWindow.getPrimaryStage());
         dialogStage.initStyle(StageStyle.TRANSPARENT);
 
         Scene scene = new Scene(pane, Color.TRANSPARENT);
@@ -370,7 +370,7 @@ public class Ui{
         AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading tag edit dialog");
 
         Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage(dialogTitle, rootLayout.getPrimaryStage(), scene);
+        Stage dialogStage = loadDialogStage(dialogTitle, mainWindow.getPrimaryStage(), scene);
         dialogStage.getIcons().add(getImage(ICON_EDIT));
 
         // Pass relevant data to the controller.
@@ -394,7 +394,7 @@ public class Ui{
         AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading tag list view");
 
         Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage("List of Tags", rootLayout.getPrimaryStage(), scene);
+        Stage dialogStage = loadDialogStage("List of Tags", mainWindow.getPrimaryStage(), scene);
 
         // Set the tag into the controller.
         TagListController tagListController = loader.getController();
@@ -418,7 +418,7 @@ public class Ui{
         AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading birthday statistics view");
 
         Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage("Birthday Statistics", rootLayout.getPrimaryStage(), scene);
+        Stage dialogStage = loadDialogStage("Birthday Statistics", mainWindow.getPrimaryStage(), scene);
         dialogStage.getIcons().add(getImage(ICON_CALENDAR));
 
         // Set the persons into the controller.
@@ -437,7 +437,7 @@ public class Ui{
             AnchorPane page = loader.load();
 
             Scene scene = new Scene(page);
-            Stage dialogStage = loadDialogStage("Activity History", rootLayout.getPrimaryStage(), scene);
+            Stage dialogStage = loadDialogStage("Activity History", mainWindow.getPrimaryStage(), scene);
             dialogStage.getIcons().add(getImage(ICON_INFO));
             // Set the persons into the controller.
             ActivityHistoryController controller = loader.getController();
@@ -457,7 +457,7 @@ public class Ui{
      * @return
      */
     public Stage getPrimaryStage() {
-        return rootLayout.getPrimaryStage();
+        return mainWindow.getPrimaryStage();
     }
 
     @Subscribe
@@ -483,7 +483,7 @@ public class Ui{
     }
 
     public void showAlertDialogAndWait(Alert.AlertType type, String title, String headerText, String contentText) {
-        showAlertDialogAndWait(rootLayout.getPrimaryStage(), type, title, headerText, contentText);
+        showAlertDialogAndWait(mainWindow.getPrimaryStage(), type, title, headerText, contentText);
     }
 
     public static void showAlertDialogAndWait(Stage owner, Alert.AlertType type, String title, String headerText,
@@ -510,7 +510,7 @@ public class Ui{
     }
 
     public void showPersonWebPage() {
-        AnchorPane pane = rootLayout.getAnchorPane("#personWebpage");
+        AnchorPane pane = mainWindow.getAnchorPane("#personWebpage");
         disableKeyboardShortcutOnNode(pane);
         pane.getChildren().add(browserManager.getHyperBrowserView());
     }
@@ -522,13 +522,13 @@ public class Ui{
     @Subscribe
     private void handleResizeAppRequestEvent(ResizeAppRequestEvent event) {
         logger.debug("Handling the resize app window request");
-        Platform.runLater(rootLayout::handleResizeRequest);
+        Platform.runLater(mainWindow::handleResizeRequest);
     }
 
     @Subscribe
     private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event) {
         logger.debug("Handling the minimize app window request");
-        Platform.runLater(rootLayout::minimizeWindow);
+        Platform.runLater(mainWindow::minimizeWindow);
     }
 
     @Subscribe
