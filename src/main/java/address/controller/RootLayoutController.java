@@ -17,9 +17,9 @@ import javafx.scene.control.MenuItem;
 public class RootLayoutController extends UiController {
     private static AppLogger logger = LoggerManager.getLogger(RootLayoutController.class);
 
-    private MainController mainController;
+    private MainController mainController; //TODO: remove this dependency as per TODOs given in methods below
     private ModelManager modelManager;
-    private MainApp mainApp;
+    private MainApp mainApp; //TODO: remove this dependency as per TODOs given in methods below
 
     @FXML
     private MenuItem helpMenuItem;

@@ -104,20 +104,24 @@ public class MainController extends UiController{
         logger.info("Starting main controller.");
         this.primaryStage = primaryStage;
 
-        setStageTitle(config.getAppTitle());
-        setStageIcon(getImage(ICON_APPLICATION));
-        setStageMinSize();
-        setStageDefaultSize();
+        try {
+            setStageTitle(config.getAppTitle());
+            setStageIcon(getImage(ICON_APPLICATION));
+            setStageMinSize();
+            setStageDefaultSize();
 
-        this.browserManager.start();
+            this.browserManager.start();
 
-        initRootLayout();
-        this.primaryStage.show();
+            initRootLayout();
+            this.primaryStage.show();
 
-        showPersonListPanel();
-        showPersonWebPage();
-        showFooterStatusBar();
-        showHeaderStatusBar();
+            showPersonListPanel();
+            showPersonWebPage();
+            showFooterStatusBar();
+            showHeaderStatusBar();
+        } catch (Throwable e) {
+            showFatalErrorDialogAndShutdown("Fatal error during initializing", e);
+        }
 
     }
 
@@ -597,8 +601,15 @@ public class MainController extends UiController{
     }
 
     private void showFatalErrorDialogAndShutdown(String title, String headerText, String contentText, String errorLocation) {
-        showAlertDialogAndWait(AlertType.ERROR, title, headerText,
-                contentText + errorLocation);
+        showAlertDialogAndWait(AlertType.ERROR, title, headerText, contentText + errorLocation);
+        Platform.exit();
+        System.exit(1);
+    }
+
+    private void showFatalErrorDialogAndShutdown(String title, Throwable e) {
+        //TODO: Do a more detailed error reporting e.g. stack trace
+        logger.fatal(title + " " + e.getMessage());
+        showAlertDialogAndWait(AlertType.ERROR, title, e.getMessage(), e.toString());
         Platform.exit();
         System.exit(1);
     }
