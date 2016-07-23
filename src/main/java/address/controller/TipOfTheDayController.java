@@ -48,7 +48,6 @@ public class TipOfTheDayController extends UiController{
     private void displayTipOfTheDay(String tipOfTheDay) {
         final String fxmlResourcePath = FXML_TIP_OF_THE_DAY;
         try {
-            // Load person overview.
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
             VBox tipOfTheDayLayout = loader.load();
