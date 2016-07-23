@@ -96,6 +96,7 @@ public class Ui{
         this.personList = modelManager.getAllViewablePersonsReadOnly();
         this.browserManager = new BrowserManager(personList, config.getBrowserNoOfPages(), config.getBrowserType());
         this.browserManager.initBrowser();
+        EventManager.getInstance().registerHandler(this);
     }
 
     public void start(Stage primaryStage) {
