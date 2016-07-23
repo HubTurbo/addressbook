@@ -12,6 +12,7 @@ import javafx.stage.Stage;
  */
 public class RootLayoutView extends BaseView{
 
+    public static final String PERSON_LIST_PANEL_ID = "#personListPanel";
     private VBox rootLayout;
     private Scene scene;
 
@@ -21,8 +22,8 @@ public class RootLayoutView extends BaseView{
     }
 
     public RootLayoutView(Stage primaryStage) {
-        loadFxml();
-        rootLayout = (VBox) loadLoader(loader, "Error initializing root layout");
+        super();
+        rootLayout = (VBox) mainNode;
         scene = new Scene(rootLayout);
         primaryStage.setScene(scene);
     }
@@ -31,7 +32,12 @@ public class RootLayoutView extends BaseView{
         scene.setOnKeyPressed(handler);
     }
 
+    //TODO: to be removed with more specific method e.g. getListPanelSlot
     public AnchorPane getAnchorPane(String anchorPaneId) {
         return (AnchorPane) rootLayout.lookup(anchorPaneId);
+    }
+
+    public AnchorPane getPersonListSlot() {
+        return getAnchorPane(PERSON_LIST_PANEL_ID);
     }
 }

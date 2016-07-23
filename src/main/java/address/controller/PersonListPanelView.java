@@ -8,6 +8,7 @@ import javafx.scene.layout.VBox;
  * The View class for the {@link PersonListPanel}.
  */
 public class PersonListPanelView extends BaseView{
+    private VBox panel;
 
     @Override
     String getFxmlFileName() {
@@ -15,10 +16,10 @@ public class PersonListPanelView extends BaseView{
     }
 
     public PersonListPanelView(AnchorPane pane) {
-        loadFxml();
-        VBox personListPanel = (VBox) loadLoader(loader, "Error loading person list panel");
+        super();
+        panel = (VBox) mainNode;
         SplitPane.setResizableWithParent(pane, false);
-        pane.getChildren().add(personListPanel);
+        pane.getChildren().add(panel);
     }
 
 }

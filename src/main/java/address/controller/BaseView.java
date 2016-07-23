@@ -1,6 +1,6 @@
 package address.controller;
 
-import address.MainApp;
+import address.MainApp; //TODO: remove this dependency
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -13,10 +13,12 @@ import java.io.IOException;
 public abstract class BaseView {
     protected FXMLLoader loader;
     private final static String FXML_FILE_FOLDER = "/view/";
+    protected Node mainNode;
 
-    protected void loadFxml() {
+    public BaseView() {
         loader = new FXMLLoader();
         loader.setLocation(MainApp.class.getResource(FXML_FILE_FOLDER + getFxmlFileName()));
+        mainNode = loadLoader(loader, "Error loading " + getFxmlFileName());
     }
 
     abstract String getFxmlFileName();

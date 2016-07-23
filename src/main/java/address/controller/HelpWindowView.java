@@ -1,6 +1,5 @@
 package address.controller;
 
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
@@ -19,8 +18,8 @@ public class HelpWindowView extends BaseView{
     }
 
     public HelpWindowView() {
-        loadFxml();
-        page = (AnchorPane) loadLoader(loader, "Error loading help page");
+        super();
+        page = (AnchorPane) mainNode;
     }
 
     public void show() {

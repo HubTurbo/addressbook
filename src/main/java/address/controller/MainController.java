@@ -23,13 +23,11 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -110,16 +108,18 @@ public class MainController extends UiController{
             setStageMinSize();
             setStageDefaultSize();
 
-            this.browserManager.start();
-
             initRootLayout();
             this.primaryStage.show();
 
-            showPersonListPanel();
+            personListPanel = createPersonListPanel();
+
+            this.browserManager.start();
             showPersonWebPage();
+            
             showFooterStatusBar();
             showHeaderStatusBar();
         } catch (Throwable e) {
+            e.printStackTrace();
             showFatalErrorDialogAndShutdown("Fatal error during initializing", e);
         }
 
@@ -157,11 +157,9 @@ public class MainController extends UiController{
     /**
      * Shows the person list panel inside the root layout.
      */
-    public void showPersonListPanel() {
+    public PersonListPanel createPersonListPanel() {
         logger.debug("Loading person list panel.");
-        personListPanel = new PersonListPanel(rootLayoutView.getAnchorPane("#personListPanel"),
-                                              this, modelManager, personList);
-
+        return new PersonListPanel(rootLayoutView.getPersonListSlot(), this, modelManager, personList);
     }
 
     public StatusBarHeaderController getStatusBarHeaderController() {
