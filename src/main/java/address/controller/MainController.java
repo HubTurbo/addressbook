@@ -42,7 +42,7 @@ import java.util.Optional;
 /**
  * The controller that creates the other controllers
  */
-public class MainController extends UiController{
+public class MainController extends UiController {
     private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
     private static final String FXML_ACTIVITY_HISTORY = "/view/ActivityHistory.fxml";
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
@@ -73,7 +73,6 @@ public class MainController extends UiController{
     private BrowserManager browserManager;
 
     //TODO: replace these with higher level Ui Parts (similar to PersonListPanel)
-    private Stage primaryStage;
     private StatusBarHeaderController statusBarHeaderController;
     private StatusBarFooterController statusBarFooterController;
 
@@ -90,7 +89,7 @@ public class MainController extends UiController{
      *
      * @param mainApp
      * @param modelManager
-     * @param config should have appTitle and updateInterval set
+     * @param config       should have appTitle and updateInterval set
      */
     public MainController(MainApp mainApp, ModelManager modelManager, Config config, UserPrefs prefs) {
         super();
@@ -105,24 +104,18 @@ public class MainController extends UiController{
 
     public void start(Stage primaryStage) {
         logger.info("Starting main controller.");
-        this.primaryStage = primaryStage;
 
-        try {
-            mainWindow = new MainWindow(primaryStage, config.getAppTitle(), prefs);
-            rootLayout = createRootLayout();
-            this.primaryStage.show();
+        mainWindow = new MainWindow(primaryStage, config.getAppTitle(), prefs);
+        rootLayout = createRootLayout();
+        mainWindow.show();
 
-            personListPanel = createPersonListPanel();
+        personListPanel = createPersonListPanel();
 
-            this.browserManager.start();
-            showPersonWebPage();
+        this.browserManager.start();
+        showPersonWebPage();
 
-            showFooterStatusBar();
-            showHeaderStatusBar();
-        } catch (Throwable e) {
-            e.printStackTrace();
-            showFatalErrorDialogAndShutdown("Fatal error during initializing", e);
-        }
+        showFooterStatusBar();
+        showHeaderStatusBar();
 
     }
 
@@ -133,7 +126,7 @@ public class MainController extends UiController{
      */
     public RootLayout createRootLayout() {
         logger.debug("Initializing root layout.");
-        RootLayout rootLayout = new RootLayout(primaryStage, mainApp, this, modelManager);
+        RootLayout rootLayout = new RootLayout(mainWindow.primaryStage, mainApp, this, modelManager);
         rootLayout.setKeyEventHandler(this::handleKeyEvent);
         rootLayout.setAccelerators();
         return rootLayout;
@@ -148,7 +141,7 @@ public class MainController extends UiController{
      */
     public PersonListPanel createPersonListPanel() {
         logger.debug("Loading person list panel.");
-        return new PersonListPanel(primaryStage, rootLayout.getPersonListSlot(), this, modelManager, personList);
+        return new PersonListPanel(mainWindow.primaryStage, rootLayout.getPersonListSlot(), this, modelManager, personList);
     }
 
     public StatusBarHeaderController getStatusBarHeaderController() {
@@ -179,7 +172,7 @@ public class MainController extends UiController{
     }
 
     //TODO: to be removed
-    private Node loadLoader(FXMLLoader loader, String errorMsg ) {
+    private Node loadLoader(FXMLLoader loader, String errorMsg) {
         try {
             return loader.load();
         } catch (IOException e) {
@@ -204,17 +197,17 @@ public class MainController extends UiController{
      * @param initialData the person object determining the initial data in the input fields
      * @param dialogTitle the title of the dialog shown
      * @return an optional containing the new data, or an empty optional if there was an error
-     *         creating the dialog or the user clicked cancel
+     * creating the dialog or the user clicked cancel
      */
     public Optional<ReadOnlyPerson> getPersonDataInput(ReadOnlyPerson initialData, String dialogTitle) {
         logger.debug("Loading dialog for person edit.");
         final String fxmlResourcePath = FXML_PERSON_EDIT_DIALOG;
-            // Load the fxml file and create a new stage for the popup dialog.
+        // Load the fxml file and create a new stage for the popup dialog.
         FXMLLoader loader = loadFxml(fxmlResourcePath);
         AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading person edit dialog");
 
         Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage(dialogTitle, primaryStage, scene);
+        Stage dialogStage = loadDialogStage(dialogTitle, mainWindow.primaryStage, scene);
         dialogStage.getIcons().add(getImage(ICON_EDIT));
 
         scene.setOnKeyPressed(event -> {
@@ -248,7 +241,7 @@ public class MainController extends UiController{
         // Create the dialog Stage.
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.WINDOW_MODAL);
-        dialogStage.initOwner(primaryStage);
+        dialogStage.initOwner(mainWindow.primaryStage);
         dialogStage.initStyle(StageStyle.TRANSPARENT);
 
         Scene scene = new Scene(pane, Color.TRANSPARENT);
@@ -289,8 +282,9 @@ public class MainController extends UiController{
 
     /**
      * Attempts to add new tag data to the model
-     *
+     * <p>
      * Tag data is obtained from prompting the user repeatedly until a valid tag is given or until the user cancels
+     *
      * @return
      */
     public boolean addTagData() {
@@ -304,8 +298,9 @@ public class MainController extends UiController{
 
     /**
      * Attempts to edit the given tag and update the resulting tag in the model
-     *
+     * <p>
      * Tag data is obtained from prompting the user repeatedly until a valid tag is given or until the user cancels
+     *
      * @param tag
      * @return
      */
@@ -354,20 +349,20 @@ public class MainController extends UiController{
      * Opens a dialog to edit details for the specified tag. If the user
      * clicks OK, the changes are recorded in a new Tag and returned.
      *
-     * @param tag the tag object determining the initial data in the input fields
+     * @param tag         the tag object determining the initial data in the input fields
      * @param dialogTitle the title of the dialog to be shown
      * @return an optional containing the new data, or an empty optional if there was an error
-     *         creating the dialog or the user clicked cancel
+     * creating the dialog or the user clicked cancel
      */
     public Optional<Tag> getTagDataInput(Tag tag, String dialogTitle) {
         logger.debug("Loading dialog for tag edit.");
         final String fxmlResourcePath = FXML_TAG_EDIT_DIALOG;
-            // Load the fxml file and create a new stage for the popup dialog.
+        // Load the fxml file and create a new stage for the popup dialog.
         FXMLLoader loader = loadFxml(fxmlResourcePath);
         AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading tag edit dialog");
 
         Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage(dialogTitle, primaryStage, scene);
+        Stage dialogStage = loadDialogStage(dialogTitle, mainWindow.primaryStage, scene);
         dialogStage.getIcons().add(getImage(ICON_EDIT));
 
         // Pass relevant data to the controller.
@@ -391,7 +386,7 @@ public class MainController extends UiController{
         AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading tag list view");
 
         Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage("List of Tags", primaryStage, scene);
+        Stage dialogStage = loadDialogStage("List of Tags", mainWindow.primaryStage, scene);
 
         // Set the tag into the controller.
         TagListController tagListController = loader.getController();
@@ -415,7 +410,7 @@ public class MainController extends UiController{
         AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading birthday statistics view");
 
         Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage("Birthday Statistics", primaryStage, scene);
+        Stage dialogStage = loadDialogStage("Birthday Statistics", mainWindow.primaryStage, scene);
         dialogStage.getIcons().add(getImage(ICON_CALENDAR));
 
         // Set the persons into the controller.
@@ -434,7 +429,7 @@ public class MainController extends UiController{
             AnchorPane page = loader.load();
 
             Scene scene = new Scene(page);
-            Stage dialogStage = loadDialogStage("Activity History", primaryStage, scene);
+            Stage dialogStage = loadDialogStage("Activity History", mainWindow.primaryStage, scene);
             dialogStage.getIcons().add(getImage(ICON_INFO));
             // Set the persons into the controller.
             ActivityHistoryController controller = loader.getController();
@@ -450,16 +445,17 @@ public class MainController extends UiController{
 
     /**
      * Returns the main stage.
+     *
      * @return
      */
     public Stage getPrimaryStage() {
-        return primaryStage;
+        return mainWindow.primaryStage;
     }
 
     @Subscribe
     private void handleFileOpeningExceptionEvent(FileOpeningExceptionEvent foee) {
         showFileOperationAlertAndWait("Could not load data", "Could not load data from file", foee.file,
-                                      foee.exception);
+                foee.exception);
     }
 
     @Subscribe
@@ -469,7 +465,7 @@ public class MainController extends UiController{
 
     private void showFileOperationAlertAndWait(String description, String details, File file, Throwable cause) {
         final String content = details + ":\n" + (file == null ? "none" : file.getPath()) + "\n\nDetails:\n======\n"
-                                + cause.toString();
+                + cause.toString();
         showAlertDialogAndWait(AlertType.ERROR, "File Op Error", description, content);
     }
 
@@ -479,7 +475,7 @@ public class MainController extends UiController{
     }
 
     public void showAlertDialogAndWait(AlertType type, String title, String headerText, String contentText) {
-        showAlertDialogAndWait(primaryStage, type, title, headerText, contentText);
+        showAlertDialogAndWait(mainWindow.primaryStage, type, title, headerText, contentText);
     }
 
     public static void showAlertDialogAndWait(Stage owner, AlertType type, String title, String headerText,
@@ -495,13 +491,13 @@ public class MainController extends UiController{
     }
 
     /**
-     *  Releases resources to ensure successful application termination.
+     * Releases resources to ensure successful application termination.
      */
-    public void releaseResourcesForAppTermination(){
+    public void releaseResourcesForAppTermination() {
         browserManager.freeBrowserResources();
     }
 
-    public void loadGithubProfilePage(ReadOnlyViewablePerson person){
+    public void loadGithubProfilePage(ReadOnlyViewablePerson person) {
         browserManager.loadProfilePage(person);
     }
 
@@ -516,58 +512,20 @@ public class MainController extends UiController{
     }
 
     @Subscribe
-    private void handleResizeAppRequestEvent(ResizeAppRequestEvent event){
+    private void handleResizeAppRequestEvent(ResizeAppRequestEvent event) {
         logger.debug("Handling the resize app window request");
-        Platform.runLater(this::handleResizeRequest);
+        Platform.runLater(mainWindow::handleResizeRequest);
     }
 
     @Subscribe
-    private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event){
+    private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event) {
         logger.debug("Handling the minimize app window request");
-        Platform.runLater(this::minimizeWindow);
+        Platform.runLater(mainWindow::minimizeWindow);
     }
 
     @Subscribe
     private void handleSingleTargetCommandResultEvent(SingleTargetCommandResultEvent evt) {
         PlatformExecUtil.runAndWait(() -> finishedCommandResults.add(evt));
-    }
-
-
-
-    private void minimizeWindow() {
-        primaryStage.setIconified(true);
-        primaryStage.setMaximized(false);
-    }
-
-    private void handleResizeRequest() {
-        logger.info("Handling resize request.");
-        if (primaryStage.isIconified()) {
-            logger.debug("Cannot resize as window is iconified, attempting to show window instead.");
-            primaryStage.setIconified(false);
-        } else {
-            resizeWindow();
-        }
-    }
-
-    private void resizeWindow() {
-        logger.info("Resizing window");
-        // specially handle since stage operations on Mac seem to not be working as intended
-        if (commons.OsDetector.isOnMac()) {
-            // refresh stage so that resizing effects (apart from the first resize after iconify-ing) are applied
-            // however, this will cause minor flinching in window visibility
-            primaryStage.hide(); // hide has to be called before setMaximized,
-                                 // or first resize attempt after iconify-ing will resize twice
-            primaryStage.show();
-
-            // on Mac, setMaximized seems to work like "setResize"
-            // isMaximized also does not seem to return the correct value
-            primaryStage.setMaximized(true);
-        } else {
-            primaryStage.setMaximized(!primaryStage.isMaximized());
-        }
-
-        logger.debug("Stage width: {}", primaryStage.getWidth());
-        logger.debug("Stage height: {}", primaryStage.getHeight());
     }
 
     public void stop() {
@@ -581,7 +539,7 @@ public class MainController extends UiController{
         System.exit(1);
     }
 
-    private void showFatalErrorDialogAndShutdown(String title, Throwable e) {
+    public void showFatalErrorDialogAndShutdown(String title, Throwable e) {
         //TODO: Do a more detailed error reporting e.g. stack trace
         logger.fatal(title + " " + e.getMessage());
         showAlertDialogAndWait(AlertType.ERROR, title, e.getMessage(), e.toString());

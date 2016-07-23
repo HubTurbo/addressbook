@@ -16,13 +16,18 @@ public class Ui {
     MainController mainController;
     UserPrefs pref;
 
-    public Ui(MainApp mainApp, ModelManager modelManager, Config config, UserPrefs pref){
+    public Ui(MainApp mainApp, ModelManager modelManager, Config config, UserPrefs pref) {
         mainController = new MainController(mainApp, modelManager, config, pref);
         this.pref = pref;
     }
 
     public void start(Stage primaryStage) {
-        mainController.start(primaryStage);
+        try {
+            mainController.start(primaryStage);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            mainController.showFatalErrorDialogAndShutdown("Fatal error during initializing", e);
+        }
     }
 
     public void showAlertDialogAndWait(Alert.AlertType alertType, String alertTitle, String headerText, String contentText) {
@@ -32,7 +37,7 @@ public class Ui {
     public void stop() {
         Stage stage = mainController.getPrimaryStage();
         GuiSettings guiSettings = new GuiSettings(stage.getWidth(), stage.getHeight(),
-                                                  (int)stage.getX(), (int)stage.getY());
+                                                  (int) stage.getX(), (int) stage.getY());
         pref.setGuiSettings(guiSettings);
         mainController.stop();
     }
