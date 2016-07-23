@@ -50,7 +50,6 @@ public class MainController extends UiController{
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
-    private static final String FXML_PERSON_LIST_PANEL = "/view/PersonListPanel.fxml";
     private static final String FXML_TAG_LIST = "/view/TagList.fxml";
     private static final String FXML_BIRTHDAY_STATISTICS = "/view/BirthdayStatistics.fxml";
     private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
@@ -69,11 +68,12 @@ public class MainController extends UiController{
     private Config config;
     private UserPrefs prefs;
 
-    private StatusBarHeaderController statusBarHeaderController;
-    private StatusBarFooterController statusBarFooterController;
-
     private RootLayoutView rootLayoutView;
     private RootLayoutController rootController;
+
+    private StatusBarHeaderController statusBarHeaderController;
+    private StatusBarFooterController statusBarFooterController;
+    private PersonListPanel personListPanel;
 
     private UnmodifiableObservableList<ReadOnlyViewablePerson> personList;
     private final ObservableList<SingleTargetCommandResultEvent> finishedCommandResults;
@@ -155,17 +155,8 @@ public class MainController extends UiController{
      */
     public void showPersonListPanel() {
         logger.debug("Loading person list panel.");
-        final String fxmlResourcePath = FXML_PERSON_LIST_PANEL;
-        // Load person overview.
-        FXMLLoader loader = loadFxml(fxmlResourcePath);
-        VBox personListPanel = (VBox) loadLoader(loader, "Error loading person list panel");
-        AnchorPane pane = rootLayoutView.getAnchorPane("#personListPanel");
-        SplitPane.setResizableWithParent(pane, false);
-        // Give the personListPanelController access to the main app and modelManager.
-        PersonListPanelController personListPanelController = loader.getController();
-        personListPanelController.setConnections(this, modelManager, personList);
-
-        pane.getChildren().add(personListPanel);
+        personListPanel = new PersonListPanel(rootLayoutView.getAnchorPane("#personListPanel"),
+                                              this, modelManager, personList);
 
     }
 
