@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 /**
  * The root layout of the main App Window.
  */
-public class RootLayout {
+public class RootLayout extends BaseUiPart{
     private RootLayoutView view;
     private RootLayoutController controller;
 

@@ -3,22 +3,19 @@ package address.controller;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.collections.UnmodifiableObservableList;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 
 /**
- * Created by dcsdcr on 23/7/2016.
+ * The Person List Panel in the UI.
  */
-public class PersonListPanel {
+public class PersonListPanel  extends BaseUiPart{
 
-    private PersonListPanelView personListPanelView;
-    private PersonListPanelController personListPanelController;
+    private PersonListPanelView view;
+    private PersonListPanelController controller;
 
     public PersonListPanel(AnchorPane pane, MainController mainController, ModelManager modelManager, UnmodifiableObservableList<ReadOnlyViewablePerson> personList) {
-        personListPanelView = new PersonListPanelView(pane);
-        personListPanelController = personListPanelView.getLoader().getController();
-        personListPanelController.setConnections(mainController, modelManager, personList);
+        view = new PersonListPanelView(pane);
+        controller = view.getLoader().getController();
+        controller.setConnections(mainController, modelManager, personList);
     }
 }
