@@ -14,3 +14,5 @@ config.json
 src/main/resources/updater/updater*.jar
 src/test/data/sandbox/
 preferences.json
+data/addressbook.xml
+.$TEMP_ADDRESS_BOOK
