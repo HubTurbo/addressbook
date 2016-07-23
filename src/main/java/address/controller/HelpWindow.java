@@ -1,14 +1,17 @@
 package address.controller;
 
+import javafx.stage.Stage;
+
 /**
- * Created by dcsdcr on 23/7/2016.
+ * The Help Window of the App.
  */
-public class HelpWindow {
+public class HelpWindow extends BaseUiPart{
     private HelpWindowView helpWindowView;
     private HelpWindowController helpWindowController;
 
-    public HelpWindow() {
-        helpWindowView = new HelpWindowView();
+    public HelpWindow(Stage primaryStage) {
+        super(primaryStage);
+        helpWindowView = new HelpWindowView(primaryStage);
     }
 
     public void show() {

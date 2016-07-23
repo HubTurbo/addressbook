@@ -2,6 +2,7 @@ package address.controller;
 
 import address.MainApp;
 import address.model.ModelManager;
+import address.model.UserPrefs;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -14,11 +15,13 @@ public class RootLayout extends BaseUiPart{
     private RootLayoutView view;
     private RootLayoutController controller;
 
-    public RootLayout(Stage primaryStage, MainApp mainApp, MainController mainController, ModelManager modelManager) {
+    public RootLayout(Stage primaryStage, String appTitle, UserPrefs prefs, MainApp mainApp,
+                      MainController mainController, ModelManager modelManager) {
         super(primaryStage);
-        view = new RootLayoutView(primaryStage);
+        view = new RootLayoutView(primaryStage, appTitle, prefs);
         controller = view.getLoader().getController();
         controller.setConnections(mainApp, mainController, modelManager);
+        controller.setStage(primaryStage);
     }
 
     public void setKeyEventHandler(EventHandler<? super KeyEvent> handler) {
@@ -36,5 +39,17 @@ public class RootLayout extends BaseUiPart{
 
     public AnchorPane getPersonListSlot() {
         return view.getPersonListSlot();
+    }
+
+    public void show() {
+        view.show();
+    }
+
+    public void minimizeWindow() {
+        view.minimizeWindow();
+    }
+
+    public void handleResizeRequest() {
+        view.handleResizeRequest();
     }
 }

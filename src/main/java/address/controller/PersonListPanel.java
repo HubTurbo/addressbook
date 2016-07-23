@@ -17,7 +17,7 @@ public class PersonListPanel extends BaseUiPart {
     public PersonListPanel(Stage primaryStage, AnchorPane pane, MainController mainController,
                            ModelManager modelManager, UnmodifiableObservableList<ReadOnlyViewablePerson> personList) {
         super(primaryStage);
-        view = new PersonListPanelView(pane);
+        view = new PersonListPanelView(primaryStage, pane);
         controller = view.getLoader().getController();
         controller.setConnections(mainController, modelManager, personList);
     }

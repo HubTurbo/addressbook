@@ -17,8 +17,8 @@ public class HelpWindowView extends BaseView{
         return "HelpWindow.fxml";
     }
 
-    public HelpWindowView() {
-        super();
+    public HelpWindowView(Stage primaryStage) {
+        super(primaryStage);
         page = (AnchorPane) mainNode;
     }
 

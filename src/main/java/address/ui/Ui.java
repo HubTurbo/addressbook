@@ -30,10 +30,6 @@ public class Ui {
         }
     }
 
-    public void showAlertDialogAndWait(Alert.AlertType alertType, String alertTitle, String headerText, String contentText) {
-        mainController.showAlertDialogAndWait(alertType, alertTitle, headerText, contentText);
-    }
-
     public void stop() {
         Stage stage = mainController.getPrimaryStage();
         GuiSettings guiSettings = new GuiSettings(stage.getWidth(), stage.getHeight(),

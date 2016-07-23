@@ -41,7 +41,7 @@ public class RootLayoutController extends UiController {
     @FXML
     private void handleHelp() {
         logger.debug("Showing help page about the application.");
-        HelpWindow helpWindow = new HelpWindow();
+        HelpWindow helpWindow = new HelpWindow(primaryStage);
         helpWindow.show();
     }
 

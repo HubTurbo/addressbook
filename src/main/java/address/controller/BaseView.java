@@ -4,6 +4,7 @@ import address.MainApp; //TODO: remove this dependency
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 
@@ -14,8 +15,10 @@ public abstract class BaseView {
     protected FXMLLoader loader;
     private final static String FXML_FILE_FOLDER = "/view/";
     protected Node mainNode;
+    protected Stage primaryStage;
 
-    public BaseView() {
+    public BaseView(Stage primaryStage) {
+        this.primaryStage = primaryStage;
         loader = new FXMLLoader();
         loader.setLocation(MainApp.class.getResource(FXML_FILE_FOLDER + getFxmlFileName()));
         mainNode = loadLoader(loader, "Error loading " + getFxmlFileName());
@@ -39,4 +42,9 @@ public abstract class BaseView {
     protected Image getImage(String imagePath) {
         return new Image(MainApp.class.getResourceAsStream(imagePath));
     }
+
+    protected void setIcon(String iconSource) {
+        primaryStage.getIcons().add(getImage(iconSource));
+    }
+
 }
