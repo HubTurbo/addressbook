@@ -72,7 +72,7 @@ public class Ui{
 
     //Parts of the main UI
     private MainWindow mainWindow;
-    private PersonListPanel personListPanel;
+
     private BrowserManager browserManager;
 
     //TODO: replace these with higher level Ui Parts (similar to PersonListPanel)
@@ -103,10 +103,10 @@ public class Ui{
         try {
             logger.info("Starting main controller.");
 
-            mainWindow = createRootLayout(primaryStage);
-            mainWindow.show();
+            mainWindow = createMainWindowFrame(primaryStage);
+            mainWindow.show(); //This should be called before creating other UI parts
 
-            personListPanel = createPersonListPanel();
+            mainWindow.fillInnerParts();
 
             this.browserManager.start();
             showPersonWebPage();
@@ -132,7 +132,7 @@ public class Ui{
      * Initializes the root layout and tries to load the last opened
      * person file.
      */
-    public MainWindow createRootLayout(Stage primaryStage) {
+    public MainWindow createMainWindowFrame(Stage primaryStage) {
         logger.debug("Initializing root layout.");
         MainWindow mainWindow = new MainWindow(primaryStage, config.getAppTitle(), prefs, mainApp, this, modelManager);
         mainWindow.setKeyEventHandler(this::handleKeyEvent);
@@ -144,13 +144,7 @@ public class Ui{
         EventManager.getInstance().postPotentialEvent(new KeyBindingEvent(keyEvent));
     }
 
-    /**
-     * Shows the person list panel inside the root layout.
-     */
-    public PersonListPanel createPersonListPanel() {
-        logger.debug("Loading person list panel.");
-        return new PersonListPanel(mainWindow.getPrimaryStage(), mainWindow.getPersonListSlot(), this, modelManager, personList);
-    }
+
 
     public StatusBarHeaderController getStatusBarHeaderController() {
         return statusBarHeaderController;
