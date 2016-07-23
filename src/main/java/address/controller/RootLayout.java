@@ -15,6 +15,7 @@ public class RootLayout extends BaseUiPart{
     private RootLayoutController controller;
 
     public RootLayout(Stage primaryStage, MainApp mainApp, MainController mainController, ModelManager modelManager) {
+        super(primaryStage);
         view = new RootLayoutView(primaryStage);
         controller = view.getLoader().getController();
         controller.setConnections(mainApp, mainController, modelManager);

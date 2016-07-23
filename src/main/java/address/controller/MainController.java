@@ -51,12 +51,11 @@ public class MainController extends UiController{
     private static final String FXML_TAG_LIST = "/view/TagList.fxml";
     private static final String FXML_BIRTHDAY_STATISTICS = "/view/BirthdayStatistics.fxml";
     private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
-    private static final String ICON_APPLICATION = "/images/address_book_32.png";
+
     private static final String ICON_EDIT = "/images/edit.png";
     private static final String ICON_CALENDAR = "/images/calendar.png";
     private static final String ICON_INFO = "/images/info_icon.png";
-    public static final int MIN_HEIGHT = 600;
-    public static final int MIN_WIDTH = 450;
+
 
     private MainApp mainApp; //TODO: remove this back link to higher level class
 
@@ -68,12 +67,13 @@ public class MainController extends UiController{
     private UserPrefs prefs;
 
     //Parts of the main UI
-    private BrowserManager browserManager;
-    private Stage primaryStage;
+    private MainWindow mainWindow;
     private RootLayout rootLayout;
     private PersonListPanel personListPanel;
+    private BrowserManager browserManager;
 
     //TODO: replace these with higher level Ui Parts (similar to PersonListPanel)
+    private Stage primaryStage;
     private StatusBarHeaderController statusBarHeaderController;
     private StatusBarFooterController statusBarFooterController;
 
@@ -108,11 +108,7 @@ public class MainController extends UiController{
         this.primaryStage = primaryStage;
 
         try {
-            setStageTitle(config.getAppTitle());
-            setStageIcon(getImage(ICON_APPLICATION));
-            setStageMinSize();
-            setStageDefaultSize();
-
+            mainWindow = new MainWindow(primaryStage, config.getAppTitle(), prefs);
             rootLayout = createRootLayout();
             this.primaryStage.show();
 
@@ -130,13 +126,6 @@ public class MainController extends UiController{
 
     }
 
-    private void setStageTitle(String title) {
-        primaryStage.setTitle(title);
-    }
-
-    private void setStageIcon(Image appIcon) {
-        primaryStage.getIcons().add(appIcon);
-    }
 
     /**
      * Initializes the root layout and tries to load the last opened
@@ -159,7 +148,7 @@ public class MainController extends UiController{
      */
     public PersonListPanel createPersonListPanel() {
         logger.debug("Loading person list panel.");
-        return new PersonListPanel(rootLayout.getPersonListSlot(), this, modelManager, personList);
+        return new PersonListPanel(primaryStage, rootLayout.getPersonListSlot(), this, modelManager, personList);
     }
 
     public StatusBarHeaderController getStatusBarHeaderController() {
@@ -543,19 +532,7 @@ public class MainController extends UiController{
         PlatformExecUtil.runAndWait(() -> finishedCommandResults.add(evt));
     }
 
-    protected void setStageDefaultSize() {
-        primaryStage.setHeight(prefs.getGuiSettings().getWindowHeight());
-        primaryStage.setWidth(prefs.getGuiSettings().getWindowWidth());
-        if (prefs.getGuiSettings().getWindowCoordinates() != null) {
-            primaryStage.setX(prefs.getGuiSettings().getWindowCoordinates().getX());
-            primaryStage.setY(prefs.getGuiSettings().getWindowCoordinates().getY());
-        }
-    }
 
-    private void setStageMinSize() {
-        primaryStage.setMinHeight(MIN_HEIGHT);
-        primaryStage.setMinWidth(MIN_WIDTH);
-    }
 
     private void minimizeWindow() {
         primaryStage.setIconified(true);
