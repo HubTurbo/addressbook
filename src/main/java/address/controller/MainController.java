@@ -114,12 +114,6 @@ public class MainController extends UiController{
         showPersonWebPage();
         showFooterStatusBar();
         showHeaderStatusBar();
-        //showTipOfTheDay(); TODO: enable this later
-    }
-
-    private void showTipOfTheDay() {
-        TipOfTheDayController tipOfTheDayController = new TipOfTheDayController(primaryStage);
-        tipOfTheDayController.start();
     }
 
     /**
