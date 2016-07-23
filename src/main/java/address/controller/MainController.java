@@ -58,21 +58,26 @@ public class MainController extends UiController{
     public static final int MIN_HEIGHT = 600;
     public static final int MIN_WIDTH = 450;
 
-    private Stage primaryStage;
+    private MainApp mainApp; //TODO: remove this back link to higher level class
 
+    //Links to internal non-UI components
     private ModelManager modelManager;
-    private BrowserManager browserManager;
-    private MainApp mainApp;
+
+    //Objects containing parameters for controlling App behavior
     private Config config;
     private UserPrefs prefs;
 
-    private RootLayoutView rootLayoutView;
-    private RootLayoutController rootController;
-
-    private StatusBarHeaderController statusBarHeaderController;
-    private StatusBarFooterController statusBarFooterController;
+    //Parts of the main UI
+    private BrowserManager browserManager;
+    private Stage primaryStage;
+    private RootLayout rootLayout;
     private PersonListPanel personListPanel;
 
+    //TODO: replace these with higher level Ui Parts (similar to PersonListPanel)
+    private StatusBarHeaderController statusBarHeaderController;
+    private StatusBarFooterController statusBarFooterController;
+
+    //TODO: See if these can be pushed down to respective UI parts
     private UnmodifiableObservableList<ReadOnlyViewablePerson> personList;
     private final ObservableList<SingleTargetCommandResultEvent> finishedCommandResults;
 
@@ -108,14 +113,14 @@ public class MainController extends UiController{
             setStageMinSize();
             setStageDefaultSize();
 
-            initRootLayout();
+            rootLayout = createRootLayout();
             this.primaryStage.show();
 
             personListPanel = createPersonListPanel();
 
             this.browserManager.start();
             showPersonWebPage();
-            
+
             showFooterStatusBar();
             showHeaderStatusBar();
         } catch (Throwable e) {
@@ -137,17 +142,12 @@ public class MainController extends UiController{
      * Initializes the root layout and tries to load the last opened
      * person file.
      */
-    public void initRootLayout() {
+    public RootLayout createRootLayout() {
         logger.debug("Initializing root layout.");
-
-        rootLayoutView = new RootLayoutView(primaryStage);
-        rootLayoutView.setKeyEventHandler(this::handleKeyEvent);
-        rootController = rootLayoutView.getLoader().getController();
-
-        // Give the rootController access to the main controller and modelManager
-        rootController.setConnections(mainApp, this, modelManager);
-        rootController.setAccelerators();
-
+        RootLayout rootLayout = new RootLayout(primaryStage, mainApp, this, modelManager);
+        rootLayout.setKeyEventHandler(this::handleKeyEvent);
+        rootLayout.setAccelerators();
+        return rootLayout;
     }
 
     private void handleKeyEvent(KeyEvent keyEvent) {
@@ -159,7 +159,7 @@ public class MainController extends UiController{
      */
     public PersonListPanel createPersonListPanel() {
         logger.debug("Loading person list panel.");
-        return new PersonListPanel(rootLayoutView.getPersonListSlot(), this, modelManager, personList);
+        return new PersonListPanel(rootLayout.getPersonListSlot(), this, modelManager, personList);
     }
 
     public StatusBarHeaderController getStatusBarHeaderController() {
@@ -168,7 +168,7 @@ public class MainController extends UiController{
 
     private void showHeaderStatusBar() {
         statusBarHeaderController = new StatusBarHeaderController(this, this.finishedCommandResults);
-        AnchorPane sbPlaceHolder = rootLayoutView.getAnchorPane("#headerStatusbarPlaceholder");
+        AnchorPane sbPlaceHolder = rootLayout.getAnchorPane("#headerStatusbarPlaceholder");
 
         assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in rootLayout";
 
@@ -184,7 +184,7 @@ public class MainController extends UiController{
         gridPane.getStyleClass().add("grid-pane");
         statusBarFooterController = loader.getController();
         statusBarFooterController.init(config.getUpdateInterval(), config.getAddressBookName());
-        AnchorPane placeHolder = rootLayoutView.getAnchorPane("#footerStatusbarPlaceholder");
+        AnchorPane placeHolder = rootLayout.getAnchorPane("#footerStatusbarPlaceholder");
         FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
         placeHolder.getChildren().add(gridPane);
     }
@@ -517,7 +517,7 @@ public class MainController extends UiController{
     }
 
     public void showPersonWebPage() {
-        AnchorPane pane = rootLayoutView.getAnchorPane("#personWebpage");
+        AnchorPane pane = rootLayout.getAnchorPane("#personWebpage");
         disableKeyboardShortcutOnNode(pane);
         pane.getChildren().add(browserManager.getHyperBrowserView());
     }
