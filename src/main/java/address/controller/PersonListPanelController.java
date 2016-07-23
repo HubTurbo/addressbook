@@ -38,8 +38,8 @@ import java.util.Objects;
  *
  * setConnections should be set before showing stage
  */
-public class PersonOverviewController extends UiController{
-    private static AppLogger logger = LoggerManager.getLogger(PersonOverviewController.class);
+public class PersonListPanelController extends UiController{
+    private static AppLogger logger = LoggerManager.getLogger(PersonListPanelController.class);
 
     @FXML
     private Button newButton;
@@ -63,7 +63,7 @@ public class PersonOverviewController extends UiController{
     private final BooleanProperty shouldDisableEdit = new SimpleBooleanProperty(false);
     private final BooleanProperty shouldAllowRetry = new SimpleBooleanProperty(false);
 
-    public PersonOverviewController() {
+    public PersonListPanelController() {
         super();
         parser = new Parser();
     }

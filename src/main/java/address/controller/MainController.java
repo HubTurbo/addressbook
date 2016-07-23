@@ -50,7 +50,7 @@ public class MainController extends UiController{
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
-    private static final String FXML_PERSON_OVERVIEW = "/view/PersonOverview.fxml";
+    private static final String FXML_PERSON_LIST_PANEL = "/view/PersonListPanel.fxml";
     private static final String FXML_TAG_LIST = "/view/TagList.fxml";
     private static final String FXML_BIRTHDAY_STATISTICS = "/view/BirthdayStatistics.fxml";
     private static final String FXML_ROOT_LAYOUT = "/view/RootLayout.fxml";
@@ -110,7 +110,7 @@ public class MainController extends UiController{
         this.primaryStage.getIcons().add(getImage(ICON_APPLICATION));
 
         initRootLayout();
-        showPersonOverview();
+        showPersonListPanel();
         showPersonWebPage();
         showFooterStatusBar();
         showHeaderStatusBar();
@@ -149,21 +149,21 @@ public class MainController extends UiController{
     }
 
     /**
-     * Shows the person overview inside the root layout.
+     * Shows the person list panel inside the root layout.
      */
-    public void showPersonOverview() {
-        logger.debug("Loading person overview.");
-        final String fxmlResourcePath = FXML_PERSON_OVERVIEW;
+    public void showPersonListPanel() {
+        logger.debug("Loading person list panel.");
+        final String fxmlResourcePath = FXML_PERSON_LIST_PANEL;
         // Load person overview.
         FXMLLoader loader = loadFxml(fxmlResourcePath);
-        VBox personOverview = (VBox) loadLoader(loader, "Error loading person overview");
-        AnchorPane pane = (AnchorPane) rootLayout.lookup("#personOverview");
+        VBox personListPanel = (VBox) loadLoader(loader, "Error loading person list panel");
+        AnchorPane pane = (AnchorPane) rootLayout.lookup("#personListPanel");
         SplitPane.setResizableWithParent(pane, false);
-        // Give the personOverviewController access to the main app and modelManager.
-        PersonOverviewController personOverviewController = loader.getController();
-        personOverviewController.setConnections(this, modelManager, personList);
+        // Give the personListPanelController access to the main app and modelManager.
+        PersonListPanelController personListPanelController = loader.getController();
+        personListPanelController.setConnections(this, modelManager, personList);
 
-        pane.getChildren().add(personOverview);
+        pane.getChildren().add(personListPanel);
 
     }
 
