@@ -17,7 +17,7 @@ import javafx.stage.Stage;
 public class MainWindow extends BaseUiPart{
     private static final AppLogger logger = LoggerManager.getLogger(MainWindow.class);
 
-    private Ui ui;
+    private Ui ui; //TODO: remove this dependency
 
     private MainWindowView view;
     private MainWindowController controller;

@@ -107,12 +107,12 @@ public class Ui{
             mainWindow.show(); //This should be called before creating other UI parts
 
             mainWindow.fillInnerParts();
+            showFooterStatusBar();
+            showHeaderStatusBar();
 
             this.browserManager.start();
             showPersonWebPage();
 
-            showFooterStatusBar();
-            showHeaderStatusBar();
         } catch (Throwable e) {
             e.printStackTrace();
             showFatalErrorDialogAndShutdown("Fatal error during initializing", e);
