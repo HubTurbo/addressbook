@@ -16,14 +16,14 @@ import java.io.IOException;
 /**
  * Created by dcsdcr on 23/7/2016.
  */
-public class MainWindowView {
+public class RootLayoutView {
     private static final String FXML_ROOT_LAYOUT = "/view/RootLayout.fxml";
 
     private VBox rootLayout;
     private FXMLLoader loader;
     private Scene scene;
 
-    public MainWindowView(Stage primaryStage) {
+    public RootLayoutView(Stage primaryStage) {
         loader = loadFxml(FXML_ROOT_LAYOUT);
         rootLayout = (VBox) loadLoader(loader, "Error initializing root layout");
         // Show the scene containing the root layout.

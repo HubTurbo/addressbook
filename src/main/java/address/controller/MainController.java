@@ -47,7 +47,6 @@ import java.util.Optional;
 public class MainController extends UiController{
     private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
     private static final String FXML_ACTIVITY_HISTORY = "/view/ActivityHistory.fxml";
-    private static final String FXML_HELP = "/view/Help.fxml";
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
@@ -59,7 +58,6 @@ public class MainController extends UiController{
     private static final String ICON_EDIT = "/images/edit.png";
     private static final String ICON_CALENDAR = "/images/calendar.png";
     private static final String ICON_INFO = "/images/info_icon.png";
-    private static final String ICON_HELP = "/images/help_icon.png";
     public static final int MIN_HEIGHT = 600;
     public static final int MIN_WIDTH = 450;
 
@@ -74,7 +72,7 @@ public class MainController extends UiController{
     private StatusBarHeaderController statusBarHeaderController;
     private StatusBarFooterController statusBarFooterController;
 
-    private MainWindowView mainWindowView;
+    private RootLayoutView rootLayoutView;
     private RootLayoutController rootController;
 
     private UnmodifiableObservableList<ReadOnlyViewablePerson> personList;
@@ -138,13 +136,12 @@ public class MainController extends UiController{
     public void initRootLayout() {
         logger.debug("Initializing root layout.");
 
-        mainWindowView = new MainWindowView(primaryStage);
-        mainWindowView.setKeyEventHandler(this::handleKeyEvent);
-        rootController = mainWindowView.getLoader().getController();
+        rootLayoutView = new RootLayoutView(primaryStage);
+        rootLayoutView.setKeyEventHandler(this::handleKeyEvent);
+        rootController = rootLayoutView.getLoader().getController();
 
         // Give the rootController access to the main controller and modelManager
         rootController.setConnections(mainApp, this, modelManager);
-
         rootController.setAccelerators();
 
     }
@@ -162,7 +159,7 @@ public class MainController extends UiController{
         // Load person overview.
         FXMLLoader loader = loadFxml(fxmlResourcePath);
         VBox personListPanel = (VBox) loadLoader(loader, "Error loading person list panel");
-        AnchorPane pane = mainWindowView.getAnchorPane("#personListPanel");
+        AnchorPane pane = rootLayoutView.getAnchorPane("#personListPanel");
         SplitPane.setResizableWithParent(pane, false);
         // Give the personListPanelController access to the main app and modelManager.
         PersonListPanelController personListPanelController = loader.getController();
@@ -178,7 +175,7 @@ public class MainController extends UiController{
 
     private void showHeaderStatusBar() {
         statusBarHeaderController = new StatusBarHeaderController(this, this.finishedCommandResults);
-        AnchorPane sbPlaceHolder = mainWindowView.getAnchorPane("#headerStatusbarPlaceholder");
+        AnchorPane sbPlaceHolder = rootLayoutView.getAnchorPane("#headerStatusbarPlaceholder");
 
         assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in rootLayout";
 
@@ -194,7 +191,7 @@ public class MainController extends UiController{
         gridPane.getStyleClass().add("grid-pane");
         statusBarFooterController = loader.getController();
         statusBarFooterController.init(config.getUpdateInterval(), config.getAddressBookName());
-        AnchorPane placeHolder = mainWindowView.getAnchorPane("#footerStatusbarPlaceholder");
+        AnchorPane placeHolder = rootLayoutView.getAnchorPane("#footerStatusbarPlaceholder");
         FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
         placeHolder.getChildren().add(gridPane);
     }
@@ -288,6 +285,7 @@ public class MainController extends UiController{
         return Optional.empty();
     }
 
+    //TODO: to be removed
     private Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {
         Stage dialogStage = new Stage();
         dialogStage.setTitle(value);
@@ -425,24 +423,6 @@ public class MainController extends UiController{
     }
 
     /**
-     * Opens a dialog to show the help page
-     */
-    public void showHelpPage() {
-        logger.debug("Loading help page.");
-        final String fxmlResourcePath = FXML_HELP;
-        // Load the fxml file and create a new stage for the popup dialog.
-        FXMLLoader loader = loadFxml(fxmlResourcePath);
-        AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading help page");
-
-        Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage("Help", null, scene);
-        dialogStage.getIcons().add(getImage(ICON_HELP));
-        dialogStage.setMaximized(true);
-        // Show the dialog and wait until the user closes it
-        dialogStage.showAndWait();
-    }
-
-    /**
      * Opens a dialog to show birthday statistics.
      */
     public void showBirthdayStatistics() {
@@ -511,6 +491,7 @@ public class MainController extends UiController{
         showAlertDialogAndWait(AlertType.ERROR, "File Op Error", description, content);
     }
 
+    //TODO: to relocate
     private Image getImage(String imagePath) {
         return new Image(MainApp.class.getResourceAsStream(imagePath));
     }
@@ -543,7 +524,7 @@ public class MainController extends UiController{
     }
 
     public void showPersonWebPage() {
-        AnchorPane pane = mainWindowView.getAnchorPane("#personWebpage");
+        AnchorPane pane = rootLayoutView.getAnchorPane("#personWebpage");
         disableKeyboardShortcutOnNode(pane);
         pane.getChildren().add(browserManager.getHyperBrowserView());
     }

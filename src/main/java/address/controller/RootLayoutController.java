@@ -41,7 +41,8 @@ public class RootLayoutController extends UiController {
     @FXML
     private void handleHelp() {
         logger.debug("Showing help page about the application.");
-        mainController.showHelpPage();
+        HelpWindow helpWindow = new HelpWindow();
+        helpWindow.show();
     }
 
     /**
@@ -49,6 +50,7 @@ public class RootLayoutController extends UiController {
      */
     @FXML
     private void handleAbout() {
+        //TODO: refactor to be similar to handleHelp and remove the dependency to mainController
         logger.debug("Showing information about the application.");
         mainController.showAlertDialogAndWait(AlertType.INFORMATION, "AddressApp", "About",
                 "Version " + MainApp.VERSION.toString() + "\nSome code adapted from http://code.makery.ch");
@@ -59,6 +61,7 @@ public class RootLayoutController extends UiController {
      */
     @FXML
     private void handleExit() {
+        //TODO: remove dependency on mainApp by using an event
         mainApp.stop();
     }
     
@@ -67,18 +70,21 @@ public class RootLayoutController extends UiController {
      */
     @FXML
     private void handleShowBirthdayStatistics() {
+        //TODO: refactor to be similar to handleHelp and remove the dependency to mainController
         mainController.showBirthdayStatistics();
     }
 
 
     @FXML
     private void handleNewTag() {
+        //TODO: refactor to be similar to handleHelp and remove the dependency to mainController
         logger.debug("Adding a new tag from the root layout.");
         mainController.addTagData();
     }
 
     @FXML
     private void handleShowTags() {
+        //TODO: refactor to be similar to handleHelp and remove the dependency to mainController
         logger.debug("Attempting to show tag list.");
         mainController.showTagList(modelManager.getAllViewableTagsReadOnly());
     }

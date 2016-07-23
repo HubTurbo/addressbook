@@ -11,12 +11,12 @@ import javafx.scene.web.WebView;
 /**
  * Controller for a help page
  */
-public class HelpController {
+public class HelpWindowController {
 
     @FXML
     private AnchorPane mainPane;
 
-    public HelpController() {
+    public HelpWindowController() {
 
     }
 
