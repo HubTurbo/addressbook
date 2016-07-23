@@ -103,17 +103,28 @@ public class MainController extends UiController{
     public void start(Stage primaryStage) {
         logger.info("Starting main controller.");
         this.primaryStage = primaryStage;
-        this.browserManager.start();
-        primaryStage.setTitle(config.getAppTitle());
 
-        // Set the application icon.
-        this.primaryStage.getIcons().add(getImage(ICON_APPLICATION));
+        setPrimaryStageTitle(config.getAppTitle());
+        setPrimaryStageIcon(getImage(ICON_APPLICATION));
+
+        this.browserManager.start();
 
         initRootLayout();
+        this.primaryStage.show();
+
         showPersonListPanel();
         showPersonWebPage();
         showFooterStatusBar();
         showHeaderStatusBar();
+
+    }
+
+    private void setPrimaryStageTitle(String title) {
+        primaryStage.setTitle(title);
+    }
+
+    private void setPrimaryStageIcon(Image appIcon) {
+        primaryStage.getIcons().add(appIcon);
     }
 
     /**
@@ -122,9 +133,8 @@ public class MainController extends UiController{
      */
     public void initRootLayout() {
         logger.debug("Initializing root layout.");
-        final String fxmlResourcePath = FXML_ROOT_LAYOUT;
-        // Load root layout from fxml file.
-        FXMLLoader loader = loadFxml(fxmlResourcePath);
+
+        FXMLLoader loader = loadFxml(FXML_ROOT_LAYOUT);
         rootLayout = (VBox) loadLoader(loader, "Error initializing root layout");
 
         // Show the scene containing the root layout.
@@ -139,7 +149,6 @@ public class MainController extends UiController{
         rootController.setConnections(mainApp, this, modelManager);
         rootController.setAccelerators();
 
-        primaryStage.show();
     }
 
     /**
