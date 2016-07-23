@@ -12,4 +12,7 @@ public class BaseUiPart {
         this.primaryStage = primaryStage;
     }
 
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
 }

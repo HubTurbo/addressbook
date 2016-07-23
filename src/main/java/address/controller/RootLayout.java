@@ -3,6 +3,7 @@ package address.controller;
 import address.MainApp;
 import address.model.ModelManager;
 import address.model.UserPrefs;
+import address.ui.Ui;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -16,11 +17,11 @@ public class RootLayout extends BaseUiPart{
     private RootLayoutController controller;
 
     public RootLayout(Stage primaryStage, String appTitle, UserPrefs prefs, MainApp mainApp,
-                      MainController mainController, ModelManager modelManager) {
+                      Ui ui, ModelManager modelManager) {
         super(primaryStage);
         view = new RootLayoutView(primaryStage, appTitle, prefs);
         controller = view.getLoader().getController();
-        controller.setConnections(mainApp, mainController, modelManager);
+        controller.setConnections(mainApp, ui, modelManager);
         controller.setStage(primaryStage);
     }
 

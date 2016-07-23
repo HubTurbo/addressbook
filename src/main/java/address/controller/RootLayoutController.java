@@ -3,6 +3,7 @@ package address.controller;
 import address.MainApp;
 import address.keybindings.KeyBindingsManager;
 import address.model.ModelManager;
+import address.ui.Ui;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import javafx.fxml.FXML;
@@ -17,7 +18,7 @@ import javafx.scene.control.MenuItem;
 public class RootLayoutController extends UiController {
     private static AppLogger logger = LoggerManager.getLogger(RootLayoutController.class);
 
-    private MainController mainController; //TODO: remove this dependency as per TODOs given in methods below
+    private Ui ui; //TODO: remove this dependency as per TODOs given in methods below
     private ModelManager modelManager;
     private MainApp mainApp; //TODO: remove this dependency as per TODOs given in methods below
 
@@ -28,8 +29,8 @@ public class RootLayoutController extends UiController {
         super();
     }
 
-    public void setConnections(MainApp mainApp, MainController mainController, ModelManager modelManager) {
-        this.mainController = mainController;
+    public void setConnections(MainApp mainApp, Ui ui, ModelManager modelManager) {
+        this.ui = ui;
         this.modelManager = modelManager;
         this.mainApp = mainApp;
     }
@@ -50,9 +51,9 @@ public class RootLayoutController extends UiController {
      */
     @FXML
     private void handleAbout() {
-        //TODO: refactor to be similar to handleHelp and remove the dependency to mainController
+        //TODO: refactor to be similar to handleHelp and remove the dependency to ui
         logger.debug("Showing information about the application.");
-        mainController.showAlertDialogAndWait(AlertType.INFORMATION, "AddressApp", "About",
+        ui.showAlertDialogAndWait(AlertType.INFORMATION, "AddressApp", "About",
                 "Version " + MainApp.VERSION.toString() + "\nSome code adapted from http://code.makery.ch");
     }
 
@@ -70,22 +71,22 @@ public class RootLayoutController extends UiController {
      */
     @FXML
     private void handleShowBirthdayStatistics() {
-        //TODO: refactor to be similar to handleHelp and remove the dependency to mainController
-        mainController.showBirthdayStatistics();
+        //TODO: refactor to be similar to handleHelp and remove the dependency to ui
+        ui.showBirthdayStatistics();
     }
 
 
     @FXML
     private void handleNewTag() {
-        //TODO: refactor to be similar to handleHelp and remove the dependency to mainController
+        //TODO: refactor to be similar to handleHelp and remove the dependency to ui
         logger.debug("Adding a new tag from the root layout.");
-        mainController.addTagData();
+        ui.addTagData();
     }
 
     @FXML
     private void handleShowTags() {
-        //TODO: refactor to be similar to handleHelp and remove the dependency to mainController
+        //TODO: refactor to be similar to handleHelp and remove the dependency to ui
         logger.debug("Attempting to show tag list.");
-        mainController.showTagList(modelManager.getAllViewableTagsReadOnly());
+        ui.showTagList(modelManager.getAllViewableTagsReadOnly());
     }
 }

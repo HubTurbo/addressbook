@@ -14,6 +14,7 @@ import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.parser.qualifier.TrueQualifier;
 import address.ui.PersonListViewCell;
+import address.ui.Ui;
 import address.util.collections.FilteredList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
@@ -55,7 +56,7 @@ public class PersonListPanelController extends UiController{
     @FXML
     private TextField filterField;
 
-    private MainController mainController; //TODO: remove this dependency (see RootLayoutController for an example)
+    private Ui ui; //TODO: remove this dependency (see RootLayoutController for an example)
     private ModelManager modelManager;
     private FilteredList<ReadOnlyViewablePerson> filteredPersonList;
     private Parser parser;
@@ -73,27 +74,27 @@ public class PersonListPanelController extends UiController{
         filteredPersonList.setPredicate(fce.filterExpression::satisfies);
     }
 
-    public void setConnections(MainController mainController, ModelManager modelManager,
+    public void setConnections(Ui ui, ModelManager modelManager,
                                ObservableList<ReadOnlyViewablePerson> personList) {
-        this.mainController = mainController;
+        this.ui = ui;
         this.modelManager = modelManager;
         filteredPersonList = new FilteredList<>(personList, new PredExpr(new TrueQualifier())::satisfies);
 
         ReorderedList<ReadOnlyViewablePerson> orderedList = new ReorderedList<>(filteredPersonList);
         personListView.setItems(orderedList);
         personListView.setCellFactory(listView -> new PersonListViewCell(orderedList));
-        loadGithubProfilePageWhenPersonIsSelected(mainController);
+        loadGithubProfilePageWhenPersonIsSelected(ui);
 
         personListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         disableEditCommandForMultipleSelection();
         enableRetryCommandOnlyIfSelectionContainsFailedRequests();
     }
 
-    private void loadGithubProfilePageWhenPersonIsSelected(MainController mainController) {
+    private void loadGithubProfilePageWhenPersonIsSelected(Ui ui) {
         personListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue != null) {
                     logger.debug("Person in list view clicked. Loading GitHub profile page: '{}'", newValue);
-                    mainController.loadGithubProfilePage(newValue);
+                    ui.loadGithubProfilePage(newValue);
                 }
             });
     }
@@ -138,7 +139,7 @@ public class PersonListPanelController extends UiController{
     @FXML
     private void handleNewPerson() {
         modelManager.createPersonThroughUI(() ->
-                mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person"));
+                ui.getPersonDataInput(Person.createPersonDataContainer(), "New Person"));
     }
 
     /**
@@ -148,7 +149,7 @@ public class PersonListPanelController extends UiController{
     private void handleEditPerson() {
         if (checkAndHandleInvalidSelection()) {
             final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
-            modelManager.editPersonThroughUI(editTarget, () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
+            modelManager.editPersonThroughUI(editTarget, () -> ui.getPersonDataInput(editTarget, "Edit Person"));
         }
     }
 
@@ -169,7 +170,7 @@ public class PersonListPanelController extends UiController{
     private void handleRetagPersons() {
         if (checkAndHandleInvalidSelection()) {
             final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
-            modelManager.retagPersonsThroughUI(selected, () -> mainController.getPersonsTagsInput(selected));
+            modelManager.retagPersonsThroughUI(selected, () -> ui.getPersonsTagsInput(selected));
         }
     }
 
@@ -274,7 +275,7 @@ public class PersonListPanelController extends UiController{
     }
 
     private void showNoValidSelectionAlert() {
-        mainController.showAlertDialogAndWait(AlertType.WARNING,
+        ui.showAlertDialogAndWait(AlertType.WARNING,
                 "Invalid Selection", "No Person Selected", "Please select a person in the list.");
     }
 
