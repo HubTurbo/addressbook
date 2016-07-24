@@ -126,7 +126,7 @@ public class Ui{
      */
     public MainWindow createMainWindowFrame(Stage primaryStage) {
         logger.debug("Initializing main window.");
-        MainWindow mainWindow = ViewLoader.loadView(primaryStage, new MainWindow());
+        MainWindow mainWindow = UiPartLoader.loadUiPart(primaryStage, new MainWindow());
         mainWindow.configure(config.getAppTitle(), prefs, mainApp, this, modelManager);
         mainWindow.setKeyEventHandler(this::handleKeyEvent);
         mainWindow.setAccelerators();
@@ -179,7 +179,7 @@ public class Ui{
         return loader;
     }
 
-    //TODO: to be removed
+    //TODO: to be removed, duplicated in BaseUiPart
     private Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {
         Stage dialogStage = new Stage();
         dialogStage.setTitle(value);
@@ -191,7 +191,7 @@ public class Ui{
 
     public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
         TagSelectionEditDialog tagEditDialog =
-                ViewLoader.loadView(getPrimaryStage(), new TagSelectionEditDialog());
+                UiPartLoader.loadUiPart(getPrimaryStage(), new TagSelectionEditDialog());
         tagEditDialog.configure(getPrimaryStage());
 
         tagEditDialog.setTags(modelManager.getTagsAsReadOnlyObservableList(),

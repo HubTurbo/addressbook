@@ -23,7 +23,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
 /**
- * The controller for the Main Window. Provides layout provides the basic application layout containing
+ * The Main Window. Provides the basic application layout containing
  * a menu bar and space where other JavaFX elements can be placed.
  */
 public class MainWindow extends BaseUiPart {
@@ -75,23 +75,24 @@ public class MainWindow extends BaseUiPart {
         //Configure the UI
         setTitle(appTitle);
         setIcon(ICON);
-        setStageMinSize();
-        setStageDefaultSize(prefs);
+        setWindowMinSize();
+        setWindowDefaultSize(prefs);
         scene = new Scene(rootLayout);
         primaryStage.setScene(scene);
     }
 
     public void fillInnerParts() {
         createPersonListPanel();
+        //TODO: more to be added here (i.e. headerStatusBar, footerStatusBar etc.)
     }
 
     /**
-     * Shows the person list panel inside the root layout.
+     * Shows the person list panel inside the main Window.
      */
     public PersonListPanel createPersonListPanel() {
         logger.debug("Loading person list panel.");
         PersonListPanel personListPanel =
-                ViewLoader.loadView(primaryStage, getPersonListSlot(), new PersonListPanel());
+                UiPartLoader.loadUiPart(primaryStage, getPersonListPlaceholder(), new PersonListPanel());
         personListPanel.configure(ui, modelManager, modelManager.getAllViewablePersonsReadOnly());
         return personListPanel;
     }
@@ -100,6 +101,10 @@ public class MainWindow extends BaseUiPart {
         primaryStage.hide();
     }
 
+    /**
+     * Returns the current size and the position of the main Window.
+     * @return
+     */
     public GuiSettings getCurrentGuiSetting() {
         return new GuiSettings(primaryStage.getWidth(), primaryStage.getHeight(),
                 (int) primaryStage.getX(), (int) primaryStage.getY());
@@ -126,7 +131,10 @@ public class MainWindow extends BaseUiPart {
         return (AnchorPane) rootLayout.lookup(anchorPaneId);
     }
 
-    public AnchorPane getPersonListSlot() {
+    /**
+     * Returns the AnchorPane where the PersonListPanel is to added.
+     */
+    public AnchorPane getPersonListPlaceholder() {
         return getAnchorPane(PERSON_LIST_PANEL_PLACEHOLDER_ID);
     }
 
@@ -134,7 +142,10 @@ public class MainWindow extends BaseUiPart {
         primaryStage.setTitle(appTitle);
     }
 
-    protected void setStageDefaultSize(UserPrefs prefs) {
+    /**
+     * Sets the default size based on user preferences.
+     */
+    protected void setWindowDefaultSize(UserPrefs prefs) {
         primaryStage.setHeight(prefs.getGuiSettings().getWindowHeight());
         primaryStage.setWidth(prefs.getGuiSettings().getWindowWidth());
         if (prefs.getGuiSettings().getWindowCoordinates() != null) {
@@ -143,7 +154,7 @@ public class MainWindow extends BaseUiPart {
         }
     }
 
-    private void setStageMinSize() {
+    private void setWindowMinSize() {
         primaryStage.setMinHeight(MIN_HEIGHT);
         primaryStage.setMinWidth(MIN_WIDTH);
     }
@@ -195,7 +206,7 @@ public class MainWindow extends BaseUiPart {
     @FXML
     private void handleHelp() {
         logger.debug("Showing help page about the application.");
-        HelpWindow helpWindow = ViewLoader.loadView(primaryStage, new HelpWindow());
+        HelpWindow helpWindow = UiPartLoader.loadUiPart(primaryStage, new HelpWindow());
         helpWindow.configure();
         helpWindow.show();
     }
@@ -243,4 +254,6 @@ public class MainWindow extends BaseUiPart {
         logger.debug("Attempting to show tag list.");
         ui.showTagList(modelManager.getAllViewableTagsReadOnly());
     }
+
+
 }

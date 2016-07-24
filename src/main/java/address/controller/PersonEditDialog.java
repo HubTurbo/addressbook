@@ -89,7 +89,7 @@ public class PersonEditDialog extends BaseUiPart {
 
     public void configure(ReadOnlyPerson initialData, List<Tag> tags) {
         Scene scene = new Scene(pane);
-        dialogStage = loadDialogStage(TITLE, primaryStage, scene);
+        dialogStage = createDialogStage(TITLE, primaryStage, scene);
         setIcon(dialogStage, ICON);
         setEscKeyToDismiss(scene);
         setInitialPersonData(initialData);
@@ -129,17 +129,17 @@ public class PersonEditDialog extends BaseUiPart {
     }
 
     private void addListeners() {
-        tagList.setOnMouseClicked(e -> launchTagSelectionEditDialog());
+        tagList.setOnMouseClicked(e -> performTagSelectionEditDialog());
         tagList.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.SPACE) {
                 e.consume();
-                launchTagSelectionEditDialog();
+                performTagSelectionEditDialog();
             }
         });
         mainPane.setOnKeyPressed(e -> {
             if (e.isShortcutDown() && e.getCode() == KeyCode.O) {
                 e.consume();
-                launchTagSelectionEditDialog();
+                performTagSelectionEditDialog();
             }
         });
     }
@@ -157,12 +157,10 @@ public class PersonEditDialog extends BaseUiPart {
         return label;
     }
 
-    private void launchTagSelectionEditDialog() {
-        TagSelectionEditDialog tagEditDialog =
-                ViewLoader.loadView(dialogStage, new TagSelectionEditDialog());
+    private void performTagSelectionEditDialog() {
+        TagSelectionEditDialog tagEditDialog = UiPartLoader.loadUiPart(dialogStage, new TagSelectionEditDialog());
         tagEditDialog.configure(dialogStage);
-
-        //TODO: populate with existing tags
+        tagEditDialog.setTags(fullTagList, finalAssignedTags);
         tagEditDialog.showAndWait();
 
         if (tagEditDialog.isOkClicked()) finalAssignedTags = tagEditDialog.getFinalAssignedTags();
@@ -255,9 +253,8 @@ public class PersonEditDialog extends BaseUiPart {
     }
 
     /**
-     * Validates the user input in the text fields.
-     * 
-     * @return true if the input is valid
+     * Returns a string describing invalid data.
+     * Returns Optional.empty() if all data are valid.
      */
     private Optional<String> getInvalidityInfo() {
         String errorMessage = "";
@@ -276,17 +273,13 @@ public class PersonEditDialog extends BaseUiPart {
 
         if (isFilled(githubUserNameField)) {
             try {
-                URL url = new URL("https://www.github.com/" + githubUserNameField.getText());
+                new URL("https://www.github.com/" + githubUserNameField.getText());
             } catch (MalformedURLException e) {
                 errorMessage += "Invalid github username.\n";
             }
         }
 
-        if (errorMessage.length() == 0) {
-            return Optional.empty();
-        } else {
-            return Optional.of(errorMessage);
-        }
+        return errorMessage.length() == 0 ? Optional.empty(): Optional.of(errorMessage);
     }
 
     private boolean isFilled(TextField textField) {

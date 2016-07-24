@@ -39,9 +39,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Dialog to view the list of persons and their details
+ * Dialog to view the list of persons and their details.
  *
- * setConnections should be set before showing stage
+ * setConnections should be set before showing stage.
  */
 public class PersonListPanel extends BaseUiPart {
     private static AppLogger logger = LoggerManager.getLogger(PersonListPanel.class);
@@ -207,7 +207,7 @@ public class PersonListPanel extends BaseUiPart {
     public Optional<ReadOnlyPerson> getPersonDataInput(ReadOnlyPerson initialData) {
         logger.debug("Loading dialog for person edit.");
 
-        PersonEditDialog editDialog = ViewLoader.loadView(primaryStage, new PersonEditDialog());
+        PersonEditDialog editDialog = UiPartLoader.loadUiPart(primaryStage, new PersonEditDialog());
         editDialog.configure(initialData, modelManager.getTagsAsReadOnlyObservableList());
         return editDialog.getUserInput();
     }

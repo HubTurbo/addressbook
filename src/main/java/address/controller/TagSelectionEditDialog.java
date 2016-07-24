@@ -16,9 +16,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -26,12 +24,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Dialog to select a subset of tags from an available list of tags
+ * Dialog to select a subset of tags from an available list of tags.
  *
- * Stage, initially selected and full list of tags should be set before showing stage
+ * Stage, initially selected and full list of tags should be set before showing stage.
  */
 public class TagSelectionEditDialog extends BaseUiPart {
     public static final String FXML = "TagSelectionEditDialog.fxml";
+    public static final String TITLE = "Select Tag";
     protected boolean isOkClicked = false;
     private static final String TRANSITION_END = "end";
     private static final int TAG_LABEL_WIDTH = 235;
@@ -78,11 +77,8 @@ public class TagSelectionEditDialog extends BaseUiPart {
 
     public void configure(Stage parentStage){
         Scene scene = new Scene(pane);
-        dialogStage = loadDialogStage("Select Tag", primaryStage, scene);
-        //setIcon(dialogStage, ICON);
+        dialogStage = createDialogStage(TITLE, parentStage, scene);
         setEscToDismiss(dialogStage);
-       // dialogStage.initStyle(StageStyle.TRANSPARENT);
-       // Scene scene = new Scene(pane, Color.TRANSPARENT);
     }
 
     /**
@@ -102,7 +98,7 @@ public class TagSelectionEditDialog extends BaseUiPart {
      *
      * @param dialogStage
      */
-    public void setEscToDismiss(Stage dialogStage) {
+    public void setEscToDismiss(Stage dialogStage) { //TODO: there is a duplicate of this in PersonEditDialog
         dialogStage.getScene().setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ESCAPE) {
                 e.consume();

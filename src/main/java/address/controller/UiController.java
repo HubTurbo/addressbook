@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 /**
  * Parent class for all controllers.
  */
-public class UiController {  //TODO: Rename to BaseUiController
+public class UiController {  //TODO: To be removed
     protected Stage primaryStage;
 
     public UiController(){
