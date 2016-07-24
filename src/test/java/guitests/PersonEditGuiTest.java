@@ -53,8 +53,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Confirm the right card is selected after the edit
         assertEquals(alicePersonCard, newAlice);
-        assertEquals(1, personListPanel.getSelectedCards().size());
-        assertEquals(alicePersonCard, personListPanel.getSelectedCards().get(0));
+        assertTrue(personListPanel.isSelected(newAlice));
 
 
         //Confirm right values are displayed after grace period is over
@@ -110,12 +109,11 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         assertTrue(editPersonDialog.isInputValidationErrorDialogShown());
         editPersonDialog.dissmissErrorMessage("Invalid Fields");
-        Assert.assertFalse(editPersonDialog.isInputValidationErrorDialogShown());
-        
+        assertFalse(editPersonDialog.isInputValidationErrorDialogShown());
     }
 
     @Test
-    public void cancelPerson_usingAccelerator() {
+    public void cancelOperation_usingAccelerator() {
 
         //Delete
         personListPanel.clickOnPerson(td.alice);
@@ -174,7 +172,6 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         mainGui.sleep(1, TimeUnit.SECONDS);
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
-
     }
 
 
