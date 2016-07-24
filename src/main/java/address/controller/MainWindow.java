@@ -28,19 +28,22 @@ import javafx.scene.layout.VBox;
  */
 public class MainWindow extends BaseUiPart {
     private static AppLogger logger = LoggerManager.getLogger(MainWindow.class);
-    public static final String PERSON_LIST_PANEL_PLACEHOLDER_ID = "#personListPanel";
-    public static final int MIN_HEIGHT = 600;
-    public static final int MIN_WIDTH = 450;
     private static final String ICON = "/images/address_book_32.png";
     private static final String FXML = "MainWindow.fxml";
+    public static final int MIN_HEIGHT = 600;
+    public static final int MIN_WIDTH = 450;
+    public static final String PERSON_LIST_PANEL_PLACEHOLDER_ID = "#personListPanel";
 
-    private Ui ui; //TODO: remove this dependency as per TODOs given in methods below
-    private ModelManager modelManager;
     private MainApp mainApp; //TODO: remove this dependency as per TODOs given in methods below
+    private Ui ui; //TODO: remove this dependency as per TODOs given in methods below
 
-    //Ui parts
+    //Link to the model
+    private ModelManager modelManager;
+
+    //Independent Ui parts residing in this Ui container
     private PersonListPanel personListPanel;
 
+    //Handles to elements of this Ui container
     private VBox rootLayout;
     private Scene scene;
 
@@ -69,15 +72,18 @@ public class MainWindow extends BaseUiPart {
 
     public void configure(String appTitle, UserPrefs prefs, MainApp mainApp,
                           Ui ui, ModelManager modelManager) {
+        //Set connections
+        this.mainApp = mainApp;
+        this.ui = ui;
+        this.modelManager = modelManager;
+
+        //Configure the UI
         setTitle(appTitle);
         setIcon(ICON);
         setStageMinSize();
         setStageDefaultSize(prefs);
         scene = new Scene(rootLayout);
         primaryStage.setScene(scene);
-        setConnections(mainApp, ui, modelManager);
-        this.modelManager = modelManager;
-        this.ui = ui;
     }
 
     public void fillInnerParts() {
@@ -185,12 +191,6 @@ public class MainWindow extends BaseUiPart {
 
         logger.debug("Stage width: {}", primaryStage.getWidth());
         logger.debug("Stage height: {}", primaryStage.getHeight());
-    }
-
-    public void setConnections(MainApp mainApp, Ui ui, ModelManager modelManager) {
-        this.ui = ui;
-        this.modelManager = modelManager;
-        this.mainApp = mainApp;
     }
 
     public void setAccelerators() {

@@ -97,7 +97,7 @@ public class Ui{
 
     public void start(Stage primaryStage) {
         try {
-            logger.info("Starting main controller.");
+            logger.info("Starting main UI.");
 
             mainWindow = createMainWindowFrame(primaryStage);
             mainWindow.show(); //This should be called before creating other UI parts
@@ -127,9 +127,8 @@ public class Ui{
      * person file.
      */
     public MainWindow createMainWindowFrame(Stage primaryStage) {
-        logger.debug("Initializing root layout.");
-        MainWindow mainWindow =
-                ViewLoader.loadView(primaryStage, new MainWindow());
+        logger.debug("Initializing main window.");
+        MainWindow mainWindow = ViewLoader.loadView(primaryStage, new MainWindow());
         mainWindow.configure(config.getAppTitle(), prefs, mainApp, this, modelManager);
         mainWindow.setKeyEventHandler(this::handleKeyEvent);
         mainWindow.setAccelerators();
