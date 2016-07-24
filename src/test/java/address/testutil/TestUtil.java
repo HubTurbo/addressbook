@@ -19,6 +19,7 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -333,5 +334,13 @@ public class TestUtil {
 
     public static Bounds getScreenPos(Node node) {
         return node.localToScreen(node.getBoundsInLocal());
+    }
+
+    public static double getSceneMaxX(Scene scene) {
+        return scene.getX() + scene.getWidth();
+    }
+
+    public static double getSceneMaxY(Scene scene) {
+        return scene.getX() + scene.getHeight();
     }
 }

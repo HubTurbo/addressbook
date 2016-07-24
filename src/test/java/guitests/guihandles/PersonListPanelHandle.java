@@ -13,7 +13,6 @@ import javafx.event.Event;
 import javafx.geometry.Point2D;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
@@ -282,17 +281,9 @@ public class PersonListPanelHandle extends GuiHandle {
      * @param personToDrag The text which identify the card to be dragged.
      */
     public void dragOutsideApp(String personToDrag) {
-        double x = getSceneMaxX(this.primaryStage.getScene()) + 10;
-        double y = getSceneMaxY(this.primaryStage.getScene()) + 10;
+        double x = TestUtil.getSceneMaxX(this.primaryStage.getScene()) + 10;
+        double y = TestUtil.getSceneMaxY(this.primaryStage.getScene()) + 10;
         guiRobot.drag(personToDrag).dropTo(x, y);
-    }
-
-    private double getSceneMaxX(Scene scene) {
-        return scene.getX() + scene.getWidth();
-    }
-
-    private double getSceneMaxY(Scene scene) {
-        return scene.getX() + scene.getHeight();
     }
 
     /**
@@ -300,8 +291,8 @@ public class PersonListPanelHandle extends GuiHandle {
      * @param listOfPersonsToDrag The texts which identify the cards to be dragged.
      */
     public void dragOutsideApp(List<String> listOfPersonsToDrag) {
-        double x = this.primaryStage.getScene().getX() + this.primaryStage.getScene().getWidth() + 10;
-        double y = this.primaryStage.getScene().getY() + this.primaryStage.getScene().getHeight() + 10;
+        double x = TestUtil.getSceneMaxX(this.primaryStage.getScene()) + 10;
+        double y = TestUtil.getSceneMaxY(this.primaryStage.getScene()) + 10;
         guiRobot.press(KeyCode.SHORTCUT);
         listOfPersonsToDrag.stream().forEach(p -> guiRobot.clickOn(p));
         guiRobot.release(KeyCode.SHORTCUT);
