@@ -1,11 +1,16 @@
 package address.controller;
 
 import address.MainApp;
+import address.events.MinimizeAppRequestEvent;
+import address.events.ResizeAppRequestEvent;
 import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.ui.Ui;
 import address.util.AppLogger;
+import address.util.GuiSettings;
 import address.util.LoggerManager;
+import com.google.common.eventbus.Subscribe;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -78,4 +83,24 @@ public class MainWindowUiPart extends BaseUiPart{
     }
 
 
+    public void hide() {
+        primaryStage.hide();
+    }
+
+    public GuiSettings getCurrentGuiSetting() {
+        return new GuiSettings(primaryStage.getWidth(), primaryStage.getHeight(),
+                (int) primaryStage.getX(), (int) primaryStage.getY());
+    }
+
+    @Subscribe
+    private void handleResizeAppRequestEvent(ResizeAppRequestEvent event) {
+        logger.debug("Handling the resize app window request");
+        Platform.runLater(this::handleResizeRequest);
+    }
+
+    @Subscribe
+    private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event) {
+        logger.debug("Handling the minimize app window request");
+        Platform.runLater(this::minimizeWindow);
+    }
 }

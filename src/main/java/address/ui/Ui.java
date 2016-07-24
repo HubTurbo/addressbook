@@ -72,7 +72,7 @@ public class Ui{
 
     private BrowserManager browserManager;
 
-    //TODO: replace these with higher level Ui Parts (similar to PersonListPanel)
+    //TODO: move these inside MainWindowUiPart (similar to PersonListPanel)
     private StatusBarHeaderController statusBarHeaderController;
     private StatusBarFooterController statusBarFooterController;
 
@@ -104,9 +104,10 @@ public class Ui{
             mainWindow.show(); //This should be called before creating other UI parts
 
             mainWindow.fillInnerParts();
+
+            //TODO: move the code below inside mainWindow.fillInnerParts()
             showFooterStatusBar();
             showHeaderStatusBar();
-
             this.browserManager.start();
             showPersonWebPage();
 
@@ -117,11 +118,8 @@ public class Ui{
     }
 
     public void stop() {
-        Stage stage = mainWindow.getPrimaryStage();
-        GuiSettings guiSettings = new GuiSettings(stage.getWidth(), stage.getHeight(),
-                (int) stage.getX(), (int) stage.getY());
-        prefs.setGuiSettings(guiSettings);
-        stage.hide();
+        prefs.updateLastUsedGuiSetting(mainWindow.getCurrentGuiSetting());
+        mainWindow.hide();
         releaseResourcesForAppTermination();
     }
 
@@ -139,12 +137,6 @@ public class Ui{
 
     private void handleKeyEvent(KeyEvent keyEvent) {
         EventManager.getInstance().postPotentialEvent(new KeyBindingEvent(keyEvent));
-    }
-
-
-
-    public StatusBarHeaderController getStatusBarHeaderController() {
-        return statusBarHeaderController;
     }
 
     private void showHeaderStatusBar() {
@@ -189,13 +181,20 @@ public class Ui{
         return loader;
     }
 
-
+    //TODO: to be removed
+    private Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle(value);
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        dialogStage.initOwner(primaryStage);
+        dialogStage.setScene(scene);
+        return dialogStage;
+    }
 
     public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
         AnchorPane pane = (AnchorPane) loadLoader(loader, "Error launching tag selection dialog");
-
 
         // Create the dialog Stage.
         Stage dialogStage = new Stage();
@@ -217,16 +216,6 @@ public class Ui{
             return Optional.of(controller.getFinalAssignedTags());
         }
         return Optional.empty();
-    }
-
-    //TODO: to be removed
-    private Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {
-        Stage dialogStage = new Stage();
-        dialogStage.setTitle(value);
-        dialogStage.initModality(Modality.WINDOW_MODAL);
-        dialogStage.initOwner(primaryStage);
-        dialogStage.setScene(scene);
-        return dialogStage;
     }
 
     /**
@@ -471,22 +460,9 @@ public class Ui{
     }
 
     @Subscribe
-    private void handleResizeAppRequestEvent(ResizeAppRequestEvent event) {
-        logger.debug("Handling the resize app window request");
-        Platform.runLater(mainWindow::handleResizeRequest);
-    }
-
-    @Subscribe
-    private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event) {
-        logger.debug("Handling the minimize app window request");
-        Platform.runLater(mainWindow::minimizeWindow);
-    }
-
-    @Subscribe
     private void handleSingleTargetCommandResultEvent(SingleTargetCommandResultEvent evt) {
         PlatformExecUtil.runAndWait(() -> finishedCommandResults.add(evt));
     }
-
 
     private void showFatalErrorDialogAndShutdown(String title, String headerText, String contentText, String errorLocation) {
         showAlertDialogAndWait(Alert.AlertType.ERROR, title, headerText, contentText + errorLocation);

@@ -1,5 +1,6 @@
 package address.controller;
 
+import address.events.EventManager;
 import javafx.stage.Stage;
 
 /**
@@ -10,6 +11,7 @@ public class BaseUiPart {
 
     public BaseUiPart(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        EventManager.getInstance().registerHandler(this);
     }
 
     public Stage getPrimaryStage() {
