@@ -14,6 +14,7 @@ import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.parser.qualifier.TrueQualifier;
 import address.ui.PersonListViewCell;
+import address.ui.Ui;
 import address.util.collections.FilteredList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
@@ -26,20 +27,27 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Dialog to view the list of persons and their details
+ * Dialog to view the list of persons and their details.
  *
- * setConnections should be set before showing stage
+ * setConnections should be set before showing stage.
  */
-public class PersonListPanelController extends UiController{
-    private static AppLogger logger = LoggerManager.getLogger(PersonListPanelController.class);
+public class PersonListPanel extends BaseUiPart {
+    private static AppLogger logger = LoggerManager.getLogger(PersonListPanel.class);
+    public static final String FXML = "PersonListPanel.fxml";
+    private VBox panel;
+    private AnchorPane placeHolderPane;
 
     @FXML
     private Button newButton;
@@ -52,10 +60,12 @@ public class PersonListPanelController extends UiController{
 
     @FXML
     private ListView<ReadOnlyViewablePerson> personListView;
+
     @FXML
     private TextField filterField;
 
-    private MainController mainController;
+    private Ui ui; //TODO: remove this dependency (see MainWindow for an example)
+
     private ModelManager modelManager;
     private FilteredList<ReadOnlyViewablePerson> filteredPersonList;
     private Parser parser;
@@ -63,9 +73,25 @@ public class PersonListPanelController extends UiController{
     private final BooleanProperty shouldDisableEdit = new SimpleBooleanProperty(false);
     private final BooleanProperty shouldAllowRetry = new SimpleBooleanProperty(false);
 
-    public PersonListPanelController() {
+    public PersonListPanel() {
         super();
         parser = new Parser();
+    }
+
+
+    @Override
+    public void setNode(Node node) {
+        panel = (VBox) node;
+    }
+
+    @Override
+    public void setPlaceholder(AnchorPane pane) {
+        this.placeHolderPane = pane;
+    }
+
+    @Override
+    public String getFxmlPath() {
+        return FXML;
     }
 
     @Subscribe
@@ -73,27 +99,34 @@ public class PersonListPanelController extends UiController{
         filteredPersonList.setPredicate(fce.filterExpression::satisfies);
     }
 
-    public void setConnections(MainController mainController, ModelManager modelManager,
+    public void configure(Ui ui, ModelManager modelManager,
+                          ObservableList<ReadOnlyViewablePerson> personList){
+        setConnections(ui, modelManager, personList);
+        SplitPane.setResizableWithParent(placeHolderPane, false);
+        placeHolderPane.getChildren().add(panel);
+    }
+
+    private void setConnections(Ui ui, ModelManager modelManager,
                                ObservableList<ReadOnlyViewablePerson> personList) {
-        this.mainController = mainController;
+        this.ui = ui;
         this.modelManager = modelManager;
         filteredPersonList = new FilteredList<>(personList, new PredExpr(new TrueQualifier())::satisfies);
 
         ReorderedList<ReadOnlyViewablePerson> orderedList = new ReorderedList<>(filteredPersonList);
         personListView.setItems(orderedList);
         personListView.setCellFactory(listView -> new PersonListViewCell(orderedList));
-        loadGithubProfilePageWhenPersonIsSelected(mainController);
+        loadGithubProfilePageWhenPersonIsSelected(ui);
 
         personListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         disableEditCommandForMultipleSelection();
         enableRetryCommandOnlyIfSelectionContainsFailedRequests();
     }
 
-    private void loadGithubProfilePageWhenPersonIsSelected(MainController mainController) {
+    private void loadGithubProfilePageWhenPersonIsSelected(Ui ui) {
         personListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue != null) {
                     logger.debug("Person in list view clicked. Loading GitHub profile page: '{}'", newValue);
-                    mainController.loadGithubProfilePage(newValue);
+                    ui.loadGithubProfilePage(newValue);
                 }
             });
     }
@@ -138,7 +171,7 @@ public class PersonListPanelController extends UiController{
     @FXML
     private void handleNewPerson() {
         modelManager.createPersonThroughUI(() ->
-                mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person"));
+                getPersonDataInput(Person.createPersonDataContainer()));
     }
 
     /**
@@ -148,7 +181,7 @@ public class PersonListPanelController extends UiController{
     private void handleEditPerson() {
         if (checkAndHandleInvalidSelection()) {
             final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
-            modelManager.editPersonThroughUI(editTarget, () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
+            modelManager.editPersonThroughUI(editTarget, () -> getPersonDataInput(editTarget));
         }
     }
 
@@ -164,12 +197,28 @@ public class PersonListPanelController extends UiController{
     }
 
     /**
+     * Opens a dialog to edit details for a Person object. If the user
+     * clicks OK, the input data is recorded in a new Person object and returned.
+     *
+     * @param initialData the person object determining the initial data in the input fields
+     * @return an optional containing the new data, or an empty optional if there was an error
+     * creating the dialog or the user clicked cancel
+     */
+    public Optional<ReadOnlyPerson> getPersonDataInput(ReadOnlyPerson initialData) {
+        logger.debug("Loading dialog for person edit.");
+
+        PersonEditDialog editDialog = UiPartLoader.loadUiPart(primaryStage, new PersonEditDialog());
+        editDialog.configure(initialData, modelManager.getTagsAsReadOnlyObservableList());
+        return editDialog.getUserInput();
+    }
+
+    /**
      * Retags all selected persons
      */
     private void handleRetagPersons() {
         if (checkAndHandleInvalidSelection()) {
             final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
-            modelManager.retagPersonsThroughUI(selected, () -> mainController.getPersonsTagsInput(selected));
+            modelManager.retagPersonsThroughUI(selected, () -> ui.getPersonsTagsInput(selected));
         }
     }
 
@@ -274,7 +323,7 @@ public class PersonListPanelController extends UiController{
     }
 
     private void showNoValidSelectionAlert() {
-        mainController.showAlertDialogAndWait(AlertType.WARNING,
+        ui.showAlertDialogAndWait(AlertType.WARNING,
                 "Invalid Selection", "No Person Selected", "Please select a person in the list.");
     }
 
@@ -288,4 +337,5 @@ public class PersonListPanelController extends UiController{
         personListView.requestFocus();
         personListView.scrollTo(indexOfItem);
     }
+
 }

@@ -69,7 +69,7 @@ public class GuiHandle {
         guiRobot.type(KeyCode.ENTER);
     }
 
-    protected void pressEsc() {
+    public void pressEsc() {
         guiRobot.push(KeyCode.ESCAPE);
     }
 

@@ -1,43 +1,43 @@
 package address.controller;
 
-import address.MainApp;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.AppLogger;
-import commons.DateTimeUtil;
-
 import address.util.LoggerManager;
+import commons.DateTimeUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Dialog to edit details of a person.
  *
  * Stage, initial person and available & assigned tags should be set before showing stage
  */
-public class PersonEditDialogController extends EditDialogController {
-
-    private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialogController.class);
-    private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
+public class PersonEditDialog extends BaseUiPart {
+    private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialog.class);
+    private static final String ICON = "/images/edit.png";
+    public static final String TITLE = "Edit Person";
+    public static final String FXML = "PersonEditDialog.fxml";
     private static final String TOOLTIP_TAG_SELECTOR_SHORTCUT = "Shortcut + O";
     private static final String TOOLTIP_LAUNCH_TAG_SELECTOR = "Click to launch tag selector";
+    AnchorPane pane;
+    Stage dialogStage;
+    private boolean isOkClicked = false;
 
     @FXML
     private Label idLabel;
@@ -76,23 +76,70 @@ public class PersonEditDialogController extends EditDialogController {
         Platform.runLater(() -> firstNameField.requestFocus());
     }
 
+
+    @Override
+    public void setNode(Node node) {
+        pane = (AnchorPane)node;
+    }
+
+    @Override
+    public String getFxmlPath() {
+        return FXML;
+    }
+
+    public void configure(ReadOnlyPerson initialData, List<Tag> tags) {
+        Scene scene = new Scene(pane);
+        dialogStage = createDialogStage(TITLE, primaryStage, scene);
+        setIcon(dialogStage, ICON);
+        setEscKeyToDismiss(scene);
+        setInitialPersonData(initialData);
+        setTags(tags, new ArrayList<>(initialData.getObservableTagList()));
+    }
+
+    private void setEscKeyToDismiss(Scene scene) { //TODO: move to a new parent class BaseDialogUiPart
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                dialogStage.close();
+            }
+        });
+    }
+
+    public void showAndWait(){
+        dialogStage.showAndWait();
+    }
+
+
+    public Optional<ReadOnlyPerson> getUserInput() {
+        showAndWait();
+        if (isOkClicked()) {
+            logger.debug("Person collected: " + getEditedPerson().toString());
+            return Optional.of(getEditedPerson());
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public void close() {
+        dialogStage.close();
+    }
+
     private void modifyInteractionsWithComponents() {
         tagList.setFocusTraversable(true);
         tagList.setTooltip(getTooltip());
     }
 
     private void addListeners() {
-        tagList.setOnMouseClicked(e -> launchTagSelectionEditDialog());
+        tagList.setOnMouseClicked(e -> performTagSelectionEditDialog());
         tagList.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.SPACE) {
                 e.consume();
-                launchTagSelectionEditDialog();
+                performTagSelectionEditDialog();
             }
         });
         mainPane.setOnKeyPressed(e -> {
             if (e.isShortcutDown() && e.getCode() == KeyCode.O) {
                 e.consume();
-                launchTagSelectionEditDialog();
+                performTagSelectionEditDialog();
             }
         });
     }
@@ -110,40 +157,34 @@ public class PersonEditDialogController extends EditDialogController {
         return label;
     }
 
-    private void launchTagSelectionEditDialog() {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
-        try {
-            AnchorPane pane = loader.load();
+    private void performTagSelectionEditDialog() {
+        TagSelectionEditDialog tagEditDialog = UiPartLoader.loadUiPart(dialogStage, new TagSelectionEditDialog());
+        tagEditDialog.configure(dialogStage);
+        tagEditDialog.setTags(fullTagList, finalAssignedTags);
+        tagEditDialog.showAndWait();
 
-            // Create the dialog Stage.
-            Stage dialogStage = new Stage();
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(this.dialogStage);
-            dialogStage.initStyle(StageStyle.TRANSPARENT);
+        if (tagEditDialog.isOkClicked()) finalAssignedTags = tagEditDialog.getFinalAssignedTags();
+        tagList.setContent(getTagsVBox(finalAssignedTags));
 
-            Scene scene = new Scene(pane, Color.TRANSPARENT);
-            dialogStage.setScene(scene);
+    }
 
-            TagSelectionEditDialogController controller = loader.getController();
-            controller.setTags(fullTagList, finalAssignedTags);
-            controller.setDialogStage(dialogStage);
+    public void setTags(List<Tag> tags, List<Tag> assignedTags) {
+        this.fullTagList = tags;
+        this.finalAssignedTags = assignedTags;
+        tagList.setContent(getTagsVBox(assignedTags));
+    }
 
-            dialogStage.showAndWait();
 
-            if (controller.isOkClicked()) finalAssignedTags = controller.getFinalAssignedTags();
-            tagList.setContent(getTagsVBox(finalAssignedTags));
-        } catch (IOException e) {
-            logger.warn("Error launching tag selection dialog: {}", e);
+    private VBox getTagsVBox(List<Tag> contactTagList) {
+        VBox content = new VBox();
+        contactTagList.stream()
+                .forEach(contactTag -> {
+                    Label newLabel = new Label(contactTag.getName());
+                    newLabel.setPrefWidth(261);
+                    content.getChildren().add(newLabel);
+                });
 
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.initOwner(dialogStage);
-            alert.setTitle("FXML Load Error");
-            alert.setHeaderText("Cannot load dialog for tag selection dialog");
-            alert.setContentText("IOException when trying to load " + FXML_TAG_SELECTION_EDIT_DIALOG);
-
-            alert.showAndWait();
-        }
+        return content;
     }
 
     /**
@@ -161,19 +202,19 @@ public class PersonEditDialogController extends EditDialogController {
         githubUserNameField.setText(person.getGithubUsername());
     }
 
-    public void setTags(List<Tag> tags, List<Tag> assignedTags) {
-        this.fullTagList = tags;
-        this.finalAssignedTags = assignedTags;
-        tagList.setContent(getTagsVBox(assignedTags));
-    }
-
     /**
      * Called when the user clicks ok.
      * Stores input as a Person object into finalData and isOkClicked flag to true
      */
     @FXML
     protected void handleOk() {
-        if (!isInputValid()) return;
+
+        Optional<String> invalidityInfo = getInvalidityInfo();
+        if (invalidityInfo.isPresent()) {
+            showInvalidInputMessage(invalidityInfo.get());
+            return;
+        }
+
         finalPerson = Person.createPersonDataContainer();
         finalPerson.setFirstName(firstNameField.getText());
         finalPerson.setLastName(lastNameField.getText());
@@ -184,20 +225,20 @@ public class PersonEditDialogController extends EditDialogController {
         finalPerson.setTags(finalAssignedTags);
         finalPerson.setGithubUsername(githubUserNameField.getText());
         isOkClicked = true;
-        dialogStage.close();
+        close();
     }
 
-    private VBox getTagsVBox(List<Tag> contactTagList) {
-        VBox content = new VBox();
-        contactTagList.stream()
-                .forEach(contactTag -> {
-                    Label newLabel = new Label(contactTag.getName());
-                    newLabel.setPrefWidth(261);
-                    content.getChildren().add(newLabel);
-                });
+    private void showInvalidInputMessage(String errorMessage) {
+        // Show the error message.
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.initOwner(dialogStage);
+        alert.setTitle("Invalid Fields");
+        alert.setHeaderText("Please correct invalid fields");
+        alert.setContentText(errorMessage);
 
-        return content;
+        alert.showAndWait();
     }
+
 
     public Person getEditedPerson() {
         return finalPerson;
@@ -208,15 +249,14 @@ public class PersonEditDialogController extends EditDialogController {
      */
     @FXML
     protected void handleCancel() {
-        dialogStage.close();
+        close();
     }
 
     /**
-     * Validates the user input in the text fields.
-     * 
-     * @return true if the input is valid
+     * Returns a string describing invalid data.
+     * Returns Optional.empty() if all data are valid.
      */
-    private boolean isInputValid() {
+    private Optional<String> getInvalidityInfo() {
         String errorMessage = "";
 
         if (!isFilled(firstNameField)) {
@@ -233,30 +273,21 @@ public class PersonEditDialogController extends EditDialogController {
 
         if (isFilled(githubUserNameField)) {
             try {
-                URL url = new URL("https://www.github.com/" + githubUserNameField.getText());
+                new URL("https://www.github.com/" + githubUserNameField.getText());
             } catch (MalformedURLException e) {
                 errorMessage += "Invalid github username.\n";
             }
         }
 
-        if (errorMessage.length() == 0) {
-            return true;
-        } else {
-            // Show the error message.
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.initOwner(dialogStage);
-            alert.setTitle("Invalid Fields");
-            alert.setHeaderText("Please correct invalid fields");
-            alert.setContentText(errorMessage);
-            
-            alert.showAndWait();
-            
-            return false;
-        }
+        return errorMessage.length() == 0 ? Optional.empty(): Optional.of(errorMessage);
     }
 
     private boolean isFilled(TextField textField) {
         return textField.getText() != null && textField.getText().length() != 0;
+    }
+
+    public boolean isOkClicked() {
+        return isOkClicked;
     }
 
 }

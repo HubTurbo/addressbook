@@ -8,6 +8,7 @@ import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -23,14 +24,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Dialog to select a subset of tags from an available list of tags
+ * Dialog to select a subset of tags from an available list of tags.
  *
- * Stage, initially selected and full list of tags should be set before showing stage
+ * Stage, initially selected and full list of tags should be set before showing stage.
  */
-public class TagSelectionEditDialogController extends EditDialogController {
+public class TagSelectionEditDialog extends BaseUiPart {
+    public static final String FXML = "TagSelectionEditDialog.fxml";
+    public static final String TITLE = "Select Tag";
+    protected boolean isOkClicked = false;
     private static final String TRANSITION_END = "end";
     private static final int TAG_LABEL_WIDTH = 235;
     private static final String STYLE_SELECTED_BACKGROUND = "-fx-background-color: blue;";
+    private AnchorPane pane;
 
     @FXML
     AnchorPane mainPane;
@@ -46,8 +51,18 @@ public class TagSelectionEditDialogController extends EditDialogController {
     private ScaleTransition transition;
     private boolean hasPlayedClosingAnimation = false;
 
-    public TagSelectionEditDialogController(){
+    public TagSelectionEditDialog(){
         super();
+    }
+
+    @Override
+    public void setNode(Node node) {
+        pane = (AnchorPane)node;
+    }
+
+    @Override
+    public String getFxmlPath() {
+        return FXML;
     }
 
     @FXML
@@ -60,6 +75,20 @@ public class TagSelectionEditDialogController extends EditDialogController {
         Platform.runLater(() -> tagSearch.requestFocus());
     }
 
+    public void configure(Stage parentStage){
+        Scene scene = new Scene(pane);
+        dialogStage = createDialogStage(TITLE, parentStage, scene);
+        setEscToDismiss(dialogStage);
+    }
+
+    /**
+     * Returns the confirmation status of user
+     * @return
+     */
+    public boolean isOkClicked() {
+        return isOkClicked;
+    }
+
     public void setTags(List<Tag> tags, List<Tag> assignedTags) {
         model.init(tags, assignedTags, "");
     }
@@ -69,7 +98,7 @@ public class TagSelectionEditDialogController extends EditDialogController {
      *
      * @param dialogStage
      */
-    public void setDialogStage(Stage dialogStage) {
+    public void setEscToDismiss(Stage dialogStage) { //TODO: there is a duplicate of this in PersonEditDialog
         dialogStage.getScene().setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ESCAPE) {
                 e.consume();
@@ -80,7 +109,6 @@ public class TagSelectionEditDialogController extends EditDialogController {
                 handleOk();
             }
         });
-        this.dialogStage = dialogStage;
     }
 
     public List<Tag> getFinalAssignedTags() {
@@ -213,5 +241,9 @@ public class TagSelectionEditDialogController extends EditDialogController {
      */
     protected void handleCancel() {
         playReversedTransition();
+    }
+
+    public void showAndWait() {
+        dialogStage.showAndWait();
     }
 }

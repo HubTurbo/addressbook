@@ -2,6 +2,7 @@ package address.controller;
 
 import address.model.datatypes.tag.Tag;
 
+import address.ui.Ui;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -20,11 +21,11 @@ public class TagCardController extends UiController{
     private Label tagName;
 
     private Tag tag;
-    private MainController mainController;
+    private Ui ui;
     private TagListController tagListController;
 
-    public TagCardController(Tag tag, MainController mainController, TagListController tagListController) {
-        this.mainController = mainController;
+    public TagCardController(Tag tag, Ui ui, TagListController tagListController) {
+        this.ui = ui;
         this.tag = tag;
         this.tagListController = tagListController;
 
@@ -38,7 +39,7 @@ public class TagCardController extends UiController{
         }
     }
 
-    public static VBox getDummyTagCard(TagListController tagListController, MainController mainController) {
+    public static VBox getDummyTagCard(TagListController tagListController, Ui ui) {
         VBox vBox = new VBox();
         Label label = new Label("Click to add new tag");
         label.setPrefWidth(280);
@@ -49,7 +50,7 @@ public class TagCardController extends UiController{
             switch (mouseEv.getButton()) {
                 case PRIMARY:
                     if (mouseEv.getClickCount() == 1) {
-                        mainController.addTagData();
+                        ui.addTagData();
                         tagListController.refreshList();
                     }
                     break;
@@ -103,17 +104,17 @@ public class TagCardController extends UiController{
     }
 
     private void handleAddTagAction() {
-        mainController.addTagData();
+        ui.addTagData();
         tagListController.refreshList();
     }
 
     private void handleEditTagAction() {
-        mainController.editTagData(tag);
+        ui.editTagData(tag);
         tagListController.refreshList();
     }
 
     private void handleDeleteTagAction() {
-        mainController.deleteTagData(tag);
+        ui.deleteTagData(tag);
         tagListController.refreshList();
     }
 }
