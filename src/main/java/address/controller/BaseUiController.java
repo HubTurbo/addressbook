@@ -11,7 +11,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
- * Created by dcsdcr on 24/7/2016.
+ * Base class for UI parts.
  */
 public abstract class BaseUiController {
     Stage primaryStage;
@@ -62,5 +62,9 @@ public abstract class BaseUiController {
 
     public void setPlaceholder(AnchorPane placeholder) {
         //Do nothing by default.
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
     }
 }

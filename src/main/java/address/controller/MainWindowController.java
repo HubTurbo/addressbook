@@ -1,31 +1,191 @@
 package address.controller;
 
 import address.MainApp;
+import address.events.MinimizeAppRequestEvent;
+import address.events.ResizeAppRequestEvent;
 import address.keybindings.KeyBindingsManager;
 import address.model.ModelManager;
+import address.model.UserPrefs;
 import address.ui.Ui;
 import address.util.AppLogger;
+import address.util.GuiSettings;
 import address.util.LoggerManager;
+import com.google.common.eventbus.Subscribe;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 /**
  * The controller for the Main Window. Provides layout provides the basic application layout containing
  * a menu bar and space where other JavaFX elements can be placed.
  */
-public class MainWindowController extends UiController {
+public class MainWindowController extends BaseUiController {
     private static AppLogger logger = LoggerManager.getLogger(MainWindowController.class);
+    public static final String PERSON_LIST_PANEL_PLACEHOLDER_ID = "#personListPanel";
+    public static final int MIN_HEIGHT = 600;
+    public static final int MIN_WIDTH = 450;
+    private static final String ICON = "/images/address_book_32.png";
+    private static final String FXML = "MainWindow.fxml";
 
     private Ui ui; //TODO: remove this dependency as per TODOs given in methods below
     private ModelManager modelManager;
     private MainApp mainApp; //TODO: remove this dependency as per TODOs given in methods below
+
+    //Ui parts
+    private PersonListPanelController personListPanel;
+
+    private VBox rootLayout;
+    private Scene scene;
+
 
     @FXML
     private MenuItem helpMenuItem;
 
     public MainWindowController() {
         super();
+    }
+
+    @Override
+    public void setNode(Node node) {
+        rootLayout = (VBox) node;
+    }
+
+    @Override
+    public String getFxmlPath() {
+        return FXML;
+    }
+
+    @Override
+    public void secondaryInit() {
+
+    }
+
+    public void configure(String appTitle, UserPrefs prefs, MainApp mainApp,
+                          Ui ui, ModelManager modelManager) {
+        setTitle(appTitle);
+        setIcon(ICON);
+        setStageMinSize();
+        setStageDefaultSize(prefs);
+        scene = new Scene(rootLayout);
+        primaryStage.setScene(scene);
+        setConnections(mainApp, ui, modelManager);
+        this.modelManager = modelManager;
+        this.ui = ui;
+    }
+
+    public void fillInnerParts() {
+        createPersonListPanel();
+    }
+
+    /**
+     * Shows the person list panel inside the root layout.
+     */
+    public PersonListPanelController createPersonListPanel() {
+        logger.debug("Loading person list panel.");
+        PersonListPanelController personListPanelController =
+                ViewLoader.loadView(primaryStage, getPersonListSlot(), new PersonListPanelController());
+        personListPanelController.setConnections(ui, modelManager, modelManager.getAllViewablePersonsReadOnly());
+        return personListPanelController;
+    }
+
+    public void hide() {
+        primaryStage.hide();
+    }
+
+    public GuiSettings getCurrentGuiSetting() {
+        return new GuiSettings(primaryStage.getWidth(), primaryStage.getHeight(),
+                (int) primaryStage.getX(), (int) primaryStage.getY());
+    }
+
+    @Subscribe
+    private void handleResizeAppRequestEvent(ResizeAppRequestEvent event) {
+        logger.debug("Handling the resize app window request");
+        Platform.runLater(this::handleResizeRequest);
+    }
+
+    @Subscribe
+    private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event) {
+        logger.debug("Handling the minimize app window request");
+        Platform.runLater(this::minimizeWindow);
+    }
+
+    public void setKeyEventHandler(EventHandler<? super KeyEvent> handler){
+        scene.setOnKeyPressed(handler);
+    }
+
+    //TODO: to be removed with more specific method e.g. getListPanelSlot
+    public AnchorPane getAnchorPane(String anchorPaneId) {
+        return (AnchorPane) rootLayout.lookup(anchorPaneId);
+    }
+
+    public AnchorPane getPersonListSlot() {
+        return getAnchorPane(PERSON_LIST_PANEL_PLACEHOLDER_ID);
+    }
+
+    private void setTitle(String appTitle) {
+        primaryStage.setTitle(appTitle);
+    }
+
+    protected void setStageDefaultSize(UserPrefs prefs) {
+        primaryStage.setHeight(prefs.getGuiSettings().getWindowHeight());
+        primaryStage.setWidth(prefs.getGuiSettings().getWindowWidth());
+        if (prefs.getGuiSettings().getWindowCoordinates() != null) {
+            primaryStage.setX(prefs.getGuiSettings().getWindowCoordinates().getX());
+            primaryStage.setY(prefs.getGuiSettings().getWindowCoordinates().getY());
+        }
+    }
+
+    private void setStageMinSize() {
+        primaryStage.setMinHeight(MIN_HEIGHT);
+        primaryStage.setMinWidth(MIN_WIDTH);
+    }
+
+    public void show() {
+        primaryStage.show();
+    }
+
+    public void minimizeWindow() {
+        primaryStage.setIconified(true);
+        primaryStage.setMaximized(false);
+    }
+
+    public void handleResizeRequest() {
+        logger.info("Handling resize request.");
+        if (primaryStage.isIconified()) {
+            logger.debug("Cannot resize as window is iconified, attempting to show window instead.");
+            primaryStage.setIconified(false);
+        } else {
+            resizeWindow();
+        }
+    }
+
+    public void resizeWindow() {
+        logger.info("Resizing window");
+        // specially handle since stage operations on Mac seem to not be working as intended
+        if (commons.OsDetector.isOnMac()) {
+            // refresh stage so that resizing effects (apart from the first resize after iconify-ing) are applied
+            // however, this will cause minor flinching in window visibility
+            primaryStage.hide(); // hide has to be called before setMaximized,
+            // or first resize attempt after iconify-ing will resize twice
+            primaryStage.show();
+
+            // on Mac, setMaximized seems to work like "setResize"
+            // isMaximized also does not seem to return the correct value
+            primaryStage.setMaximized(true);
+        } else {
+            primaryStage.setMaximized(!primaryStage.isMaximized());
+        }
+
+        logger.debug("Stage width: {}", primaryStage.getWidth());
+        logger.debug("Stage height: {}", primaryStage.getHeight());
     }
 
     public void setConnections(MainApp mainApp, Ui ui, ModelManager modelManager) {

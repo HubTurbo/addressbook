@@ -68,7 +68,7 @@ public class Ui{
     private UserPrefs prefs;
 
     //Main Window of the app
-    private MainWindowUiPart mainWindow;
+    private MainWindowController mainWindow;
 
     private BrowserManager browserManager;
 
@@ -127,9 +127,11 @@ public class Ui{
      * Initializes the root layout and tries to load the last opened
      * person file.
      */
-    public MainWindowUiPart createMainWindowFrame(Stage primaryStage) {
+    public MainWindowController createMainWindowFrame(Stage primaryStage) {
         logger.debug("Initializing root layout.");
-        MainWindowUiPart mainWindow = new MainWindowUiPart(primaryStage, config.getAppTitle(), prefs, mainApp, this, modelManager);
+        MainWindowController mainWindow =
+                ViewLoader.loadView(primaryStage, new MainWindowController());
+        mainWindow.configure(config.getAppTitle(), prefs, mainApp, this, modelManager);
         mainWindow.setKeyEventHandler(this::handleKeyEvent);
         mainWindow.setAccelerators();
         return mainWindow;
