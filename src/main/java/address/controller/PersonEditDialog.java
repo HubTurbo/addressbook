@@ -35,7 +35,7 @@ import java.util.Optional;
  *
  * Stage, initial person and available & assigned tags should be set before showing stage
  */
-public class PersonEditDialog extends BaseUiController {
+public class PersonEditDialog extends BaseUiPart {
     private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialog.class);
     private static final String ICON = "/images/edit.png";
     public static final String TITLE = "Edit Person";

@@ -21,14 +21,13 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 /**
  * The controller for the Main Window. Provides layout provides the basic application layout containing
  * a menu bar and space where other JavaFX elements can be placed.
  */
-public class MainWindowController extends BaseUiController {
-    private static AppLogger logger = LoggerManager.getLogger(MainWindowController.class);
+public class MainWindow extends BaseUiPart {
+    private static AppLogger logger = LoggerManager.getLogger(MainWindow.class);
     public static final String PERSON_LIST_PANEL_PLACEHOLDER_ID = "#personListPanel";
     public static final int MIN_HEIGHT = 600;
     public static final int MIN_WIDTH = 450;
@@ -40,7 +39,7 @@ public class MainWindowController extends BaseUiController {
     private MainApp mainApp; //TODO: remove this dependency as per TODOs given in methods below
 
     //Ui parts
-    private PersonListPanelController personListPanel;
+    private PersonListPanel personListPanel;
 
     private VBox rootLayout;
     private Scene scene;
@@ -49,7 +48,7 @@ public class MainWindowController extends BaseUiController {
     @FXML
     private MenuItem helpMenuItem;
 
-    public MainWindowController() {
+    public MainWindow() {
         super();
     }
 
@@ -88,12 +87,12 @@ public class MainWindowController extends BaseUiController {
     /**
      * Shows the person list panel inside the root layout.
      */
-    public PersonListPanelController createPersonListPanel() {
+    public PersonListPanel createPersonListPanel() {
         logger.debug("Loading person list panel.");
-        PersonListPanelController personListPanelController =
-                ViewLoader.loadView(primaryStage, getPersonListSlot(), new PersonListPanelController());
-        personListPanelController.setConnections(ui, modelManager, modelManager.getAllViewablePersonsReadOnly());
-        return personListPanelController;
+        PersonListPanel personListPanel =
+                ViewLoader.loadView(primaryStage, getPersonListSlot(), new PersonListPanel());
+        personListPanel.setConnections(ui, modelManager, modelManager.getAllViewablePersonsReadOnly());
+        return personListPanel;
     }
 
     public void hide() {

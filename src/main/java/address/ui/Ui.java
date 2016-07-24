@@ -12,7 +12,6 @@ import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.tag.Tag;
 import address.util.AppLogger;
 import address.util.Config;
-import address.util.GuiSettings;
 import address.util.LoggerManager;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
@@ -68,7 +67,7 @@ public class Ui{
     private UserPrefs prefs;
 
     //Main Window of the app
-    private MainWindowController mainWindow;
+    private MainWindow mainWindow;
 
     private BrowserManager browserManager;
 
@@ -127,10 +126,10 @@ public class Ui{
      * Initializes the root layout and tries to load the last opened
      * person file.
      */
-    public MainWindowController createMainWindowFrame(Stage primaryStage) {
+    public MainWindow createMainWindowFrame(Stage primaryStage) {
         logger.debug("Initializing root layout.");
-        MainWindowController mainWindow =
-                ViewLoader.loadView(primaryStage, new MainWindowController());
+        MainWindow mainWindow =
+                ViewLoader.loadView(primaryStage, new MainWindow());
         mainWindow.configure(config.getAppTitle(), prefs, mainApp, this, modelManager);
         mainWindow.setKeyEventHandler(this::handleKeyEvent);
         mainWindow.setAccelerators();

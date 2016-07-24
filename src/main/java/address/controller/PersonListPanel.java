@@ -33,7 +33,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 import java.util.List;
 import java.util.Objects;
@@ -44,8 +43,8 @@ import java.util.Optional;
  *
  * setConnections should be set before showing stage
  */
-public class PersonListPanelController extends BaseUiController{
-    private static AppLogger logger = LoggerManager.getLogger(PersonListPanelController.class);
+public class PersonListPanel extends BaseUiPart {
+    private static AppLogger logger = LoggerManager.getLogger(PersonListPanel.class);
     public static final String FXML = "PersonListPanel.fxml";
     private VBox panel;
     private AnchorPane placeHolderPane;
@@ -65,7 +64,7 @@ public class PersonListPanelController extends BaseUiController{
     @FXML
     private TextField filterField;
 
-    private Ui ui; //TODO: remove this dependency (see MainWindowController for an example)
+    private Ui ui; //TODO: remove this dependency (see MainWindow for an example)
 
     private ModelManager modelManager;
     private FilteredList<ReadOnlyViewablePerson> filteredPersonList;
@@ -74,7 +73,7 @@ public class PersonListPanelController extends BaseUiController{
     private final BooleanProperty shouldDisableEdit = new SimpleBooleanProperty(false);
     private final BooleanProperty shouldAllowRetry = new SimpleBooleanProperty(false);
 
-    public PersonListPanelController() {
+    public PersonListPanel() {
         super();
         parser = new Parser();
     }

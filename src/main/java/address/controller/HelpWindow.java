@@ -1,6 +1,5 @@
 package address.controller;
 
-import address.MainApp;
 import address.util.AppUtil;
 import commons.FxViewUtil;
 import hubturbo.EmbeddedBrowser;
@@ -8,20 +7,14 @@ import hubturbo.embeddedbrowser.fxbrowser.FxBrowserAdapter;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebView;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import java.net.URL;
-
-import static javax.accessibility.AccessibleRole.ICON;
 
 /**
  * Controller for a help page
  */
-public class HelpWindow extends BaseUiController{
+public class HelpWindow extends BaseUiPart {
     private static final String ICON = "/images/help_icon.png";
     public static final String FXML = "HelpWindow.fxml";
     public static final String TITLE = "Help";
