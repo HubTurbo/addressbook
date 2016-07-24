@@ -28,8 +28,7 @@ public class PersonEditDialogUiPart extends BaseUiPart {
         controller.setTags(tags, new ArrayList<>(initialData.getObservableTagList()));
     }
 
-
-    public Optional<ReadOnlyPerson> getInput() {
+    public Optional<ReadOnlyPerson> getUserInput() {
         view.showAndWait();
         if (controller.isOkClicked()) {
             logger.debug("Person collected: " + controller.getEditedPerson().toString());

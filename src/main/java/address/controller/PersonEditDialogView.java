@@ -13,13 +13,13 @@ public class PersonEditDialogView extends BaseView {
     private static final String ICON = "/images/edit.png";
     public static final String TITLE = "Edit Person";
     public static final String FXML = "PersonEditDialog.fxml";
-    AnchorPane page;
+    AnchorPane pane;
     Stage dialogStage;
 
     public PersonEditDialogView(Stage primaryStage) {
         super(primaryStage);
-        page = (AnchorPane)mainNode;
-        Scene scene = new Scene(page);
+        pane = (AnchorPane)mainNode;
+        Scene scene = new Scene(pane);
         dialogStage = loadDialogStage(TITLE, primaryStage, scene);
         setIcon(dialogStage, ICON);
         setEscKeyToDismiss(scene);

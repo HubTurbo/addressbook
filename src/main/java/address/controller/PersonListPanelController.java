@@ -27,16 +27,10 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -184,25 +178,7 @@ public class PersonListPanelController extends UiController{
 
         PersonEditDialogUiPart editDialog = new PersonEditDialogUiPart(primaryStage, initialData,
                                                           modelManager.getTagsAsReadOnlyObservableList());
-        return editDialog.getInput();
-
-
-
-
-        // Pass relevant data into the controller.
-        //PersonEditDialogController controller = loader.getController();
-//        controller.setDialogStage(dialogStage);
-//        controller.setInitialPersonData(initialData);
-//        controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
-//                new ArrayList<>(initialData.getObservableTagList()));
-
-//        dialogStage.showAndWait();
-//        if (controller.isOkClicked()) {
-//            logger.debug("Person collected: " + controller.getEditedPerson().toString());
-//            return Optional.of(controller.getEditedPerson());
-//        } else {
-//            return Optional.empty();
-//        }
+        return editDialog.getUserInput();
     }
 
     /**
