@@ -27,9 +27,13 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.util.List;
 import java.util.Objects;
@@ -40,8 +44,11 @@ import java.util.Optional;
  *
  * setConnections should be set before showing stage
  */
-public class PersonListPanelController extends UiController{
+public class PersonListPanelController extends BaseUiController{
     private static AppLogger logger = LoggerManager.getLogger(PersonListPanelController.class);
+    public static final String FXML = "PersonListPanel.fxml";
+    private VBox panel;
+    private AnchorPane placeHolderPane;
 
     @FXML
     private Button newButton;
@@ -54,6 +61,7 @@ public class PersonListPanelController extends UiController{
 
     @FXML
     private ListView<ReadOnlyViewablePerson> personListView;
+
     @FXML
     private TextField filterField;
 
@@ -69,6 +77,28 @@ public class PersonListPanelController extends UiController{
     public PersonListPanelController() {
         super();
         parser = new Parser();
+    }
+
+
+    @Override
+    public void setNode(Node node) {
+        panel = (VBox) node;
+    }
+
+    @Override
+    public void setPlaceholder(AnchorPane pane) {
+        this.placeHolderPane = pane;
+    }
+
+    @Override
+    public String getFxmlPath() {
+        return FXML;
+    }
+
+    @Override
+    public void secondaryInit() {
+        SplitPane.setResizableWithParent(placeHolderPane, false);
+        placeHolderPane.getChildren().add(panel);
     }
 
     @Subscribe
@@ -307,4 +337,5 @@ public class PersonListPanelController extends UiController{
         personListView.requestFocus();
         personListView.scrollTo(indexOfItem);
     }
+
 }

@@ -1,9 +1,12 @@
 package address.controller;
 
 import address.MainApp;
+import address.events.BaseEvent;
+import address.events.EventManager;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -12,6 +15,18 @@ import javafx.stage.Stage;
  */
 public abstract class BaseUiController {
     Stage primaryStage;
+
+    public BaseUiController(){
+        EventManager.getInstance().registerHandler(this);
+    }
+
+    protected void raise(BaseEvent event){
+        EventManager.getInstance().post(event);
+    }
+
+    protected void raisePotentialEvent(BaseEvent event) {
+        EventManager.getInstance().postPotentialEvent(event);
+    }
 
     public abstract void setNode(Node node);
 
@@ -44,4 +59,8 @@ public abstract class BaseUiController {
     }
 
     public abstract void secondaryInit();
+
+    public void setPlaceholder(AnchorPane placeholder) {
+        //Do nothing by default.
+    }
 }

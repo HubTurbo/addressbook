@@ -28,7 +28,7 @@ public class MainWindowUiPart extends BaseUiPart{
     private MainWindowController controller;
 
     //Ui parts
-    private PersonListPanelUiPart personListPanel;
+    private PersonListPanelController personListPanel;
 
     private ModelManager modelManager;
 
@@ -58,10 +58,12 @@ public class MainWindowUiPart extends BaseUiPart{
     /**
      * Shows the person list panel inside the root layout.
      */
-    public PersonListPanelUiPart createPersonListPanel() {
+    public PersonListPanelController createPersonListPanel() {
         logger.debug("Loading person list panel.");
-        return new PersonListPanelUiPart(primaryStage, getPersonListSlot(), ui,
-                                   modelManager, modelManager.getAllViewablePersonsReadOnly());
+        PersonListPanelController personListPanelController =
+                ViewLoader.loadView(primaryStage, getPersonListSlot(), new PersonListPanelController());
+        personListPanelController.setConnections(ui, modelManager, modelManager.getAllViewablePersonsReadOnly());
+        return personListPanelController;
     }
 
     //TODO: to be removed with more specific method e.g. getListPanelSlot
