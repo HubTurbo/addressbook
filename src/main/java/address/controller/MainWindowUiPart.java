@@ -14,8 +14,8 @@ import javafx.stage.Stage;
 /**
  * The root layout of the main App Window.
  */
-public class MainWindow extends BaseUiPart{
-    private static final AppLogger logger = LoggerManager.getLogger(MainWindow.class);
+public class MainWindowUiPart extends BaseUiPart{
+    private static final AppLogger logger = LoggerManager.getLogger(MainWindowUiPart.class);
 
     private Ui ui; //TODO: remove this dependency
 
@@ -25,8 +25,8 @@ public class MainWindow extends BaseUiPart{
 
     private ModelManager modelManager;
 
-    public MainWindow(Stage primaryStage, String appTitle, UserPrefs prefs, MainApp mainApp,
-                      Ui ui, ModelManager modelManager) {
+    public MainWindowUiPart(Stage primaryStage, String appTitle, UserPrefs prefs, MainApp mainApp,
+                            Ui ui, ModelManager modelManager) {
         super(primaryStage);
         view = new MainWindowView(primaryStage, appTitle, prefs);
         controller = view.getLoader().getController();

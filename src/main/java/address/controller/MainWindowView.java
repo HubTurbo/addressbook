@@ -11,7 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- * The View class for the MainWindow.
+ * The View class for the MainWindowUiPart.
  */
 public class MainWindowView extends BaseView{
 

@@ -27,7 +27,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -38,7 +37,6 @@ import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,8 +67,8 @@ public class Ui{
     private Config config;
     private UserPrefs prefs;
 
-    //Parts of the main UI
-    private MainWindow mainWindow;
+    //Main Window of the app
+    private MainWindowUiPart mainWindow;
 
     private BrowserManager browserManager;
 
@@ -131,9 +129,9 @@ public class Ui{
      * Initializes the root layout and tries to load the last opened
      * person file.
      */
-    public MainWindow createMainWindowFrame(Stage primaryStage) {
+    public MainWindowUiPart createMainWindowFrame(Stage primaryStage) {
         logger.debug("Initializing root layout.");
-        MainWindow mainWindow = new MainWindow(primaryStage, config.getAppTitle(), prefs, mainApp, this, modelManager);
+        MainWindowUiPart mainWindow = new MainWindowUiPart(primaryStage, config.getAppTitle(), prefs, mainApp, this, modelManager);
         mainWindow.setKeyEventHandler(this::handleKeyEvent);
         mainWindow.setAccelerators();
         return mainWindow;
