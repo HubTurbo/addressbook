@@ -43,5 +43,5 @@ public abstract class BaseUiController {
         stage.getIcons().add(getImage(iconSource));
     }
 
-    public abstract void init();
+    public abstract void secondaryInit();
 }

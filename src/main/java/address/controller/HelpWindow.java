@@ -35,7 +35,7 @@ public class HelpWindow extends BaseUiController{
     }
 
     @Override
-    public void init(){
+    public void secondaryInit(){
         Scene scene = new Scene(pane);
         dialogStage = loadDialogStage(TITLE, null, scene);
         dialogStage.setMaximized(true);

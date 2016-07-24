@@ -3,12 +3,9 @@ package address.controller;
 import address.MainApp;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 
 /**
  * Created by dcsdcr on 24/7/2016.
@@ -21,9 +18,9 @@ public class ViewLoader {
         loader.setLocation(MainApp.class.getResource(FXML_FILE_FOLDER + controllerSeed.getFxmlPath()));
         Node mainNode = loadLoader(loader, "Error loading " + controllerSeed.getFxmlPath());
         BaseUiController controller = loader.getController();
-        controller.setNode(mainNode);
         controller.setStage(primaryStage);
-        controller.init();
+        controller.setNode(mainNode);
+        controller.secondaryInit();
         return (T)controller;
     }
 

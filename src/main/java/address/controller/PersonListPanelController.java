@@ -177,8 +177,8 @@ public class PersonListPanelController extends UiController{
     public Optional<ReadOnlyPerson> getPersonDataInput(ReadOnlyPerson initialData) {
         logger.debug("Loading dialog for person edit.");
 
-        PersonEditDialogUiPart editDialog = new PersonEditDialogUiPart(primaryStage, initialData,
-                                                          modelManager.getTagsAsReadOnlyObservableList());
+        PersonEditDialog editDialog = ViewLoader.loadView(primaryStage, new PersonEditDialog());
+        editDialog.setData(initialData, modelManager.getTagsAsReadOnlyObservableList());
         return editDialog.getUserInput();
     }
 
