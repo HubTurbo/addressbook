@@ -97,12 +97,13 @@ public class PersonEditDialog extends BaseUiPart {
         return FXML;
     }
 
-    @Override
-    public void secondaryInit() {
+    public void configure(ReadOnlyPerson initialData, List<Tag> tags) {
         Scene scene = new Scene(pane);
         dialogStage = loadDialogStage(TITLE, primaryStage, scene);
         setIcon(dialogStage, ICON);
         setEscKeyToDismiss(scene);
+        setInitialPersonData(initialData);
+        setTags(tags, new ArrayList<>(initialData.getObservableTagList()));
     }
 
     private void setEscKeyToDismiss(Scene scene) { //TODO: move to a new parent class BaseDialogView
@@ -117,10 +118,6 @@ public class PersonEditDialog extends BaseUiPart {
         dialogStage.showAndWait();
     }
 
-    public void setData(ReadOnlyPerson initialData, List<Tag> tags) {
-        setInitialPersonData(initialData);
-        setTags(tags, new ArrayList<>(initialData.getObservableTagList()));
-    }
 
     public Optional<ReadOnlyPerson> getUserInput() {
         showAndWait();

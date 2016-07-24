@@ -94,18 +94,19 @@ public class PersonListPanel extends BaseUiPart {
         return FXML;
     }
 
-    @Override
-    public void secondaryInit() {
-        SplitPane.setResizableWithParent(placeHolderPane, false);
-        placeHolderPane.getChildren().add(panel);
-    }
-
     @Subscribe
     private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
         filteredPersonList.setPredicate(fce.filterExpression::satisfies);
     }
 
-    public void setConnections(Ui ui, ModelManager modelManager,
+    public void configure(Ui ui, ModelManager modelManager,
+                          ObservableList<ReadOnlyViewablePerson> personList){
+        setConnections(ui, modelManager, personList);
+        SplitPane.setResizableWithParent(placeHolderPane, false);
+        placeHolderPane.getChildren().add(panel);
+    }
+
+    private void setConnections(Ui ui, ModelManager modelManager,
                                ObservableList<ReadOnlyViewablePerson> personList) {
         this.ui = ui;
         this.modelManager = modelManager;
@@ -207,7 +208,7 @@ public class PersonListPanel extends BaseUiPart {
         logger.debug("Loading dialog for person edit.");
 
         PersonEditDialog editDialog = ViewLoader.loadView(primaryStage, new PersonEditDialog());
-        editDialog.setData(initialData, modelManager.getTagsAsReadOnlyObservableList());
+        editDialog.configure(initialData, modelManager.getTagsAsReadOnlyObservableList());
         return editDialog.getUserInput();
     }
 

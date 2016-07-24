@@ -58,8 +58,6 @@ public abstract class BaseUiPart {
         stage.getIcons().add(getImage(iconSource));
     }
 
-    public abstract void secondaryInit();
-
     public void setPlaceholder(AnchorPane placeholder) {
         //Do nothing by default.
     }

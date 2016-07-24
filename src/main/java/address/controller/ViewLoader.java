@@ -26,7 +26,6 @@ public class ViewLoader {
         controller.setStage(primaryStage);
         controller.setPlaceholder(placeholder);
         controller.setNode(mainNode);
-        controller.secondaryInit();
         return (T)controller;
     }
 

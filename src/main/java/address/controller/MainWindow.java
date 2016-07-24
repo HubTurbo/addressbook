@@ -65,11 +65,6 @@ public class MainWindow extends BaseUiPart {
         return FXML;
     }
 
-    @Override
-    public void secondaryInit() {
-
-    }
-
     public void configure(String appTitle, UserPrefs prefs, MainApp mainApp,
                           Ui ui, ModelManager modelManager) {
         //Set connections
@@ -97,7 +92,7 @@ public class MainWindow extends BaseUiPart {
         logger.debug("Loading person list panel.");
         PersonListPanel personListPanel =
                 ViewLoader.loadView(primaryStage, getPersonListSlot(), new PersonListPanel());
-        personListPanel.setConnections(ui, modelManager, modelManager.getAllViewablePersonsReadOnly());
+        personListPanel.configure(ui, modelManager, modelManager.getAllViewablePersonsReadOnly());
         return personListPanel;
     }
 
@@ -201,6 +196,7 @@ public class MainWindow extends BaseUiPart {
     private void handleHelp() {
         logger.debug("Showing help page about the application.");
         HelpWindow helpWindow = ViewLoader.loadView(primaryStage, new HelpWindow());
+        helpWindow.configure();
         helpWindow.show();
     }
 
