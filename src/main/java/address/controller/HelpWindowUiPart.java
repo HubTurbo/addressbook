@@ -5,16 +5,17 @@ import javafx.stage.Stage;
 /**
  * The Help Window of the App.
  */
-public class HelpWindow extends BaseUiPart{
-    private HelpWindowView helpWindowView;
-    private HelpWindowController helpWindowController;
+public class HelpWindowUiPart extends BaseUiPart{
+    private HelpWindowView view;
+    private HelpWindowController controller;
 
-    public HelpWindow(Stage primaryStage) {
+    public HelpWindowUiPart(Stage primaryStage) {
         super(primaryStage);
-        helpWindowView = new HelpWindowView(primaryStage);
+        view = new HelpWindowView(primaryStage);
+        controller = view.getLoader().getController();
     }
 
     public void show() {
-        helpWindowView.show();
+        view.show();
     }
 }

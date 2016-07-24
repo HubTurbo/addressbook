@@ -41,7 +41,7 @@ public class MainWindowController extends UiController {
     @FXML
     private void handleHelp() {
         logger.debug("Showing help page about the application.");
-        new HelpWindow(primaryStage).show();
+        new HelpWindowUiPart(primaryStage).show();
     }
 
     /**
