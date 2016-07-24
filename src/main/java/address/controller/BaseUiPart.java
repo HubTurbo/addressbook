@@ -37,11 +37,11 @@ public abstract class BaseUiPart {
     }
 
 
-    protected Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {
+    protected Stage loadDialogStage(String value, Stage parentStage, Scene scene) {
         Stage dialogStage = new Stage();
         dialogStage.setTitle(value);
         dialogStage.initModality(Modality.WINDOW_MODAL);
-        dialogStage.initOwner(primaryStage);
+        dialogStage.initOwner(parentStage);
         dialogStage.setScene(scene);
         return dialogStage;
     }

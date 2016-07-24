@@ -192,30 +192,18 @@ public class Ui{
     }
 
     public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
-        AnchorPane pane = (AnchorPane) loadLoader(loader, "Error launching tag selection dialog");
+        TagSelectionEditDialogController tagEditDialog =
+                ViewLoader.loadView(getPrimaryStage(), new TagSelectionEditDialogController());
+        tagEditDialog.configure(getPrimaryStage());
 
-        // Create the dialog Stage.
-        Stage dialogStage = new Stage();
-        dialogStage.initModality(Modality.WINDOW_MODAL);
-        dialogStage.initOwner(mainWindow.getPrimaryStage());
-        dialogStage.initStyle(StageStyle.TRANSPARENT);
-
-        Scene scene = new Scene(pane, Color.TRANSPARENT);
-        dialogStage.setScene(scene);
-
-        TagSelectionEditDialogController controller = loader.getController();
-        controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
+        tagEditDialog.setTags(modelManager.getTagsAsReadOnlyObservableList(),
                 ReadOnlyPerson.getCommonTags(persons));
-        controller.setDialogStage(dialogStage);
 
-        dialogStage.showAndWait();
+        tagEditDialog.showAndWait();
 
-        if (controller.isOkClicked()) {
-            return Optional.of(controller.getFinalAssignedTags());
-        }
-        return Optional.empty();
+        return tagEditDialog.isOkClicked()
+                ? Optional.of(tagEditDialog.getFinalAssignedTags())
+                : Optional.empty();
     }
 
     /**

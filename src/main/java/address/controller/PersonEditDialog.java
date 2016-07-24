@@ -1,16 +1,13 @@
 package address.controller;
 
-import address.MainApp;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.AppLogger;
-import commons.DateTimeUtil;
-
 import address.util.LoggerManager;
+import commons.DateTimeUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -18,12 +15,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -45,9 +38,6 @@ public class PersonEditDialog extends BaseUiPart {
     AnchorPane pane;
     Stage dialogStage;
     private boolean isOkClicked = false;
-
-    //TODO: moved to a separate controller
-    private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
 
     @FXML
     private Label idLabel;
@@ -106,7 +96,7 @@ public class PersonEditDialog extends BaseUiPart {
         setTags(tags, new ArrayList<>(initialData.getObservableTagList()));
     }
 
-    private void setEscKeyToDismiss(Scene scene) { //TODO: move to a new parent class BaseDialogView
+    private void setEscKeyToDismiss(Scene scene) { //TODO: move to a new parent class BaseDialogUiPart
         scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
                 dialogStage.close();
@@ -168,39 +158,16 @@ public class PersonEditDialog extends BaseUiPart {
     }
 
     private void launchTagSelectionEditDialog() {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
-        try {
-            AnchorPane pane = loader.load();
+        TagSelectionEditDialogController tagEditDialog =
+                ViewLoader.loadView(dialogStage, new TagSelectionEditDialogController());
+        tagEditDialog.configure(dialogStage);
 
-            // Create the dialog Stage.
-            Stage dialogStage = new Stage();
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(dialogStage);
-            dialogStage.initStyle(StageStyle.TRANSPARENT);
+        //TODO: populate with existing tags
+        tagEditDialog.showAndWait();
 
-            Scene scene = new Scene(pane, Color.TRANSPARENT);
-            dialogStage.setScene(scene);
+        if (tagEditDialog.isOkClicked()) finalAssignedTags = tagEditDialog.getFinalAssignedTags();
+        tagList.setContent(getTagsVBox(finalAssignedTags));
 
-            TagSelectionEditDialogController controller = loader.getController();
-            controller.setTags(fullTagList, finalAssignedTags);
-            controller.setDialogStage(dialogStage);
-
-            dialogStage.showAndWait();
-
-            if (controller.isOkClicked()) finalAssignedTags = controller.getFinalAssignedTags();
-            tagList.setContent(getTagsVBox(finalAssignedTags));
-        } catch (IOException e) {
-            logger.warn("Error launching tag selection dialog: {}", e);
-
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.initOwner(dialogStage);
-            alert.setTitle("FXML Load Error");
-            alert.setHeaderText("Cannot load dialog for tag selection dialog");
-            alert.setContentText("IOException when trying to load " + FXML_TAG_SELECTION_EDIT_DIALOG);
-
-            alert.showAndWait();
-        }
     }
 
     public void setTags(List<Tag> tags, List<Tag> assignedTags) {
