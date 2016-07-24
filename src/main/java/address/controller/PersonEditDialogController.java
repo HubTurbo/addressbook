@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Dialog to edit details of a person.
@@ -188,7 +189,13 @@ public class PersonEditDialogController extends UiController {
      */
     @FXML
     protected void handleOk() {
-        if (!isInputValid()) return;
+
+        Optional<String> invalidityInfo = getInvalidityInfo();
+        if (invalidityInfo.isPresent()) {
+            showInvalidInputMessage(invalidityInfo.get());
+            return;
+        }
+
         finalPerson = Person.createPersonDataContainer();
         finalPerson.setFirstName(firstNameField.getText());
         finalPerson.setLastName(lastNameField.getText());
@@ -200,6 +207,17 @@ public class PersonEditDialogController extends UiController {
         finalPerson.setGithubUsername(githubUserNameField.getText());
         isOkClicked = true;
         view.close();
+    }
+
+    private void showInvalidInputMessage(String errorMessage) {
+        // Show the error message.
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.initOwner(view.getDialogStage());
+        alert.setTitle("Invalid Fields");
+        alert.setHeaderText("Please correct invalid fields");
+        alert.setContentText(errorMessage);
+
+        alert.showAndWait();
     }
 
 
@@ -220,7 +238,7 @@ public class PersonEditDialogController extends UiController {
      * 
      * @return true if the input is valid
      */
-    private boolean isInputValid() {
+    private Optional<String> getInvalidityInfo() {
         String errorMessage = "";
 
         if (!isFilled(firstNameField)) {
@@ -244,18 +262,9 @@ public class PersonEditDialogController extends UiController {
         }
 
         if (errorMessage.length() == 0) {
-            return true;
+            return Optional.empty();
         } else {
-            // Show the error message.
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.initOwner(view.getDialogStage());
-            alert.setTitle("Invalid Fields");
-            alert.setHeaderText("Please correct invalid fields");
-            alert.setContentText(errorMessage);
-            
-            alert.showAndWait();
-            
-            return false;
+            return Optional.of(errorMessage);
         }
     }
 
