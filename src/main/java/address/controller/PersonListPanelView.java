@@ -6,14 +6,15 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- * The View class for the {@link PersonListPanel}.
+ * The View class for the {@link PersonListPanelUiPart}.
  */
 public class PersonListPanelView extends BaseView{
+    public static final String FXML = "PersonListPanel.fxml";
     private VBox panel;
 
     @Override
     String getFxmlFileName() {
-        return "PersonListPanel.fxml";
+        return FXML;
     }
 
     public PersonListPanelView(Stage primaryStage, AnchorPane pane) {

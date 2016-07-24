@@ -8,15 +8,15 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 /**
- * The Person List Panel in the UI.
+ * The PersonListPanel part in the main Window.
  */
-public class PersonListPanel extends BaseUiPart {
+public class PersonListPanelUiPart extends BaseUiPart {
 
     private PersonListPanelView view;
     private PersonListPanelController controller;
 
-    public PersonListPanel(Stage primaryStage, AnchorPane pane, Ui ui,
-                           ModelManager modelManager, UnmodifiableObservableList<ReadOnlyViewablePerson> personList) {
+    public PersonListPanelUiPart(Stage primaryStage, AnchorPane pane, Ui ui,
+                                 ModelManager modelManager, UnmodifiableObservableList<ReadOnlyViewablePerson> personList) {
         super(primaryStage);
         view = new PersonListPanelView(primaryStage, pane);
         controller = view.getLoader().getController();

@@ -28,7 +28,7 @@ public class MainWindowUiPart extends BaseUiPart{
     private MainWindowController controller;
 
     //Ui parts
-    private PersonListPanel personListPanel;
+    private PersonListPanelUiPart personListPanel;
 
     private ModelManager modelManager;
 
@@ -58,9 +58,9 @@ public class MainWindowUiPart extends BaseUiPart{
     /**
      * Shows the person list panel inside the root layout.
      */
-    public PersonListPanel createPersonListPanel() {
+    public PersonListPanelUiPart createPersonListPanel() {
         logger.debug("Loading person list panel.");
-        return new PersonListPanel(primaryStage, getPersonListSlot(), ui,
+        return new PersonListPanelUiPart(primaryStage, getPersonListSlot(), ui,
                                    modelManager, modelManager.getAllViewablePersonsReadOnly());
     }
 
