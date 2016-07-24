@@ -11,6 +11,8 @@ import javafx.stage.Stage;
  */
 public class PersonEditDialogView extends BaseView {
     private static final String ICON = "/images/edit.png";
+    public static final String TITLE = "Edit Person";
+    public static final String FXML = "PersonEditDialog.fxml";
     AnchorPane page;
     Stage dialogStage;
 
@@ -18,8 +20,12 @@ public class PersonEditDialogView extends BaseView {
         super(primaryStage);
         page = (AnchorPane)mainNode;
         Scene scene = new Scene(page);
-        dialogStage = loadDialogStage("Edit Person", primaryStage, scene);
+        dialogStage = loadDialogStage(TITLE, primaryStage, scene);
         setIcon(dialogStage, ICON);
+        setEscKeyToDismiss(scene);
+    }
+
+    private void setEscKeyToDismiss(Scene scene) { //TODO: move to a new parent class BaseDialogView
         scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
                 dialogStage.close();
@@ -29,8 +35,8 @@ public class PersonEditDialogView extends BaseView {
 
     @Override
     String getFxmlFileName() {
-        return "PersonEditDialog.fxml";
-    }
+        return FXML;
+    } //TODO: move to parent class
 
     public void showAndWait(){
         dialogStage.showAndWait();
