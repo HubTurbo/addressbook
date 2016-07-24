@@ -51,7 +51,6 @@ public class Ui{
     private static final String FXML_ACTIVITY_HISTORY = "/view/ActivityHistory.fxml";
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
-    private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
     private static final String FXML_TAG_LIST = "/view/TagList.fxml";
     private static final String FXML_BIRTHDAY_STATISTICS = "/view/BirthdayStatistics.fxml";
     private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
@@ -192,47 +191,7 @@ public class Ui{
         return loader;
     }
 
-    /**
-     * Opens a dialog to edit details for a Person object. If the user
-     * clicks OK, the input data is recorded in a new Person object and returned.
-     *
-     * @param initialData the person object determining the initial data in the input fields
-     * @param dialogTitle the title of the dialog shown
-     * @return an optional containing the new data, or an empty optional if there was an error
-     * creating the dialog or the user clicked cancel
-     */
-    public Optional<ReadOnlyPerson> getPersonDataInput(ReadOnlyPerson initialData, String dialogTitle) {
-        logger.debug("Loading dialog for person edit.");
-        final String fxmlResourcePath = FXML_PERSON_EDIT_DIALOG;
-        // Load the fxml file and create a new stage for the popup dialog.
-        FXMLLoader loader = loadFxml(fxmlResourcePath);
-        AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading person edit dialog");
 
-        Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage(dialogTitle, mainWindow.getPrimaryStage(), scene);
-        dialogStage.getIcons().add(getImage(ICON_EDIT));
-
-        scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ESCAPE) {
-                dialogStage.close();
-            }
-        });
-
-        // Pass relevant data into the controller.
-        PersonEditDialogController controller = loader.getController();
-        controller.setDialogStage(dialogStage);
-        controller.setInitialPersonData(initialData);
-        controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
-                new ArrayList<>(initialData.getObservableTagList()));
-
-        dialogStage.showAndWait();
-        if (controller.isOkClicked()) {
-            logger.debug("Person collected: " + controller.getEditedPerson().toString());
-            return Optional.of(controller.getEditedPerson());
-        } else {
-            return Optional.empty();
-        }
-    }
 
     public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
         FXMLLoader loader = new FXMLLoader();

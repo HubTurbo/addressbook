@@ -3,7 +3,9 @@ package address.controller;
 import address.MainApp; //TODO: remove this dependency
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -39,12 +41,25 @@ public abstract class BaseView {
         }
     }
 
+    protected Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle(value);
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        dialogStage.initOwner(primaryStage);
+        dialogStage.setScene(scene);
+        return dialogStage;
+    }
+
     protected Image getImage(String imagePath) {
         return new Image(MainApp.class.getResourceAsStream(imagePath));
     }
 
     protected void setIcon(String iconSource) {
         primaryStage.getIcons().add(getImage(iconSource));
+    }
+
+    protected void setIcon(Stage stage, String iconSource) {
+        stage.getIcons().add(getImage(iconSource));
     }
 
 }

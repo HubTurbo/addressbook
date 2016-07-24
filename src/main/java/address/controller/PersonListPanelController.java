@@ -27,12 +27,19 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Dialog to view the list of persons and their details
@@ -139,7 +146,7 @@ public class PersonListPanelController extends UiController{
     @FXML
     private void handleNewPerson() {
         modelManager.createPersonThroughUI(() ->
-                ui.getPersonDataInput(Person.createPersonDataContainer(), "New Person"));
+                getPersonDataInput(Person.createPersonDataContainer()));
     }
 
     /**
@@ -149,7 +156,7 @@ public class PersonListPanelController extends UiController{
     private void handleEditPerson() {
         if (checkAndHandleInvalidSelection()) {
             final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
-            modelManager.editPersonThroughUI(editTarget, () -> ui.getPersonDataInput(editTarget, "Edit Person"));
+            modelManager.editPersonThroughUI(editTarget, () -> getPersonDataInput(editTarget));
         }
     }
 
@@ -162,6 +169,40 @@ public class PersonListPanelController extends UiController{
             final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
             selected.forEach(modelManager::deletePersonThroughUI);
         }
+    }
+
+    /**
+     * Opens a dialog to edit details for a Person object. If the user
+     * clicks OK, the input data is recorded in a new Person object and returned.
+     *
+     * @param initialData the person object determining the initial data in the input fields
+     * @return an optional containing the new data, or an empty optional if there was an error
+     * creating the dialog or the user clicked cancel
+     */
+    public Optional<ReadOnlyPerson> getPersonDataInput(ReadOnlyPerson initialData) {
+        logger.debug("Loading dialog for person edit.");
+
+        PersonEditDialogUiPart editDialog = new PersonEditDialogUiPart(primaryStage, initialData,
+                                                          modelManager.getTagsAsReadOnlyObservableList());
+        return editDialog.getInput();
+
+
+
+
+        // Pass relevant data into the controller.
+        //PersonEditDialogController controller = loader.getController();
+//        controller.setDialogStage(dialogStage);
+//        controller.setInitialPersonData(initialData);
+//        controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
+//                new ArrayList<>(initialData.getObservableTagList()));
+
+//        dialogStage.showAndWait();
+//        if (controller.isOkClicked()) {
+//            logger.debug("Person collected: " + controller.getEditedPerson().toString());
+//            return Optional.of(controller.getEditedPerson());
+//        } else {
+//            return Optional.empty();
+//        }
     }
 
     /**

@@ -31,14 +31,4 @@ public class HelpWindowView extends BaseView{
         dialogStage.showAndWait();
     }
 
-    private Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {
-        Stage dialogStage = new Stage();
-        dialogStage.setTitle(value);
-        dialogStage.initModality(Modality.WINDOW_MODAL);
-        dialogStage.initOwner(primaryStage);
-        dialogStage.setScene(scene);
-        return dialogStage;
-    }
-
-
 }
