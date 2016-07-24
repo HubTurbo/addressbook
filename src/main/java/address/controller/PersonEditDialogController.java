@@ -148,6 +148,25 @@ public class PersonEditDialogController extends UiController {
         }
     }
 
+    public void setTags(List<Tag> tags, List<Tag> assignedTags) {
+        this.fullTagList = tags;
+        this.finalAssignedTags = assignedTags;
+        tagList.setContent(getTagsVBox(assignedTags));
+    }
+
+
+    private VBox getTagsVBox(List<Tag> contactTagList) {
+        VBox content = new VBox();
+        contactTagList.stream()
+                .forEach(contactTag -> {
+                    Label newLabel = new Label(contactTag.getName());
+                    newLabel.setPrefWidth(261);
+                    content.getChildren().add(newLabel);
+                });
+
+        return content;
+    }
+
     /**
      * Sets the initial placeholder data in the dialog fields
      */
@@ -161,12 +180,6 @@ public class PersonEditDialogController extends UiController {
         birthdayField.setText(person.birthdayString());
         birthdayField.setPromptText("dd.mm.yyyy");
         githubUserNameField.setText(person.getGithubUsername());
-    }
-
-    public void setTags(List<Tag> tags, List<Tag> assignedTags) {
-        this.fullTagList = tags;
-        this.finalAssignedTags = assignedTags;
-        tagList.setContent(getTagsVBox(assignedTags));
     }
 
     /**
@@ -189,17 +202,6 @@ public class PersonEditDialogController extends UiController {
         view.close();
     }
 
-    private VBox getTagsVBox(List<Tag> contactTagList) {
-        VBox content = new VBox();
-        contactTagList.stream()
-                .forEach(contactTag -> {
-                    Label newLabel = new Label(contactTag.getName());
-                    newLabel.setPrefWidth(261);
-                    content.getChildren().add(newLabel);
-                });
-
-        return content;
-    }
 
     public Person getEditedPerson() {
         return finalPerson;
