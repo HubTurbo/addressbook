@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Created by damithch on 7/24/2016.
+ * The Person Edit Dialog.
  */
 public class PersonEditDialogUiPart extends BaseUiPart {
     private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialogUiPart.class);
@@ -23,7 +23,7 @@ public class PersonEditDialogUiPart extends BaseUiPart {
         view = new PersonEditDialogView(primaryStage);
         controller = view.getLoader().getController();
 
-        controller.setDialogStage(view.getDialogStage());
+        controller.setView(view);
         controller.setInitialPersonData(initialData);
         controller.setTags(tags, new ArrayList<>(initialData.getObservableTagList()));
     }

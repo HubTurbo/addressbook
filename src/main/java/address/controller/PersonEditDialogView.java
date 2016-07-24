@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 
 
 /**
- * Created by damithch on 7/24/2016.
+ * View part of the Person Edit Dialog.
  */
 public class PersonEditDialogView extends BaseView {
     private static final String ICON = "/images/edit.png";
@@ -38,5 +38,9 @@ public class PersonEditDialogView extends BaseView {
 
     public Stage getDialogStage() {
         return dialogStage;
+    }
+
+    public void close() {
+        dialogStage.close();
     }
 }

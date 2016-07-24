@@ -32,12 +32,14 @@ import java.util.List;
  *
  * Stage, initial person and available & assigned tags should be set before showing stage
  */
-public class PersonEditDialogController extends EditDialogController {
+public class PersonEditDialogController extends UiController {
 
     private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialogController.class);
     private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
     private static final String TOOLTIP_TAG_SELECTOR_SHORTCUT = "Shortcut + O";
     private static final String TOOLTIP_LAUNCH_TAG_SELECTOR = "Click to launch tag selector";
+    private PersonEditDialogView view;
+    private boolean isOkClicked = false;
 
     @FXML
     private Label idLabel;
@@ -119,7 +121,7 @@ public class PersonEditDialogController extends EditDialogController {
             // Create the dialog Stage.
             Stage dialogStage = new Stage();
             dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(this.dialogStage);
+            dialogStage.initOwner(view.getDialogStage());
             dialogStage.initStyle(StageStyle.TRANSPARENT);
 
             Scene scene = new Scene(pane, Color.TRANSPARENT);
@@ -137,7 +139,7 @@ public class PersonEditDialogController extends EditDialogController {
             logger.warn("Error launching tag selection dialog: {}", e);
 
             Alert alert = new Alert(AlertType.ERROR);
-            alert.initOwner(dialogStage);
+            alert.initOwner(view.getDialogStage());
             alert.setTitle("FXML Load Error");
             alert.setHeaderText("Cannot load dialog for tag selection dialog");
             alert.setContentText("IOException when trying to load " + FXML_TAG_SELECTION_EDIT_DIALOG);
@@ -184,7 +186,7 @@ public class PersonEditDialogController extends EditDialogController {
         finalPerson.setTags(finalAssignedTags);
         finalPerson.setGithubUsername(githubUserNameField.getText());
         isOkClicked = true;
-        dialogStage.close();
+        view.close();
     }
 
     private VBox getTagsVBox(List<Tag> contactTagList) {
@@ -208,7 +210,7 @@ public class PersonEditDialogController extends EditDialogController {
      */
     @FXML
     protected void handleCancel() {
-        dialogStage.close();
+        view.close();
     }
 
     /**
@@ -244,7 +246,7 @@ public class PersonEditDialogController extends EditDialogController {
         } else {
             // Show the error message.
             Alert alert = new Alert(AlertType.ERROR);
-            alert.initOwner(dialogStage);
+            alert.initOwner(view.getDialogStage());
             alert.setTitle("Invalid Fields");
             alert.setHeaderText("Please correct invalid fields");
             alert.setContentText(errorMessage);
@@ -259,4 +261,11 @@ public class PersonEditDialogController extends EditDialogController {
         return textField.getText() != null && textField.getText().length() != 0;
     }
 
+    public void setView(PersonEditDialogView view) {
+        this.view = view;
+    }
+
+    public boolean isOkClicked() {
+        return isOkClicked;
+    }
 }
