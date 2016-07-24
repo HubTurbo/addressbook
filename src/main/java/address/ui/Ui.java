@@ -29,10 +29,8 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
@@ -192,8 +190,8 @@ public class Ui{
     }
 
     public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
-        TagSelectionEditDialogController tagEditDialog =
-                ViewLoader.loadView(getPrimaryStage(), new TagSelectionEditDialogController());
+        TagSelectionEditDialog tagEditDialog =
+                ViewLoader.loadView(getPrimaryStage(), new TagSelectionEditDialog());
         tagEditDialog.configure(getPrimaryStage());
 
         tagEditDialog.setTags(modelManager.getTagsAsReadOnlyObservableList(),

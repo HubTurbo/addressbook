@@ -158,8 +158,8 @@ public class PersonEditDialog extends BaseUiPart {
     }
 
     private void launchTagSelectionEditDialog() {
-        TagSelectionEditDialogController tagEditDialog =
-                ViewLoader.loadView(dialogStage, new TagSelectionEditDialogController());
+        TagSelectionEditDialog tagEditDialog =
+                ViewLoader.loadView(dialogStage, new TagSelectionEditDialog());
         tagEditDialog.configure(dialogStage);
 
         //TODO: populate with existing tags

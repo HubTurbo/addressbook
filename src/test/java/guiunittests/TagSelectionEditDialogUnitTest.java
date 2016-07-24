@@ -1,7 +1,7 @@
 package guiunittests;
 
 import address.TestApp;
-import address.controller.TagSelectionEditDialogController;
+import address.controller.TagSelectionEditDialog;
 import address.model.datatypes.tag.Tag;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -33,7 +33,7 @@ public class TagSelectionEditDialogUnitTest extends ApplicationTest {
             FXMLLoader loader = new FXMLLoader(TestApp.class.getResource("/view/TagSelectionEditDialog.fxml"));
             AnchorPane baseNode = loader.load();
 
-            TagSelectionEditDialogController controller = loader.getController();
+            TagSelectionEditDialog controller = loader.getController();
 
             Tag tag1 = new Tag("enemies");
             Tag tag2 = new Tag("friends");

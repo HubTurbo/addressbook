@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  *
  * Stage, initially selected and full list of tags should be set before showing stage
  */
-public class TagSelectionEditDialogController extends BaseUiPart {
+public class TagSelectionEditDialog extends BaseUiPart {
     public static final String FXML = "TagSelectionEditDialog.fxml";
     protected boolean isOkClicked = false;
     private static final String TRANSITION_END = "end";
@@ -52,7 +52,7 @@ public class TagSelectionEditDialogController extends BaseUiPart {
     private ScaleTransition transition;
     private boolean hasPlayedClosingAnimation = false;
 
-    public TagSelectionEditDialogController(){
+    public TagSelectionEditDialog(){
         super();
     }
 
