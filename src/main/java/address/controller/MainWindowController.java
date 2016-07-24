@@ -11,9 +11,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 
 /**
- * The controller for the root layout. The root layout provides the basic
- * application layout containing a menu bar and space where other JavaFX
- * elements can be placed.
+ * The controller for the Main Window. Provides layout provides the basic application layout containing
+ * a menu bar and space where other JavaFX elements can be placed.
  */
 public class MainWindowController extends UiController {
     private static AppLogger logger = LoggerManager.getLogger(MainWindowController.class);
@@ -42,8 +41,7 @@ public class MainWindowController extends UiController {
     @FXML
     private void handleHelp() {
         logger.debug("Showing help page about the application.");
-        HelpWindow helpWindow = new HelpWindow(primaryStage);
-        helpWindow.show();
+        new HelpWindow(primaryStage).show();
     }
 
     /**
@@ -65,7 +63,7 @@ public class MainWindowController extends UiController {
         //TODO: remove dependency on mainApp by using an event
         mainApp.stop();
     }
-    
+
     /**
      * Opens the birthday statistics.
      */

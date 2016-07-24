@@ -14,18 +14,20 @@ import javafx.stage.Stage;
  * The View class for the MainWindowUiPart.
  */
 public class MainWindowView extends BaseView{
-
-    public static final String PERSON_LIST_PANEL_ID = "#personListPanel";
     private static final AppLogger logger = LoggerManager.getLogger(MainWindowView.class);
-    private static final String ICON_LOCATION = "/images/address_book_32.png";
+
+    public static final String PERSON_LIST_PANEL_PLACEHOLDER_ID = "#personListPanel";
     public static final int MIN_HEIGHT = 600;
     public static final int MIN_WIDTH = 450;
+    private static final String ICON = "/images/address_book_32.png";
+    private static final String FXML = "MainWindow.fxml";
+
     private VBox rootLayout;
     private Scene scene;
 
     @Override
     String getFxmlFileName() {
-        return "MainWindow.fxml";
+        return FXML;
     }
 
     public MainWindowView(Stage primaryStage, String appTitle, UserPrefs prefs) {
@@ -38,7 +40,7 @@ public class MainWindowView extends BaseView{
 
     public void createMainWindow(String appTitle, UserPrefs prefs) {
         setTitle(appTitle);
-        setIcon(ICON_LOCATION);
+        setIcon(ICON);
         setStageMinSize();
         setStageDefaultSize(prefs);
     }
@@ -53,7 +55,7 @@ public class MainWindowView extends BaseView{
     }
 
     public AnchorPane getPersonListSlot() {
-        return getAnchorPane(PERSON_LIST_PANEL_ID);
+        return getAnchorPane(PERSON_LIST_PANEL_PLACEHOLDER_ID);
     }
 
     private void setTitle(String appTitle) {
