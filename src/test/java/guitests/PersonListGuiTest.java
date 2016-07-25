@@ -42,7 +42,7 @@ public class PersonListGuiTest extends GuiTestBase {
         personListPanel.clickOnListView();
         //drag the person at the middle and drop at the bottom
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
-        personListPanel.cornerDrag(td.charlie.getFirstName(), VerticalDirection.DOWN, 5, TimeUnit.SECONDS);
+        personListPanel.scrollDrag(td.charlie.getFirstName(), VerticalDirection.DOWN, 5, TimeUnit.SECONDS);
         assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.dan, td.elizabeth, td.charlie));
     }
 

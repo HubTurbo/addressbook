@@ -300,13 +300,13 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     /**
-     * Drags card to the top or bottom corner of the listview.
+     * Drags card to the top or bottom edge of the listview to activate auto scrolling.
      * @param dragFrom The text which identify the card to be dragged.
      * @param direction To the top or bottom edge of the listview.
      * @param dragDuration Drag duration
      * @param timeunit Timeunit for the duration.
      */
-    public void cornerDrag(String dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
+    public void scrollDrag(String dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
         switch (direction) {
             case UP:
                 double edgeMinY = TestUtil.getScreenPos(getListView()).getMinY()

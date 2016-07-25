@@ -25,8 +25,6 @@ public class FullSystemTest extends GuiTestBase {
         assertEquals("colleagues", newTagDialog.getTagName());
         newTagDialog.clickOk();
 
-        mainGui.focusOnMainApp();
-
         //Edit Hans Muster to John Tan, and edit details
         personListPanel.clickOnPerson("Muster");
         assertTrue(personListPanel.isSelected("Hans", "Muster"));
@@ -60,7 +58,6 @@ public class FullSystemTest extends GuiTestBase {
         EditPersonDialogHandle newPersonDialog = personListPanel.clickNew();
         newPersonDialog.enterFirstName("Ming").clickOk();
         newPersonDialog.dissmissErrorMessage("Invalid Fields");
-        newPersonDialog.focusOnSelf();
         newPersonDialog.enterLastName("Lee");
         newPersonDialog.clickOk();
         assertTrue(personListPanel.contains("Ming", "Lee"));

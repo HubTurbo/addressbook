@@ -135,6 +135,7 @@ public class GuiHandle {
     public void dissmissErrorMessage(String errorDialogTitle) {
         focusOnWindow(errorDialogTitle);
         clickOk();
+        focusOnSelf();
     }
 
     protected String getTextFromLabel(String fieldId, Node parentNode) {

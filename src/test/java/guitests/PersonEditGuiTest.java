@@ -149,7 +149,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(pandaWongCardHandle, pandaWong);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
-        
+
         //Ensure cancel operation has no side effects after grace period.
         sleepForGracePeriod();
         assertNull(personListPanel.getPersonCardHandle(pandaWong));

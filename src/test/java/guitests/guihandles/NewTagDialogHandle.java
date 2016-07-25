@@ -23,4 +23,27 @@ public class NewTagDialogHandle extends GuiHandle {
         typeTextField(TAG_NAME_FIELD_ID, tagName);
     }
 
+    @Override
+    public void pressEnter() {
+        super.pressEnter();
+        focusOnMainApp();
+    }
+
+    @Override
+    protected void pressEsc() {
+        super.pressEsc();
+        focusOnMainApp();
+    }
+
+    @Override
+    public void clickOk() {
+        super.clickOk();
+        focusOnMainApp();
+    }
+
+    @Override
+    public void clickCancel() {
+        super.clickCancel();
+        focusOnMainApp();
+    }
 }
