@@ -33,6 +33,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.util.List;
 import java.util.Objects;
@@ -99,9 +100,21 @@ public class PersonListPanel extends BaseUiPart {
         filteredPersonList.setPredicate(fce.filterExpression::satisfies);
     }
 
-    public void configure(Ui ui, ModelManager modelManager,
-                          ObservableList<ReadOnlyViewablePerson> personList){
+    public static PersonListPanel load(Stage primaryStage, AnchorPane personListPlaceholder,
+                                       Ui ui, ModelManager modelManager) {
+        logger.debug("Loading person list panel.");
+        PersonListPanel personListPanel =
+                UiPartLoader.loadUiPart(primaryStage, personListPlaceholder, new PersonListPanel());
+        personListPanel.configure(ui, modelManager, modelManager.getAllViewablePersonsReadOnly());
+        return personListPanel;
+    }
+
+    private void configure(Ui ui, ModelManager modelManager, ObservableList<ReadOnlyViewablePerson> personList){
         setConnections(ui, modelManager, personList);
+        addToPlaceholder();
+    }
+
+    private void addToPlaceholder() {
         SplitPane.setResizableWithParent(placeHolderPane, false);
         placeHolderPane.getChildren().add(panel);
     }

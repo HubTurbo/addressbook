@@ -95,19 +95,8 @@ public class MainWindow extends BaseUiPart {
     }
 
     public void fillInnerParts() {
-        createPersonListPanel();
+        personListPanel = PersonListPanel.load(primaryStage, getPersonListPlaceholder(), ui, modelManager);
         //TODO: more to be added here (i.e. headerStatusBar, footerStatusBar etc.)
-    }
-
-    /**
-     * Shows the person list panel inside the main Window.
-     */
-    public PersonListPanel createPersonListPanel() {
-        logger.debug("Loading person list panel.");
-        PersonListPanel personListPanel =
-                UiPartLoader.loadUiPart(primaryStage, getPersonListPlaceholder(), new PersonListPanel());
-        personListPanel.configure(ui, modelManager, modelManager.getAllViewablePersonsReadOnly());
-        return personListPanel;
     }
 
     public void hide() {
