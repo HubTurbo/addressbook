@@ -72,8 +72,8 @@ public class PersonEditGuiTest extends GuiTestBase {
     @Test
     public void editPerson_usingContextMenu() {
         personListPanel.rightClickOnPerson(td.alice);
-        EditPersonDialogHandle editPersonDialog = personListPanel.clickOnContextMenu(
-                                                                          PersonListPanelHandle.ContextMenuChoice.EDIT);
+        EditPersonDialogHandle editPersonDialog =
+                personListPanel.clickOnContextMenu(PersonListPanelHandle.ContextMenuChoice.EDIT);
         assertTrue(editPersonDialog.isValidEditDialog());
     }
 
@@ -135,8 +135,6 @@ public class PersonEditGuiTest extends GuiTestBase {
                 .withStreet("Chengdu Panda Street").withCity("Chengdu").withPostalCode("PANDA")
                 .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
         addPersonDialog.enterNewValues(pandaWong).clickOk();
-
-        //personListPanel.clickOnListView(); // To ensure shortcut keys work properly.
 
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
         PersonCardHandle pandaWongCardHandle = personListPanel.getPersonCardHandle(pandaWong);

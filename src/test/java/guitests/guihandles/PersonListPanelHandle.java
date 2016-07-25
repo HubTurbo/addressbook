@@ -100,13 +100,12 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public void use_PERSON_CHANGE_CANCEL_ACCELERATOR() {
-        clickOnListView();
+
         guiRobot.push(new Bindings().PERSON_CANCEL_COMMAND_ACCELERATOR);
         guiRobot.sleep(1000);
     }
 
     public void use_LIST_JUMP_TO_INDEX_SHORTCUT(int index) {
-        clickOnListView();
         switch (index) {
             case 1:
                 guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT1}));
@@ -141,47 +140,39 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public void use_LIST_GOTO_BOTTOM_SEQUENCE() {
-        clickOnListView();
         guiRobot.pushKeySequence(new Bindings().LIST_GOTO_BOTTOM_SEQUENCE);
     }
 
     public void use_LIST_GOTO_TOP_SEQUENCE() {
-        clickOnListView();
         guiRobot.pushKeySequence(new Bindings().LIST_GOTO_TOP_SEQUENCE);
     }
 
     public void use_PERSON_DELETE_ACCELERATOR() {
-        clickOnListView();
         guiRobot.push(new Bindings().PERSON_DELETE_ACCELERATOR);
         guiRobot.sleep(1000);
     }
 
     public void navigateUp() {
-        clickOnListView();
         guiRobot.push(KeyCode.UP);
     }
 
     public void navigateDown() {
-        clickOnListView();
         guiRobot.push(KeyCode.DOWN);
     }
 
     public EditPersonDialogHandle use_PERSON_EDIT_ACCELERATOR() {
-        clickOnListView();
         guiRobot.push(new Bindings().PERSON_EDIT_ACCELERATOR);
         guiRobot.sleep(500);
         return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
     }
 
     public TagPersonDialogHandle use_PERSON_TAG_ACCELERATOR() {
-        clickOnListView();
         guiRobot.push(new Bindings().PERSON_TAG_ACCELERATOR);
         guiRobot.sleep(500);
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
     public void clickOnPerson(Person person) {
-
         guiRobot.clickOn(person.getFirstName());
     }
 
