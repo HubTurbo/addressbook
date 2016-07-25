@@ -1,18 +1,30 @@
 package guitests.guihandles;
 
 
+import address.TestApp;
 import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.testutil.TestUtil;
+import address.ui.PersonListViewCell;
 import guitests.GuiRobot;
+import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.geometry.Point2D;
+import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.PickResult;
 import javafx.stage.Stage;
-import org.testfx.api.FxRobot;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Provides a handle for the panel containing the person list.
@@ -24,9 +36,14 @@ public class PersonListPanelHandle extends GuiHandle {
     private static final String FILTER_FIELD_ID = "#filterField";
     private static final String PERSON_LIST_VIEW_ID = "#personListView";
     private static final String NEW_BUTTON_ID = "#newButton"; //TODO: convert to constants
+    private static final String EDIT_BUTTON_ID = "#editButton";
+
+    public enum ContextMenuChoice {
+        EDIT, TAG, DELETE, CANCEL;
+    }
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage);
+        super(guiRobot, primaryStage, TestApp.APP_TITLE);
     }
 
     public void use_LIST_ENTER_SHORTCUT() {
@@ -37,12 +54,16 @@ public class PersonListPanelHandle extends GuiHandle {
         return getListView().getItems().stream().anyMatch(p -> p.hasName(firstName, lastName));
     }
 
+    public boolean contains(Person person) {
+        return this.contains(person.getFirstName(), person.getLastName());
+    }
+
     public boolean isSelected(String firstName, String lastName) {
         return getSelectedPerson().hasName(firstName, lastName);
     }
 
     public boolean isSelected(Person person) {
-        return getSelectedPerson().hasName(person.getFirstName(), person.getLastName());
+        return this.isSelected(person.getFirstName(), person.getLastName());
     }
 
     public ReadOnlyViewablePerson getSelectedPerson() {
@@ -54,38 +75,60 @@ public class PersonListPanelHandle extends GuiHandle {
         return (ListView<ReadOnlyViewablePerson>) getNode(PERSON_LIST_VIEW_ID);
     }
 
+    /**
+     * Clicks on the middle of the Listview.
+     * In order for headfull testing to work in travis ci, listview needs to be clicked before firing hot keys.
+     */
+    public void clickOnListView() {
+        Point2D point= TestUtil.getScreenMidPoint(getListView());
+        guiRobot.clickOn(point.getX(), point.getY());
+    }
+
+    /**
+     * Fires ContextMenuEvent which shows a contextmenu in the middle of the Listview.
+     */
+    private void fireContextMenuEvent() {
+        Point2D screenPoint = TestUtil.getScreenMidPoint(getListView());
+        Point2D scenePoint = TestUtil.getSceneMidPoint(getListView());
+        Event event = new ContextMenuEvent(ContextMenuEvent.CONTEXT_MENU_REQUESTED, scenePoint.getX(), scenePoint.getY(),
+                                           screenPoint.getX(), screenPoint.getY(), false,
+                                           new PickResult(getListView(), screenPoint.getX(), screenPoint.getY()));
+        guiRobot.interact(() -> Event.fireEvent(getListView(), event));
+    }
+
     public void use_PERSON_CHANGE_CANCEL_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_CANCEL_COMMAND_ACCELERATOR);
+        guiRobot.sleep(1000);
     }
 
     public void use_LIST_JUMP_TO_INDEX_SHORTCUT(int index) {
         switch (index) {
             case 1:
-                guiRobot.push(KeyCode.SHORTCUT, KeyCode.DIGIT1);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT1}));
                 break;
             case 2:
-                guiRobot.push(KeyCode.SHORTCUT, KeyCode.DIGIT2);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT2}));
                 break;
             case 3:
-                guiRobot.push(KeyCode.SHORTCUT, KeyCode.DIGIT3);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT3}));
                 break;
             case 4:
-                guiRobot.push(KeyCode.SHORTCUT, KeyCode.DIGIT4);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT4}));
                 break;
             case 5:
-                guiRobot.push(KeyCode.SHORTCUT, KeyCode.DIGIT5);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT5}));
                 break;
             case 6:
-                guiRobot.push(KeyCode.SHORTCUT, KeyCode.DIGIT6);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT6}));
                 break;
             case 7:
-                guiRobot.push(KeyCode.SHORTCUT, KeyCode.DIGIT7);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT7}));
                 break;
             case 8:
-                guiRobot.push(KeyCode.SHORTCUT, KeyCode.DIGIT8);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT8}));
                 break;
             case 9:
-                guiRobot.push(KeyCode.SHORTCUT, KeyCode.DIGIT9);
+                guiRobot.push(TestUtil.scrub(new KeyCode[]{KeyCode.SHORTCUT, KeyCode.DIGIT9}));
                 break;
             default:
                 throw new RuntimeException("Unsupported shortcut");
@@ -102,10 +145,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public void use_PERSON_DELETE_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_DELETE_ACCELERATOR);
-    }
-
-    public FxRobot waitForGracePeriodToExpire() {
-        return guiRobot.sleep(4000);//TODO: tie the sleep duration to the actual grace period and implement a polling wait
+        guiRobot.sleep(1000);
     }
 
     public void navigateUp() {
@@ -119,18 +159,55 @@ public class PersonListPanelHandle extends GuiHandle {
     public EditPersonDialogHandle use_PERSON_EDIT_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_EDIT_ACCELERATOR);
         guiRobot.sleep(500);
-        guiRobot.targetWindow(EditPersonDialogHandle.TITLE);
-        return new EditPersonDialogHandle(guiRobot, primaryStage);
+        return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
     }
 
     public TagPersonDialogHandle use_PERSON_TAG_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_TAG_ACCELERATOR);
         guiRobot.sleep(500);
+
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
     public void clickOnPerson(Person person) {
+
         guiRobot.clickOn(person.getFirstName());
+    }
+
+    /**
+     * Right click on Person to show context menu.
+     * @param person
+     */
+    public void rightClickOnPerson(Person person) {
+        //Instead of using guiRobot.rightCickOn(), We will be firing off contextmenu request manually.
+        //As there is a bug in monocle that doesn't show contextmenu by actual right clicking.
+        //Refer to https://github.com/TestFX/Monocle/issues/12
+        clickOnPerson(person);
+        fireContextMenuEvent();
+    }
+
+    /**
+     * Clicks on the context menu.
+     * @param choice The item in the context menu that is to be clicked.
+     * @return TODO: handle other return type also.
+     */
+    public EditPersonDialogHandle clickOnContextMenu(ContextMenuChoice choice) {
+        switch (choice) {
+            case EDIT:
+                clickOn("#editMenuItem");
+                guiRobot.sleep(500);
+                return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
+            case TAG:
+                clickOn("#tagMenuItem");
+                break;
+            case DELETE:
+                clickOn("#deleteMenuItem");
+                break;
+            case CANCEL:
+                clickOn("#cancelMenuItem");
+                break;
+        }
+        return null;
     }
 
     public void clickOnPerson(String personName) {
@@ -145,14 +222,107 @@ public class PersonListPanelHandle extends GuiHandle {
         return getTextFieldText(FILTER_FIELD_ID);
     }
 
+    /**
+     * Clicks the New button, which will open the edit dialog for creating new person.
+     * @return The EditPersonDialogHandle handler.
+     */
     public EditPersonDialogHandle clickNew() {
         guiRobot.clickOn(NEW_BUTTON_ID);
         guiRobot.sleep(500);
-        return new EditPersonDialogHandle(guiRobot, primaryStage);
+        return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.ADD_TITLE);
     }
 
+    /**
+     * Clicks the Edit button, which will open the edit dialog.
+     * @return The EditPersonDialogHandle handler.
+     */
+    public EditPersonDialogHandle clickEdit() {
+        guiRobot.clickOn(EDIT_BUTTON_ID);
+        guiRobot.sleep(500);
+        return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
+    }
+
+    /**
+     * Drag and drop the person card.
+     * @param firstNameOfPersonToDrag The text which identify the card to be dragged.
+     * @param firstNameOfPersonToDropOn The text which identify the card to be dropped on top of.
+     */
     public void dragAndDrop(String firstNameOfPersonToDrag, String firstNameOfPersonToDropOn) {
         guiRobot.drag(firstNameOfPersonToDrag).dropTo(firstNameOfPersonToDropOn);
+    }
+
+    /**
+     * Drags the person cards outside of the listview.
+     * @param listOfPersonsToDrag The texts which identify the cards to be dragged.
+     */
+    public void dragOutsideList(List<String> listOfPersonsToDrag) {
+        double posY = TestUtil.getScenePos(getListView()).getMaxY() - 50;
+        double posX = TestUtil.getScenePos(getListView()).getMaxX() + 100;
+        guiRobot.press(KeyCode.SHORTCUT);
+        listOfPersonsToDrag.stream().forEach(p -> guiRobot.clickOn(p));
+        guiRobot.release(KeyCode.SHORTCUT);
+        guiRobot.drag(listOfPersonsToDrag.get(listOfPersonsToDrag.size() - 1))
+                .dropTo(posX, posY);
+    }
+
+    /**
+     * Drag card outside of the listview.
+     * @param personToDrag The text which identify the card to be dragged.
+     */
+    public void dragOutsideList(String personToDrag) {
+        double posY = TestUtil.getScenePos(getListView()).getMaxY() - 50;
+        double posX = TestUtil.getScenePos(getListView()).getMaxX() + 100;
+        guiRobot.drag(personToDrag).dropTo(posX, posY);
+    }
+
+    /**
+     * Drag card outside of the Test App.
+     * @param personToDrag The text which identify the card to be dragged.
+     */
+    public void dragOutsideApp(String personToDrag) {
+        double x = TestUtil.getSceneMaxX(this.primaryStage.getScene()) + 10;
+        double y = TestUtil.getSceneMaxY(this.primaryStage.getScene()) + 10;
+        guiRobot.drag(personToDrag).dropTo(x, y);
+    }
+
+    /**
+     * Drags cards outside of the Test App.
+     * @param listOfPersonsToDrag The texts which identify the cards to be dragged.
+     */
+    public void dragOutsideApp(List<String> listOfPersonsToDrag) {
+        double x = TestUtil.getSceneMaxX(this.primaryStage.getScene()) + 10;
+        double y = TestUtil.getSceneMaxY(this.primaryStage.getScene()) + 10;
+        guiRobot.press(KeyCode.SHORTCUT);
+        listOfPersonsToDrag.stream().forEach(p -> guiRobot.clickOn(p));
+        guiRobot.release(KeyCode.SHORTCUT);
+        guiRobot.drag(listOfPersonsToDrag.get(listOfPersonsToDrag.size() -1))
+                .dropTo(x, y);
+    }
+
+    /**
+     * Drags card to the top or bottom edge of the listview to activate auto scrolling.
+     * @param dragFrom The text which identify the card to be dragged.
+     * @param direction To the top or bottom edge of the listview.
+     * @param dragDuration Drag duration
+     * @param timeunit Timeunit for the duration.
+     */
+    public void scrollDrag(String dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
+        switch (direction) {
+            case UP:
+                double edgeMinY = TestUtil.getScreenPos(getListView()).getMinY()
+                        + PersonListViewCell.SCROLL_AREA / 2 - 3;
+                double edgeMinX = TestUtil.getScreenPos(getListView()).getMinX()
+                        + this.getListView().getWidth() / 2;
+                guiRobot.drag(dragFrom).drag(edgeMinX, edgeMinY).sleep(dragDuration, timeunit).drop();
+                break;
+            case DOWN:
+                double edgeMaxY = TestUtil.getScreenPos(getListView()).getMaxY()
+                        - PersonListViewCell.SCROLL_AREA / 2;
+                double edgeMaxX = TestUtil.getScreenPos(getListView()).getMinX()
+                        + this.getListView().getWidth() / 2;
+                guiRobot.drag(dragFrom).drag(edgeMaxX, edgeMaxY).sleep(dragDuration, timeunit).drop();
+                break;
+        }
     }
 
     /**
@@ -163,6 +333,10 @@ public class PersonListPanelHandle extends GuiHandle {
         int indexOfFirstPerson = getPersonIndex(persons[0]);
         if(indexOfFirstPerson == NOT_FOUND) return false;
         return containsInOrder(indexOfFirstPerson, persons);
+    }
+
+    public void clearSelection() {
+        getListView().getSelectionModel().clearSelection();
     }
 
     /**
@@ -178,8 +352,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
         //Return false if any of the persons doesn't match
         for (int i = 0; i < persons.length; i++) {
-            if (!personsInList.get(startPosition + i).getFirstName().equals(persons[i].getFirstName())){
-                //TODO: use a stronger check (not the the first name
+            if (!personsInList.get(startPosition + i).fullName().equals(persons[i].fullName())){
                 return false;
             }
         }
@@ -200,21 +373,61 @@ public class PersonListPanelHandle extends GuiHandle {
         return NOT_FOUND;
     }
 
+    public PersonCardHandle getPersonCardHandle(int index) {
+        return getPersonCardHandle(new Person(getListView().getItems().get(index)));
+    }
+
+    /**
+     * Checks if the list is showing the person details correctly and in correct order.
+     * @param startPosition The starting position of the sub list.
+     * @param persons A list of person in the correct order.
+     * @return
+     */
+    public boolean isListMatching(int startPosition, Person... persons) {
+        this.containsInOrder(startPosition, persons);
+        for (int i = 0; i < persons.length; i++) {
+            use_LIST_JUMP_TO_INDEX_SHORTCUT(i + 1 + startPosition);
+            if (!getPersonCardHandle(startPosition + i).equals(persons[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if the list is showing the person details correctly and in correct order.
+     * @param persons A list of person in the correct order.
+     * @return
+     */
+    public boolean isListMatching(Person... persons) {
+        return this.isListMatching(0, persons);
+    }
+
     public PersonCardHandle getPersonCardHandle(Person person){
         Set<Node> nodes = getAllCardNodes();
-        Node personCardNode = nodes.stream()
+        Optional<Node> personCardNode = nodes.stream()
                 .filter( (n) -> new PersonCardHandle(guiRobot, primaryStage, n).isSamePerson(person))
-                .findFirst().get();
-        return new PersonCardHandle(guiRobot, primaryStage, personCardNode);
+                .findFirst();
+        if (personCardNode.isPresent()) {
+            return new PersonCardHandle(guiRobot, primaryStage, personCardNode.get());
+        } else {
+            return null;
+        }
+    }
+
+    public PersonCardHandle selectCard(Person person) {
+        clickOnPerson(person);
+        guiRobot.sleep(500);
+        return getPersonCardHandle(person);
     }
 
     protected Set<Node> getAllCardNodes() {
         return guiRobot.lookup(CARD_PANE_ID).queryAll();
     }
 
-
     public List<PersonCardHandle> getSelectedCards() {
-        //TODO: implement this
-        throw new RuntimeException("Not implemented");
+        ObservableList<ReadOnlyViewablePerson> persons = getListView().getSelectionModel().getSelectedItems();
+        return persons.stream().map(p -> getPersonCardHandle(new Person(p)))
+                               .collect(Collectors.toCollection(ArrayList::new));
     }
 }

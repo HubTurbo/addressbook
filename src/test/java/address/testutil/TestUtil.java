@@ -10,19 +10,26 @@ import address.storage.StorageAddressBook;
 import address.sync.cloud.model.CloudAddressBook;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
+import com.google.common.io.Files;
 import commons.FileUtil;
 import commons.OsDetector;
 import commons.XmlUtil;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import junit.framework.AssertionFailedError;
+import org.loadui.testfx.GuiTest;
 import org.testfx.api.FxToolkit;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -199,6 +206,15 @@ public class TestUtil {
         return keyCodes;
     }
 
+    public static void captureScreenShot(String fileName) {
+        File file = GuiTest.captureScreenshot();
+        try {
+            Files.copy(file, new File(fileName + ".png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static String descOnFail(Object... comparedObjects) {
         return "Comparison failed \n"
                 + Arrays.asList(comparedObjects).stream()
@@ -277,11 +293,61 @@ public class TestUtil {
         return method;
     }
 
+    public static void renameFile(File file, String newFileName) {
+        try {
+            Files.copy(file, new File(newFileName));
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    /**
+     * Gets mid point of a node relative to the screen.
+     * @param node
+     * @return
+     */
+    public static Point2D getScreenMidPoint(Node node) {
+        double x = getScreenPos(node).getMinX() + node.getLayoutBounds().getWidth() / 2;
+        double y = getScreenPos(node).getMinY() + node.getLayoutBounds().getHeight() / 2;
+        return new Point2D(x,y);
+    }
+
+    /**
+     * Gets mid point of a node relative to its scene.
+     * @param node
+     * @return
+     */
+    public static Point2D getSceneMidPoint(Node node) {
+        double x = getScenePos(node).getMinX() + node.getLayoutBounds().getWidth() / 2;
+        double y = getScenePos(node).getMinY() + node.getLayoutBounds().getHeight() / 2;
+        return new Point2D(x,y);
+    }
+
+    /**
+     * Gets the bound of the node relative to the parent scene.
+     * @param node
+     * @return
+     */
+    public static Bounds getScenePos(Node node) {
+        return node.localToScene(node.getBoundsInLocal());
+    }
+
+    public static Bounds getScreenPos(Node node) {
+        return node.localToScreen(node.getBoundsInLocal());
+    }
+
+    public static double getSceneMaxX(Scene scene) {
+        return scene.getX() + scene.getWidth();
+    }
+
+    public static double getSceneMaxY(Scene scene) {
+        return scene.getX() + scene.getHeight();
+    }
+
     public static String getOsDependentKeyCombinationString(String keyCombinationString) {
         if (!OsDetector.isOnMac()) return keyCombinationString;
         return keyCombinationString.replaceAll("Alt\\+", "⌥")
                 .replaceAll("Meta\\+", "⌘")
                 .replaceAll("Shift\\+", "⇧");
-
     }
 }

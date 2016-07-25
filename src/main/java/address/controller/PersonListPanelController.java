@@ -13,6 +13,7 @@ import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
+import address.keybindings.KeyBindingsManager;
 import address.parser.qualifier.TrueQualifier;
 import address.ui.PersonListViewCell;
 import address.util.collections.FilteredList;
@@ -207,14 +208,17 @@ public class PersonListPanelController extends UiController{
     }
 
     private ContextMenu createContextMenu() {
+        logger.debug("Creating context menu for listview card");
         final ContextMenu contextMenu = new ContextMenu();
 
         final MenuItem editMenuItem = initContextMenuItem("Edit",
                 getAcceleratorKeyCombo("PERSON_EDIT_ACCELERATOR").get(), this::handleEditPerson);
+        editMenuItem.setId(generateMenuItemId("edit"));
         editMenuItem.disableProperty().bind(shouldDisableEdit); // disable if multiple selected
 
         final MenuItem retryFailedMenuItem = initContextMenuItem("Retry",
                 getAcceleratorKeyCombo("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR").get(), this::handleRetryFailedCommands);
+        retryFailedMenuItem.setId(generateMenuItemId("retryFailed"));
         retryFailedMenuItem.visibleProperty().bind(shouldAllowRetry);
 
         contextMenu.getItems().addAll(
@@ -228,14 +232,20 @@ public class PersonListPanelController extends UiController{
                 retryFailedMenuItem
         );
         contextMenu.setId("personListContextMenu");
+        logger.debug("Context menu for listview card created: " + contextMenu.toString());
         return contextMenu;
     }
 
     private MenuItem initContextMenuItem(String name, KeyCombination accel, Runnable action) {
         final MenuItem menuItem = new MenuItem(name);
+        menuItem.setId(generateMenuItemId(name));
         menuItem.setAccelerator(accel);
         menuItem.setOnAction(e -> action.run());
         return menuItem;
+    }
+
+    private String generateMenuItemId(String menuItemName) {
+        return menuItemName.toLowerCase() + "MenuItem";
     }
 
     @Subscribe

@@ -1,12 +1,16 @@
 package guitests.guihandles;
 
-
+import address.TestApp;
+import address.util.AppLogger;
+import address.util.LoggerManager;
+import com.google.common.base.Optional;
 import guitests.GuiRobot;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.lang.reflect.Constructor;
 
@@ -16,10 +20,15 @@ import java.lang.reflect.Constructor;
 public class GuiHandle {
     protected final GuiRobot guiRobot;
     protected final Stage primaryStage;
+    protected final String stageTitle;
 
-    public GuiHandle(GuiRobot guiRobot, Stage primaryStage) {
+    private final AppLogger logger = LoggerManager.getLogger(this.getClass());
+
+    public GuiHandle(GuiRobot guiRobot, Stage primaryStage, String stageTitle) {
         this.guiRobot = guiRobot;
         this.primaryStage = primaryStage;
+        this.stageTitle = stageTitle;
+        focusOnSelf();
     }
 
     /**
@@ -28,11 +37,29 @@ public class GuiHandle {
     public <T> T as(Class<? extends GuiHandle> clazz) {
         try {
             Constructor<?> ctor = clazz.getConstructor(GuiRobot.class, Stage.class);
-            Object object = ctor.newInstance(new Object[] { guiRobot, primaryStage });
+            Object object = ctor.newInstance(new Object[] { guiRobot, primaryStage});
             return (T)object;
         } catch (Exception e) {
             throw new RuntimeException("Cannot create gui handle of type " + clazz.getName(), e);
         }
+    }
+
+    public void focusOnWindow(String stageTitle) {
+        logger.info("Focusing " + stageTitle);
+        java.util.Optional<Window> window = guiRobot.listTargetWindows()
+                .stream()
+                .filter(w
+                        -> w instanceof Stage
+                        && ((Stage) w).getTitle().equals(stageTitle)).findAny();
+
+        if(!window.isPresent()) {
+            logger.fatal("Can't find stage " + stageTitle + ", Therefore, aborting focusing");
+            return;
+        }
+
+        guiRobot.targetWindow(window.get());
+        guiRobot.interact(() -> window.get().requestFocus());
+        logger.info("Finishing focus " + stageTitle);
     }
 
     protected Node getNode(String query) {
@@ -59,14 +86,15 @@ public class GuiHandle {
      * @param newText
      */
     protected void typeTextField(String textFieldId, String newText) {
-        guiRobot.clickOn(textFieldId)
-                .push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1)
+        Optional<Node> nodeOptional = guiRobot.lookup(textFieldId).tryQuery();
+        guiRobot.interact(() -> nodeOptional.get().requestFocus());
+        guiRobot.push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1)
                 .write(newText)
         ;
     }
 
     public void pressEnter() {
-        guiRobot.type(KeyCode.ENTER);
+        guiRobot.type(KeyCode.ENTER).sleep(500);
     }
 
     protected void pressEsc() {
@@ -105,11 +133,20 @@ public class GuiHandle {
     }
 
     public void dissmissErrorMessage(String errorDialogTitle) {
-        guiRobot.targetWindow(errorDialogTitle);
+        focusOnWindow(errorDialogTitle);
         clickOk();
+        focusOnSelf();
     }
 
     protected String getTextFromLabel(String fieldId, Node parentNode) {
         return ((Label)guiRobot.from(parentNode).lookup(fieldId).tryQuery().get()).getText();
+    }
+
+    public void focusOnSelf() {
+        focusOnWindow(stageTitle);
+    }
+
+    public void focusOnMainApp() {
+        this.focusOnWindow(TestApp.APP_TITLE);
     }
 }

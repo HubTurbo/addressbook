@@ -1,7 +1,11 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
+import javafx.geometry.VerticalDirection;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 
@@ -31,8 +35,15 @@ public class PersonListGuiTest extends GuiTestBase {
         personListPanel.dragAndDrop(td.elizabeth.getFirstName(), td.alice.getFirstName());
         assertTrue(personListPanel.containsInOrder(td.charlie, td.benson, td.elizabeth, td.alice, td.dan));
 
+    }
+
+    @Test
+    public void dragAndDrop_edgeDragDown_listReordered() {
+        personListPanel.clickOnListView();
         //drag the person at the middle and drop at the bottom
-        //TODO: implement this
+        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
+        personListPanel.scrollDrag(td.charlie.getFirstName(), VerticalDirection.DOWN, 5, TimeUnit.SECONDS);
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.dan, td.elizabeth, td.charlie));
     }
 
     @Test
@@ -42,17 +53,21 @@ public class PersonListGuiTest extends GuiTestBase {
         personListPanel.dragAndDrop(td.charlie.getFirstName(), td.charlie.getFirstName());
         assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
 
-        //TODO: test for Dropping outside list
-    }
+        personListPanel.dragOutsideList(td.charlie.getFirstName());
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
 
-    @Test
-    public void dragAndDrop_multiplePersonCorrectDrag_listReordered() {
-        //TODO: implement this
+        personListPanel.dragOutsideApp(td.charlie.getFirstName());
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
     }
 
     @Test
     public void dragAndDrop_multiplePersonWrongDrag_listUnchanged() {
-        //TODO: implement this
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
+        personListPanel.dragOutsideList(Arrays.asList(new String[] {td.alice.getFirstName(), td.benson.getFirstName()}));
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
+        personListPanel.clearSelection();
+        personListPanel.dragOutsideApp(Arrays.asList(new String[] {td.alice.getFirstName(), td.benson.getFirstName()}));
+        assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.charlie, td.dan, td.elizabeth));
     }
 
 }

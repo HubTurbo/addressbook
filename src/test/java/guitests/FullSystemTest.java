@@ -3,9 +3,12 @@ package guitests;
 import guitests.guihandles.*;
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.*;
 
 public class FullSystemTest extends GuiTestBase {
+
     @Test
     public void scenarioOne() {
 
@@ -24,7 +27,6 @@ public class FullSystemTest extends GuiTestBase {
 
         //Edit Hans Muster to John Tan, and edit details
         personListPanel.clickOnPerson("Muster");
-        //personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(1);
         assertTrue(personListPanel.isSelected("Hans", "Muster"));
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         editPersonDialog.enterFirstName("John").enterLastName("Tan")
@@ -67,8 +69,8 @@ public class FullSystemTest extends GuiTestBase {
                 .as(NewTagDialogHandle.class);
         newTagDialog.enterTagName("company");
         newTagDialog.clickOk();
-        // assertTrue(manageTagsDialog.contains("company")); //TODO: implement the 'contains' method
-        manageTagsDialog.dismiss(); //TODO: this line doesn't seem to work in headless mode
+        assertTrue(manageTagsDialog.contains("company"));
+        manageTagsDialog.dismiss();
 
 
         // UNABLE to launch file chooser in mac's headless mode

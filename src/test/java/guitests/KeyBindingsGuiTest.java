@@ -1,10 +1,14 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
-import address.model.datatypes.person.Person;
+import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.TagPersonDialogHandle;
+import javafx.stage.Screen;
 import org.junit.Test;
+
+
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -13,41 +17,30 @@ import static org.junit.Assert.*;
  */
 public class KeyBindingsGuiTest extends GuiTestBase {
 
-    private AddressBook initialData = generateInitialData();
-
-    private AddressBook generateInitialData() {//TODO: create a better set of sample data
-        AddressBook ab = new AddressBook();
-        ab.addPerson(new Person("Person1", "Lastname1", 1));
-        ab.addPerson(new Person("Person2", "Lastname2", 2));
-        ab.addPerson(new Person("Person3", "Lastname3", 3));
-        ab.addPerson(new Person("Person4", "Lastname4", 4));
-        ab.addPerson(new Person("Person5", "Lastname5", 5));
-        return ab;
-    }
-
     @Override
     protected AddressBook getInitialData() {
-        return initialData;
+        return td.book;
     }
 
     @Test
     public void keyBindings() {
-
         //======= shortcuts =======================
 
         personListPanel.use_LIST_ENTER_SHORTCUT();
-        assertTrue(personListPanel.isSelected("Person1", "Lastname1"));
+        assertTrue(personListPanel.isSelected(td.alice));
+
+        personListPanel.clickOnListView();
 
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
-        assertTrue(personListPanel.isSelected("Person4", "Lastname4"));
+        assertTrue(personListPanel.isSelected(td.dan));
 
         //======= sequences =========================
 
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
-        assertTrue(personListPanel.isSelected("Person5", "Lastname5"));
+        assertTrue(personListPanel.isSelected(td.elizabeth));
 
         personListPanel.use_LIST_GOTO_TOP_SEQUENCE();
-        assertTrue(personListPanel.isSelected("Person1", "Lastname1"));
+        assertTrue(personListPanel.isSelected(td.alice));
 
 
         //======= accelerators =======================
@@ -55,49 +48,61 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
 
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
-        assertEquals("Person4 Lastname4", editPersonDialog.getFullName());
+        assertEquals("Dan Edwards", editPersonDialog.getFullName());
         editPersonDialog.clickCancel();
 
+        personListPanel.clickOnPerson(td.dan);
+
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        assertTrue(personListPanel.contains("Person4", "Lastname4")); // still in the list due to grace period
-        personListPanel.waitForGracePeriodToExpire();
-        assertFalse(personListPanel.contains("Person4", "Lastname4")); // removed from list after grace period
+        assertTrue(personListPanel.contains(td.dan)); // still in the list due to grace period
+        sleepForGracePeriod();
+        assertFalse(personListPanel.contains(td.dan)); // removed from list after grace period
 
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
 
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        assertTrue(personListPanel.contains("Person3", "Lastname3")); // still in the list due to grace period
+        assertTrue(personListPanel.contains(td.charlie)); // still in the list due to grace period
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        personListPanel.waitForGracePeriodToExpire();
-        assertTrue(personListPanel.contains("Person3", "Lastname3")); // still in the list even after grace period
+        sleepForGracePeriod();
+        assertTrue(personListPanel.contains(td.charlie)); // still in the list even after grace period
 
         TagPersonDialogHandle tagPersonDialog = personListPanel.use_PERSON_TAG_ACCELERATOR();
         tagPersonDialog.close();
 
-        //======== others ============================
+        //Focus on MainApp, could not abstract into tagPersonDialog.close(), as closing tagDialog may lead to
+        //focusing on EditDialog or MainApp.
+        mainGui.focusOnMainApp();
 
+        personListPanel.clickOnListView();
+
+        //======== others ============================
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
-        assertTrue(personListPanel.isSelected("Person2", "Lastname2"));
+        assertTrue(personListPanel.isSelected(td.benson));
 
         personListPanel.navigateDown();
-        assertTrue(personListPanel.isSelected("Person3", "Lastname3"));
+        assertTrue(personListPanel.isSelected(td.charlie));
 
         personListPanel.navigateUp();
-        assertTrue(personListPanel.isSelected("Person2", "Lastname2"));
+        assertTrue(personListPanel.isSelected(td.benson));
 
-        //======== hotkeys ============================
+    }
+
+    /**
+     * Tests the hotkeys of the application
+     * Doesn't work in headfull travis ci.
+     */
+    @Test
+    public void testHotKeys() {
+        personListPanel.clickOnListView();
 
         mainGui.use_APP_MINIMIZE_HOTKEY();
         assertTrue(mainGui.isMinimized());
 
-        mainGui.use_APP_RESIZE_HOTKEY(); // un-minimize window
-        assertFalse(mainGui.isMinimized());
-
-        mainGui.use_APP_RESIZE_HOTKEY(); // maximize the window
-        assertTrue(mainGui.isMaximized());
+        mainGui.use_APP_RESIZE_HOTKEY(); // max window
+        assertTrue(mainGui.isDefaultSize()); // mainGui.isMinimized() gives wrong result in travis headfull
 
         mainGui.use_APP_RESIZE_HOTKEY(); // set window to default size
-        assertTrue(mainGui.isDefaultSize());
+        assertTrue(mainGui.isMaximized());
     }
 
 

@@ -1,16 +1,20 @@
 package guitests.guihandles;
 
 import address.model.datatypes.person.Person;
+
 import commons.DateTimeUtil;
 import guitests.GuiRobot;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.time.LocalDate;
+import java.util.NoSuchElementException;
 
 public class EditPersonDialogHandle extends GuiHandle {
 
-    public static final String TITLE = "Edit Person";
-    private static final String FIRST_NAME_FIELD_ID = "#firstNameField";
+    public static final String EDIT_TITLE = "Edit Person";
+    public static final String ADD_TITLE = "New Person";
+    public static final String FIRST_NAME_FIELD_ID = "#firstNameField";
     private static final String LAST_NAME_FIELD_ID = "#lastNameField";
     private static final String STREET_FIELD_ID = "#streetField";
     private static final String CITY_FIELD_ID = "#cityField";
@@ -20,8 +24,24 @@ public class EditPersonDialogHandle extends GuiHandle {
     private static final String TAG_SEARCH_FIELD_ID = "#tagList";
     private static final String CANCEL_BUTTON_TEXT = "Cancel";
 
-    public EditPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage);
+    public EditPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage, String stageTitle) {
+        super(guiRobot, primaryStage, stageTitle);
+    }
+
+    public boolean isValidEditDialog() {
+        return getNode(FIRST_NAME_FIELD_ID) != null && getNode(LAST_NAME_FIELD_ID) != null
+               && getNode(STREET_FIELD_ID) != null && getNode(CITY_FIELD_ID) != null
+               && getNode(POSTAL_CODE_FIELD_ID) != null && getNode(BIRTHDAY_FIELD_ID) != null
+               && getNode(GITHUB_USER_NAME_FIELD_ID) != null && getNode(TAG_SEARCH_FIELD_ID) != null;
+    }
+
+    public boolean isInputValidationErrorDialogShown() {
+        try{
+            Window window = guiRobot.window("Invalid Fields");
+            return window != null && window.isShowing();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
     }
 
     public String getFirstName(){
@@ -101,5 +121,21 @@ public class EditPersonDialogHandle extends GuiHandle {
         tagPersonDialog.close();
     }
 
+    @Override
+    public void pressEnter() {
+        super.pressEnter();
+        focusOnMainApp();
+    }
 
+    @Override
+    protected void pressEsc() {
+        super.pressEsc();
+        focusOnMainApp();
+    }
+
+    @Override
+    public void clickOk() {
+        super.clickOk();
+        focusOnMainApp();
+    }
 }

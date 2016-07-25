@@ -24,6 +24,7 @@ public class TestApp extends MainApp {
     public static final String SAVE_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleData.xml");
     protected static final String DEFAULT_CLOUD_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleCloudData.xml");
     protected static final String DEFAULT_PREF_FILE_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("pref_testing.json");
+    public static final String APP_TITLE = "Test App";
     protected Supplier<ReadOnlyAddressBook> initialDataSupplier = () -> null;
     protected Supplier<CloudAddressBook> initialCloudDataSupplier = () -> null;
     protected String saveFileLocation = SAVE_LOCATION_FOR_TESTING;
@@ -50,7 +51,7 @@ public class TestApp extends MainApp {
     @Override
     protected Config initConfig(String configFilePath) {
         Config config = super.initConfig(configFilePath);
-        config.setAppTitle("Test App");
+        config.setAppTitle(APP_TITLE);
         config.setLocalDataFilePath(saveFileLocation);
         config.setPrefsFileLocation(new File(DEFAULT_PREF_FILE_LOCATION_FOR_TESTING));
         // Use default cloud test data if no data is supplied
@@ -84,6 +85,10 @@ public class TestApp extends MainApp {
         storageManager.start();
         syncManager.start();
         remote.start(primaryStage);
+    }
+
+    public Config getTestingConfig() {
+        return this.config;
     }
 
     public void deregisterHotKeys(){

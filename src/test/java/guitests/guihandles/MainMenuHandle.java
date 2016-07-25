@@ -1,5 +1,6 @@
 package guitests.guihandles;
 
+import address.TestApp;
 import guitests.GuiRobot;
 import javafx.stage.Stage;
 
@@ -10,7 +11,7 @@ import java.util.Arrays;
  */
 public class MainMenuHandle extends GuiHandle {
     public MainMenuHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage);
+        super(guiRobot, primaryStage, TestApp.APP_TITLE);
     }
 
     public GuiHandle clickOn(String... menuText) {

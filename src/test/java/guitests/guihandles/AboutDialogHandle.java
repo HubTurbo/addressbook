@@ -8,6 +8,6 @@ import javafx.stage.Stage;
  */
 public class AboutDialogHandle extends GuiHandle {
     public AboutDialogHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage);
+        super(guiRobot, primaryStage, "AddressApp");
     }
 }

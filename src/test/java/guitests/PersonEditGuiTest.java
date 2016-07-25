@@ -1,15 +1,18 @@
 package guitests;
 
+import address.model.ModelManager;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.testutil.PersonBuilder;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
+import guitests.guihandles.PersonListPanelHandle;
 import org.junit.Test;
 
-import static address.testutil.TestUtil.descOnFail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.util.concurrent.TimeUnit;
+
+import static junit.framework.TestCase.assertFalse;
+import static org.junit.Assert.*;
 
 /**
  * System tests for 'Edit person' feature.
@@ -26,7 +29,7 @@ public class PersonEditGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void editPerson() {
+    public void editPerson_usingAccelerator() {
 
         //Prepare new values for Alice
         Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
@@ -42,35 +45,116 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterNewValues(newAlice);
         editPersonDialog.pressEnter();
 
-        assertTrue(descOnFail(alicePersonCard, newAlice), alicePersonCard.isSamePerson(newAlice));
-        //TODO: write a more elegant function that uses assertEquals but compare two different types of objects
+        //Confirm pending state correctness
+        assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
 
-        //TODO: Confirm the right card is selected after the edit, as follows
-        //assertEquals(1, personListPanel.getSelectedCards().size();
-        //assertEquals(alicePersonCard, personListPanel.getSelectedCards().get(0);
+        //Confirm the right card is selected after the edit
+        assertEquals(alicePersonCard, newAlice);
+        assertTrue(personListPanel.isSelected(newAlice));
+
 
         //Confirm right values are displayed after grace period is over
-        guiRobot.sleep(5000); //wait for grace period
-        //TODO: link up to grace period
-        //TODO: confirm the person card display behave as expected during grace period
-        assertTrue(descOnFail(alicePersonCard, newAlice), alicePersonCard.isSamePerson(newAlice));
+        sleepForGracePeriod();
+        assertEquals(alicePersonCard, newAlice);
 
         //Confirm the underlying person object has the right values
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 
-        //TODO: confirm again after the next sync
-        //TODO: confirm other cards are unaffected
-        //TODO: confirm the right card is selected after the edit
-        //TODO: confirm status bar is updated correctly
 
+        //Confirm again after the next sync
+        sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
+        assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
+
+        //Confirm other cards are unaffected.
+        personListPanel.clickOnListView();
+        assertTrue(personListPanel.isListMatching(1, td.benson, td.charlie, td.dan, td.elizabeth));
+
+        //Confirm status bar is updated correctly
+        assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] completed successfully.");
     }
 
-    /* TODO:
-     * Test using 'Edit' context menu
-     * Test using 'Edit' button
-     * Test 'Cancel'
-     * Test 'OK'
-     * Test data validation (just one case)
-     */
+    @Test
+    public void editPerson_usingContextMenu() {
+        personListPanel.rightClickOnPerson(td.alice);
+        EditPersonDialogHandle editPersonDialog = personListPanel.clickOnContextMenu(
+                PersonListPanelHandle.ContextMenuChoice.EDIT);
+        assertTrue(editPersonDialog.isValidEditDialog());
+    }
 
+    @Test
+    public void editPerson_usingEditButton() {
+        personListPanel.clickOnPerson(td.alice);
+        EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
+        assertTrue(editPersonDialog.isValidEditDialog());
+    }
+
+    @Test
+    public void editPerson_dataValidation() {
+
+        personListPanel.clickOnPerson(td.alice);
+        EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
+        editPersonDialog.enterFirstName("Peter");
+        editPersonDialog.enterLastName("");
+        editPersonDialog.clickOk();
+
+        assertTrue(editPersonDialog.isInputValidationErrorDialogShown());
+        editPersonDialog.dissmissErrorMessage("Invalid Fields");
+        assertFalse(editPersonDialog.isInputValidationErrorDialogShown());
+    }
+
+    @Test
+    public void cancelOperation_usingAccelerator() {
+
+        //Delete
+        PersonCardHandle aliceCard = personListPanel.selectCard(td.alice);
+        personListPanel.use_PERSON_DELETE_ACCELERATOR();
+        assertTrue(aliceCard.isShowingGracePeriod("Deleting"));
+
+        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
+        assertFalse(aliceCard.isShowingGracePeriod("Deleting"));
+        assertEquals(statusBar.getText(), "Delete Person [ " + aliceCard.getFirstName() + " "
+                     + aliceCard.getLastName() + " ] was cancelled.");
+
+        //Edit
+        Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
+                .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
+                .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(td.colleagues, td.friends).build();
+
+        //Get a reference to the card displaying Alice's details
+        PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
+
+        //Edit Alice to change to new values
+        EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        editPersonDialog.enterNewValues(newAlice);
+        editPersonDialog.pressEnter();
+
+        personListPanel.clickOnPerson(newAlice);
+        assertEquals(alicePersonCard, newAlice);
+        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
+        assertEquals(alicePersonCard, td.alice);
+        assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] was cancelled.");
+
+        //New
+        EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
+        Person pandaWong = new PersonBuilder("Panda", "Wong")
+                .withStreet("Chengdu Panda Street").withCity("Chengdu").withPostalCode("PANDA")
+                .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
+        addPersonDialog.enterNewValues(pandaWong);
+        addPersonDialog.clickOk();
+
+        personListPanel.clickOnListView(); // To ensure shortcut keys work properly.
+
+        personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
+        PersonCardHandle pandaWongCardHandle = personListPanel.getPersonCardHandle(pandaWong);
+        assertEquals(pandaWongCardHandle, pandaWong);
+        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
+        assertNull(personListPanel.getPersonCardHandle(pandaWong));
+
+        //Ensure cancel operation has no side effects after grace period.
+        sleepForGracePeriod();
+        assertNull(personListPanel.getPersonCardHandle(pandaWong));
+        personListPanel.isListMatching(td.alice, td.benson, td.charlie, td.dan, td.elizabeth);
+    }
+
+    //TODO: testing edits during grace period
 }
