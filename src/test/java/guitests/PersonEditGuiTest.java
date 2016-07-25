@@ -145,11 +145,6 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
-
-        //Ensure cancel operation has no side effects after grace period.
-        sleepForGracePeriod();
-        assertNull(personListPanel.getPersonCardHandle(pandaWong));
-        personListPanel.isListMatching(td.alice, td.benson, td.charlie, td.dan, td.elizabeth);
     }
 
     @Test
@@ -177,5 +172,20 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(alicePersonCard, newerAlice);
         sleepForGracePeriod();
         assertEquals(alicePersonCard, newerAlice);
+    }
+
+    @Test
+    public void cancelOperation_afterGracePeriod() {
+        //New
+        EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
+        Person pandaWong = new PersonBuilder("Panda", "Wong")
+                .withStreet("Chengdu Panda Street").withCity("Chengdu").withPostalCode("PANDA")
+                .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
+        addPersonDialog.enterNewValues(pandaWong).clickOk();
+        sleepForGracePeriod();
+        personListPanel.clickOnListView();
+        personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
+        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
+        assertEquals(personListPanel.getPersonCardHandle(pandaWong), pandaWong);
     }
 }
