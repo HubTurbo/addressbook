@@ -48,6 +48,8 @@ public class MainWindow extends BaseUiPart {
     private VBox rootLayout;
     private Scene scene;
 
+    @FXML
+    private AnchorPane personListPanelPlaceholder;
 
     @FXML
     private MenuItem helpMenuItem;
@@ -135,7 +137,7 @@ public class MainWindow extends BaseUiPart {
      * Returns the AnchorPane where the PersonListPanel is to added.
      */
     public AnchorPane getPersonListPlaceholder() {
-        return getAnchorPane(PERSON_LIST_PANEL_PLACEHOLDER_ID);
+        return personListPanelPlaceholder;
     }
 
     private void setTitle(String appTitle) {

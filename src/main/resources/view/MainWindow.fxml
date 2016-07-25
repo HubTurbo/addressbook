@@ -38,7 +38,7 @@
       </AnchorPane>
       <SplitPane id="splitPane" fx:id="splitPane" dividerPositions="0.4" VBox.vgrow="ALWAYS">
          <items>
-            <AnchorPane fx:id="personListPanel" minWidth="340" />
+            <AnchorPane fx:id="personListPanelPlaceholder" minWidth="340" />
             <AnchorPane fx:id="personWebpage" />
          </items>
       </SplitPane>
