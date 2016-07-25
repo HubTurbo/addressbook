@@ -166,9 +166,7 @@ public class PersonEditDialog extends BaseUiPart {
     }
 
     private void performTagSelectionEditDialog() {
-        TagSelectionEditDialog tagEditDialog = UiPartLoader.loadUiPart(dialogStage, new TagSelectionEditDialog());
-        tagEditDialog.configure(dialogStage);
-        tagEditDialog.setTags(fullTagList, finalAssignedTags);
+        TagSelectionEditDialog tagEditDialog = TagSelectionEditDialog.load(dialogStage, fullTagList, finalAssignedTags);
         tagEditDialog.showAndWait();
 
         if (tagEditDialog.isOkClicked()) finalAssignedTags = tagEditDialog.getFinalAssignedTags();

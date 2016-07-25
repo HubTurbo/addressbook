@@ -173,13 +173,8 @@ public class Ui{
     }
 
     public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
-        TagSelectionEditDialog tagEditDialog =
-                UiPartLoader.loadUiPart(getPrimaryStage(), new TagSelectionEditDialog());
-        tagEditDialog.configure(getPrimaryStage());
-
-        tagEditDialog.setTags(modelManager.getTagsAsReadOnlyObservableList(),
-                ReadOnlyPerson.getCommonTags(persons));
-
+        TagSelectionEditDialog tagEditDialog = TagSelectionEditDialog.load(getPrimaryStage(),
+                modelManager.getTagsAsReadOnlyObservableList(), ReadOnlyPerson.getCommonTags(persons));
         tagEditDialog.showAndWait();
 
         return tagEditDialog.isOkClicked()

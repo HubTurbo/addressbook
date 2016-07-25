@@ -55,6 +55,19 @@ public class TagSelectionEditDialog extends BaseUiPart {
         super();
     }
 
+    public static TagSelectionEditDialog load(Stage dialogStage, List<Tag> fullTagList, List<Tag> finalAssignedTags) {
+        TagSelectionEditDialog tagEditDialog = UiPartLoader.loadUiPart(dialogStage, new TagSelectionEditDialog());
+        tagEditDialog.configure(dialogStage);
+        tagEditDialog.setTags(fullTagList, finalAssignedTags);
+        return tagEditDialog;
+    }
+
+    private void configure(Stage parentStage){
+        Scene scene = new Scene(pane);
+        dialogStage = createDialogStage(TITLE, parentStage, scene);
+        setEscToDismiss(dialogStage);
+    }
+
     @Override
     public void setNode(Node node) {
         pane = (AnchorPane)node;
@@ -75,11 +88,6 @@ public class TagSelectionEditDialog extends BaseUiPart {
         Platform.runLater(() -> tagSearch.requestFocus());
     }
 
-    public void configure(Stage parentStage){
-        Scene scene = new Scene(pane);
-        dialogStage = createDialogStage(TITLE, parentStage, scene);
-        setEscToDismiss(dialogStage);
-    }
 
     /**
      * Returns the confirmation status of user
@@ -246,4 +254,6 @@ public class TagSelectionEditDialog extends BaseUiPart {
     public void showAndWait() {
         dialogStage.showAndWait();
     }
+
+
 }
