@@ -7,9 +7,6 @@ import guitests.GuiRobot;
 import javafx.scene.Node;
 import javafx.stage.Stage;
 
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 /**
  * Provides a handle to a person card in the person list panel.
  */
@@ -49,7 +46,6 @@ public class PersonCardHandle extends GuiHandle {
         return this.isPendingStateRootVisible() && this.isPendingStateLabelVisible()
                && !this.isPendingStateProgressIndicatorVisible() && this.getPendingStateLabel().equals(displayText);
     }
-
 
     public String getPendingStateLabel() {
         return getTextFromLabel(PENDING_STATE_LABEL_FIELD_ID);

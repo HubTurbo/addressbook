@@ -310,16 +310,16 @@ public class PersonListPanelHandle extends GuiHandle {
     public void edgeDrag(String dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
         switch (direction) {
             case UP:
-                double edgeMinY = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMinY()
+                double edgeMinY = TestUtil.getScreenPos(getListView()).getMinY()
                         + PersonListViewCell.SCROLL_AREA / 2 - 3;
-                double edgeMinX = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMinX()
+                double edgeMinX = TestUtil.getScreenPos(getListView()).getMinX()
                         + this.getListView().getWidth() / 2;
                 guiRobot.drag(dragFrom).drag(edgeMinX, edgeMinY).sleep(dragDuration, timeunit).drop();
                 break;
             case DOWN:
-                double edgeMaxY = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMaxY()
+                double edgeMaxY = TestUtil.getScreenPos(getListView()).getMaxY()
                         - PersonListViewCell.SCROLL_AREA / 2;
-                double edgeMaxX = this.getListView().localToScreen(this.getListView().getBoundsInLocal()).getMinX()
+                double edgeMaxX = TestUtil.getScreenPos(getListView()).getMinX()
                         + this.getListView().getWidth() / 2;
                 guiRobot.drag(dragFrom).drag(edgeMaxX, edgeMaxY).sleep(dragDuration, timeunit).drop();
                 break;
@@ -397,8 +397,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public List<PersonCardHandle> getSelectedCards() {
         ObservableList<ReadOnlyViewablePerson> persons = getListView().getSelectionModel().getSelectedItems();
-        return persons.stream()
-                      .map(p -> getPersonCardHandle(new Person(p)))
-                      .collect(Collectors.toCollection(ArrayList::new));
+        return persons.stream().map(p -> getPersonCardHandle(new Person(p)))
+                               .collect(Collectors.toCollection(ArrayList::new));
     }
 }
