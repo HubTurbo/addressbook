@@ -18,7 +18,7 @@ public class Parser {
      *
      * @param input
      * @return
-     * @throws ParseException if input has incorrect syntax
+     * @throws ParseException if input has incorrect syntax and/or qualifiers
      */
     public Expr parse(String input) throws ParseException {
         Expr result = PredExpr.TRUE;
@@ -29,7 +29,7 @@ public class Parser {
         Matcher matcher = pattern.matcher(input);
 
         while (!matcher.hitEnd()) {
-            if (!matcher.find()) throw new ParseException("Part of input invalid '" + input + "'");
+            if (!matcher.find()) throw new ParseException("Part of filter invalid");
             Expr intermediate = getPredicate(matcher.group(1), matcher.group(2));
             result = new AndExpr(intermediate, result);
         }
@@ -43,7 +43,7 @@ public class Parser {
      * @param qualifierName may be prefixed with multiple ! characters to signify negations
      * @param qualifierContent
      * @return
-     * @throws ParseException
+     * @throws ParseException if qualifier name without prefixed ! is not a valid qualifier string
      */
     private Expr getPredicate(String qualifierName, String qualifierContent) throws ParseException {
         Matcher matcher = Pattern.compile(NEGATION_REGEX, Pattern.CASE_INSENSITIVE).matcher(qualifierName);
