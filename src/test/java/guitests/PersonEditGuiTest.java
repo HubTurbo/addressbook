@@ -51,14 +51,12 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(alicePersonCard, newAlice);
         assertTrue(personListPanel.isSelected(newAlice));
 
-
         //Confirm right values are displayed after grace period is over
         sleepForGracePeriod();
         assertEquals(alicePersonCard, newAlice);
 
         //Confirm the underlying person object has the right values
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
-
 
         //Confirm again after the next sync
         sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
@@ -76,7 +74,7 @@ public class PersonEditGuiTest extends GuiTestBase {
     public void editPerson_usingContextMenu() {
         personListPanel.rightClickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog = personListPanel.clickOnContextMenu(
-                PersonListPanelHandle.ContextMenuChoice.EDIT);
+                                                                          PersonListPanelHandle.ContextMenuChoice.EDIT);
         assertTrue(editPersonDialog.isValidEditDialog());
     }
 
@@ -143,7 +141,8 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
         PersonCardHandle pandaWongCardHandle = personListPanel.getPersonCardHandle(pandaWong);
-        assertEquals(pandaWongCardHandle, pandaWong);
+        assertEquals(pandaWongCardHandle, pandaWong); //Ensure correct state before cancelling.
+
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
 
@@ -155,7 +154,6 @@ public class PersonEditGuiTest extends GuiTestBase {
 
     @Test
     public void editPerson_editDuringGracePeriod() {
-        //Edit
         Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
                 .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
                 .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(td.colleagues, td.friends).build();
@@ -166,13 +164,13 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Edit Alice to change to new values
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         editPersonDialog.enterNewValues(newAlice).pressEnter();
-        personListPanel.clickOnPerson(newAlice);
 
         //Edit Alice again during pending state.
-        editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        personListPanel.clickOnPerson(newAlice);
         Person newerAlice = new PersonBuilder(newAlice.copy()).withFirstName("Felicia").withLastName("Yellowstone")
                 .withStreet("street updated").withCity("Malaysia").withPostalCode("321321")
                 .withBirthday("11.11.1979").withGithubUsername("yellowstone").withTags(td.colleagues).build();
+        editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         editPersonDialog.enterNewValues(newerAlice).pressEnter();
 
         //Ensure card is displaying Felicia before and after grace period.
