@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Optional;
 
 /**
  * Config values used by the app
@@ -25,11 +24,11 @@ public class Config {
     private String appTitle = "Address App";
     // Customizable through config file
     private long updateInterval = DEFAULT_UPDATE_INTERVAL;
-    public Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
-    public HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
+    private Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
+    private HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
     private File prefsFileLocation = new File("preferences.json"); //Default user preferences file
-    public int browserNoOfPages = DEFAULT_BROWSER_NO_OF_PAGES;
-    public BrowserType browserType = DEFAULT_BROWSER_TYPE;
+    private int browserNoOfPages = DEFAULT_BROWSER_NO_OF_PAGES;
+    private BrowserType browserType = DEFAULT_BROWSER_TYPE;
     private String localDataFilePath = DEFAULT_LOCAL_DATA_FILE_PATH;
     private String cloudDataFilePath = DEFAULT_CLOUD_DATA_FILE_PATH;
     private String addressBookName = DEFAULT_ADDRESS_BOOK_NAME;
