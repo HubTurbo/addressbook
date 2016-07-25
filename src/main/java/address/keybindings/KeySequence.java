@@ -9,7 +9,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 /**
  * Represents a shortcut that is a key sequence e.g. G followed by P
  */
-public class KeySequence extends KeyBinding{
+public class KeySequence extends KeyBinding {
 
     /** Max delay (in milliseconds) allowed between key presses of a key sequence */
     protected static final int KEY_SEQUENCE_MAX_MILLISECONDS_BETWEEN_KEYS = 1000;
@@ -44,7 +44,7 @@ public class KeySequence extends KeyBinding{
      */
     public boolean isIncluded(KeyCombination otherKeyCombination) {
 
-        if (otherKeyCombination == null) {return false; }
+        if (otherKeyCombination == null) return false;
 
         return keyCombination.toString().equals(otherKeyCombination.toString())
                 || secondKeyCombination.toString().equals(otherKeyCombination.toString());

@@ -17,7 +17,7 @@ import javafx.scene.chart.XYChart;
  * The controller for the birthday statistics view.
  * 
  */
-public class BirthdayStatisticsController extends UiController{
+public class BirthdayStatisticsController extends UiController {
 
     @FXML
     private BarChart<String, Integer> barChart;

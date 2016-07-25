@@ -2,7 +2,8 @@ package address.util;
 
 import address.MainApp;
 import address.exceptions.DependencyCheckException;
-import commons.*;
+import commons.FileUtil;
+import commons.JsonUtil;
 import commons.VersionData;
 
 import javax.swing.*;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
  * Checks if all required dependencies are present
  */
 public class DependencyChecker {
+
     private static final AppLogger logger = LoggerManager.getLogger(DependencyChecker.class);
     private final String requiredJavaVersionString;
     private Runnable quitApp;

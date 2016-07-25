@@ -16,7 +16,7 @@ public class ImageManager {
 
     private static ImageManager instance;
 
-    HashMap<String, Image> imageHashMap;
+    private HashMap<String, Image> imageHashMap;
 
     private ImageManager(){
         imageHashMap = new HashMap<>();

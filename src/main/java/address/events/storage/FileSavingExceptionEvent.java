@@ -19,6 +19,6 @@ public class FileSavingExceptionEvent extends BaseEvent {
 
     @Override
     public String toString(){
-        return "" + exception;
+        return exception.toString();
     }
 }

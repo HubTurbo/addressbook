@@ -25,6 +25,6 @@ public class SaveDataRequestEvent extends BaseEvent {
 
     @Override
     public String toString(){
-        return "" + file;
+        return file.toString();
     }
 }

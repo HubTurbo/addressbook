@@ -4,7 +4,8 @@ package address.exceptions;
 import java.io.File;
 
 public class FileContainsDuplicatesException extends Exception {
-    public final File offender;
+
+    private final File offender;
 
     public FileContainsDuplicatesException(File f) {
         offender = f;

@@ -40,23 +40,15 @@ import java.util.stream.Collectors;
  */
 public class BrowserManager {
 
-    private final BrowserType browserType;
-
     private static final String FXML_BROWSER_PLACE_HOLDER_SCREEN = "/view/DefaultBrowserPlaceHolderScreen.fxml";
-
     private static final String GITHUB_ROOT_URL = "https://github.com/";
     private static final String INVALID_GITHUB_USERNAME_MESSAGE = "Unparsable GitHub Username.";
-
     private static AppLogger logger = LoggerManager.getLogger(BrowserManager.class);
-
-    private ObservableList<ReadOnlyViewablePerson> filteredPersons;
-
-    private Optional<HyperBrowser> hyperBrowser = Optional.empty();
-
-    private StringProperty selectedPersonUsername;
-
+    private final BrowserType browserType;
     private final int browserNoOfPages;
-
+    private ObservableList<ReadOnlyViewablePerson> filteredPersons;
+    private Optional<HyperBrowser> hyperBrowser = Optional.empty();
+    private StringProperty selectedPersonUsername;
     private ChangeListener<String> listener = (observable,  oldValue,  newValue) -> {
         try {
             URL url = new URL(GITHUB_ROOT_URL + newValue);
@@ -78,6 +70,17 @@ public class BrowserManager {
         this.filteredPersons = filteredPersons;
         this.browserNoOfPages = browserNoOfPages;
         this.browserType = browserType;
+    }
+
+    private static Optional<Node> getBrowserInitialScreen() {
+        String fxmlResourcePath = FXML_BROWSER_PLACE_HOLDER_SCREEN;
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            return Optional.ofNullable(loader.load());
+        } catch (IOException e){
+            return Optional.empty();
+        }
     }
 
     /**
@@ -119,7 +122,7 @@ public class BrowserManager {
         if (!hyperBrowser.isPresent()) return;
 
         selectedPersonUsername.removeListener(listener);
-        
+
         int indexOfPersonInListOfContacts = filteredPersons.indexOf(person);
 
         List<URL> listOfFutureUrl =
@@ -141,10 +144,6 @@ public class BrowserManager {
         selectedPersonUsername.addListener(listener);
     }
 
-    private void configureGithubPageTasks(List<Page> pages) {
-        pages.stream().map(GithubProfilePage::new).forEach(GithubProfilePage::setupPageAutomation);
-    }
-
     /**
      * Frees resources allocated to the browser.
      */
@@ -160,14 +159,7 @@ public class BrowserManager {
         return hyperBrowser.get().getHyperBrowserView();
     }
 
-    private static Optional<Node> getBrowserInitialScreen(){
-        String fxmlResourcePath = FXML_BROWSER_PLACE_HOLDER_SCREEN;
-        try {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
-            return Optional.ofNullable(loader.load());
-        } catch (IOException e){
-            return Optional.empty();
-        }
+    private void configureGithubPageTasks(List<Page> pages) {
+        pages.stream().map(GithubProfilePage::new).forEach(GithubProfilePage::setupPageAutomation);
     }
 }

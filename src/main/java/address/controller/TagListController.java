@@ -15,7 +15,7 @@ import javafx.stage.Stage;
  *
  * Stage, tags, mainController and modelManager should be set before showing stage
  */
-public class TagListController extends UiController{
+public class TagListController extends UiController {
     Stage stage;
     MainController mainController;
     ModelManager modelManager;
@@ -54,11 +54,10 @@ public class TagListController extends UiController{
             vBox.getChildren().add(TagCardController.getDummyTagCard(this, mainController));
             return vBox;
         }
-        tagList.stream()
-                .forEach(tag -> {
-                    TagCardController tagCardController = new TagCardController(tag, mainController, this);
-                    vBox.getChildren().add(tagCardController.getLayout());
-                });
+        tagList.forEach(tag -> {
+            TagCardController tagCardController = new TagCardController(tag, mainController, this);
+            vBox.getChildren().add(tagCardController.getLayout());
+        });
         return vBox;
     }
 

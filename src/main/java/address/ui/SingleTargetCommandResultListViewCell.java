@@ -4,9 +4,6 @@ import address.controller.ActivityHistoryCardController;
 import address.events.model.SingleTargetCommandResultEvent;
 import javafx.scene.control.ListCell;
 
-/**
- *
- */
 public class SingleTargetCommandResultListViewCell extends ListCell<SingleTargetCommandResultEvent> {
 
     @Override

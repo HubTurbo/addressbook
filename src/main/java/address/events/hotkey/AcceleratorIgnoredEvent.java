@@ -6,8 +6,7 @@ import address.events.BaseEvent;
  * Indicates an accelerator key binding was detected and ignored.
  */
 public class AcceleratorIgnoredEvent extends BaseEvent {
-
-    String acceleratorName;
+    private String acceleratorName;
 
     public AcceleratorIgnoredEvent(String acceleratorName) {
         this.acceleratorName = acceleratorName;

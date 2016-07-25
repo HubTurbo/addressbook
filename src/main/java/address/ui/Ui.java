@@ -13,8 +13,8 @@ import javafx.stage.Stage;
  * The UI of the app.
  */
 public class Ui {
-    MainController mainController;
-    UserPrefs pref;
+    private MainController mainController;
+    private UserPrefs pref;
 
     public Ui(MainApp mainApp, ModelManager modelManager, Config config, UserPrefs pref){
         mainController = new MainController(mainApp, modelManager, config, pref);

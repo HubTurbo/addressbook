@@ -2,6 +2,7 @@ package address.ui;
 
 import address.controller.PersonCardController;
 import address.image.ImageManager;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import address.util.DragContainer;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
-    public static final int SCROLL_AREA = 15;
+    private static final int SCROLL_AREA = 15;
 
     public PersonListViewCell(ReorderedList<ReadOnlyViewablePerson> reorderedList) {
 
@@ -46,7 +47,8 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             container.addAllData(getListView().getSelectionModel()
                                               .getSelectedItems()
                                               .stream()
-                                              .map(p -> p.getId()).collect(Collectors.toCollection(ArrayList::new)));
+                                              .map(ReadOnlyPerson::getId)
+                                              .collect(Collectors.toCollection(ArrayList::new)));
             content.put(DragContainer.ADDRESS_BOOK_PERSON_UUID, container);
             dragBoard.setDragView(getDragView(this.getListView().getSelectionModel().getSelectedItems()));
             dragBoard.setContent(content);
@@ -54,7 +56,6 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         });
 
         setOnDragOver(event -> {
-
             if (getItem() == null) {
                 return;
             }
@@ -70,7 +71,6 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         });
 
         setOnDragEntered(event -> {
-
             if (getItem() == null) {
                 return;
             }
@@ -119,7 +119,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     private Image getDragView(List<ReadOnlyViewablePerson> draggedPersons) {
         HBox container = new HBox(5);
-        draggedPersons.stream().forEach(p -> {
+        draggedPersons.forEach(p -> {
             Optional<String> profilePicUrl = p.githubProfilePicUrl();
             ImageView imageView;
 
@@ -144,7 +144,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
      * @param movedIndices
      */
     private void selectIndices(Collection<Integer> movedIndices) {
-        movedIndices.stream().forEach(index -> getListView().getSelectionModel().select(index));
+        movedIndices.forEach(index -> getListView().getSelectionModel().select(index));
     }
 
     /**
@@ -167,7 +167,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         }
 
         while (moveToIndex < list.size() && listOfDragPersons.contains(list.get(moveToIndex))) {
-            moveToIndex++; //Move to the next index if the current index contains one of the dragged person.
+            moveToIndex++; // Move to the next index if the current index contains one of the dragged person.
         }
         return moveToIndex;
     }
