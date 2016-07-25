@@ -1,5 +1,6 @@
 package address.controller;
 
+import address.model.ModelManager;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
@@ -87,7 +88,14 @@ public class PersonEditDialog extends BaseUiPart {
         return FXML;
     }
 
-    public void configure(ReadOnlyPerson initialData, List<Tag> tags) {
+    public static PersonEditDialog load(Stage primaryStage, ReadOnlyPerson initialData, ModelManager modelManager) {
+        logger.debug("Loading dialog for person edit.");
+        PersonEditDialog editDialog = UiPartLoader.loadUiPart(primaryStage, new PersonEditDialog());
+        editDialog.configure(initialData, modelManager.getTagsAsReadOnlyObservableList());
+        return editDialog;
+    }
+
+    private void configure(ReadOnlyPerson initialData, List<Tag> tags) {
         Scene scene = new Scene(pane);
         dialogStage = createDialogStage(TITLE, primaryStage, scene);
         setIcon(dialogStage, ICON);
@@ -289,5 +297,6 @@ public class PersonEditDialog extends BaseUiPart {
     public boolean isOkClicked() {
         return isOkClicked;
     }
+
 
 }

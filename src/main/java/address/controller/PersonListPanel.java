@@ -218,10 +218,7 @@ public class PersonListPanel extends BaseUiPart {
      * creating the dialog or the user clicked cancel
      */
     public Optional<ReadOnlyPerson> getPersonDataInput(ReadOnlyPerson initialData) {
-        logger.debug("Loading dialog for person edit.");
-
-        PersonEditDialog editDialog = UiPartLoader.loadUiPart(primaryStage, new PersonEditDialog());
-        editDialog.configure(initialData, modelManager.getTagsAsReadOnlyObservableList());
+        PersonEditDialog editDialog = PersonEditDialog.load(primaryStage, initialData, modelManager);
         return editDialog.getUserInput();
     }
 
