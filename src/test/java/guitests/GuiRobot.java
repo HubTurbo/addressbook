@@ -47,32 +47,11 @@ public class GuiRobot extends FxRobot {
 
     @Override
     public GuiRobot clickOn(String query, MouseButton... buttons) {
-        //Busy waiting implementation to fix issue when app window is not brought up to screen yet.
-        int count = 0;
-        while (count < 10) {
-            try {
-                return (GuiRobot) super.clickOn(query, buttons);
-            } catch (FxRobotException e) {
-                sleep(500);
-                count++;
-            }
-        }
         return (GuiRobot) super.clickOn(query, buttons);
     }
 
     @Override
     public GuiRobot drag(String query, MouseButton... buttons) {
-        //Busy waiting implementation to fix issue when app window is not brought up to screen yet.
-        int count = 0;
-        while (count < 10) {
-            try {
-                return (GuiRobot) super.drag(query, buttons);
-            } catch (FxRobotException e) {
-                count++;
-                sleep(500);
-            }
-        }
         return (GuiRobot) super.drag(query, buttons);
-
     }
 }
