@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +43,7 @@ public class UpdateManager extends ComponentManager {
     private static final String MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA = "Error updating backup versions' data file";
     private static final String MSG_IN_PROGRESS_FINALIZING_UPDATES = "Finalizing updates";
     private static final String MSG_IN_PROGRESS_COLLECTING_UPDATE_FILES = "Collecting all update files to be downloaded";
+    private static final String MSG_IN_PROGRESS_CREATING_UPDATE_DIR = "Creating update directory (if required)";
     private static final String MSG_IN_PROGRESS_DOWNLOADING_LATEST_VERSION_DATA = "Downloading latest version data from server";
     private static final String MSG_IN_PROGRESS_READING_LATEST_SERVER_DATA = "Reading downloaded latest version data";
     private static final String MSG_IN_PROGRESS_READING_LATEST_VERSION = "Reading latest version";
@@ -175,7 +175,7 @@ public class UpdateManager extends ComponentManager {
         try {
             latestData = readLatestVersionData(VERSION_DESCRIPTOR_FILE);
         } catch (IOException e) {
-            raise(new ApplicationUpdateFailedEvent(MSG_FAIL_OBTAIN_LATEST_VERSION_DATA));
+            raise(new ApplicationUpdateFailedEvent(MSG_FAIL_READ_LATEST_VERSION));
             return;
         }
 
@@ -208,10 +208,12 @@ public class UpdateManager extends ComponentManager {
 
         assert !filesToBeUpdated.isEmpty() : "No files to be updated"; // at least launcher and main app must be updated
 
+        raise(new ApplicationUpdateInProgressEvent(MSG_IN_PROGRESS_CREATING_UPDATE_DIR, -1));
         try {
-            createUpdateDir();
+            createUpdateDirIfAbsent();
         } catch (IOException e) {
             raise(new ApplicationUpdateFailedEvent(MSG_FAIL_CREATE_UPDATE_DIRECTORY));
+            return;
         }
 
         try {
@@ -222,7 +224,6 @@ public class UpdateManager extends ComponentManager {
         }
 
         raise(new ApplicationUpdateInProgressEvent(MSG_IN_PROGRESS_FINALIZING_UPDATES, -1));
-
         try {
             createUpdateSpecification(filesToBeUpdated);
         } catch (IOException e) {
@@ -242,10 +243,10 @@ public class UpdateManager extends ComponentManager {
         shouldRunUpdater = true;
     }
 
-    private void createUpdateDir() throws IOException {
+    private void createUpdateDirIfAbsent() throws IOException {
         File updateDir = new File(UPDATE_DIR);
         if (!FileUtil.isDirExists(updateDir)) {
-            Files.createDirectory(updateDir.toPath());
+            FileUtil.createDirs(updateDir);
         }
     }
 
@@ -282,7 +283,7 @@ public class UpdateManager extends ComponentManager {
      * @throws UnsupportedOperationException if OS is unsupported for updating
      */
     private HashMap<String, URL> getFilesToDownload(VersionData versionData) throws UnsupportedOperationException {
-        if (commons.OsDetector.getOs() == commons.OsDetector.Os.UNKNOWN) {
+        if (OsDetector.getOs() == OsDetector.Os.UNKNOWN) {
             throw new UnsupportedOperationException("OS not supported for updating");
         }
 
