@@ -14,10 +14,11 @@ public class LoggerManager {
     private static HashMap<String, Level> specialLogLevels = new HashMap<>();
 
     public static void init(Config config) {
-        logger.info("currentLogLevel: {}", config.currentLogLevel);
-        logger.info("specialLogLevels: {}", config.specialLogLevels);
-        currentLogLevel = config.currentLogLevel;
-        specialLogLevels = config.specialLogLevels;
+        currentLogLevel = config.getCurrentLogLevel();
+        specialLogLevels = config.getSpecialLogLevels();
+
+        logger.info("currentLogLevel: {}", currentLogLevel);
+        logger.info("specialLogLevels: {}", specialLogLevels);
 
         LoggerContext loggerContext = getLoggerContext();
         AbstractConfiguration loggersConfig = getLoggersConfig(loggerContext);
