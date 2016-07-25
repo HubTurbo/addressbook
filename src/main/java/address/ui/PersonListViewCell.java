@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
-
     private static final int SCROLL_AREA = 15;
 
     public PersonListViewCell(ReorderedList<ReadOnlyViewablePerson> reorderedList) {
@@ -137,6 +136,10 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         SnapshotParameters para = new SnapshotParameters();
         para.setFill(Color.TRANSPARENT);
         return container.snapshot(para, null);
+    }
+
+    public static int getScrollArea() {
+        return SCROLL_AREA;
     }
 
     /**
