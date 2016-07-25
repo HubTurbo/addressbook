@@ -1,6 +1,6 @@
 package address.model;
 
-import address.events.UpdatePersonOnRemoteRequestEvent;
+import address.events.sync.UpdatePersonOnRemoteRequestEvent;
 import address.model.ChangeObjectInModelCommand.CommandState;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;

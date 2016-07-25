@@ -1,8 +1,8 @@
 package address.update;
 
-import address.events.ApplicationUpdateFailedEvent;
-import address.events.ApplicationUpdateFinishedEvent;
-import address.events.ApplicationUpdateInProgressEvent;
+import address.events.update.ApplicationUpdateFailedEvent;
+import address.events.update.ApplicationUpdateFinishedEvent;
+import address.events.update.ApplicationUpdateInProgressEvent;
 import address.main.ComponentManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;

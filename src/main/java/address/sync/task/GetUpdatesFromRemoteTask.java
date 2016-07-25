@@ -1,6 +1,9 @@
 package address.sync.task;
 
 import address.events.*;
+import address.events.sync.SyncCompletedEvent;
+import address.events.sync.SyncFailedEvent;
+import address.events.sync.SyncStartedEvent;
 import address.exceptions.SyncErrorException;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;

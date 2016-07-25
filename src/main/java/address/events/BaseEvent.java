@@ -1,5 +1,8 @@
 package address.events;
 
+import address.events.controller.JumpToListRequestEvent;
+import address.events.controller.ResizeAppRequestEvent;
+
 public abstract class BaseEvent {
 
     /**

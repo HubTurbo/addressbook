@@ -1,6 +1,6 @@
 package address.util;
 
-import address.events.SingleTargetCommandResultEvent;
+import address.events.model.SingleTargetCommandResultEvent;
 import org.junit.Test;
 
 import static address.model.ChangeObjectInModelCommand.CommandState.*;

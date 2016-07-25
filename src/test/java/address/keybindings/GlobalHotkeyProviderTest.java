@@ -2,7 +2,7 @@ package address.keybindings;
 
 import address.events.BaseEvent;
 import address.events.EventManager;
-import address.events.GlobalHotkeyEvent;
+import address.events.hotkey.GlobalHotkeyEvent;
 import address.util.LoggerManager;
 import com.tulskiy.keymaster.common.Provider;
 import javafx.scene.input.KeyCodeCombination;

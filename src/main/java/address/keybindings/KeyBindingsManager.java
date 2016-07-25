@@ -1,7 +1,7 @@
 package address.keybindings;
 
 import address.events.BaseEvent;
-import address.events.KeyBindingEvent;
+import address.events.hotkey.KeyBindingEvent;
 import address.main.ComponentManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;

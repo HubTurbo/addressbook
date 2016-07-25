@@ -3,7 +3,8 @@ package address.controller;
 import static address.keybindings.KeyBindingsManager.*;
 import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandState.*;
 
-import address.events.*;
+import address.events.controller.JumpToListRequestEvent;
+import address.events.parser.FilterCommittedEvent;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.Person;

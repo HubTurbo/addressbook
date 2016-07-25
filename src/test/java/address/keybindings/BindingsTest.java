@@ -1,6 +1,6 @@
 package address.keybindings;
 
-import address.events.KeyBindingEvent;
+import address.events.hotkey.KeyBindingEvent;
 import javafx.scene.input.KeyCodeCombination;
 import org.junit.Test;
 

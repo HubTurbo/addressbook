@@ -3,8 +3,8 @@ package address.model;
 import static address.model.datatypes.person.ReadOnlyViewablePerson.*;
 
 import address.events.BaseEvent;
-import address.events.SingleTargetCommandResultEvent;
-import address.events.UpdatePersonOnRemoteRequestEvent;
+import address.events.model.SingleTargetCommandResultEvent;
+import address.events.sync.UpdatePersonOnRemoteRequestEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;

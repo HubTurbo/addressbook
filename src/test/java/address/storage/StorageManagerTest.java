@@ -1,6 +1,11 @@
 package address.storage;
 
-import address.events.*;
+import address.events.EventManager;
+import address.events.model.LocalModelChangedEvent;
+import address.events.storage.FileOpeningExceptionEvent;
+import address.events.storage.LoadDataRequestEvent;
+import address.events.storage.SaveDataRequestEvent;
+import address.events.storage.SavePrefsRequestEvent;
 import address.exceptions.DataConversionException;
 import address.model.ModelManager;
 import address.model.UserPrefs;

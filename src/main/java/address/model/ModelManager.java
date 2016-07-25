@@ -1,7 +1,10 @@
 package address.model;
 
-import address.events.*;
-
+import address.events.model.LocalModelChangedEvent;
+import address.events.sync.CreateTagOnRemoteRequestEvent;
+import address.events.sync.DeleteTagOnRemoteRequestEvent;
+import address.events.sync.EditTagOnRemoteRequestEvent;
+import address.events.sync.SyncCompletedEvent;
 import address.exceptions.DuplicateTagException;
 import address.main.ComponentManager;
 import address.model.datatypes.*;

@@ -1,8 +1,8 @@
 package address.keybindings;
 
 import address.events.EventManager;
-import address.events.GlobalHotkeyEvent;
-import address.events.KeyBindingEvent;
+import address.events.hotkey.GlobalHotkeyEvent;
+import address.events.hotkey.KeyBindingEvent;
 import address.util.AppLogger;
 import com.google.common.eventbus.Subscribe;
 import com.tulskiy.keymaster.common.Provider;

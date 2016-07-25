@@ -1,7 +1,7 @@
 package address.controller;
 
 
-import address.events.SingleTargetCommandResultEvent;
+import address.events.model.SingleTargetCommandResultEvent;
 import address.util.CommandResultFormatter;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
