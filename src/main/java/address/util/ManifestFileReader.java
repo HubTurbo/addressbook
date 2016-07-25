@@ -25,12 +25,8 @@ public class ManifestFileReader {
 
     public static boolean isRunFromJar() {
         String resourcePath = getResourcePath();
-        if (!resourcePath.startsWith("jar")) {
-            logger.debug("Not run from JAR");
-            return false;
-        }
+        return resourcePath.startsWith("jar");
 
-        return true;
     }
 
     private static String getManifestPath() {
