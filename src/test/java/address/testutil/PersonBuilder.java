@@ -10,7 +10,15 @@ import java.util.Arrays;
  * A utility class to build Person objects using a fluent interface.
  */
 public class PersonBuilder {
+    public static final int STUB_ID = -99;
     private final Person person;
+
+    /**
+     * Creates a person builder with the given firstName and lastName.
+     */
+    public PersonBuilder(String firstName, String lastName) {
+        this.person = new Person(firstName, lastName, STUB_ID);
+    }
 
     /**
      * Creates a person builder with the given Person object.

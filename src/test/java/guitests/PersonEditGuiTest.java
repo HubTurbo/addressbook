@@ -7,7 +7,6 @@ import address.testutil.PersonBuilder;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.PersonListPanelHandle;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -155,7 +154,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //New
         EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
-        Person pandaWong = new PersonBuilder(td.alice.copy()).withFirstName("Panda").withLastName("Wong")
+        Person pandaWong = new PersonBuilder("Panda", "Wong")
                 .withStreet("Chengdu Panda Street").withCity("Chengdu").withPostalCode("PANDA")
                 .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
         addPersonDialog.enterNewValues(pandaWong);
