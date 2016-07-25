@@ -1,6 +1,5 @@
 package address.sync.cloud.model;
 
-import address.storage.StoragePerson;
 import commons.XmlUtil.LocalDateAdapter;
 import commons.XmlUtil.LocalDateTimeAdapter;
 
@@ -173,4 +172,32 @@ public class CloudPerson {
         return this.firstName != null && this.lastName != null && tags != null;
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!other.getClass().isAssignableFrom(CloudPerson.class)) return false;
+        CloudPerson otherCP = (CloudPerson) other;
+        return id == otherCP.id
+                && isDeleted == otherCP.isDeleted
+                && firstName.equals(otherCP.firstName)
+                && lastName.equals(otherCP.lastName)
+                && street == null ? otherCP.street == null : street.equals(otherCP.street)
+                && city == null ? otherCP.city == null : city.equals(otherCP.city)
+                && postalCode == null ? otherCP.postalCode == null : postalCode.equals(otherCP.postalCode)
+                && birthday == null ? otherCP.birthday == null : birthday.equals(otherCP.birthday)
+                && tags == null ? otherCP.tags == null : tags.equals(otherCP.tags);
+    }
+
+    @Override
+    public int hashCode() {
+        return new StringBuilder().append(id)
+                .append(firstName)
+                .append(lastName)
+                .append(street)
+                .append(city)
+                .append(postalCode)
+                .append(birthday)
+                .append(tags)
+                .hashCode();
+    }
 }

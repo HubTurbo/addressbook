@@ -425,6 +425,7 @@ public class RemoteService implements IRemoteService {
         cloudPerson.setTags(convertToCloudTagList(person.getTagList()));
         cloudPerson.setBirthday(person.getBirthday());
         cloudPerson.setDeleted(false);
+        cloudPerson.setLastUpdatedAt(LocalDateTime.now());
         return cloudPerson;
     }
 

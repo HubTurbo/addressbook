@@ -635,9 +635,10 @@ public class CloudSimulatorTest {
         final int resourcesPerPage = 30;
 
         CloudAddressBook bigCloudAddressBook = getBigDummyAddressBook();
+        bigCloudAddressBook.getAllPersons().forEach(p -> p.setLastUpdatedAt(LocalDateTime.MIN));
         stub(cloudFileHandler.readCloudAddressBook("Big Test")).toReturn(bigCloudAddressBook);
 
-        String cutOffTime = LocalDateTime.now().toString();
+        String cutOffTime = LocalDateTime.now().minusHours(1).toString();
         // update a person
         CloudPerson updatedPerson = new CloudPerson("firstName353", "lastName353");
         bigCloudAddressBook.getAllPersons().get(352).updatedBy(updatedPerson);
@@ -651,7 +652,8 @@ public class CloudSimulatorTest {
         assertEquals(STARTING_API_COUNT - apiUsage, cloudRateLimitStatus.getQuotaRemaining());
         assertEquals(HttpURLConnection.HTTP_OK, remoteResponse.getResponseCode());
 
-        List<CloudPerson> personList = JsonUtil.fromJsonStringToList(convertToString(remoteResponse.getBody()), CloudPerson.class);
+        String jString = convertToString(remoteResponse.getBody());
+        List<CloudPerson> personList = JsonUtil.fromJsonStringToList(jString, CloudPerson.class);
         // should only return the updated person
         assertEquals(1, personList.size());
         assertTrue(personList.contains(new CloudPerson("firstName353", "lastName353")));
@@ -819,7 +821,9 @@ public class CloudSimulatorTest {
         int tagsToGenerate = 1000;
         CloudAddressBook remoteAddressBook = new CloudAddressBook("Big Test");
         for (int i = 0; i < personsToGenerate; i++) {
-            remoteAddressBook.getAllPersons().add(new CloudPerson("firstName" + i, "lastName" + i));
+            CloudPerson toAdd = new CloudPerson("firstName" + i, "lastName" + i);
+            toAdd.setLastUpdatedAt(LocalDateTime.now());
+            remoteAddressBook.getAllPersons().add(toAdd);
         }
 
         for (int i = 0; i < tagsToGenerate; i++) {
