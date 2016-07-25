@@ -49,7 +49,7 @@ public class GuiHandle {
                 .stream()
                 .filter(w
                         -> w instanceof Stage
-                        && ((Stage)w).getTitle().equals(stageTitle)).findAny();
+                        && ((Stage) w).getTitle().equals(stageTitle)).findAny();
 
         if(!window.isPresent()) {
             logger.fatal("Can't find stage " + stageTitle + ", Therefore, aborting focusing");
@@ -62,13 +62,7 @@ public class GuiHandle {
     }
 
     protected Node getNode(String query) {
-        Optional<Node> nodeOptional = guiRobot.lookup(query).tryQuery();
-        int count = 0;
-        while (!nodeOptional.isPresent() && count < 10) {
-            guiRobot.sleep(500);
-            count ++;
-        }
-        return nodeOptional.get();
+        return guiRobot.lookup(query).tryQuery().get();
     }
 
     protected String getTextFieldText(String filedName) {
@@ -99,7 +93,7 @@ public class GuiHandle {
     }
 
     public void pressEnter() {
-        guiRobot.type(KeyCode.ENTER);
+        guiRobot.type(KeyCode.ENTER).sleep(500);
     }
 
     protected void pressEsc() {

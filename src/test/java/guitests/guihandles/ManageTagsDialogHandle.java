@@ -36,7 +36,6 @@ public class ManageTagsDialogHandle extends GuiHandle {
         ObservableList<Node> childrenUnmodifiable = ((VBox) getScrollPane().getContent()).getChildren();
         return childrenUnmodifiable.stream().map(n -> ((Label) n.lookup(TAG_NAME_FIELD_ID)).getText())
                                             .collect(Collectors.toCollection(ArrayList::new));
-
     }
 
     public boolean contains(String value) {
@@ -54,6 +53,7 @@ public class ManageTagsDialogHandle extends GuiHandle {
 
     public void changeEditTagDialogText(String text) {
         guiRobot.clickOn(EDIT_TAG_TEXT_FIELD).push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write(text);
+        guiRobot.sleep(500);//For edit to take effect.
     }
 
     public boolean isChangeEditTagDialogOpen() {
@@ -63,6 +63,4 @@ public class ManageTagsDialogHandle extends GuiHandle {
             return false;
         }
     }
-
-
 }

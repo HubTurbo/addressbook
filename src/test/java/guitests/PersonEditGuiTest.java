@@ -45,8 +45,6 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterNewValues(newAlice);
         editPersonDialog.pressEnter();
 
-        sleep(1, TimeUnit.SECONDS);
-
         //Confirm pending state correctness
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
 
@@ -112,11 +110,9 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Delete
         PersonCardHandle aliceCard = personListPanel.selectCard(td.alice);
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        sleep(1, TimeUnit.SECONDS);
         assertTrue(aliceCard.isShowingGracePeriod("Deleting"));
 
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        sleep(1, TimeUnit.SECONDS);
         assertFalse(aliceCard.isShowingGracePeriod("Deleting"));
         assertEquals(statusBar.getText(), "Delete Person [ " + aliceCard.getFirstName() + " "
                      + aliceCard.getLastName() + " ] was cancelled.");
@@ -139,7 +135,6 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         assertNotEquals(alicePersonCard, td.alice);
         assertEquals(alicePersonCard, newAlice);
-        sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertEquals(alicePersonCard, td.alice);
         assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] was cancelled.");

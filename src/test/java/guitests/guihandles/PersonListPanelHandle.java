@@ -59,15 +59,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public boolean isSelected(String firstName, String lastName) {
-        int count = 0;
-        while(count < 10) {
-            if (getSelectedPerson().hasName(firstName, lastName)){
-                return true;
-            }
-            count ++;
-            guiRobot.sleep(500);
-        }
-        return false;
+        return getSelectedPerson().hasName(firstName, lastName);
     }
 
     public boolean isSelected(Person person) {
@@ -153,6 +145,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public void use_PERSON_DELETE_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_DELETE_ACCELERATOR);
+        guiRobot.sleep(1000);
     }
 
     public void navigateUp() {

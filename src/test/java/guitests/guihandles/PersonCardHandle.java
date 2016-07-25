@@ -92,7 +92,6 @@ public class PersonCardHandle extends GuiHandle {
             return getFirstName().equals(handle.getFirstName()) && getLastName().equals(handle.getLastName())
                    && getAddress().equals(handle.getAddress()) && getBirthday().equals(handle.getBirthday());
         }
-
         return super.equals(obj);
     }
 
