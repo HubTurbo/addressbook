@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Represents a global hotkey.
  */
-public class GlobalHotkey extends KeyBinding{
+public class GlobalHotkey extends KeyBinding {
     private static Map<KeyCombination, KeyStroke> map = new HashMap<>();
     static{
         map.put(KeyCodeCombination.valueOf("Ctrl + Alt + X"), KeyStroke.getKeyStroke("control alt X") );
@@ -23,7 +23,7 @@ public class GlobalHotkey extends KeyBinding{
     private KeyStroke keyStroke;
 
 
-    public GlobalHotkey(String name, KeyCombination keyCombination, BaseEvent eventToRaise){
+    public GlobalHotkey(String name, KeyCombination keyCombination, BaseEvent eventToRaise) {
         super(name, keyCombination, eventToRaise);
         this.keyStroke = getKeyStroke(keyCombination);
     }

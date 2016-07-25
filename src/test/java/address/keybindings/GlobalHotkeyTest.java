@@ -1,5 +1,6 @@
 package address.keybindings;
 
+import address.testutil.TestUtil;
 import javafx.scene.input.KeyCodeCombination;
 import org.junit.Test;
 
@@ -18,7 +19,7 @@ public class GlobalHotkeyTest {
 
     @Test
     public void toStringMethod() throws Exception {
-        assertEquals("Global Hotkey Sample hotkey Alt+Meta+X", globalHotkey.toString());
+        assertEquals(TestUtil.getOsDependentKeyCombinationString("Global Hotkey Sample hotkey Alt+Meta+X"), globalHotkey.toString());
     }
 
 }
