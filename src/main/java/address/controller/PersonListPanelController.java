@@ -44,13 +44,10 @@ public class PersonListPanelController extends UiController{
 
     @FXML
     private Button newButton;
-
     @FXML
     private Button editButton;
-
     @FXML
     private Button deleteButton;
-
     @FXML
     private ListView<ReadOnlyViewablePerson> personListView;
     @FXML
@@ -199,16 +196,13 @@ public class PersonListPanelController extends UiController{
         Expr filterExpression;
         try {
             filterExpression = parser.parse(filterField.getText());
+            if (filterField.getStyleClass().contains("error")) filterField.getStyleClass().remove("error");
         } catch (ParseException e) {
             logger.debug("Invalid filter found: {}", e);
             filterExpression = PredExpr.TRUE;
-        }
-
-        if (filterExpression != null) {
-            if (filterField.getStyleClass().contains("error")) filterField.getStyleClass().remove("error");
-        } else {
             if (!filterField.getStyleClass().contains("error")) filterField.getStyleClass().add("error");
         }
+
         raise(new FilterCommittedEvent(filterExpression));
     }
 

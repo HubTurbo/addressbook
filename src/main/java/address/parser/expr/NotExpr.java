@@ -13,4 +13,9 @@ public class NotExpr implements Expr {
     public boolean satisfies(ReadOnlyViewablePerson person) {
         return !expr.satisfies(person);
     }
+
+    @Override
+    public String toString() {
+        return "NOT (" + expr + ")";
+    }
 }

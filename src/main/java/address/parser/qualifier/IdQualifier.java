@@ -13,4 +13,9 @@ public class IdQualifier implements Qualifier {
     public boolean run(ReadOnlyViewablePerson person) {
         return person.getId() == id;
     }
+
+    @Override
+    public String toString() {
+        return "id=" + id;
+    }
 }

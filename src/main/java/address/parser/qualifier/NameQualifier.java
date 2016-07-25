@@ -3,17 +3,22 @@ package address.parser.qualifier;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 public class NameQualifier implements Qualifier {
-    private final String name;
+    private Qualifier firstNameQualifier;
+    private Qualifier lastNameQualifier;
 
     public NameQualifier(String name) {
-        this.name = name;
+        firstNameQualifier = new FirstNameQualifier(name);
+        lastNameQualifier = new LastNameQualifier(name);
     }
 
     @Override
     public boolean run(ReadOnlyViewablePerson person) {
-        Qualifier firstNameQualifier = new FirstNameQualifier(name);
-        Qualifier lastNameQualifier = new LastNameQualifier(name);
 
         return firstNameQualifier.run(person) || lastNameQualifier.run(person);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + firstNameQualifier + " OR " + lastNameQualifier + ")";
     }
 }

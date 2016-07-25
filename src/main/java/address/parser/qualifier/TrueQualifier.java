@@ -11,4 +11,9 @@ public class TrueQualifier implements Qualifier {
     public boolean run(ReadOnlyViewablePerson person) {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "TRUE";
+    }
 }

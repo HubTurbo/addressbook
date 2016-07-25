@@ -10,40 +10,59 @@ import address.parser.expr.PredExpr;
 import address.parser.qualifier.*;
 
 public class Parser {
+    private static final String NEGATION_REGEX = "!(!*\\w+)";
+    private static final String EXPR_REGEX = "\\s*(!*\\w+)\\s*:\\s*(\\w+)\\s*";
+
+    /**
+     * Parses the given input and returns a representative predicate
+     *
+     * @param input
+     * @return
+     * @throws ParseException if input has incorrect syntax
+     */
     public Expr parse(String input) throws ParseException {
         Expr result = PredExpr.TRUE;
 
-        Pattern pattern = Pattern.compile("\\s*(!*\\w+)\\s*:\\s*(\\w+)\\s*", Pattern.CASE_INSENSITIVE);
+        if (input.isEmpty()) return result;
+
+        Pattern pattern = Pattern.compile(EXPR_REGEX, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(input);
 
         while (!matcher.hitEnd()) {
             if (!matcher.find()) throw new ParseException("Part of input invalid '" + input + "'");
-            Expr intermediate = createPredicate(matcher.group(1), matcher.group(2));
+            Expr intermediate = getPredicate(matcher.group(1), matcher.group(2));
             result = new AndExpr(intermediate, result);
         }
 
         return result;
     }
 
-    private Expr createPredicate(String qualifierName, String qualifierContent) throws ParseException {
-        Matcher matcher = getNegativeMatcher(qualifierName);
+    /**
+     * Gets the predicate which represents the qualifier name and content
+     *
+     * @param qualifierName may be prefixed with multiple ! characters to signify negations
+     * @param qualifierContent
+     * @return
+     * @throws ParseException
+     */
+    private Expr getPredicate(String qualifierName, String qualifierContent) throws ParseException {
+        Matcher matcher = Pattern.compile(NEGATION_REGEX, Pattern.CASE_INSENSITIVE).matcher(qualifierName);
         if (matcher.matches()) {
-            return new NotExpr(createPredicate(matcher.group(1), qualifierContent));
+            return new NotExpr(getPredicate(matcher.group(1), qualifierContent));
         }
-        return getRawPredicate(qualifierName, qualifierContent);
+        return new PredExpr(getQualifier(qualifierName, qualifierContent));
     }
 
-    private Expr getRawPredicate(String qualifierName, String content) throws ParseException {
-        return new PredExpr(getQualifier(qualifierName, content));
-    }
-
-    private Matcher getNegativeMatcher(String type) {
-        Pattern pattern = Pattern.compile("!(!*\\w+)", Pattern.CASE_INSENSITIVE);
-        return pattern.matcher(type);
-    }
-
-    private Qualifier getQualifier(String type, String content) throws ParseException {
-        switch (type) {
+    /**
+     * Gets the Qualifier which represents the qualifier name and content
+     *
+     * @param qualifierName should match one of the qualifier strings
+     * @param content
+     * @return
+     * @throws ParseException if qualifier name does not match any of the qualifier strings
+     */
+    private Qualifier getQualifier(String qualifierName, String content) throws ParseException {
+        switch (qualifierName) {
             case "city":
                 return new CityQualifier(content);
             case "lastName":
@@ -59,7 +78,7 @@ public class Parser {
             case "id":
                 return new IdQualifier(parseInt(content));
             default:
-                throw new ParseException("Unrecognised qualifier " + type);
+                throw new ParseException("Unrecognised qualifier " + qualifierName);
         }
     }
 

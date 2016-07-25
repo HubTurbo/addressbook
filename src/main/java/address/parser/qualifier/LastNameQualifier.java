@@ -14,4 +14,9 @@ public class LastNameQualifier implements Qualifier {
     public boolean run(ReadOnlyViewablePerson person) {
         return StringUtil.containsIgnoreCase(person.getLastName(), lastName);
     }
+
+    @Override
+    public String toString() {
+        return "lastName=" + lastName;
+    }
 }
