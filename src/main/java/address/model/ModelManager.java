@@ -400,15 +400,21 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
     @Subscribe
     private void handleSyncCompletedEvent(SyncCompletedEvent uce) {
+        boolean changed = false;
         // Sync is done outside FX Application thread
         if (uce.getLatestTags().isPresent()) {
-            syncTags(uce.getLatestTags().get());
+            changed |= syncTags(uce.getLatestTags().get());
         }
-        syncPersons(uce.getUpdatedPersons());
-        raise(new LocalModelChangedEvent(this));
+        changed |= syncPersons(uce.getUpdatedPersons());
+        if (changed) {
+            raise(new LocalModelChangedEvent(this));
+        }
     }
 
-    private void syncPersons(Collection<Person> syncData) {
+    /**
+     * @return true if there were changes (syncdata not empty)
+     */
+    private boolean syncPersons(Collection<Person> syncData) {
         Set<Integer> deletedPersonIds = new HashSet<>();
         Map<Integer, ReadOnlyPerson> newOrUpdatedPersons = new HashMap<>();
         syncData.forEach(p -> {
@@ -418,7 +424,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
                 newOrUpdatedPersons.put(p.getId(), p);
             }
         });
-        PlatformExecUtil.runLater(() -> {
+        PlatformExecUtil.runAndWait(() -> {
             // removal
             backingModel.getPersons().removeAll(backingModel.getPersons().stream()
                     .filter(p -> deletedPersonIds.contains(p.getId())).collect(Collectors.toList())); // removeIf() not optimised
@@ -432,14 +438,20 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
             backingModel.getPersons().addAll(newOrUpdatedPersons.values().stream()
                     .map(Person::new).collect(Collectors.toList()));
         });
+        return !syncData.isEmpty();
     }
 
-    private void syncTags(Collection<Tag> syncData) {
+    /**
+     * @return true if there were changes
+     */
+    private boolean syncTags(Collection<Tag> syncData) {
         Set<Tag> latestTags = new HashSet<>(syncData);
-        backingModel.getTags().retainAll(latestTags); // delete
-        PlatformExecUtil.runLater(() -> {
-            latestTags.removeAll(backingModel.getTags()); // latest tags no longer contains tags already in model
-            backingModel.getTags().addAll(latestTags); // add
-        });
+        return backingModel.getTags().retainAll(latestTags) // delete
+                // non short circuiting OR
+                | PlatformExecUtil.callAndWait(() -> {
+                    latestTags.removeAll(backingModel.getTags()); // latest tags no longer contains tags already in model
+                    backingModel.getTags().addAll(latestTags); // add
+                    return !latestTags.isEmpty();
+                }, true);
     }
 }
