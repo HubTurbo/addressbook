@@ -54,7 +54,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
 
         //Confirm right values are displayed after grace period is over
-        mainGui.sleepForGracePeriod();
+        sleepForGracePeriod();
         assertEquals(alicePersonCard, newAlice);
 
         //Confirm the underlying person object has the right values
@@ -73,7 +73,6 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] completed successfully.");
     }
 
-
     @Test
     public void editPerson_usingContextMenu() {
         personListPanel.rightClickOnPerson(td.alice);
@@ -81,7 +80,6 @@ public class PersonEditGuiTest extends GuiTestBase {
                 PersonListPanelHandle.ContextMenuChoice.EDIT);
         assertTrue(editPersonDialog.isValidEditDialog());
     }
-
 
     @Test
     public void editPerson_usingEditButton() {
@@ -130,10 +128,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterNewValues(newAlice);
         editPersonDialog.pressEnter();
 
-        mainGui.focusOnMainApp();
         personListPanel.clickOnPerson(newAlice);
-
-        assertNotEquals(alicePersonCard, td.alice);
         assertEquals(alicePersonCard, newAlice);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertEquals(alicePersonCard, td.alice);
@@ -147,15 +142,18 @@ public class PersonEditGuiTest extends GuiTestBase {
         addPersonDialog.enterNewValues(pandaWong);
         addPersonDialog.clickOk();
 
-        mainGui.focusOnMainApp();
-        personListPanel.clickOnListView();
+        personListPanel.clickOnListView(); // To ensure shortcut keys work properly.
+
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
-        personListPanel.clickOnPerson(pandaWong);
-        PersonCardHandle pandaWongCardHandle = personListPanel.getSelectedCards().get(0);
-        assertNotNull(pandaWongCardHandle);
+        PersonCardHandle pandaWongCardHandle = personListPanel.getPersonCardHandle(pandaWong);
         assertEquals(pandaWongCardHandle, pandaWong);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
+        
+        //Ensure cancel operation has no side effects after grace period.
+        sleepForGracePeriod();
+        assertNull(personListPanel.getPersonCardHandle(pandaWong));
+        personListPanel.isListMatching(td.alice, td.benson, td.charlie, td.dan, td.elizabeth);
     }
 
     //TODO: testing edits during grace period

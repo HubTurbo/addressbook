@@ -120,4 +120,22 @@ public class EditPersonDialogHandle extends GuiHandle {
                 .forEach( (t) -> tagPersonDialog.enterSearchQuery(t.getName()).acceptSuggestedTag());
         tagPersonDialog.close();
     }
+
+    @Override
+    public void pressEnter() {
+        super.pressEnter();
+        focusOnMainApp();
+    }
+
+    @Override
+    protected void pressEsc() {
+        super.pressEsc();
+        focusOnMainApp();
+    }
+
+    @Override
+    public void clickOk() {
+        super.clickOk();
+        focusOnMainApp();
+    }
 }

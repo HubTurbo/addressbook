@@ -29,5 +29,6 @@ public class TagPersonDialogHandle extends GuiHandle {
     public void close() {
         super.pressEnter();
         guiRobot.sleep(200); // wait for closing animation
+
     }
 }

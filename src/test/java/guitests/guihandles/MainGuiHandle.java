@@ -67,7 +67,4 @@ public class MainGuiHandle extends GuiHandle{
         return guiRobot.sleep(duration, timeunit);
     }
 
-    public void focusOnMainApp() {
-        this.focusOnWindow(TestApp.APP_TITLE);
-    }
 }

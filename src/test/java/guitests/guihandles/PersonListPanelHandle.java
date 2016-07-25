@@ -170,6 +170,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public void clickOnPerson(Person person) {
+
         guiRobot.clickOn(person.getFirstName());
     }
 
@@ -378,6 +379,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     /**
      * Checks if the list is showing the person details correctly and in correct order.
+     * @param startPosition The starting position of the sub list.
      * @param persons A list of person in the correct order.
      * @return
      */
@@ -390,6 +392,15 @@ public class PersonListPanelHandle extends GuiHandle {
             }
         }
         return true;
+    }
+
+    /**
+     * Checks if the list is showing the person details correctly and in correct order.
+     * @param persons A list of person in the correct order.
+     * @return
+     */
+    public boolean isListMatching(Person... persons) {
+        return this.isListMatching(0, persons);
     }
 
     public PersonCardHandle getPersonCardHandle(Person person){

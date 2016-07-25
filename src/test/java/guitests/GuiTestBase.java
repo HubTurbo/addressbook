@@ -119,4 +119,8 @@ public class GuiTestBase {
         mainGui.sleep(duration, timeunit);
     }
 
+    public void sleepForGracePeriod() {
+        mainGui.sleepForGracePeriod();
+    }
+
 }

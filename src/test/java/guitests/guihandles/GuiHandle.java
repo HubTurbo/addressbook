@@ -1,5 +1,6 @@
 package guitests.guihandles;
 
+import address.TestApp;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import com.google.common.base.Optional;
@@ -144,4 +145,7 @@ public class GuiHandle {
         focusOnWindow(stageTitle);
     }
 
+    public void focusOnMainApp() {
+        this.focusOnWindow(TestApp.APP_TITLE);
+    }
 }

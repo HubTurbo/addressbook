@@ -42,7 +42,6 @@ public class FullSystemTest extends GuiTestBase {
         assertEquals("Singapore", editPersonDialog.getCity());
         assertEquals("john123", editPersonDialog.getGithubUserName());
         editPersonDialog.pressEnter();
-        mainGui.focusOnMainApp();
 
         //Filter persons list with 'colleagues' tag
         personListPanel.enterFilterAndApply("tag:colleagues");
@@ -65,8 +64,6 @@ public class FullSystemTest extends GuiTestBase {
         newPersonDialog.enterLastName("Lee");
         newPersonDialog.clickOk();
         assertTrue(personListPanel.contains("Ming", "Lee"));
-
-        mainGui.focusOnMainApp();
 
         //Create a new tag 'company' using the 'Manage Tags' dialog
         ManageTagsDialogHandle manageTagsDialog = mainMenu.clickOn("Tags", "Manage Tags")
