@@ -16,7 +16,8 @@ public class StatusBarHeaderController extends UiController{
     private MainController mainController;
     private ObservableList<SingleTargetCommandResultEvent> finishedCommands;
 
-    public StatusBarHeaderController(MainController mainController, ObservableList<SingleTargetCommandResultEvent> finishedCommands) {
+    public StatusBarHeaderController(MainController mainController,
+                                     ObservableList<SingleTargetCommandResultEvent> finishedCommands) {
         this.mainController = mainController;
         this.finishedCommands = finishedCommands;
         headerStatusBar = new StatusBar();
@@ -27,7 +28,8 @@ public class StatusBarHeaderController extends UiController{
         headerStatusBar.setOnMouseClicked(event -> mainController.showActivityHistoryDialog());
         this.finishedCommands.addListener((ListChangeListener<SingleTargetCommandResultEvent>) c -> {
             SingleTargetCommandResultEvent lastCommandInfo = finishedCommands.get(finishedCommands.size() - 1);
-            Platform.runLater(() -> headerStatusBar.setText(CommandResultFormatter.getStringRepresentation(lastCommandInfo)));
+            Platform.runLater(() ->
+                    headerStatusBar.setText(CommandResultFormatter.getStringRepresentation(lastCommandInfo)));
         });
     }
 

@@ -33,7 +33,8 @@ public class StorageManager extends ComponentManager {
     private File userPrefsFile;
 
 
-    public StorageManager(Consumer<ReadOnlyAddressBook> loadedDataCallback, Supplier<ReadOnlyAddressBook> defaultDataSupplier, Config config, UserPrefs userPrefs) {
+    public StorageManager(Consumer<ReadOnlyAddressBook> loadedDataCallback,
+                          Supplier<ReadOnlyAddressBook> defaultDataSupplier, Config config, UserPrefs userPrefs) {
         super();
         this.loadedDataCallback = loadedDataCallback;
         this.defaultDataSupplier = defaultDataSupplier;
@@ -154,7 +155,8 @@ public class StorageManager extends ComponentManager {
     /**
      * Saves the address book data in the file specified.
      */
-    public static void saveAddressBook(File file, ReadOnlyAddressBook data) throws IOException, DataConversionException {
+    public static void saveAddressBook(File file, ReadOnlyAddressBook data) throws IOException,
+                                                                                   DataConversionException {
         FileUtil.createIfMissing(file);
         XmlFileStorage.saveDataToFile(file, new StorageAddressBook(data));
     }

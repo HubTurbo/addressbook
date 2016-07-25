@@ -124,7 +124,8 @@ public class DependencyChecker {
         }
 
         List<String> librariesNotForCurrentMachine =  versionData.getLibraries().stream()
-                .filter(libDesc -> libDesc.getOs() != commons.OsDetector.Os.ANY && libDesc.getOs() != commons.OsDetector.getOs())
+                .filter(libDesc -> libDesc.getOs() != commons.OsDetector.Os.ANY
+                                    && libDesc.getOs() != commons.OsDetector.getOs())
                 .map(libDesc -> "lib/" + libDesc.getFileName())
                 .collect(Collectors.toList());
 

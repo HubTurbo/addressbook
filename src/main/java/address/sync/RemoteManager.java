@@ -66,9 +66,9 @@ public class RemoteManager {
             }
             personList.addAll(response.getData().get());
             curPage++;
-        } while (response.getNextPage() != 0); // may have problems if RESOURCES_PER_PAGE issues have been updated at the same second
-                                                // of the update request, since the second page will never be requested, and first page
-                                                // will always remain the same
+        } while (response.getNextPage() != 0); // may have problems if RESOURCES_PER_PAGE issues have been updated at
+                                               // the same second of the update request, since the second page will
+                                               // never be requested, and first page will always remain the same
         logger.info("{} updated persons.", personList.size());
         personLastUpdatedAt = LocalDateTime.now();
         return Optional.of(personList);
@@ -110,7 +110,9 @@ public class RemoteManager {
                 tagList.addAll(previousUpdateList.get());
             }
             curPage++;
-        } while (response.getNextPage() != 0 || curPage < prevPageCount);// does not handle the case moving from a fully-filled last page -> a new page with new tags
+        } while (response.getNextPage() != 0 || curPage < prevPageCount);// does not handle the case moving from a
+                                                                         // fully-filled last page ->
+                                                                         // a page with new tags
         lastUpdateInfo.setLastUpdatedAt(LocalDateTime.now());
         updateInformation.put(addressBookName, lastUpdateInfo);
         
@@ -152,7 +154,8 @@ public class RemoteManager {
      * @return Resulting person if update is successful
      * @throws IOException
      */
-    public Optional<Person> updatePerson(String addressBookName, int personId, ReadOnlyPerson updatedPerson) throws IOException {
+    public Optional<Person> updatePerson(String addressBookName, int personId, ReadOnlyPerson updatedPerson)
+            throws IOException {
         ExtractedRemoteResponse<Person> response = remoteService.updatePerson(addressBookName, personId, updatedPerson);
         logger.warn("Update person on remote request response code : " + response.getResponseCode());
         return response.getData();

@@ -179,7 +179,8 @@ public class MainController extends UiController{
 
         assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in rootLayout";
 
-        FxViewUtil.applyAnchorBoundaryParameters(statusBarHeaderController.getHeaderStatusBarView(), 0.0, 0.0, 0.0, 0.0);
+        FxViewUtil.applyAnchorBoundaryParameters(statusBarHeaderController.getHeaderStatusBarView(),
+                                                 0.0, 0.0, 0.0, 0.0);
         sbPlaceHolder.getChildren().add(statusBarHeaderController.getHeaderStatusBarView());
     }
 
@@ -196,7 +197,7 @@ public class MainController extends UiController{
         placeHolder.getChildren().add(gridPane);
     }
 
-    private Node loadLoader(FXMLLoader loader, String errorMsg ) {
+    private Node loadLoader(FXMLLoader loader, String errorMsg) {
         try {
             return loader.load();
         } catch (IOException e) {
@@ -618,7 +619,8 @@ public class MainController extends UiController{
         releaseResourcesForAppTermination();
     }
 
-    private void showFatalErrorDialogAndShutdown(String title, String headerText, String contentText, String errorLocation) {
+    private void showFatalErrorDialogAndShutdown(String title, String headerText, String contentText,
+                                                 String errorLocation) {
         showAlertDialogAndWait(AlertType.ERROR, title, headerText,
                 contentText + errorLocation);
         Platform.exit();

@@ -13,11 +13,11 @@ import java.util.Map;
  */
 public class GlobalHotkey extends KeyBinding {
     private static Map<KeyCombination, KeyStroke> map = new HashMap<>();
-    static{
-        map.put(KeyCodeCombination.valueOf("Ctrl + Alt + X"), KeyStroke.getKeyStroke("control alt X") );
-        map.put(KeyCodeCombination.valueOf("Meta + Alt + X"), KeyStroke.getKeyStroke("meta alt X") );
-        map.put(KeyCodeCombination.valueOf("Ctrl + Shift + X"), KeyStroke.getKeyStroke("control shift X") );
-        map.put(KeyCodeCombination.valueOf("Meta + Shift + X"), KeyStroke.getKeyStroke("meta shift X") );
+    static {
+        map.put(KeyCodeCombination.valueOf("Ctrl + Alt + X"), KeyStroke.getKeyStroke("control alt X"));
+        map.put(KeyCodeCombination.valueOf("Meta + Alt + X"), KeyStroke.getKeyStroke("meta alt X"));
+        map.put(KeyCodeCombination.valueOf("Ctrl + Shift + X"), KeyStroke.getKeyStroke("control shift X"));
+        map.put(KeyCodeCombination.valueOf("Meta + Shift + X"), KeyStroke.getKeyStroke("meta shift X"));
     }
 
     private KeyStroke keyStroke;
@@ -32,7 +32,7 @@ public class GlobalHotkey extends KeyBinding {
         return keyStroke;
     }
 
-    private static KeyStroke getKeyStroke(KeyCombination keyCombination){
+    private static KeyStroke getKeyStroke(KeyCombination keyCombination) {
         KeyStroke keyStroke = map.get(keyCombination);
         assert keyStroke != null;
         return keyStroke;

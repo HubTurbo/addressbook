@@ -10,8 +10,8 @@ public class CreatePersonOnRemoteRequestEvent extends BaseEvent {
     private ReadOnlyPerson createdPerson;
     private String addressBookName;
 
-    public CreatePersonOnRemoteRequestEvent(CompletableFuture<ReadOnlyPerson> returnedPersonContainer, String addressBookName,
-                                            ReadOnlyPerson createdPerson) {
+    public CreatePersonOnRemoteRequestEvent(CompletableFuture<ReadOnlyPerson> returnedPersonContainer,
+                                            String addressBookName, ReadOnlyPerson createdPerson) {
         this.returnedPersonContainer = returnedPersonContainer;
         this.addressBookName = addressBookName;
         this.createdPerson = createdPerson;

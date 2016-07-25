@@ -38,12 +38,12 @@ public final class PlatformExecUtil {
      * @return {@code failValue} if there was an exception during execution, else result of {@code callback}
      */
     public static <T> T callAndWait(Callable<T> callback, T failValue) {
-            try {
-                return call(callback).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-                return failValue; // execution exception, unable to retrieve data
-            }
+        try {
+            return call(callback).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return failValue; // execution exception, unable to retrieve data
+        }
     }
 
     public static void runLaterDelayed(Runnable action, long delay, TimeUnit unit) {

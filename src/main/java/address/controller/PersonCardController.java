@@ -78,7 +78,7 @@ public class PersonCardController extends UiController {
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
 
-        address.textProperty().bind(new StringBinding(){
+        address.textProperty().bind(new StringBinding() {
             {
                 bind(person.streetProperty());
                 bind(person.postalCodeProperty());
@@ -122,7 +122,8 @@ public class PersonCardController extends UiController {
         commandTypeLabel.setText(person.getOngoingCommandType().toString());
 
         person.ongoingCommandStateProperty().addListener((obs, old, newVal) -> handleCommandState(newVal));
-        person.ongoingCommandTypeProperty().addListener((obs, old, newVal) -> commandTypeLabel.setText(newVal.toString()));
+        person.ongoingCommandTypeProperty().addListener((obs, old, newVal) ->
+                commandTypeLabel.setText(newVal.toString()));
         person.secondsLeftInPendingStateProperty().addListener(prop -> // invalidation listener on purpose!
                 commandStateInfoLabel.setText("" + person.getSecondsLeftInPendingState()));
     }
@@ -156,7 +157,7 @@ public class PersonCardController extends UiController {
      */
     private void setProfileImage() {
         final Optional<String> profileImageUrl = person.githubProfilePicUrl();
-        if (profileImageUrl.isPresent()){
+        if (profileImageUrl.isPresent()) {
             new Thread(() -> {
                 Image image = ImageManager.getInstance().getImage(profileImageUrl.get());
                 if (image != null && image.getHeight() > 0) {

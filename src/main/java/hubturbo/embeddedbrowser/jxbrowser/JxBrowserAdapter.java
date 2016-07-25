@@ -71,7 +71,7 @@ public class JxBrowserAdapter implements EmbeddedBrowser, LoadListener {
 
     @Override
     public String getOriginUrlString() {
-        return ((JxBrowser)browserView.getBrowser()).getOriginUrl();
+        return ((JxBrowser) browserView.getBrowser()).getOriginUrl();
     }
 
     @Override

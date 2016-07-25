@@ -53,14 +53,16 @@ public class GithubProfilePage implements PageInterface {
      */
     private void executePageLoadedTasks() {
         try {
-            if (page.verifyPresenceByClassNames(REPO_LIST_CLASS_NAME) || page.verifyPresenceByIds(ORGANIZATION_REPO_ID)) {
+            if (page.verifyPresenceByClassNames(REPO_LIST_CLASS_NAME)
+                    || page.verifyPresenceByIds(ORGANIZATION_REPO_ID)) {
                 page.scrollTo(Page.SCROLL_TO_END);
                 return;
             }
 
             if (page.verifyPresence(new String[]{JS_PJAX_CONTAINER_ID, OCTICON_REPO_CLASS_NAME})) {
-                page.getElementById(JS_PJAX_CONTAINER_ID).addEventListener(EbDomEventType.ON_LOAD, new JxDomEventListenerAdapter(e ->
-                        Platform.runLater(() -> page.scrollTo(Page.SCROLL_TO_END))), true);
+                page.getElementById(JS_PJAX_CONTAINER_ID).addEventListener(EbDomEventType.ON_LOAD,
+                        new JxDomEventListenerAdapter(e -> Platform.runLater(() -> page.scrollTo(Page.SCROLL_TO_END))),
+                        true);
                 page.clickOnElement(page.getElementByClass(OCTICON_REPO_CLASS_NAME));
             }
         } catch (NullPointerException e) {

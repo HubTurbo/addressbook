@@ -25,7 +25,7 @@ public class KeySequence extends KeyBinding {
     public KeySequence(String name, KeyCombination firstKeyCombination,
                        KeyCombination secondKeyCombination, BaseEvent eventToRaise) {
         super(name, firstKeyCombination, eventToRaise);
-        assert secondKeyCombination != null: "Second key combination cannot be null";
+        assert secondKeyCombination != null : "Second key combination cannot be null";
         this.secondKeyCombination = secondKeyCombination;
     }
 

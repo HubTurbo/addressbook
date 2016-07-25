@@ -157,7 +157,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
     private int computeMoveToIndex(double currentYPosition, List<ReadOnlyViewablePerson> listOfDragPersons) {
         int moveToIndex;
         ObservableList<ReadOnlyViewablePerson> list = this.getListView().getItems();
-        double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
+        double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() / 2;
         getListView().getSelectionModel().clearSelection();
 
         if (currentYPosition < midPoint) {
@@ -177,7 +177,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
      * @param event
      */
     private void showDragDropIndicator(DragEvent event) {
-        double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
+        double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() / 2;
         double pointerY = event.getSceneY();
         if (pointerY < midPoint) {
             setDropLocationIndicator("top");
@@ -205,9 +205,11 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     private void setDropLocationIndicator(String location) {
         if (location.equals("top")) {
-            this.setStyle(this.getGraphic().getStyle() + " -fx-border-color: #0645AD; -fx-border-width: 2.0 0.0 0.0 0.0;");
+            this.setStyle(this.getGraphic().getStyle()
+                    + " -fx-border-color: #0645AD; -fx-border-width: 2.0 0.0 0.0 0.0;");
         } else if (location.equals("bottom")) {
-            this.setStyle(this.getGraphic().getStyle() + "-fx-border-color: #0645AD; -fx-border-width: 0.0 0.0 2.0 0.0;");
+            this.setStyle(this.getGraphic().getStyle()
+                    + "-fx-border-color: #0645AD; -fx-border-width: 0.0 0.0 2.0 0.0;");
         }
     }
 

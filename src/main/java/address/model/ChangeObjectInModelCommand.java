@@ -316,8 +316,8 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
 
     /**
      * Runs when {@link CommandState#CONFLICT_FOUND} is reached.
-     * After this method completes, the command is {@link CommandState#CANCELLED}, perform all prompts and informing the user
-     * in this method, then recovery should utilise a new command.
+     * After this method completes, the command is {@link CommandState#CANCELLED}, perform all prompts and informing
+     * the user in this method, then recovery should utilise a new command.
      * @see #handleRequestFailed()
      */
     protected abstract void handleRemoteConflict();
@@ -336,8 +336,8 @@ public abstract class ChangeObjectInModelCommand implements Runnable {
 
     /**
      * Runs when {@link CommandState#REQUEST_FAILED} is reached.
-     * After this method completes, the command is {@link CommandState#CANCELLED}, perform all prompts and informing the user
-     * in this method, then recovery should utilise a new command.
+     * After this method completes, the command is {@link CommandState#CANCELLED}, perform all prompts and informing
+     * the user in this method, then recovery should utilise a new command.
      * @see #handleRemoteConflict()
      */
     protected abstract void handleRequestFailed();

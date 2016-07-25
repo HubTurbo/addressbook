@@ -101,11 +101,11 @@ public class PersonListPanelController extends UiController {
 
     private void loadGithubProfilePageWhenPersonIsSelected(MainController mainController) {
         personListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    logger.debug("Person in list view clicked. Loading GitHub profile page: '{}'", newValue);
-                    mainController.loadGithubProfilePage(newValue);
-                }
-            });
+            if (newValue != null) {
+                logger.debug("Person in list view clicked. Loading GitHub profile page: '{}'", newValue);
+                mainController.loadGithubProfilePage(newValue);
+            }
+        });
     }
 
     private void disableEditCommandForMultipleSelection() {
@@ -158,7 +158,8 @@ public class PersonListPanelController extends UiController {
     private void handleEditPerson() {
         if (checkAndHandleInvalidSelection()) {
             final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
-            modelManager.editPersonThroughUI(editTarget, () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
+            modelManager.editPersonThroughUI(editTarget,
+                    () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
         }
     }
 
@@ -228,7 +229,8 @@ public class PersonListPanelController extends UiController {
         editMenuItem.disableProperty().bind(shouldDisableEdit); // disable if multiple selected
 
         final MenuItem retryFailedMenuItem = initContextMenuItem("Retry",
-                getAcceleratorKeyCombo("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR").get(), this::handleRetryFailedCommands);
+                getAcceleratorKeyCombo("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR").get(),
+                this::handleRetryFailedCommands);
         retryFailedMenuItem.setId(generateMenuItemId("retryFailed"));
         retryFailedMenuItem.visibleProperty().bind(shouldAllowRetry);
 

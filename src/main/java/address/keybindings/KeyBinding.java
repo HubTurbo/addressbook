@@ -29,7 +29,9 @@ public abstract class KeyBinding {
         return eventToRaise;
     }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 
     protected String getDisplayText(){
         return getName() + " " + keyCombination.getDisplayText();

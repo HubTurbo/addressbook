@@ -51,7 +51,8 @@ public class UpdaterUtil {
      * @param waitTime amount of time to wait between retries
      * @throws IOException
      */
-    public static void updateFile(String sourceDir, String fileToUpdatePath, int maxRetries, int waitTime) throws IOException {
+    public static void updateFile(String sourceDir, String fileToUpdatePath, int maxRetries, int waitTime)
+            throws IOException {
         Path source = Paths.get(sourceDir, fileToUpdatePath);
         Path dest = Paths.get(fileToUpdatePath);
         createFileAndParentDirs(dest);
@@ -60,7 +61,8 @@ public class UpdaterUtil {
             if (applyUpdate(source, dest)) return;
             if (i != maxRetries - 1) sleepFor(waitTime);
         }
-        throw new IOException("File " + fileToUpdatePath + " cannot be updated. Most likely it is in use by another process.");
+        throw new IOException("File " + fileToUpdatePath + " cannot be updated. Most likely it is in use by another"
+                + " process.");
     }
 
     /**
@@ -79,7 +81,8 @@ public class UpdaterUtil {
             if (applyDelete(fileToDeletePath)) return;
             if (i != maxRetries - 1) sleepFor(waitTime);
         }
-        throw new IOException("File " + fileToDeletePath + " cannot be deleted. Most likely it is in use by another process.");
+        throw new IOException("File " + fileToDeletePath + " cannot be deleted. Most likely it is in use by another"
+                + " process.");
     }
 
     /**

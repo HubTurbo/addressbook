@@ -52,7 +52,7 @@ public class LoggerManager {
 
     private static void updateExistingLoggersLevel(AbstractConfiguration absConfig) {
         absConfig.getLoggers().forEach((loggerName, loggerConfig) -> {
-                loggerConfig.setLevel(determineLoggingLevelToSet(loggerName));
+            loggerConfig.setLevel(determineLoggingLevelToSet(loggerName));
         });
     }
 
