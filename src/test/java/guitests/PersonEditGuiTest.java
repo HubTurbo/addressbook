@@ -42,8 +42,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Edit Alice to change to new values
         personListPanel.clickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
-        editPersonDialog.enterNewValues(newAlice);
-        editPersonDialog.pressEnter();
+        editPersonDialog.enterNewValues(newAlice).pressEnter();
 
         //Confirm pending state correctness
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
@@ -125,8 +124,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Edit Alice to change to new values
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
-        editPersonDialog.enterNewValues(newAlice);
-        editPersonDialog.pressEnter();
+        editPersonDialog.enterNewValues(newAlice).pressEnter();
 
         personListPanel.clickOnPerson(newAlice);
         assertEquals(alicePersonCard, newAlice);
@@ -139,8 +137,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         Person pandaWong = new PersonBuilder("Panda", "Wong")
                 .withStreet("Chengdu Panda Street").withCity("Chengdu").withPostalCode("PANDA")
                 .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
-        addPersonDialog.enterNewValues(pandaWong);
-        addPersonDialog.clickOk();
+        addPersonDialog.enterNewValues(pandaWong).clickOk();
 
         personListPanel.clickOnListView(); // To ensure shortcut keys work properly.
 
@@ -156,5 +153,31 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.isListMatching(td.alice, td.benson, td.charlie, td.dan, td.elizabeth);
     }
 
-    //TODO: testing edits during grace period
+    @Test
+    public void editPerson_editDuringGracePeriod() {
+        //Edit
+        Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
+                .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
+                .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(td.colleagues, td.friends).build();
+
+        //Get a reference to the card displaying Alice's details
+        PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
+
+        //Edit Alice to change to new values
+        EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        editPersonDialog.enterNewValues(newAlice).pressEnter();
+        personListPanel.clickOnPerson(newAlice);
+
+        //Edit Alice again during pending state.
+        editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        Person newerAlice = new PersonBuilder(newAlice.copy()).withFirstName("Felicia").withLastName("Yellowstone")
+                .withStreet("street updated").withCity("Malaysia").withPostalCode("321321")
+                .withBirthday("11.11.1979").withGithubUsername("yellowstone").withTags(td.colleagues).build();
+        editPersonDialog.enterNewValues(newerAlice).pressEnter();
+
+        //Ensure card is displaying Felicia before and after grace period.
+        assertEquals(alicePersonCard, newerAlice);
+        sleepForGracePeriod();
+        assertEquals(alicePersonCard, newerAlice);
+    }
 }

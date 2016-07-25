@@ -107,7 +107,7 @@ public class EditPersonDialogHandle extends GuiHandle {
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
-    public void enterNewValues(Person newValues) {
+    public EditPersonDialogHandle enterNewValues(Person newValues) {
         enterFirstName(newValues.getFirstName());
         enterLastName(newValues.getLastName());
         enterStreet(newValues.getStreet());
@@ -119,6 +119,7 @@ public class EditPersonDialogHandle extends GuiHandle {
         newValues.getTagList().stream()
                 .forEach( (t) -> tagPersonDialog.enterSearchQuery(t.getName()).acceptSuggestedTag());
         tagPersonDialog.close();
+        return this;
     }
 
     @Override
