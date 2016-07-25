@@ -29,7 +29,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         personListPanel.use_LIST_ENTER_SHORTCUT();
         assertTrue(personListPanel.isSelected(td.alice));
 
-        personListPanel.clickOnListView();
+        //personListPanel.clickOnListView();
 
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
         assertTrue(personListPanel.isSelected(td.dan));
@@ -72,8 +72,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         //Focus on MainApp, could not abstract into tagPersonDialog.close(), as closing tagDialog may lead to
         //focusing on EditDialog or MainApp.
         mainGui.focusOnMainApp();
-
-        personListPanel.clickOnListView();
+        //personListPanel.clickOnListView();
 
         //======== others ============================
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
@@ -93,7 +92,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
      */
     @Test
     public void testHotKeys() {
-        personListPanel.clickOnListView();
+        //personListPanel.clickOnListView();
 
         mainGui.use_APP_MINIMIZE_HOTKEY();
         assertTrue(mainGui.isMinimized());

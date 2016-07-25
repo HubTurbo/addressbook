@@ -63,7 +63,6 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 
         //Confirm other cards are unaffected.
-        personListPanel.clickOnListView();
         assertTrue(personListPanel.isListMatching(1, td.benson, td.charlie, td.dan, td.elizabeth));
 
         //Confirm status bar is updated correctly
@@ -137,7 +136,7 @@ public class PersonEditGuiTest extends GuiTestBase {
                 .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
         addPersonDialog.enterNewValues(pandaWong).clickOk();
 
-        personListPanel.clickOnListView(); // To ensure shortcut keys work properly.
+        //personListPanel.clickOnListView(); // To ensure shortcut keys work properly.
 
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
         PersonCardHandle pandaWongCardHandle = personListPanel.getPersonCardHandle(pandaWong);
@@ -183,7 +182,6 @@ public class PersonEditGuiTest extends GuiTestBase {
                 .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
         addPersonDialog.enterNewValues(pandaWong).clickOk();
         sleepForGracePeriod();
-        personListPanel.clickOnListView();
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertEquals(personListPanel.getPersonCardHandle(pandaWong), pandaWong);

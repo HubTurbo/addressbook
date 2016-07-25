@@ -39,7 +39,7 @@ public class PersonListGuiTest extends GuiTestBase {
 
     @Test
     public void dragAndDrop_scrollDownDrag_listReordered() {
-        personListPanel.clickOnListView();
+       // personListPanel.clickOnListView();
         //drag the person at the middle and drop at the bottom
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
         personListPanel.scrollDrag(td.charlie.getFirstName(), VerticalDirection.DOWN, 5, TimeUnit.SECONDS);
