@@ -410,7 +410,7 @@ public class UpdateManager extends ComponentManager {
         try {
             return JsonUtil.fromJsonStringToList(FileUtil.readFromFile(file), Version.class);
         } catch (IOException e) {
-            logger.debug("Failed to read downloaded version from file: " + e);
+            logger.debug("Failed to read downloaded version from file: {}", e);
             return new ArrayList<>();
         }
     }
