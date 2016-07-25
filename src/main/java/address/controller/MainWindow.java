@@ -1,6 +1,7 @@
 package address.controller;
 
 import address.MainApp;
+import address.events.KeyBindingEvent;
 import address.events.MinimizeAppRequestEvent;
 import address.events.ResizeAppRequestEvent;
 import address.keybindings.KeyBindingsManager;
@@ -8,19 +9,19 @@ import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.ui.Ui;
 import address.util.AppLogger;
+import address.util.Config;
 import address.util.GuiSettings;
 import address.util.LoggerManager;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 /**
  * The Main Window. Provides the basic application layout containing
@@ -65,8 +66,20 @@ public class MainWindow extends BaseUiPart {
         return FXML;
     }
 
-    public void configure(String appTitle, UserPrefs prefs, MainApp mainApp,
-                          Ui ui, ModelManager modelManager) {
+    public static MainWindow load(Stage primaryStage, Config config, UserPrefs prefs, MainApp mainApp, Ui ui, ModelManager modelManager) {
+        logger.debug("Initializing main window.");
+        MainWindow mainWindow = UiPartLoader.loadUiPart(primaryStage, new MainWindow());
+        mainWindow.configure(config.getAppTitle(), prefs, mainApp, ui, modelManager);
+        mainWindow.setKeyEventHandler();
+        mainWindow.setAccelerators();
+        return mainWindow;
+    }
+
+    private void setKeyEventHandler(){
+        scene.setOnKeyPressed((e) -> raisePotentialEvent(new KeyBindingEvent(e)));
+    }
+
+    private void configure(String appTitle, UserPrefs prefs, MainApp mainApp, Ui ui, ModelManager modelManager) {
         //Set connections
         this.mainApp = mainApp;
         this.ui = ui;
@@ -122,9 +135,7 @@ public class MainWindow extends BaseUiPart {
         Platform.runLater(this::minimizeWindow);
     }
 
-    public void setKeyEventHandler(EventHandler<? super KeyEvent> handler){
-        scene.setOnKeyPressed(handler);
-    }
+
 
     //TODO: to be removed with more specific method e.g. getListPanelSlot
     public AnchorPane getAnchorPane(String anchorPaneId) {

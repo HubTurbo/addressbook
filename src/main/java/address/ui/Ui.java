@@ -97,7 +97,7 @@ public class Ui{
         try {
             logger.info("Starting main UI.");
 
-            mainWindow = createMainWindowFrame(primaryStage);
+            mainWindow = MainWindow.load(primaryStage, config, prefs, mainApp, this, modelManager);
             mainWindow.show(); //This should be called before creating other UI parts
 
             mainWindow.fillInnerParts();
@@ -118,23 +118,6 @@ public class Ui{
         prefs.updateLastUsedGuiSetting(mainWindow.getCurrentGuiSetting());
         mainWindow.hide();
         releaseResourcesForAppTermination();
-    }
-
-    /**
-     * Initializes the root layout and tries to load the last opened
-     * person file.
-     */
-    public MainWindow createMainWindowFrame(Stage primaryStage) {
-        logger.debug("Initializing main window.");
-        MainWindow mainWindow = UiPartLoader.loadUiPart(primaryStage, new MainWindow());
-        mainWindow.configure(config.getAppTitle(), prefs, mainApp, this, modelManager);
-        mainWindow.setKeyEventHandler(this::handleKeyEvent);
-        mainWindow.setAccelerators();
-        return mainWindow;
-    }
-
-    private void handleKeyEvent(KeyEvent keyEvent) {
-        EventManager.getInstance().postPotentialEvent(new KeyBindingEvent(keyEvent));
     }
 
     private void showHeaderStatusBar() {
