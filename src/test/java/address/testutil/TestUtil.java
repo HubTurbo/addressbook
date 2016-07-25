@@ -349,7 +349,5 @@ public class TestUtil {
         return keyCombinationString.replaceAll("Alt\\+", "⌥")
                 .replaceAll("Meta\\+", "⌘")
                 .replaceAll("Shift\\+", "⇧");
-
-
     }
 }

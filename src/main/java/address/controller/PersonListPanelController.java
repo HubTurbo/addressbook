@@ -218,12 +218,12 @@ public class PersonListPanelController extends UiController{
 
         final MenuItem editMenuItem = initContextMenuItem("Edit",
                 getAcceleratorKeyCombo("PERSON_EDIT_ACCELERATOR").get(), this::handleEditPerson);
-        editMenuItem.setId("editMenuItem");
+        editMenuItem.setId(generateMenuItemId("edit"));
         editMenuItem.disableProperty().bind(shouldDisableEdit); // disable if multiple selected
 
         final MenuItem retryFailedMenuItem = initContextMenuItem("Retry",
                 getAcceleratorKeyCombo("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR").get(), this::handleRetryFailedCommands);
-        retryFailedMenuItem.setId("retryFailedMenuItem");
+        retryFailedMenuItem.setId(generateMenuItemId("retryFailed"));
         retryFailedMenuItem.visibleProperty().bind(shouldAllowRetry);
 
         contextMenu.getItems().addAll(
@@ -237,16 +237,20 @@ public class PersonListPanelController extends UiController{
                 retryFailedMenuItem
         );
         contextMenu.setId("personListContextMenu");
-        logger.debug("context menu for listview card created" + contextMenu.toString());
+        logger.debug("Context menu for listview card created: " + contextMenu.toString());
         return contextMenu;
     }
 
     private MenuItem initContextMenuItem(String name, KeyCombination accel, Runnable action) {
         final MenuItem menuItem = new MenuItem(name);
-        menuItem.setId(name.toLowerCase() + "MenuItem");
+        menuItem.setId(generateMenuItemId(name));
         menuItem.setAccelerator(accel);
         menuItem.setOnAction(e -> action.run());
         return menuItem;
+    }
+
+    private String generateMenuItemId(String menuItemName) {
+        return menuItemName.toLowerCase() + "MenuItem";
     }
 
     @Subscribe

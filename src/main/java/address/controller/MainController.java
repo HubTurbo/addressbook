@@ -575,8 +575,8 @@ public class MainController extends UiController{
     }
 
     private void minimizeWindow() {
-        logger.info("minimizing app");
-        logger.info("primaryStage title: " + primaryStage.getTitle());
+        logger.info("Minimizing App");
+        logger.debug("PrimaryStage title: " + primaryStage.getTitle());
         primaryStage.setIconified(true);
         primaryStage.setMaximized(false);
     }
@@ -584,7 +584,6 @@ public class MainController extends UiController{
     private void handleResizeRequest() {
         logger.info("Handling resize request.");
         if (primaryStage.isIconified()) {
-            logger.info("iconified window, showing window instead.");
             logger.debug("Cannot resize as window is iconified, attempting to show window instead.");
             primaryStage.setIconified(false);
         } else {
