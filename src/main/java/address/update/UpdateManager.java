@@ -375,7 +375,7 @@ public class UpdateManager extends ComponentManager {
      */
     private void createContentFile(File targetFile, InputStream contentStream) throws IOException {
         createFile(targetFile);
-        Files.copy(contentStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        FileUtil.writeStreamIntoFile(contentStream, targetFile.toPath());
     }
 
     private InputStream getUrlStream(URL source) throws IOException {

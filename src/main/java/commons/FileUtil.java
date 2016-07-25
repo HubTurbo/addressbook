@@ -167,6 +167,18 @@ public class FileUtil {
     }
 
     /**
+     * Writes the content of a stream into a file
+     *
+     * Overwrites any existing file found at filePath
+     * @param in
+     * @param filePath
+     * @throws IOException
+     */
+    public static void writeStreamIntoFile(InputStream in, Path filePath) throws IOException {
+        Files.copy(in, filePath, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /**
      * Writes given string to a file.
      * Will create the file if it does not exist yet.
      */
