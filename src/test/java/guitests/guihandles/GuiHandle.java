@@ -53,7 +53,7 @@ public class GuiHandle {
                         && ((Stage) w).getTitle().equals(stageTitle)).findAny();
 
         if(!window.isPresent()) {
-            logger.fatal("Can't find stage " + stageTitle + ", Therefore, aborting focusing");
+            logger.warn("Can't find stage " + stageTitle + ", Therefore, aborting focusing");
             return;
         }
 
