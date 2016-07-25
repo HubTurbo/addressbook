@@ -20,6 +20,6 @@ public class AndExpr implements Expr {
 
     @Override
     public String toString() {
-        return "(" + left + " AND " + right + ")";
+        return "(" + left + ") AND (" + right + ")";
     }
 }

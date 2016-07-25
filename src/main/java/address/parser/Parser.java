@@ -22,14 +22,13 @@ public class Parser {
      */
     public Expr parse(String input) throws ParseException {
         Expr result = PredExpr.TRUE;
-
         if (input.isEmpty()) return result;
 
         Pattern pattern = Pattern.compile(EXPR_REGEX, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(input);
 
         while (!matcher.hitEnd()) {
-            if (!matcher.find()) throw new ParseException("Part of filter invalid");
+            if (!matcher.find()) throw new ParseException("Part of filter unrecognised");
             Expr intermediate = getPredicate(matcher.group(1), matcher.group(2));
             result = new AndExpr(intermediate, result);
         }

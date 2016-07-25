@@ -16,6 +16,6 @@ public class NotExpr implements Expr {
 
     @Override
     public String toString() {
-        return "NOT (" + expr + ")";
+        return "NOT(" + expr + ")";
     }
 }

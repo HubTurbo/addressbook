@@ -19,6 +19,6 @@ public class NameQualifier implements Qualifier {
 
     @Override
     public String toString() {
-        return "(" + firstNameQualifier + " OR " + lastNameQualifier + ")";
+        return firstNameQualifier + " OR " + lastNameQualifier;
     }
 }
