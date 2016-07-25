@@ -17,4 +17,9 @@ public class TagQualifier implements Qualifier {
                 .findAny()
                 .isPresent();
     }
+
+    @Override
+    public String toString() {
+        return "tag=" + tagName;
+    }
 }

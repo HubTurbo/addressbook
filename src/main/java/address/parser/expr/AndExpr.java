@@ -17,4 +17,9 @@ public class AndExpr implements Expr {
     public boolean satisfies(ReadOnlyViewablePerson person) {
         return left.satisfies(person) && right.satisfies(person);
     }
+
+    @Override
+    public String toString() {
+        return "(" + left + ") AND (" + right + ")";
+    }
 }

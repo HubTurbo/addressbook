@@ -14,4 +14,9 @@ public class StreetQualifier implements Qualifier {
     public boolean run(ReadOnlyViewablePerson person) {
         return StringUtil.containsIgnoreCase(person.getStreet(), street);
     }
+
+    @Override
+    public String toString() {
+        return "street=" + street;
+    }
 }

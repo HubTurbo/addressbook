@@ -14,4 +14,9 @@ public class CityQualifier implements Qualifier {
     public boolean run(ReadOnlyViewablePerson person) {
         return StringUtil.containsIgnoreCase(person.getCity(), city);
     }
+
+    @Override
+    public String toString() {
+        return "city=" + city;
+    }
 }

@@ -17,4 +17,9 @@ public class PredExpr implements Expr {
     public boolean satisfies(ReadOnlyViewablePerson person) {
         return qualifier.run(person);
     }
+
+    @Override
+    public String toString() {
+        return qualifier.toString();
+    }
 }
