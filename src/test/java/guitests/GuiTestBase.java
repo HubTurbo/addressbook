@@ -22,6 +22,7 @@ import org.loadui.testfx.GuiTest;
 import org.testfx.api.FxToolkit;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class GuiTestBase {
@@ -112,6 +113,10 @@ public class GuiTestBase {
         TestUtil.renameFile(file, this.getClass().getName() + name.getMethodName() + ".png");
         FxToolkit.cleanupStages();
         testApp.deregisterHotKeys();
+    }
+
+    public void sleep(long duration, TimeUnit timeunit) {
+        mainGui.sleep(duration, timeunit);
     }
 
 }

@@ -19,7 +19,7 @@ public class TagEditDialogTest extends GuiTestBase {
         assertEquals(handle.getEditTagDialogText(), "friends");
 
         handle.changeEditTagDialogText("family");
-        mainGui.sleep(1, TimeUnit.SECONDS);
+        sleep(1, TimeUnit.SECONDS);
         assertEquals(handle.getEditTagDialogText(), "family");
         handle.clickOk();
         assertTrue(handle.contains("family"));

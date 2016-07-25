@@ -45,7 +45,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterNewValues(newAlice);
         editPersonDialog.pressEnter();
 
-        mainGui.sleep(1, TimeUnit.SECONDS);
+        sleep(1, TimeUnit.SECONDS);
 
         //Confirm pending state correctness
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
@@ -64,7 +64,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
 
         //Confirm again after the next sync
-        mainGui.sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
+        sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 
         //Confirm other cards are unaffected.
@@ -112,11 +112,11 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Delete
         PersonCardHandle aliceCard = personListPanel.selectCard(td.alice);
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        mainGui.sleep(1, TimeUnit.SECONDS);
+        sleep(1, TimeUnit.SECONDS);
         assertTrue(aliceCard.isShowingGracePeriod("Deleting"));
 
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        mainGui.sleep(1, TimeUnit.SECONDS);
+        sleep(1, TimeUnit.SECONDS);
         assertFalse(aliceCard.isShowingGracePeriod("Deleting"));
         assertEquals(statusBar.getText(), "Delete Person [ " + aliceCard.getFirstName() + " "
                      + aliceCard.getLastName() + " ] was cancelled.");
@@ -139,7 +139,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         assertNotEquals(alicePersonCard, td.alice);
         assertEquals(alicePersonCard, newAlice);
-        mainGui.sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
+        sleep(ModelManager.GRACE_PERIOD_DURATION/2, TimeUnit.SECONDS);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertEquals(alicePersonCard, td.alice);
         assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] was cancelled.");
@@ -159,7 +159,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         PersonCardHandle pandaWongCardHandle = personListPanel.getSelectedCards().get(0);
         assertNotNull(pandaWongCardHandle);
         assertEquals(pandaWongCardHandle, pandaWong);
-        mainGui.sleep(1, TimeUnit.SECONDS);
+        sleep(1, TimeUnit.SECONDS);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
     }
