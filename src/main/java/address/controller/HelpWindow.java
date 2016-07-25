@@ -1,6 +1,8 @@
 package address.controller;
 
+import address.util.AppLogger;
 import address.util.AppUtil;
+import address.util.LoggerManager;
 import commons.FxViewUtil;
 import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.fxbrowser.FxBrowserAdapter;
@@ -15,6 +17,7 @@ import javafx.stage.Stage;
  * The Help Window UI Part.
  */
 public class HelpWindow extends BaseUiPart {
+    private static final AppLogger logger = LoggerManager.getLogger(HelpWindow.class);
     private static final String ICON = "/images/help_icon.png";
     public static final String FXML = "HelpWindow.fxml";
     public static final String TITLE = "Help";
@@ -28,6 +31,13 @@ public class HelpWindow extends BaseUiPart {
     public HelpWindow() {
     }
 
+    public static HelpWindow load(Stage primaryStage) {
+        logger.debug("Showing help page about the application.");
+        HelpWindow helpWindow = UiPartLoader.loadUiPart(primaryStage, new HelpWindow());
+        helpWindow.configure();
+        return helpWindow;
+    }
+
     @FXML
     public void initialize() {
         EmbeddedBrowser browser = new FxBrowserAdapter(new WebView());
@@ -36,7 +46,7 @@ public class HelpWindow extends BaseUiPart {
         mainPane.getChildren().add(browser.getBrowserView());
     }
 
-    public void configure(){
+    private void configure(){
         Scene scene = new Scene(pane);
         //Null passed as the parent stage to make it non-modal.
         dialogStage = createDialogStage(TITLE, null, scene);
@@ -57,4 +67,5 @@ public class HelpWindow extends BaseUiPart {
     public void show() {
         dialogStage.showAndWait();
     }
+
 }

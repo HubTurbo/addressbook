@@ -205,9 +205,7 @@ public class MainWindow extends BaseUiPart {
 
     @FXML
     private void handleHelp() {
-        logger.debug("Showing help page about the application.");
-        HelpWindow helpWindow = UiPartLoader.loadUiPart(primaryStage, new HelpWindow());
-        helpWindow.configure();
+        HelpWindow helpWindow = HelpWindow.load(primaryStage);
         helpWindow.show();
     }
 
