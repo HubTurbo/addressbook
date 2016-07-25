@@ -54,6 +54,10 @@ public class PersonListPanelHandle extends GuiHandle {
         return getListView().getItems().stream().anyMatch(p -> p.hasName(firstName, lastName));
     }
 
+    public boolean contains(Person person) {
+        return this.contains(person.getFirstName(), person.getLastName());
+    }
+
     public boolean isSelected(String firstName, String lastName) {
         int count = 0;
         while(count < 10) {

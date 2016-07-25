@@ -21,6 +21,6 @@ public class HeaderStatusBarHandle extends GuiHandle {
     }
 
     private StatusBar getStatusBar() {
-        return (StatusBar) getNode(StatusBarHeaderController.HEADER_STATUS_BAR_ID);
+        return (StatusBar) getNode("#" + StatusBarHeaderController.HEADER_STATUS_BAR_ID);
     }
 }
