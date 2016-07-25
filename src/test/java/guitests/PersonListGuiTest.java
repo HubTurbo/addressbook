@@ -1,7 +1,6 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
-import address.testutil.TestUtil;
 import javafx.geometry.VerticalDirection;
 import org.junit.Test;
 
@@ -43,7 +42,7 @@ public class PersonListGuiTest extends GuiTestBase {
         personListPanel.clickOnListView();
         //drag the person at the middle and drop at the bottom
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
-        personListPanel.edgeDrag(td.charlie.getFirstName(), VerticalDirection.DOWN, 5, TimeUnit.SECONDS);
+        personListPanel.cornerDrag(td.charlie.getFirstName(), VerticalDirection.DOWN, 5, TimeUnit.SECONDS);
         assertTrue(personListPanel.containsInOrder(td.alice, td.benson, td.dan, td.elizabeth, td.charlie));
     }
 

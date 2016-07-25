@@ -106,6 +106,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public void use_PERSON_CHANGE_CANCEL_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_CANCEL_COMMAND_ACCELERATOR);
+        guiRobot.sleep(500);
     }
 
     public void use_LIST_JUMP_TO_INDEX_SHORTCUT(int index) {
@@ -305,13 +306,13 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     /**
-     * Drags card to the top or bottom edge of the listview.
+     * Drags card to the top or bottom corner of the listview.
      * @param dragFrom The text which identify the card to be dragged.
      * @param direction To the top or bottom edge of the listview.
      * @param dragDuration Drag duration
      * @param timeunit Timeunit for the duration.
      */
-    public void edgeDrag(String dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
+    public void cornerDrag(String dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
         switch (direction) {
             case UP:
                 double edgeMinY = TestUtil.getScreenPos(getListView()).getMinY()
@@ -382,6 +383,22 @@ public class PersonListPanelHandle extends GuiHandle {
         return getPersonCardHandle(new Person(getListView().getItems().get(index)));
     }
 
+    /**
+     * Checks if the list is showing the person details correctly and in correct order.
+     * @param persons A list of person in the correct order.
+     * @return
+     */
+    public boolean isListMatching(int startPosition, Person... persons) {
+        this.containsInOrder(startPosition, persons);
+        for (int i = 0; i < persons.length; i++) {
+            use_LIST_JUMP_TO_INDEX_SHORTCUT(i + 1 + startPosition);
+            if (!getPersonCardHandle(startPosition + i).equals(persons[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public PersonCardHandle getPersonCardHandle(Person person){
         Set<Node> nodes = getAllCardNodes();
         Optional<Node> personCardNode = nodes.stream()
@@ -392,7 +409,12 @@ public class PersonListPanelHandle extends GuiHandle {
         } else {
             return null;
         }
+    }
 
+    public PersonCardHandle selectCard(Person person) {
+        clickOnPerson(person);
+        guiRobot.sleep(500);
+        return getPersonCardHandle(person);
     }
 
     protected Set<Node> getAllCardNodes() {

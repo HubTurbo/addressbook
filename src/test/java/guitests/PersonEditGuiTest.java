@@ -69,12 +69,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Confirm other cards are unaffected.
         personListPanel.clickOnListView();
-        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2); //To make sure the card is visible
-        assertEquals(personListPanel.getPersonCardHandle(1), td.benson); //Ensure the card details are correct
-        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
-        assertEquals(personListPanel.getPersonCardHandle(2), td.charlie);
-        personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
-        assertEquals(personListPanel.getPersonCardHandle(3), td.dan);
+        assertTrue(personListPanel.isListMatching(1, td.benson, td.charlie, td.dan, td.elizabeth));
 
         //Confirm status bar is updated correctly
         assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] completed successfully.");
@@ -115,18 +110,16 @@ public class PersonEditGuiTest extends GuiTestBase {
     public void cancelOperation_usingAccelerator() {
 
         //Delete
-        personListPanel.clickOnPerson(td.alice);
-        PersonCardHandle deletedCard = personListPanel.getPersonCardHandle(new Person(personListPanel.getSelectedPerson()));
+        PersonCardHandle aliceCard = personListPanel.selectCard(td.alice);
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
         mainGui.sleep(1, TimeUnit.SECONDS);
-        assertTrue(deletedCard.isShowingGracePeriod("Deleting"));
+        assertTrue(aliceCard.isShowingGracePeriod("Deleting"));
 
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         mainGui.sleep(1, TimeUnit.SECONDS);
-        assertFalse(deletedCard.isShowingGracePeriod("Deleting"));
-        assertEquals(statusBar.getText(), "Delete Person [ " + deletedCard.getFirstName() + " "
-                     + deletedCard.getLastName() + " ] was cancelled.");
-
+        assertFalse(aliceCard.isShowingGracePeriod("Deleting"));
+        assertEquals(statusBar.getText(), "Delete Person [ " + aliceCard.getFirstName() + " "
+                     + aliceCard.getLastName() + " ] was cancelled.");
 
         //Edit
         Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
@@ -134,10 +127,9 @@ public class PersonEditGuiTest extends GuiTestBase {
                 .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(td.colleagues, td.friends).build();
 
         //Get a reference to the card displaying Alice's details
-        PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
+        PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
 
         //Edit Alice to change to new values
-        personListPanel.clickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         editPersonDialog.enterNewValues(newAlice);
         editPersonDialog.pressEnter();
@@ -169,9 +161,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertEquals(pandaWongCardHandle, pandaWong);
         mainGui.sleep(1, TimeUnit.SECONDS);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        mainGui.sleep(1, TimeUnit.SECONDS);
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
     }
 
-
+    //TODO: testing edits during grace period
 }
