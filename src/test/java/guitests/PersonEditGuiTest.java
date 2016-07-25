@@ -159,7 +159,6 @@ public class PersonEditGuiTest extends GuiTestBase {
         PersonCardHandle pandaWongCardHandle = personListPanel.getSelectedCards().get(0);
         assertNotNull(pandaWongCardHandle);
         assertEquals(pandaWongCardHandle, pandaWong);
-        sleep(1, TimeUnit.SECONDS);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
     }
