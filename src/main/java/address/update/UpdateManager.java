@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * file will be produced for another component to read and do the update migration.
  */
 public class UpdateManager extends ComponentManager {
-    public static final String UPDATE_DIR = "update";
+    private static final String UPDATE_DIR = "update";
     private static final AppLogger logger = LoggerManager.getLogger(UpdateManager.class);
     // --- Messages
     private static final String MSG_FAIL_DELETE_UPDATE_SPEC = "Failed to delete previous update spec file";
