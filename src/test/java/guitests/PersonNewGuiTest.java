@@ -37,9 +37,8 @@ public class PersonNewGuiTest extends GuiTestBase {
 
         //Delete Person A
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        assertMatching(pandaWongCardHandle, pandaWong);
         sleepForGracePeriod();
-        assertFalse(personListPanel.contains(pandaWong));
+        assertTrue(personListPanel.contains(pandaWong));
 
         //Create Person B
         addPersonDialog = personListPanel.clickNew();
@@ -51,8 +50,51 @@ public class PersonNewGuiTest extends GuiTestBase {
         PersonCardHandle personCardHandle = personListPanel.navigateToPerson(ipMan);
         assertTrue(personCardHandle.isShowingGracePeriod("Adding"));
         sleepForGracePeriod();
-        assertFalse(personListPanel.contains(pandaWong)); //Make sure Person A doesn't appear again.
+        assertNull(personListPanel.contains(pandaWong)); //Make sure Person A doesn't appear again.
         assertTrue(personListPanel.contains(ipMan));
+    }
+
+    @Test
+    public void addPerson_multipleAdd() {
+
+        //Create Person A
+        EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
+
+        Person pandaWong = new PersonBuilder("Panda", "Wong")
+                .withStreet("Chengdu Panda Street").withCity("Chengdu").withPostalCode("PANDA")
+                .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
+        addPersonDialog.enterNewValues(pandaWong).clickOk();
+
+        PersonCardHandle pandaWongCard = personListPanel.navigateToPerson(pandaWong);
+        assertTrue(pandaWongCard.isShowingGracePeriod("Adding"));
+        assertMatching(pandaWongCard, pandaWong);
+
+        //Create Person B
+        addPersonDialog = personListPanel.clickNew();
+        Person ipMan = new PersonBuilder("IP", "Man")
+                .withStreet("Kungfu street 51").withCity("Beijing").withPostalCode("K4UWIN")
+                .withBirthday("01.01.1970").withGithubUsername("ipman").withTags(td.colleagues).build();
+        addPersonDialog.enterNewValues(ipMan).clickOk();
+
+        PersonCardHandle ipManCard = personListPanel.navigateToPerson(ipMan);
+        assertTrue(ipManCard.isShowingGracePeriod("Adding"));
+        assertMatching(ipManCard, ipMan);
+
+        sleepForGracePeriod();
+
+        assertMatching(pandaWongCard, pandaWong);
+        assertMatching(ipManCard, ipMan);
+    }
+
+    @Test
+    public void addPerson_cancelDialog() {
+        EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
+
+        Person pandaWong = new PersonBuilder("Panda", "Wong")
+                .withStreet("Chengdu Panda Street").withCity("Chengdu").withPostalCode("PANDA")
+                .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
+        addPersonDialog.enterNewValues(pandaWong).clickCancel();
+        assertFalse(personListPanel.contains(pandaWong));
     }
 
     @Test
@@ -72,7 +114,7 @@ public class PersonNewGuiTest extends GuiTestBase {
         assertMatching(pandaWongCardHandle, pandaWong); //Ensure correct state before cancelling.
 
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        assertNull(personListPanel.getPersonCardHandle(pandaWong));
+        assertTrue(personListPanel.contains(pandaWong));
         assertFalse(pandaWongCardHandle.isShowingGracePeriod("Adding"));
         assertEquals("Add Person [ Panda Wong ] was cancelled.", statusBar.getText());
     }

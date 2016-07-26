@@ -57,7 +57,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public boolean contains(Person person) {
-        return this.contains(person.getFirstName(), person.getLastName());
+        return this.getPersonCardHandle(person) != null;
     }
 
     public boolean isSelected(String firstName, String lastName) {
