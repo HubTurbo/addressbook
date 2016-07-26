@@ -76,6 +76,13 @@ public class UpdateManager extends ComponentManager {
         shouldRunUpdater = false;
     }
 
+    UpdateManager(Version currentVersion, boolean shouldRunUpdater) {
+        super();
+        this.currentVersion = currentVersion;
+        downloadedVersions = getDownloadedVersionsFromFile(DOWNLOADED_VERSIONS_FILE);
+        this.shouldRunUpdater = shouldRunUpdater;
+    }
+
     public void start() {
         if (!ManifestFileReader.isRunFromJar()) {
             raise(new ApplicationUpdateFinishedEvent(MSG_FINISHED_DEVELOPER_ENV));

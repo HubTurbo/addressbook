@@ -18,6 +18,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,10 +28,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ManifestFileReader.class, LocalUpdateSpecificationHelper.class, FileUtil.class, OsDetector.class})
+@PrepareForTest({ManifestFileReader.class, LocalUpdateSpecificationHelper.class, FileUtil.class, OsDetector.class,
+JsonUtil.class})
 @PowerMockIgnore({"javax.management.*"})// Defer loading of javax.management.* in log4j to system class loader
 public class UpdateManagerTest {
     private UpdateManager updateManager;
@@ -229,6 +234,60 @@ public class UpdateManagerTest {
         assertEquals(1.0, ((ApplicationUpdateInProgressEvent) events.get(7)).getProgress(), 0.01);  // Downloaded files
         assertTrue(events.get(8) instanceof ApplicationUpdateInProgressEvent);  // Finalizing, create local spec
         assertTrue(events.get(9) instanceof ApplicationUpdateFailedEvent);      // Fail to create local spec
+    }
+
+    @Test
+    public void startUpdate_downloadSuccessful_startUpdater() throws Exception {
+        mockStatic(ManifestFileReader.class);
+        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
+        mockStatic(LocalUpdateSpecificationHelper.class);
+        VersionData versionDataToReturn = new VersionData();
+        versionDataToReturn.setVersion(new Version(1, 1, 2, true).toString());
+        List<LibraryDescriptor> libraries = new ArrayList<>();
+        libraries.add(new LibraryDescriptor("test", "http://www.google.com", OsDetector.Os.MAC));
+        versionDataToReturn.setLibraries(libraries);
+        mockStatic(FileUtil.class);
+        when(FileUtil.deserializeObjectFromJsonFile(any(File.class), eq(VersionData.class))).thenReturn(versionDataToReturn);
+        mockStatic(OsDetector.class);
+        when(OsDetector.getOs()).thenReturn(OsDetector.Os.MAC);
+
+        updateManager.start();
+        sleep(2000);
+
+        assertEquals(10, events.size());
+        assertTrue(events.get(0) instanceof ApplicationUpdateInProgressEvent);  // Clear specification file
+        assertTrue(events.get(1) instanceof ApplicationUpdateInProgressEvent);  // Create & download specification file
+        assertTrue(events.get(2) instanceof ApplicationUpdateInProgressEvent);  // Read version data from file
+        assertTrue(events.get(3) instanceof ApplicationUpdateInProgressEvent);  // Read version from version data
+        assertTrue(events.get(4) instanceof ApplicationUpdateInProgressEvent);  // Check version
+        assertTrue(events.get(5) instanceof ApplicationUpdateInProgressEvent);  // Get files for OS
+        assertTrue(events.get(6) instanceof ApplicationUpdateInProgressEvent);  // Create update directory
+        assertTrue(events.get(7) instanceof ApplicationUpdateInProgressEvent);  // Download files
+        assertEquals(1.0, ((ApplicationUpdateInProgressEvent) events.get(7)).getProgress(), 0.01);  // Downloaded files
+        assertTrue(events.get(8) instanceof ApplicationUpdateInProgressEvent);  // Finalizing, create local spec
+        assertTrue(events.get(9) instanceof ApplicationUpdateFinishedEvent);    // Finished updates
+
+        verifyStatic(times(2));
+        FileUtil.writeStreamIntoFile(any(InputStream.class), any(Path.class));
+
+        updateManager.stop();
+
+        verifyStatic(times(3));
+        FileUtil.writeStreamIntoFile(any(InputStream.class), any(Path.class)); // extract updater jar
+    }
+
+    @Test
+    public void stopUpdateManager_shouldUpdate_extractUpdaterJar() throws Exception {
+        mockStatic(FileUtil.class);
+        mockStatic(JsonUtil.class);
+
+        Version version = new Version(1, 1, 1, true);
+        updateManager = new UpdateManager(version, true);
+
+        updateManager.stop();
+
+        verifyStatic(times(1));
+        FileUtil.writeStreamIntoFile(any(InputStream.class), any(Path.class)); // extract updater jar
     }
 
     @After
