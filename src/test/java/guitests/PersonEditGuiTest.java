@@ -99,7 +99,6 @@ public class PersonEditGuiTest extends GuiTestBase {
 
     @Test
     public void cancelOperation_usingAccelerator() {
-        //Edit
         Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
                 .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
                 .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(td.colleagues, td.friends).build();
@@ -113,7 +112,6 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
         personListPanel.clickOnPerson(newAlice);
         assertMatching(alicePersonCard, newAlice);
-        //assertEquals(alicePersonCard, newAlice);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertMatching(alicePersonCard, td.alice);
         assertFalse(alicePersonCard.isShowingGracePeriod("Editing"));

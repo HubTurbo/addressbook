@@ -20,7 +20,6 @@ public class PersonDeleteGuiTest extends GuiTestBase {
     @Test
     public void cancelOperation_usingAccelerator() {
 
-        //Delete
         PersonCardHandle aliceCard = personListPanel.selectCard(td.alice);
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
         assertTrue(aliceCard.isShowingGracePeriod("Deleting"));
