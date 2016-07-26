@@ -79,8 +79,8 @@ public class UpdateManagerTest {
     @Test
     public void startUpdate_failedToClearSpecificationFile_failUpdate() throws Exception {
         mockStatic(ManifestFileReader.class);
-        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         mockStatic(LocalUpdateSpecificationHelper.class);
+        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         doThrow(new IOException("Exception")).when(LocalUpdateSpecificationHelper.class, "clearLocalUpdateSpecFile");
 
         updateManager.start();
@@ -94,9 +94,9 @@ public class UpdateManagerTest {
     @Test
     public void startUpdate_failedToCreateVersionDataFile_failUpdate() throws Exception {
         mockStatic(ManifestFileReader.class);
-        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         mockStatic(LocalUpdateSpecificationHelper.class);
         mockStatic(FileUtil.class);
+        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         doThrow(new IOException("Exception")).when(FileUtil.class, "createFile", any(File.class));
 
         updateManager.start();
@@ -111,10 +111,11 @@ public class UpdateManagerTest {
     @Test
     public void startUpdate_failedToReadVersionData_failUpdate() throws Exception {
         mockStatic(ManifestFileReader.class);
-        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         mockStatic(LocalUpdateSpecificationHelper.class);
         mockStatic(FileUtil.class);
-        doThrow(new IOException("Exception")).when(FileUtil.class, "deserializeObjectFromJsonFile", any(File.class), eq(VersionData.class));
+        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
+        doThrow(new IOException("Exception")).when(FileUtil.class, "deserializeObjectFromJsonFile", any(File.class),
+                                                   eq(VersionData.class));
 
         updateManager.start();
         sleep(2000);
@@ -129,12 +130,13 @@ public class UpdateManagerTest {
     @Test
     public void startUpdate_noNewerVersion_finishUpdate() throws Exception {
         mockStatic(ManifestFileReader.class);
-        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         mockStatic(LocalUpdateSpecificationHelper.class);
+        mockStatic(FileUtil.class);
+        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         VersionData versionDataToReturn = new VersionData();
         versionDataToReturn.setVersion(new Version(1, 1, 1, true).toString());
-        mockStatic(FileUtil.class);
-        when(FileUtil.deserializeObjectFromJsonFile(any(File.class), eq(VersionData.class))).thenReturn(versionDataToReturn);
+        when(FileUtil.deserializeObjectFromJsonFile(any(File.class), eq(VersionData.class))).
+                thenReturn(versionDataToReturn);
 
         updateManager.start();
         sleep(2000);
@@ -156,7 +158,8 @@ public class UpdateManagerTest {
         VersionData versionDataToReturn = new VersionData();
         versionDataToReturn.setVersion(new Version(1, 1, 2, true).toString());
         mockStatic(FileUtil.class);
-        when(FileUtil.deserializeObjectFromJsonFile(any(File.class), eq(VersionData.class))).thenReturn(versionDataToReturn);
+        when(FileUtil.deserializeObjectFromJsonFile(any(File.class), eq(VersionData.class))).
+                thenReturn(versionDataToReturn);
         mockStatic(OsDetector.class);
         when(OsDetector.getOs()).thenReturn(OsDetector.Os.UNKNOWN);
 
@@ -176,16 +179,17 @@ public class UpdateManagerTest {
     @Test
     public void startUpdate_failedToCreateUpdateDir_failUpdate() throws Exception {
         mockStatic(ManifestFileReader.class);
-        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         mockStatic(LocalUpdateSpecificationHelper.class);
+        mockStatic(FileUtil.class);
+        mockStatic(OsDetector.class);
+        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         VersionData versionDataToReturn = new VersionData();
-        versionDataToReturn.setVersion(new Version(1, 1, 2, true).toString());
         List<LibraryDescriptor> libraries = new ArrayList<>();
         libraries.add(new LibraryDescriptor("test", "http://www.google.com", OsDetector.Os.MAC));
+        versionDataToReturn.setVersion(new Version(1, 1, 2, true).toString());
         versionDataToReturn.setLibraries(libraries);
-        mockStatic(FileUtil.class);
-        when(FileUtil.deserializeObjectFromJsonFile(any(File.class), eq(VersionData.class))).thenReturn(versionDataToReturn);
-        mockStatic(OsDetector.class);
+        when(FileUtil.deserializeObjectFromJsonFile(any(File.class), eq(VersionData.class))).
+                thenReturn(versionDataToReturn);
         when(OsDetector.getOs()).thenReturn(OsDetector.Os.MAC);
         doThrow(new IOException("Exception")).when(FileUtil.class, "createDirs", any(File.class));
 
@@ -206,18 +210,20 @@ public class UpdateManagerTest {
     @Test
     public void startUpdate_failedToCreateSpecification_failUpdate() throws Exception {
         mockStatic(ManifestFileReader.class);
-        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         mockStatic(LocalUpdateSpecificationHelper.class);
+        mockStatic(FileUtil.class);
+        mockStatic(OsDetector.class);
+        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         VersionData versionDataToReturn = new VersionData();
-        versionDataToReturn.setVersion(new Version(1, 1, 2, true).toString());
         List<LibraryDescriptor> libraries = new ArrayList<>();
         libraries.add(new LibraryDescriptor("test", "http://www.google.com", OsDetector.Os.MAC));
+        versionDataToReturn.setVersion(new Version(1, 1, 2, true).toString());
         versionDataToReturn.setLibraries(libraries);
-        mockStatic(FileUtil.class);
-        when(FileUtil.deserializeObjectFromJsonFile(any(File.class), eq(VersionData.class))).thenReturn(versionDataToReturn);
-        mockStatic(OsDetector.class);
+        when(FileUtil.deserializeObjectFromJsonFile(any(File.class), eq(VersionData.class)))
+                .thenReturn(versionDataToReturn);
         when(OsDetector.getOs()).thenReturn(OsDetector.Os.MAC);
-        doThrow(new IOException("Exception")).when(LocalUpdateSpecificationHelper.class, "saveLocalUpdateSpecFile", any(List.class));
+        doThrow(new IOException("Exception")).when(LocalUpdateSpecificationHelper.class, "saveLocalUpdateSpecFile",
+                                                   any(List.class));
 
         updateManager.start();
         sleep(2000);
@@ -239,16 +245,17 @@ public class UpdateManagerTest {
     @Test
     public void startUpdate_downloadSuccessful_startUpdater() throws Exception {
         mockStatic(ManifestFileReader.class);
-        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         mockStatic(LocalUpdateSpecificationHelper.class);
+        mockStatic(FileUtil.class);
+        mockStatic(OsDetector.class);
+        when(ManifestFileReader.isRunFromJar()).thenReturn(true);
         VersionData versionDataToReturn = new VersionData();
-        versionDataToReturn.setVersion(new Version(1, 1, 2, true).toString());
         List<LibraryDescriptor> libraries = new ArrayList<>();
         libraries.add(new LibraryDescriptor("test", "http://www.google.com", OsDetector.Os.MAC));
+        versionDataToReturn.setVersion(new Version(1, 1, 2, true).toString());
         versionDataToReturn.setLibraries(libraries);
-        mockStatic(FileUtil.class);
-        when(FileUtil.deserializeObjectFromJsonFile(any(File.class), eq(VersionData.class))).thenReturn(versionDataToReturn);
-        mockStatic(OsDetector.class);
+        when(FileUtil.deserializeObjectFromJsonFile(any(File.class), eq(VersionData.class)))
+                .thenReturn(versionDataToReturn);
         when(OsDetector.getOs()).thenReturn(OsDetector.Os.MAC);
 
         updateManager.start();
@@ -273,7 +280,7 @@ public class UpdateManagerTest {
         updateManager.stop();
 
         verifyStatic(times(3));
-        FileUtil.writeStreamIntoFile(any(InputStream.class), any(Path.class)); // extract updater jar
+        FileUtil.writeStreamIntoFile(any(InputStream.class), any(Path.class));  // extract updater jar
     }
 
     @Test
