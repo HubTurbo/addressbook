@@ -3,8 +3,6 @@ package guitests;
 import guitests.guihandles.*;
 import org.junit.Test;
 
-import java.util.concurrent.TimeUnit;
-
 import static org.junit.Assert.*;
 
 public class FullSystemTest extends GuiTestBase {
@@ -18,7 +16,7 @@ public class FullSystemTest extends GuiTestBase {
         assertEquals("", newTagDialog.getTagName());
         newTagDialog.clickCancel();
 
-        //Create a new tag named colleagues using 'New Tag' dialog
+        // Create a new tag named colleagues using 'New Tag' dialog
         newTagDialog = mainMenu.clickOn("Tags","New Tag")
                                .as(NewTagDialogHandle.class);
         newTagDialog.enterTagName("colleagues");
@@ -41,28 +39,28 @@ public class FullSystemTest extends GuiTestBase {
         assertEquals("john123", editPersonDialog.getGithubUserName());
         editPersonDialog.pressEnter();
 
-        //Filter persons list with 'colleagues' tag
+        // Filter persons list with 'colleagues' tag
         personListPanel.enterFilterAndApply("tag:colleagues");
         assertEquals("tag:colleagues", personListPanel.getFilterText());
         assertTrue(personListPanel.contains("John", "Tan")); // John must be in the filtered list
         assertFalse(personListPanel.contains("Hans", "Muster")); //Hans does not have the 'colleagues' tag
 
-        //Remove filter
+        // Remove filter
         personListPanel.enterFilterAndApply("");
 
-        //Ensure "About" dialog opens
+        // Ensure "About" dialog opens
         AboutDialogHandle aboutDialog = mainMenu.clickOn("Help", "About").as(AboutDialogHandle.class);
         aboutDialog.clickOk();
 
-        //Create a new person Ming Lee, check that last name cannot be blank
+        // Create a new person Ming Lee, check that last name cannot be blank
         EditPersonDialogHandle newPersonDialog = personListPanel.clickNew();
         newPersonDialog.enterFirstName("Ming").clickOk();
-        newPersonDialog.dissmissErrorMessage("Invalid Fields");
+        newPersonDialog.dismissErrorMessage("Invalid Fields");
         newPersonDialog.enterLastName("Lee");
         newPersonDialog.clickOk();
         assertTrue(personListPanel.contains("Ming", "Lee"));
 
-        //Create a new tag 'company' using the 'Manage Tags' dialog
+        // Create a new tag 'company' using the 'Manage Tags' dialog
         ManageTagsDialogHandle manageTagsDialog = mainMenu.clickOn("Tags", "Manage Tags")
                 .as(ManageTagsDialogHandle.class);
         newTagDialog = manageTagsDialog.rightClickOn("colleagues").clickOn("New")

@@ -10,6 +10,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -134,6 +135,12 @@ public class EditPersonDialogHandle extends GuiHandle {
         return this;
     }
 
+    public TagPersonDialogHandle openTagPersonDialogUsingShortcut() {
+        guiRobot.press(KeyCode.SHORTCUT, KeyCode.O)
+                .sleep(200); // wait for opening animation
+        return new TagPersonDialogHandle(guiRobot, primaryStage);
+    }
+
     public TagPersonDialogHandle openTagPersonDialog() {
         guiRobot.clickOn(TAG_SEARCH_FIELD_ID)
                 .sleep(200); // wait for opening animation
@@ -165,8 +172,7 @@ public class EditPersonDialogHandle extends GuiHandle {
         }
         enterGithubId(newValues.getGithubUsername());
         TagPersonDialogHandle tagPersonDialog = openTagPersonDialog();
-        newValues.getTagList().stream()
-                 .forEach( (t) -> tagPersonDialog.enterSearchQuery(t.getName()).acceptSuggestedTag());
+        newValues.getTagList().forEach(t -> tagPersonDialog.enterSearchQuery(t.getName()).acceptSuggestedTag());
         tagPersonDialog.close();
         return this;
     }

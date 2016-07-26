@@ -45,21 +45,19 @@ public class GuiHandle {
     }
 
     public void focusOnWindow(String stageTitle) {
-        logger.info("Focusing " + stageTitle);
+        logger.info("Focusing {}", stageTitle);
         java.util.Optional<Window> window = guiRobot.listTargetWindows()
                 .stream()
-                .filter(w
-                        -> w instanceof Stage
-                        && ((Stage) w).getTitle().equals(stageTitle)).findAny();
+                .filter(w -> w instanceof Stage && ((Stage) w).getTitle().equals(stageTitle)).findAny();
 
-        if(!window.isPresent()) {
-            logger.warn("Can't find stage " + stageTitle + ", Therefore, aborting focusing");
+        if (!window.isPresent()) {
+            logger.warn("Can't find stage {}, Therefore, aborting focusing", stageTitle);
             return;
         }
 
         guiRobot.targetWindow(window.get());
         guiRobot.interact(() -> window.get().requestFocus());
-        logger.info("Finishing focus " + stageTitle);
+        logger.info("Finishing focus {}", stageTitle);
     }
 
     protected Node getNode(String query) {
@@ -76,7 +74,7 @@ public class GuiHandle {
      * @param newText
      */
     protected void setTextField(String textFieldId, String newText) {
-        TextField textField = (TextField)getNode(textFieldId);
+        TextField textField = (TextField) getNode(textFieldId);
         textField.setText(newText);
     }
 
@@ -130,7 +128,7 @@ public class GuiHandle {
         pressEsc();
     }
 
-    public void dissmissErrorMessage(String errorDialogTitle) {
+    public void dismissErrorMessage(String errorDialogTitle) {
         focusOnWindow(errorDialogTitle);
         clickOk();
         focusOnSelf();

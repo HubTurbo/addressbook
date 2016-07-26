@@ -7,11 +7,13 @@ import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.PersonListPanelHandle;
+import guitests.guihandles.TagPersonDialogHandle;
 import org.junit.Test;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import static guitests.guihandles.EditPersonDialogHandle.EDIT_TITLE;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
@@ -109,7 +111,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.clickOk();
 
         assertTrue(editPersonDialog.isInputValidationErrorDialogShown());
-        editPersonDialog.dissmissErrorMessage("Invalid Fields");
+        editPersonDialog.dismissErrorMessage("Invalid Fields");
         assertFalse(editPersonDialog.isInputValidationErrorDialogShown());
     }
 
@@ -170,4 +172,19 @@ public class PersonEditGuiTest extends GuiTestBase {
     public void cancelOperation_afterGracePeriod() {
         //Tested in editPerson_usingContextMenu()
     }
+
+    public void tagPerson() {
+        PersonCardHandle bensonPersonCard = personListPanel.selectCard(td.benson);
+        EditPersonDialogHandle bensonEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        bensonEditDialog.focusOnWindow(EDIT_TITLE);
+        TagPersonDialogHandle bensonTagDialog = bensonEditDialog.openTagPersonDialogUsingShortcut();
+        bensonTagDialog.enterSearchQuery("coll").acceptSuggestedTag();
+        bensonTagDialog.close();
+        bensonEditDialog.pressEnter();
+        assertEquals("Editing", bensonPersonCard.getPendingStateLabel());
+        sleepForGracePeriod();
+        assertEquals("Tag: colleagues", bensonPersonCard.getTags());
+    }
+
+    //TODO: testing edits during grace period
 }

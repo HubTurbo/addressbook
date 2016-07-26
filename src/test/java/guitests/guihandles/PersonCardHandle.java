@@ -24,8 +24,7 @@ public class PersonCardHandle extends GuiHandle {
     private static final String LAST_NAME_FIELD_ID = "#lastName";
     private static final String ADDRESS_FIELD_ID = "#address";
     private static final String BIRTHDAY_FIELD_ID = "#birthday";
-    private static final String TAG_FIELD_ID = "#tags";
-
+    private static final String TAGS_FIELD_ID = "#tags";
     private static final String PENDING_STATE_LABEL_FIELD_ID = "#commandTypeLabel";
     private static final String PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID = "#remoteRequestOngoingIndicator";
     private static final String PENDING_STATE_ROOT_FIELD_ID = "#commandStateDisplayRootNode";
@@ -84,15 +83,15 @@ public class PersonCardHandle extends GuiHandle {
         return getTextFromLabel(BIRTHDAY_FIELD_ID);
     }
 
+    public String getTags() {
+        return getTextFromLabel(TAGS_FIELD_ID);
+    }
+
     public boolean isSamePerson(Person person){
         return getFirstName().equals(person.getFirstName())
                 && getLastName().equals(person.getLastName())
                 && getAddress().equals(PersonCardController.getAddressString(person.getStreet(),
                                                                 person.getCity(), person.getPostalCode()));
-    }
-
-    public String getTags() {
-        return getTextFromLabel(TAG_FIELD_ID);
     }
 
     public Tag[] getTagList() {
