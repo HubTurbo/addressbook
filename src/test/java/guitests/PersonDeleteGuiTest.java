@@ -1,9 +1,6 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
-import address.model.datatypes.person.Person;
-import address.testutil.PersonBuilder;
-import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import org.junit.Test;
 
@@ -32,7 +29,5 @@ public class PersonDeleteGuiTest extends GuiTestBase {
         assertFalse(aliceCard.isShowingGracePeriod("Deleting"));
         assertEquals(statusBar.getText(), "Delete Person [ " + aliceCard.getFirstName() + " "
                      + aliceCard.getLastName() + " ] was cancelled.");
-
-
     }
 }

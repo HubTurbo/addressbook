@@ -246,7 +246,9 @@ public class PersonListPanelHandle extends GuiHandle {
     public EditPersonDialogHandle clickNew() {
         guiRobot.clickOn(NEW_BUTTON_ID);
         guiRobot.sleep(500);
-        return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.ADD_TITLE);
+        EditPersonDialogHandle editPersonDialogHandle = new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.ADD_TITLE);
+        assertTrue(editPersonDialogHandle.isShowingEmptyEditDialog());
+        return editPersonDialogHandle;
     }
 
     /**

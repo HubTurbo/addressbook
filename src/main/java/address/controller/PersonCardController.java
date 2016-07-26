@@ -173,7 +173,6 @@ public class PersonCardController extends UiController {
         return cardPane;
     }
 
-
     public static String getAddressString(String street, String city, String postalCode) {
         StringBuilder sb = new StringBuilder();
         if (street.length() > 0){
@@ -187,5 +186,4 @@ public class PersonCardController extends UiController {
         }
         return sb.toString();
     }
-
 }
