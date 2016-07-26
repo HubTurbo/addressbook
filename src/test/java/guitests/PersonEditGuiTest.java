@@ -55,6 +55,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         sleepForGracePeriod();
         assertEquals(alicePersonCard, newAlice);
 
+        //Confirm cancel operation does not cancel the edit after the grace period.
+        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         //Confirm the underlying person object has the right values
         assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
 
@@ -173,15 +175,6 @@ public class PersonEditGuiTest extends GuiTestBase {
 
     @Test
     public void cancelOperation_afterGracePeriod() {
-        //New
-        EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
-        Person pandaWong = new PersonBuilder("Panda", "Wong")
-                .withStreet("Chengdu Panda Street").withCity("Chengdu").withPostalCode("PANDA")
-                .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
-        addPersonDialog.enterNewValues(pandaWong).clickOk();
-        sleepForGracePeriod();
-        personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
-        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        assertEquals(personListPanel.getPersonCardHandle(pandaWong), pandaWong);
+        //Tested in editPerson_usingAccelerator()
     }
 }
