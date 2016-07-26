@@ -7,7 +7,6 @@ import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.PersonListPanelHandle;
-import guitests.guihandles.TagPersonDialogHandle;
 import org.junit.Test;
 
 import java.util.Optional;
