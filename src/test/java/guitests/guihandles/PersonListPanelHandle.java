@@ -53,6 +53,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public boolean contains(String firstName, String lastName) {
+        //TODO: should be checking if the graphical node is displaying the names.
         return getListView().getItems().stream().anyMatch(p -> p.hasName(firstName, lastName));
     }
 
