@@ -273,16 +273,26 @@ public class PersonListPanelHandle extends GuiHandle {
 
     /**
      * Drags the person cards outside of the listview.
-     * @param listOfPersonsToDrag The texts which identify the cards to be dragged.
+     * @param listOfNamesToDrag The texts which identify the cards to be dragged.
      */
-    public void dragOutsideList(List<String> listOfPersonsToDrag) {
+    public void dragOutsideList(List<String> listOfNamesToDrag) {
         double posY = TestUtil.getScenePos(getListView()).getMaxY() - 50;
         double posX = TestUtil.getScenePos(getListView()).getMaxX() + 100;
-        guiRobot.press(KeyCode.SHORTCUT);
-        listOfPersonsToDrag.stream().forEach(p -> guiRobot.clickOn(p));
-        guiRobot.release(KeyCode.SHORTCUT);
-        guiRobot.drag(listOfPersonsToDrag.get(listOfPersonsToDrag.size() - 1))
+        clickOnMultipleNames(listOfNamesToDrag);
+        guiRobot.drag(listOfNamesToDrag.get(listOfNamesToDrag.size() - 1))
                 .dropTo(posX, posY);
+    }
+
+    private void clickOnMultipleNames(List<String> listOfNames) {
+        guiRobot.press(KeyCode.SHORTCUT);
+        listOfNames.forEach(guiRobot::clickOn);
+        guiRobot.release(KeyCode.SHORTCUT);
+    }
+
+    public void clickOnMultiplePersons(List<Person> listOfPersons) {
+        clickOnMultipleNames(listOfPersons.stream()
+                                .map(Person::getFirstName)
+                                .collect(Collectors.toCollection(ArrayList::new)));
     }
 
     /**
@@ -424,10 +434,10 @@ public class PersonListPanelHandle extends GuiHandle {
         return this.isListMatching(0, persons);
     }
 
-    public PersonCardHandle getPersonCardHandle(Person person){
+    public PersonCardHandle getPersonCardHandle(Person person) {
         Set<Node> nodes = getAllCardNodes();
         Optional<Node> personCardNode = nodes.stream()
-                .filter( (n) -> new PersonCardHandle(guiRobot, primaryStage, n).isSamePerson(person))
+                .filter(n -> new PersonCardHandle(guiRobot, primaryStage, n).isSamePerson(person))
                 .findFirst();
         if (personCardNode.isPresent()) {
             return new PersonCardHandle(guiRobot, primaryStage, personCardNode.get());
