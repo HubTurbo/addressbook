@@ -18,7 +18,9 @@ import static org.junit.Assert.*;
  * In travis ci headlfull testing, the following were observed:
  * 1) Keybinding tests failed as shortcuts are not triggered.
  *    - First shortcuts get triggered as normal, second shortcuts onwards failed to get triggered.
- * Solution: Click on the listview first before firing shortcuts. (Use personListPanel.clickOnListView())
+ * Solution(Not implemented, as travis headfull testing is not needed currently):
+ * - Click on the listview first before firing shortcuts. (Use personListPanel.clickOnListView())
+ *   (Seems to work, but no concrete reason on why it works).
  */
 public class KeyBindingsGuiTest extends GuiTestBase {
 

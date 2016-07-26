@@ -110,17 +110,6 @@ public class PersonEditGuiTest extends GuiTestBase {
 
     @Test
     public void cancelOperation_usingAccelerator() {
-
-        //Delete
-        PersonCardHandle aliceCard = personListPanel.selectCard(td.alice);
-        personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        assertTrue(aliceCard.isShowingGracePeriod("Deleting"));
-
-        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        assertFalse(aliceCard.isShowingGracePeriod("Deleting"));
-        assertEquals(statusBar.getText(), "Delete Person [ " + aliceCard.getFirstName() + " "
-                     + aliceCard.getLastName() + " ] was cancelled.");
-
         //Edit
         Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
                 .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
@@ -142,25 +131,6 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertMatching(alicePersonCard, td.alice);
         assertFalse(alicePersonCard.isShowingGracePeriod("Editing"));
         assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] was cancelled.");
-
-        //New
-        EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
-        assertTrue(addPersonDialog.isShowingEmptyEditDialog());
-
-        Person pandaWong = new PersonBuilder("Panda", "Wong")
-                .withStreet("Chengdu Panda Street").withCity("Chengdu").withPostalCode("PANDA")
-                .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
-        addPersonDialog.enterNewValues(pandaWong).clickOk();
-
-
-        PersonCardHandle pandaWongCardHandle = personListPanel.navigateToPerson(pandaWong);
-        assertTrue(pandaWongCardHandle.isShowingGracePeriod("Adding"));
-        assertMatching(pandaWongCardHandle, pandaWong); //Ensure correct state before cancelling.
-
-        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        assertNull(personListPanel.getPersonCardHandle(pandaWong));
-        assertFalse(pandaWongCardHandle.isShowingGracePeriod("Adding"));
-        assertEquals("Add Person [ Panda Wong ] was cancelled.", statusBar.getText());
     }
 
     @Test
