@@ -143,9 +143,10 @@ public class PersonListPanelHandle extends GuiHandle {
      * Navigate the listview to display and select the person.
      * @param person
      */
-    public void navigateToPerson(Person person) {
+    public PersonCardHandle navigateToPerson(Person person) {
         int index = getPersonIndex(person);
         use_LIST_JUMP_TO_INDEX_SHORTCUT(index + 1);
+        return getPersonCardHandle(person);
     }
 
     public void use_LIST_GOTO_TOP_SEQUENCE() {

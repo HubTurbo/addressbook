@@ -49,17 +49,17 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
 
         //Confirm the right card is selected after the edit
-        assertEquals(alicePersonCard, newAlice);
+        assertMatching(alicePersonCard, newAlice);
         assertTrue(personListPanel.isSelected(newAlice));
 
         //Confirm right values are displayed after grace period is over
         sleepForGracePeriod();
-        assertEquals(alicePersonCard, newAlice);
+        assertMatching(alicePersonCard, newAlice);
 
         //Confirm cancel operation does not cancel the edit after the grace period.
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         //Confirm the underlying person object has the right values
-        assertEquals(alicePersonCard, newAlice);
+        assertMatching(alicePersonCard, newAlice);
 
         //Confirm again after the next sync
         sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
@@ -136,9 +136,10 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterNewValues(newAlice).pressEnter();
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
         personListPanel.clickOnPerson(newAlice);
-        assertEquals(alicePersonCard, newAlice);
+        assertMatching(alicePersonCard, newAlice);
+        //assertEquals(alicePersonCard, newAlice);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        assertEquals(alicePersonCard, td.alice);
+        assertMatching(alicePersonCard, td.alice);
         assertFalse(alicePersonCard.isShowingGracePeriod("Editing"));
         assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] was cancelled.");
 
@@ -151,10 +152,10 @@ public class PersonEditGuiTest extends GuiTestBase {
                 .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
         addPersonDialog.enterNewValues(pandaWong).clickOk();
 
-        personListPanel.navigateToPerson(pandaWong);
-        PersonCardHandle pandaWongCardHandle = personListPanel.getPersonCardHandle(pandaWong);
+
+        PersonCardHandle pandaWongCardHandle = personListPanel.navigateToPerson(pandaWong);
         assertTrue(pandaWongCardHandle.isShowingGracePeriod("Adding"));
-        assertEquals(pandaWongCardHandle, pandaWong); //Ensure correct state before cancelling.
+        assertMatching(pandaWongCardHandle, pandaWong); //Ensure correct state before cancelling.
 
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
@@ -195,7 +196,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterNewValues(newerAlice).pressEnter();
 
         //Ensure card is displaying Felicia before and after grace period.
-        assertEquals(alicePersonCard, newerAlice);
+        assertMatching(alicePersonCard, newerAlice);
         sleepForGracePeriod();
         assertTrue(personListPanel.isListMatching(newerAlice, td.benson, td.charlie, td.dan, td.elizabeth));
     }

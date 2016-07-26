@@ -21,6 +21,13 @@ public class PersonBuilder {
     }
 
     /**
+     * Creates a person builder with the given firstName, lastName and ID.
+     */
+    public PersonBuilder(String firstName, String lastName, int id) {
+        this.person = new Person(firstName, lastName, id);
+    }
+
+    /**
      * Creates a person builder with the given Person object.
      * The person object will be mutated during the building process.
      * @param initial
