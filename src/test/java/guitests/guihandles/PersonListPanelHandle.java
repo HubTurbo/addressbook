@@ -76,13 +76,10 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     /**
-     * Clicks on the middle of the Listview if the listview is not in focus
+     * Clicks on the middle of the Listview.
      * In order for headfull testing to work in travis ci, listview needs to be clicked before firing hot keys.
      */
     public void clickOnListView() {
-        if (getListView().isFocused()) {
-            return ;
-        }
         Point2D point= TestUtil.getScreenMidPoint(getListView());
         guiRobot.clickOn(point.getX(), point.getY());
     }
