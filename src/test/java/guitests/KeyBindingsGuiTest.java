@@ -71,12 +71,12 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         sleepForGracePeriod();
         assertTrue(personListPanel.contains(td.charlie)); // still in the list even after grace period
 
+        EditPersonDialogHandle editPersonDialogHandle = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        assertTrue(editPersonDialogHandle.isShowingPerson(td.charlie));
+        editPersonDialogHandle.clickCancel();
+
         TagPersonDialogHandle tagPersonDialog = personListPanel.use_PERSON_TAG_ACCELERATOR();
         tagPersonDialog.close();
-
-        //Focus on MainApp, could not abstract into tagPersonDialog.close(), as closing tagDialog may lead to
-        //focusing on EditDialog or MainApp.
-        mainGui.focusOnMainApp();
 
         //======== others ============================
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);

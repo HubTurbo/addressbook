@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Provides a handle for the panel containing the person list.
  */
@@ -164,6 +166,13 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public void navigateDown() {
         guiRobot.push(KeyCode.DOWN);
+    }
+
+    public EditPersonDialogHandle editPerson(Person person) {
+        navigateToPerson(person);
+        EditPersonDialogHandle editPersonDialogHandle = use_PERSON_EDIT_ACCELERATOR();
+        assertTrue(editPersonDialogHandle.isShowingPerson(person));
+        return editPersonDialogHandle;
     }
 
     public EditPersonDialogHandle use_PERSON_EDIT_ACCELERATOR() {

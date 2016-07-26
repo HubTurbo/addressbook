@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertTrue;
+
 public class EditPersonDialogHandle extends GuiHandle {
 
     public static final String EDIT_TITLE = "Edit Person";
@@ -36,6 +38,7 @@ public class EditPersonDialogHandle extends GuiHandle {
 
     public EditPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage, String stageTitle) {
         super(guiRobot, primaryStage, stageTitle);
+        assertTrue(isShowingEditDialog());
     }
 
     /**

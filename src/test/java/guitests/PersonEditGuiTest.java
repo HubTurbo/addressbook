@@ -28,7 +28,7 @@ public class PersonEditGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void editPerson_usingAccelerator() {
+    public void editPerson_usingContextMenu() {
 
         //Prepare new values for Alice
         Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
@@ -38,10 +38,9 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Get a reference to the card displaying Alice's details
         PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
 
-        //Edit Alice to change to new values
-        personListPanel.clickOnPerson(td.alice);
-        EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
-        assertTrue(editPersonDialog.isShowingEditDialog());
+        personListPanel.rightClickOnPerson(td.alice);
+        EditPersonDialogHandle editPersonDialog =
+                personListPanel.clickOnContextMenu(PersonListPanelHandle.ContextMenuChoice.EDIT);
         assertTrue(editPersonDialog.isShowingPerson(td.alice));
         editPersonDialog.enterNewValues(newAlice).pressEnter();
 
@@ -70,26 +69,17 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Confirm status bar is updated correctly
         assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] completed successfully.");
+
     }
 
-    @Test
-    public void editPerson_usingContextMenu() {
-        personListPanel.rightClickOnPerson(td.alice);
-        EditPersonDialogHandle editPersonDialog =
-                personListPanel.clickOnContextMenu(PersonListPanelHandle.ContextMenuChoice.EDIT);
-        assertTrue(editPersonDialog.isShowingEditDialog());
-        assertTrue(editPersonDialog.isShowingPerson(td.alice));
-        //Rest of the edit process tested in editPerson_usingAccelerator
-    }
-
+    //TODO: This maybe should not be here. A separate class to test the button does what it suppose to do?
     @Test
     public void editPerson_usingEditButton() {
         personListPanel.clickOnPerson(td.alice);
-        EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
-        assertTrue(editPersonDialog.isShowingEditDialog());
+        EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();;
         assertTrue(editPersonDialog.isShowingPerson(td.alice));
 
-        //Rest of the edit process tested in editPerson_usingAccelerator
+        //Rest of the edit process tested in editPerson_usingContextMenu
     }
 
     @Test
@@ -97,7 +87,6 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         personListPanel.clickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
-        assertTrue(editPersonDialog.isShowingEditDialog());
         assertTrue(editPersonDialog.isShowingPerson(td.alice));
         editPersonDialog.enterFirstName("Peter");
         editPersonDialog.enterLastName("");
@@ -119,9 +108,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
 
         //Edit Alice to change to new values
-        EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
-        assertTrue(editPersonDialog.isShowingEditDialog());
-        assertTrue(editPersonDialog.isShowingPerson(td.alice));
+        EditPersonDialogHandle editPersonDialog = personListPanel.editPerson(td.alice);
         editPersonDialog.enterNewValues(newAlice).pressEnter();
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
         personListPanel.clickOnPerson(newAlice);
@@ -143,9 +130,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
 
         //Edit Alice to change to new values
-        EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
-        assertTrue(editPersonDialog.isShowingEditDialog());
-        assertTrue(editPersonDialog.isShowingPerson(td.alice));
+        EditPersonDialogHandle editPersonDialog = personListPanel.editPerson(td.alice);
         editPersonDialog.enterNewValues(newAlice).pressEnter();
 
         //Ensure grace period is showing
@@ -157,8 +142,9 @@ public class PersonEditGuiTest extends GuiTestBase {
                 .withStreet("street updated").withCity("Malaysia").withPostalCode("321321")
                 .withBirthday("11.11.1979").withGithubUsername("yellowstone").withTags(td.colleagues).build();
 
-        editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
-        assertTrue(editPersonDialog.isShowingPerson(newAlice));
+        editPersonDialog = personListPanel.editPerson(newAlice);
+
+        //Get a reference to the current
 
         //Ensure grace period is not counting down while editing person.
         assertTrue(alicePersonCard.isGracePeriodFrozen());
@@ -173,6 +159,6 @@ public class PersonEditGuiTest extends GuiTestBase {
 
     @Test
     public void cancelOperation_afterGracePeriod() {
-        //Tested in editPerson_usingAccelerator()
+        //Tested in editPerson_usingContextMenu()
     }
 }
