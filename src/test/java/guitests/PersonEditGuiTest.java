@@ -1,6 +1,5 @@
 package guitests;
 
-import address.model.ModelManager;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.testutil.PersonBuilder;
@@ -58,7 +57,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Confirm cancel operation does not cancel the edit after the grace period.
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         //Confirm the underlying person object has the right values
-        assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
+        assertEquals(alicePersonCard, newAlice);
 
         //Confirm again after the next sync
         sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
@@ -77,6 +76,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         EditPersonDialogHandle editPersonDialog =
                 personListPanel.clickOnContextMenu(PersonListPanelHandle.ContextMenuChoice.EDIT);
         assertTrue(editPersonDialog.isValidEditDialog());
+
+        //Rest of the edit process tested in editPerson_usingAccelerator
     }
 
     @Test
@@ -84,6 +85,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.clickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
         assertTrue(editPersonDialog.isValidEditDialog());
+
+        //Rest of the edit process tested in editPerson_usingAccelerator
     }
 
     @Test
@@ -138,7 +141,7 @@ public class PersonEditGuiTest extends GuiTestBase {
                 .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
         addPersonDialog.enterNewValues(pandaWong).clickOk();
 
-        personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
+        personListPanel.navigateToPerson(pandaWong);
         PersonCardHandle pandaWongCardHandle = personListPanel.getPersonCardHandle(pandaWong);
         assertEquals(pandaWongCardHandle, pandaWong); //Ensure correct state before cancelling.
 
@@ -159,18 +162,26 @@ public class PersonEditGuiTest extends GuiTestBase {
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         editPersonDialog.enterNewValues(newAlice).pressEnter();
 
+        //Ensure grace period is showing
+        assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
+
         //Edit Alice again during pending state.
         personListPanel.clickOnPerson(newAlice);
         Person newerAlice = new PersonBuilder(newAlice.copy()).withFirstName("Felicia").withLastName("Yellowstone")
                 .withStreet("street updated").withCity("Malaysia").withPostalCode("321321")
                 .withBirthday("11.11.1979").withGithubUsername("yellowstone").withTags(td.colleagues).build();
+
         editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+
+        //Ensure grace period is not counting down while editing person.
+        assertTrue(alicePersonCard.isGracePeriodFrozen());
+
         editPersonDialog.enterNewValues(newerAlice).pressEnter();
 
         //Ensure card is displaying Felicia before and after grace period.
         assertEquals(alicePersonCard, newerAlice);
         sleepForGracePeriod();
-        assertEquals(alicePersonCard, newerAlice);
+        assertTrue(personListPanel.isListMatching(newerAlice, td.benson, td.charlie, td.dan, td.elizabeth));
     }
 
     @Test

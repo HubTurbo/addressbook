@@ -139,6 +139,15 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.pushKeySequence(new Bindings().LIST_GOTO_BOTTOM_SEQUENCE);
     }
 
+    /**
+     * Navigate the listview to display and select the person.
+     * @param person
+     */
+    public void navigateToPerson(Person person) {
+        int index = getPersonIndex(person);
+        use_LIST_JUMP_TO_INDEX_SHORTCUT(index + 1);
+    }
+
     public void use_LIST_GOTO_TOP_SEQUENCE() {
         guiRobot.pushKeySequence(new Bindings().LIST_GOTO_TOP_SEQUENCE);
     }
@@ -428,4 +437,5 @@ public class PersonListPanelHandle extends GuiHandle {
         return persons.stream().map(p -> getPersonCardHandle(new Person(p)))
                                .collect(Collectors.toCollection(ArrayList::new));
     }
+
 }

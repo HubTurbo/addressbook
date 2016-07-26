@@ -7,6 +7,8 @@ import guitests.GuiRobot;
 import javafx.scene.Node;
 import javafx.stage.Stage;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Provides a handle to a person card in the person list panel.
  */
@@ -18,6 +20,7 @@ public class PersonCardHandle extends GuiHandle {
     private static final String PENDING_STATE_LABEL_FIELD_ID = "#commandTypeLabel";
     private static final String PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID = "#remoteRequestOngoingIndicator";
     private static final String PENDING_STATE_ROOT_FIELD_ID = "#commandStateDisplayRootNode";
+    private static final String PENDING_STATE_GRACE_PERIOD_FIELD_ID = "#commandStateInfoLabel";
 
     private Node node;
 
@@ -93,6 +96,16 @@ public class PersonCardHandle extends GuiHandle {
                    && getAddress().equals(handle.getAddress()) && getBirthday().equals(handle.getBirthday());
         }
         return super.equals(obj);
+    }
+
+    private int getRemainingGracePeriod() {
+        return Integer.valueOf(getTextFromLabel(PENDING_STATE_GRACE_PERIOD_FIELD_ID));
+    }
+
+    public boolean isGracePeriodFrozen() {
+        int gracePeriod = getRemainingGracePeriod();
+        guiRobot.sleep(2, TimeUnit.SECONDS);
+        return gracePeriod == getRemainingGracePeriod();
     }
 
     @Override
