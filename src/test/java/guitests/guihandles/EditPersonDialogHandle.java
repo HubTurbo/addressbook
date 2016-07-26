@@ -38,11 +38,22 @@ public class EditPersonDialogHandle extends GuiHandle {
         super(guiRobot, primaryStage, stageTitle);
     }
 
-    public boolean isValidEditDialog() {
+    /**
+     * Checks if the Edit Dialog is rendered correctly.
+     * @return
+     */
+    public boolean isShowingEditDialog() {
         return getNode(FIRST_NAME_FIELD_ID) != null && getNode(LAST_NAME_FIELD_ID) != null
                && getNode(STREET_FIELD_ID) != null && getNode(CITY_FIELD_ID) != null
                && getNode(POSTAL_CODE_FIELD_ID) != null && getNode(BIRTHDAY_FIELD_ID) != null
                && getNode(GITHUB_USER_NAME_FIELD_ID) != null && getNode(TAG_SEARCH_FIELD_ID) != null;
+    }
+
+    public boolean isShowingEmptyEditDialog() {
+        return getFirstName().equals("") && getLastName().equals("")
+                && getCity().equals("") && getGithubUserName().equals("")
+                && getStreet().equals("") && getBirthday().equals("")
+                && getAssignedTagList().size() == 0;
     }
 
     public boolean isInputValidationErrorDialogShown() {

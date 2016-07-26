@@ -41,6 +41,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Edit Alice to change to new values
         personListPanel.clickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        assertTrue(editPersonDialog.isShowingEditDialog());
+        assertTrue(editPersonDialog.isShowingPerson(td.alice));
         editPersonDialog.enterNewValues(newAlice).pressEnter();
 
         //Confirm pending state correctness
@@ -75,8 +77,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.rightClickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog =
                 personListPanel.clickOnContextMenu(PersonListPanelHandle.ContextMenuChoice.EDIT);
-        assertTrue(editPersonDialog.isValidEditDialog());
-
+        assertTrue(editPersonDialog.isShowingEditDialog());
+        assertTrue(editPersonDialog.isShowingPerson(td.alice));
         //Rest of the edit process tested in editPerson_usingAccelerator
     }
 
@@ -84,7 +86,8 @@ public class PersonEditGuiTest extends GuiTestBase {
     public void editPerson_usingEditButton() {
         personListPanel.clickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
-        assertTrue(editPersonDialog.isValidEditDialog());
+        assertTrue(editPersonDialog.isShowingEditDialog());
+        assertTrue(editPersonDialog.isShowingPerson(td.alice));
 
         //Rest of the edit process tested in editPerson_usingAccelerator
     }
@@ -94,6 +97,8 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         personListPanel.clickOnPerson(td.alice);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
+        assertTrue(editPersonDialog.isShowingEditDialog());
+        assertTrue(editPersonDialog.isShowingPerson(td.alice));
         editPersonDialog.enterFirstName("Peter");
         editPersonDialog.enterLastName("");
         editPersonDialog.clickOk();
@@ -126,6 +131,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Edit Alice to change to new values
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        assertTrue(editPersonDialog.isShowingEditDialog());
         assertTrue(editPersonDialog.isShowingPerson(td.alice));
         editPersonDialog.enterNewValues(newAlice).pressEnter();
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
@@ -138,6 +144,8 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //New
         EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
+        assertTrue(addPersonDialog.isShowingEmptyEditDialog());
+
         Person pandaWong = new PersonBuilder("Panda", "Wong")
                 .withStreet("Chengdu Panda Street").withCity("Chengdu").withPostalCode("PANDA")
                 .withBirthday("01.01.1979").withGithubUsername("panda").withTags(td.colleagues, td.friends).build();
@@ -165,6 +173,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Edit Alice to change to new values
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        assertTrue(editPersonDialog.isShowingEditDialog());
         assertTrue(editPersonDialog.isShowingPerson(td.alice));
         editPersonDialog.enterNewValues(newAlice).pressEnter();
 
