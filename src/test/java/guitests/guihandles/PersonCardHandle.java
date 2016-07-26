@@ -34,18 +34,19 @@ public class PersonCardHandle extends GuiHandle {
     }
 
     private boolean isPendingStateLabelVisible() {
-        return guiRobot.lookup(PENDING_STATE_LABEL_FIELD_ID).query().isVisible();
+        return node.lookup(PENDING_STATE_LABEL_FIELD_ID).isVisible();
     }
 
     private boolean isPendingStateProgressIndicatorVisible() {
-        return guiRobot.lookup(PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID).query().isVisible();
+        return node.lookup(PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID).isVisible();
     }
 
     private boolean isPendingStateRootVisible() {
-        return guiRobot.lookup(PENDING_STATE_ROOT_FIELD_ID).query().isVisible();
+        return node.lookup(PENDING_STATE_ROOT_FIELD_ID).isVisible();
     }
 
     public boolean isShowingGracePeriod(String displayText) {
+        System.out.println(this.isPendingStateRootVisible() + " " + this.isPendingStateLabelVisible() + " " + !this.isPendingStateProgressIndicatorVisible() + " " + this.getPendingStateLabel().equals(displayText));
         return this.isPendingStateRootVisible() && this.isPendingStateLabelVisible()
                && !this.isPendingStateProgressIndicatorVisible() && this.getPendingStateLabel().equals(displayText);
     }

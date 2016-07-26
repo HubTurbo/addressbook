@@ -127,11 +127,12 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Edit Alice to change to new values
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         editPersonDialog.enterNewValues(newAlice).pressEnter();
-
+        assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
         personListPanel.clickOnPerson(newAlice);
         assertEquals(alicePersonCard, newAlice);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertEquals(alicePersonCard, td.alice);
+        assertFalse(alicePersonCard.isShowingGracePeriod("Editing"));
         assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] was cancelled.");
 
         //New
@@ -143,10 +144,13 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         personListPanel.navigateToPerson(pandaWong);
         PersonCardHandle pandaWongCardHandle = personListPanel.getPersonCardHandle(pandaWong);
+        assertTrue(pandaWongCardHandle.isShowingGracePeriod("Adding"));
         assertEquals(pandaWongCardHandle, pandaWong); //Ensure correct state before cancelling.
 
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertNull(personListPanel.getPersonCardHandle(pandaWong));
+        assertFalse(pandaWongCardHandle.isShowingGracePeriod("Adding"));
+        assertEquals("Add Person [ Panda Wong ] was cancelled.", statusBar.getText());
     }
 
     @Test

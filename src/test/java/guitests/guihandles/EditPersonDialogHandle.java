@@ -137,6 +137,7 @@ public class EditPersonDialogHandle extends GuiHandle {
     @Override
     public void clickOk() {
         super.clickOk();
+        guiRobot.sleep(500);
         focusOnMainApp();
     }
 }
