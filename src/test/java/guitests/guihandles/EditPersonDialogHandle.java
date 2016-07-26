@@ -2,13 +2,23 @@ package guitests.guihandles;
 
 import address.model.datatypes.person.Person;
 
+import address.model.datatypes.tag.Tag;
 import commons.DateTimeUtil;
 import guitests.GuiRobot;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 public class EditPersonDialogHandle extends GuiHandle {
 
@@ -68,6 +78,14 @@ public class EditPersonDialogHandle extends GuiHandle {
         return getTextFieldText(GITHUB_USER_NAME_FIELD_ID);
     }
 
+    public String getStreet() {
+        return getTextFieldText(STREET_FIELD_ID);
+    }
+
+    public String getBirthday() {
+        return getTextFieldText(BIRTHDAY_FIELD_ID);
+    }
+
     public EditPersonDialogHandle enterFirstName(String firstName) {
         typeTextField(FIRST_NAME_FIELD_ID, firstName);
         return this;
@@ -107,6 +125,20 @@ public class EditPersonDialogHandle extends GuiHandle {
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
+    public boolean isShowingPerson(Person person) {
+        return getFirstName().equals(person.getFirstName()) && getLastName().equals(person.getLastName())
+               && getCity().equals(person.getCity()) && getGithubUserName().equals(person.getGithubUsername())
+               && getStreet().equals(person.getStreet()) //TODO: Can't compare birthday, as empty = null
+               && getAssignedTagList().equals(person.getTagList());
+    }
+
+    public List<Tag> getAssignedTagList() {
+        ScrollPane pane = (ScrollPane) getNode(TAG_SEARCH_FIELD_ID);
+        VBox box = (VBox) pane.getContent();
+        List<Label> tags = box.getChildren().stream().map(o -> (Label) o).collect(Collectors.toCollection(ArrayList::new));
+        return tags.stream().map(t -> new Tag(t.getText())).collect(Collectors.toCollection(ArrayList::new));
+    }
+
     public EditPersonDialogHandle enterNewValues(Person newValues) {
         enterFirstName(newValues.getFirstName());
         enterLastName(newValues.getLastName());
@@ -117,7 +149,7 @@ public class EditPersonDialogHandle extends GuiHandle {
         enterGithubId(newValues.getGithubUsername());
         TagPersonDialogHandle tagPersonDialog = openTagPersonDialog();
         newValues.getTagList().stream()
-                .forEach( (t) -> tagPersonDialog.enterSearchQuery(t.getName()).acceptSuggestedTag());
+                 .forEach( (t) -> tagPersonDialog.enterSearchQuery(t.getName()).acceptSuggestedTag());
         tagPersonDialog.close();
         return this;
     }

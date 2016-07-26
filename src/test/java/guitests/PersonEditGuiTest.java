@@ -126,6 +126,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Edit Alice to change to new values
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        assertTrue(editPersonDialog.isShowingPerson(td.alice));
         editPersonDialog.enterNewValues(newAlice).pressEnter();
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
         personListPanel.clickOnPerson(newAlice);
@@ -164,6 +165,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Edit Alice to change to new values
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        assertTrue(editPersonDialog.isShowingPerson(td.alice));
         editPersonDialog.enterNewValues(newAlice).pressEnter();
 
         //Ensure grace period is showing
@@ -176,6 +178,7 @@ public class PersonEditGuiTest extends GuiTestBase {
                 .withBirthday("11.11.1979").withGithubUsername("yellowstone").withTags(td.colleagues).build();
 
         editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        assertTrue(editPersonDialog.isShowingPerson(newAlice));
 
         //Ensure grace period is not counting down while editing person.
         assertTrue(alicePersonCard.isGracePeriodFrozen());
