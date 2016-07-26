@@ -38,7 +38,7 @@ public class GuiHandle {
         try {
             Constructor<?> ctor = clazz.getConstructor(GuiRobot.class, Stage.class);
             Object object = ctor.newInstance(new Object[] { guiRobot, primaryStage});
-            return (T)object;
+            return (T) object;
         } catch (Exception e) {
             throw new RuntimeException("Cannot create gui handle of type " + clazz.getName(), e);
         }
@@ -135,7 +135,7 @@ public class GuiHandle {
     }
 
     protected String getTextFromLabel(String fieldId, Node parentNode) {
-        return ((Label)guiRobot.from(parentNode).lookup(fieldId).tryQuery().get()).getText();
+        return ((Label) guiRobot.from(parentNode).lookup(fieldId).tryQuery().get()).getText();
     }
 
     public void focusOnSelf() {

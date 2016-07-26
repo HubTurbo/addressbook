@@ -136,7 +136,7 @@ public class EditPersonDialogHandle extends GuiHandle {
     }
 
     public TagPersonDialogHandle openTagPersonDialogUsingShortcut() {
-        guiRobot.press(KeyCode.SHORTCUT, KeyCode.O)
+        guiRobot.push(KeyCode.SHORTCUT, KeyCode.O)
                 .sleep(200); // wait for opening animation
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }

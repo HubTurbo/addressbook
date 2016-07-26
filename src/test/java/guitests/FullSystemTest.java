@@ -23,7 +23,7 @@ public class FullSystemTest extends GuiTestBase {
         assertEquals("colleagues", newTagDialog.getTagName());
         newTagDialog.clickOk();
 
-        //Edit Hans Muster to John Tan, and edit details
+        // Edit Hans Muster to John Tan, and edit details
         personListPanel.clickOnPerson("Muster");
         assertTrue(personListPanel.isSelected("Hans", "Muster"));
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
