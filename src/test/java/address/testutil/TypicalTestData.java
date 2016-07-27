@@ -48,7 +48,7 @@ public class TypicalTestData {
         book.addTag(friends);
     }
 
-    public Person[] getTypicalTestData() {
+    public Person[] getTestData() {
         return new Person[] {alice, benson, charlie, dan, elizabeth};
     }
 

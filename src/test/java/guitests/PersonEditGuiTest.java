@@ -24,12 +24,12 @@ import static org.junit.Assert.*;
 public class PersonEditGuiTest extends GuiTestBase {
 
     public Person aliceEdited = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
-            .withStreet("81th Wall Street").withCity("New York")
-            .withPostalCode("41452").withBirthday("11.09.1983")
-            .withGithubUsername("alicia").withTags(td.friends).build();
+                                                                  .withStreet("81th Wall Street").withCity("New York")
+                                                                  .withPostalCode("41452").withBirthday("11.09.1983")
+                                                                  .withGithubUsername("alicia").withTags(td.friends).build();
     public Person bensonEdited = new PersonBuilder(td.benson.copy()).withFirstName("Ben").withLastName("Chris")
-            .withStreet("Pittsburgh Square").withCity("Pittsburg")
-            .withPostalCode("42445").withGithubUsername("ben").build();
+                                                                    .withStreet("Pittsburgh Square").withCity("Pittsburg")
+                                                                    .withPostalCode("42445").withGithubUsername("ben").build();
     public Person elizabethEdited = new PersonBuilder(td.elizabeth.copy()).withLastName("Green").build();
 
 
@@ -130,7 +130,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
         assertMatching(alicePersonCard, newCharlie);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        assertTrue(personListPanel.isListMatching(td.getTypicalTestData()));
+        assertTrue(personListPanel.isListMatching(td.getTestData()));
         assertFalse(alicePersonCard.isShowingGracePeriod("Editing"));
         assertEquals(HeaderStatusBarHandle.formatEditCancelledMessage(td.charlie.fullName(),
                                                                       Optional.of(newCharlie.fullName())),

@@ -70,7 +70,7 @@ public class PersonNewGuiTest extends GuiTestBase {
     public void addPerson_cancelDialog() {
         EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
         addPersonDialog.enterNewValues(td.fiona).clickCancel();
-        assertTrue(personListPanel.isListMatching(td.getTypicalTestData()));
+        assertTrue(personListPanel.isListMatching(td.getTestData()));
     }
 
     @Test
