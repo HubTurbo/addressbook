@@ -101,7 +101,7 @@ public class PersonEditGuiTest extends GuiTestBase {
     @Test
     public void editPerson_dataValidation() {
 
-        personListPanel.clickOnPerson(td.elizabeth);
+        personListPanel.navigateToPerson(td.elizabeth);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
         assertTrue(editPersonDialog.isShowingPerson(td.elizabeth));
         editPersonDialog.enterFirstName("Peter");
