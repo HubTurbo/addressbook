@@ -50,4 +50,15 @@ public class TypicalTestData {
                                                                   .withGithubUsername("george").withTags(friends, colleagues)
                                                                   .build();
     public AddressBook book;
+
+    public TypicalTestData() {
+        book = new AddressBook();
+        book.addPerson(alice);
+        book.addPerson(benson);
+        book.addPerson(charlie);
+        book.addPerson(dan);
+        book.addPerson(elizabeth);
+        book.addTag(colleagues);
+        book.addTag(friends);
+    }
 }
