@@ -73,13 +73,29 @@ public class PersonEditGuiTest extends GuiTestBase {
                      Optional.of(newAlice.fullName())), statusBar.getText());
     }
 
-    //TODO: This maybe should not be here. A separate class to test the button does what it suppose to do?
     @Test
     public void editPerson_usingEditButton() {
-        personListPanel.clickOnPerson(td.dan);
+        personListPanel.navigateToPerson(td.elizabeth);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
-        assertTrue(editPersonDialog.isShowingPerson(td.dan));
-        //Rest of the edit process tested in editPerson_usingContextMenu
+        assertTrue(editPersonDialog.isShowingPerson(td.elizabeth));
+        editPersonDialog.enterNewValues(td.elizabethEdited).clickOk();
+        sleepForGracePeriod();
+        assertTrue(personListPanel.contains(td.elizabethEdited));
+        assertFalse(personListPanel.contains(td.elizabeth));
+        //Full edit process is done at editPerson_usingContextMenu()
+    }
+
+    @Test
+    public void editPerson_usingAccelerator() {
+        personListPanel.navigateToPerson(td.benson);
+        EditPersonDialogHandle editPersonDialogHandle = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        assertTrue(editPersonDialogHandle.isShowingPerson(td.benson));
+        editPersonDialogHandle.enterNewValues(td.bensonEdited);
+        editPersonDialogHandle.clickOk();
+        sleepForGracePeriod();
+        assertTrue(personListPanel.contains(td.bensonEdited));
+        assertFalse(personListPanel.contains(td.benson));
+        //Full edit process is done at editPerson_usingContextMenu()
     }
 
     @Test

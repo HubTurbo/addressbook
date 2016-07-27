@@ -23,10 +23,21 @@ public class TypicalTestData {
      * And so on.
      */
     public Person alice = new Person("Alice", "Brown", 1);
+    public Person aliceEdited = new PersonBuilder(alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
+                                                               .withStreet("81th Wall Street").withCity("New York")
+                                                               .withPostalCode("41452").withBirthday("11.09.1983")
+                                                               .withGithubUsername("alicia").withTags(friends).build();
     public Person benson = new Person("Benson", "Christopher Dean", 2);
+    public Person bensonEdited = new PersonBuilder(benson.copy()).withFirstName("Ben").withLastName("Chris")
+                                                                 .withStreet("Pittsburgh Square").withCity("Pittsburg")
+                                                                 .withPostalCode("42445").withGithubUsername("ben").build();
     public Person charlie = new Person("Charlie", "Davidson", 3);
+    public Person charlieEdited = new PersonBuilder(charlie.copy()).withFirstName("Charlotte").withCity("Texas")
+                                                                   .withGithubUsername("charlotte").build();
     public Person dan = new Person("Dan", "Edwards", 4);
+    public Person danEdited = new PersonBuilder(dan.copy()).withLastName("Edmonton").withBirthday("03.01.1995").build();
     public Person elizabeth = new Person("Elizabeth", "F. Green", 5);
+    public Person elizabethEdited = new PersonBuilder(elizabeth.copy()).withLastName("Green").build();
     public Person fiona = new PersonBuilder("Fiona", "Wong", 6).withStreet("51th street").withCity("New York")
                                                                .withPostalCode("51245").withBirthday("01.01.1980")
                                                                .withGithubUsername("fiona").withTags(friends).build();

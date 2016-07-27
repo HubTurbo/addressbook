@@ -86,8 +86,7 @@ public class GuiHandle {
      * @param newText
      */
     protected void typeTextField(String textFieldId, String newText) {
-        Optional<Node> nodeOptional = guiRobot.lookup(textFieldId).tryQuery();
-        guiRobot.interact(() -> nodeOptional.get().requestFocus());
+        guiRobot.clickOn(textFieldId);
         guiRobot.push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1)
                 .write(newText);
     }

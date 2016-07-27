@@ -160,7 +160,9 @@ public class EditPersonDialogHandle extends GuiHandle {
         enterStreet(newValues.getStreet());
         enterCity(newValues.getCity());
         enterPostalCode(newValues.getPostalCode());
-        enterBirthday(newValues.getBirthday());
+        if (newValues.getBirthday() != null) {
+            enterBirthday(newValues.getBirthday());
+        }
         enterGithubId(newValues.getGithubUsername());
         TagPersonDialogHandle tagPersonDialog = openTagPersonDialog();
         newValues.getTagList().stream()
