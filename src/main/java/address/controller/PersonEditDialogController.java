@@ -83,18 +83,6 @@ public class PersonEditDialogController extends EditDialogController {
 
     private void addListeners() {
         tagList.setOnMouseClicked(e -> launchTagSelectionEditDialog());
-        tagList.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.SPACE) {
-                e.consume();
-                launchTagSelectionEditDialog();
-            }
-        });
-        mainPane.setOnKeyPressed(e -> {
-            if (e.isShortcutDown() && e.getCode() == KeyCode.O) {
-                e.consume();
-                launchTagSelectionEditDialog();
-            }
-        });
     }
 
     private Tooltip getTooltip() {

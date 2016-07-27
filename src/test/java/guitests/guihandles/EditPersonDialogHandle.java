@@ -135,12 +135,6 @@ public class EditPersonDialogHandle extends GuiHandle {
         return this;
     }
 
-    public TagPersonDialogHandle openTagPersonDialogUsingShortcut() {
-        guiRobot.push(KeyCode.SHORTCUT, KeyCode.O)
-                .sleep(200); // wait for opening animation
-        return new TagPersonDialogHandle(guiRobot, primaryStage);
-    }
-
     public TagPersonDialogHandle openTagPersonDialog() {
         guiRobot.clickOn(TAG_SEARCH_FIELD_ID)
                 .sleep(200); // wait for opening animation
