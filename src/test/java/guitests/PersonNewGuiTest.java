@@ -62,16 +62,15 @@ public class PersonNewGuiTest extends GuiTestBase {
         assertMatching(georgeCard, td.george);
 
         sleepForGracePeriod();
-
-        assertMatching(fionaCard, td.fiona);
-        assertMatching(georgeCard, td.george);
+        assertTrue(personListPanel.isListMatching(td.alice, td.benson, td.charlie, td.dan, td.elizabeth, td.fiona,
+                                                  td.george));
     }
 
     @Test
     public void addPerson_cancelDialog() {
         EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
         addPersonDialog.enterNewValues(td.fiona).clickCancel();
-        assertFalse(personListPanel.contains(td.fiona));
+        assertTrue(personListPanel.isListMatching(td.getTypicalTestData()));
     }
 
     @Test

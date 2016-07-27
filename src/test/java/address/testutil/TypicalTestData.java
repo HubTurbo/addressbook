@@ -35,10 +35,7 @@ public class TypicalTestData {
                                                                   .withGithubUsername("george").withTags(friends, colleagues)
                                                                   .build();
 
-
-
     public AddressBook book;
-    public List<Person> samples;
 
     public TypicalTestData() {
         book = new AddressBook();
@@ -49,6 +46,10 @@ public class TypicalTestData {
         book.addPerson(elizabeth);
         book.addTag(colleagues);
         book.addTag(friends);
+    }
+
+    public Person[] getTypicalTestData() {
+        return new Person[] {alice, benson, charlie, dan, elizabeth};
     }
 
 }
