@@ -26,8 +26,7 @@ public class HeaderStatusBarHandle extends GuiHandle {
     }
 
     public static String formatEditSuccessMessage(String firstName, Optional<String> secondName) {
-        return "Edit" + " Person [ " + getFormattedNames(firstName, secondName)
-                + " ] completed successfully.";
+        return "Edit" + " Person [ " + getFormattedNames(firstName, secondName) + " ] completed successfully.";
     }
 
     public static String formatEditCancelledMessage(String firstName, Optional<String> secondName) {
@@ -35,8 +34,7 @@ public class HeaderStatusBarHandle extends GuiHandle {
     }
 
     public static String formatAddSuccessMessage(String firstName, Optional<String> secondName) {
-        return "Add" + " Person [ " + getFormattedNames(firstName, secondName)
-                + " ] completed successfully.";
+        return "Add" + " Person [ " + getFormattedNames(firstName, secondName) + " ] completed successfully.";
     }
 
     public static String formatAddCancelledMessage(String firstName, Optional<String> secondName) {
@@ -44,8 +42,7 @@ public class HeaderStatusBarHandle extends GuiHandle {
     }
 
     public static String formatDeleteSuccessMessage(String firstName, Optional<String> secondName) {
-        return "Delete" + " Person [ " + getFormattedNames(firstName, secondName)
-                + " ] completed successfully.";
+        return "Delete" + " Person [ " + getFormattedNames(firstName, secondName) + " ] completed successfully.";
     }
 
     public static String formatDeleteCancelledMessage(String firstName, Optional<String> secondName) {
