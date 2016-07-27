@@ -74,8 +74,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(personListPanel.isListMatching(1, td.benson, td.charlie, td.dan, td.elizabeth));
 
         //Confirm status bar is updated correctly
-        assertEquals(HeaderStatusBarHandle.formatSuccessMessage(HeaderStatusBarHandle.Type.EDIT, td.alice.fullName(),
-                     Optional.of(aliceEdited.fullName())), statusBar.getText());
+        assertEquals(HeaderStatusBarHandle.formatEditSuccessMessage(td.alice.fullName(), Optional.of(aliceEdited.fullName())),
+                     statusBar.getText());
     }
 
     @Test
@@ -132,8 +132,9 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertTrue(personListPanel.isListMatching(td.getTypicalTestData()));
         assertFalse(alicePersonCard.isShowingGracePeriod("Editing"));
-        assertEquals(HeaderStatusBarHandle.formatCancelledMessage(HeaderStatusBarHandle.Type.EDIT, td.charlie.fullName(),
-                     Optional.of(newCharlie.fullName())), statusBar.getText());
+        assertEquals(HeaderStatusBarHandle.formatEditCancelledMessage(td.charlie.fullName(),
+                                                                      Optional.of(newCharlie.fullName())),
+                     statusBar.getText());
     }
 
     @Test

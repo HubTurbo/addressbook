@@ -30,7 +30,7 @@ public class PersonDeleteGuiTest extends GuiTestBase {
 
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertFalse(aliceCard.isShowingGracePeriod("Deleting"));
-        assertEquals(HeaderStatusBarHandle.formatCancelledMessage(HeaderStatusBarHandle.Type.DELETE,
-                     td.alice.fullName(), Optional.empty()), statusBar.getText());
+        assertEquals(HeaderStatusBarHandle.formatDeleteCancelledMessage(td.alice.fullName(), Optional.empty()),
+                     statusBar.getText());
     }
 }

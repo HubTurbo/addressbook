@@ -86,7 +86,7 @@ public class PersonNewGuiTest extends GuiTestBase {
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertFalse(personListPanel.contains(td.fiona));
         assertFalse(fionaCard.isShowingGracePeriod("Adding"));
-        assertEquals(HeaderStatusBarHandle.formatCancelledMessage(HeaderStatusBarHandle.Type.ADD, td.fiona.fullName(),
-                     Optional.empty()), statusBar.getText());
+        assertEquals(HeaderStatusBarHandle.formatAddCancelledMessage(td.fiona.fullName(), Optional.empty()),
+                     statusBar.getText());
     }
 }

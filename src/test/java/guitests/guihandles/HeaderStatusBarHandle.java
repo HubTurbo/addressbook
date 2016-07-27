@@ -13,20 +13,6 @@ import java.util.Optional;
  */
 public class HeaderStatusBarHandle extends GuiHandle {
 
-    public enum Type {
-        ADD ("Add"), EDIT("Edit"), DELETE("Delete");
-
-        String message;
-        Type(String message) {
-            this.message = message;
-        }
-
-        @Override
-        public String toString() {
-            return message;
-        }
-    }
-
     public HeaderStatusBarHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage, TestApp.APP_TITLE);
     }
@@ -39,13 +25,31 @@ public class HeaderStatusBarHandle extends GuiHandle {
         return (StatusBar) getNode("#" + StatusBarHeaderController.HEADER_STATUS_BAR_ID);
     }
 
-    public static String formatSuccessMessage(Type type, String firstName, Optional<String> secondName) {
-        return type.toString() + " Person [ " + getFormattedNames(firstName, secondName)
+    public static String formatEditSuccessMessage(String firstName, Optional<String> secondName) {
+        return "Edit" + " Person [ " + getFormattedNames(firstName, secondName)
                 + " ] completed successfully.";
     }
 
-    public static String formatCancelledMessage(Type type, String firstName, Optional<String> secondName) {
-        return type.toString() + " Person [ " + getFormattedNames(firstName, secondName) + " ] was cancelled.";
+    public static String formatEditCancelledMessage(String firstName, Optional<String> secondName) {
+        return "Edit" + " Person [ " + getFormattedNames(firstName, secondName) + " ] was cancelled.";
+    }
+
+    public static String formatAddSuccessMessage(String firstName, Optional<String> secondName) {
+        return "Add" + " Person [ " + getFormattedNames(firstName, secondName)
+                + " ] completed successfully.";
+    }
+
+    public static String formatAddCancelledMessage(String firstName, Optional<String> secondName) {
+        return "Add" + " Person [ " + getFormattedNames(firstName, secondName) + " ] was cancelled.";
+    }
+
+    public static String formatDeleteSuccessMessage(String firstName, Optional<String> secondName) {
+        return "Delete" + " Person [ " + getFormattedNames(firstName, secondName)
+                + " ] completed successfully.";
+    }
+
+    public static String formatDeleteCancelledMessage(String firstName, Optional<String> secondName) {
+        return "Delete" + " Person [ " + getFormattedNames(firstName, secondName) + " ] was cancelled.";
     }
 
     private static String getFormattedNames(String firstName, Optional<String> secondName) {
