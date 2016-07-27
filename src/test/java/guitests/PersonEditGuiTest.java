@@ -74,9 +74,9 @@ public class PersonEditGuiTest extends GuiTestBase {
     //TODO: This maybe should not be here. A separate class to test the button does what it suppose to do?
     @Test
     public void editPerson_usingEditButton() {
-        personListPanel.clickOnPerson(td.charlie);
+        personListPanel.clickOnPerson(td.dan);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
-        assertTrue(editPersonDialog.isShowingPerson(td.charlie));
+        assertTrue(editPersonDialog.isShowingPerson(td.dan));
 
         //Rest of the edit process tested in editPerson_usingContextMenu
     }
@@ -84,9 +84,9 @@ public class PersonEditGuiTest extends GuiTestBase {
     @Test
     public void editPerson_dataValidation() {
 
-        personListPanel.clickOnPerson(td.alice);
+        personListPanel.clickOnPerson(td.elizabeth);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
-        assertTrue(editPersonDialog.isShowingPerson(td.alice));
+        assertTrue(editPersonDialog.isShowingPerson(td.elizabeth));
         editPersonDialog.enterFirstName("Peter");
         editPersonDialog.enterLastName("");
         editPersonDialog.clickOk();
@@ -99,20 +99,20 @@ public class PersonEditGuiTest extends GuiTestBase {
     @Test
     public void cancelOperation_usingAccelerator() {
         //Get a reference to the card displaying Alice's details
-        PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
+        PersonCardHandle alicePersonCard = personListPanel.selectCard(td.charlie);
 
         //Edit Alice to change to new values
-        EditPersonDialogHandle editPersonDialog = personListPanel.editPerson(td.alice);
-        Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
+        EditPersonDialogHandle editPersonDialog = personListPanel.editPerson(td.charlie);
+        Person newCharlie = new PersonBuilder(td.charlie.copy()).withFirstName("Charlotte").withLastName("Talon")
                 .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
-                .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(td.colleagues, td.friends).build();
-        editPersonDialog.enterNewValues(newAlice).pressEnter();
+                .withBirthday("01.01.1979").withGithubUsername("charlotte").withTags(td.colleagues, td.friends).build();
+        editPersonDialog.enterNewValues(newCharlie).pressEnter();
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
-        assertMatching(alicePersonCard, newAlice);
+        assertMatching(alicePersonCard, newCharlie);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        assertMatching(alicePersonCard, td.alice);
+        assertMatching(alicePersonCard, td.charlie);
         assertFalse(alicePersonCard.isShowingGracePeriod("Editing"));
-        assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] was cancelled.");
+        assertEquals(statusBar.getText(), "Edit Person [ Charlie Davidson -> Charlotte Talon ] was cancelled.");
     }
 
     @Test
@@ -131,12 +131,10 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
 
         //Edit Alice again during pending state.
-        Person newerAlice = new PersonBuilder(newAlice.copy()).withFirstName("Felicia").withLastName("Yellowstone")
+        Person newerAlice = new PersonBuilder(newAlice.copy()).withFirstName("Abba").withLastName("Yellowstone")
                 .withStreet("street updated").withCity("Malaysia").withPostalCode("321321")
                 .withBirthday("11.11.1979").withGithubUsername("yellowstone").withTags(td.colleagues).build();
         editPersonDialog = personListPanel.editPerson(newAlice);
-
-        //Get a reference to the current
 
         //Ensure grace period is not counting down while editing person.
         assertTrue(alicePersonCard.isGracePeriodFrozen());
@@ -144,7 +142,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterNewValues(newerAlice).pressEnter();
         //TODO: Verify that the countdown is restarted.
 
-        //Ensure card is displaying Felicia before and after grace period.
+        //Ensure card is displaying Abba before and after grace period.
         assertMatching(alicePersonCard, newerAlice);
         sleepForGracePeriod();
         assertTrue(personListPanel.isListMatching(newerAlice, td.benson, td.charlie, td.dan, td.elizabeth));
