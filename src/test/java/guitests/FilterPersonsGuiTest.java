@@ -43,14 +43,14 @@ public class FilterPersonsGuiTest extends GuiTestBase {
         personListPanel.enterFilterAndApply("tag:friends city:new");
         assertResultList(filterByCity(filterByTag(getInitialData().getPersonList(), "friends", false), "new", false));
 
-        personListPanel.enterFilterAndApply("tag:friends name:mueller");
-        assertResultList(filterByTag(filterByName(getInitialData().getPersonList(), "mueller", false), "friends", false));
+        personListPanel.enterFilterAndApply("tag:friends name:brown");
+        assertResultList(filterByTag(filterByName(getInitialData().getPersonList(), "brown", false), "friends", false));
 
-        personListPanel.enterFilterAndApply("name:rogers name:brown id:6");
-        assertResultList(filterById(filterByName(filterByName(getInitialData().getPersonList(), "rogers", false), "brown", false), 6, false));
+        personListPanel.enterFilterAndApply("name:edwards name:brown id:6");
+        assertResultList(filterById(filterByName(filterByName(getInitialData().getPersonList(), "edwards", false), "brown", false), 6, false));
 
-        personListPanel.enterFilterAndApply("name:rogers name:alice id:6");
-        assertResultList(filterById(filterByName(filterByName(getInitialData().getPersonList(), "rogers", false), "alice", false), 6, false));
+        personListPanel.enterFilterAndApply("name:edwa name:dan id:6");
+        assertResultList(filterById(filterByName(filterByName(getInitialData().getPersonList(), "edwa", false), "dan", false), 6, false));
     }
 
     @Test
@@ -73,8 +73,8 @@ public class FilterPersonsGuiTest extends GuiTestBase {
         personListPanel.enterFilterAndApply("!!tag:friends");
         assertResultList(filterByTag(getInitialData().getPersonList(), "friends", false));
 
-        personListPanel.enterFilterAndApply("!!!city:Hawaii");
-        assertResultList(filterByCity(getInitialData().getPersonList(), "Hawaii", true));
+        personListPanel.enterFilterAndApply("!!!city:Texas");
+        assertResultList(filterByCity(getInitialData().getPersonList(), "Texas", true));
     }
 
     @Test
@@ -82,14 +82,14 @@ public class FilterPersonsGuiTest extends GuiTestBase {
         personListPanel.enterFilterAndApply("tag:friends !city:california");
         assertResultList(filterByCity(filterByTag(getInitialData().getPersonList(), "friends", false), "california", true));
 
-        personListPanel.enterFilterAndApply("!tag:friends city:california");
-        assertResultList(filterByCity(filterByTag(getInitialData().getPersonList(), "friends", true), "california", false));
+        personListPanel.enterFilterAndApply("!tag:colleagues city:chic");
+        assertResultList(filterByCity(filterByTag(getInitialData().getPersonList(), "colleagues", true), "chic", false));
 
         personListPanel.enterFilterAndApply("id:2 !!!id:3 !id:5 !!!!!id:8");
-        assertResultList(filterById(filterById(filterById(filterById(getInitialData().getPersonList(), 8, true), 5, true), 3, true), 2, false));
+        assertResultList(filterById(filterById(filterById(filterById(getInitialData().getPersonList(), 2, false), 3, true), 5, true), 8, true));
 
         personListPanel.enterFilterAndApply("id:2 id:3 id:5 !id:4");
-        assertResultList(filterById(filterById(filterById(filterById(getInitialData().getPersonList(), 4, true), 5, false), 3, false), 2, false));
+        assertResultList(filterById(filterById(filterById(filterById(getInitialData().getPersonList(), 2, false), 3, false), 5, false), 4, true));
     }
 
     private List<ReadOnlyPerson> filterByTag(List<ReadOnlyPerson> originalList, String partialTagName, boolean isNegative) {
@@ -129,6 +129,6 @@ public class FilterPersonsGuiTest extends GuiTestBase {
     }
 
     private void assertResultList(List<ReadOnlyPerson> resultList) {
-        assertTrue(personListPanel.containsList(resultList));
+        assertTrue(personListPanel.containsListOnly(resultList));
     }
 }

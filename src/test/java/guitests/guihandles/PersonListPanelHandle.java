@@ -454,13 +454,13 @@ public class PersonListPanelHandle extends GuiHandle {
         return true;
     }
 
-    public boolean containsList(List<ReadOnlyPerson> personList) {
+    public boolean containsListOnly(List<ReadOnlyPerson> personList) {
         ReadOnlyPerson[] personArray = new Person[personList.size()];
         personList.toArray(personArray);
-        return containsList(personArray);
+        return containsListOnly(personArray);
     }
 
-    public boolean containsList(ReadOnlyPerson... persons) {
+    public boolean containsListOnly(ReadOnlyPerson... persons) {
         if (persons.length != getListView().getItems().size()) return false;
 
         for (ReadOnlyPerson person : persons) {
