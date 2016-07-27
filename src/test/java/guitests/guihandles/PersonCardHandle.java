@@ -9,9 +9,7 @@ import guitests.GuiRobot;
 import javafx.scene.Node;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -55,7 +53,6 @@ public class PersonCardHandle extends GuiHandle {
     }
 
     public boolean isShowingGracePeriod(String displayText) {
-        System.out.println(this.isPendingStateRootVisible() + " " + this.isPendingStateLabelVisible() + " " + !this.isPendingStateProgressIndicatorVisible() + " " + this.getPendingStateLabel().equals(displayText));
         return this.isPendingStateRootVisible() && this.isPendingStateLabelVisible()
                && !this.isPendingStateProgressIndicatorVisible() && this.getPendingStateLabel().equals(displayText);
     }

@@ -123,6 +123,11 @@ public class GuiTestBase {
         mainGui.sleepForGracePeriod();
     }
 
+    public void sleepUntilNextSync() {
+        //TODO: actively check for sync status rather than sleep for a fixed time
+        sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
+    }
+
     public void assertMatching(PersonCardHandle card, Person person) {
         assertEquals(card.mockPerson(person.getId(), person.getGithubUsername()), person);
     }

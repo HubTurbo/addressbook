@@ -403,7 +403,10 @@ public class PersonListPanelHandle extends GuiHandle {
      * @param persons A list of person in the correct order.
      * @return
      */
-    public boolean isListMatching(int startPosition, Person... persons) {
+    public boolean isListMatching(int startPosition, Person... persons) throws IllegalArgumentException {
+        if (persons.length + startPosition != getListView().getItems().size()) {
+            throw new IllegalArgumentException("List size not matching");
+        }
         this.containsInOrder(startPosition, persons);
         for (int i = 0; i < persons.length; i++) {
             use_LIST_JUMP_TO_INDEX_SHORTCUT(i + 1 + startPosition);

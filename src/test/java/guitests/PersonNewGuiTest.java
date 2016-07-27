@@ -23,7 +23,7 @@ public class PersonNewGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void addPerson_createAndDelete() {
+    public void addPerson_createAndDeleteInGracePeriod() {
         //Add Fiona
         EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
         addPersonDialog.enterNewValues(td.fiona).clickOk();
@@ -43,12 +43,11 @@ public class PersonNewGuiTest extends GuiTestBase {
         PersonCardHandle georgeCard = personListPanel.navigateToPerson(td.george);
         assertTrue(georgeCard.isShowingGracePeriod("Adding"));
         sleepForGracePeriod();
-        assertFalse(personListPanel.contains(td.fiona)); //Make sure Person A doesn't appear again.
-        assertTrue(personListPanel.contains(td.george));
+        assertTrue(personListPanel.isListMatching(td.alice, td.benson, td.charlie, td.dan, td.elizabeth, td.george));
     }
 
     @Test
-    public void addPerson_multipleAdd() {
+    public void addPerson_addTwoPersons() {
 
         EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
         addPersonDialog.enterNewValues(td.fiona).clickOk();
@@ -76,7 +75,7 @@ public class PersonNewGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void cancelOperation() {
+    public void addPerson_cancelAddOperation() {
         EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
 
         addPersonDialog.enterNewValues(td.fiona).clickOk();

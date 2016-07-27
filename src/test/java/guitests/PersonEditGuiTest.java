@@ -10,7 +10,6 @@ import guitests.guihandles.PersonListPanelHandle;
 import org.junit.Test;
 
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
@@ -23,6 +22,16 @@ import static org.junit.Assert.*;
  * * Data validation. <br>
  */
 public class PersonEditGuiTest extends GuiTestBase {
+
+    public Person aliceEdited = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
+            .withStreet("81th Wall Street").withCity("New York")
+            .withPostalCode("41452").withBirthday("11.09.1983")
+            .withGithubUsername("alicia").withTags(td.friends).build();
+    public Person bensonEdited = new PersonBuilder(td.benson.copy()).withFirstName("Ben").withLastName("Chris")
+            .withStreet("Pittsburgh Square").withCity("Pittsburg")
+            .withPostalCode("42445").withGithubUsername("ben").build();
+    public Person elizabethEdited = new PersonBuilder(td.elizabeth.copy()).withLastName("Green").build();
+
 
     @Override
     protected AddressBook getInitialData() {
@@ -39,38 +48,34 @@ public class PersonEditGuiTest extends GuiTestBase {
         EditPersonDialogHandle editPersonDialog =
                 personListPanel.clickOnContextMenu(PersonListPanelHandle.ContextMenuChoice.EDIT);
         assertTrue(editPersonDialog.isShowingPerson(td.alice));
-        //Prepare new values for Alice
-        Person newAlice = new PersonBuilder(td.alice.copy()).withFirstName("Alicia").withLastName("Brownstone")
-                .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
-                .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(td.colleagues, td.friends).build();
-        editPersonDialog.enterNewValues(newAlice).pressEnter();
-        assertMatching(alicePersonCard, newAlice);
+        editPersonDialog.enterNewValues(aliceEdited).pressEnter();
+        assertMatching(alicePersonCard, aliceEdited);
 
         //Confirm pending state correctness
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
 
         //Confirm the right card is selected after the edit
-        assertTrue(personListPanel.isSelected(newAlice));
+        assertTrue(personListPanel.isSelected(aliceEdited));
 
         //Confirm right values are displayed after grace period is over
         sleepForGracePeriod();
-        assertMatching(alicePersonCard, newAlice);
+        assertMatching(alicePersonCard, aliceEdited);
 
         //Confirm cancel operation does not cancel the edit after the grace period.
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         //Confirm the underlying person object has the right values
-        assertMatching(alicePersonCard, newAlice);
+        assertMatching(alicePersonCard, aliceEdited);
 
         //Confirm again after the next sync
-        sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
-        assertEquals(newAlice.toString(), personListPanel.getSelectedPerson().toString());
+        sleepUntilNextSync();
+        assertEquals(aliceEdited.toString(), personListPanel.getSelectedPerson().toString());
 
         //Confirm other cards are unaffected.
         assertTrue(personListPanel.isListMatching(1, td.benson, td.charlie, td.dan, td.elizabeth));
 
         //Confirm status bar is updated correctly
         assertEquals(HeaderStatusBarHandle.formatSuccessMessage(HeaderStatusBarHandle.Type.EDIT, td.alice.fullName(),
-                     Optional.of(newAlice.fullName())), statusBar.getText());
+                     Optional.of(aliceEdited.fullName())), statusBar.getText());
     }
 
     @Test
@@ -78,9 +83,9 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.navigateToPerson(td.elizabeth);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
         assertTrue(editPersonDialog.isShowingPerson(td.elizabeth));
-        editPersonDialog.enterNewValues(td.elizabethEdited).clickOk();
+        editPersonDialog.enterNewValues(elizabethEdited).clickOk();
         sleepForGracePeriod();
-        assertTrue(personListPanel.contains(td.elizabethEdited));
+        assertTrue(personListPanel.contains(elizabethEdited));
         assertFalse(personListPanel.contains(td.elizabeth));
         //Full edit process is done at editPerson_usingContextMenu()
     }
@@ -90,10 +95,10 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.navigateToPerson(td.benson);
         EditPersonDialogHandle editPersonDialogHandle = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         assertTrue(editPersonDialogHandle.isShowingPerson(td.benson));
-        editPersonDialogHandle.enterNewValues(td.bensonEdited);
+        editPersonDialogHandle.enterNewValues(bensonEdited);
         editPersonDialogHandle.clickOk();
         sleepForGracePeriod();
-        assertTrue(personListPanel.contains(td.bensonEdited));
+        assertTrue(personListPanel.contains(bensonEdited));
         assertFalse(personListPanel.contains(td.benson));
         //Full edit process is done at editPerson_usingContextMenu()
     }
