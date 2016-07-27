@@ -266,13 +266,21 @@ public class TestUtil {
 
     public static CloudAddressBook generateCloudAddressBook(AddressBook addressBook) {
         List<CloudPerson> cloudPersonList = new ArrayList<>();
-        addressBook.getPersonList().stream()
-                .forEach(p -> cloudPersonList.add(new CloudPerson(p.getFirstName(), p.getLastName(), p.getId())));
+        addressBook.getPersonList().forEach(p -> {
+            CloudPerson cloudPerson = new CloudPerson(p.getFirstName(), p.getLastName());
+            cloudPerson.setBirthday(p.getBirthday());
+            cloudPerson.setCity(p.getCity());
+            cloudPerson.setStreet(p.getStreet());
+            cloudPerson.setGithubUsername(p.getGithubUsername());
+            cloudPerson.setPostalCode(p.getPostalCode());
+            cloudPerson.setTags(p.getTagList().stream().map(t -> new CloudTag(t.getName())).collect(Collectors.toList()));
+
+            cloudPersonList.add(cloudPerson);
+        });
 
         List<CloudTag> cloudTagList = new ArrayList<>();
-        addressBook.getTagList().stream()
-                .forEach(t -> cloudTagList.add(new CloudTag(t.getName())));
-
+        addressBook.getTagList().forEach(t ->
+                cloudTagList.add(new CloudTag(t.getName())));
 
         CloudAddressBook cloudAddressBook = new CloudAddressBook("Test");
         cloudAddressBook.setPersonsList(cloudPersonList);

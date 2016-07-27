@@ -49,40 +49,5 @@ public class TypicalTestData {
                                                                   .withPostalCode("25614").withBirthday("01.12.1988")
                                                                   .withGithubUsername("george").withTags(friends, colleagues)
                                                                   .build();
-
     public AddressBook book;
-    public List<Person> samples;
-
-    /*
-     * Note that staring letter of names have some pattern.
-     * First person's name start with A and her second name starts with B.
-     * The Second person's name starts with B and his other names start with C and D.
-     * And so on.
-     */
-    public CloudPerson cloudAlice = new CloudPerson("Alice", "Brown", 1);
-    public CloudPerson cloudBenson = new CloudPerson("Benson", "Christopher Dean", 2);
-    public CloudPerson cloudCharlie = new CloudPerson("Charlie", "Davidson", 3);
-    public CloudPerson cloudDan = new CloudPerson("Dan", "Edwards", 4);
-    public CloudPerson cloudElizabeth = new CloudPerson("Elizabeth", "F. Green", 5);
-    //TODO: add more details to these persons.
-
-    public CloudTag cloudColleagues = new CloudTag("colleagues");
-    public CloudTag cloudFriends = new CloudTag("friends");
-
-    public CloudAddressBook cloudBook;
-
-    public TypicalTestData() {
-        book = new AddressBook();
-        book.addPerson(alice);
-        book.addPerson(benson);
-        book.addPerson(charlie);
-        book.addPerson(dan);
-        book.addPerson(elizabeth);
-        book.addTag(colleagues);
-        book.addTag(friends);
-
-        cloudBook = new CloudAddressBook("Test", Arrays.asList(cloudAlice, cloudBenson, cloudCharlie, cloudDan,
-                                                               cloudElizabeth),
-                                                 Arrays.asList(cloudColleagues, cloudFriends));
-    }
 }

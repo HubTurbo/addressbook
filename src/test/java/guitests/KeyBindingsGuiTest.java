@@ -30,11 +30,6 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         return td.book;
     }
 
-    @Override
-    protected CloudAddressBook getInitialCloudData() {
-        return td.cloudBook;
-    }
-
     @Test
     public void keyBindings() {
         //======= shortcuts =======================
