@@ -41,7 +41,15 @@ public class FilterPersonsGuiTest extends GuiTestBase {
         annabelle.setCity("Hawaii");
         annabelle.setBirthday(LocalDate.of(1998, 1, 30));
 
+        barney.setTags(Arrays.asList(colleagues, family));
         barney.setCity("California");
+        barney.setBirthday(LocalDate.of(1990, 3, 25));
+
+        charlie.setTags(Collections.singletonList(friends));
+        charlie.setCity("Budapest");
+
+        danny.setBirthday(LocalDate.of(1990, 3, 22));
+        danny.setGithubUsername("dan1990");
 
         return new AddressBook(Arrays.asList(john, mary, annabelle, barney, charlie, danny),
                                Arrays.asList(colleagues, family, friends));
@@ -58,5 +66,29 @@ public class FilterPersonsGuiTest extends GuiTestBase {
     public void filterPersons_multipleQualifiers() {
         personListPanel.enterFilterAndApply("tag:friends city:california");
         assertTrue(personListPanel.isExactList(mary));
+    }
+
+    @Test
+    public void filterPersons_manyMatches() {
+        personListPanel.enterFilterAndApply("tag:friends");
+        assertTrue(personListPanel.isExactList(john, mary, annabelle, charlie));
+    }
+
+    @Test
+    public void filterPersons_noMatches() {
+        personListPanel.enterFilterAndApply("tag:enemies");
+        assertTrue(personListPanel.isExactList());
+    }
+
+    @Test
+    public void filterPersons_negatedQualifiers() {
+        personListPanel.enterFilterAndApply("!tag:enemies");
+        assertTrue(personListPanel.isExactList(john, mary, annabelle, barney, charlie, danny));
+
+        personListPanel.enterFilterAndApply("!!tag:friends");
+        assertTrue(personListPanel.isExactList(john, mary, annabelle, charlie));
+
+        personListPanel.enterFilterAndApply("!!!city:Hawaii");
+        assertTrue(personListPanel.isExactList(john, mary, barney, charlie, danny));
     }
 }
