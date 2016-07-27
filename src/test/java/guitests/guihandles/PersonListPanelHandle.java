@@ -4,6 +4,7 @@ package guitests.guihandles;
 import address.TestApp;
 import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;
 import address.testutil.TestUtil;
@@ -54,6 +55,11 @@ public class PersonListPanelHandle extends GuiHandle {
     public boolean contains(String firstName, String lastName) {
         //TODO: should be checking if the graphical node is displaying the names.
         return getListView().getItems().stream().anyMatch(p -> p.hasName(firstName, lastName));
+    }
+
+    public boolean contains(int id) {
+        //TODO: should be checking if the graphical node is displaying the names.
+        return getListView().getItems().stream().anyMatch(p -> p.getId() == id);
     }
 
     public boolean contains(Person person) {
@@ -448,21 +454,17 @@ public class PersonListPanelHandle extends GuiHandle {
         return true;
     }
 
-    public boolean isExactList(List<Person> personList) {
-        Person[] personArray = new Person[personList.size()];
+    public boolean containsList(List<ReadOnlyPerson> personList) {
+        ReadOnlyPerson[] personArray = new Person[personList.size()];
         personList.toArray(personArray);
-        return isExactList(personArray);
+        return containsList(personArray);
     }
 
-    public boolean isExactList(Person... persons) {
-        ListView<ReadOnlyViewablePerson> listView = getListView();
-        if (persons.length != listView.getItems().size()) return false;
+    public boolean containsList(ReadOnlyPerson... persons) {
+        if (persons.length != getListView().getItems().size()) return false;
 
-        for (int i = 0; i < listView.getItems().size(); i++) {
-            ReadOnlyViewablePerson listPerson = listView.getItems().get(i);
-            Person expectedPerson = persons[i];
-
-            if (listPerson.getId() != expectedPerson.getId()) return false;
+        for (ReadOnlyPerson person : persons) {
+            if (!contains(person.getId())) return false;
         }
 
         return true;
