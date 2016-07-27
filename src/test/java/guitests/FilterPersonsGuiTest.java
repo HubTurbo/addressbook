@@ -59,7 +59,7 @@ public class FilterPersonsGuiTest extends GuiTestBase {
     @Test
     public void filterPersons_singleQualifier() {
         personListPanel.enterFilterAndApply("tag:colleagues");
-        assertTrue(personListPanel.isExactList(john));
+        assertTrue(personListPanel.isExactList(john, barney));
     }
 
     @Test
@@ -89,6 +89,7 @@ public class FilterPersonsGuiTest extends GuiTestBase {
         assertTrue(personListPanel.isExactList(john, mary, annabelle, charlie));
 
         personListPanel.enterFilterAndApply("!!!city:Hawaii");
-        assertTrue(personListPanel.isExactList(john, mary, barney, charlie, danny));
+        // new matching entries are appended to reduce processing time
+        assertTrue(personListPanel.isExactList(john, mary, charlie, barney, danny));
     }
 }
