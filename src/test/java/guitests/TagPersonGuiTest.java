@@ -159,12 +159,12 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialogTwo = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialogTwo = aliceEditDialogTwo.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialog, "coll", "frie", "fam");
+        searchAndAcceptTags(aliceTagDialog, "coll", "frie");
 
         aliceTagDialogTwo.close();
         aliceEditDialogTwo.pressEnter();
 
-        waitForGracePeriod("Tag: friends, Tag: family", alicePersonCard);
+        waitForGracePeriod("Tag: friends", alicePersonCard);
     }
 
     @Test

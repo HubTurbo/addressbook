@@ -54,7 +54,6 @@ public class PersonCardHandle extends GuiHandle {
     }
 
     public boolean isShowingGracePeriod(String displayText) {
-        System.out.println(this.isPendingStateRootVisible() + " " + this.isPendingStateLabelVisible() + " " + !this.isPendingStateProgressIndicatorVisible() + " " + this.getPendingStateLabel().equals(displayText));
         return this.isPendingStateRootVisible() && this.isPendingStateLabelVisible()
                && !this.isPendingStateProgressIndicatorVisible() && this.getPendingStateLabel().equals(displayText);
     }

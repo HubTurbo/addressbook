@@ -122,8 +122,9 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.enterNewValues(newCharlie).pressEnter();
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
         assertMatching(alicePersonCard, newCharlie);
+
         // Delete
-        PersonCardHandle aliceCard = personListPanel.selectCard(td.alice);
+        PersonCardHandle aliceCard = personListPanel.navigateToPerson(td.alice);
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
         assertTrue(aliceCard.isShowingGracePeriod("Deleting"));
 
