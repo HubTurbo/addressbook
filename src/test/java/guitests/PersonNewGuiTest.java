@@ -1,6 +1,7 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
+import address.testutil.ContextMenuChoice;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
@@ -74,7 +75,7 @@ public class PersonNewGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void addPerson_cancelAddOperation() {
+    public void addPerson_cancelAddOperationUsingAccelerator() {
         EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
 
         addPersonDialog.enterNewValues(td.fiona).clickOk();
@@ -84,9 +85,25 @@ public class PersonNewGuiTest extends GuiTestBase {
         assertMatching(fionaCard, td.fiona); //Ensure correct state before cancelling.
 
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        assertFalse(personListPanel.contains(td.fiona));
         assertFalse(fionaCard.isShowingGracePeriod("Adding"));
         assertEquals(HeaderStatusBarHandle.formatAddCancelledMessage(td.fiona.fullName(), Optional.empty()),
                      statusBar.getText());
+        assertTrue(personListPanel.isListMatching(td.getTestData()));
+    }
+
+    @Test
+    public void addPerson_cancelAddOperationUsingContextMenu() {
+        EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
+
+        addPersonDialog.enterNewValues(td.george).clickOk();
+
+        PersonCardHandle georgeCard = personListPanel.navigateToPerson(td.george);
+        assertTrue(georgeCard.isShowingGracePeriod("Adding"));
+        assertMatching(georgeCard, td.george); //Ensure correct state before cancelling.
+        personListPanel.rightClickOnPerson(td.george).clickOnContextMenu(ContextMenuChoice.CANCEL);
+        assertFalse(georgeCard.isShowingGracePeriod("Adding"));
+        assertEquals(HeaderStatusBarHandle.formatAddCancelledMessage(td.george.fullName(), Optional.empty()),
+                     statusBar.getText());
+        assertTrue(personListPanel.isListMatching(td.getTestData()));
     }
 }

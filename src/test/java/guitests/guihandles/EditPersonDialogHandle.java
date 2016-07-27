@@ -5,8 +5,6 @@ import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
 import commons.DateTimeUtil;
 import guitests.GuiRobot;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
@@ -15,7 +13,6 @@ import javafx.stage.Window;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -186,7 +183,7 @@ public class EditPersonDialogHandle extends GuiHandle {
     @Override
     public void clickOk() {
         super.clickOk();
-        guiRobot.sleep(500);
+        guiRobot.sleep(100); //For the model to be updated.
         focusOnMainApp();
     }
 }

@@ -5,6 +5,7 @@ import address.TestApp;
 import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.testutil.ContextMenuChoice;
 import address.testutil.TestUtil;
 import address.ui.PersonListViewCell;
 import guitests.GuiRobot;
@@ -40,9 +41,10 @@ public class PersonListPanelHandle extends GuiHandle {
     private static final String NEW_BUTTON_ID = "#newButton"; //TODO: convert to constants
     private static final String EDIT_BUTTON_ID = "#editButton";
 
-    public enum ContextMenuChoice {
-        EDIT, TAG, DELETE, CANCEL;
-    }
+    public static final String EDIT_CONTEXT_MENU_ITEM_FIELD_ID = "#editMenuItem";
+    public static final String TAG_CONTEXT_MENU_ITEM_FIELD_ID = "#tagMenuItem";
+    public static final String DELETE_CONTEXT_MENU_ITEM_FIELD_ID = "#deleteMenuItem";
+    public static final String CANCEL_CONTEXT_MENU_ITEM_FIELD_ID = "#cancelMenuItem";
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage, TestApp.APP_TITLE);
@@ -196,12 +198,29 @@ public class PersonListPanelHandle extends GuiHandle {
      * Right click on Person to show context menu.
      * @param person
      */
-    public void rightClickOnPerson(Person person) {
+    public PersonListPanelHandle rightClickOnPerson(Person person) {
         //Instead of using guiRobot.rightCickOn(), We will be firing off contextmenu request manually.
         //As there is a bug in monocle that doesn't show contextmenu by actual right clicking.
         //Refer to https://github.com/TestFX/Monocle/issues/12
         clickOnPerson(person);
         fireContextMenuEvent();
+        guiRobot.sleep(100);
+        assertTrue(isContextMenuShown());
+        return this;
+    }
+
+    private boolean isContextMenuShown() {
+        return isNodePresent(EDIT_CONTEXT_MENU_ITEM_FIELD_ID) && isNodePresent(TAG_CONTEXT_MENU_ITEM_FIELD_ID)
+               && isNodePresent(CANCEL_CONTEXT_MENU_ITEM_FIELD_ID) && isNodePresent(DELETE_CONTEXT_MENU_ITEM_FIELD_ID);
+    }
+
+    private boolean isNodePresent(String fieldId) {
+        try {
+            getNode(fieldId);
+            return true;
+        } catch (IllegalStateException e) {
+            return false;
+        }
     }
 
     /**
@@ -212,17 +231,17 @@ public class PersonListPanelHandle extends GuiHandle {
     public EditPersonDialogHandle clickOnContextMenu(ContextMenuChoice choice) {
         switch (choice) {
             case EDIT:
-                clickOn("#editMenuItem");
+                clickOn(EDIT_CONTEXT_MENU_ITEM_FIELD_ID);
                 guiRobot.sleep(500);
                 return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
             case TAG:
-                clickOn("#tagMenuItem");
+                clickOn(TAG_CONTEXT_MENU_ITEM_FIELD_ID);
                 break;
             case DELETE:
-                clickOn("#deleteMenuItem");
+                clickOn(DELETE_CONTEXT_MENU_ITEM_FIELD_ID);
                 break;
             case CANCEL:
-                clickOn("#cancelMenuItem");
+                clickOn(CANCEL_CONTEXT_MENU_ITEM_FIELD_ID);
                 break;
         }
         return null;
