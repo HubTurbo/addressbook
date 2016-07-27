@@ -111,11 +111,10 @@ public class PersonCardHandle extends GuiHandle {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Person) {
-            Person person = (Person) obj;
-            return getFirstName().equals(person.getFirstName()) && getLastName().equals(person.getLastName())
-                   && getAddress().equals(PersonCardController.getAddressString(person.getStreet(), person.getCity(),
-                                                                                person.getPostalCode()));
+        if(obj instanceof PersonCardHandle) {
+            PersonCardHandle handle = (PersonCardHandle) obj;
+            return getFirstName().equals(handle.getFirstName()) && getLastName().equals(handle.getLastName())
+                    && getAddress().equals(handle.getAddress()) && getBirthday().equals(handle.getBirthday());
         }
         return super.equals(obj);
     }

@@ -407,7 +407,8 @@ public class PersonListPanelHandle extends GuiHandle {
         this.containsInOrder(startPosition, persons);
         for (int i = 0; i < persons.length; i++) {
             use_LIST_JUMP_TO_INDEX_SHORTCUT(i + 1 + startPosition);
-            if (!getPersonCardHandle(startPosition + i).equals(persons[i])) {
+            if (!getPersonCardHandle(startPosition + i).mockPerson(persons[i].getId(),
+                                                                   persons[i].getGithubUsername()).equals(persons[i])) {
                 return false;
             }
         }
