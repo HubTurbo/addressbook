@@ -1,6 +1,7 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
+import address.sync.cloud.model.CloudAddressBook;
 import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.TagPersonDialogHandle;
@@ -27,6 +28,11 @@ public class KeyBindingsGuiTest extends GuiTestBase {
     @Override
     protected AddressBook getInitialData() {
         return td.book;
+    }
+
+    @Override
+    protected CloudAddressBook getInitialCloudData() {
+        return td.cloudBook;
     }
 
     @Test

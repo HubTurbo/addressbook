@@ -11,7 +11,6 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 
