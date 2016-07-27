@@ -350,4 +350,8 @@ public class TestUtil {
                 .replaceAll("Meta\\+", "⌘")
                 .replaceAll("Shift\\+", "⇧");
     }
+
+    public static Object getLastElement(List<?> list) {
+        return list.get(list.size() - 1);
+    }
 }

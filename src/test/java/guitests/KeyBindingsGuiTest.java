@@ -1,14 +1,11 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
+import address.model.datatypes.person.Person;
 import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.TagPersonDialogHandle;
-import javafx.stage.Screen;
 import org.junit.Test;
-
-
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -42,7 +39,7 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         //======= sequences =========================
 
         personListPanel.use_LIST_GOTO_BOTTOM_SEQUENCE();
-        assertTrue(personListPanel.isSelected(td.elizabeth));
+        assertTrue(personListPanel.isSelected((Person) TestUtil.getLastElement(td.book.getPersons())));
 
         personListPanel.use_LIST_GOTO_TOP_SEQUENCE();
         assertTrue(personListPanel.isSelected(td.alice));
