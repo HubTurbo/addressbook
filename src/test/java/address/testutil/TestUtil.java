@@ -274,7 +274,7 @@ public class TestUtil {
                 .forEach(t -> cloudTagList.add(new CloudTag(t.getName())));
 
 
-        CloudAddressBook cloudAddressBook = new CloudAddressBook("MyAddressBook");
+        CloudAddressBook cloudAddressBook = new CloudAddressBook("Test");
         cloudAddressBook.setPersonsList(cloudPersonList);
         cloudAddressBook.setTagsList(cloudTagList);
 

@@ -246,6 +246,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public void enterFilterAndApply(String filterText) {
         typeTextField(FILTER_FIELD_ID, filterText);
+        pressEnter();
     }
 
     public String getFilterText() {
@@ -444,6 +445,20 @@ public class PersonListPanelHandle extends GuiHandle {
                 return false;
             }
         }
+        return true;
+    }
+
+    public boolean isExactList(Person... persons) {
+        ListView<ReadOnlyViewablePerson> listView = getListView();
+        if (persons.length != listView.getItems().size()) return false;
+
+        for (int i = 0; i < listView.getItems().size(); i++) {
+            ReadOnlyViewablePerson listPerson = listView.getItems().get(i);
+            Person expectedPerson = persons[i];
+
+            if (listPerson.getId() != expectedPerson.getId()) return false;
+        }
+
         return true;
     }
 
