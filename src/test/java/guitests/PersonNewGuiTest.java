@@ -1,7 +1,9 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
+import address.model.datatypes.person.Person;
 import address.testutil.ContextMenuChoice;
+import address.testutil.PersonBuilder;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
@@ -17,6 +19,9 @@ import static org.junit.Assert.*;
  * System tests for 'New person' feature.
  */
 public class PersonNewGuiTest extends GuiTestBase {
+
+    private Person fionaEdited = new PersonBuilder(td.fiona.copy()).withLastName("Chong").withGithubUsername("chong")
+                                                                   .build();
 
     @Override
     protected AddressBook getInitialData() {
@@ -122,5 +127,33 @@ public class PersonNewGuiTest extends GuiTestBase {
 
         //Confirm the correctness of the entire list.
         assertTrue(personListPanel.isListMatching(td.getTestData()));
+    }
+
+    @Test
+    public void addPerson_addAndEditDuringAddingGracePeriod() {
+        EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
+        addPersonDialog.enterNewValues(td.fiona).clickOk();
+        PersonCardHandle fionaCard = personListPanel.navigateToPerson(td.fiona);
+
+        //Confirm pending state correctness
+        assertTrue(fionaCard.isShowingGracePeriod("Adding"));
+        assertMatching(fionaCard, td.fiona);
+
+        EditPersonDialogHandle editPersonDialog = personListPanel.editPerson(td.fiona);
+
+        //Ensure grace period is frozen during edit
+        assertTrue(fionaCard.isGracePeriodFrozen());
+
+        editPersonDialog.enterNewValues(fionaEdited).clickOk();
+
+        /* NOT WORKING. BUG
+        assertTrue(fionaCard.isShowingGracePeriod("Editing"));
+        assertMatching(fionaCard, fionaEdited);
+
+        assertEquals(HeaderStatusBarHandle.formatEditSuccessMessage(td.fiona.fullName(), Optional.of(fionaEdited.fullName())),
+                     statusBar.getText());
+
+        assertTrue(personListPanel.isListMatching(td.alice, td.benson, td.charlie, td.dan, td.elizabeth, fionaEdited));
+        */
     }
 }
