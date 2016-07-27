@@ -49,6 +49,7 @@ public class TypicalTestData {
                                                                   .withPostalCode("25614").withBirthday("01.12.1988")
                                                                   .withGithubUsername("george").withTags(friends, colleagues)
                                                                   .build();
+    
     public AddressBook book;
 
     public TypicalTestData() {

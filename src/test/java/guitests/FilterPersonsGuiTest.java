@@ -3,11 +3,15 @@ package guitests;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
+import commons.StringUtil;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertTrue;
 
@@ -65,16 +69,20 @@ public class FilterPersonsGuiTest extends GuiTestBase {
     @Test
     public void filterPersons_multipleSimpleQualifiers() {
         personListPanel.enterFilterAndApply("tag:friends city:california");
-        assertTrue(personListPanel.isExactList(mary));
+        assertTrue(personListPanel.isExactList(
+                filterByCity(filterByTag(getInitialData().getPersons(), "friends", false), "california", false)));
 
         personListPanel.enterFilterAndApply("tag:friends name:rogers");
-        assertTrue(personListPanel.isExactList());
+        assertTrue(personListPanel.isExactList(
+                filterByTag(filterByName(getInitialData().getPersons(), "rogers", false), "friends", false)));
 
         personListPanel.enterFilterAndApply("name:rogers name:danny id:6");
-        assertTrue(personListPanel.isExactList(danny));
+        assertTrue(personListPanel.isExactList(
+                filterById(filterByName(filterByName(getInitialData().getPersons(), "rogers", false), "danny", false), 6, false)));
 
         personListPanel.enterFilterAndApply("name:rogers name:barney id:6");
-        assertTrue(personListPanel.isExactList());
+        assertTrue(personListPanel.isExactList(
+                filterById(filterByName(filterByName(getInitialData().getPersons(), "rogers", false), "barney", false), 6, false)));
     }
 
     @Test
@@ -115,5 +123,41 @@ public class FilterPersonsGuiTest extends GuiTestBase {
 
         personListPanel.enterFilterAndApply("id:2 id:3 id:5 !id:4");
         assertTrue(personListPanel.isExactList());
+    }
+
+    private List<Person> filterByTag(List<Person> originalList, String partialTagName, boolean isNegative) {
+        return originalList.stream()
+                .filter(person -> isNegative != hasTag(person, partialTagName))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private List<Person> filterByName(List<Person> originalList, String partialName, boolean isNegative) {
+        return originalList.stream()
+                .filter(person -> isNegative != hasName(person, partialName))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private List<Person> filterById(List<Person> originalList, int id, boolean isNegative) {
+        return originalList.stream()
+                .filter(person -> isNegative != (person.getId() == id))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private List<Person> filterByCity(List<Person> originalList, String partialCityName, boolean isNegative) {
+        return originalList.stream()
+                .filter(person -> isNegative != StringUtil.containsIgnoreCase(person.getCity(), partialCityName))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private boolean hasName(Person person, String partialName) {
+        return StringUtil.containsIgnoreCase(person.getFirstName(), partialName) ||
+                StringUtil.containsIgnoreCase(person.getLastName(), partialName);
+    }
+
+    private boolean hasTag(Person person, String partialTagName) {
+        for (Tag tag : person.getTags()) {
+            if (StringUtil.containsIgnoreCase(tag.getName(), partialTagName)) return true;
+        }
+        return false;
     }
 }

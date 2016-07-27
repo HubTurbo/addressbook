@@ -448,6 +448,12 @@ public class PersonListPanelHandle extends GuiHandle {
         return true;
     }
 
+    public boolean isExactList(List<Person> personList) {
+        Person[] personArray = new Person[personList.size()];
+        personList.toArray(personArray);
+        return isExactList(personArray);
+    }
+
     public boolean isExactList(Person... persons) {
         ListView<ReadOnlyViewablePerson> listView = getListView();
         if (persons.length != listView.getItems().size()) return false;

@@ -82,23 +82,6 @@ public class TestUtil {
             new Tag("friends")
     };
 
-    public static final CloudPerson[] sampleCloudPersonData = {
-            new CloudPerson("Hans", "Muster", 1),
-            new CloudPerson("Ruth", "Mueller", 2),
-            new CloudPerson("Heinz", "Kurz", 3),
-            new CloudPerson("Cornelia", "Meier", 4),
-            new CloudPerson("Werner", "Meyer", 5),
-            new CloudPerson("Lydia", "Kunz", 6),
-            new CloudPerson("Anna", "Best", 7),
-            new CloudPerson("Stefan", "Meier", 8),
-            new CloudPerson("Martin", "Mueller", 9)
-    };
-
-    public static final CloudTag[] sampleCloudTagData = {
-            new CloudTag("relatives"),
-            new CloudTag("friends")
-    };
-
     public static Person generateSamplePersonWithAllData(int customId) {
         final Person p = new Person("first", "last", customId);
         p.setStreet("some street");
