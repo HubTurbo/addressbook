@@ -267,7 +267,7 @@ public class TestUtil {
     public static CloudAddressBook generateCloudAddressBook(AddressBook addressBook) {
         List<CloudPerson> cloudPersonList = new ArrayList<>();
         addressBook.getPersonList().forEach(p -> {
-            CloudPerson cloudPerson = new CloudPerson(p.getFirstName(), p.getLastName());
+            CloudPerson cloudPerson = new CloudPerson(p.getFirstName(), p.getLastName(), p.getId());
             cloudPerson.setBirthday(p.getBirthday());
             cloudPerson.setCity(p.getCity());
             cloudPerson.setStreet(p.getStreet());

@@ -57,15 +57,24 @@ public class FilterPersonsGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void filterPersons_singleQualifier() {
+    public void filterPersons_singleSimpleQualifier() {
         personListPanel.enterFilterAndApply("tag:colleagues");
         assertTrue(personListPanel.isExactList(john, barney));
     }
 
     @Test
-    public void filterPersons_multipleQualifiers() {
+    public void filterPersons_multipleSimpleQualifiers() {
         personListPanel.enterFilterAndApply("tag:friends city:california");
         assertTrue(personListPanel.isExactList(mary));
+
+        personListPanel.enterFilterAndApply("tag:friends name:rogers");
+        assertTrue(personListPanel.isExactList());
+
+        personListPanel.enterFilterAndApply("name:rogers name:danny id:6");
+        assertTrue(personListPanel.isExactList(danny));
+
+        personListPanel.enterFilterAndApply("name:rogers name:barney id:6");
+        assertTrue(personListPanel.isExactList());
     }
 
     @Test
@@ -91,5 +100,20 @@ public class FilterPersonsGuiTest extends GuiTestBase {
         personListPanel.enterFilterAndApply("!!!city:Hawaii");
         // new matching entries are appended to reduce processing time
         assertTrue(personListPanel.isExactList(john, mary, charlie, barney, danny));
+    }
+
+    @Test
+    public void filterPersons_multipleQualifiers() {
+        personListPanel.enterFilterAndApply("tag:friends !city:california");
+        assertTrue(personListPanel.isExactList(john, annabelle, charlie));
+
+        personListPanel.enterFilterAndApply("!tag:friends city:california");
+        assertTrue(personListPanel.isExactList(barney));
+
+        personListPanel.enterFilterAndApply("id:2 !!!id:3 !id:5 !!!!!id:8");
+        assertTrue(personListPanel.isExactList(mary));
+
+        personListPanel.enterFilterAndApply("id:2 id:3 id:5 !id:4");
+        assertTrue(personListPanel.isExactList());
     }
 }
