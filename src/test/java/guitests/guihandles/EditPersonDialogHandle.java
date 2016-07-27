@@ -43,7 +43,8 @@ public class EditPersonDialogHandle extends GuiHandle {
 
     /**
      * Checks if the Edit Dialog is rendered correctly.
-     * @return
+     * @return True : if the edit dialog is rendered with the necessary graphic to enter person details
+     *         False : if otherwise.
      */
     public boolean isShowingEditDialog() {
         return getNode(FIRST_NAME_FIELD_ID) != null && getNode(LAST_NAME_FIELD_ID) != null

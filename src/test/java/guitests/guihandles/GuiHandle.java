@@ -89,8 +89,7 @@ public class GuiHandle {
         Optional<Node> nodeOptional = guiRobot.lookup(textFieldId).tryQuery();
         guiRobot.interact(() -> nodeOptional.get().requestFocus());
         guiRobot.push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1)
-                .write(newText)
-        ;
+                .write(newText);
     }
 
     public void pressEnter() {
