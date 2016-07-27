@@ -4,10 +4,12 @@ import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.testutil.PersonBuilder;
 import guitests.guihandles.EditPersonDialogHandle;
+import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.PersonListPanelHandle;
 import org.junit.Test;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertFalse;
@@ -42,12 +44,12 @@ public class PersonEditGuiTest extends GuiTestBase {
                 .withStreet("Updated street").withCity("Singapore").withPostalCode("123123")
                 .withBirthday("01.01.1979").withGithubUsername("alicebrown123").withTags(td.colleagues, td.friends).build();
         editPersonDialog.enterNewValues(newAlice).pressEnter();
+        assertMatching(alicePersonCard, newAlice);
 
         //Confirm pending state correctness
         assertTrue(alicePersonCard.isShowingGracePeriod("Editing"));
 
         //Confirm the right card is selected after the edit
-        assertMatching(alicePersonCard, newAlice);
         assertTrue(personListPanel.isSelected(newAlice));
 
         //Confirm right values are displayed after grace period is over
@@ -67,8 +69,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(personListPanel.isListMatching(1, td.benson, td.charlie, td.dan, td.elizabeth));
 
         //Confirm status bar is updated correctly
-        assertEquals(statusBar.getText(), "Edit Person [ Alice Brown -> Alicia Brownstone ] completed successfully.");
-
+        assertEquals(HeaderStatusBarHandle.formatSuccessMessage(HeaderStatusBarHandle.Type.EDIT, td.alice.fullName(),
+                     Optional.of(newAlice.fullName())), statusBar.getText());
     }
 
     //TODO: This maybe should not be here. A separate class to test the button does what it suppose to do?
@@ -77,7 +79,6 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.clickOnPerson(td.dan);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
         assertTrue(editPersonDialog.isShowingPerson(td.dan));
-
         //Rest of the edit process tested in editPerson_usingContextMenu
     }
 
@@ -112,7 +113,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertMatching(alicePersonCard, td.charlie);
         assertFalse(alicePersonCard.isShowingGracePeriod("Editing"));
-        assertEquals(statusBar.getText(), "Edit Person [ Charlie Davidson -> Charlotte Talon ] was cancelled.");
+        assertEquals(HeaderStatusBarHandle.formatCancelledMessage(HeaderStatusBarHandle.Type.EDIT, td.charlie.fullName(),
+                     Optional.of(newCharlie.fullName())), statusBar.getText());
     }
 
     @Test

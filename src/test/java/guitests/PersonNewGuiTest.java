@@ -2,9 +2,12 @@ package guitests;
 
 import address.model.datatypes.AddressBook;
 import guitests.guihandles.EditPersonDialogHandle;
+import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
 import org.junit.Test;
 
+
+import java.util.Optional;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
@@ -85,6 +88,7 @@ public class PersonNewGuiTest extends GuiTestBase {
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertFalse(personListPanel.contains(td.fiona));
         assertFalse(fionaCard.isShowingGracePeriod("Adding"));
-        assertEquals("Add Person [ Fiona Wong ] was cancelled.", statusBar.getText());
+        assertEquals(HeaderStatusBarHandle.formatCancelledMessage(HeaderStatusBarHandle.Type.ADD, td.fiona.fullName(),
+                     Optional.empty()), statusBar.getText());
     }
 }

@@ -1,13 +1,17 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
+import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
 import org.junit.Test;
+
+import java.util.Optional;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
 /**
+ * TODO: Finish the full use cases of delete person
  * System tests for 'Delete person' feature.
  */
 public class PersonDeleteGuiTest extends GuiTestBase {
@@ -26,7 +30,7 @@ public class PersonDeleteGuiTest extends GuiTestBase {
 
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertFalse(aliceCard.isShowingGracePeriod("Deleting"));
-        assertEquals(statusBar.getText(), "Delete Person [ " + aliceCard.getFirstName() + " "
-                     + aliceCard.getLastName() + " ] was cancelled.");
+        assertEquals(HeaderStatusBarHandle.formatCancelledMessage(HeaderStatusBarHandle.Type.DELETE,
+                     td.alice.fullName(), Optional.empty()), statusBar.getText());
     }
 }
