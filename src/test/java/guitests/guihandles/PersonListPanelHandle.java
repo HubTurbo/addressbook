@@ -424,7 +424,8 @@ public class PersonListPanelHandle extends GuiHandle {
      */
     public boolean isListMatching(int startPosition, Person... persons) throws IllegalArgumentException {
         if (persons.length + startPosition != getListView().getItems().size()) {
-            throw new IllegalArgumentException("List size not matching");
+            throw new IllegalArgumentException("List size not matching\n" +
+                    "Expect " + (getListView().getItems().size() - 1) + "persons");
         }
         this.containsInOrder(startPosition, persons);
         for (int i = 0; i < persons.length; i++) {

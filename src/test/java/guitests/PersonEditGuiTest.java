@@ -125,14 +125,21 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Edit Alice to change to new values
         EditPersonDialogHandle editPersonDialog = personListPanel.editPerson(td.charlie);
         editPersonDialog.enterNewValues(charlieEdited).pressEnter();
+
+        //Confirm pending state correctness
         assertTrue(charlieCard.isShowingGracePeriod("Editing"));
         assertMatching(charlieCard, charlieEdited);
+
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        assertTrue(personListPanel.isListMatching(td.getTestData()));
+
+        //Ensure cancel operation remove display of grace period and show correct status bar message
         assertFalse(charlieCard.isShowingGracePeriod("Editing"));
         assertEquals(HeaderStatusBarHandle.formatEditCancelledMessage(td.charlie.fullName(),
                 Optional.of(charlieEdited.fullName())),
                 statusBar.getText());
+
+        //Ensure the correctness of the entire list.
+        assertTrue(personListPanel.isListMatching(td.getTestData()));
     }
 
     @Test
@@ -143,14 +150,21 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Edit Alice to change to new values
         EditPersonDialogHandle editPersonDialog = personListPanel.editPerson(td.dan);
         editPersonDialog.enterNewValues(danEdited).pressEnter();
+
+        //Confirm pending state correctness
         assertTrue(danCard.isShowingGracePeriod("Editing"));
         assertMatching(danCard, charlieEdited);
+
         personListPanel.rightClickOnPerson(danEdited).clickOnContextMenu(ContextMenuChoice.CANCEL);
-        assertTrue(personListPanel.isListMatching(td.getTestData()));
+
+        //Ensure cancel operation remove display of grace period and show correct status bar message
         assertFalse(danCard.isShowingGracePeriod("Editing"));
         assertEquals(HeaderStatusBarHandle.formatEditCancelledMessage(td.dan.fullName(),
-                Optional.of(danEdited.fullName())),
-                statusBar.getText());
+                                                                      Optional.of(danEdited.fullName())),
+                     statusBar.getText());
+
+        //Ensure the correctness of the entire list.
+        assertTrue(personListPanel.isListMatching(td.getTestData()));
     }
 
     @Test
