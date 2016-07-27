@@ -3,16 +3,12 @@ package guitests;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.testutil.PersonBuilder;
-import guitests.guihandles.EditPersonDialogHandle;
-import guitests.guihandles.HeaderStatusBarHandle;
-import guitests.guihandles.PersonCardHandle;
-import guitests.guihandles.PersonListPanelHandle;
+import guitests.guihandles.*;
 import org.junit.Test;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static guitests.guihandles.EditPersonDialogHandle.EDIT_TITLE;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
@@ -174,19 +170,6 @@ public class PersonEditGuiTest extends GuiTestBase {
     @Test
     public void cancelOperation_afterGracePeriod() {
         //Tested in editPerson_usingContextMenu()
-    }
-
-    public void tagPerson() {
-        PersonCardHandle bensonPersonCard = personListPanel.selectCard(td.benson);
-        EditPersonDialogHandle bensonEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
-        bensonEditDialog.focusOnWindow(EDIT_TITLE);
-        TagPersonDialogHandle bensonTagDialog = bensonEditDialog.openTagPersonDialogUsingShortcut();
-        bensonTagDialog.enterSearchQuery("coll").acceptSuggestedTag();
-        bensonTagDialog.close();
-        bensonEditDialog.pressEnter();
-        assertEquals("Editing", bensonPersonCard.getPendingStateLabel());
-        sleepForGracePeriod();
-        assertEquals("Tag: colleagues", bensonPersonCard.getTags());
     }
     //TODO: testing edits during grace period
 }
