@@ -3,15 +3,13 @@ package guitests;
 import address.TestApp;
 import address.events.EventManager;
 import address.model.datatypes.AddressBook;
+import address.model.datatypes.person.Person;
 import address.sync.cloud.model.CloudAddressBook;
 import address.testutil.ScreenShotRule;
 import address.testutil.TypicalTestData;
 import address.testutil.TestUtil;
 import address.util.Config;
-import guitests.guihandles.HeaderStatusBarHandle;
-import guitests.guihandles.MainGuiHandle;
-import guitests.guihandles.MainMenuHandle;
-import guitests.guihandles.PersonListPanelHandle;
+import guitests.guihandles.*;
 import javafx.stage.Stage;
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +22,8 @@ import org.testfx.api.FxToolkit;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import static org.junit.Assert.assertEquals;
 
 public class GuiTestBase {
 
@@ -121,6 +121,10 @@ public class GuiTestBase {
 
     public void sleepForGracePeriod() {
         mainGui.sleepForGracePeriod();
+    }
+
+    public void assertMatching(PersonCardHandle card, Person person) {
+        assertEquals(card.mockPerson(person.getId(), person.getGithubUsername()), person);
     }
 
 }

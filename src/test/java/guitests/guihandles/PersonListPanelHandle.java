@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Provides a handle for the panel containing the person list.
  */
@@ -51,11 +53,12 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public boolean contains(String firstName, String lastName) {
+        //TODO: should be checking if the graphical node is displaying the names.
         return getListView().getItems().stream().anyMatch(p -> p.hasName(firstName, lastName));
     }
 
     public boolean contains(Person person) {
-        return this.contains(person.getFirstName(), person.getLastName());
+        return this.getPersonCardHandle(person) != null;
     }
 
     public boolean isSelected(String firstName, String lastName) {
@@ -139,6 +142,16 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.pushKeySequence(new Bindings().LIST_GOTO_BOTTOM_SEQUENCE);
     }
 
+    /**
+     * Navigate the listview to display and select the person.
+     * @param person
+     */
+    public PersonCardHandle navigateToPerson(Person person) {
+        int index = getPersonIndex(person);
+        use_LIST_JUMP_TO_INDEX_SHORTCUT(index + 1);
+        return getPersonCardHandle(person);
+    }
+
     public void use_LIST_GOTO_TOP_SEQUENCE() {
         guiRobot.pushKeySequence(new Bindings().LIST_GOTO_TOP_SEQUENCE);
     }
@@ -156,6 +169,13 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.push(KeyCode.DOWN);
     }
 
+    public EditPersonDialogHandle editPerson(Person person) {
+        navigateToPerson(person);
+        EditPersonDialogHandle editPersonDialogHandle = use_PERSON_EDIT_ACCELERATOR();
+        assertTrue(editPersonDialogHandle.isShowingPerson(person));
+        return editPersonDialogHandle;
+    }
+
     public EditPersonDialogHandle use_PERSON_EDIT_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_EDIT_ACCELERATOR);
         guiRobot.sleep(500);
@@ -165,12 +185,10 @@ public class PersonListPanelHandle extends GuiHandle {
     public TagPersonDialogHandle use_PERSON_TAG_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_TAG_ACCELERATOR);
         guiRobot.sleep(500);
-
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
     public void clickOnPerson(Person person) {
-
         guiRobot.clickOn(person.getFirstName());
     }
 
@@ -229,7 +247,9 @@ public class PersonListPanelHandle extends GuiHandle {
     public EditPersonDialogHandle clickNew() {
         guiRobot.clickOn(NEW_BUTTON_ID);
         guiRobot.sleep(500);
-        return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.ADD_TITLE);
+        EditPersonDialogHandle editPersonDialogHandle = new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.ADD_TITLE);
+        assertTrue(editPersonDialogHandle.isShowingEmptyEditDialog());
+        return editPersonDialogHandle;
     }
 
     /**
@@ -387,7 +407,8 @@ public class PersonListPanelHandle extends GuiHandle {
         this.containsInOrder(startPosition, persons);
         for (int i = 0; i < persons.length; i++) {
             use_LIST_JUMP_TO_INDEX_SHORTCUT(i + 1 + startPosition);
-            if (!getPersonCardHandle(startPosition + i).equals(persons[i])) {
+            if (!getPersonCardHandle(startPosition + i).mockPerson(persons[i].getId(),
+                                                                   persons[i].getGithubUsername()).equals(persons[i])) {
                 return false;
             }
         }
@@ -430,4 +451,5 @@ public class PersonListPanelHandle extends GuiHandle {
         return persons.stream().map(p -> getPersonCardHandle(new Person(p)))
                                .collect(Collectors.toCollection(ArrayList::new));
     }
+
 }

@@ -14,6 +14,13 @@ import static org.junit.Assert.*;
 
 /**
  * Tests key bindings through the GUI
+ * Special Note:
+ * In travis ci headlfull testing, the following were observed:
+ * 1) Keybinding tests failed as shortcuts are not triggered.
+ *    - First shortcuts get triggered as normal, second shortcuts onwards failed to get triggered.
+ * Solution(Not implemented, as travis headfull testing is not needed currently):
+ * - Click on the listview first before firing shortcuts. (Use personListPanel.clickOnListView())
+ *   (Seems to work, but no concrete reason on why it works).
  */
 public class KeyBindingsGuiTest extends GuiTestBase {
 
@@ -28,8 +35,6 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         personListPanel.use_LIST_ENTER_SHORTCUT();
         assertTrue(personListPanel.isSelected(td.alice));
-
-        personListPanel.clickOnListView();
 
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(4);
         assertTrue(personListPanel.isSelected(td.dan));
@@ -69,12 +74,6 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         TagPersonDialogHandle tagPersonDialog = personListPanel.use_PERSON_TAG_ACCELERATOR();
         tagPersonDialog.close();
 
-        //Focus on MainApp, could not abstract into tagPersonDialog.close(), as closing tagDialog may lead to
-        //focusing on EditDialog or MainApp.
-        mainGui.focusOnMainApp();
-
-        personListPanel.clickOnListView();
-
         //======== others ============================
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(2);
         assertTrue(personListPanel.isSelected(td.benson));
@@ -93,7 +92,6 @@ public class KeyBindingsGuiTest extends GuiTestBase {
      */
     @Test
     public void testHotKeys() {
-        personListPanel.clickOnListView();
 
         mainGui.use_APP_MINIMIZE_HOTKEY();
         assertTrue(mainGui.isMinimized());

@@ -53,7 +53,7 @@ public class GuiHandle {
                         && ((Stage) w).getTitle().equals(stageTitle)).findAny();
 
         if(!window.isPresent()) {
-            logger.fatal("Can't find stage " + stageTitle + ", Therefore, aborting focusing");
+            logger.warn("Can't find stage " + stageTitle + ", Therefore, aborting focusing");
             return;
         }
 
@@ -86,11 +86,9 @@ public class GuiHandle {
      * @param newText
      */
     protected void typeTextField(String textFieldId, String newText) {
-        Optional<Node> nodeOptional = guiRobot.lookup(textFieldId).tryQuery();
-        guiRobot.interact(() -> nodeOptional.get().requestFocus());
+        guiRobot.clickOn(textFieldId);
         guiRobot.push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1)
-                .write(newText)
-        ;
+                .write(newText);
     }
 
     public void pressEnter() {
