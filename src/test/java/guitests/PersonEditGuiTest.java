@@ -7,6 +7,7 @@ import address.testutil.PersonBuilder;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
+
 import org.junit.Test;
 
 import java.util.Optional;
@@ -103,6 +104,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         EditPersonDialogHandle editPersonDialog = personListPanel.rightClickOnPerson(td.alice)
                                                                  .clickOnContextMenu(ContextMenuChoice.EDIT);
         assertTrue(editPersonDialog.isShowingPerson(td.alice));
+
         editPersonDialog.enterNewValues(aliceEdited).pressEnter();
 
         //Confirm pending state correctness
@@ -112,11 +114,12 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Confirm the right card is selected after the edit
         assertTrue(personListPanel.isSelected(aliceEdited));
 
-        //Confirm right values are displayed after grace period is over
+
+        // Confirm right values are displayed after grace period is over
         sleepForGracePeriod();
         assertMatching(aliceCard, aliceEdited);
 
-        //Confirm cancel operation does not cancel the edit after the grace period.
+        // Confirm cancel operation does not cancel the edit after the grace period.
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         //Confirm the underlying person object has the right values
         assertMatching(aliceCard, aliceEdited);
@@ -125,7 +128,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         sleepUntilNextSync();
         assertEquals(aliceEdited.toString(), personListPanel.getSelectedPersons().get(0).toString());
 
-        //Confirm other cards are unaffected.
+        // Confirm other cards are unaffected.
         assertTrue(personListPanel.isListMatching(1, td.benson, td.charlie, td.dan, td.elizabeth));
 
         //Confirm status bar is updated correctly
@@ -166,7 +169,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialog.clickOk();
 
         assertTrue(editPersonDialog.isInputValidationErrorDialogShown());
-        editPersonDialog.dissmissErrorMessage("Invalid Fields");
+        editPersonDialog.dismissErrorMessage("Invalid Fields");
         assertFalse(editPersonDialog.isInputValidationErrorDialogShown());
 
         //To test editPerson_cancelEditDialog()
@@ -240,7 +243,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         //Get a reference to the card displaying Alice's details
         PersonCardHandle aliceCard = personListPanel.selectCard(td.alice);
 
-        //Edit Alice to change to new values
+        // Edit Alice to change to new values
         EditPersonDialogHandle editPersonDialog = personListPanel.editPerson(td.alice);
         assertTrue(editPersonDialog.isShowingPerson(td.alice));
         editPersonDialog.enterNewValues(aliceEdited).pressEnter();
@@ -272,4 +275,5 @@ public class PersonEditGuiTest extends GuiTestBase {
     public void editPerson_cancelOperationAfterGracePeriod() {
         //Tested in editPerson_usingContextMenu()
     }
+    //TODO: testing edits during grace period
 }

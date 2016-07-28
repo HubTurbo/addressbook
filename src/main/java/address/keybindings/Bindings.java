@@ -152,13 +152,13 @@ public class Bindings {
      * @return
      */
     private Optional<? extends KeyBinding> findMatchingBinding(KeyBindingEvent keyBindingEvent,
-                                                               List<? extends KeyBinding> list){
+                                                               List<? extends KeyBinding> list) {
         return list.stream()
                 .filter(shortcut -> keyBindingEvent.isMatching(shortcut.getKeyCombination()))
                 .findFirst();
     }
 
-    private Optional<GlobalHotkey> findMatchingHotkey(KeyBindingEvent keyboardShortcutEvent){
+    private Optional<GlobalHotkey> findMatchingHotkey(KeyBindingEvent keyboardShortcutEvent) {
         return hotkeys.stream()
                 .filter(shortcut -> keyboardShortcutEvent.isMatching(shortcut.getKeyCombination()))
                 .findFirst();
@@ -190,8 +190,8 @@ public class Bindings {
      * @param previous the previous key event (this is needed to match for key sequences)
      * @return the matching key binding, if any
      */
-    public Optional<? extends KeyBinding>  getBinding(KeyBindingEvent previous,
-                                                      KeyBindingEvent current){
+    public Optional<? extends KeyBinding> getBinding(KeyBindingEvent previous,
+                                                     KeyBindingEvent current) {
         Optional<? extends KeyBinding> matchingBinding;
 
         matchingBinding = findMatchingSequence(previous, current);
@@ -221,7 +221,7 @@ public class Bindings {
     /**
      * Returns a list of all {@link KeyBinding} objects being managed.
      */
-    public List<KeyBinding> getAllBindings(){
+    public List<KeyBinding> getAllBindings() {
         List<KeyBinding> all = new ArrayList<>();
         all.addAll(accelerators);
         all.addAll(shortcuts);

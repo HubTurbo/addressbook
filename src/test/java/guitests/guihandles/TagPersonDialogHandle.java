@@ -16,6 +16,18 @@ public class TagPersonDialogHandle extends GuiHandle {
         super(guiRobot, primaryStage, MainController.DIALOG_TITLE_TAG_SELECTION);
     }
 
+    public TagPersonDialogHandle searchAndAcceptTag(String queryText) {
+        return enterSearchQuery(queryText).acceptSuggestedTag();
+    }
+
+    public TagPersonDialogHandle searchAndAcceptTags(String... tagQueries) {
+        TagPersonDialogHandle tagPersonDialogHandle = this;
+        for (String tagQuery : tagQueries) {
+            tagPersonDialogHandle = tagPersonDialogHandle.searchAndAcceptTag(tagQuery);
+        }
+        return tagPersonDialogHandle;
+    }
+
     public TagPersonDialogHandle enterSearchQuery(String queryText) {
         typeTextField(TAG_SEARCH_FIELD_ID, queryText);
         return this;

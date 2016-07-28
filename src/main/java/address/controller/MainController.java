@@ -260,7 +260,6 @@ public class MainController extends UiController{
         loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
         AnchorPane pane = (AnchorPane) loadLoader(loader, "Error launching tag selection dialog");
 
-
         // Create the dialog Stage.
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.WINDOW_MODAL);
@@ -271,8 +270,7 @@ public class MainController extends UiController{
         dialogStage.setScene(scene);
 
         TagSelectionEditDialogController controller = loader.getController();
-        controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
-                ReadOnlyPerson.getCommonTags(persons));
+        controller.setTags(modelManager.getTagsAsReadOnlyObservableList(), ReadOnlyPerson.getCommonTags(persons));
         controller.setDialogStage(dialogStage);
 
         dialogStage.showAndWait();

@@ -364,8 +364,10 @@ task unitTests(type: AddressBookTest) {
     }
 }
 
-// Task to run specified tests in headful mode
+// Task to run specified test classes in headful mode
 task headfulTests(type: AddressBookTest) {
+    // Have to separate by test classes instead of test methods since we cannot define methods to be excluded using TestFilter (for allTests)
+    // See https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/testing/TestFilter.html for the list of its functionalities
     // include 'guitests/FullSystemTest.class'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
@@ -375,7 +377,7 @@ headfulTests.onlyIf {
     headfulTests.includes.size() > 0
 }
 
-// Task to run specified tests in headless mode
+// Task to run specified test classes in headless mode
 task headlessTests(type: AddressBookTest) {
     // include ''
     jacoco {

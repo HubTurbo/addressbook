@@ -52,7 +52,7 @@ public class Tag extends UniqueData implements ExtractableObservables {
     }
 
     @Override
-    public boolean equals(Object otherGroup){
+    public boolean equals(Object otherGroup) {
         if (otherGroup == this) return true;
         if (otherGroup == null) return false;
         if (!Tag.class.isAssignableFrom(otherGroup.getClass())) return false;
