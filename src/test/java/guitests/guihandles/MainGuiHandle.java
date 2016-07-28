@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Provides a handle for the main GUI.
  */
-public class MainGuiHandle extends GuiHandle{
+public class MainGuiHandle extends GuiHandle {
 
     public MainGuiHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage, TestApp.APP_TITLE);

@@ -1,5 +1,7 @@
 package address.model.datatypes.tag;
 
+import com.google.common.base.Objects;
+
 // TODO CHANGE THIS TO WRAPPER CLASS
 public class SelectableTag extends Tag {
     private boolean isSelected = false;
@@ -17,17 +19,16 @@ public class SelectableTag extends Tag {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!super.equals(obj)) return false;
-        if (!(obj instanceof SelectableTag)) return false;
-        if (obj == this) return true;
-        SelectableTag otherTag = (SelectableTag) obj;
-        return this.getName().equals(otherTag.getName())
-                && this.isSelected() == otherTag.isSelected();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        SelectableTag that = (SelectableTag) o;
+        return isSelected == that.isSelected;
     }
 
     @Override
     public int hashCode() {
-        return getName().hashCode() * 39 + getName().hashCode() % 97 + (isSelected() ? 3 : 7);
+        return Objects.hashCode(super.hashCode(), isSelected);
     }
 }

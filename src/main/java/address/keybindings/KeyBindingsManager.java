@@ -36,7 +36,6 @@ public class KeyBindingsManager extends ComponentManager {
 
     @Subscribe
     public void handleKeyBindingEvent(KeyBindingEvent currentKeyEvent) {
-
         Optional<? extends KeyBinding> kb = BINDINGS.getBinding(previousKeyEvent, currentKeyEvent);
         previousKeyEvent = currentKeyEvent;
 
@@ -47,7 +46,7 @@ public class KeyBindingsManager extends ComponentManager {
 
         logger.info("Handling {}", kb.get());
         BaseEvent event = kb.get().getEventToRaise();
-        raise (event);
+        raise(event);
     }
 
     /**

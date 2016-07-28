@@ -10,6 +10,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -165,8 +166,7 @@ public class EditPersonDialogHandle extends GuiHandle {
         }
         enterGithubId(newValues.getGithubUsername());
         TagPersonDialogHandle tagPersonDialog = openTagPersonDialog();
-        newValues.getTagList().stream()
-                 .forEach( (t) -> tagPersonDialog.enterSearchQuery(t.getName()).acceptSuggestedTag());
+        newValues.getTagList().forEach(t -> tagPersonDialog.enterSearchQuery(t.getName()).acceptSuggestedTag());
         tagPersonDialog.close();
         return this;
     }

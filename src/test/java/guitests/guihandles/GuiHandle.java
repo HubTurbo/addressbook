@@ -38,28 +38,26 @@ public class GuiHandle {
         try {
             Constructor<?> ctor = clazz.getConstructor(GuiRobot.class, Stage.class);
             Object object = ctor.newInstance(new Object[] { guiRobot, primaryStage});
-            return (T)object;
+            return (T) object;
         } catch (Exception e) {
             throw new RuntimeException("Cannot create gui handle of type " + clazz.getName(), e);
         }
     }
 
     public void focusOnWindow(String stageTitle) {
-        logger.info("Focusing " + stageTitle);
+        logger.info("Focusing {}", stageTitle);
         java.util.Optional<Window> window = guiRobot.listTargetWindows()
                 .stream()
-                .filter(w
-                        -> w instanceof Stage
-                        && ((Stage) w).getTitle().equals(stageTitle)).findAny();
+                .filter(w -> w instanceof Stage && ((Stage) w).getTitle().equals(stageTitle)).findAny();
 
-        if(!window.isPresent()) {
-            logger.warn("Can't find stage " + stageTitle + ", Therefore, aborting focusing");
+        if (!window.isPresent()) {
+            logger.warn("Can't find stage {}, Therefore, aborting focusing", stageTitle);
             return;
         }
 
         guiRobot.targetWindow(window.get());
         guiRobot.interact(() -> window.get().requestFocus());
-        logger.info("Finishing focus " + stageTitle);
+        logger.info("Finishing focus {}", stageTitle);
     }
 
     protected Node getNode(String query) {
@@ -76,7 +74,7 @@ public class GuiHandle {
      * @param newText
      */
     protected void setTextField(String textFieldId, String newText) {
-        TextField textField = (TextField)getNode(textFieldId);
+        TextField textField = (TextField) getNode(textFieldId);
         textField.setText(newText);
     }
 
@@ -130,14 +128,14 @@ public class GuiHandle {
         pressEsc();
     }
 
-    public void dissmissErrorMessage(String errorDialogTitle) {
+    public void dismissErrorMessage(String errorDialogTitle) {
         focusOnWindow(errorDialogTitle);
         clickOk();
         focusOnSelf();
     }
 
     protected String getTextFromLabel(String fieldId, Node parentNode) {
-        return ((Label)guiRobot.from(parentNode).lookup(fieldId).tryQuery().get()).getText();
+        return ((Label) guiRobot.from(parentNode).lookup(fieldId).tryQuery().get()).getText();
     }
 
     public void focusOnSelf() {

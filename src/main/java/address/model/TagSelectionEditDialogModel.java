@@ -32,11 +32,9 @@ public class TagSelectionEditDialogModel {
         Optional<SelectableTag> selection = getSelection(filteredTags);
         if (!selection.isPresent()) return;
 
-        if (assignedTags.contains(selection.get())) {
-            assignedTags.remove(selection.get());
-        } else {
-            assignedTags.add(selection.get());
-        }
+        SelectableTag selectedTag = selection.get();
+        boolean isRemoved = assignedTags.removeIf(tag -> tag.equals(selectedTag));
+        if (!isRemoved) assignedTags.add(selectedTag);
     }
 
     public void selectNext() {

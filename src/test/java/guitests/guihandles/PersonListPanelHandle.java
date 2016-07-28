@@ -5,6 +5,7 @@ import address.TestApp;
 import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.ViewablePerson;
 import address.testutil.TestUtil;
 import address.ui.PersonListViewCell;
 import guitests.GuiRobot;
@@ -18,11 +19,9 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.PickResult;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -188,6 +187,19 @@ public class PersonListPanelHandle extends GuiHandle {
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
+    /**
+     * Checks if the error dialog window for no selected person is shown
+     * @return
+     */
+    public boolean isNoSelectedPersonDialogShown() {
+        try{
+            Window window = guiRobot.window("Invalid Selection");
+            return window != null && window.isShowing();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
+
     public void clickOnPerson(Person person) {
         guiRobot.clickOn(person.getFirstName());
     }
@@ -197,9 +209,9 @@ public class PersonListPanelHandle extends GuiHandle {
      * @param person
      */
     public void rightClickOnPerson(Person person) {
-        //Instead of using guiRobot.rightCickOn(), We will be firing off contextmenu request manually.
-        //As there is a bug in monocle that doesn't show contextmenu by actual right clicking.
-        //Refer to https://github.com/TestFX/Monocle/issues/12
+        // Instead of using guiRobot.rightCickOn(), We will be firing off contextmenu request manually.
+        // As there is a bug in monocle that doesn't show context menu by actual right clicking.
+        // Refer to https://github.com/TestFX/Monocle/issues/12
         clickOnPerson(person);
         fireContextMenuEvent();
     }
@@ -264,6 +276,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     /**
      * Drag and drop the person card.
+     *
      * @param firstNameOfPersonToDrag The text which identify the card to be dragged.
      * @param firstNameOfPersonToDropOn The text which identify the card to be dropped on top of.
      */
@@ -273,20 +286,39 @@ public class PersonListPanelHandle extends GuiHandle {
 
     /**
      * Drags the person cards outside of the listview.
-     * @param listOfPersonsToDrag The texts which identify the cards to be dragged.
+     *
+     * @param listOfNamesToDrag The texts which identify the cards to be dragged.
      */
-    public void dragOutsideList(List<String> listOfPersonsToDrag) {
+    public void dragOutsideList(List<String> listOfNamesToDrag) {
         double posY = TestUtil.getScenePos(getListView()).getMaxY() - 50;
         double posX = TestUtil.getScenePos(getListView()).getMaxX() + 100;
-        guiRobot.press(KeyCode.SHORTCUT);
-        listOfPersonsToDrag.stream().forEach(p -> guiRobot.clickOn(p));
-        guiRobot.release(KeyCode.SHORTCUT);
-        guiRobot.drag(listOfPersonsToDrag.get(listOfPersonsToDrag.size() - 1))
+        clickOnMultipleNames(listOfNamesToDrag);
+        guiRobot.drag(listOfNamesToDrag.get(listOfNamesToDrag.size() - 1))
                 .dropTo(posX, posY);
+    }
+
+    private void clickOnMultipleNames(List<String> listOfNames) {
+        guiRobot.press(KeyCode.SHORTCUT);
+        listOfNames.forEach(guiRobot::clickOn);
+        guiRobot.release(KeyCode.SHORTCUT);
+    }
+
+    /**
+     * Attempts to select multiple person cards
+     *
+     * Currently, this is done programmatically since multiple selection has problems in headless mode
+     *
+     * @param listOfPersons
+     */
+    public void selectMultiplePersons(List<Person> listOfPersons) {
+        listOfPersons.stream()
+                .map(ViewablePerson::fromBacking)
+                .forEach(vPerson -> getListView().getSelectionModel().select(vPerson));
     }
 
     /**
      * Drag card outside of the listview.
+     *
      * @param personToDrag The text which identify the card to be dragged.
      */
     public void dragOutsideList(String personToDrag) {
@@ -351,7 +383,7 @@ public class PersonListPanelHandle extends GuiHandle {
     public boolean containsInOrder(Person... persons) {
         assert persons.length >= 2;
         int indexOfFirstPerson = getPersonIndex(persons[0]);
-        if(indexOfFirstPerson == NOT_FOUND) return false;
+        if (indexOfFirstPerson == NOT_FOUND) return false;
         return containsInOrder(indexOfFirstPerson, persons);
     }
 
@@ -365,12 +397,12 @@ public class PersonListPanelHandle extends GuiHandle {
     public boolean containsInOrder(int startPosition, Person... persons) {
         List<ReadOnlyViewablePerson> personsInList = getListView().getItems();
 
-        //Return false if the list in panel is too short to contain the given list
+        // Return false if the list in panel is too short to contain the given list
         if (startPosition + persons.length > personsInList.size()){
             return false;
         }
 
-        //Return false if any of the persons doesn't match
+        // Return false if any of the persons doesn't match
         for (int i = 0; i < persons.length; i++) {
             if (!personsInList.get(startPosition + i).fullName().equals(persons[i].fullName())){
                 return false;
@@ -424,10 +456,10 @@ public class PersonListPanelHandle extends GuiHandle {
         return this.isListMatching(0, persons);
     }
 
-    public PersonCardHandle getPersonCardHandle(Person person){
+    public PersonCardHandle getPersonCardHandle(Person person) {
         Set<Node> nodes = getAllCardNodes();
         Optional<Node> personCardNode = nodes.stream()
-                .filter( (n) -> new PersonCardHandle(guiRobot, primaryStage, n).isSamePerson(person))
+                .filter(n -> new PersonCardHandle(guiRobot, primaryStage, n).isSamePerson(person))
                 .findFirst();
         if (personCardNode.isPresent()) {
             return new PersonCardHandle(guiRobot, primaryStage, personCardNode.get());

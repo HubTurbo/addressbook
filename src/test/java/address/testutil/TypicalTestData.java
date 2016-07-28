@@ -46,8 +46,6 @@ public class TypicalTestData {
                                                                   .withGithubUsername("george").withTags(friends, colleagues)
                                                                   .build();
 
-
-
     public AddressBook book;
     public List<Person> samples;
 
