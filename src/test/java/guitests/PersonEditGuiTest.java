@@ -42,6 +42,26 @@ public class PersonEditGuiTest extends GuiTestBase {
     }
 
     @Test
+    public void editPerson_editAndDeleteDuringEditingGracePeriod() {
+        PersonCardHandle elizabethCard = personListPanel.navigateToPerson(td.elizabeth);
+        EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        assertTrue(editPersonDialog.isShowingPerson(td.elizabeth));
+        editPersonDialog.enterNewValues(elizabethEdited).clickOk();
+
+        //Ensure pending state correctness
+        assertTrue(elizabethCard.isShowingGracePeriod("Editing"));
+        assertMatching(elizabethCard, elizabethEdited);
+
+        //Delete during pending state
+        personListPanel.use_PERSON_DELETE_ACCELERATOR();
+        assertTrue(elizabethCard.isShowingGracePeriod("Deleting"));
+        sleepForGracePeriod();
+
+        assertFalse(personListPanel.isAnyCardShowingGracePeriod());
+        assertTrue(personListPanel.isListMatching(td.alice, td.benson, td.charlie, td.dan));
+    }
+
+    @Test
     public void editPerson_usingContextMenu() {
 
         //Get a reference to the card displaying Alice's details
@@ -135,7 +155,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         PersonCardHandle charlieCard = personListPanel.selectCard(td.charlie);
 
         //Edit Alice to change to new values
-        EditPersonDialogHandle editPersonDialog = personListPanel.editPerson(td.charlie);
+        EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
+        assertTrue(editPersonDialog.isShowingPerson(td.charlie));
         editPersonDialog.enterNewValues(charlieEdited).pressEnter();
 
         //Confirm pending state correctness
@@ -160,7 +181,9 @@ public class PersonEditGuiTest extends GuiTestBase {
         PersonCardHandle danCard = personListPanel.navigateToPerson(td.dan);
 
         //Edit Alice to change to new values
-        EditPersonDialogHandle editPersonDialog = personListPanel.editPerson(td.dan);
+        EditPersonDialogHandle editPersonDialog = personListPanel.rightClickOnPerson(td.dan)
+                                                                 .clickOnContextMenu(ContextMenuChoice.EDIT);
+        assertTrue(editPersonDialog.isShowingPerson(td.dan));
         editPersonDialog.enterNewValues(danEdited).pressEnter();
 
         //Confirm pending state correctness
@@ -186,6 +209,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Edit Alice to change to new values
         EditPersonDialogHandle editPersonDialog = personListPanel.editPerson(td.alice);
+        assertTrue(editPersonDialog.isShowingPerson(td.alice));
         editPersonDialog.enterNewValues(aliceEdited).pressEnter();
 
         //Ensure grace period is showing
