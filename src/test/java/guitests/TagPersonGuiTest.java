@@ -250,8 +250,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         personListPanel.use_PERSON_TAG_ACCELERATOR();
         assertTrue(personListPanel.isNoSelectedPersonDialogShown());
     }
-
-
+    
     @Test
     public void tagMultiplePersonsAccelerator() {
         selectMultiplePersons(td.alice, td.benson, td.charlie);
@@ -265,6 +264,21 @@ public class TagPersonGuiTest extends GuiTestBase {
         PersonCardHandle charliePersonCard = personListPanel.getPersonCardHandle(td.charlie);
 
         waitForGracePeriod("Tag: friends", alicePersonCard, bensonPersonCard, charliePersonCard);
+    }
+
+    @Test
+    public void tagMultiplePersonsAccelerator_cancelDuringGracePeriod() {
+        selectMultiplePersons(td.alice, td.benson, td.charlie);
+
+        TagPersonDialogHandle multiplePersonsTagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
+        multiplePersonsTagDialogHandle.searchAndAcceptTags("frie");
+        multiplePersonsTagDialogHandle.pressEnter();
+
+        PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
+        PersonCardHandle bensonPersonCard = personListPanel.getPersonCardHandle(td.benson);
+        PersonCardHandle charliePersonCard = personListPanel.getPersonCardHandle(td.charlie);
+
+        cancelDuringGracePeriod("Tag: friends", "", alicePersonCard, bensonPersonCard, charliePersonCard);
     }
 
     @Test
@@ -315,6 +329,27 @@ public class TagPersonGuiTest extends GuiTestBase {
         multiplePersonsTagDialogHandleTwo.pressEnter();
 
         waitForGracePeriod("", alicePersonCard, bensonPersonCard, charliePersonCard);
+    }
+
+    @Test
+    public void tagAndUntagMultiplePersonsAccelerator_cancelDuringGracePeriod() {
+        selectMultiplePersons(td.alice, td.benson, td.charlie);
+        TagPersonDialogHandle multiplePersonsTagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
+        multiplePersonsTagDialogHandle.searchAndAcceptTags("frie");
+        multiplePersonsTagDialogHandle.pressEnter();
+
+        PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
+        PersonCardHandle bensonPersonCard = personListPanel.getPersonCardHandle(td.benson);
+        PersonCardHandle charliePersonCard = personListPanel.getPersonCardHandle(td.charlie);
+
+        waitForGracePeriod("Tag: friends", alicePersonCard, bensonPersonCard, charliePersonCard);
+
+        assertSelectedCardHandles(alicePersonCard, bensonPersonCard, charliePersonCard);
+        TagPersonDialogHandle multiplePersonsTagDialogHandleTwo = personListPanel.use_PERSON_TAG_ACCELERATOR();
+        multiplePersonsTagDialogHandleTwo.searchAndAcceptTags("frie");
+        multiplePersonsTagDialogHandleTwo.pressEnter();
+
+        cancelDuringGracePeriod("", "Tag: friends", alicePersonCard, bensonPersonCard, charliePersonCard);
     }
 
     @Test
