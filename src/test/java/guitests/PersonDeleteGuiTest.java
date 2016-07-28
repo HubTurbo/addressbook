@@ -1,6 +1,7 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
+import address.testutil.ContextMenuChoice;
 import address.testutil.TestUtil;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
@@ -79,6 +80,42 @@ public class PersonDeleteGuiTest extends GuiTestBase {
 
         assertFalse(personListPanel.isAnyCardShowingGracePeriod());
         assertTrue(personListPanel.isListMatching(TestUtil.removePersonsFromList(td.getTestData(), td.benson)));
+        assertEquals(HeaderStatusBarHandle.formatDeleteSuccessMessage(td.benson.fullName(), Optional.empty()),
+                     statusBar.getText());
+    }
+
+    @Test
+    public void deletePerson_deleteUsingContextMenu() {
+        PersonCardHandle charlieCard = personListPanel.navigateToPerson(td.charlie);
+        assertTrue(personListPanel.isOnlySelected(td.charlie));
+
+        personListPanel.rightClickOnPerson(td.charlie).clickOnContextMenu(ContextMenuChoice.DELETE);
+        assertTrue(charlieCard.isShowingGracePeriod("Deleting"));
+
+        sleepForGracePeriod();
+
+        assertFalse(personListPanel.isAnyCardShowingGracePeriod());
+        assertTrue(personListPanel.isListMatching(TestUtil.removePersonsFromList(td.getTestData(), td.charlie)));
+        assertEquals(HeaderStatusBarHandle.formatDeleteSuccessMessage(td.charlie.fullName(), Optional.empty()),
+                statusBar.getText());
+    }
+
+    @Test
+    public void deletePerson_deleteUsingDeleteButton() {
+        PersonCardHandle charlieCard = personListPanel.navigateToPerson(td.dan);
+        assertTrue(personListPanel.isOnlySelected(td.dan));
+
+        personListPanel.clickOnPerson(td.dan);
+        personListPanel.clickDelete();
+        assertTrue(charlieCard.isShowingGracePeriod("Deleting"));
+
+        sleepForGracePeriod();
+
+        assertFalse(personListPanel.isAnyCardShowingGracePeriod());
+        assertTrue(personListPanel.isListMatching(TestUtil.removePersonsFromList(td.getTestData(), td.dan)));
+        assertEquals(HeaderStatusBarHandle.formatDeleteSuccessMessage(td.dan.fullName(), Optional.empty()),
+                statusBar.getText());
+
     }
 
 }

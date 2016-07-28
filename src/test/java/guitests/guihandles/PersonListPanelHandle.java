@@ -5,6 +5,7 @@ import address.TestApp;
 import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.tag.Tag;
 import address.testutil.ContextMenuChoice;
 import address.model.datatypes.person.ViewablePerson;
 import address.testutil.TestUtil;
@@ -39,6 +40,7 @@ public class PersonListPanelHandle extends GuiHandle {
     private static final String PERSON_LIST_VIEW_ID = "#personListView";
     private static final String NEW_BUTTON_ID = "#newButton"; //TODO: convert to constants
     private static final String EDIT_BUTTON_ID = "#editButton";
+    private static final String DELETE_BUTTON_ID = "#deleteButton";
 
     public static final String EDIT_CONTEXT_MENU_ITEM_FIELD_ID = "#editMenuItem";
     public static final String TAG_CONTEXT_MENU_ITEM_FIELD_ID = "#tagMenuItem";
@@ -315,6 +317,11 @@ public class PersonListPanelHandle extends GuiHandle {
         return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
     }
 
+    public void clickDelete() {
+        guiRobot.clickOn(DELETE_BUTTON_ID);
+        guiRobot.sleep(500);
+    }
+
     /**
      * Drag and drop the person card.
      *
@@ -487,16 +494,17 @@ public class PersonListPanelHandle extends GuiHandle {
             throw new IllegalArgumentException("List size not matching\n" +
                     "Expect " + (getListView().getItems().size() - 1) + "persons");
         }
-        this.containsInOrder(startPosition, persons);
+        assertTrue(this.containsInOrder(startPosition, persons));
         for (int i = 0; i < persons.length; i++) {
-            use_LIST_JUMP_TO_INDEX_SHORTCUT(i + 1 + startPosition);
-            if (!getPersonCardHandle(startPosition + i).mockPerson(persons[i].getId(),
-                                                                   persons[i].getGithubUsername()).equals(persons[i])) {
+            getListView().scrollTo(i + startPosition);
+            guiRobot.sleep(200);
+            if (!TestUtil.compareCardAndPerson(getPersonCardHandle(startPosition + i), persons[i])) {
                 return false;
             }
         }
         return true;
     }
+
 
     /**
      * Checks if the list is showing the person details correctly and in correct order.
