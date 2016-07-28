@@ -19,6 +19,7 @@ public class TypicalTestData {
 
     public Tag colleagues = new Tag("colleagues");
     public Tag friends = new Tag("friends");
+    public Tag family = new Tag("family");
     /*
      * TODO: add more details to these persons.
      * Note that staring letter of names have some pattern.
@@ -26,7 +27,7 @@ public class TypicalTestData {
      * The Second person's name starts with B and his other names start with C and D.
      * And so on.
      */
-    public Person alice = new PersonBuilder(new Person("Alice", "Brown", 1)).withFirstName("Alicia").withLastName("Brownstone")
+    public Person alice = new PersonBuilder(new Person("Alice", "Brown", 1))
                                                                .withStreet("81th Wall Street").withCity("New York")
                                                                .withPostalCode("41452").withBirthday("11.09.1983")
                                                                .withGithubUsername("alicia").withTags(friends).build();
@@ -56,5 +57,6 @@ public class TypicalTestData {
         book.addPerson(elizabeth);
         book.addTag(colleagues);
         book.addTag(friends);
+        book.addTag(family);
     }
 }

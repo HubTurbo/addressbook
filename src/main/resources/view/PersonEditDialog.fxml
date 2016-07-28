@@ -48,7 +48,7 @@
                   <TextField fx:id="postalCodeField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                   <TextField fx:id="birthdayField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                   <TextField fx:id="githubUserNameField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                  <ScrollPane fx:id="tagList" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                  <ScrollPane fx:id="tagListPane" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                </children>
                <rotationAxis>
                   <Point3D />

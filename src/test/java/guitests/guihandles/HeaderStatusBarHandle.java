@@ -39,6 +39,7 @@ public class HeaderStatusBarHandle extends GuiHandle {
         return (StatusBar) getNode("#" + StatusBarHeaderController.HEADER_STATUS_BAR_ID);
     }
 
+    //TODO: Consider when the name is not changed since it has different formatting
     public static String formatSuccessMessage(Type type, String firstName, Optional<String> secondName) {
         return type.toString() + " Person [ " + getFormattedNames(firstName, secondName)
                 + " ] completed successfully.";

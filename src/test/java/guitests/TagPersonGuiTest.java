@@ -5,6 +5,7 @@ import address.model.datatypes.person.Person;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.TagPersonDialogHandle;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -19,10 +20,18 @@ import static org.junit.Assert.assertTrue;
 public class TagPersonGuiTest extends GuiTestBase {
     @Override
     protected AddressBook getInitialData() {
+        verifyTestData();
         return td.book;
     }
 
+    private void verifyTestData() {
+        // check that initial data is intact
+        assertEquals(1, td.alice.getTags().size());
+        assertEquals("friends", td.alice.getTags().get(0).getName());
 
+        assertEquals(0, td.benson.getTags().size());
+        assertEquals(0, td.charlie.getTags().size());
+    }
 
     @Test
     public void tagPersonThroughPersonEditDialog() {
@@ -35,7 +44,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
 
-        waitForGracePeriod("Tag: colleagues", alicePersonCard);
+        waitForGracePeriod("Tag: friends, Tag: colleagues", alicePersonCard);
     }
 
     @Test
@@ -49,23 +58,12 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
 
-        waitForGracePeriod("Tag: friends", alicePersonCard);
-
-
-        EditPersonDialogHandle aliceEditDialogTwo = personListPanel.use_PERSON_EDIT_ACCELERATOR();
-        TagPersonDialogHandle aliceTagDialogTwo = aliceEditDialogTwo.openTagPersonDialog();
-
-        aliceTagDialogTwo.searchAndAcceptTags("coll");
-
-        aliceTagDialogTwo.close();
-        aliceEditDialogTwo.pressEnter();
-
-        waitForGracePeriod("Tag: friends, Tag: colleagues", alicePersonCard);
+        waitForGracePeriod("", alicePersonCard);
     }
 
     @Test
     public void tagPersonThroughPersonEditDialog_cancelDuringPendingState() {
-        PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
+        PersonCardHandle charliePersonCard = personListPanel.selectCard(td.charlie);
         EditPersonDialogHandle aliceEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialog = aliceEditDialog.openTagPersonDialog();
 
@@ -74,7 +72,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
 
-        cancelDuringGracePeriod("Tag: colleagues", "", alicePersonCard);
+        cancelDuringGracePeriod("Tag: colleagues", "", charliePersonCard);
     }
 
     @Test
@@ -83,12 +81,12 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialog = aliceEditDialog.openTagPersonDialog();
 
-        aliceTagDialog.searchAndAcceptTags("coll", "frie");
+        aliceTagDialog.searchAndAcceptTags("coll", "frie", "fam");
 
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
 
-        waitForGracePeriod("Tag: colleagues, Tag: friends", alicePersonCard);
+        waitForGracePeriod("Tag: colleagues, Tag: family", alicePersonCard);
     }
 
     @Test
@@ -102,7 +100,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
 
-        cancelDuringGracePeriod("Tag: colleagues, Tag: friends", "", alicePersonCard);
+        cancelDuringGracePeriod("Tag: colleagues", "Tag: friends", alicePersonCard);
     }
 
     @Test
@@ -116,7 +114,7 @@ public class TagPersonGuiTest extends GuiTestBase {
 
         aliceEditDialog.pressEnter();
 
-        waitForGracePeriod("Tag: friends", alicePersonCard);
+        waitForGracePeriod("", alicePersonCard);
     }
 
     @Test
@@ -130,7 +128,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
 
-        waitForGracePeriod("Tag: colleagues", alicePersonCard);
+        waitForGracePeriod("Tag: friends, Tag: colleagues", alicePersonCard);
 
         EditPersonDialogHandle aliceEditDialogTwo = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialogTwo = aliceEditDialogTwo.openTagPersonDialog();
@@ -140,7 +138,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceTagDialogTwo.close();
         aliceEditDialogTwo.pressEnter();
 
-        waitForGracePeriod("", alicePersonCard);
+        waitForGracePeriod("Tag: friends", alicePersonCard);
     }
 
     @Test
@@ -154,7 +152,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
 
-        waitForGracePeriod("Tag: colleagues", alicePersonCard);
+        waitForGracePeriod("Tag: friends, Tag: colleagues", alicePersonCard);
 
         EditPersonDialogHandle aliceEditDialogTwo = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialogTwo = aliceEditDialogTwo.openTagPersonDialog();
@@ -164,7 +162,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceTagDialogTwo.close();
         aliceEditDialogTwo.pressEnter();
 
-        waitForGracePeriod("Tag: friends", alicePersonCard);
+        waitForGracePeriod("", alicePersonCard);
     }
 
     @Test
@@ -178,8 +176,9 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
 
-        waitForGracePeriod("Tag: colleagues", alicePersonCard);
+        waitForGracePeriod("Tag: friends, Tag: colleagues", alicePersonCard);
 
+        // Perform another edit before grace period ends
         EditPersonDialogHandle aliceEditDialogTwo = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialogTwo = aliceEditDialogTwo.openTagPersonDialog();
 
@@ -188,7 +187,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceTagDialogTwo.close();
         aliceEditDialogTwo.pressEnter();
 
-        cancelDuringGracePeriod("Tag: friends", "Tag: colleagues", alicePersonCard);
+        cancelDuringGracePeriod("", "Tag: friends, Tag: colleagues", alicePersonCard);
     }
 
     @Test
@@ -202,7 +201,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
 
-        assertTagsBeforeGracePeriod("Tag: colleagues", alicePersonCard);
+        assertTagsBeforeGracePeriod("Tag: friends, Tag: colleagues", alicePersonCard);
 
         EditPersonDialogHandle aliceEditDialogTwo = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialogTwo = aliceEditDialogTwo.openTagPersonDialog();
@@ -212,7 +211,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceTagDialogTwo.close();
         aliceEditDialogTwo.pressEnter();
 
-        cancelDuringGracePeriod("Tag: friends", "", alicePersonCard);
+        cancelDuringGracePeriod("", "Tag: friends", alicePersonCard);
     }
 
     @Test
@@ -222,27 +221,27 @@ public class TagPersonGuiTest extends GuiTestBase {
         tagDialogHandle.searchAndAcceptTags("frie", "coll");
         tagDialogHandle.pressEnter();
 
-        waitForGracePeriod("Tag: friends, Tag: colleagues", alicePersonCard);
+        waitForGracePeriod("Tag: colleagues", alicePersonCard);
     }
 
     @Test
-    public void tagPersonAccelerator_multipleTagsCancelDuringPendingState() {
+    public void tagPersonAccelerator_multipleTagsAndCancelDuringPendingState() {
         PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
         TagPersonDialogHandle tagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
         tagDialogHandle.searchAndAcceptTags("frie", "coll");
         tagDialogHandle.pressEnter();
 
-        cancelDuringGracePeriod("Tag: friends, Tag: colleagues", "", alicePersonCard);
+        cancelDuringGracePeriod("Tag: colleagues", "Tag: friends", alicePersonCard);
     }
 
     @Test
     public void tagPersonAccelerator() {
-        PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
+        PersonCardHandle bensonPersonCard = personListPanel.selectCard(td.benson);
         TagPersonDialogHandle tagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
         tagDialogHandle.searchAndAcceptTags("frie");
         tagDialogHandle.pressEnter();
 
-        waitForGracePeriod("Tag: friends", alicePersonCard);
+        waitForGracePeriod("Tag: friends", bensonPersonCard);
     }
 
     @Test
@@ -278,7 +277,10 @@ public class TagPersonGuiTest extends GuiTestBase {
         PersonCardHandle bensonPersonCard = personListPanel.getPersonCardHandle(td.benson);
         PersonCardHandle charliePersonCard = personListPanel.getPersonCardHandle(td.charlie);
 
-        cancelDuringGracePeriod("Tag: friends", "", alicePersonCard, bensonPersonCard, charliePersonCard);
+        assertTagsBeforeGracePeriod("Tag: friends", alicePersonCard, bensonPersonCard, charliePersonCard);
+        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
+        assertTagsAfterGracePeriod("Tag: friends", alicePersonCard);
+        assertTagsAfterGracePeriod("", bensonPersonCard, charliePersonCard);
     }
 
     @Test
@@ -306,8 +308,10 @@ public class TagPersonGuiTest extends GuiTestBase {
         PersonCardHandle bensonPersonCard = personListPanel.getPersonCardHandle(td.benson);
         PersonCardHandle charliePersonCard = personListPanel.getPersonCardHandle(td.charlie);
 
-        cancelDuringGracePeriod("Tag: friends, Tag: colleagues", "", alicePersonCard, bensonPersonCard,
-                charliePersonCard);
+        assertTagsBeforeGracePeriod("Tag: friends, Tag: colleagues", alicePersonCard, bensonPersonCard, charliePersonCard);
+        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
+        assertTagsAfterGracePeriod("Tag: friends");
+        assertTagsAfterGracePeriod("", bensonPersonCard, charliePersonCard);
     }
 
     @Test
