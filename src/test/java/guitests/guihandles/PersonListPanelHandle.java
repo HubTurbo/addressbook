@@ -18,11 +18,9 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.PickResult;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -186,6 +184,15 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.push(new Bindings().PERSON_TAG_ACCELERATOR);
         guiRobot.sleep(500);
         return new TagPersonDialogHandle(guiRobot, primaryStage);
+    }
+
+    public boolean isNoSelectedPersonDialogShown() {
+        try{
+            Window window = guiRobot.window("Invalid Selection");
+            return window != null && window.isShowing();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
     }
 
     public void clickOnPerson(Person person) {
