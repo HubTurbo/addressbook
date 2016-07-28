@@ -368,8 +368,7 @@ task unitTests(type: AddressBookTest) {
 task headfulTests(type: AddressBookTest) {
     // Have to separate by test classes instead of test methods since we cannot define methods to be excluded using TestFilter (for allTests)
     // See https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/testing/TestFilter.html for the list of its functionalities
-
-    include 'guitests/TagPersonHeadfulGuiTest.class'
+    // include 'guitests/FullSystemTest.class'
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }

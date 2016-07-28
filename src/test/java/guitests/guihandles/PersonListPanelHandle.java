@@ -5,6 +5,7 @@ import address.TestApp;
 import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.ViewablePerson;
 import address.testutil.TestUtil;
 import address.ui.PersonListViewCell;
 import guitests.GuiRobot;
@@ -303,16 +304,16 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     /**
-     * Attempts to select multiple person cards based on their first name
+     * Attempts to select multiple person cards
      *
-     * Person cards should be visible without having to scroll
+     * Currently, this is done programmatically since multiple selection has problems in headless mode
      *
      * @param listOfPersons
      */
     public void selectMultiplePersons(List<Person> listOfPersons) {
-        clickOnMultipleNames(listOfPersons.stream()
-                                .map(Person::getFirstName)
-                                .collect(Collectors.toCollection(ArrayList::new)));
+        listOfPersons.stream()
+                .map(ViewablePerson::fromBacking)
+                .forEach(vPerson -> getListView().getSelectionModel().select(vPerson));
     }
 
     /**
