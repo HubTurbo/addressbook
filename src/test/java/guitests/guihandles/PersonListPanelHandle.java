@@ -20,10 +20,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.PickResult;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -64,16 +61,16 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public boolean isSelected(String firstName, String lastName) {
-        return getSelectedPerson().hasName(firstName, lastName);
+        return getSelectedPersons().stream().filter(p -> p.hasName(firstName, lastName)).findAny().isPresent();
     }
 
     public boolean isSelected(Person person) {
         return this.isSelected(person.getFirstName(), person.getLastName());
     }
 
-    public ReadOnlyViewablePerson getSelectedPerson() {
+    public List<ReadOnlyViewablePerson> getSelectedPersons() {
         ListView<ReadOnlyViewablePerson> personList = getListView();
-        return personList.getSelectionModel().getSelectedItems().get(0);
+        return personList.getSelectionModel().getSelectedItems();
     }
 
     public ListView<ReadOnlyViewablePerson> getListView() {
@@ -467,7 +464,23 @@ public class PersonListPanelHandle extends GuiHandle {
         }
     }
 
+    /**
+     * Select cards
+     * @param persons
+     * @return
+     */
+    public List<PersonCardHandle> selectCards(Person... persons) {
+        guiRobot.press(KeyCode.SHORTCUT);
+        for (Person person: persons) {
+            getListView().scrollTo(getPersonIndex(person));
+            getListView().getSelectionModel().select(getPersonIndex(person));
+        }
+        guiRobot.release(KeyCode.SHORTCUT);
+        return getSelectedCards();
+    }
+
     public PersonCardHandle selectCard(Person person) {
+        getListView().scrollTo(getPersonIndex(person));
         clickOnPerson(person);
         guiRobot.sleep(500);
         return getPersonCardHandle(person);
@@ -481,6 +494,10 @@ public class PersonListPanelHandle extends GuiHandle {
         ObservableList<ReadOnlyViewablePerson> persons = getListView().getSelectionModel().getSelectedItems();
         return persons.stream().map(p -> getPersonCardHandle(new Person(p)))
                                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public int getSelectedCardSize() {
+        return getListView().getSelectionModel().getSelectedItems().size();
     }
 
 }

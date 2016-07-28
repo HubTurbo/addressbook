@@ -22,7 +22,26 @@ public class PersonDeleteGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void cancelOperation_usingAccelerator() {
+    public void deleteMultiplePerson_usingAccelerator() {
+        personListPanel.selectCards(td.benson, td.dan);
+        assertEquals(2, personListPanel.getSelectedCardSize());
+        assertTrue(personListPanel.isSelected(td.benson));
+        assertTrue(personListPanel.isSelected(td.dan));
+
+        personListPanel.use_PERSON_DELETE_ACCELERATOR();
+        PersonCardHandle danCard = personListPanel.navigateToPerson(td.dan);
+        assertTrue(danCard.isShowingGracePeriod("Deleting"));
+        PersonCardHandle bensonCard = personListPanel.navigateToPerson(td.benson);
+        assertTrue(bensonCard.isShowingGracePeriod("Deleting"));
+        sleepForGracePeriod();
+
+        //assertEquals(0, personListPanel.getSelectedCardSize()); Wait for #571 to be fixed.
+        assertFalse(personListPanel.isAnyCardShowingGracePeriod());
+        assertTrue(personListPanel.isListMatching(td.alice, td.charlie, td.elizabeth));
+    }
+
+    @Test
+    public void deletePerson_cancelDeleteOperationUsingAccelerator() {
 
         PersonCardHandle aliceCard = personListPanel.selectCard(td.alice);
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
