@@ -115,6 +115,18 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(editPersonDialog.isInputValidationErrorDialogShown());
         editPersonDialog.dissmissErrorMessage("Invalid Fields");
         assertFalse(editPersonDialog.isInputValidationErrorDialogShown());
+
+        //To test editPerson_cancelEditDialog()
+        editPersonDialog.clickCancel();
+        assertFalse(personListPanel.isAnyCardShowingGracePeriod());
+        assertEquals(HeaderStatusBarHandle.formatEditCancelledMessage(td.elizabeth.fullName(), Optional.empty()),
+                     statusBar.getText());
+        assertTrue(personListPanel.isListMatching(td.getTestData()));
+    }
+
+    @Test
+    public void editPerson_cancelEditDialog() {
+        //Tested in editPerson_dataValidation()
     }
 
     @Test
