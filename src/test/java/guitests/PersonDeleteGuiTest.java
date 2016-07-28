@@ -1,7 +1,7 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
-import address.model.datatypes.person.Person;
+import address.testutil.TestUtil;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class PersonDeleteGuiTest extends GuiTestBase {
     }
 
     @Test
-    public void deleteMultiplePerson_usingAccelerator() {
+    public void deleteMultiplePersons_usingAccelerator() {
         personListPanel.selectCards(td.benson, td.dan);
         assertEquals(2, personListPanel.getSelectedCardSize());
         assertTrue(personListPanel.isSelected(td.benson));
@@ -38,7 +38,7 @@ public class PersonDeleteGuiTest extends GuiTestBase {
 
         //assertEquals(0, personListPanel.getSelectedCardSize()); Wait for #571 to be fixed.
         assertFalse(personListPanel.isAnyCardShowingGracePeriod());
-        assertTrue(personListPanel.isListMatching(td.alice, td.charlie, td.elizabeth));
+        assertTrue(personListPanel.isListMatching(TestUtil.removePersonsFromList(td.getTestData(), td.benson, td.dan)));
     }
 
     @Test
@@ -67,5 +67,18 @@ public class PersonDeleteGuiTest extends GuiTestBase {
                      statusBar.getText());
     }
 
+    @Test
+    public void deletePerson_deleteUsingAccelerator() {
+        PersonCardHandle bensonCard = personListPanel.navigateToPerson(td.benson);
+        assertTrue(personListPanel.isOnlySelected(td.benson));
+
+        personListPanel.use_PERSON_DELETE_ACCELERATOR();
+        assertTrue(bensonCard.isShowingGracePeriod("Deleting"));
+
+        sleepForGracePeriod();
+
+        assertFalse(personListPanel.isAnyCardShowingGracePeriod());
+        assertTrue(personListPanel.isListMatching(TestUtil.removePersonsFromList(td.getTestData(), td.benson)));
+    }
 
 }

@@ -354,4 +354,29 @@ public class TestUtil {
     public static Object getLastElement(List<?> list) {
         return list.get(list.size() - 1);
     }
+
+    public static Person[] removePersonsFromList(Person[] persons, Person... personsToRemove) {
+        List<Person> listOfPersons = asList(persons);
+        listOfPersons.removeAll(asList(personsToRemove));
+        return listOfPersons.toArray(new Person[listOfPersons.size()]);
+    }
+
+    public static Person[] replacePersonFromList(Person[] persons, Person person, int index) {
+        persons[index] = person;
+        return persons;
+    }
+
+    public static Person[] addPersonsToList(Person[] persons, Person... personsToAdd) {
+        List<Person> listOfPersons = asList(persons);
+        listOfPersons.addAll(asList(personsToAdd));
+        return listOfPersons.toArray(new Person[listOfPersons.size()]);
+    }
+
+    private static <T> List<T> asList(T[] objs) {
+        List<T> list = new ArrayList<>();
+        for(T obj : objs) {
+            list.add(obj);
+        }
+        return list;
+    }
 }

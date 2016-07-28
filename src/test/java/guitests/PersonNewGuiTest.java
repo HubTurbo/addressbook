@@ -4,6 +4,7 @@ import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.testutil.ContextMenuChoice;
 import address.testutil.PersonBuilder;
+import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
@@ -49,7 +50,7 @@ public class PersonNewGuiTest extends GuiTestBase {
         PersonCardHandle georgeCard = personListPanel.navigateToPerson(td.george);
         assertTrue(georgeCard.isShowingGracePeriod("Adding"));
         sleepForGracePeriod();
-        assertTrue(personListPanel.isListMatching(td.alice, td.benson, td.charlie, td.dan, td.elizabeth, td.george));
+        assertTrue(personListPanel.isListMatching(TestUtil.addPersonsToList(td.getTestData(), td.george)));
     }
 
     @Test
@@ -68,8 +69,7 @@ public class PersonNewGuiTest extends GuiTestBase {
         assertMatching(georgeCard, td.george);
 
         sleepForGracePeriod();
-        assertTrue(personListPanel.isListMatching(td.alice, td.benson, td.charlie, td.dan, td.elizabeth, td.fiona,
-                                                  td.george));
+        assertTrue(personListPanel.isListMatching(TestUtil.addPersonsToList(td.getTestData(), td.fiona, td.george)));
     }
 
     @Test

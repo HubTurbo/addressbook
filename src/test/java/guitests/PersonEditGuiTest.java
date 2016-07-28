@@ -4,6 +4,7 @@ import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.testutil.ContextMenuChoice;
 import address.testutil.PersonBuilder;
+import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
@@ -59,7 +60,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         sleepForGracePeriod();
 
         assertFalse(personListPanel.isAnyCardShowingGracePeriod());
-        assertTrue(personListPanel.isListMatching(td.alice, td.benson, td.charlie, td.dan));
+        assertTrue(personListPanel.isListMatching(TestUtil.removePersonsFromList(td.getTestData(), td.elizabeth)));
     }
 
     @Test
@@ -143,7 +144,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(editPersonDialog.isShowingPerson(td.elizabeth));
         editPersonDialog.enterNewValues(elizabethEdited).clickOk();
         sleepForGracePeriod();
-        assertTrue(personListPanel.isListMatching(td.alice, td.benson, td.charlie, td.dan, elizabethEdited));
+        assertTrue(personListPanel.isListMatching(TestUtil.replacePersonFromList(td.getTestData(), elizabethEdited, 4)));
         //Full edit process is done at editPerson_usingContextMenu()
     }
 
@@ -155,7 +156,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         editPersonDialogHandle.enterNewValues(bensonEdited);
         editPersonDialogHandle.clickOk();
         sleepForGracePeriod();
-        assertTrue(personListPanel.isListMatching(td.alice, bensonEdited, td.charlie, td.dan, td.elizabeth));
+        assertTrue(personListPanel.isListMatching(TestUtil.replacePersonFromList(td.getTestData(), bensonEdited, 1)));
         //Full edit process is done at editPerson_usingContextMenu()
     }
 

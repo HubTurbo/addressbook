@@ -66,6 +66,14 @@ public class PersonListPanelHandle extends GuiHandle {
         return getSelectedPersons().stream().filter(p -> p.hasName(firstName, lastName)).findAny().isPresent();
     }
 
+    public boolean isOnlySelected(Person person) {
+        return isOnlySelected(person.getFirstName(), person.getLastName());
+    }
+
+    public boolean isOnlySelected(String firstName, String lastName) {
+        return getSelectedPersons().stream().filter(p -> p.hasName(firstName, lastName)).count() == 1;
+    }
+
     public boolean isSelected(Person person) {
         return this.isSelected(person.getFirstName(), person.getLastName());
     }
