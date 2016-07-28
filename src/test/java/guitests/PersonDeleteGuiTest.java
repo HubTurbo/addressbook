@@ -1,6 +1,7 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
+import address.model.datatypes.person.Person;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
 import org.junit.Test;
@@ -41,6 +42,19 @@ public class PersonDeleteGuiTest extends GuiTestBase {
     }
 
     @Test
+    public void deletePerson_deleteWholeList() {
+        personListPanel.selectCards(td.getTestData());
+        assertEquals(td.getTestData().length, personListPanel.getSelectedCardSize());
+
+        personListPanel.use_PERSON_DELETE_ACCELERATOR();
+
+        assertTrue(personListPanel.isEntireListShowingGracePeriod("Deleting"));
+        sleepForGracePeriod();
+
+        assertEquals(0, personListPanel.getSelectedCardSize());
+    }
+
+    @Test
     public void deletePerson_cancelDeleteOperationUsingAccelerator() {
 
         PersonCardHandle aliceCard = personListPanel.selectCard(td.alice);
@@ -52,4 +66,6 @@ public class PersonDeleteGuiTest extends GuiTestBase {
         assertEquals(HeaderStatusBarHandle.formatDeleteCancelledMessage(td.alice.fullName(), Optional.empty()),
                      statusBar.getText());
     }
+
+
 }

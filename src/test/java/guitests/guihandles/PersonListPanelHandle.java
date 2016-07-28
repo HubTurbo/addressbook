@@ -153,6 +153,18 @@ public class PersonListPanelHandle extends GuiHandle {
         return getPersonCardHandle(person);
     }
 
+    public boolean isEntireListShowingGracePeriod(String displayText) {
+        for (int i = 0; i < getListView().getItems().size(); i++) {
+            this.getListView().scrollTo(i);
+            guiRobot.sleep(150);
+            final PersonCardHandle personCard = getPersonCardHandle(i);
+            if (!personCard.isShowingGracePeriod(displayText)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void use_LIST_GOTO_TOP_SEQUENCE() {
         guiRobot.pushKeySequence(new Bindings().LIST_GOTO_TOP_SEQUENCE);
     }
