@@ -1,5 +1,6 @@
 package guitests;
 
+import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.TagPersonDialogHandle;
@@ -12,7 +13,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * Tests for tagging persons that need to be run in headful mode
+ *
+ * Reason: Selection of multiple persons using click + shortcut + click + ... does not work in headless mode
+ */
 public class TagPersonHeadfulGuiTest extends GuiTestBase {
+    @Override
+    protected AddressBook getInitialData() {
+        return td.book;
+    }
+    
     @Test
     public void tagMultiplePersonsAccelerator() {
         clickOnMultiplePersons(td.alice, td.benson, td.charlie);
