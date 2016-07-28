@@ -76,6 +76,8 @@ public class PersonNewGuiTest extends GuiTestBase {
     public void addPerson_cancelDialog() {
         EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
         addPersonDialog.enterNewValues(td.fiona).clickCancel();
+        assertFalse(personListPanel.isAnyCardShowingGracePeriod());
+        assertEquals(HeaderStatusBarHandle.formatAddCancelledMessage("", Optional.empty()), statusBar.getText());
         assertTrue(personListPanel.isListMatching(td.getTestData()));
     }
 

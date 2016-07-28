@@ -150,7 +150,9 @@ public class PersonListPanelHandle extends GuiHandle {
      */
     public PersonCardHandle navigateToPerson(Person person) {
         int index = getPersonIndex(person);
-        use_LIST_JUMP_TO_INDEX_SHORTCUT(index + 1);
+        getListView().scrollTo(index);
+        guiRobot.interact(() -> getListView().getSelectionModel().select(index));
+        guiRobot.sleep(100);
         return getPersonCardHandle(person);
     }
 
@@ -376,6 +378,12 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public void clearSelection() {
         getListView().getSelectionModel().clearSelection();
+    }
+
+    public boolean isAnyCardShowingGracePeriod() {
+        return getAllCardNodes().stream()
+                                .filter(c -> new PersonCardHandle(guiRobot, primaryStage, c).isShowingGracePeriod())
+                                .findAny().isPresent();
     }
 
     /**

@@ -52,9 +52,23 @@ public class PersonCardHandle extends GuiHandle {
         return node.lookup(PENDING_STATE_ROOT_FIELD_ID).isVisible();
     }
 
+    /**
+     * Checks if grace period is shown with the displayText
+     * @param displayText
+     * @return
+     */
     public boolean isShowingGracePeriod(String displayText) {
         return this.isPendingStateRootVisible() && this.isPendingStateLabelVisible()
-               && !this.isPendingStateProgressIndicatorVisible() && this.getPendingStateLabel().equals(displayText);
+                && !this.isPendingStateProgressIndicatorVisible() && this.getPendingStateLabel().equals(displayText);
+    }
+
+    /**
+     * Checks if grace period is shown.
+     * @return
+     */
+    public boolean isShowingGracePeriod() {
+        return this.isPendingStateRootVisible() && this.isPendingStateLabelVisible()
+                && !this.isPendingStateProgressIndicatorVisible();
     }
 
     public String getPendingStateLabel() {
