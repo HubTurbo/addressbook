@@ -186,6 +186,10 @@ public class PersonListPanelHandle extends GuiHandle {
         return new TagPersonDialogHandle(guiRobot, primaryStage);
     }
 
+    /**
+     * Checks if the error dialog window for no selected person is shown
+     * @return
+     */
     public boolean isNoSelectedPersonDialogShown() {
         try{
             Window window = guiRobot.window("Invalid Selection");
@@ -204,9 +208,9 @@ public class PersonListPanelHandle extends GuiHandle {
      * @param person
      */
     public void rightClickOnPerson(Person person) {
-        //Instead of using guiRobot.rightCickOn(), We will be firing off contextmenu request manually.
-        //As there is a bug in monocle that doesn't show contextmenu by actual right clicking.
-        //Refer to https://github.com/TestFX/Monocle/issues/12
+        // Instead of using guiRobot.rightCickOn(), We will be firing off contextmenu request manually.
+        // As there is a bug in monocle that doesn't show context menu by actual right clicking.
+        // Refer to https://github.com/TestFX/Monocle/issues/12
         clickOnPerson(person);
         fireContextMenuEvent();
     }
@@ -271,6 +275,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     /**
      * Drag and drop the person card.
+     *
      * @param firstNameOfPersonToDrag The text which identify the card to be dragged.
      * @param firstNameOfPersonToDropOn The text which identify the card to be dropped on top of.
      */
@@ -280,6 +285,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     /**
      * Drags the person cards outside of the listview.
+     *
      * @param listOfNamesToDrag The texts which identify the cards to be dragged.
      */
     public void dragOutsideList(List<String> listOfNamesToDrag) {
@@ -296,7 +302,14 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.release(KeyCode.SHORTCUT);
     }
 
-    public void clickOnMultiplePersons(List<Person> listOfPersons) {
+    /**
+     * Attempts to select multiple person cards based on their first name
+     *
+     * Person cards should be visible without having to scroll
+     *
+     * @param listOfPersons
+     */
+    public void selectMultiplePersons(List<Person> listOfPersons) {
         clickOnMultipleNames(listOfPersons.stream()
                                 .map(Person::getFirstName)
                                 .collect(Collectors.toCollection(ArrayList::new)));
@@ -304,6 +317,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     /**
      * Drag card outside of the listview.
+     *
      * @param personToDrag The text which identify the card to be dragged.
      */
     public void dragOutsideList(String personToDrag) {
@@ -368,7 +382,7 @@ public class PersonListPanelHandle extends GuiHandle {
     public boolean containsInOrder(Person... persons) {
         assert persons.length >= 2;
         int indexOfFirstPerson = getPersonIndex(persons[0]);
-        if(indexOfFirstPerson == NOT_FOUND) return false;
+        if (indexOfFirstPerson == NOT_FOUND) return false;
         return containsInOrder(indexOfFirstPerson, persons);
     }
 
@@ -382,12 +396,12 @@ public class PersonListPanelHandle extends GuiHandle {
     public boolean containsInOrder(int startPosition, Person... persons) {
         List<ReadOnlyViewablePerson> personsInList = getListView().getItems();
 
-        //Return false if the list in panel is too short to contain the given list
+        // Return false if the list in panel is too short to contain the given list
         if (startPosition + persons.length > personsInList.size()){
             return false;
         }
 
-        //Return false if any of the persons doesn't match
+        // Return false if any of the persons doesn't match
         for (int i = 0; i < persons.length; i++) {
             if (!personsInList.get(startPosition + i).fullName().equals(persons[i].fullName())){
                 return false;
