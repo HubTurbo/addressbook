@@ -1,23 +1,20 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
+import address.model.datatypes.person.Person;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.TagPersonDialogHandle;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class TagPersonGuiTest extends GuiTestBase {
-    @Override
-    protected AddressBook getInitialData() {
-        return td.book;
-    }
-
     @Test
     public void tagPerson() {
         PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
@@ -111,12 +108,6 @@ public class TagPersonGuiTest extends GuiTestBase {
         aliceEditDialog.pressEnter();
 
         waitForGracePeriod("Tag: friends", alicePersonCard);
-    }
-
-    private void searchAndAcceptTags(TagPersonDialogHandle aliceTagDialog, String... tagQueries) {
-        for (String tagQuery : tagQueries) {
-            aliceTagDialog.searchAndAcceptTag(tagQuery);
-        }
     }
 
     @Test
@@ -217,7 +208,8 @@ public class TagPersonGuiTest extends GuiTestBase {
 
     @Test
     public void tagMultiplePersonsAccelerator() {
-        personListPanel.clickOnMultiplePersons(Arrays.asList(td.alice, td.benson, td.charlie));
+        clickOnMultiplePersons(td.alice, td.benson, td.charlie);
+
         TagPersonDialogHandle multiplePersonsTagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
         searchAndAcceptTags(multiplePersonsTagDialogHandle, "frie");
         multiplePersonsTagDialogHandle.pressEnter();
@@ -231,7 +223,7 @@ public class TagPersonGuiTest extends GuiTestBase {
 
     @Test
     public void tagMultiplePersonsAccelerator_multipleTags() {
-        personListPanel.clickOnMultiplePersons(Arrays.asList(td.alice, td.benson, td.charlie));
+        clickOnMultiplePersons(td.alice, td.benson, td.charlie);
         TagPersonDialogHandle multiplePersonsTagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
         searchAndAcceptTags(multiplePersonsTagDialogHandle, "frie", "coll");
         multiplePersonsTagDialogHandle.pressEnter();
@@ -245,7 +237,7 @@ public class TagPersonGuiTest extends GuiTestBase {
 
     @Test
     public void tagAndUnTagMultiplePersonsAccelerator() {
-        personListPanel.clickOnMultiplePersons(Arrays.asList(td.alice, td.benson, td.charlie));
+        clickOnMultiplePersons(td.alice, td.benson, td.charlie);
         TagPersonDialogHandle multiplePersonsTagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
         searchAndAcceptTags(multiplePersonsTagDialogHandle, "frie");
         multiplePersonsTagDialogHandle.pressEnter();
@@ -266,7 +258,7 @@ public class TagPersonGuiTest extends GuiTestBase {
 
     @Test
     public void tagAndUnTagMultiplePersonsAccelerator_multipleTags() {
-        personListPanel.clickOnMultiplePersons(Arrays.asList(td.alice, td.benson, td.charlie));
+        clickOnMultiplePersons(td.alice, td.benson, td.charlie);
         TagPersonDialogHandle multiplePersonsTagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
         searchAndAcceptTags(multiplePersonsTagDialogHandle, "frie", "coll");
         multiplePersonsTagDialogHandle.pressEnter();
@@ -283,6 +275,20 @@ public class TagPersonGuiTest extends GuiTestBase {
         multiplePersonsTagDialogHandleTwo.pressEnter();
 
         waitForGracePeriod("Tag: colleagues", alicePersonCard, bensonPersonCard, charliePersonCard);
+    }
+
+    private void searchAndAcceptTags(TagPersonDialogHandle aliceTagDialog, String... tagQueries) {
+        for (String tagQuery : tagQueries) {
+            aliceTagDialog.searchAndAcceptTag(tagQuery);
+        }
+    }
+
+    private void clickOnMultiplePersons(Person... persons) {
+        List<Person> personList = Arrays.asList(persons);
+        personListPanel.clickOnMultiplePersons(personList);
+        personList.forEach(person -> {
+            assertTrue(personListPanel.getSelectedCards().contains(personListPanel.getPersonCardHandle(person)));
+        });
     }
 
     private void assertTagsBeforeGracePeriod(String expectedTags, PersonCardHandle... personCardHandles) {
@@ -316,5 +322,10 @@ public class TagPersonGuiTest extends GuiTestBase {
         for (PersonCardHandle personCardHandle : personCardHandles) {
             assertTrue(personListPanel.getSelectedCards().contains(personCardHandle));
         }
+    }
+
+    @Override
+    protected AddressBook getInitialData() {
+        return td.book;
     }
 }
