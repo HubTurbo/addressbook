@@ -1,14 +1,10 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
-import address.model.datatypes.person.Person;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.PersonCardHandle;
 import guitests.guihandles.TagPersonDialogHandle;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -26,7 +22,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialog = aliceEditDialog.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialog, "coll");
+        aliceTagDialog.searchAndAcceptTags("coll");
 
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
@@ -40,7 +36,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialog = aliceEditDialog.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialog, "frien");
+        aliceTagDialog.searchAndAcceptTags("frien");
 
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
@@ -51,7 +47,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialogTwo = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialogTwo = aliceEditDialogTwo.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialogTwo, "coll");
+        aliceTagDialogTwo.searchAndAcceptTags("coll");
 
         aliceTagDialogTwo.close();
         aliceEditDialogTwo.pressEnter();
@@ -65,7 +61,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialog = aliceEditDialog.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialog, "coll");
+        aliceTagDialog.searchAndAcceptTags("coll");
 
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
@@ -79,7 +75,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialog = aliceEditDialog.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialog, "coll", "frie");
+        aliceTagDialog.searchAndAcceptTags("coll", "frie");
 
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
@@ -93,7 +89,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialog = aliceEditDialog.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialog, "coll", "frie");
+        aliceTagDialog.searchAndAcceptTags("coll", "frie");
 
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
@@ -107,7 +103,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialog = aliceEditDialog.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialog, "coll", "frie", "coll", "fam", "coll", "fam", "coll");
+        aliceTagDialog.searchAndAcceptTags("coll", "frie", "coll", "fam", "coll", "fam", "coll");
         aliceTagDialog.close();
 
         aliceEditDialog.pressEnter();
@@ -121,7 +117,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialog = aliceEditDialog.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialog, "coll");
+        aliceTagDialog.searchAndAcceptTags("coll");
 
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
@@ -131,7 +127,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialogTwo = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialogTwo = aliceEditDialogTwo.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialogTwo, "coll");
+        aliceTagDialogTwo.searchAndAcceptTags("coll");
 
         aliceTagDialogTwo.close();
         aliceEditDialogTwo.pressEnter();
@@ -145,7 +141,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialog = aliceEditDialog.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialog, "coll");
+        aliceTagDialog.searchAndAcceptTags("coll");
 
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
@@ -155,7 +151,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialogTwo = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialogTwo = aliceEditDialogTwo.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialog, "coll", "frie");
+        aliceTagDialog.searchAndAcceptTags("coll", "frie");
 
         aliceTagDialogTwo.close();
         aliceEditDialogTwo.pressEnter();
@@ -169,7 +165,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialog = aliceEditDialog.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialog, "coll");
+        aliceTagDialog.searchAndAcceptTags("coll");
 
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
@@ -179,7 +175,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialogTwo = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialogTwo = aliceEditDialogTwo.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialogTwo, "coll", "frie");
+        aliceTagDialogTwo.searchAndAcceptTags("coll", "frie");
 
         aliceTagDialogTwo.close();
         aliceEditDialogTwo.pressEnter();
@@ -193,7 +189,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialog = aliceEditDialog.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialog, "coll");
+        aliceTagDialog.searchAndAcceptTags("coll");
 
         aliceTagDialog.close();
         aliceEditDialog.pressEnter();
@@ -203,7 +199,7 @@ public class TagPersonGuiTest extends GuiTestBase {
         EditPersonDialogHandle aliceEditDialogTwo = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         TagPersonDialogHandle aliceTagDialogTwo = aliceEditDialogTwo.openTagPersonDialog();
 
-        searchAndAcceptTags(aliceTagDialogTwo, "coll", "frie");
+        aliceTagDialogTwo.searchAndAcceptTags("coll", "frie");
 
         aliceTagDialogTwo.close();
         aliceEditDialogTwo.pressEnter();
@@ -215,7 +211,7 @@ public class TagPersonGuiTest extends GuiTestBase {
     public void tagPersonAccelerator_multipleTags() {
         PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
         TagPersonDialogHandle tagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
-        searchAndAcceptTags(tagDialogHandle, "frie", "coll");
+        tagDialogHandle.searchAndAcceptTags("frie", "coll");
         tagDialogHandle.pressEnter();
 
         waitForGracePeriod("Tag: friends, Tag: colleagues", alicePersonCard);
@@ -225,7 +221,7 @@ public class TagPersonGuiTest extends GuiTestBase {
     public void tagPersonAccelerator_multipleTagsCancelDuringPendingState() {
         PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
         TagPersonDialogHandle tagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
-        searchAndAcceptTags(tagDialogHandle, "frie", "coll");
+        tagDialogHandle.searchAndAcceptTags("frie", "coll");
         tagDialogHandle.pressEnter();
 
         cancelDuringGracePeriod("Tag: friends, Tag: colleagues", "", alicePersonCard);
@@ -235,7 +231,7 @@ public class TagPersonGuiTest extends GuiTestBase {
     public void tagPersonAccelerator() {
         PersonCardHandle alicePersonCard = personListPanel.selectCard(td.alice);
         TagPersonDialogHandle tagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
-        searchAndAcceptTags(tagDialogHandle, "frie");
+        tagDialogHandle.searchAndAcceptTags("frie");
         tagDialogHandle.pressEnter();
 
         waitForGracePeriod("Tag: friends", alicePersonCard);
@@ -245,91 +241,6 @@ public class TagPersonGuiTest extends GuiTestBase {
     public void tagPersonAccelerator_noSelectedPerson() {
         personListPanel.use_PERSON_TAG_ACCELERATOR();
         assertTrue(personListPanel.isNoSelectedPersonDialogShown());
-    }
-
-    @Test
-    public void tagMultiplePersonsAccelerator() {
-        clickOnMultiplePersons(td.alice, td.benson, td.charlie);
-
-        TagPersonDialogHandle multiplePersonsTagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
-        searchAndAcceptTags(multiplePersonsTagDialogHandle, "frie");
-        multiplePersonsTagDialogHandle.pressEnter();
-
-        PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
-        PersonCardHandle bensonPersonCard = personListPanel.getPersonCardHandle(td.benson);
-        PersonCardHandle charliePersonCard = personListPanel.getPersonCardHandle(td.charlie);
-
-        waitForGracePeriod("Tag: friends", alicePersonCard, bensonPersonCard, charliePersonCard);
-    }
-
-    @Test
-    public void tagMultiplePersonsAccelerator_multipleTags() {
-        clickOnMultiplePersons(td.alice, td.benson, td.charlie);
-        TagPersonDialogHandle multiplePersonsTagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
-        searchAndAcceptTags(multiplePersonsTagDialogHandle, "frie", "coll");
-        multiplePersonsTagDialogHandle.pressEnter();
-
-        PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
-        PersonCardHandle bensonPersonCard = personListPanel.getPersonCardHandle(td.benson);
-        PersonCardHandle charliePersonCard = personListPanel.getPersonCardHandle(td.charlie);
-
-        waitForGracePeriod("Tag: friends, Tag: colleagues", alicePersonCard, bensonPersonCard, charliePersonCard);
-    }
-
-    @Test
-    public void tagAndUntagMultiplePersonsAccelerator() {
-        clickOnMultiplePersons(td.alice, td.benson, td.charlie);
-        TagPersonDialogHandle multiplePersonsTagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
-        searchAndAcceptTags(multiplePersonsTagDialogHandle, "frie");
-        multiplePersonsTagDialogHandle.pressEnter();
-
-        PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
-        PersonCardHandle bensonPersonCard = personListPanel.getPersonCardHandle(td.benson);
-        PersonCardHandle charliePersonCard = personListPanel.getPersonCardHandle(td.charlie);
-
-        waitForGracePeriod("Tag: friends", alicePersonCard, bensonPersonCard, charliePersonCard);
-
-        assertSelectedCardHandles(alicePersonCard, bensonPersonCard, charliePersonCard);
-        TagPersonDialogHandle multiplePersonsTagDialogHandleTwo = personListPanel.use_PERSON_TAG_ACCELERATOR();
-        searchAndAcceptTags(multiplePersonsTagDialogHandleTwo, "frie");
-        multiplePersonsTagDialogHandleTwo.pressEnter();
-
-        waitForGracePeriod("", alicePersonCard, bensonPersonCard, charliePersonCard);
-    }
-
-    @Test
-    public void tagAndUntagMultiplePersonsAccelerator_multipleTags() {
-        clickOnMultiplePersons(td.alice, td.benson, td.charlie);
-        TagPersonDialogHandle multiplePersonsTagDialogHandle = personListPanel.use_PERSON_TAG_ACCELERATOR();
-        searchAndAcceptTags(multiplePersonsTagDialogHandle, "frie", "coll");
-        multiplePersonsTagDialogHandle.pressEnter();
-
-        PersonCardHandle alicePersonCard = personListPanel.getPersonCardHandle(td.alice);
-        PersonCardHandle bensonPersonCard = personListPanel.getPersonCardHandle(td.benson);
-        PersonCardHandle charliePersonCard = personListPanel.getPersonCardHandle(td.charlie);
-
-        waitForGracePeriod("Tag: friends, Tag: colleagues", alicePersonCard, bensonPersonCard, charliePersonCard);
-
-        assertSelectedCardHandles(alicePersonCard, bensonPersonCard, charliePersonCard);
-        TagPersonDialogHandle multiplePersonsTagDialogHandleTwo = personListPanel.use_PERSON_TAG_ACCELERATOR();
-        searchAndAcceptTags(multiplePersonsTagDialogHandleTwo, "frie");
-        multiplePersonsTagDialogHandleTwo.pressEnter();
-
-        waitForGracePeriod("Tag: colleagues", alicePersonCard, bensonPersonCard, charliePersonCard);
-    }
-
-    private void searchAndAcceptTags(TagPersonDialogHandle aliceTagDialog, String... tagQueries) {
-        for (String tagQuery : tagQueries) {
-            aliceTagDialog.searchAndAcceptTag(tagQuery);
-        }
-    }
-
-    private void clickOnMultiplePersons(Person... persons) {
-        List<Person> personList = Arrays.asList(persons);
-        personListPanel.clickOnMultiplePersons(personList);
-        personList.forEach(person -> {
-            assertTrue(personListPanel.getSelectedCards().contains(personListPanel.getPersonCardHandle(person)));
-        });
     }
 
     private void assertTagsBeforeGracePeriod(String expectedTags, PersonCardHandle... personCardHandles) {
@@ -357,11 +268,5 @@ public class TagPersonGuiTest extends GuiTestBase {
         assertTagsBeforeGracePeriod(expectedTagsBeforeCancel, personCardHandles);
         personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
         assertTagsAfterGracePeriod(expectedTagsAfterCancel, personCardHandles);
-    }
-
-    private void assertSelectedCardHandles(PersonCardHandle... personCardHandles) {
-        for (PersonCardHandle personCardHandle : personCardHandles) {
-            assertTrue(personListPanel.getSelectedCards().contains(personCardHandle));
-        }
     }
 }
