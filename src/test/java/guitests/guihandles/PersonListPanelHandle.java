@@ -171,7 +171,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public void use_PERSON_DELETE_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_DELETE_ACCELERATOR);
-        guiRobot.sleep(1000);
+        guiRobot.sleep(500);
     }
 
     public void navigateUp() {
