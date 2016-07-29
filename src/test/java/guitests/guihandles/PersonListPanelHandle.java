@@ -4,6 +4,7 @@ package guitests.guihandles;
 import address.TestApp;
 import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.tag.Tag;
 import address.testutil.ContextMenuChoice;
@@ -58,6 +59,11 @@ public class PersonListPanelHandle extends GuiHandle {
     public boolean contains(String firstName, String lastName) {
         //TODO: should be checking if the graphical node is displaying the names.
         return getListView().getItems().stream().anyMatch(p -> p.hasName(firstName, lastName));
+    }
+
+    public boolean contains(int id) {
+        //TODO: should be checking if the graphical node is displaying the names.
+        return getListView().getItems().stream().anyMatch(p -> p.getId() == id);
     }
 
     public boolean contains(Person person) {
@@ -292,6 +298,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public void enterFilterAndApply(String filterText) {
         typeTextField(FILTER_FIELD_ID, filterText);
+        pressEnter();
     }
 
     public String getFilterText() {
@@ -509,6 +516,21 @@ public class PersonListPanelHandle extends GuiHandle {
         return true;
     }
 
+    public boolean containsListOnly(List<ReadOnlyPerson> personList) {
+        ReadOnlyPerson[] personArray = new Person[personList.size()];
+        personList.toArray(personArray);
+        return containsListOnly(personArray);
+    }
+
+    public boolean containsListOnly(ReadOnlyPerson... persons) {
+        if (persons.length != getListView().getItems().size()) return false;
+
+        for (ReadOnlyPerson person : persons) {
+            if (!contains(person.getId())) return false;
+        }
+
+        return true;
+    }
 
     /**
      * Checks if the list is showing the person details correctly and in correct order.

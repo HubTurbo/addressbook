@@ -13,7 +13,6 @@ import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
-import address.keybindings.KeyBindingsManager;
 import address.parser.qualifier.TrueQualifier;
 import address.ui.PersonListViewCell;
 import address.util.collections.FilteredList;
@@ -82,10 +81,23 @@ public class PersonListPanelController extends UiController{
         personListView.setItems(orderedList);
         personListView.setCellFactory(listView -> new PersonListViewCell(orderedList));
         loadGithubProfilePageWhenPersonIsSelected(mainController);
-
-        personListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        setupListviewSelectionModelSettings();
         disableEditCommandForMultipleSelection();
         enableRetryCommandOnlyIfSelectionContainsFailedRequests();
+    }
+
+    private void setupListviewSelectionModelSettings() {
+        personListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        personListView.getItems().addListener((ListChangeListener<ReadOnlyViewablePerson>) c -> {
+            while(c.next()) {
+                if (c.wasRemoved()) {
+                    ObservableList<Integer> currentIndices = personListView.getSelectionModel().getSelectedIndices();
+                    if (currentIndices.size() > 1) {
+                        personListView.getSelectionModel().clearAndSelect(currentIndices.get(0));
+                    }
+                }
+            }
+        });
     }
 
     private void loadGithubProfilePageWhenPersonIsSelected(MainController mainController) {

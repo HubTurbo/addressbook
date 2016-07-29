@@ -40,7 +40,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
     @Override
     protected AddressBook getInitialData() {
-        return td.book;
+        return new AddressBook(td.book);
     }
 
     @Test
@@ -144,6 +144,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(editPersonDialog.isShowingPerson(td.elizabeth));
         editPersonDialog.enterNewValues(elizabethEdited).clickOk();
         sleepForGracePeriod();
+
         assertTrue(personListPanel.isListMatching(TestUtil.replacePersonFromList(td.getTestData(), elizabethEdited, 4)));
         //Full edit process is done at editPerson_usingContextMenu()
     }
