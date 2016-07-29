@@ -159,16 +159,19 @@ public class PersonListPanelHandle extends GuiHandle {
      */
     public PersonCardHandle navigateToPerson(Person person) {
         int index = getPersonIndex(person);
-        getListView().scrollTo(index);
-        guiRobot.interact(() -> getListView().getSelectionModel().select(index));
+
+        guiRobot.interact(() -> {
+            getListView().scrollTo(index);
+            getListView().getSelectionModel().select(index);
+        });
         guiRobot.sleep(100);
         return getPersonCardHandle(person);
     }
 
     public boolean isEntireListShowingGracePeriod(String displayText) {
         for (int i = 0; i < getListView().getItems().size(); i++) {
-            this.getListView().scrollTo(i);
-            guiRobot.sleep(150);
+            final int index = i;
+            guiRobot.interact(() -> this.getListView().scrollTo(index));
             final PersonCardHandle personCard = getPersonCardHandle(i);
             if (!personCard.isShowingGracePeriod(displayText)) {
                 return false;
@@ -496,8 +499,9 @@ public class PersonListPanelHandle extends GuiHandle {
         }
         assertTrue(this.containsInOrder(startPosition, persons));
         for (int i = 0; i < persons.length; i++) {
-            getListView().scrollTo(i + startPosition);
-            guiRobot.sleep(200);
+            final int scrollTo = i + startPosition;
+            guiRobot.interact(() -> getListView().scrollTo(scrollTo));
+            //guiRobot.sleep(200);
             if (!TestUtil.compareCardAndPerson(getPersonCardHandle(startPosition + i), persons[i])) {
                 return false;
             }
@@ -535,15 +539,17 @@ public class PersonListPanelHandle extends GuiHandle {
     public List<PersonCardHandle> selectCards(Person... persons) {
         guiRobot.press(KeyCode.SHORTCUT);
         for (Person person: persons) {
-            getListView().scrollTo(getPersonIndex(person));
-            getListView().getSelectionModel().select(getPersonIndex(person));
+            guiRobot.interact(() -> {
+                getListView().scrollTo(getPersonIndex(person));
+                getListView().getSelectionModel().select(getPersonIndex(person));
+            });
         }
         guiRobot.release(KeyCode.SHORTCUT);
         return getSelectedCards();
     }
 
     public PersonCardHandle selectCard(Person person) {
-        getListView().scrollTo(getPersonIndex(person));
+        guiRobot.interact(() -> getListView().scrollTo(getPersonIndex(person)));
         clickOnPerson(person);
         guiRobot.sleep(500);
         return getPersonCardHandle(person);

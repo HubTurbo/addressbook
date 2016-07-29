@@ -139,7 +139,9 @@ public class GuiHandle {
     }
 
     public void focusOnSelf() {
-        focusOnWindow(stageTitle);
+        if (stageTitle != null) {
+            focusOnWindow(stageTitle);
+        }
     }
 
     public void focusOnMainApp() {

@@ -225,7 +225,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Confirm pending state correctness
         assertTrue(danCard.isShowingGracePeriod("Editing"));
-        assertMatching(danCard, charlieEdited);
+        assertMatching(danCard, danEdited);
 
         personListPanel.rightClickOnPerson(danEdited).clickOnContextMenu(ContextMenuChoice.CANCEL);
 

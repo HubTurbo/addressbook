@@ -382,21 +382,8 @@ public class TestUtil {
     }
 
     public static boolean compareCardAndPerson(PersonCardHandle card, Person person) {
-        String address = card.getAddress();
-        final String[] split = address.split(System.lineSeparator());
-        String street = "", city = "", postalcode = "";
-        for(int i = 0; i < split.length; i++) {
-            if (i == 0) {
-                street = split[i];
-            } else if (i == 1) {
-                city = split[i];
-            } else if (i == 2) {
-                postalcode = split[i];
-            }
-        }
-        return card.getFirstName().equals(person.getFirstName()) && card.getLastName().equals(person.getLastName())
-               && street.equals(person.getStreet()) && city.equals(person.getCity())
-               && postalcode.equals(person.getPostalCode()); //TODO: compare birthday and tag list.
+        return card.getFirstName().equals(person.getFirstName()) && card.getLastName().equals(person.getLastName());
+                //TODO: compare birthday, tag list and address.
     }
 
     public static Tag[] getTagList(String tags) {

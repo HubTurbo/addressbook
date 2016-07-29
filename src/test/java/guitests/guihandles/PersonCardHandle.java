@@ -31,7 +31,7 @@ public class PersonCardHandle extends GuiHandle {
     private Node node;
 
     public PersonCardHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage, TestApp.APP_TITLE);
+        super(guiRobot, primaryStage, null);
     }
 
     public PersonCardHandle(GuiRobot guiRobot, Stage primaryStage, Node node){
