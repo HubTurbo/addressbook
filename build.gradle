@@ -102,6 +102,7 @@ allprojects {
             java {
                 srcDir 'src/main/java'
                 include('updater/**/*')
+                exclude('updater/VersionDataGenerator.java')
                 include('commons/**/*')
             }
             resources {
@@ -358,7 +359,7 @@ task guiUnitTests(type: AddressBookTest) {
 task unitTests(type: AddressBookTest) {
     include 'address/**'
     include 'commons/**'
-    include 'hubturbo/**'
+
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
@@ -405,6 +406,37 @@ task headless << {
     guiUnitTests.setHeadless()
     unitTests.setHeadless()
     allTests.setHeadless()
+}
+
+task headlessForMac << {
+    println "Setting headless mode properties."
+    guiTests.setHeadless()
+    guiUnitTests.setHeadless()
+    unitTests.setHeadless()
+    allTests.setHeadless()
+
+    String osName = System.getProperty("os.name");
+    if (osName.contains("Mac OS")) {
+        println "Mac OS detected, removing disruptive headless tests"
+
+        List<String> disruptiveHeadlessUnitTestsOnMac = new ArrayList<String>()
+        disruptiveHeadlessUnitTestsOnMac.add('address/keybindings/BindingsTest.class')
+        disruptiveHeadlessUnitTestsOnMac.add('address/keybindings/GlobalHotkeyProviderTest.class')
+        disruptiveHeadlessUnitTestsOnMac.add('address/keybindings/GlobalHotkeyTest.class')
+        disruptiveHeadlessUnitTestsOnMac.add('address/keybindings/KeyBindingsManagerApiTest.class')
+        disruptiveHeadlessUnitTestsOnMac.add('address/keybindings/KeyBindingsManagerTest.class')
+
+        List<String> disruptiveHeadlessGuiUnitTestsOnMac = new ArrayList<String>()
+        List<String> disruptiveHeadlessGuiTestsOnMac = new ArrayList<String>()
+
+        unitTests.excludes.addAll(disruptiveHeadlessUnitTestsOnMac)
+        guiUnitTests.excludes.addAll(disruptiveHeadlessGuiUnitTestsOnMac)
+        guiTests.excludes.addAll(disruptiveHeadlessGuiTestsOnMac)
+        allTests.excludes.addAll(disruptiveHeadlessUnitTestsOnMac)
+        allTests.excludes.addAll(disruptiveHeadlessGuiUnitTestsOnMac)
+        allTests.excludes.addAll(disruptiveHeadlessGuiTestsOnMac)
+
+    }
 }
 
 // Makes sure that headless properties are set before running tests
