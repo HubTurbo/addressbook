@@ -130,12 +130,12 @@ and what to update. It reads the dependencies of the latest version of `addressb
 Creates the commons jar dependency. This jar contains the classes found in the `commons` package, including `FileUtil` and `OsDetector`, and is used as a dependency for most components.
 
 #### createUpdaterJar
-Creates the updater jar dependency. This file contains the updater components which are required for both the downloading of updated resources/dependencies as well as the migration of the application to a newer version.
+Creates the updater jar dependency. This file contains the components which are required for the migration of the application to a newer version.
 
 See: [Updater](Updater.md)
 
 #### createLauncherJar
-Creates launcher executable file, where its job is to apply pending updates as well as launch the main application with custom arguments.
+Creates launcher executable file, to launch the main application with custom arguments.
 
 See: [Launcher](Launcher.md)
 
