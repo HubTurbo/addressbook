@@ -89,6 +89,10 @@ public class PersonListPanelHandle extends GuiHandle {
         return personList.getSelectionModel().getSelectedItems();
     }
 
+    public ReadOnlyViewablePerson getFirstSelectedPerson() {
+        return this.getSelectedPersons().get(0);
+    }
+
     public ListView<ReadOnlyViewablePerson> getListView() {
         return (ListView<ReadOnlyViewablePerson>) getNode(PERSON_LIST_VIEW_ID);
     }

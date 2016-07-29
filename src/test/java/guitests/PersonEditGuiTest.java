@@ -64,7 +64,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
     @Test
     public void editPerson_editDeleteAndEditDuringGracePeriod() {
-        /* Not working
+        /* TODO: To include this test if future implementation allows this.
         PersonCardHandle elizabethCard = personListPanel.navigateToPerson(td.elizabeth);
         EditPersonDialogHandle editPersonDialog = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         assertTrue(editPersonDialog.isShowingPerson(td.elizabeth));
@@ -126,7 +126,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Confirm again after the next sync
         sleepUntilNextSync();
-        assertEquals(aliceEdited.toString(), personListPanel.getSelectedPersons().get(0).toString());
+        assertEquals(aliceEdited.toString(), personListPanel.getFirstSelectedPerson().toString());
 
         // Confirm other cards are unaffected.
         assertTrue(personListPanel.isListMatching(1, td.benson, td.charlie, td.dan, td.elizabeth));
