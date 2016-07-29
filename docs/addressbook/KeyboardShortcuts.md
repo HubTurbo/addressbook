@@ -10,10 +10,6 @@
 | <kbd>E</kbd>               | **E**dit the selected person |
 | <kbd>G</kbd>,<kbd>B</kbd>  | **G**o to **B**ottom of the list |
 | <kbd>G</kbd>,<kbd>T</kbd>  | **G**o to **T**op of the list |
-| <kbd>Ctrl + N</kbd>        | **N**ew file |
-| <kbd>Ctrl + O</kbd>        | **O**pen file |
-| <kbd>Ctrl + S</kbd>        | **S**ave file |
-| <kbd>Ctrl + Alt + S</kbd>  | **S**ave as ... |
 | <kbd>Ctrl + Down</kbd>     | Jump from filter box to person list |
 | <kbd>Ctrl + Number</kbd>   | Jump to Nth item in the person list, N=1..9 |
 
