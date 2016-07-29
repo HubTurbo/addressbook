@@ -1,4 +1,4 @@
-package address.util;
+package updater;
 
 import address.MainApp;
 import commons.FileUtil;

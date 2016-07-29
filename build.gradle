@@ -102,6 +102,7 @@ allprojects {
             java {
                 srcDir 'src/main/java'
                 include('updater/**/*')
+                exclude('updater/VersionDataGenerator.java')
                 include('commons/**/*')
             }
             resources {
