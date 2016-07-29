@@ -406,6 +406,14 @@ task headless << {
     guiUnitTests.setHeadless()
     unitTests.setHeadless()
     allTests.setHeadless()
+}
+
+task headlessForMac << {
+    println "Setting headless mode properties."
+    guiTests.setHeadless()
+    guiUnitTests.setHeadless()
+    unitTests.setHeadless()
+    allTests.setHeadless()
 
     String osName = System.getProperty("os.name");
     if (osName.contains("Mac OS")) {

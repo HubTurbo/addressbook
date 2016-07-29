@@ -50,7 +50,8 @@ There are a few key gradle tasks defined that we can play around with:
 #### Test mode
 - `headless` to indicate headless mode
   - applies only to tests with flexible test mode
-  - note that on Mac OS, this also avoids running some tests since they disrupt the user's workflow
+- `headlessForMac`
+  - In addition to the default `headless` task, this also avoids running some tests that disrupt the user's workflow on Mac
 
 #### Others
 - `checkStyle` to run code style checks
