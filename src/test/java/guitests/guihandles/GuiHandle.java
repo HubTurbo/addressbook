@@ -1,6 +1,7 @@
 package guitests.guihandles;
 
 import address.TestApp;
+import address.model.datatypes.person.Person;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import com.google.common.base.Optional;
@@ -66,6 +67,10 @@ public class GuiHandle {
 
     protected String getTextFieldText(String filedName) {
         return ((TextField) getNode(filedName)).getText();
+    }
+
+    public void moveCursor(Person person) {
+        guiRobot.moveTo(person.getFirstName());
     }
 
     /**

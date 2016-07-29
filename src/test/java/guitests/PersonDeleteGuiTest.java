@@ -41,6 +41,47 @@ public class PersonDeleteGuiTest extends GuiTestBase {
     }
 
     @Test
+    public void deleteMultiplePersons_cancelUsingAccelerator() {
+        personListPanel.selectCards(td.alice, td.charlie, td.dan);
+        assertEquals(3, personListPanel.getSelectedCardSize());
+        assertTrue(personListPanel.isSelected(td.alice));
+        assertTrue(personListPanel.isSelected(td.charlie));
+        assertTrue(personListPanel.isSelected(td.dan));
+
+        personListPanel.use_PERSON_DELETE_ACCELERATOR();
+        PersonCardHandle aliceCard = personListPanel.navigateToPerson(td.alice);
+        assertTrue(aliceCard.isShowingGracePeriod("Deleting"));
+        PersonCardHandle charlieCard = personListPanel.navigateToPerson(td.charlie);
+        assertTrue(charlieCard.isShowingGracePeriod("Deleting"));
+        PersonCardHandle danCard = personListPanel.navigateToPerson(td.dan);
+        assertTrue(danCard.isShowingGracePeriod("Deleting"));
+
+        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
+
+        assertFalse(personListPanel.isAnyCardShowingGracePeriod());
+        assertTrue(personListPanel.isListMatching(td.getTestData()));
+    }
+
+    @Test
+    public void deleteMultiplePersons_cancelUsingContextMenu() {
+        personListPanel.selectCards(td.alice, td.charlie, td.dan);
+        assertEquals(3, personListPanel.getSelectedCardSize());
+        assertTrue(personListPanel.isSelected(td.alice));
+        assertTrue(personListPanel.isSelected(td.charlie));
+        assertTrue(personListPanel.isSelected(td.dan));
+        personListPanel.moveCursor(td.dan); //To prepare right clicking the context menu
+
+        personListPanel.use_PERSON_DELETE_ACCELERATOR();
+        //Omit testing of pending state, as grace period is too short to cancel through context menu.
+
+        personListPanel.rightClickOnPerson(td.dan).clickOnContextMenuCancel();
+
+        sleepForGracePeriod();
+
+        assertTrue(personListPanel.isListMatching(TestUtil.removePersonsFromList(td.getTestData(), td.alice, td.charlie)));
+    }
+
+    @Test
     public void deletePerson_deleteWholeList() {
         personListPanel.selectCards(td.getTestData());
         assertEquals(td.getTestData().length, personListPanel.getSelectedCardSize());
@@ -64,6 +105,19 @@ public class PersonDeleteGuiTest extends GuiTestBase {
         assertFalse(aliceCard.isShowingGracePeriod("Deleting"));
         assertEquals(HeaderStatusBarHandle.formatDeleteCancelledMessage(td.alice.fullName(), Optional.empty()),
                      statusBar.getText());
+    }
+
+    @Test
+    public void deletePerson_cancelDeleteOperationUsingContextMenu() {
+
+        PersonCardHandle aliceCard = personListPanel.selectCard(td.alice);
+        personListPanel.use_PERSON_DELETE_ACCELERATOR();
+        assertTrue(aliceCard.isShowingGracePeriod("Deleting"));
+
+        personListPanel.rightClickOnPerson(td.alice).clickOnContextMenuCancel();
+        assertFalse(aliceCard.isShowingGracePeriod("Deleting"));
+        assertEquals(HeaderStatusBarHandle.formatDeleteCancelledMessage(td.alice.fullName(), Optional.empty()),
+                statusBar.getText());
     }
 
     @Test
