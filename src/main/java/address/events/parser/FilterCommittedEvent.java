@@ -16,6 +16,6 @@ public class FilterCommittedEvent extends BaseEvent {
 
     @Override
     public String toString() {
-        return "" + filterExpression;
+        return filterExpression.toString();
     }
 }

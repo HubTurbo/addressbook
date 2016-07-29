@@ -574,7 +574,7 @@ public class CloudSimulatorTest {
 
         // First page is always 1, and last page is always resources/resourcesPerPage.
         assertEquals(1, remoteResponse.getFirstPageNo());
-        assertEquals((int) Math.ceil(2000/resourcesPerPage), remoteResponse.getLastPageNo());
+        assertEquals((int) Math.ceil((double) 2000 / resourcesPerPage), remoteResponse.getLastPageNo());
     }
 
     @Test
@@ -660,7 +660,7 @@ public class CloudSimulatorTest {
         assertEquals(0, remoteResponse.getNextPageNo());
         assertEquals(0, remoteResponse.getPreviousPageNo());
         assertEquals(1, remoteResponse.getFirstPageNo());
-        assertEquals((int) Math.ceil(1/resourcesPerPage), remoteResponse.getLastPageNo());
+        assertEquals((int) Math.ceil((double) 1 / resourcesPerPage), remoteResponse.getLastPageNo());
     }
 
     @Test

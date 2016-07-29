@@ -22,38 +22,21 @@ import java.util.concurrent.*;
 
 public class StatusBarFooterController extends UiController {
 
+    private static StatusBar syncStatusBar;
+    private static StatusBar updaterStatusBar;
+    private final Label secondaryStatusBarLabel;
+
     @FXML
     private AnchorPane updaterStatusBarPane;
     @FXML
     private AnchorPane syncStatusBarPane;
 
-    public static StatusBar syncStatusBar;
-    public static StatusBar updaterStatusBar;
-
     private TickingTimer timer;
     private long updateIntervalInSecs;
-
-    private final Label secondaryStatusBarLabel;
 
     public StatusBarFooterController() {
         super();
         this.secondaryStatusBarLabel = new Label("");
-    }
-
-    private void initSyncTimer(long updateInterval) {
-        updateIntervalInSecs = (int) DateTimeUtil.millisecsToSecs(updateInterval);
-        timer = new TickingTimer("Sync timer", (int) updateIntervalInSecs,
-                this::syncSchedulerOntick, this::syncSchedulerOnTimeOut, TimeUnit.SECONDS);
-    }
-
-    private void syncSchedulerOntick(int onTick) {
-        Platform.runLater(() -> syncStatusBar.setText(String.format("Synchronization with server in %d secs.",
-                                                                    onTick)));
-    }
-
-    private void syncSchedulerOnTimeOut() {
-        Platform.runLater(() -> syncStatusBar.setText("Synchronization starting..."));
-        timer.pause();
     }
 
     /**
@@ -65,27 +48,6 @@ public class StatusBarFooterController extends UiController {
         initSyncTimer(updateInterval);
         initStatusBar();
         initAddressBookLabel(addressBookName);
-    }
-
-    private void initAddressBookLabel(String addressBookName) {
-        updateSaveLocationDisplay(addressBookName);
-        secondaryStatusBarLabel.setTextAlignment(TextAlignment.LEFT);
-        setTooltip(secondaryStatusBarLabel);
-    }
-
-    private void initStatusBar() {
-        this.syncStatusBar = new StatusBar();
-        this.updaterStatusBar = new StatusBar();
-        FxViewUtil.applyAnchorBoundaryParameters(syncStatusBar, 0.0, 0.0, 0.0, 0.0);
-        FxViewUtil.applyAnchorBoundaryParameters(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
-        syncStatusBarPane.getChildren().add(syncStatusBar);
-        updaterStatusBarPane.getChildren().add(updaterStatusBar);
-    }
-
-    private void setTooltip(Label label) {
-        Tooltip tp = new Tooltip();
-        tp.textProperty().bind(label.textProperty());
-        label.setTooltip(tp);
     }
 
     @Subscribe
@@ -119,6 +81,42 @@ public class StatusBarFooterController extends UiController {
         }
     }
 
+    private void initSyncTimer(long updateInterval) {
+        updateIntervalInSecs = (int) DateTimeUtil.millisecsToSecs(updateInterval);
+        timer = new TickingTimer("Sync timer", (int) updateIntervalInSecs,
+                this::syncSchedulerOntick, this::syncSchedulerOnTimeOut, TimeUnit.SECONDS);
+    }
+
+    private void syncSchedulerOntick(int onTick) {
+        Platform.runLater(() -> syncStatusBar.setText(String.format("Synchronization with server in %d secs.",
+                                                                    onTick)));
+    }
+
+    private void syncSchedulerOnTimeOut() {
+        Platform.runLater(() -> syncStatusBar.setText("Synchronization starting..."));
+        timer.pause();
+    }
+
+    private void initAddressBookLabel(String addressBookName) {
+        updateSaveLocationDisplay(addressBookName);
+        secondaryStatusBarLabel.setTextAlignment(TextAlignment.LEFT);
+        setTooltip(secondaryStatusBarLabel);
+    }
+
+    private void initStatusBar() {
+        this.syncStatusBar = new StatusBar();
+        this.updaterStatusBar = new StatusBar();
+        FxViewUtil.applyAnchorBoundaryParameters(syncStatusBar, 0.0, 0.0, 0.0, 0.0);
+        FxViewUtil.applyAnchorBoundaryParameters(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
+        syncStatusBarPane.getChildren().add(syncStatusBar);
+        updaterStatusBarPane.getChildren().add(updaterStatusBar);
+    }
+
+    private void setTooltip(Label label) {
+        Tooltip tp = new Tooltip();
+        tp.textProperty().bind(label.textProperty());
+        label.setTooltip(tp);
+    }
 
     @Subscribe
     private void handleApplicationUpdateFailedEvent(ApplicationUpdateFailedEvent aufe) {

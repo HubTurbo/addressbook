@@ -216,7 +216,8 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         // handle edit commands for each target
         targets.forEach(target -> {
             if (personHasOngoingChange(target)) {
-                getOngoingChangeForPerson(target.getId()).overrideWithEditPerson(editInputRetrieverFactory.apply(target));
+                getOngoingChangeForPerson(
+                        target.getId()).overrideWithEditPerson(editInputRetrieverFactory.apply(target));
             } else {
                 final ViewablePerson toEdit = visibleModel.findPerson(target).get();
                 execNewEditPersonCommand(toEdit, editInputRetrieverFactory.apply(target));
@@ -261,22 +262,26 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 //// Command utilities
 
     protected void execNewAddPersonCommand(Supplier<Optional<ReadOnlyPerson>> inputRetriever) {
-        commandExecutor.execute(new AddPersonCommand(assignCommandId(), inputRetriever, GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
+        commandExecutor.execute(new AddPersonCommand(assignCommandId(), inputRetriever, GRACE_PERIOD_DURATION,
+                                                     this::raise, this, addressBookNameToUse));
     }
 
-    protected void execNewEditPersonCommand(ViewablePerson target, Supplier<Optional<ReadOnlyPerson>> editInputRetriever) {
+    protected void execNewEditPersonCommand(ViewablePerson target,
+                                            Supplier<Optional<ReadOnlyPerson>> editInputRetriever) {
         commandExecutor.execute(new EditPersonCommand(assignCommandId(), target, editInputRetriever,
-                GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
+                                                      GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
     }
 
     protected void execNewDeletePersonCommand(ViewablePerson target) {
-        commandExecutor.execute(new DeletePersonCommand(assignCommandId(), target, GRACE_PERIOD_DURATION, this::raise, this, addressBookNameToUse));
+        commandExecutor.execute(new DeletePersonCommand(assignCommandId(), target, GRACE_PERIOD_DURATION, this::raise,
+                                                        this, addressBookNameToUse));
     }
 
     /**
      * @param changeInProgress the active change command on the person with id {@code targetPersonId}
      */
-    protected synchronized void assignOngoingChangeToPerson(ReadOnlyPerson target, ChangePersonInModelCommand changeInProgress) {
+    protected synchronized void assignOngoingChangeToPerson(ReadOnlyPerson target,
+                                                            ChangePersonInModelCommand changeInProgress) {
         assignOngoingChangeToPerson(target.getId(), changeInProgress);
     }
 
@@ -338,15 +343,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     protected synchronized void addPersonToBackingModelSilently(Person p) {
         visibleModel.specifyViewableAlreadyCreated(p.getId());
         backingModel.addPerson(p);
-    }
-
-    // deprecated, to replace by remote assignment
-    public int generatePersonId() {
-        int id;
-        do {
-            id = Math.abs(UUID.randomUUID().hashCode());
-        } while (id == 0 || backingModel.containsPerson(id));
-        return id;
     }
 
     /**
@@ -427,7 +423,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         PlatformExecUtil.runAndWait(() -> {
             // removal
             backingModel.getPersons().removeAll(backingModel.getPersons().stream()
-                    .filter(p -> deletedPersonIds.contains(p.getId())).collect(Collectors.toList())); // removeIf() not optimised
+                    .filter(p -> deletedPersonIds.contains(p.getId())).collect(Collectors.toList()));
             // edits
             backingModel.getPersons().forEach(p -> {
                 if (newOrUpdatedPersons.containsKey(p.getId())) {

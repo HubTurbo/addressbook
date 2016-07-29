@@ -8,15 +8,15 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- *To contains Drag and Drop contents.
+ * Contains content used during Drag and Drop
  */
-public class DragContainer implements Serializable{
+public class DragContainer implements Serializable {
+
+    public static final DataFormat ADDRESS_BOOK_PERSON_UUID = new DataFormat("addressbook.MainApp");
 
     private static final long serialVersionUID = -1458406119115196098L;
 
-    List<Integer> data = new ArrayList<>();
-
-    public static final DataFormat ADDRESS_BOOK_PERSON_UUID = new DataFormat("addressbook.MainApp");
+    private List<Integer> data = new ArrayList<>();
 
     public List<Integer> getData() {
         return data;

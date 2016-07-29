@@ -64,7 +64,7 @@ public class TagCardController extends UiController{
         setListeners();
     }
 
-    public void setListeners() {
+    private void setListeners() {
         box.setOnMouseClicked(mouseEv -> {
             switch (mouseEv.getButton()) {
                 case PRIMARY:

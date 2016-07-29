@@ -62,7 +62,8 @@ public class CloudSimulator implements IRemote {
      * @return a response wrapper, containing the added person if successful
      */
     @Override
-    public synchronized RemoteResponse createPerson(String addressBookName, CloudPerson newPerson, String previousETag) {
+    public synchronized RemoteResponse createPerson(String addressBookName, CloudPerson newPerson,
+                                                    String previousETag) {
         logger.debug("createPerson called with: addressbook {}, person {}, prevETag {}", addressBookName, newPerson,
                 previousETag);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
@@ -138,7 +139,8 @@ public class CloudSimulator implements IRemote {
      * @return
      */
     @Override
-    public synchronized RemoteResponse getTags(String addressBookName, int pageNumber, int resourcesPerPage, String previousETag) {
+    public synchronized RemoteResponse getTags(String addressBookName, int pageNumber, int resourcesPerPage,
+                                               String previousETag) {
         logger.debug("getTags called with: addressbook {}, page {}, resourcesperpage {}, prevETag {}", addressBookName,
                 pageNumber, resourcesPerPage, previousETag);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
@@ -282,7 +284,8 @@ public class CloudSimulator implements IRemote {
      * @return
      */
     @Override
-    public synchronized RemoteResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag, String previousETag) {
+    public synchronized RemoteResponse editTag(String addressBookName, String oldTagName, CloudTag updatedTag,
+                                               String previousETag) {
         logger.debug("editTag called with: addressbook {}, tagname {}, tag {}, prevETag {}", addressBookName,
                 oldTagName, updatedTag, previousETag);
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
@@ -370,8 +373,8 @@ public class CloudSimulator implements IRemote {
     @Override
     public synchronized RemoteResponse getUpdatedPersons(String addressBookName, String timeString, int pageNumber,
                                             int resourcesPerPage, String previousETag) {
-        logger.debug("getUpdatedPersons called with: addressbook {}, time {}, pageno {}, resourcesperpage {}, prevETag {}",
-                addressBookName, timeString, pageNumber, resourcesPerPage, previousETag);
+        logger.debug("getUpdatedPersons called with: addressbook {}, time {}, pageno {}, resourcesperpage {}, "
+                        + "prevETag {}", addressBookName, timeString, pageNumber, resourcesPerPage, previousETag);
 
         if (!hasApiQuotaRemaining()) return RemoteResponse.getForbiddenResponse(cloudRateLimitStatus);
         List<CloudPerson> fullPersonList = new ArrayList<>();
@@ -523,7 +526,7 @@ public class CloudSimulator implements IRemote {
     }
 
     private int getLastPageNumber(int dataSize, int resourcesPerPage) {
-        return (int) Math.ceil(dataSize/resourcesPerPage);
+        return (int) Math.ceil((double) dataSize / resourcesPerPage);
     }
 
     private void deletePersonFromData(List<CloudPerson> personList, int personId)

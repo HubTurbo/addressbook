@@ -369,14 +369,14 @@ public class PersonListPanelHandle extends GuiHandle {
         switch (direction) {
             case UP:
                 double edgeMinY = TestUtil.getScreenPos(getListView()).getMinY()
-                        + PersonListViewCell.SCROLL_AREA / 2 - 3;
+                        + PersonListViewCell.getScrollArea() / 2 - 3;
                 double edgeMinX = TestUtil.getScreenPos(getListView()).getMinX()
                         + this.getListView().getWidth() / 2;
                 guiRobot.drag(dragFrom).drag(edgeMinX, edgeMinY).sleep(dragDuration, timeunit).drop();
                 break;
             case DOWN:
                 double edgeMaxY = TestUtil.getScreenPos(getListView()).getMaxY()
-                        - PersonListViewCell.SCROLL_AREA / 2;
+                        - PersonListViewCell.getScrollArea() / 2;
                 double edgeMaxX = TestUtil.getScreenPos(getListView()).getMinX()
                         + this.getListView().getWidth() / 2;
                 guiRobot.drag(dragFrom).drag(edgeMaxX, edgeMaxY).sleep(dragDuration, timeunit).drop();

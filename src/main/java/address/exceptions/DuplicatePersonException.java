@@ -4,7 +4,7 @@ import address.model.datatypes.person.ReadOnlyPerson;
 
 public class DuplicatePersonException extends DuplicateDataException {
 
-    public final ReadOnlyPerson offender;
+    private final ReadOnlyPerson offender;
 
     public DuplicatePersonException(ReadOnlyPerson dup) {
         offender = dup;

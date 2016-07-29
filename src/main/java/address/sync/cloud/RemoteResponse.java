@@ -35,7 +35,8 @@ public class RemoteResponse {
     private int firstPageNo;
     private int lastPageNo;
 
-    public RemoteResponse(int responseCode, Object body, CloudRateLimitStatus cloudRateLimitStatus, String previousETag) {
+    public RemoteResponse(int responseCode, Object body, CloudRateLimitStatus cloudRateLimitStatus,
+                          String previousETag) {
         String newETag = getETag(convertToInputStream(body));
 
         if (previousETag != null && previousETag.equals(newETag)) {

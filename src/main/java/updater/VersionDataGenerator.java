@@ -74,7 +74,8 @@ public class VersionDataGenerator {
         List<LibraryDescriptor> libraryDescriptors = new ArrayList<>();
         for (String libraryName : librariesNames) {
             try {
-                libraryDescriptors.add(new LibraryDescriptor(libraryName, getDownloadLinkForLibrary(libraryName), null));
+                libraryDescriptors.add(new LibraryDescriptor(libraryName, getDownloadLinkForLibrary(libraryName),
+                                                             null));
             } catch (MalformedURLException e) {
                 System.out.println("Warning: Failed to set download link for " + libraryName +
                         "; please update the download link manually");
@@ -103,7 +104,8 @@ public class VersionDataGenerator {
     private void transferOsInformation(List<LibraryDescriptor> previousLibraryDescriptors,
                                        List<LibraryDescriptor> currentLibraryDescriptors) {
         currentLibraryDescriptors.forEach(currentLibraryDescriptor -> {
-            Optional<LibraryDescriptor> libraryDescriptorWithOsInformation = getMatchingLibraryDescriptor(currentLibraryDescriptor, previousLibraryDescriptors);
+            Optional<LibraryDescriptor> libraryDescriptorWithOsInformation = getMatchingLibraryDescriptor(
+                    currentLibraryDescriptor, previousLibraryDescriptors);
             libraryDescriptorWithOsInformation.ifPresent(desc -> currentLibraryDescriptor.setOs(desc.getOs()));
         });
     }
@@ -115,7 +117,8 @@ public class VersionDataGenerator {
      * @param prevLibraryDescriptors
      * @return
      */
-    private Optional<LibraryDescriptor> getMatchingLibraryDescriptor(LibraryDescriptor libraryDescriptor, List<LibraryDescriptor> prevLibraryDescriptors) {
+    private Optional<LibraryDescriptor> getMatchingLibraryDescriptor(LibraryDescriptor libraryDescriptor,
+                                                                     List<LibraryDescriptor> prevLibraryDescriptors) {
         return prevLibraryDescriptors.stream()
                 .filter(prevLibDesc -> prevLibDesc.getFileName().equals(libraryDescriptor.getFileName()))
                 .findFirst();

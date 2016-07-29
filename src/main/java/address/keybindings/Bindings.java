@@ -68,7 +68,8 @@ public class Bindings {
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "META + ALT + X", new MinimizeAppRequestEvent()));
         APP_RESIZE_HOTKEY.add(setHotkey("APP_RESIZE_HOTKEY", "CTRL + SHIFT + X", new ResizeAppRequestEvent()));
         APP_RESIZE_HOTKEY.add(setHotkey("APP_RESIZE_HOTKEY", "META + SHIFT + X", new ResizeAppRequestEvent()));
-        PERSON_RETRY_FAILED_COMMAND_ACCELERATOR = setAccelerator("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR", "SHORTCUT + Y");
+        PERSON_RETRY_FAILED_COMMAND_ACCELERATOR = setAccelerator("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR",
+                                                                 "SHORTCUT + Y");
         PERSON_CANCEL_COMMAND_ACCELERATOR = setAccelerator("PERSON_CANCEL_COMMAND_ACCELERATOR", "SHORTCUT + Z");
         HELP_PAGE_ACCELERATOR = setAccelerator("HELP_PAGE_ACCELERATOR", "F1");
 
@@ -171,11 +172,11 @@ public class Bindings {
      */
     protected Optional<KeySequence> findMatchingSequence(KeyBindingEvent previousEvent, KeyBindingEvent currentEvent) {
 
-        if (previousEvent == null){
+        if (previousEvent == null) {
             return Optional.empty();
         }
 
-        if(!KeySequence.isElapsedTimePermissibile(previousEvent.time, currentEvent.time)){
+        if (!KeySequence.isElapsedTimePermissibile(previousEvent.time, currentEvent.time)) {
             return Optional.empty();
         }
 
@@ -195,16 +196,24 @@ public class Bindings {
         Optional<? extends KeyBinding> matchingBinding;
 
         matchingBinding = findMatchingSequence(previous, current);
-        if (matchingBinding.isPresent()) { return matchingBinding; }
+        if (matchingBinding.isPresent()) {
+            return matchingBinding;
+        }
 
         matchingBinding = findMatchingHotkey(current);
-        if (matchingBinding.isPresent()) { return matchingBinding; }
+        if (matchingBinding.isPresent()) {
+            return matchingBinding;
+        }
 
         matchingBinding = findMatchingBinding(current, shortcuts);
-        if (matchingBinding.isPresent()) { return matchingBinding; }
+        if (matchingBinding.isPresent()) {
+            return matchingBinding;
+        }
 
         matchingBinding = findMatchingBinding(current, accelerators);
-        if (matchingBinding.isPresent()) { return matchingBinding; }
+        if (matchingBinding.isPresent()) {
+            return matchingBinding;
+        }
 
         return Optional.empty();
     }
@@ -214,7 +223,7 @@ public class Bindings {
         return hotkeys;
     }
 
-    public List<Accelerator> getAccelerators() {return accelerators; }
+    public List<Accelerator> getAccelerators() { return accelerators; }
 
     public List<KeySequence> getSequences() { return sequences; }
 

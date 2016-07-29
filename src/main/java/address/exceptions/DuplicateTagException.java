@@ -4,7 +4,7 @@ import address.model.datatypes.tag.Tag;
 
 public class DuplicateTagException extends DuplicateDataException {
 
-    public final Tag offender;
+    private final Tag offender;
 
     public DuplicateTagException(Tag tag) {
         offender = tag;

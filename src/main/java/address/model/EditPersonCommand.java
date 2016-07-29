@@ -143,7 +143,8 @@ public class EditPersonCommand extends ChangePersonInModelCommand {
         assert input != null;
 
         final CompletableFuture<ReadOnlyPerson> responseHolder = new CompletableFuture<>();
-        eventRaiser.accept(new UpdatePersonOnRemoteRequestEvent(responseHolder, addressbookName, target.getId(), input));
+        eventRaiser.accept(new UpdatePersonOnRemoteRequestEvent(responseHolder, addressbookName, target.getId(),
+                                                                input));
         try {
             final ReadOnlyPerson remoteVersion = responseHolder.get();
             PlatformExecUtil.runAndWait(() -> target.getBacking().update(remoteVersion));

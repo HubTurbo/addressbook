@@ -8,8 +8,8 @@ import java.io.Serializable;
  */
 public class GuiSettings implements Serializable {
 
-    public static final double DEFAULT_HEIGHT = 600;
-    public static final double DEFAULT_WIDTH = 740;
+    private static final double DEFAULT_HEIGHT = 600;
+    private static final double DEFAULT_WIDTH = 740;
 
     private Double windowWidth;
     private Double windowHeight;

@@ -13,7 +13,7 @@ public class LocalModelChangedEvent extends BaseEvent {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "number of persons " + data.getPersonList().size() + ", number of tags " + data.getTagList().size();
     }
 }

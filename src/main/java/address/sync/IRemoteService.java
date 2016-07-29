@@ -13,10 +13,12 @@ public interface IRemoteService {
     // Consumes API quota
     ExtractedRemoteResponse<List<Person>> getPersons(String addressBookName, int pageNumber) throws IOException;
 
-    ExtractedRemoteResponse<List<Tag>> getTags(String addressBookName, int pageNumber, String previousETag) throws IOException;
+    ExtractedRemoteResponse<List<Tag>> getTags(String addressBookName, int pageNumber, String previousETag)
+            throws IOException;
 
     ExtractedRemoteResponse<Person> createPerson(String addressBookName, ReadOnlyPerson person) throws IOException;
-    ExtractedRemoteResponse<Person> updatePerson(String addressBookName, int personId, ReadOnlyPerson updatedPerson) throws IOException;
+    ExtractedRemoteResponse<Person> updatePerson(String addressBookName, int personId, ReadOnlyPerson updatedPerson)
+            throws IOException;
     ExtractedRemoteResponse<Void> deletePerson(String addressBookName, int personId) throws IOException;
 
     ExtractedRemoteResponse<Tag> createTag(String addressBookName, Tag tag) throws IOException;
@@ -25,7 +27,8 @@ public interface IRemoteService {
 
     ExtractedRemoteResponse<Void> createAddressBook(String addressBookName) throws IOException;
 
-    ExtractedRemoteResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, int curPageNumber, LocalDateTime time, String previousETag)
+    ExtractedRemoteResponse<List<Person>> getUpdatedPersonsSince(String addressBookName, int curPageNumber,
+                                                                 LocalDateTime time, String previousETag)
             throws IOException;
 
     // Does not consume API

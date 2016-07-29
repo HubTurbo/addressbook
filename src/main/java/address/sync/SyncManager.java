@@ -58,7 +58,6 @@ public class SyncManager extends ComponentManager {
     public SyncManager(Config config, RemoteManager remoteManager, ExecutorService executorService,
                        ScheduledExecutorService scheduledExecutorService, String activeAddressBookName) {
         super();
-        activeAddressBook = Optional.empty();
         this.config = config;
         this.remoteManager = remoteManager;
         this.requestExecutor = executorService;

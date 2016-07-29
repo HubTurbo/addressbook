@@ -1,6 +1,6 @@
 package address.model.datatypes.person;
 
-import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandState.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState.*;
 import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandType.*;
 
 import address.model.datatypes.UniqueData;
@@ -37,7 +37,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
      */
     private int id;
     private final Property<OngoingCommandType> ongoingCommandType;
-    private final Property<OngoingCommandState> ongoingCommandState;
+    private final Property<ReadOnlyViewablePerson.ongoingCommandState> ongoingCommandState;
 
     {
         remoteIdConfirmationHandlers = new ArrayList<>();
@@ -149,12 +149,12 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
     }
 
     @Override
-    public OngoingCommandState getOngoingCommandState() {
+    public ReadOnlyViewablePerson.ongoingCommandState getOngoingCommandState() {
         return ongoingCommandState.getValue();
     }
 
     @Override
-    public ReadOnlyProperty<OngoingCommandState> ongoingCommandStateProperty() {
+    public ReadOnlyProperty<ReadOnlyViewablePerson.ongoingCommandState> ongoingCommandStateProperty() {
         return ongoingCommandState;
     }
 
@@ -162,7 +162,7 @@ public class ViewablePerson extends Viewable<Person> implements ReadOnlyViewable
         ongoingCommandType.setValue(type);
     }
 
-    public void setOngoingCommandState(OngoingCommandState state) {
+    public void setOngoingCommandState(ReadOnlyViewablePerson.ongoingCommandState state) {
         ongoingCommandState.setValue(state);
     }
 

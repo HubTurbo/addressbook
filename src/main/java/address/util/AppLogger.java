@@ -47,36 +47,6 @@ public class AppLogger {
         infoEvent("{}: {}", event.getClass().getSimpleName(), event.toString());
     }
 
-    /**
-     * Logs lists of objects
-     *
-     * Logs the contents of the list if debug is enabled, else simply logs the size of the list
-     *
-     * @param message
-     * @param listOfObjects
-     */
-    public <T> void logList(String message, List<T> listOfObjects) {
-        if (listOfObjects == null) {
-            info(message, listOfObjects);
-            return;
-        }
-        if (logger.isDebugEnabled()) {
-            debug(message, Arrays.deepToString(listOfObjects.toArray()));
-        } else {
-            info(message, listOfObjects.size());
-        }
-    }
-
-    public <T> String convertListToParams(List<T> listOfObjects) {
-        if (listOfObjects == null) return null;
-
-        if (logger.isDebugEnabled()) {
-            return Arrays.deepToString(listOfObjects.toArray());
-        } else {
-            return String.valueOf(listOfObjects.size());
-        }
-    }
-
     // this method is required since debug(message, obj, obj) seems to be problematic
     private void debugEvent(String message, Object... params) {
         logger.debug(message, params);

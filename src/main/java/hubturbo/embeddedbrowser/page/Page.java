@@ -14,7 +14,7 @@ import java.util.Optional;
  */
 public class Page implements PageInterface{
 
-    public static int SCROLL_TO_END = EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT;
+    public static final int SCROLL_TO_END = EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT;
 
     private EmbeddedBrowser browser;
 
@@ -61,8 +61,9 @@ public class Page implements PageInterface{
      * @return
      */
     public boolean verifyPresence(String[] classNamesOrIds){
-        Optional<String> notPresent = Arrays.stream(classNamesOrIds).filter(s
-                -> browser.getDomElement().findElementByClass(s) == null && browser.getDomElement().findElementById(s) == null).findAny();
+        Optional<String> notPresent = Arrays.stream(classNamesOrIds).filter(s ->
+                browser.getDomElement().findElementByClass(s) == null
+                        && browser.getDomElement().findElementById(s) == null).findAny();
         return !notPresent.isPresent();
     }
 
@@ -72,8 +73,8 @@ public class Page implements PageInterface{
      * @return
      */
     public boolean verifyPresenceByClassNames(String[] classNames){
-        Optional<String> notPresent = Arrays.stream(classNames).filter(s
-                -> browser.getDomElement().findElementByClass(s) == null).findAny();
+        Optional<String> notPresent = Arrays.stream(classNames).filter(s ->
+                browser.getDomElement().findElementByClass(s) == null).findAny();
         return !notPresent.isPresent();
     }
 
@@ -92,8 +93,8 @@ public class Page implements PageInterface{
      * @return
      */
     public boolean verifyPresenceByIds(String[] ids){
-        Optional<String> notPresent = Arrays.stream(ids).filter(s
-                -> browser.getDomElement().findElementById(s) == null).findAny();
+        Optional<String> notPresent = Arrays.stream(ids).filter(s ->
+                browser.getDomElement().findElementById(s) == null).findAny();
         return !notPresent.isPresent();
     }
 

@@ -18,13 +18,13 @@ public class SaveDataRequestEvent extends BaseEvent {
 
     public final ReadOnlyAddressBook data;
 
-    public SaveDataRequestEvent(File file, ReadOnlyAddressBook data){
+    public SaveDataRequestEvent(File file, ReadOnlyAddressBook data) {
         this.file = file;
         this.data = data;
     }
 
     @Override
     public String toString(){
-        return "" + file;
+        return file.toString();
     }
 }

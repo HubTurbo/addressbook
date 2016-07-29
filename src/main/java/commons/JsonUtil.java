@@ -59,7 +59,9 @@ public class JsonUtil {
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
             .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
             .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-            .registerModule(new SimpleModule("SimpleModule").addSerializer(Level.class, new ToStringSerializer()).addDeserializer(Level.class, new LevelDeserializer(Level.class)));
+            .registerModule(new SimpleModule("SimpleModule")
+                    .addSerializer(Level.class, new ToStringSerializer())
+                    .addDeserializer(Level.class, new LevelDeserializer(Level.class)));
 
     /**
      * Converts a given string representation of a JSON data to instance of a class

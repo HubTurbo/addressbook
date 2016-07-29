@@ -2,6 +2,7 @@ package address.ui;
 
 import address.controller.PersonCardController;
 import address.image.ImageManager;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 import address.util.DragContainer;
@@ -25,8 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
-
-    public static final int SCROLL_AREA = 15;
+    private static final int SCROLL_AREA = 15;
 
     public PersonListViewCell(ReorderedList<ReadOnlyViewablePerson> reorderedList) {
 
@@ -46,7 +46,8 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
             container.addAllData(getListView().getSelectionModel()
                                               .getSelectedItems()
                                               .stream()
-                                              .map(p -> p.getId()).collect(Collectors.toCollection(ArrayList::new)));
+                                              .map(ReadOnlyPerson::getId)
+                                              .collect(Collectors.toCollection(ArrayList::new)));
             content.put(DragContainer.ADDRESS_BOOK_PERSON_UUID, container);
             dragBoard.setDragView(getDragView(this.getListView().getSelectionModel().getSelectedItems()));
             dragBoard.setContent(content);
@@ -54,7 +55,6 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         });
 
         setOnDragOver(event -> {
-
             if (getItem() == null) {
                 return;
             }
@@ -70,7 +70,6 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         });
 
         setOnDragEntered(event -> {
-
             if (getItem() == null) {
                 return;
             }
@@ -119,7 +118,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     private Image getDragView(List<ReadOnlyViewablePerson> draggedPersons) {
         HBox container = new HBox(5);
-        draggedPersons.stream().forEach(p -> {
+        draggedPersons.forEach(p -> {
             Optional<String> profilePicUrl = p.githubProfilePicUrl();
             ImageView imageView;
 
@@ -139,12 +138,16 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         return container.snapshot(para, null);
     }
 
+    public static int getScrollArea() {
+        return SCROLL_AREA;
+    }
+
     /**
      * Select this indices in the list view selection model.
      * @param movedIndices
      */
     private void selectIndices(Collection<Integer> movedIndices) {
-        movedIndices.stream().forEach(index -> getListView().getSelectionModel().select(index));
+        movedIndices.forEach(index -> getListView().getSelectionModel().select(index));
     }
 
     /**
@@ -157,7 +160,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
     private int computeMoveToIndex(double currentYPosition, List<ReadOnlyViewablePerson> listOfDragPersons) {
         int moveToIndex;
         ObservableList<ReadOnlyViewablePerson> list = this.getListView().getItems();
-        double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
+        double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() / 2;
         getListView().getSelectionModel().clearSelection();
 
         if (currentYPosition < midPoint) {
@@ -167,7 +170,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
         }
 
         while (moveToIndex < list.size() && listOfDragPersons.contains(list.get(moveToIndex))) {
-            moveToIndex++; //Move to the next index if the current index contains one of the dragged person.
+            moveToIndex++; // Move to the next index if the current index contains one of the dragged person.
         }
         return moveToIndex;
     }
@@ -177,7 +180,7 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
      * @param event
      */
     private void showDragDropIndicator(DragEvent event) {
-        double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() /2 ;
+        double midPoint = this.localToScene(this.getBoundsInLocal()).getMinY() + this.getHeight() / 2;
         double pointerY = event.getSceneY();
         if (pointerY < midPoint) {
             setDropLocationIndicator("top");
@@ -205,9 +208,11 @@ public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
 
     private void setDropLocationIndicator(String location) {
         if (location.equals("top")) {
-            this.setStyle(this.getGraphic().getStyle() + " -fx-border-color: #0645AD; -fx-border-width: 2.0 0.0 0.0 0.0;");
+            this.setStyle(this.getGraphic().getStyle()
+                    + " -fx-border-color: #0645AD; -fx-border-width: 2.0 0.0 0.0 0.0;");
         } else if (location.equals("bottom")) {
-            this.setStyle(this.getGraphic().getStyle() + "-fx-border-color: #0645AD; -fx-border-width: 0.0 0.0 2.0 0.0;");
+            this.setStyle(this.getGraphic().getStyle()
+                    + "-fx-border-color: #0645AD; -fx-border-width: 0.0 0.0 2.0 0.0;");
         }
     }
 

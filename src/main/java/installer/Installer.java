@@ -1,8 +1,5 @@
 package installer;
 
-import commons.LibraryDescriptor;
-import commons.Version;
-import commons.VersionData;
 import commons.*;
 import javafx.application.Application;
 import javafx.application.Platform;

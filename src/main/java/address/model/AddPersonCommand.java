@@ -38,8 +38,9 @@ public class AddPersonCommand extends ChangePersonInModelCommand {
      *                       If the returned Optional is empty, the command will be cancelled.
      * @see super#ChangePersonInModelCommand(int, Supplier, int)
      */
-    public AddPersonCommand(int commandId, Supplier<Optional<ReadOnlyPerson>> inputRetriever, int gracePeriodDurationInSeconds,
-                               Consumer<BaseEvent> eventRaiser, ModelManager model, String addressbookName) {
+    public AddPersonCommand(int commandId, Supplier<Optional<ReadOnlyPerson>> inputRetriever,
+                            int gracePeriodDurationInSeconds, Consumer<BaseEvent> eventRaiser, ModelManager model,
+                            String addressbookName) {
         super(commandId, inputRetriever, gracePeriodDurationInSeconds);
         this.model = model;
         this.eventRaiser = eventRaiser;

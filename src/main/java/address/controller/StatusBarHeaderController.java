@@ -13,11 +13,10 @@ public class StatusBarHeaderController extends UiController{
     public static final String HEADER_STATUS_BAR_ID = "headerStatusBar";
     private static final String STATUS_BAR_STYLE_SHEET = "status-bar-with-border";
     private StatusBar headerStatusBar;
-    private MainController mainController;
     private ObservableList<SingleTargetCommandResultEvent> finishedCommands;
 
-    public StatusBarHeaderController(MainController mainController, ObservableList<SingleTargetCommandResultEvent> finishedCommands) {
-        this.mainController = mainController;
+    public StatusBarHeaderController(MainController mainController,
+                                     ObservableList<SingleTargetCommandResultEvent> finishedCommands) {
         this.finishedCommands = finishedCommands;
         headerStatusBar = new StatusBar();
         headerStatusBar.setId(HEADER_STATUS_BAR_ID);
@@ -27,7 +26,8 @@ public class StatusBarHeaderController extends UiController{
         headerStatusBar.setOnMouseClicked(event -> mainController.showActivityHistoryDialog());
         this.finishedCommands.addListener((ListChangeListener<SingleTargetCommandResultEvent>) c -> {
             SingleTargetCommandResultEvent lastCommandInfo = finishedCommands.get(finishedCommands.size() - 1);
-            Platform.runLater(() -> headerStatusBar.setText(CommandResultFormatter.getStringRepresentation(lastCommandInfo)));
+            Platform.runLater(() ->
+                    headerStatusBar.setText(CommandResultFormatter.getStringRepresentation(lastCommandInfo)));
         });
     }
 

@@ -15,9 +15,8 @@ import javafx.scene.chart.XYChart;
 
 /**
  * The controller for the birthday statistics view.
- * 
  */
-public class BirthdayStatisticsController extends UiController{
+public class BirthdayStatisticsController extends UiController {
 
     @FXML
     private BarChart<String, Integer> barChart;
@@ -48,7 +47,6 @@ public class BirthdayStatisticsController extends UiController{
      * @param persons
      */
     public void setPersonData(List<ReadOnlyViewablePerson> persons) {
-
         // Count the number of people having their birthday in a specific month.
         int[] monthCounter = new int[12];
         persons.forEach(person -> {

@@ -14,7 +14,8 @@ public class LibraryDescriptor {
 
     public LibraryDescriptor() {} // required for serialization
 
-    public LibraryDescriptor(String filename, String downloadLink, commons.OsDetector.Os os) throws MalformedURLException {
+    public LibraryDescriptor(String filename, String downloadLink, commons.OsDetector.Os os)
+            throws MalformedURLException {
         this.filename = filename;
         this.downloadLink = new URL(downloadLink);
         this.os = os;

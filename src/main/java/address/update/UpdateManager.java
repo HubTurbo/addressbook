@@ -15,10 +15,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -38,17 +38,21 @@ public class UpdateManager extends ComponentManager {
     private static final String MSG_FAIL_CREATE_UPDATE_SPEC = "Failed to create update specification";
     private static final String MSG_FAIL_UPDATE_NOT_SUPPORTED = "Update not supported on detected OS";
     private static final String MSG_FAIL_CREATE_UPDATE_DIRECTORY = "Error creating update directory";
-    private static final String MSG_FAIL_OBTAIN_LATEST_VERSION_DATA = "Unable to obtain latest version data. Please manually download the latest version.";
+    private static final String MSG_FAIL_OBTAIN_LATEST_VERSION_DATA = "Unable to obtain latest version data. "
+            + "Please manually download the latest version.";
     private static final String MSG_FAIL_READ_LATEST_VERSION = "Error reading latest version";
     private static final String MSG_FAIL_UPDATE_BACKUP_VERSIONS_DATA = "Error updating backup versions' data file";
     private static final String MSG_IN_PROGRESS_FINALIZING_UPDATES = "Finalizing updates";
-    private static final String MSG_IN_PROGRESS_COLLECTING_UPDATE_FILES = "Collecting all update files to be downloaded";
     private static final String MSG_IN_PROGRESS_CREATING_UPDATE_DIR = "Creating update directory (if required)";
-    private static final String MSG_IN_PROGRESS_DOWNLOADING_LATEST_VERSION_DATA = "Downloading latest version data from server";
+    private static final String MSG_IN_PROGRESS_COLLECTING_UPDATE_FILES = "Collecting all update files to be "
+            + "downloaded";
+    private static final String MSG_IN_PROGRESS_DOWNLOADING_LATEST_VERSION_DATA = "Downloading latest version data "
+            + "from server";
     private static final String MSG_IN_PROGRESS_READING_LATEST_SERVER_DATA = "Reading downloaded latest version data";
     private static final String MSG_IN_PROGRESS_READING_LATEST_VERSION = "Reading latest version";
     private static final String MSG_IN_PROGRESS_CHECKING_IF_UPDATE_REQUIRED = "Checking if update is required";
-    private static final String MSG_IN_PROGRESS_DELETING_PREVIOUS_SPECIFICATION_FILE = "Clearing local update specification file";
+    private static final String MSG_IN_PROGRESS_DELETING_PREVIOUS_SPECIFICATION_FILE = "Clearing local update "
+            + "specification file";
     private static final String MSG_FINISHED_DEVELOPER_ENV = "Developer env detected, not updating";
     private static final String MSG_FINISHED_UP_TO_DATE = "Up-to-date";
     private static final String MSG_FINISHED_UPDATE = "Update will be applied on next launch";
@@ -294,7 +298,7 @@ public class UpdateManager extends ComponentManager {
             throw new UnsupportedOperationException("OS not supported for updating");
         }
 
-        List<LibraryDescriptor> librariesForOs = getLibrariesForOs(versionData.getLibraries(), commons.OsDetector.getOs());
+        List<LibraryDescriptor> librariesForOs = getLibrariesForOs(versionData.getLibraries(), OsDetector.getOs());
         List<LibraryDescriptor> librariesToDownload = getLibrariesToDownload(librariesForOs);
 
         return getLibraryFilesDownloadLinks(librariesToDownload);
@@ -333,12 +337,12 @@ public class UpdateManager extends ComponentManager {
      * Returns the list of libraries which are either universal or match the given os
      *
      * @param libraries
-     * @param Os
+     * @param os
      * @return
      */
-    private List<LibraryDescriptor> getLibrariesForOs(List<LibraryDescriptor> libraries, commons.OsDetector.Os Os) {
+    private List<LibraryDescriptor> getLibrariesForOs(List<LibraryDescriptor> libraries, OsDetector.Os os) {
         return libraries.stream()
-                .filter(libDesc -> libDesc.getOs() == commons.OsDetector.Os.ANY || libDesc.getOs() == Os)
+                .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == os)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -350,8 +354,8 @@ public class UpdateManager extends ComponentManager {
         int totalFilesToDownload = filesToBeUpdated.keySet().size();
         int noOfFilesDownloaded = 0;
 
-        for (String destFile : filesToBeUpdated.keySet()) {
-            downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
+        for (Entry<String, URL> fileToBeUpdated : filesToBeUpdated.entrySet()) {
+            downloadFile(new File(updateDir.toString(), fileToBeUpdated.getKey()), fileToBeUpdated.getValue());
             noOfFilesDownloaded++;
             double progress = (1.0 * noOfFilesDownloaded) / totalFilesToDownload;
             raise(new ApplicationUpdateInProgressEvent("Downloading updates", progress));

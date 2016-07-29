@@ -12,13 +12,13 @@ public class FileSavingExceptionEvent extends BaseEvent {
     public Exception exception;
     public File file;
 
-    public FileSavingExceptionEvent(Exception exception, File file){
+    public FileSavingExceptionEvent(Exception exception, File file) {
         this.exception = exception;
         this.file = file;
     }
 
     @Override
     public String toString(){
-        return "" + exception;
+        return exception.toString();
     }
 }

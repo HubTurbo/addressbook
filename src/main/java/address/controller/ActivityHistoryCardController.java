@@ -12,8 +12,7 @@ import java.io.IOException;
 public class ActivityHistoryCardController {
 
     @FXML
-    private HBox activityHistoryCardMainpane;
-
+    private HBox activityHistoryCardMainBox;
     @FXML
     private Label activityLabel;
 
@@ -36,7 +35,7 @@ public class ActivityHistoryCardController {
     }
 
     public HBox getLayout() {
-        return activityHistoryCardMainpane;
+        return activityHistoryCardMainBox;
     }
 
 }

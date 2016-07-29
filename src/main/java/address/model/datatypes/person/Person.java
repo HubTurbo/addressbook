@@ -17,7 +17,7 @@ import java.util.function.BiConsumer;
 
 /**
  * Data-model implementation class representing the "Person" domain object.
- * ID is immutable, so this class can be safely used as map keys and set elements.
+ * id is immutable, so this class can be safely used as map keys and set elements.
  *
  * As far as possible, avoid working directly with this class.
  * Instead, use and declare the minimum required superclass/interface.
@@ -27,7 +27,7 @@ import java.util.function.BiConsumer;
  */
 public class Person extends UniqueData implements ReadOnlyPerson {
 
-    private final int ID;
+    private final int id;
 
     private final StringProperty firstName;
     private final StringProperty lastName;
@@ -58,14 +58,14 @@ public class Person extends UniqueData implements ReadOnlyPerson {
     }
 
     /**
-     * ID-less person data container
+     * id-less person data container
      */
     public static Person createPersonDataContainer() {
         return new Person(0);
     }
 
     public Person(int id) {
-        this.ID = id;
+        this.id = id;
     }
 
     /**
@@ -88,7 +88,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
     }
 
     /**
-     * Does not update own ID with argument's ID.
+     * Does not update own id with argument's id.
      * @return self (calling this from a Person returns a Person instead of just a WritablePerson)
      */
     public Person update(ReadOnlyPerson newDataSource) {
@@ -102,7 +102,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 
         setBirthday(newDataSource.getBirthday());
         setTags(newDataSource.getTagList());
-        setIsDeleted(false);// TODO: change when isDeleted is fully implemented
+        setIsDeleted(false); // TODO: change when isDeleted is fully implemented
         return this;
     }
 
@@ -127,12 +127,12 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         action.accept(birthday, other.birthday);
     }
 
-//// ID
+//// id
 
     @JsonProperty("id")
     @Override
     public int getId() {
-        return ID;
+        return id;
     }
 
 //// NAME
@@ -304,7 +304,7 @@ public class Person extends UniqueData implements ReadOnlyPerson {
 
     @Override
     public int hashCode() {
-        return ID;
+        return id;
     }
 
     @Override

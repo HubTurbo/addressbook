@@ -87,7 +87,8 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
      * Resolve the remote conflict.
      */
     public void resolveConflict() {
-        assert getState() != CommandState.CONFLICT_FOUND : "Attempted to resolve conflict for a command without a detected conflict";
+        assert getState() != CommandState.CONFLICT_FOUND : "Attempted to resolve conflict for a command without a "
+                + "detected conflict";
         handleResolveConflict();
     }
 
@@ -115,7 +116,8 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
     @Override
     protected void beforeState(CommandState state) {
         if (target != null) {
-            PlatformExecUtil.runAndWait(() -> target.setOngoingCommandState(OngoingCommandState.fromCommandState(state)));
+            PlatformExecUtil.runAndWait(() ->
+                    target.setOngoingCommandState(ongoingCommandState.fromCommandState(state)));
         }
         super.beforeState(state);
     }

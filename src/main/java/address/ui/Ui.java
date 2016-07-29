@@ -13,8 +13,8 @@ import javafx.stage.Stage;
  * The UI of the app.
  */
 public class Ui {
-    MainController mainController;
-    UserPrefs pref;
+    private MainController mainController;
+    private UserPrefs pref;
 
     public Ui(MainApp mainApp, ModelManager modelManager, Config config, UserPrefs pref){
         mainController = new MainController(mainApp, modelManager, config, pref);
@@ -32,7 +32,7 @@ public class Ui {
     public void stop() {
         Stage stage = mainController.getPrimaryStage();
         GuiSettings guiSettings = new GuiSettings(stage.getWidth(), stage.getHeight(),
-                                                  (int)stage.getX(), (int)stage.getY());
+                                                  (int) stage.getX(), (int) stage.getY());
         pref.setGuiSettings(guiSettings);
         mainController.stop();
     }

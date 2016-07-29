@@ -175,7 +175,7 @@ public class CloudPerson {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!other.getClass().isAssignableFrom(CloudPerson.class)) return false;
+        if (other == null || !other.getClass().isAssignableFrom(CloudPerson.class)) return false;
         CloudPerson otherCP = (CloudPerson) other;
         return id == otherCP.id
                 && isDeleted == otherCP.isDeleted

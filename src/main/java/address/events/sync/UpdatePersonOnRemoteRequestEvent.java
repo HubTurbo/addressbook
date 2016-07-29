@@ -12,8 +12,8 @@ public class UpdatePersonOnRemoteRequestEvent extends BaseEvent {
     private int personId;
     private ReadOnlyPerson updatedPerson;
 
-    public UpdatePersonOnRemoteRequestEvent(CompletableFuture<ReadOnlyPerson> returnedPersonContainer, String addressBookName,
-                                            int personId, ReadOnlyPerson updatedPerson) {
+    public UpdatePersonOnRemoteRequestEvent(CompletableFuture<ReadOnlyPerson> returnedPersonContainer,
+                                            String addressBookName, int personId, ReadOnlyPerson updatedPerson) {
         this.returnedPersonContainer = returnedPersonContainer;
         this.addressBookName = addressBookName;
         this.personId = personId;

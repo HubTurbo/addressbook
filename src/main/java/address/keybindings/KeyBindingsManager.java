@@ -14,7 +14,6 @@ import java.util.Optional;
  * Manages key bindings.
  */
 public class KeyBindingsManager extends ComponentManager {
-
     private static final AppLogger logger = LoggerManager.getLogger(KeyBindingsManager.class);
 
     /** Manages global hotkey detection */

@@ -1,7 +1,7 @@
 package address.controller;
 
 import static address.keybindings.KeyBindingsManager.*;
-import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandState.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState.*;
 
 import address.events.controller.JumpToListRequestEvent;
 import address.events.parser.FilterCommittedEvent;
@@ -39,8 +39,10 @@ import java.util.Objects;
  *
  * setConnections should be set before showing stage
  */
-public class PersonListPanelController extends UiController{
+public class PersonListPanelController extends UiController {
     private static AppLogger logger = LoggerManager.getLogger(PersonListPanelController.class);
+    private final BooleanProperty shouldDisableEdit = new SimpleBooleanProperty(false);
+    private final BooleanProperty shouldAllowRetry = new SimpleBooleanProperty(false);
 
     @FXML
     private Button newButton;
@@ -58,17 +60,9 @@ public class PersonListPanelController extends UiController{
     private FilteredList<ReadOnlyViewablePerson> filteredPersonList;
     private Parser parser;
 
-    private final BooleanProperty shouldDisableEdit = new SimpleBooleanProperty(false);
-    private final BooleanProperty shouldAllowRetry = new SimpleBooleanProperty(false);
-
     public PersonListPanelController() {
         super();
         parser = new Parser();
-    }
-
-    @Subscribe
-    private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
-        filteredPersonList.setPredicate(fce.filterExpression::satisfies);
     }
 
     public void setConnections(MainController mainController, ModelManager modelManager,
@@ -99,14 +93,19 @@ public class PersonListPanelController extends UiController{
             }
         });
     }
+    
+    @Subscribe
+    private void handleFilterCommittedEvent(FilterCommittedEvent fce) {
+        filteredPersonList.setPredicate(fce.filterExpression::satisfies);
+    }
 
     private void loadGithubProfilePageWhenPersonIsSelected(MainController mainController) {
         personListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    logger.debug("Person in list view clicked. Loading GitHub profile page: '{}'", newValue);
-                    mainController.loadGithubProfilePage(newValue);
-                }
-            });
+            if (newValue != null) {
+                logger.debug("Person in list view clicked. Loading GitHub profile page: '{}'", newValue);
+                mainController.loadGithubProfilePage(newValue);
+            }
+        });
     }
 
     private void disableEditCommandForMultipleSelection() {
@@ -159,7 +158,8 @@ public class PersonListPanelController extends UiController{
     private void handleEditPerson() {
         if (checkAndHandleInvalidSelection()) {
             final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
-            modelManager.editPersonThroughUI(editTarget, () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
+            modelManager.editPersonThroughUI(editTarget,
+                    () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
         }
     }
 
@@ -229,7 +229,8 @@ public class PersonListPanelController extends UiController{
         editMenuItem.disableProperty().bind(shouldDisableEdit); // disable if multiple selected
 
         final MenuItem retryFailedMenuItem = initContextMenuItem("Retry",
-                getAcceleratorKeyCombo("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR").get(), this::handleRetryFailedCommands);
+                getAcceleratorKeyCombo("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR").get(),
+                this::handleRetryFailedCommands);
         retryFailedMenuItem.setId(generateMenuItemId("retryFailed"));
         retryFailedMenuItem.visibleProperty().bind(shouldAllowRetry);
 

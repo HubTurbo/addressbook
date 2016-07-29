@@ -124,8 +124,12 @@ public class UnmodifiableObservableList<E> implements ObservableList<E> {
         return new Iterator<E>() {
             private final Iterator<? extends E> i = backingList.iterator();
 
-            public final boolean hasNext() { return i.hasNext(); }
-            public final E next()          { return i.next(); }
+            public final boolean hasNext() {
+                return i.hasNext();
+            }
+            public final E next() {
+                return i.next();
+            }
             public final void remove() {
                 throw new UnsupportedOperationException();
             }
@@ -250,12 +254,24 @@ public class UnmodifiableObservableList<E> implements ObservableList<E> {
         return new ListIterator<E>() {
             private final ListIterator<? extends E> i = backingList.listIterator(index);
 
-            public final boolean hasNext()     { return i.hasNext(); }
-            public final E next()              { return i.next(); }
-            public final boolean hasPrevious() { return i.hasPrevious(); }
-            public final E previous()          { return i.previous(); }
-            public final int nextIndex()       { return i.nextIndex(); }
-            public final int previousIndex()   { return i.previousIndex(); }
+            public final boolean hasNext() {
+                return i.hasNext();
+            }
+            public final E next() {
+                return i.next();
+            }
+            public final boolean hasPrevious() {
+                return i.hasPrevious();
+            }
+            public final E previous() {
+                return i.previous();
+            }
+            public final int nextIndex() {
+                return i.nextIndex();
+            }
+            public final int previousIndex() {
+                return i.previousIndex();
+            }
 
             public final void remove() {
                 throw new UnsupportedOperationException(MUTATION_OP_EXCEPTION_MESSAGE);
