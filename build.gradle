@@ -355,10 +355,6 @@ task guiUnitTests(type: AddressBookTest) {
     }
 }
 
-task macHeadlessSetting() {
-
-}
-
 task unitTests(type: AddressBookTest) {
     include 'address/**'
     include 'commons/**'
@@ -413,18 +409,25 @@ task headless << {
 
     String osName = System.getProperty("os.name");
     if (osName.contains("Mac OS")) {
-        println "Mac OS detected, removing hotkey tests"
-        unitTests.exclude 'address/keybindings/BindingsTest.class'
-        unitTests.exclude 'address/keybindings/GlobalHotkeyProviderTest.class'
-        unitTests.exclude 'address/keybindings/GlobalHotkeyTest.class'
-        unitTests.exclude 'address/keybindings/KeyBindingsManagerApiTest.class'
-        unitTests.exclude 'address/keybindings/KeyBindingsManagerTest.class'
+        println "Mac OS detected, removing disruptive headless tests"
 
-        allTests.exclude 'address/keybindings/BindingsTest.class'
-        allTests.exclude 'address/keybindings/GlobalHotkeyProviderTest.class'
-        allTests.exclude 'address/keybindings/GlobalHotkeyTest.class'
-        allTests.exclude 'address/keybindings/KeyBindingsManagerApiTest.class'
-        allTests.exclude 'address/keybindings/KeyBindingsManagerTest.class'
+        List<String> disruptiveHeadlessUnitTestsOnMac = new ArrayList<String>()
+        disruptiveHeadlessUnitTestsOnMac.add('address/keybindings/BindingsTest.class')
+        disruptiveHeadlessUnitTestsOnMac.add('address/keybindings/GlobalHotkeyProviderTest.class')
+        disruptiveHeadlessUnitTestsOnMac.add('address/keybindings/GlobalHotkeyTest.class')
+        disruptiveHeadlessUnitTestsOnMac.add('address/keybindings/KeyBindingsManagerApiTest.class')
+        disruptiveHeadlessUnitTestsOnMac.add('address/keybindings/KeyBindingsManagerTest.class')
+
+        List<String> disruptiveHeadlessGuiUnitTestsOnMac = new ArrayList<String>()
+        List<String> disruptiveHeadlessGuiTestsOnMac = new ArrayList<String>()
+
+        unitTests.excludes.addAll(disruptiveHeadlessUnitTestsOnMac)
+        guiUnitTests.excludes.addAll(disruptiveHeadlessGuiUnitTestsOnMac)
+        guiTests.excludes.addAll(disruptiveHeadlessGuiTestsOnMac)
+        allTests.excludes.addAll(disruptiveHeadlessUnitTestsOnMac)
+        allTests.excludes.addAll(disruptiveHeadlessGuiUnitTestsOnMac)
+        allTests.excludes.addAll(disruptiveHeadlessGuiTestsOnMac)
+
     }
 }
 
