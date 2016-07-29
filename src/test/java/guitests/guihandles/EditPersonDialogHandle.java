@@ -172,7 +172,7 @@ public class EditPersonDialogHandle extends GuiHandle {
     public void enterBirthday(LocalDate birthday) {
         typeTextField(BIRTHDAY_FIELD_ID, DateTimeUtil.format(birthday));
     }
-    
+
     public EditPersonDialogHandle enterGithubId(String githubId) {
         typeTextField(GITHUB_USER_NAME_FIELD_ID, githubId);
         return this;

@@ -24,8 +24,7 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
 
     TypicalTestData data = new TypicalTestData();
     EditPersonDialogHandle handle;
-
-
+    
     @Test
     public void testEditDialog_tabAndWrite() throws IOException {
 
