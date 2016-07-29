@@ -73,7 +73,7 @@ public class UpdateManagerTest {
 
         assertEquals(1, events.size());
         assertTrue(events.get(0) instanceof ApplicationUpdateFinishedEvent);
-        assertEquals("Developer env detected; not updating", events.get(0).toString());
+        assertEquals("Developer env detected, not updating", events.get(0).toString());
     }
 
     @Test
