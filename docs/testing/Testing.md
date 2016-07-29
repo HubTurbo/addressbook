@@ -1,8 +1,8 @@
 # Testing
 
 ## Background
-We are using [Gradle](https://docs.gradle.org/)'s [wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) to setup testing configurations and running tests.
-Gradle tasks are run using `gradlew <tasks>` on Windows and `./gradlew <tasks>` on Mac/Linux.
+We are using [Gradle](https://docs.gradle.org/)'s [wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) to setup testing configurations and run tests.
+Gradle tasks are run using `gradlew <task1> <task2> ...` on Windows and `./gradlew <task1> ...` on Mac/Linux.
 
 We work towards enabling **headless testing** (using [TestFX](https://github.com/TestFX/TestFX)) so that the test results will be more consistent between different machines. In addition, it will reduce disruption for the tester - the tester can continue to do his or her own work on the machine!
 
@@ -18,7 +18,7 @@ Related resources:
 
 Tests can be found in the `./src/test/java` folder. We have grouped and packaged the tests into the following types.
 
-1. Unit Tests - `address` package
+1. Unit Tests - `address`, `commons` and `hubturbo` package
   - Logic Testing
 
 2. GUI Unit Tests - `guiunittests` package
@@ -29,16 +29,30 @@ Tests can be found in the `./src/test/java` folder. We have grouped and packaged
 
 ## Running Tests
 
+As mentioned, we do our testing by running gradle tasks.
 Tests' settings are mostly contained in `build.gradle` and `.travis.yml`.
 
 ### Available Gradle Tasks
 There are a few key gradle tasks defined that we can play around with:  
+#### Testing
+###### Flexible test mode
 - `allTests` to run all tests
+  - except those in `headlessTests` and `headfulTests`
 - `guiTests` to run tests in the `guitests` package
 - `guiUnitTests` to run tests in the `guiunittests` package
 - `unitTests` to run tests in the `address` package
-- `headless` to set headless properties
-  - applies only to the above test tasks, and not to gradle's default `test` tasks
+
+###### Fixed test mode
+- `headlessTests` to run specified tests in headless mode
+- `headfulTests` to run specified tests in headful mode
+
+
+#### Test mode
+- `headless` to indicate headless mode
+  - applies only to tests with flexible test mode
+  - note that on Mac OS, this also avoids running some tests since they disrupt the user's workflow
+
+#### Others
 - `checkStyle` to run code style checks
   - `PMD`, `FindBugs` and `Checkstyle`
 - `clean` to remove previously built files
@@ -82,6 +96,6 @@ There are a few key gradle tasks defined that we can play around with:
 ### CI Testing
 - We run our CI builds on [Travis CI](https://travis-ci.org/HubTurbo/addressbook)
 - The current Travis CI set up (also found in `.travis.yml`):
-  - runs the `./gradlew clean headless allTests coverage coveralls -i` command.
+  - runs the `./gradlew clean headless allTests headfulTests headlessTests coverage coveralls -i` command.
   - At the moment, we do not check the code style. It is up to the contributor to verify his or her coding style locally by running `./gradlew checkStyle`.
   - Automatically retries up to 3 times if a task fails
