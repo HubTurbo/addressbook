@@ -53,7 +53,7 @@ public class UpdateManager extends ComponentManager {
     private static final String MSG_IN_PROGRESS_CHECKING_IF_UPDATE_REQUIRED = "Checking if update is required";
     private static final String MSG_IN_PROGRESS_DELETING_PREVIOUS_SPECIFICATION_FILE = "Clearing local update "
             + "specification file";
-    private static final String MSG_FINISHED_DEVELOPER_ENV = "Developer env detected; not updating";
+    private static final String MSG_FINISHED_DEVELOPER_ENV = "Developer env detected, not updating";
     private static final String MSG_FINISHED_UP_TO_DATE = "Up-to-date";
     private static final String MSG_FINISHED_UPDATE = "Update will be applied on next launch";
     // --- End of Messages
