@@ -1,6 +1,7 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
+import address.sync.cloud.model.CloudAddressBook;
 import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
 import guitests.guihandles.TagPersonDialogHandle;

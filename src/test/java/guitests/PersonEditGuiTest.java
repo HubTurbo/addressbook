@@ -20,10 +20,14 @@ import static org.junit.Assert.*;
  * * Data validation. <br>
  */
 public class PersonEditGuiTest extends GuiTestBase {
+    private Person elizabethEdited = new PersonBuilder(td.elizabeth.copy()).withLastName("Green").build();
+    private Person bensonEdited = new PersonBuilder(td.benson.copy()).withFirstName("Ben").withLastName("Chris")
+            .withStreet("Pittsburgh Square").withCity("Pittsburg")
+            .withPostalCode("42445").withGithubUsername("ben").build();
 
     @Override
     protected AddressBook getInitialData() {
-        return td.book;
+        return new AddressBook(td.book);
     }
 
     @Test
@@ -75,9 +79,9 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.navigateToPerson(td.elizabeth);
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
         assertTrue(editPersonDialog.isShowingPerson(td.elizabeth));
-        editPersonDialog.enterNewValues(td.elizabethEdited).clickOk();
+        editPersonDialog.enterNewValues(elizabethEdited).clickOk();
         sleepForGracePeriod();
-        assertTrue(personListPanel.contains(td.elizabethEdited));
+        assertTrue(personListPanel.contains(elizabethEdited));
         assertFalse(personListPanel.contains(td.elizabeth));
         //Full edit process is done at editPerson_usingContextMenu()
     }
@@ -87,10 +91,10 @@ public class PersonEditGuiTest extends GuiTestBase {
         personListPanel.navigateToPerson(td.benson);
         EditPersonDialogHandle editPersonDialogHandle = personListPanel.use_PERSON_EDIT_ACCELERATOR();
         assertTrue(editPersonDialogHandle.isShowingPerson(td.benson));
-        editPersonDialogHandle.enterNewValues(td.bensonEdited);
+        editPersonDialogHandle.enterNewValues(bensonEdited);
         editPersonDialogHandle.clickOk();
         sleepForGracePeriod();
-        assertTrue(personListPanel.contains(td.bensonEdited));
+        assertTrue(personListPanel.contains(bensonEdited));
         assertFalse(personListPanel.contains(td.benson));
         //Full edit process is done at editPerson_usingContextMenu()
     }

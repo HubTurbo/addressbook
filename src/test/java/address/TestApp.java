@@ -25,6 +25,7 @@ public class TestApp extends MainApp {
     protected static final String DEFAULT_CLOUD_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("sampleCloudData.xml");
     protected static final String DEFAULT_PREF_FILE_LOCATION_FOR_TESTING = TestUtil.appendToSandboxPath("pref_testing.json");
     public static final String APP_TITLE = "Test App";
+    protected static final String ADDRESS_BOOK_NAME = "Test";
     protected Supplier<ReadOnlyAddressBook> initialDataSupplier = () -> null;
     protected Supplier<CloudAddressBook> initialCloudDataSupplier = () -> null;
     protected String saveFileLocation = SAVE_LOCATION_FOR_TESTING;
@@ -54,6 +55,7 @@ public class TestApp extends MainApp {
         config.setAppTitle(APP_TITLE);
         config.setLocalDataFilePath(saveFileLocation);
         config.setPrefsFileLocation(new File(DEFAULT_PREF_FILE_LOCATION_FOR_TESTING));
+        config.setAddressBookName(ADDRESS_BOOK_NAME);
         // Use default cloud test data if no data is supplied
         if (initialCloudDataSupplier.get() == null) config.setCloudDataFilePath(DEFAULT_CLOUD_LOCATION_FOR_TESTING);
         return config;

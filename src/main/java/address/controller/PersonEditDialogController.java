@@ -14,7 +14,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -57,7 +56,7 @@ public class PersonEditDialogController extends EditDialogController {
     private TextField birthdayField;
 
     @FXML
-    private ScrollPane tagList;
+    private ScrollPane tagListPane;
     @FXML
     private TextField githubUserNameField;
 
@@ -77,12 +76,12 @@ public class PersonEditDialogController extends EditDialogController {
     }
 
     private void modifyInteractionsWithComponents() {
-        tagList.setFocusTraversable(true);
-        tagList.setTooltip(getTooltip());
+        tagListPane.setFocusTraversable(true);
+        tagListPane.setTooltip(getTooltip());
     }
 
     private void addListeners() {
-        tagList.setOnMouseClicked(e -> launchTagSelectionEditDialog());
+        tagListPane.setOnMouseClicked(e -> launchTagSelectionEditDialog());
     }
 
     private Tooltip getTooltip() {
@@ -121,7 +120,7 @@ public class PersonEditDialogController extends EditDialogController {
             dialogStage.showAndWait();
 
             if (controller.isOkClicked()) finalAssignedTags = controller.getFinalAssignedTags();
-            tagList.setContent(getTagsVBox(finalAssignedTags));
+            tagListPane.setContent(getTagsVBox(finalAssignedTags));
         } catch (IOException e) {
             logger.warn("Error launching tag selection dialog: {}", e);
 
@@ -153,7 +152,7 @@ public class PersonEditDialogController extends EditDialogController {
     public void setTags(List<Tag> tags, List<Tag> assignedTags) {
         this.fullTagList = tags;
         this.finalAssignedTags = assignedTags;
-        tagList.setContent(getTagsVBox(assignedTags));
+        tagListPane.setContent(getTagsVBox(assignedTags));
     }
 
     /**

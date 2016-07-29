@@ -82,23 +82,6 @@ public class TestUtil {
             new Tag("friends")
     };
 
-    public static final CloudPerson[] sampleCloudPersonData = {
-            new CloudPerson("Hans", "Muster", 1),
-            new CloudPerson("Ruth", "Mueller", 2),
-            new CloudPerson("Heinz", "Kurz", 3),
-            new CloudPerson("Cornelia", "Meier", 4),
-            new CloudPerson("Werner", "Meyer", 5),
-            new CloudPerson("Lydia", "Kunz", 6),
-            new CloudPerson("Anna", "Best", 7),
-            new CloudPerson("Stefan", "Meier", 8),
-            new CloudPerson("Martin", "Mueller", 9)
-    };
-
-    public static final CloudTag[] sampleCloudTagData = {
-            new CloudTag("relatives"),
-            new CloudTag("friends")
-    };
-
     public static Person generateSamplePersonWithAllData(int customId) {
         final Person p = new Person("first", "last", customId);
         p.setStreet("some street");
@@ -266,15 +249,23 @@ public class TestUtil {
 
     public static CloudAddressBook generateCloudAddressBook(AddressBook addressBook) {
         List<CloudPerson> cloudPersonList = new ArrayList<>();
-        addressBook.getPersonList().stream()
-                .forEach(p -> cloudPersonList.add(new CloudPerson(p.getFirstName(), p.getLastName(), p.getId())));
+        addressBook.getPersonList().forEach(p -> {
+            CloudPerson cloudPerson = new CloudPerson(p.getFirstName(), p.getLastName(), p.getId());
+            cloudPerson.setBirthday(p.getBirthday());
+            cloudPerson.setCity(p.getCity());
+            cloudPerson.setStreet(p.getStreet());
+            cloudPerson.setGithubUsername(p.getGithubUsername());
+            cloudPerson.setPostalCode(p.getPostalCode());
+            cloudPerson.setTags(p.getTagList().stream().map(t -> new CloudTag(t.getName())).collect(Collectors.toList()));
+
+            cloudPersonList.add(cloudPerson);
+        });
 
         List<CloudTag> cloudTagList = new ArrayList<>();
-        addressBook.getTagList().stream()
-                .forEach(t -> cloudTagList.add(new CloudTag(t.getName())));
+        addressBook.getTagList().forEach(t ->
+                cloudTagList.add(new CloudTag(t.getName())));
 
-
-        CloudAddressBook cloudAddressBook = new CloudAddressBook("MyAddressBook");
+        CloudAddressBook cloudAddressBook = new CloudAddressBook("Test");
         cloudAddressBook.setPersonsList(cloudPersonList);
         cloudAddressBook.setTagsList(cloudTagList);
 
