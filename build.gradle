@@ -355,10 +355,15 @@ task guiUnitTests(type: AddressBookTest) {
     }
 }
 
+task macHeadlessSetting() {
+
+}
+
 task unitTests(type: AddressBookTest) {
     include 'address/**'
     include 'commons/**'
     include 'hubturbo/**'
+
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")
     }
@@ -405,6 +410,22 @@ task headless << {
     guiUnitTests.setHeadless()
     unitTests.setHeadless()
     allTests.setHeadless()
+
+    String osName = System.getProperty("os.name");
+    if (osName.contains("Mac OS")) {
+        println "Mac OS detected, removing hotkey tests"
+        unitTests.exclude 'address/keybindings/BindingsTest.class'
+        unitTests.exclude 'address/keybindings/GlobalHotkeyProviderTest.class'
+        unitTests.exclude 'address/keybindings/GlobalHotkeyTest.class'
+        unitTests.exclude 'address/keybindings/KeyBindingsManagerApiTest.class'
+        unitTests.exclude 'address/keybindings/KeyBindingsManagerTest.class'
+
+        allTests.exclude 'address/keybindings/BindingsTest.class'
+        allTests.exclude 'address/keybindings/GlobalHotkeyProviderTest.class'
+        allTests.exclude 'address/keybindings/GlobalHotkeyTest.class'
+        allTests.exclude 'address/keybindings/KeyBindingsManagerApiTest.class'
+        allTests.exclude 'address/keybindings/KeyBindingsManagerTest.class'
+    }
 }
 
 // Makes sure that headless properties are set before running tests
