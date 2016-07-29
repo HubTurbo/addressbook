@@ -170,6 +170,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
         guiRobot.interact(() -> {
             getListView().scrollTo(index);
+            guiRobot.sleep(150);
             getListView().getSelectionModel().select(index);
         });
         guiRobot.sleep(100);
@@ -180,6 +181,7 @@ public class PersonListPanelHandle extends GuiHandle {
         for (int i = 0; i < getListView().getItems().size(); i++) {
             final int index = i;
             guiRobot.interact(() -> this.getListView().scrollTo(index));
+            guiRobot.sleep(150);
             final PersonCardHandle personCard = getPersonCardHandle(i);
             if (!personCard.isShowingGracePeriod(displayText)) {
                 return false;
@@ -504,7 +506,7 @@ public class PersonListPanelHandle extends GuiHandle {
         for (int i = 0; i < persons.length; i++) {
             final int scrollTo = i + startPosition;
             guiRobot.interact(() -> getListView().scrollTo(scrollTo));
-            //guiRobot.sleep(200);
+            guiRobot.sleep(200);
             if (!TestUtil.compareCardAndPerson(getPersonCardHandle(startPosition + i), persons[i])) {
                 return false;
             }
@@ -559,6 +561,7 @@ public class PersonListPanelHandle extends GuiHandle {
         for (Person person: persons) {
             guiRobot.interact(() -> {
                 getListView().scrollTo(getPersonIndex(person));
+                guiRobot.sleep(150);
                 getListView().getSelectionModel().select(getPersonIndex(person));
             });
         }
@@ -568,6 +571,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public PersonCardHandle selectCard(Person person) {
         guiRobot.interact(() -> getListView().scrollTo(getPersonIndex(person)));
+        guiRobot.sleep(150);
         clickOnPerson(person);
         guiRobot.sleep(500);
         return getPersonCardHandle(person);
