@@ -110,7 +110,8 @@ public class RemoteService implements IRemoteService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedRemoteResponse<Person> createPerson(String addressBookName, ReadOnlyPerson newPerson) throws IOException {
+    public ExtractedRemoteResponse<Person> createPerson(String addressBookName, ReadOnlyPerson newPerson)
+            throws IOException {
         RemoteResponse remoteResponse = remote.createPerson(addressBookName, convertToCloudPerson(newPerson), null);
         if (!isValid(remoteResponse)) {
             return getResponseWithNoData(remoteResponse);
@@ -131,8 +132,8 @@ public class RemoteService implements IRemoteService {
      * @throws IOException if content cannot be interpreted
      */
     @Override
-    public ExtractedRemoteResponse<Person> updatePerson(String addressBookName, int personId, ReadOnlyPerson updatedPerson)
-            throws IOException {
+    public ExtractedRemoteResponse<Person> updatePerson(String addressBookName, int personId,
+                                                        ReadOnlyPerson updatedPerson) throws IOException {
         RemoteResponse remoteResponse = remote.updatePerson(addressBookName, personId,
                 convertToCloudPerson(updatedPerson), null);
         if (!isValid(remoteResponse)) {

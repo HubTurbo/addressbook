@@ -110,9 +110,9 @@ public class RemoteManager {
                 tagList.addAll(previousUpdateList.get());
             }
             curPage++;
-        } while (response.getNextPage() != 0 || curPage < prevPageCount);// does not handle the case moving from a
-                                                                         // fully-filled last page ->
-                                                                         // a page with new tags
+        } while (response.getNextPage() != 0 || curPage < prevPageCount); // does not handle the case moving from a
+                                                                          // fully-filled last page ->
+                                                                          // a page with new tags
         lastUpdateInfo.setLastUpdatedAt(LocalDateTime.now());
         updateInformation.put(addressBookName, lastUpdateInfo);
         

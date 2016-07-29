@@ -15,10 +15,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -298,7 +298,7 @@ public class UpdateManager extends ComponentManager {
             throw new UnsupportedOperationException("OS not supported for updating");
         }
 
-        List<LibraryDescriptor> librariesForOs = getLibrariesForOs(versionData.getLibraries(), commons.OsDetector.getOs());
+        List<LibraryDescriptor> librariesForOs = getLibrariesForOs(versionData.getLibraries(), OsDetector.getOs());
         List<LibraryDescriptor> librariesToDownload = getLibrariesToDownload(librariesForOs);
 
         return getLibraryFilesDownloadLinks(librariesToDownload);
@@ -340,9 +340,9 @@ public class UpdateManager extends ComponentManager {
      * @param os
      * @return
      */
-    private List<LibraryDescriptor> getLibrariesForOs(List<LibraryDescriptor> libraries, commons.OsDetector.Os os) {
+    private List<LibraryDescriptor> getLibrariesForOs(List<LibraryDescriptor> libraries, OsDetector.Os os) {
         return libraries.stream()
-                .filter(libDesc -> libDesc.getOs() == commons.OsDetector.Os.ANY || libDesc.getOs() == os)
+                .filter(libDesc -> libDesc.getOs() == OsDetector.Os.ANY || libDesc.getOs() == os)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -354,8 +354,8 @@ public class UpdateManager extends ComponentManager {
         int totalFilesToDownload = filesToBeUpdated.keySet().size();
         int noOfFilesDownloaded = 0;
 
-        for (String destFile : filesToBeUpdated.keySet()) {
-            downloadFile(new File(updateDir.toString(), destFile), filesToBeUpdated.get(destFile));
+        for (Entry<String, URL> fileToBeUpdated : filesToBeUpdated.entrySet()) {
+            downloadFile(new File(updateDir.toString(), fileToBeUpdated.getKey()), fileToBeUpdated.getValue());
             noOfFilesDownloaded++;
             double progress = (1.0 * noOfFilesDownloaded) / totalFilesToDownload;
             raise(new ApplicationUpdateInProgressEvent("Downloading updates", progress));

@@ -15,19 +15,19 @@ public class CloudFileHandler {
     private static final AppLogger logger = LoggerManager.getLogger(CloudFileHandler.class);
     private static final String CLOUD_DIRECTORY = "cloud/";
 
-    public CloudAddressBook readCloudAddressBookFromExternalFile(String cloudDataFilePath) throws FileNotFoundException,
-            DataConversionException {
+    CloudAddressBook readCloudAddressBookFromExternalFile(String cloudDataFilePath)
+            throws FileNotFoundException, DataConversionException {
         File cloudFile = new File(cloudDataFilePath);
         return readFromCloudFile(cloudFile);
     }
 
-    public CloudAddressBook readCloudAddressBook(String addressBookName) throws FileNotFoundException,
+    CloudAddressBook readCloudAddressBook(String addressBookName) throws FileNotFoundException,
             DataConversionException {
         File cloudFile = getCloudDataFile(addressBookName);
         return readFromCloudFile(cloudFile);
     }
 
-    public void writeCloudAddressBook(CloudAddressBook cloudAddressBook) throws FileNotFoundException,
+    void writeCloudAddressBook(CloudAddressBook cloudAddressBook) throws FileNotFoundException,
             DataConversionException {
         String addressBookName = cloudAddressBook.getName();
         File cloudFile = getCloudDataFile(addressBookName);
@@ -51,10 +51,12 @@ public class CloudFileHandler {
      * @throws IOException
      * @throws DataConversionException
      */
-    public void initializeAddressBook(String addressBookName) throws IOException, DataConversionException {
+    void initializeAddressBook(String addressBookName) throws IOException, DataConversionException {
         File cloudFile = getCloudDataFile(addressBookName);
         if (cloudFile.exists()) {
-            cloudFile.delete();
+            if (!cloudFile.delete()) {
+                logger.warn("Error deleting cloud file: '{}'", cloudFile.getName());
+            }
         }
 
         createCloudFile(new CloudAddressBook(addressBookName));
@@ -82,7 +84,7 @@ public class CloudFileHandler {
      * @throws DataConversionException
      * @throws IllegalArgumentException
      */
-    public void createAddressBookIfAbsent(String addressBookName) throws IOException, DataConversionException,
+    void createAddressBookIfAbsent(String addressBookName) throws IOException, DataConversionException,
             IllegalArgumentException {
         File cloudFile = getCloudDataFile(addressBookName);
         if (cloudFile.exists()) return;
@@ -119,7 +121,8 @@ public class CloudFileHandler {
      * @throws DataConversionException
      * @throws IllegalArgumentException if cloud file already exists
      */
-    private void createCloudFile(CloudAddressBook cloudAddressBook) throws IOException, DataConversionException, IllegalArgumentException {
+    private void createCloudFile(CloudAddressBook cloudAddressBook)
+            throws IOException, DataConversionException, IllegalArgumentException {
         File cloudFile = getCloudDataFile(cloudAddressBook.getName());
         if (cloudFile.exists()) {
             logger.warn("Cannot create an address book that already exists: '{}'.", cloudAddressBook.getName());
@@ -136,7 +139,8 @@ public class CloudFileHandler {
 
         if (!cloudFile.createNewFile()) {
             logger.warn("Error creating cloud file: '{}'", getCloudDataFilePath(cloudAddressBook.getName()));
-            throw new IOException("Error creating cloud file for address book: " + getCloudDataFilePath(cloudAddressBook.getName()));
+            throw new IOException("Error creating cloud file for address book: "
+                    + getCloudDataFilePath(cloudAddressBook.getName()));
         }
 
         writeCloudAddressBook(cloudAddressBook);

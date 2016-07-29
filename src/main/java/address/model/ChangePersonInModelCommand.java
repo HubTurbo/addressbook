@@ -117,7 +117,7 @@ public abstract class ChangePersonInModelCommand extends ChangeObjectInModelComm
     protected void beforeState(CommandState state) {
         if (target != null) {
             PlatformExecUtil.runAndWait(() ->
-                    target.setOngoingCommandState(OngoingCommandState.fromCommandState(state)));
+                    target.setOngoingCommandState(ongoingCommandState.fromCommandState(state)));
         }
         super.beforeState(state);
     }

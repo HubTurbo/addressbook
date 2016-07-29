@@ -345,15 +345,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         backingModel.addPerson(p);
     }
 
-    // deprecated, to replace by remote assignment
-    public int generatePersonId() {
-        int id;
-        do {
-            id = Math.abs(UUID.randomUUID().hashCode());
-        } while (id == 0 || backingModel.containsPerson(id));
-        return id;
-    }
-
     /**
      * Adds a tag to the model
      * @param tagToAdd

@@ -32,7 +32,7 @@ public class Ui {
     public void stop() {
         Stage stage = mainController.getPrimaryStage();
         GuiSettings guiSettings = new GuiSettings(stage.getWidth(), stage.getHeight(),
-                                                  (int)stage.getX(), (int)stage.getY());
+                                                  (int) stage.getX(), (int) stage.getY());
         pref.setGuiSettings(guiSettings);
         mainController.stop();
     }

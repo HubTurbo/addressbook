@@ -35,7 +35,6 @@ public class PersonEditDialogController extends EditDialogController {
 
     private static final AppLogger logger = LoggerManager.getLogger(PersonEditDialogController.class);
     private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
-    private static final String TOOLTIP_TAG_SELECTOR_SHORTCUT = "Shortcut + O";
     private static final String TOOLTIP_LAUNCH_TAG_SELECTOR = "Click to launch tag selector";
 
     @FXML
@@ -85,16 +84,9 @@ public class PersonEditDialogController extends EditDialogController {
     }
 
     private Tooltip getTooltip() {
-        Tooltip tooltip = new Tooltip(TOOLTIP_TAG_SELECTOR_SHORTCUT);
-        tooltip.setGraphic(getTooltipLabel());
+        Tooltip tooltip = new Tooltip(TOOLTIP_LAUNCH_TAG_SELECTOR);
         tooltip.setContentDisplay(ContentDisplay.TOP);
         return tooltip;
-    }
-
-    private Label getTooltipLabel() {
-        Label label = new Label(TOOLTIP_LAUNCH_TAG_SELECTOR);
-        label.getStyleClass().add("tooltip-text");
-        return label;
     }
 
     private void launchTagSelectionEditDialog() {

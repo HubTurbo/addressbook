@@ -73,10 +73,9 @@ public class BrowserManager {
     }
 
     private static Optional<Node> getBrowserInitialScreen() {
-        String fxmlResourcePath = FXML_BROWSER_PLACE_HOLDER_SCREEN;
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(fxmlResourcePath));
+            loader.setLocation(MainApp.class.getResource(FXML_BROWSER_PLACE_HOLDER_SCREEN));
             return Optional.ofNullable(loader.load());
         } catch (IOException e){
             return Optional.empty();

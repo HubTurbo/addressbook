@@ -13,12 +13,12 @@ public class GlobalHotkeyEvent extends BaseEvent {
     /** The key binding event that represents the global hotkey*/
     public final KeyBindingEvent keyBindingEvent;
 
-    public GlobalHotkeyEvent(KeyCombination keyCombination){
+    public GlobalHotkeyEvent(KeyCombination keyCombination) {
         this.keyBindingEvent = new KeyBindingEvent(keyCombination);
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         final String className = this.getClass().getSimpleName();
         return className + " : keyCombination is " + keyBindingEvent.keyCombination.get().getDisplayText();
     }

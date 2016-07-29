@@ -128,10 +128,10 @@ public class PersonCardController extends UiController {
                 commandStateInfoLabel.setText("" + person.getSecondsLeftInPendingState()));
     }
 
-    private void handleCommandState(OngoingCommandState state) {
-        commandStateDisplayRootNode.setVisible(state != OngoingCommandState.INVALID);
-        remoteRequestOngoingIndicator.setVisible(state == OngoingCommandState.SYNCING_TO_REMOTE);
-        commandStateInfoLabel.setVisible(state != OngoingCommandState.SYNCING_TO_REMOTE);
+    private void handleCommandState(ongoingCommandState state) {
+        commandStateDisplayRootNode.setVisible(state != ongoingCommandState.INVALID);
+        remoteRequestOngoingIndicator.setVisible(state == ongoingCommandState.SYNCING_TO_REMOTE);
+        commandStateInfoLabel.setVisible(state != ongoingCommandState.SYNCING_TO_REMOTE);
         switch (state) {
             case REMOTE_CONFLICT:
                 commandStateInfoLabel.setText("CONFLICT");

@@ -1,7 +1,7 @@
 package address.controller;
 
 import static address.keybindings.KeyBindingsManager.*;
-import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandState.*;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState.*;
 
 import address.events.controller.JumpToListRequestEvent;
 import address.events.parser.FilterCommittedEvent;

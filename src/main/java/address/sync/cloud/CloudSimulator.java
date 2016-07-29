@@ -526,7 +526,7 @@ public class CloudSimulator implements IRemote {
     }
 
     private int getLastPageNumber(int dataSize, int resourcesPerPage) {
-        return (int) Math.ceil(dataSize / resourcesPerPage);
+        return (int) Math.ceil((double) dataSize / resourcesPerPage);
     }
 
     private void deletePersonFromData(List<CloudPerson> personList, int personId)

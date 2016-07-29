@@ -23,7 +23,6 @@ public class LastUpdate<T> {
         }
     }
 
-    // TODO volatile?
     HashMap<Integer, UpdateInfo<T>> eTags;
     LocalDateTime lastUpdatedAt;
     List<T> resourceList;

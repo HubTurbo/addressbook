@@ -30,13 +30,13 @@ public interface ReadOnlyViewablePerson extends ReadOnlyPerson, ReadOnlyViewable
         }
     }
 
-    enum OngoingCommandState {
+    enum ongoingCommandState {
         GRACE_PERIOD,
         SYNCING_TO_REMOTE, // both checking for conflicts and the actual request
         REMOTE_CONFLICT,
         REQUEST_FAILED,
         INVALID; // no ongoing command
-        public static OngoingCommandState fromCommandState(ChangeObjectInModelCommand.CommandState cmdState) {
+        public static ongoingCommandState fromCommandState(ChangeObjectInModelCommand.CommandState cmdState) {
             switch (cmdState) {
                 case GRACE_PERIOD:
                     return GRACE_PERIOD;
@@ -59,8 +59,8 @@ public interface ReadOnlyViewablePerson extends ReadOnlyPerson, ReadOnlyViewable
 
     OngoingCommandType getOngoingCommandType();
     ReadOnlyProperty<OngoingCommandType> ongoingCommandTypeProperty();
-    OngoingCommandState getOngoingCommandState();
-    ReadOnlyProperty<OngoingCommandState> ongoingCommandStateProperty();
+    ongoingCommandState getOngoingCommandState();
+    ReadOnlyProperty<ongoingCommandState> ongoingCommandStateProperty();
 
     /**
      * @return whether this person exists on the remote server

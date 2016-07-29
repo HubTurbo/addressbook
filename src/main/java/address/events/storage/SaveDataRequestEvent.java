@@ -18,7 +18,7 @@ public class SaveDataRequestEvent extends BaseEvent {
 
     public final ReadOnlyAddressBook data;
 
-    public SaveDataRequestEvent(File file, ReadOnlyAddressBook data){
+    public SaveDataRequestEvent(File file, ReadOnlyAddressBook data) {
         this.file = file;
         this.data = data;
     }
