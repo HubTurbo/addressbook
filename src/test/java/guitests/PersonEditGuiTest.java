@@ -2,7 +2,6 @@ package guitests;
 
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
-import address.testutil.ContextMenuChoice;
 import address.testutil.PersonBuilder;
 import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
@@ -103,7 +102,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         PersonCardHandle aliceCard = personListPanel.getPersonCardHandle(td.alice);
 
         EditPersonDialogHandle editPersonDialog = personListPanel.rightClickOnPerson(td.alice)
-                                                                 .clickOnContextMenu(ContextMenuChoice.EDIT);
+                                                                 .clickOnContextMenuEdit();
         assertTrue(editPersonDialog.isShowingPerson(td.alice));
 
         editPersonDialog.enterNewValues(aliceEdited).pressEnter();
@@ -220,7 +219,7 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         //Edit Alice to change to new values
         EditPersonDialogHandle editPersonDialog = personListPanel.rightClickOnPerson(td.dan)
-                                                                 .clickOnContextMenu(ContextMenuChoice.EDIT);
+                                                                 .clickOnContextMenuEdit();
         assertTrue(editPersonDialog.isShowingPerson(td.dan));
         editPersonDialog.enterNewValues(danEdited).pressEnter();
 
@@ -228,7 +227,7 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(danCard.isShowingGracePeriod("Editing"));
         assertMatching(danCard, danEdited);
 
-        personListPanel.rightClickOnPerson(danEdited).clickOnContextMenu(ContextMenuChoice.CANCEL);
+        personListPanel.rightClickOnPerson(danEdited).clickOnContextMenuCancel();
 
         //Ensure cancel operation remove display of grace period and show correct status bar message
         assertFalse(danCard.isShowingGracePeriod("Editing"));

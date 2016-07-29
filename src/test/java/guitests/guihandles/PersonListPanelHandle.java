@@ -6,8 +6,6 @@ import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
-import address.model.datatypes.tag.Tag;
-import address.testutil.ContextMenuChoice;
 import address.model.datatypes.person.ViewablePerson;
 import address.testutil.TestUtil;
 import address.ui.PersonListViewCell;
@@ -268,28 +266,22 @@ public class PersonListPanelHandle extends GuiHandle {
         }
     }
 
-    /**
-     * Clicks on the context menu.
-     * @param choice The item in the context menu that is to be clicked.
-     * @return TODO: handle other return type also.
-     */
-    public EditPersonDialogHandle clickOnContextMenu(ContextMenuChoice choice) {
-        switch (choice) {
-            case EDIT:
-                clickOn(EDIT_CONTEXT_MENU_ITEM_FIELD_ID);
-                guiRobot.sleep(500);
-                return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
-            case TAG:
-                clickOn(TAG_CONTEXT_MENU_ITEM_FIELD_ID);
-                break;
-            case DELETE:
-                clickOn(DELETE_CONTEXT_MENU_ITEM_FIELD_ID);
-                break;
-            case CANCEL:
-                clickOn(CANCEL_CONTEXT_MENU_ITEM_FIELD_ID);
-                break;
-        }
-        return null;
+    public EditPersonDialogHandle clickOnContextMenuEdit() {
+        clickOn(EDIT_CONTEXT_MENU_ITEM_FIELD_ID);
+        guiRobot.sleep(500);
+        return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
+    }
+
+    public void clickOnContextMenuTag() {
+        clickOn(TAG_CONTEXT_MENU_ITEM_FIELD_ID);
+    }
+
+    public void clickOnContextMenuDelete() {
+        clickOn(DELETE_CONTEXT_MENU_ITEM_FIELD_ID);
+    }
+
+    public void clickOnContextMenuCancel() {
+        clickOn(CANCEL_CONTEXT_MENU_ITEM_FIELD_ID);
     }
 
     public void clickOnPerson(String personName) {

@@ -2,7 +2,6 @@ package guitests;
 
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
-import address.testutil.ContextMenuChoice;
 import address.testutil.PersonBuilder;
 import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
@@ -118,7 +117,7 @@ public class PersonNewGuiTest extends GuiTestBase {
         //Ensure correct state before cancelling.
         assertMatching(georgeCard, td.george);
 
-        personListPanel.rightClickOnPerson(td.george).clickOnContextMenu(ContextMenuChoice.CANCEL);
+        personListPanel.rightClickOnPerson(td.george).clickOnContextMenuCancel();
 
         //Ensure cancel operation stops grace period display.
         assertFalse(georgeCard.isShowingGracePeriod("Adding"));

@@ -1,7 +1,6 @@
 package guitests;
 
 import address.model.datatypes.AddressBook;
-import address.testutil.ContextMenuChoice;
 import address.testutil.TestUtil;
 import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
@@ -37,7 +36,6 @@ public class PersonDeleteGuiTest extends GuiTestBase {
         assertTrue(bensonCard.isShowingGracePeriod("Deleting"));
         sleepForGracePeriod();
 
-        //assertEquals(0, personListPanel.getSelectedCardSize()); Wait for #571 to be fixed.
         assertFalse(personListPanel.isAnyCardShowingGracePeriod());
         assertTrue(personListPanel.isListMatching(TestUtil.removePersonsFromList(td.getTestData(), td.benson, td.dan)));
     }
@@ -89,7 +87,7 @@ public class PersonDeleteGuiTest extends GuiTestBase {
         PersonCardHandle charlieCard = personListPanel.navigateToPerson(td.charlie);
         assertTrue(personListPanel.isOnlySelected(td.charlie));
 
-        personListPanel.rightClickOnPerson(td.charlie).clickOnContextMenu(ContextMenuChoice.DELETE);
+        personListPanel.rightClickOnPerson(td.charlie).clickOnContextMenuDelete();
         assertTrue(charlieCard.isShowingGracePeriod("Deleting"));
 
         sleepForGracePeriod();
