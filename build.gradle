@@ -358,7 +358,6 @@ task guiUnitTests(type: AddressBookTest) {
 task unitTests(type: AddressBookTest) {
     include 'address/**'
     include 'commons/**'
-    include 'hubturbo/**'
 
     jacoco {
         destinationFile = new File("${buildDir}/jacoco/test.exec")

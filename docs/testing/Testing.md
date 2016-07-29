@@ -18,7 +18,7 @@ Related resources:
 
 Tests can be found in the `./src/test/java` folder. We have grouped and packaged the tests into the following types.
 
-1. Unit Tests - `address`, `commons` and `hubturbo` package
+1. Unit Tests - `address` and `commons` package
   - Logic Testing
 
 2. GUI Unit Tests - `guiunittests` package
