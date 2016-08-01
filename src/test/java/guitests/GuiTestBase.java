@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class GuiTestBase {
 
@@ -123,8 +124,13 @@ public class GuiTestBase {
         mainGui.sleepForGracePeriod();
     }
 
+    public void sleepUntilNextSync() {
+        //TODO: actively check for sync status rather than sleep for a fixed time
+        sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
+    }
+
     public void assertMatching(PersonCardHandle card, Person person) {
-        assertEquals(card.mockPerson(person.getId(), person.getGithubUsername()), person);
+        assertTrue(TestUtil.compareCardAndPerson(card, person));
     }
 
 }

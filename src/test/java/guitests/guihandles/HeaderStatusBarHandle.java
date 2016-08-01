@@ -13,20 +13,6 @@ import java.util.Optional;
  */
 public class HeaderStatusBarHandle extends GuiHandle {
 
-    public enum Type {
-        ADD ("Add"), EDIT("Edit"), DELETE("Delete");
-
-        String message;
-        Type(String message) {
-            this.message = message;
-        }
-
-        @Override
-        public String toString() {
-            return message;
-        }
-    }
-
     public HeaderStatusBarHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage, TestApp.APP_TITLE);
     }
@@ -39,17 +25,31 @@ public class HeaderStatusBarHandle extends GuiHandle {
         return (StatusBar) getNode("#" + StatusBarHeaderController.HEADER_STATUS_BAR_ID);
     }
 
-    //TODO: Consider when the name is not changed since it has different formatting
-    public static String formatSuccessMessage(Type type, String firstName, Optional<String> secondName) {
-        return type.toString() + " Person [ " + getFormattedNames(firstName, secondName)
-                + " ] completed successfully.";
+    public static String formatEditSuccessMessage(String firstFullName, Optional<String> secondFullName) {
+        return "Edit" + " Person [ " + getFormattedNames(firstFullName, secondFullName) + " ] completed successfully.";
     }
 
-    public static String formatCancelledMessage(Type type, String firstName, Optional<String> secondName) {
-        return type.toString() + " Person [ " + getFormattedNames(firstName, secondName) + " ] was cancelled.";
+    public static String formatEditCancelledMessage(String firstFullName, Optional<String> secondFullName) {
+        return "Edit" + " Person [ " + getFormattedNames(firstFullName, secondFullName) + " ] was cancelled.";
     }
 
-    private static String getFormattedNames(String firstName, Optional<String> secondName) {
-        return firstName + (secondName.isPresent() ? " -> " + secondName.get() : "");
+    public static String formatAddSuccessMessage(String firstFullName, Optional<String> secondFullName) {
+        return "Add" + " Person [ " + getFormattedNames(firstFullName, secondFullName) + " ] completed successfully.";
+    }
+
+    public static String formatAddCancelledMessage(String firstFullName, Optional<String> secondFullName) {
+        return "Add" + " Person [ " + getFormattedNames(firstFullName, secondFullName) + " ] was cancelled.";
+    }
+
+    public static String formatDeleteSuccessMessage(String firstFullName, Optional<String> secondFullName) {
+        return "Delete" + " Person [ " + getFormattedNames(firstFullName, secondFullName) + " ] completed successfully.";
+    }
+
+    public static String formatDeleteCancelledMessage(String firstFullName, Optional<String> secondFullName) {
+        return "Delete" + " Person [ " + getFormattedNames(firstFullName, secondFullName) + " ] was cancelled.";
+    }
+
+    private static String getFormattedNames(String firstFullName, Optional<String> secondFullName) {
+        return firstFullName + (secondFullName.isPresent() ? " -> " + secondFullName.get() : "");
     }
 }

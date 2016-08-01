@@ -9,9 +9,7 @@ import guitests.GuiRobot;
 import javafx.scene.Node;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -33,11 +31,11 @@ public class PersonCardHandle extends GuiHandle {
     private Node node;
 
     public PersonCardHandle(GuiRobot guiRobot, Stage primaryStage) {
-        super(guiRobot, primaryStage, TestApp.APP_TITLE);
+        super(guiRobot, primaryStage, null);
     }
 
     public PersonCardHandle(GuiRobot guiRobot, Stage primaryStage, Node node){
-        super(guiRobot, primaryStage, TestApp.APP_TITLE);
+        super(guiRobot, primaryStage, null);
         this.node = node;
     }
 
@@ -53,9 +51,23 @@ public class PersonCardHandle extends GuiHandle {
         return node.lookup(PENDING_STATE_ROOT_FIELD_ID).isVisible();
     }
 
+    /**
+     * Checks if grace period is shown with the displayText
+     * @param displayText
+     * @return
+     */
     public boolean isShowingGracePeriod(String displayText) {
         return this.isPendingStateRootVisible() && this.isPendingStateLabelVisible()
-               && !this.isPendingStateProgressIndicatorVisible() && this.getPendingStateLabel().equals(displayText);
+                && !this.isPendingStateProgressIndicatorVisible() && this.getPendingStateLabel().equals(displayText);
+    }
+
+    /**
+     * Checks if grace period is shown.
+     * @return
+     */
+    public boolean isShowingGracePeriod() {
+        return this.isPendingStateRootVisible() && this.isPendingStateLabelVisible()
+                && !this.isPendingStateProgressIndicatorVisible();
     }
 
     public String getPendingStateLabel() {

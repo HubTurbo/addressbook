@@ -184,7 +184,7 @@ public class EditPersonDialogHandle extends GuiHandle {
     @Override
     public void clickOk() {
         super.clickOk();
-        guiRobot.sleep(500);
+        guiRobot.sleep(100); //For the model to be updated.
         focusOnMainApp();
     }
 }

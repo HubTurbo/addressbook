@@ -27,6 +27,7 @@ public class TypicalTestData {
      * The Second person's name starts with B and his other names start with C and D.
      * And so on.
      */
+
     public Person alice = new PersonBuilder(new Person("Alice", "Brown", 1))
                                                                .withStreet("81th Wall Street").withCity("New York")
                                                                .withPostalCode("41452").withBirthday("11.09.1983")
@@ -59,4 +60,9 @@ public class TypicalTestData {
         book.addTag(friends);
         book.addTag(family);
     }
+
+    public Person[] getTestData() {
+        return new Person[] {alice, benson, charlie, dan, elizabeth};
+    }
+
 }

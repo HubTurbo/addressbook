@@ -39,10 +39,12 @@ public class PersonListPanelHandle extends GuiHandle {
     private static final String PERSON_LIST_VIEW_ID = "#personListView";
     private static final String NEW_BUTTON_ID = "#newButton"; //TODO: convert to constants
     private static final String EDIT_BUTTON_ID = "#editButton";
+    private static final String DELETE_BUTTON_ID = "#deleteButton";
 
-    public enum ContextMenuChoice {
-        EDIT, TAG, DELETE, CANCEL;
-    }
+    public static final String EDIT_CONTEXT_MENU_ITEM_FIELD_ID = "#editMenuItem";
+    public static final String TAG_CONTEXT_MENU_ITEM_FIELD_ID = "#tagMenuItem";
+    public static final String DELETE_CONTEXT_MENU_ITEM_FIELD_ID = "#deleteMenuItem";
+    public static final String CANCEL_CONTEXT_MENU_ITEM_FIELD_ID = "#cancelMenuItem";
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage, TestApp.APP_TITLE);
@@ -67,16 +69,28 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public boolean isSelected(String firstName, String lastName) {
-        return getSelectedPerson().hasName(firstName, lastName);
+        return getSelectedPersons().stream().filter(p -> p.hasName(firstName, lastName)).findAny().isPresent();
+    }
+
+    public boolean isOnlySelected(Person person) {
+        return isOnlySelected(person.getFirstName(), person.getLastName());
+    }
+
+    public boolean isOnlySelected(String firstName, String lastName) {
+        return getSelectedPersons().stream().filter(p -> p.hasName(firstName, lastName)).count() == 1;
     }
 
     public boolean isSelected(Person person) {
         return this.isSelected(person.getFirstName(), person.getLastName());
     }
 
-    public ReadOnlyViewablePerson getSelectedPerson() {
+    public List<ReadOnlyViewablePerson> getSelectedPersons() {
         ListView<ReadOnlyViewablePerson> personList = getListView();
-        return personList.getSelectionModel().getSelectedItems().get(0);
+        return personList.getSelectionModel().getSelectedItems();
+    }
+
+    public ReadOnlyViewablePerson getFirstSelectedPerson() {
+        return this.getSelectedPersons().get(0);
     }
 
     public ListView<ReadOnlyViewablePerson> getListView() {
@@ -153,8 +167,27 @@ public class PersonListPanelHandle extends GuiHandle {
      */
     public PersonCardHandle navigateToPerson(Person person) {
         int index = getPersonIndex(person);
-        use_LIST_JUMP_TO_INDEX_SHORTCUT(index + 1);
+
+        guiRobot.interact(() -> {
+            getListView().scrollTo(index);
+            guiRobot.sleep(150);
+            getListView().getSelectionModel().select(index);
+        });
+        guiRobot.sleep(100);
         return getPersonCardHandle(person);
+    }
+
+    public boolean isEntireListShowingGracePeriod(String displayText) {
+        for (int i = 0; i < getListView().getItems().size(); i++) {
+            final int index = i;
+            guiRobot.interact(() -> this.getListView().scrollTo(index));
+            guiRobot.sleep(150);
+            final PersonCardHandle personCard = getPersonCardHandle(i);
+            if (!personCard.isShowingGracePeriod(displayText)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void use_LIST_GOTO_TOP_SEQUENCE() {
@@ -163,7 +196,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public void use_PERSON_DELETE_ACCELERATOR() {
         guiRobot.push(new Bindings().PERSON_DELETE_ACCELERATOR);
-        guiRobot.sleep(1000);
+        guiRobot.sleep(500);
     }
 
     public void navigateUp() {
@@ -214,36 +247,47 @@ public class PersonListPanelHandle extends GuiHandle {
      * Right click on Person to show context menu.
      * @param person
      */
-    public void rightClickOnPerson(Person person) {
-        // Instead of using guiRobot.rightCickOn(), We will be firing off contextmenu request manually.
-        // As there is a bug in monocle that doesn't show context menu by actual right clicking.
-        // Refer to https://github.com/TestFX/Monocle/issues/12
+    public PersonListPanelHandle rightClickOnPerson(Person person) {
+        //Instead of using guiRobot.rightCickOn(), We will be firing off contextmenu request manually.
+        //As there is a bug in monocle that doesn't show contextmenu by actual right clicking.
+        //Refer to https://github.com/TestFX/Monocle/issues/12
         clickOnPerson(person);
         fireContextMenuEvent();
+        guiRobot.sleep(100);
+        assertTrue(isContextMenuShown());
+        return this;
     }
 
-    /**
-     * Clicks on the context menu.
-     * @param choice The item in the context menu that is to be clicked.
-     * @return TODO: handle other return type also.
-     */
-    public EditPersonDialogHandle clickOnContextMenu(ContextMenuChoice choice) {
-        switch (choice) {
-            case EDIT:
-                clickOn("#editMenuItem");
-                guiRobot.sleep(500);
-                return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
-            case TAG:
-                clickOn("#tagMenuItem");
-                break;
-            case DELETE:
-                clickOn("#deleteMenuItem");
-                break;
-            case CANCEL:
-                clickOn("#cancelMenuItem");
-                break;
+    private boolean isContextMenuShown() {
+        return isNodePresent(EDIT_CONTEXT_MENU_ITEM_FIELD_ID) && isNodePresent(TAG_CONTEXT_MENU_ITEM_FIELD_ID)
+               && isNodePresent(CANCEL_CONTEXT_MENU_ITEM_FIELD_ID) && isNodePresent(DELETE_CONTEXT_MENU_ITEM_FIELD_ID);
+    }
+
+    private boolean isNodePresent(String fieldId) {
+        try {
+            getNode(fieldId);
+            return true;
+        } catch (IllegalStateException e) {
+            return false;
         }
-        return null;
+    }
+
+    public EditPersonDialogHandle clickOnContextMenuEdit() {
+        clickOn(EDIT_CONTEXT_MENU_ITEM_FIELD_ID);
+        guiRobot.sleep(500);
+        return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
+    }
+
+    public void clickOnContextMenuTag() {
+        clickOn(TAG_CONTEXT_MENU_ITEM_FIELD_ID);
+    }
+
+    public void clickOnContextMenuDelete() {
+        clickOn(DELETE_CONTEXT_MENU_ITEM_FIELD_ID);
+    }
+
+    public void clickOnContextMenuCancel() {
+        clickOn(CANCEL_CONTEXT_MENU_ITEM_FIELD_ID);
     }
 
     public void clickOnPerson(String personName) {
@@ -279,6 +323,11 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.clickOn(EDIT_BUTTON_ID);
         guiRobot.sleep(500);
         return new EditPersonDialogHandle(guiRobot, primaryStage, EditPersonDialogHandle.EDIT_TITLE);
+    }
+
+    public void clickDelete() {
+        guiRobot.clickOn(DELETE_BUTTON_ID);
+        guiRobot.sleep(500);
     }
 
     /**
@@ -398,6 +447,12 @@ public class PersonListPanelHandle extends GuiHandle {
         getListView().getSelectionModel().clearSelection();
     }
 
+    public boolean isAnyCardShowingGracePeriod() {
+        return getAllCardNodes().stream()
+                                .filter(c -> new PersonCardHandle(guiRobot, primaryStage, c).isShowingGracePeriod())
+                                .findAny().isPresent();
+    }
+
     /**
      * Returns true if the {@code persons} appear as the sub list (in that order) at position {@code startPosition}.
      */
@@ -442,12 +497,17 @@ public class PersonListPanelHandle extends GuiHandle {
      * @param persons A list of person in the correct order.
      * @return
      */
-    public boolean isListMatching(int startPosition, Person... persons) {
-        this.containsInOrder(startPosition, persons);
+    public boolean isListMatching(int startPosition, Person... persons) throws IllegalArgumentException {
+        if (persons.length + startPosition != getListView().getItems().size()) {
+            throw new IllegalArgumentException("List size not matching\n" +
+                    "Expect " + (getListView().getItems().size() - 1) + "persons");
+        }
+        assertTrue(this.containsInOrder(startPosition, persons));
         for (int i = 0; i < persons.length; i++) {
-            use_LIST_JUMP_TO_INDEX_SHORTCUT(i + 1 + startPosition);
-            if (!getPersonCardHandle(startPosition + i).mockPerson(persons[i].getId(),
-                                                                   persons[i].getGithubUsername()).equals(persons[i])) {
+            final int scrollTo = i + startPosition;
+            guiRobot.interact(() -> getListView().scrollTo(scrollTo));
+            guiRobot.sleep(200);
+            if (!TestUtil.compareCardAndPerson(getPersonCardHandle(startPosition + i), persons[i])) {
                 return false;
             }
         }
@@ -491,7 +551,27 @@ public class PersonListPanelHandle extends GuiHandle {
         }
     }
 
+    /**
+     * Select cards
+     * @param persons
+     * @return
+     */
+    public List<PersonCardHandle> selectCards(Person... persons) {
+        guiRobot.press(KeyCode.SHORTCUT);
+        for (Person person: persons) {
+            guiRobot.interact(() -> {
+                getListView().scrollTo(getPersonIndex(person));
+                guiRobot.sleep(150);
+                getListView().getSelectionModel().select(getPersonIndex(person));
+            });
+        }
+        guiRobot.release(KeyCode.SHORTCUT);
+        return getSelectedCards();
+    }
+
     public PersonCardHandle selectCard(Person person) {
+        guiRobot.interact(() -> getListView().scrollTo(getPersonIndex(person)));
+        guiRobot.sleep(150);
         clickOnPerson(person);
         guiRobot.sleep(500);
         return getPersonCardHandle(person);
@@ -505,6 +585,10 @@ public class PersonListPanelHandle extends GuiHandle {
         ObservableList<ReadOnlyViewablePerson> persons = getListView().getSelectionModel().getSelectedItems();
         return persons.stream().map(p -> getPersonCardHandle(new Person(p)))
                                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public int getSelectedCardSize() {
+        return getListView().getSelectionModel().getSelectedItems().size();
     }
 
 }

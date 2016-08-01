@@ -14,6 +14,7 @@ import com.google.common.io.Files;
 import commons.FileUtil;
 import commons.OsDetector;
 import commons.XmlUtil;
+import guitests.guihandles.PersonCardHandle;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
@@ -340,5 +341,52 @@ public class TestUtil {
         return keyCombinationString.replaceAll("Alt\\+", "⌥")
                 .replaceAll("Meta\\+", "⌘")
                 .replaceAll("Shift\\+", "⇧");
+    }
+
+    public static Object getLastElement(List<?> list) {
+        return list.get(list.size() - 1);
+    }
+
+    public static Person[] removePersonsFromList(Person[] persons, Person... personsToRemove) {
+        List<Person> listOfPersons = asList(persons);
+        listOfPersons.removeAll(asList(personsToRemove));
+        return listOfPersons.toArray(new Person[listOfPersons.size()]);
+    }
+
+    public static Person[] replacePersonFromList(Person[] persons, Person person, int index) {
+        persons[index] = person;
+        return persons;
+    }
+
+    public static Person[] addPersonsToList(Person[] persons, Person... personsToAdd) {
+        List<Person> listOfPersons = asList(persons);
+        listOfPersons.addAll(asList(personsToAdd));
+        return listOfPersons.toArray(new Person[listOfPersons.size()]);
+    }
+
+    private static <T> List<T> asList(T[] objs) {
+        List<T> list = new ArrayList<>();
+        for(T obj : objs) {
+            list.add(obj);
+        }
+        return list;
+    }
+
+    public static boolean compareCardAndPerson(PersonCardHandle card, Person person) {
+        return card.getFirstName().equals(person.getFirstName()) && card.getLastName().equals(person.getLastName());
+                //TODO: compare birthday, tag list and address.
+    }
+
+    public static Tag[] getTagList(String tags) {
+
+        if (tags.equals("")) {
+            return new Tag[]{};
+        }
+
+        final String[] split = tags.split(", ");
+
+        final List<Tag> collect = Arrays.asList(split).stream().map(e -> new Tag(e.replaceFirst("Tag: ", ""))).collect(Collectors.toList());
+
+        return collect.toArray(new Tag[split.length]);
     }
 }
