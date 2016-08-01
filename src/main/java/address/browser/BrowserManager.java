@@ -24,26 +24,32 @@ public class BrowserManager {
     private static final String GITHUB_ROOT_URL = "https://github.com/";
     private static final String INVALID_GITHUB_USERNAME_MESSAGE = "Unparsable GitHub Username.";
     private static AppLogger logger = LoggerManager.getLogger(BrowserManager.class);
-    private ObservableList<ReadOnlyViewablePerson> filteredPersons;
     private WebView browser;
     private StringProperty selectedPersonUsername;
-    private ChangeListener<String> listener = (observable,  oldValue,  newValue) -> {
-        try {
-            URL url = new URL(GITHUB_ROOT_URL + newValue);
-            if (!UrlUtil.compareBaseUrls(new URL(browser.getEngine().getLocation()), url)) {
-                browser.getEngine().load(url.toExternalForm());
-            }
-        } catch (MalformedURLException e) {
-            logger.warn("Malformed URL obtained, not attempting to load.");
-            if (!newValue.equals("")) {
-                browser.getEngine().loadContent(INVALID_GITHUB_USERNAME_MESSAGE);
-            }
-        }
-    };
+    private ChangeListener<String> listener;
 
-    public BrowserManager(ObservableList<ReadOnlyViewablePerson> filteredPersons) {
+    public BrowserManager() {
         this.selectedPersonUsername = new SimpleStringProperty();
-        this.filteredPersons = filteredPersons;
+        initListener();
+    }
+
+    /**
+     * Initializes the listener for changes in selected person GitHub username.
+     */
+    private void initListener() {
+        listener = (observable,  oldValue,  newValue) -> {
+            try {
+                URL url = new URL(GITHUB_ROOT_URL + newValue);
+                if (!UrlUtil.compareBaseUrls(new URL(browser.getEngine().getLocation()), url)) {
+                    browser.getEngine().load(url.toExternalForm());
+                }
+            } catch (MalformedURLException e) {
+                logger.warn("Malformed URL obtained, not attempting to load.");
+                if (!newValue.equals("")) {
+                    browser.getEngine().loadContent(INVALID_GITHUB_USERNAME_MESSAGE);
+                }
+            }
+        };
     }
 
     /**
@@ -76,7 +82,7 @@ public class BrowserManager {
         browser = null;
     }
 
-    public Node getHyperBrowserView() {
+    public Node getBrowserView() {
         FxViewUtil.applyAnchorBoundaryParameters(browser, 0.0, 0.0, 0.0, 0.0);
         return browser;
     }

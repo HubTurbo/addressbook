@@ -107,7 +107,7 @@ public class MainController extends UiController{
         this.config = config;
         this.prefs = prefs;
         this.personList = modelManager.getAllViewablePersonsReadOnly();
-        this.browserManager = new BrowserManager(personList);
+        this.browserManager = new BrowserManager();
     }
 
     public void start(Stage primaryStage) {
@@ -541,7 +541,7 @@ public class MainController extends UiController{
     public void showPersonWebPage() {
         AnchorPane pane = (AnchorPane) rootLayout.lookup("#personWebpage");
         disableKeyboardShortcutOnNode(pane);
-        pane.getChildren().add(browserManager.getHyperBrowserView());
+        pane.getChildren().add(browserManager.getBrowserView());
     }
 
     private void disableKeyboardShortcutOnNode(Node pane) {
