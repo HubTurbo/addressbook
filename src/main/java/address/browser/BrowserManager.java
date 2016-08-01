@@ -3,12 +3,14 @@ package address.browser;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.AppLogger;
 import address.util.LoggerManager;
+import commons.FxViewUtil;
 import commons.UrlUtil;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebView;
 
 import java.net.MalformedURLException;
@@ -76,6 +78,7 @@ public class BrowserManager {
     }
 
     public Node getHyperBrowserView() {
+        FxViewUtil.applyAnchorBoundaryParameters(browser, 0.0, 0.0, 0.0, 0.0);
         return browser;
     }
 }
