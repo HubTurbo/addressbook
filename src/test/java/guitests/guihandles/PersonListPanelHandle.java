@@ -373,67 +373,6 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     /**
-     * Drag card outside of the listview.
-     *
-     * @param personToDrag The text which identify the card to be dragged.
-     */
-    public void dragOutsideList(String personToDrag) {
-        double posY = TestUtil.getScenePos(getListView()).getMaxY() - 50;
-        double posX = TestUtil.getScenePos(getListView()).getMaxX() + 100;
-        guiRobot.drag(personToDrag).dropTo(posX, posY);
-    }
-
-    /**
-     * Drag card outside of the Test App.
-     * @param personToDrag The text which identify the card to be dragged.
-     */
-    public void dragOutsideApp(String personToDrag) {
-        double x = TestUtil.getSceneMaxX(this.primaryStage.getScene()) + 10;
-        double y = TestUtil.getSceneMaxY(this.primaryStage.getScene()) + 10;
-        guiRobot.drag(personToDrag).dropTo(x, y);
-    }
-
-    /**
-     * Drags cards outside of the Test App.
-     * @param listOfPersonsToDrag The texts which identify the cards to be dragged.
-     */
-    public void dragOutsideApp(List<String> listOfPersonsToDrag) {
-        double x = TestUtil.getSceneMaxX(this.primaryStage.getScene()) + 10;
-        double y = TestUtil.getSceneMaxY(this.primaryStage.getScene()) + 10;
-        guiRobot.press(KeyCode.SHORTCUT);
-        listOfPersonsToDrag.stream().forEach(p -> guiRobot.clickOn(p));
-        guiRobot.release(KeyCode.SHORTCUT);
-        guiRobot.drag(listOfPersonsToDrag.get(listOfPersonsToDrag.size() -1))
-                .dropTo(x, y);
-    }
-
-    /**
-     * Drags card to the top or bottom edge of the listview to activate auto scrolling.
-     * @param dragFrom The text which identify the card to be dragged.
-     * @param direction To the top or bottom edge of the listview.
-     * @param dragDuration Drag duration
-     * @param timeunit Timeunit for the duration.
-     */
-    public void scrollDrag(String dragFrom, VerticalDirection direction, long dragDuration, TimeUnit timeunit) {
-        switch (direction) {
-            case UP:
-                double edgeMinY = TestUtil.getScreenPos(getListView()).getMinY()
-                        + PersonListViewCell.getScrollArea() / 2 - 3;
-                double edgeMinX = TestUtil.getScreenPos(getListView()).getMinX()
-                        + this.getListView().getWidth() / 2;
-                guiRobot.drag(dragFrom).drag(edgeMinX, edgeMinY).sleep(dragDuration, timeunit).drop();
-                break;
-            case DOWN:
-                double edgeMaxY = TestUtil.getScreenPos(getListView()).getMaxY()
-                        - PersonListViewCell.getScrollArea() / 2;
-                double edgeMaxX = TestUtil.getScreenPos(getListView()).getMinX()
-                        + this.getListView().getWidth() / 2;
-                guiRobot.drag(dragFrom).drag(edgeMaxX, edgeMaxY).sleep(dragDuration, timeunit).drop();
-                break;
-        }
-    }
-
-    /**
      * Returns true if the {@code persons} appear as a sub list (in that order) in the panel.
      */
     public boolean containsInOrder(Person... persons) {
