@@ -46,7 +46,6 @@ allprojects {
         jacksonVersion = '2.7.0'
         jacksonDataTypeVersion = '2.7.4'
         jKeyMasterVersion = '1.2'
-        jxBrowserVersion = '6.4'
         junitVersion = '4.12'
         log4jVersion = '2.6'
         mockitoVersion = '1+'
@@ -70,8 +69,6 @@ allprojects {
 
         launcherArchiveName = 'addressbook-' + project.version + '.jar'
         launcherMainClass = 'launcher.Launcher'
-
-        licenceArchiveName = 'licence.jar'
 
         generateVersionDataMainClass = 'address.util.VersionDataGenerator'
         libDir = 'lib'
@@ -124,7 +121,6 @@ allprojects {
             resources {
                 srcDir "."
                 include("$libDir/*")
-                exclude("$libDir/jxbrowser-*-*.jar") // platform-specific jxbrowser
                 include("$launcherArchiveName")
                 include('VersionData.json')
             }
@@ -151,13 +147,8 @@ allprojects {
         compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         compile "com.google.guava:guava:$guavaVersion"
-        compile "com.teamdev.jxbrowser:jxbrowser-win:$jxBrowserVersion"
-        compile "com.teamdev.jxbrowser:jxbrowser-mac:$jxBrowserVersion"
-        compile "com.teamdev.jxbrowser:jxbrowser-linux32:$jxBrowserVersion"
-        compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
-        compile files("$libDir/$licenceArchiveName")
         compile files("$libDir/$commonsArchiveName")
 
         testCompile "junit:junit:$junitVersion"
@@ -203,7 +194,6 @@ allprojects {
     // Copy downloaded dependencies from Gradle's cache into the library directory
     task copyAllDependenciesToLibrary(type: Copy) {
         from(configurations.compile) {
-            exclude("$licenceArchiveName")
         }
         into "$libDir/"
     }
