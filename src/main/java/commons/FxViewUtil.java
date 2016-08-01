@@ -22,13 +22,6 @@ public class FxViewUtil {
         AnchorPane.setTopAnchor(node, top);
     }
 
-    public static Optional<VirtualScrollBar> getScrollBarFromListView(ListView listView) {
-        return listView.lookupAll(".scroll-bar")
-                .stream()
-                .filter(foundSb -> ((VirtualScrollBar) foundSb).getOrientation() == Orientation.VERTICAL)
-                .map(obj -> (VirtualScrollBar) obj).findAny();
-    }
-
     /**
      * Configure the image view to be circular in shape.
      * @param imageView

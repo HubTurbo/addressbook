@@ -10,7 +10,6 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebView;
 
 import java.net.MalformedURLException;

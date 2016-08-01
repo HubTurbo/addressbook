@@ -52,14 +52,6 @@
                           </Group>
                     </children>
                 </VBox>
-                <ImageView fx:id="profileImage" fitHeight="90.0" fitWidth="90.0" preserveRatio="true" GridPane.columnIndex="1">
-                    <image>
-                        <Image url="@../images/default_profile_picture.png" />
-                    </image>
-                    <HBox.margin>
-                        <Insets bottom="10" left="10" right="10" top="10" />
-                    </HBox.margin>
-                </ImageView>
             </children>
          <rowConstraints>
             <RowConstraints />

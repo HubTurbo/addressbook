@@ -22,8 +22,6 @@ public class PersonCardController extends UiController {
     @FXML
     private HBox cardPane;
     @FXML
-    private ImageView profileImage;
-    @FXML
     private Label firstName;
     @FXML
     private Label lastName;
@@ -65,7 +63,6 @@ public class PersonCardController extends UiController {
     }
 
     private void bindDisplayedPersonData() {
-        FxViewUtil.configureCircularImageView(profileImage);
 
         firstName.textProperty().bind(person.firstNameProperty());
         lastName.textProperty().bind(person.lastNameProperty());
