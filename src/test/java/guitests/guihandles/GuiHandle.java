@@ -45,6 +45,10 @@ public class GuiHandle {
         }
     }
 
+    public void write(String textToWrite) {
+        guiRobot.write(textToWrite);
+    }
+
     public void focusOnWindow(String stageTitle) {
         logger.info("Focusing {}", stageTitle);
         java.util.Optional<Window> window = guiRobot.listTargetWindows()
@@ -96,6 +100,10 @@ public class GuiHandle {
 
     public void pressEnter() {
         guiRobot.type(KeyCode.ENTER).sleep(500);
+    }
+
+    public void pressTab() {
+        guiRobot.push(KeyCode.TAB).sleep(500);
     }
 
     protected void pressEsc() {

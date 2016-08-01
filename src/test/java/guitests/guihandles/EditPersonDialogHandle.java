@@ -31,6 +31,9 @@ public class EditPersonDialogHandle extends GuiHandle {
     private static final String BIRTHDAY_FIELD_ID = "#birthdayField";
     private static final String GITHUB_USER_NAME_FIELD_ID = "#githubUserNameField";
     private static final String TAG_LIST_PANE_ID = "#tagListPane";
+    private static final String OK_BUTTON_FIELD_ID = "#editDialogOkButton";
+    private static final String CANCEL_BUTTON_FIELD_ID = "#editDialogCancelButton";
+
     private static final String CANCEL_BUTTON_TEXT = "Cancel";
 
     public EditPersonDialogHandle(GuiRobot guiRobot, Stage primaryStage, String stageTitle) {
@@ -66,6 +69,46 @@ public class EditPersonDialogHandle extends GuiHandle {
         }
     }
 
+    public boolean isFirstNameFieldFocused() {
+        return getNode(FIRST_NAME_FIELD_ID).isFocused();
+    }
+
+    public boolean isLastNameFieldFocused() {
+        return getNode(LAST_NAME_FIELD_ID).isFocused();
+    }
+
+    public boolean isStreetFieldFocused() {
+        return getNode(STREET_FIELD_ID).isFocused();
+    }
+
+    public boolean isCityFieldFocused() {
+        return getNode(CITY_FIELD_ID).isFocused();
+    }
+
+    public boolean isPostalCodeFieldFocused() {
+        return getNode(POSTAL_CODE_FIELD_ID).isFocused();
+    }
+
+    public boolean isBirthdayFieldFocused() {
+        return getNode(BIRTHDAY_FIELD_ID).isFocused();
+    }
+
+    public boolean isGithubUsernameFieldFocused() {
+        return getNode(GITHUB_USER_NAME_FIELD_ID).isFocused();
+    }
+
+    public boolean isTagListFocused() {
+        return getNode(TAG_LIST_PANE_ID).isFocused();
+    }
+
+    public boolean isOkButtonFocused() {
+        return getNode(OK_BUTTON_FIELD_ID).isFocused();
+    }
+
+    public boolean isCancelButtonFocused() {
+        return getNode(CANCEL_BUTTON_FIELD_ID).isFocused();
+    }
+
     public String getFirstName(){
         return getTextFieldText(FIRST_NAME_FIELD_ID);
     }
@@ -84,6 +127,10 @@ public class EditPersonDialogHandle extends GuiHandle {
 
     public String getCity() {
         return getTextFieldText(CITY_FIELD_ID);
+    }
+
+    public String getPostalCode() {
+        return getTextFieldText(POSTAL_CODE_FIELD_ID);
     }
 
     public String getGithubUserName() {

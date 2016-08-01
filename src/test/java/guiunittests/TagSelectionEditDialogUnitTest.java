@@ -22,7 +22,8 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.loadui.testfx.GuiTest.find;
 
-public class TagSelectionEditDialogUnitTest extends ApplicationTest {
+//TODO: Create or use a handle for this test class
+public class TagSelectionEditDialogUnitTest extends GuiUnitTestBase {
     private FlowPane tagList;
     private TextField tagSearch;
     private ScrollPane tagResults;
@@ -65,7 +66,7 @@ public class TagSelectionEditDialogUnitTest extends ApplicationTest {
 
     @Test
     public void testTagSearch() {
-        clickOn(tagSearch).write("frien");
+        guiRobot.clickOn(tagSearch).write("frien");
 
         assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
         assertEquals(1, tagList.getChildren().size());
@@ -73,7 +74,7 @@ public class TagSelectionEditDialogUnitTest extends ApplicationTest {
 
     @Test
     public void testTagSearch2() {
-        clickOn(tagSearch).write("rela");
+        guiRobot.clickOn(tagSearch).write("rela");
 
         assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
         assertEquals(1, tagList.getChildren().size());
@@ -81,7 +82,7 @@ public class TagSelectionEditDialogUnitTest extends ApplicationTest {
 
     @Test
     public void testTagSearch3() {
-        clickOn(tagSearch).write("e");
+        guiRobot.clickOn(tagSearch).write("e");
 
         assertEquals(3, ((VBox) tagResults.getContent()).getChildren().size());
         assertEquals(1, tagList.getChildren().size());
@@ -89,7 +90,7 @@ public class TagSelectionEditDialogUnitTest extends ApplicationTest {
 
     @Test
     public void testTagSearch4() {
-        clickOn(tagSearch).write("frie frie");
+        guiRobot.clickOn(tagSearch).write("frie frie");
 
         assertEquals(1, ((VBox) tagResults.getContent()).getChildren().size());
         assertEquals(2, tagList.getChildren().size());
