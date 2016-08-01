@@ -2,9 +2,9 @@ package guiunittests;
 
 import address.TestApp;
 import address.controller.PersonEditDialogController;
-import address.testutil.ApplicationTest;
 import address.testutil.TypicalTestData;
 
+import guitests.GuiRobot;
 import guitests.guihandles.EditPersonDialogHandle;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -20,10 +20,9 @@ import static org.junit.Assert.assertTrue;
 /**
  * To test the basic features of the edit dialog
  */
-public class PersonEditDialogUnitTest extends ApplicationTest {
+public class PersonEditDialogUnitTest extends GuiUnitTestBase {
 
     TypicalTestData data = new TypicalTestData();
-    EditPersonDialogHandle handle;
     
     @Test
     public void testEditDialog_tabAndWrite() throws IOException {
@@ -82,6 +81,6 @@ public class PersonEditDialogUnitTest extends ApplicationTest {
         controller.setDialogStage(stage);
         stage.setScene(new Scene(baseNode));
         stage.show();
-        handle = new EditPersonDialogHandle(this, stage, null);
+        handle = new EditPersonDialogHandle(guiRobot, stage, EditPersonDialogHandle.EDIT_TITLE);
     }
 }
