@@ -1,6 +1,5 @@
 package address.controller;
 
-import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import commons.FxViewUtil;
 import javafx.beans.binding.StringBinding;
@@ -11,12 +10,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState;
 
@@ -68,9 +65,6 @@ public class PersonCardController extends UiController {
     }
 
     private void bindDisplayedPersonData() {
-        if (person.getGithubUsername().length() > 0) {
-            setProfileImage();
-        }
         FxViewUtil.configureCircularImageView(profileImage);
 
         firstName.textProperty().bind(person.firstNameProperty());
@@ -106,11 +100,6 @@ public class PersonCardController extends UiController {
             }
         });
 
-        person.githubUsernameProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.length() > 0) {
-                setProfileImage();
-            }
-        });
     }
 
     private void initCommandStateDisplay() {
@@ -147,24 +136,6 @@ public class PersonCardController extends UiController {
         lastName.setTooltip(tp);
         idTooltipString.set(person.idString());
         person.onRemoteIdConfirmed(id -> idTooltipString.set(person.idString()));
-    }
-
-    /**
-     * Asynchronously sets the profile image to the image view.
-     * Involves making an internet connection with the image hosting server.
-     */
-    private void setProfileImage() {
-        final Optional<String> profileImageUrl = person.githubProfilePicUrl();
-        if (profileImageUrl.isPresent()) {
-            new Thread(() -> {
-                Image image = ImageManager.getInstance().getImage(profileImageUrl.get());
-                if (image != null && image.getHeight() > 0) {
-                    profileImage.setImage(image);
-                } else {
-                    profileImage.setImage(ImageManager.getDefaultProfileImage());
-                }
-            }).start();
-        }
     }
 
     public HBox getLayout() {

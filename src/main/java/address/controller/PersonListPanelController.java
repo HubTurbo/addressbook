@@ -15,7 +15,6 @@ import address.ui.PersonListViewCell;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.collections.FilteredList;
-import address.util.collections.ReorderedList;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -70,9 +69,8 @@ public class PersonListPanelController extends UiController {
         this.modelManager = modelManager;
         filteredPersonList = new FilteredList<>(personList, new PredExpr(new TrueQualifier())::satisfies);
 
-        ReorderedList<ReadOnlyViewablePerson> orderedList = new ReorderedList<>(filteredPersonList);
-        personListView.setItems(orderedList);
-        personListView.setCellFactory(listView -> new PersonListViewCell(orderedList));
+        personListView.setItems(filteredPersonList);
+        personListView.setCellFactory(listView -> new PersonListViewCell());
         loadGithubProfilePageWhenPersonIsSelected(mainController);
         setupListviewSelectionModelSettings();
         disableEditCommandForMultipleSelection();
