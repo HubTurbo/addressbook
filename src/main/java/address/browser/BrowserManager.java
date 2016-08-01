@@ -12,9 +12,6 @@ import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import commons.UrlUtil;
-import com.teamdev.jxbrowser.chromium.BrowserCore;
-import com.teamdev.jxbrowser.chromium.LoggerProvider;
-import com.teamdev.jxbrowser.chromium.internal.Environment;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -30,7 +27,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -46,18 +42,18 @@ public class BrowserManager {
     private final BrowserType browserType;
     private final int browserNoOfPages;
     private ObservableList<ReadOnlyViewablePerson> filteredPersons;
-    private Optional<HyperBrowser> hyperBrowser = Optional.empty();
+    private HyperBrowser hyperBrowser;
     private StringProperty selectedPersonUsername;
     private ChangeListener<String> listener = (observable,  oldValue,  newValue) -> {
         try {
             URL url = new URL(GITHUB_ROOT_URL + newValue);
-            if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
-                List<Page> pages = hyperBrowser.get().loadUrl(url);
+            if (!UrlUtil.compareBaseUrls(hyperBrowser.getDisplayedUrl(), url)) {
+                List<Page> pages = hyperBrowser.loadUrl(url);
             }
         } catch (MalformedURLException e) {
             logger.warn("Malformed URL obtained, not attempting to load.");
             if (!newValue.equals("")) {
-                hyperBrowser.get().loadHTML(INVALID_GITHUB_USERNAME_MESSAGE);
+                hyperBrowser.loadHTML(INVALID_GITHUB_USERNAME_MESSAGE);
             }
         }
     };
@@ -84,17 +80,8 @@ public class BrowserManager {
      * Starts the browser manager.
      */
     public void start() {
-        String headlessProperty = System.getProperty("testfx.headless");
-        if (headlessProperty != null && headlessProperty.equals("true")) {
-            logger.info("Headless mode detected, not initializing HyperBrowser.");
-            hyperBrowser = Optional.empty();
-        } else {
-            logger.info("Initializing browser with {} pages", browserNoOfPages);
-            hyperBrowser = Optional.of(new HyperBrowser(
-                    browserType,
-                    browserNoOfPages,
-                    getBrowserInitialScreen()));
-        }
+        logger.info("Initializing browser with {} pages", browserNoOfPages);
+        hyperBrowser = new HyperBrowser(browserType, browserNoOfPages, getBrowserInitialScreen());
     }
 
     /**
@@ -102,7 +89,6 @@ public class BrowserManager {
      * PreCondition: filteredModelPersons.size() >= 1
      */
     public synchronized void loadProfilePage(ReadOnlyViewablePerson person) {
-        if (!hyperBrowser.isPresent()) return;
 
         selectedPersonUsername.removeListener(listener);
 
@@ -115,7 +101,7 @@ public class BrowserManager {
                                                                   indexOfPersonInListOfContacts,
                                                                   browserNoOfPages - 1);
         try {
-            List<Page> pages = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
+            List<Page> pages = hyperBrowser.loadUrls(person.profilePageUrl(), listOfFutureUrl);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             assert false : "Preconditions of loadUrls is not fulfilled.";
@@ -130,14 +116,10 @@ public class BrowserManager {
      * Frees resources allocated to the browser.
      */
     public void freeBrowserResources() {
-        if (!hyperBrowser.isPresent()) return;
-        hyperBrowser.get().dispose();
+        hyperBrowser.dispose();
     }
 
     public AnchorPane getHyperBrowserView() {
-        if (!hyperBrowser.isPresent()) {
-            return new AnchorPane();
-        }
-        return hyperBrowser.get().getHyperBrowserView();
+        return hyperBrowser.getHyperBrowserView();
     }
 }

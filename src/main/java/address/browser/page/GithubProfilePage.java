@@ -11,8 +11,6 @@ public class GithubProfilePage implements PageInterface {
 
     private Page page;
 
-    private Boolean wasAutoScrollingSetup = false;
-
     public GithubProfilePage(Page page) {
         this.page = page;
     }
