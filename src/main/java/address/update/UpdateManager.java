@@ -7,8 +7,8 @@ import address.main.ComponentManager;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import address.util.ManifestFileReader;
-import commons.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import commons.*;
 
 import java.io.File;
 import java.io.IOException;

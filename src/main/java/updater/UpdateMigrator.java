@@ -1,10 +1,6 @@
 package updater;
 
-import commons.LocalUpdateSpecificationHelper;
-import commons.UpdaterUtil;
-import commons.Version;
-import commons.VersionData;
-import commons.FileUtil;
+import commons.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -14,7 +10,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

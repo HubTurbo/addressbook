@@ -3,8 +3,6 @@ package guiunittests;
 import address.TestApp;
 import address.controller.PersonEditDialogController;
 import address.testutil.TypicalTestData;
-
-import guitests.GuiRobot;
 import guitests.guihandles.EditPersonDialogHandle;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

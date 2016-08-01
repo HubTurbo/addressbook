@@ -4,8 +4,8 @@ import address.events.sync.DeletePersonOnRemoteRequestEvent;
 import address.model.ChangeObjectInModelCommand.CommandState;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.ViewablePerson;
-import address.util.Config;
 import address.testutil.TestUtil;
+import address.util.Config;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import org.junit.*;
@@ -16,7 +16,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)

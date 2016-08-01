@@ -1,7 +1,8 @@
 package address.keybindings;
 
 
-import address.events.*;
+import address.events.BaseEvent;
+import address.events.EventManager;
 import address.events.controller.JumpToListRequestEvent;
 import address.events.controller.MinimizeAppRequestEvent;
 import address.events.controller.ResizeAppRequestEvent;
@@ -17,13 +18,15 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
 public class KeyBindingsManagerApiTest {
 

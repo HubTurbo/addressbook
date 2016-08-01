@@ -5,7 +5,8 @@ import address.util.LoggerManager;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static address.model.ChangeObjectInModelCommand.CommandState.*;
 

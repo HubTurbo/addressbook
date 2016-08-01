@@ -2,10 +2,7 @@ package guitests;
 
 import guitests.guihandles.ManageTagsDialogHandle;
 import guitests.guihandles.NewTagDialogHandle;
-
 import org.junit.Test;
-
-import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;

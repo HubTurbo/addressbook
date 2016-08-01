@@ -1,7 +1,6 @@
 package address.model;
 
 import address.model.datatypes.tag.Tag;
-import address.model.TagSelectionEditDialogModel;
 import org.junit.Test;
 
 import java.util.ArrayList;

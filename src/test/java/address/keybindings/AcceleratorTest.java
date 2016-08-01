@@ -1,10 +1,9 @@
 package address.keybindings;
 
 import address.testutil.TestUtil;
-import commons.OsDetector;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class AcceleratorTest {
     Accelerator accelerator = new Accelerator("Dummy accelerator", KeyBindingTest.SHIFT_B);

@@ -3,7 +3,6 @@ package address.model.datatypes;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
-import javafx.collections.ObservableList;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package address;
 
-import address.model.ModelManager;
 import address.keybindings.KeyBindingsManager;
+import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.storage.StorageManager;
 import address.sync.RemoteManager;
@@ -9,9 +9,11 @@ import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
 import address.update.UpdateManager;
+import address.util.AppLogger;
+import address.util.Config;
+import address.util.DependencyChecker;
+import address.util.LoggerManager;
 import commons.Version;
-import address.util.*;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;

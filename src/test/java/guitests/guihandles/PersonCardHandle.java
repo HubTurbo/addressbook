@@ -1,6 +1,5 @@
 package guitests.guihandles;
 
-import address.TestApp;
 import address.controller.PersonCardController;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;

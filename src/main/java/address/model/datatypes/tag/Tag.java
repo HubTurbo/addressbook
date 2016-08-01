@@ -4,7 +4,6 @@ import address.model.datatypes.ExtractableObservables;
 import address.model.datatypes.UniqueData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 

@@ -6,7 +6,7 @@ import address.events.sync.SyncStartedEvent;
 import address.events.update.ApplicationUpdateFailedEvent;
 import address.events.update.ApplicationUpdateFinishedEvent;
 import address.events.update.ApplicationUpdateInProgressEvent;
-import address.util.*;
+import address.util.TickingTimer;
 import com.google.common.eventbus.Subscribe;
 import commons.DateTimeUtil;
 import commons.FxViewUtil;
@@ -18,7 +18,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.StatusBar;
 
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
 
 public class StatusBarFooterController extends UiController {
 

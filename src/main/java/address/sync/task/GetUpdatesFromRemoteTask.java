@@ -1,6 +1,6 @@
 package address.sync.task;
 
-import address.events.*;
+import address.events.BaseEvent;
 import address.events.sync.SyncCompletedEvent;
 import address.events.sync.SyncFailedEvent;
 import address.events.sync.SyncStartedEvent;

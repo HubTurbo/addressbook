@@ -4,18 +4,19 @@ import address.controller.PersonCardController;
 import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
-
 import address.util.DragContainer;
-import commons.FxViewUtil;
 import address.util.collections.ReorderedList;
 import com.sun.javafx.scene.control.skin.VirtualScrollBar;
+import commons.FxViewUtil;
 import javafx.collections.ObservableList;
-
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.*;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 

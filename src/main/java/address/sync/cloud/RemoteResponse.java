@@ -1,9 +1,9 @@
 package address.sync.cloud;
 
 import address.util.AppLogger;
-import commons.JsonUtil;
 import address.util.LoggerManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import commons.JsonUtil;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;

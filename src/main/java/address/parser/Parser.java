@@ -1,13 +1,13 @@
 package address.parser;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import address.parser.expr.AndExpr;
 import address.parser.expr.Expr;
 import address.parser.expr.NotExpr;
 import address.parser.expr.PredExpr;
 import address.parser.qualifier.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Parser {
     private static final String NEGATION_REGEX = "!(!*\\w+)";

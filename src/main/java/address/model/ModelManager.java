@@ -7,15 +7,20 @@ import address.events.sync.EditTagOnRemoteRequestEvent;
 import address.events.sync.SyncCompletedEvent;
 import address.exceptions.DuplicateTagException;
 import address.main.ComponentManager;
-import address.model.datatypes.*;
-import address.model.datatypes.person.*;
+import address.model.datatypes.AddressBook;
+import address.model.datatypes.ReadOnlyAddressBook;
+import address.model.datatypes.ReadOnlyViewableAddressBook;
+import address.model.datatypes.ViewableAddressBook;
+import address.model.datatypes.person.Person;
+import address.model.datatypes.person.ReadOnlyPerson;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.ViewablePerson;
 import address.model.datatypes.tag.Tag;
-import address.util.*;
+import address.util.AppLogger;
+import address.util.Config;
+import address.util.LoggerManager;
 import address.util.collections.UnmodifiableObservableList;
 import com.google.common.eventbus.Subscribe;
-
-import address.util.AppLogger;
-import address.util.LoggerManager;
 import commons.PlatformExecUtil;
 import javafx.collections.ObservableList;
 

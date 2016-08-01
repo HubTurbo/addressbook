@@ -5,7 +5,6 @@ import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.Node;

@@ -2,11 +2,8 @@ package address.events.storage;
 
 import address.events.BaseEvent;
 import address.model.datatypes.ReadOnlyAddressBook;
-import address.model.datatypes.person.Person;
-import address.model.datatypes.tag.Tag;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * Indicates a request for saving data has been raised

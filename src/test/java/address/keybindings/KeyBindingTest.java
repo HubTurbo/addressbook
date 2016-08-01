@@ -1,8 +1,8 @@
 package address.keybindings;
 
 
-import address.events.hotkey.AcceleratorIgnoredEvent;
 import address.events.BaseEvent;
+import address.events.hotkey.AcceleratorIgnoredEvent;
 import address.testutil.TestUtil;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;

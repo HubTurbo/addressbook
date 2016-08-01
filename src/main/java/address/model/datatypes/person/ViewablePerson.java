@@ -1,8 +1,5 @@
 package address.model.datatypes.person;
 
-import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState.*;
-import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandType.*;
-
 import address.model.datatypes.UniqueData;
 import address.model.datatypes.Viewable;
 import address.model.datatypes.tag.Tag;
@@ -19,6 +16,9 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandType.NONE;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState.INVALID;
 
 /**
  * Extends {@link Viewable} for the Person domain object.

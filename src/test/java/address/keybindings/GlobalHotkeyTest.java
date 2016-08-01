@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import javax.swing.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class GlobalHotkeyTest {
     GlobalHotkey globalHotkey = new GlobalHotkey("Sample hotkey",

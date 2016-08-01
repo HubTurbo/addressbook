@@ -1,6 +1,6 @@
 package updater;
 
-import commons.*;
+import commons.FileUtil;
 
 import java.io.File;
 import java.io.IOException;

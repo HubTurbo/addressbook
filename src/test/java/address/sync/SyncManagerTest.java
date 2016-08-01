@@ -1,7 +1,7 @@
 package address.sync;
 
-import address.events.sync.CreatePersonOnRemoteRequestEvent;
 import address.events.EventManager;
+import address.events.sync.CreatePersonOnRemoteRequestEvent;
 import address.events.sync.SyncFailedEvent;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;

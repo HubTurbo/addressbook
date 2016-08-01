@@ -1,7 +1,6 @@
 package address.events.sync;
 
 import address.events.BaseEvent;
-import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 
 import java.util.concurrent.CompletableFuture;

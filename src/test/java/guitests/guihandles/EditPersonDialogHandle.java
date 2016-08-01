@@ -1,7 +1,6 @@
 package guitests.guihandles;
 
 import address.model.datatypes.person.Person;
-
 import address.model.datatypes.tag.Tag;
 import commons.DateTimeUtil;
 import guitests.GuiRobot;

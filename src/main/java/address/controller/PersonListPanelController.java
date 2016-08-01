@@ -1,38 +1,37 @@
 package address.controller;
 
-import static address.keybindings.KeyBindingsManager.*;
-import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState.*;
-
 import address.events.controller.JumpToListRequestEvent;
 import address.events.parser.FilterCommittedEvent;
 import address.model.ModelManager;
-import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
+import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.parser.qualifier.TrueQualifier;
 import address.ui.PersonListViewCell;
-import address.util.collections.FilteredList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
+import address.util.collections.FilteredList;
 import address.util.collections.ReorderedList;
 import com.google.common.eventbus.Subscribe;
-
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
 
 import java.util.List;
 import java.util.Objects;
+
+import static address.keybindings.KeyBindingsManager.getAcceleratorKeyCombo;
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState.REQUEST_FAILED;
 
 /**
  * Dialog to view the list of persons and their details

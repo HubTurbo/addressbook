@@ -1,13 +1,13 @@
 package address.model;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import address.model.datatypes.tag.SelectableTag;
 import address.model.datatypes.tag.Tag;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TagSelectionEditDialogModel {
     private List<Tag> allTags;

@@ -6,8 +6,8 @@ import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.sync.cloud.model.CloudAddressBook;
 import address.testutil.ScreenShotRule;
-import address.testutil.TypicalTestData;
 import address.testutil.TestUtil;
+import address.testutil.TypicalTestData;
 import address.util.Config;
 import guitests.guihandles.*;
 import javafx.stage.Stage;
@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class GuiTestBase {

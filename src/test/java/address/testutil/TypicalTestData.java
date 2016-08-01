@@ -3,14 +3,6 @@ package address.testutil;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
-import address.sync.cloud.model.CloudAddressBook;
-import address.sync.cloud.model.CloudPerson;
-import address.sync.cloud.model.CloudTag;
-
-import java.util.Arrays;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Typical data set used for testing

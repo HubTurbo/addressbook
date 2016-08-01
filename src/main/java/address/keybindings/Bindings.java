@@ -1,6 +1,6 @@
 package address.keybindings;
 
-import address.events.*;
+import address.events.BaseEvent;
 import address.events.controller.JumpToListRequestEvent;
 import address.events.controller.MinimizeAppRequestEvent;
 import address.events.controller.ResizeAppRequestEvent;

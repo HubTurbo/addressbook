@@ -6,9 +6,9 @@ import address.storage.StorageAddressBook;
 import address.sync.RemoteManager;
 import address.sync.cloud.CloudManipulator;
 import address.sync.cloud.model.CloudAddressBook;
+import address.testutil.TestUtil;
 import address.util.Config;
 import address.util.GuiSettings;
-import address.testutil.TestUtil;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 

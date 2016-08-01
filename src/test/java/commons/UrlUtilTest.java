@@ -1,8 +1,6 @@
 package commons;
 
-import commons.UrlUtil;
 import junit.framework.TestCase;
-
 import org.junit.Test;
 
 import java.net.MalformedURLException;
@@ -11,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Tests the UrlUtil methods.

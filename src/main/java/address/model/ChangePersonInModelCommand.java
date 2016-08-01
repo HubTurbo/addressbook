@@ -1,7 +1,5 @@
 package address.model;
 
-import static address.model.datatypes.person.ReadOnlyViewablePerson.*;
-
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.person.ViewablePerson;
 import commons.PlatformExecUtil;
@@ -10,6 +8,8 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
+
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState;
 
 /**
  * Base class for individual-person level changes like add, edit, delete.

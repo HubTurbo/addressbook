@@ -1,18 +1,21 @@
 package address.sync.cloud;
 
+import address.exceptions.DataConversionException;
 import address.sync.cloud.model.CloudAddressBook;
 import address.sync.cloud.model.CloudPerson;
 import address.sync.cloud.model.CloudTag;
-import address.exceptions.DataConversionException;
 import address.util.AppLogger;
 import address.util.Config;
 import address.util.LoggerManager;
 
-import java.io.*;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**

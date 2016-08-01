@@ -1,13 +1,8 @@
 package address.controller;
 
-import java.io.IOException;
-import java.util.Optional;
-
 import address.image.ImageManager;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
-
 import commons.FxViewUtil;
-
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -20,7 +15,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
-import static address.model.datatypes.person.ReadOnlyViewablePerson.*;
+import java.io.IOException;
+import java.util.Optional;
+
+import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState;
 
 public class PersonCardController extends UiController {
 

@@ -2,8 +2,6 @@ package address.parser;
 
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.tag.Tag;
-import address.parser.ParseException;
-import address.parser.Parser;
 import address.parser.expr.Expr;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,6 +1,5 @@
 package address.parser.expr;
 
-import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 
 public class AndExpr implements Expr {

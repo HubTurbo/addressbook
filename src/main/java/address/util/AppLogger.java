@@ -4,9 +4,6 @@ import address.events.BaseEvent;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class AppLogger {
     private Logger logger;
 

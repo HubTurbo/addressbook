@@ -1,7 +1,7 @@
 package address.controller;
 
-import address.model.datatypes.tag.Tag;
 import address.model.ModelManager;
+import address.model.datatypes.tag.Tag;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;

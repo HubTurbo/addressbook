@@ -2,8 +2,8 @@ package address.model.datatypes.person;
 
 import address.model.datatypes.ExtractableObservables;
 import address.model.datatypes.tag.Tag;
-import commons.DateTimeUtil;
 import address.util.collections.UnmodifiableObservableList;
+import commons.DateTimeUtil;
 import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;

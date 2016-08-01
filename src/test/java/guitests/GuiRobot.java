@@ -7,7 +7,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.MouseButton;
 import org.testfx.api.FxRobot;
-import org.testfx.api.FxRobotException;
 
 /**
  * Robot used to simulate user actions on the GUI.

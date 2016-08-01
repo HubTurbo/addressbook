@@ -1,7 +1,5 @@
 package address.model;
 
-import static address.model.datatypes.person.ReadOnlyViewablePerson.*;
-
 import address.events.BaseEvent;
 import address.events.model.SingleTargetCommandResultEvent;
 import address.events.sync.UpdatePersonOnRemoteRequestEvent;
@@ -16,6 +14,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import static address.model.datatypes.person.ReadOnlyViewablePerson.OngoingCommandType;
 
 /**
  * Handles optimistic UI updating, cancellation/changing command, and remote consistency logic
