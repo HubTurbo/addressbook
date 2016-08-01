@@ -7,7 +7,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.testfx.api.FxToolkit;
-import org.testfx.api.annotation.Unstable;
 import org.testfx.framework.junit.ApplicationAdapter;
 import org.testfx.framework.junit.ApplicationFixture;
 
@@ -46,18 +45,14 @@ public abstract class GuiUnitTestBase implements ApplicationFixture {
     }
 
     @Override
-    public void init()
-            throws Exception {
+    public void init() throws Exception {
 
     }
 
     @Override
-    public abstract void start(Stage stage)
-            throws Exception;
+    public abstract void start(Stage stage) throws Exception;
 
     @Override
-    @Unstable(reason = "is missing apidocs")
-    public void stop()
-            throws Exception {}
+    public void stop() throws Exception {}
 
 }
