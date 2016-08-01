@@ -1,13 +1,5 @@
 package address.browser;
 
-import address.MainApp;
-
-import address.model.datatypes.person.ReadOnlyPerson;
-
-import hubturbo.embeddedbrowser.BrowserType;
-import hubturbo.embeddedbrowser.HyperBrowser;
-import hubturbo.embeddedbrowser.page.Page;
-
 import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.util.AppLogger;
 import address.util.LoggerManager;
@@ -17,16 +9,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebView;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Manages the AddressBook browser.

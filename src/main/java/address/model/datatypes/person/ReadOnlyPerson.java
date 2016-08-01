@@ -4,7 +4,6 @@ import address.model.datatypes.ExtractableObservables;
 import address.model.datatypes.tag.Tag;
 import commons.DateTimeUtil;
 import address.util.collections.UnmodifiableObservableList;
-import com.teamdev.jxbrowser.chromium.internal.URLUtil;
 import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
@@ -132,9 +131,7 @@ public interface ReadOnlyPerson extends ExtractableObservables {
     default Optional<String> githubProfilePicUrl() {
         if (getGithubUsername().length() > 0) {
             String profilePicUrl = profilePageUrl().toExternalForm() + ".png";
-            if (URLUtil.isURIFormat(profilePicUrl)){
-                return Optional.of(profilePicUrl);
-            }
+            return Optional.of(profilePicUrl);
         }
         return Optional.empty();
     }
