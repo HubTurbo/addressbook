@@ -6,7 +6,6 @@ import hubturbo.EmbeddedBrowser;
 import hubturbo.embeddedbrowser.BrowserType;
 import hubturbo.embeddedbrowser.EmbeddedBrowserFactory;
 import hubturbo.embeddedbrowser.fxbrowser.FxBrowserAdapter;
-import hubturbo.embeddedbrowser.jxbrowser.JxBrowserAdapter;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,21 +25,11 @@ public class EmbeddedBrowserFactoryTest {
     @BeforeClass
     public static void setup() throws TimeoutException {
         TestUtil.initRuntime();
-        TestUtil.initBrowserInStatic();
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
         TestUtil.tearDownRuntime();
-    }
-
-    @Test
-    public void testCreateBrowser_fullFeatureBrowser_success() {
-        EmbeddedBrowser browser = EmbeddedBrowserFactory.createBrowser(BrowserType.FULL_FEATURE_BROWSER);
-        assertNotNull(browser);
-        assertTrue(browser instanceof JxBrowserAdapter);
-
-        browser.dispose();
     }
 
     @Test

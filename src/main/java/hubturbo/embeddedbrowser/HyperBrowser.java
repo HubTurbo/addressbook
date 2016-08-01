@@ -103,7 +103,6 @@ public class HyperBrowser {
     }
 
     private void reclaimBrowser(Page page) {
-        page.getBrowser().reset();
         inActiveBrowserStack.push(page.getBrowser());
     }
 

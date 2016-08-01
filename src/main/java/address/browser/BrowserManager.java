@@ -1,7 +1,6 @@
 package address.browser;
 
 import address.MainApp;
-import address.browser.page.GithubProfilePage;
 
 import address.model.datatypes.person.ReadOnlyPerson;
 
@@ -54,7 +53,6 @@ public class BrowserManager {
             URL url = new URL(GITHUB_ROOT_URL + newValue);
             if (!UrlUtil.compareBaseUrls(hyperBrowser.get().getDisplayedUrl(), url)) {
                 List<Page> pages = hyperBrowser.get().loadUrl(url);
-                configureGithubPageTasks(pages);
             }
         } catch (MalformedURLException e) {
             logger.warn("Malformed URL obtained, not attempting to load.");
@@ -79,20 +77,6 @@ public class BrowserManager {
             return Optional.ofNullable(loader.load());
         } catch (IOException e){
             return Optional.empty();
-        }
-    }
-
-    /**
-     * Initialize the browser managed by the browser manager.
-     * This must be called in a non-ui thread.
-     */
-    public void initBrowser(){
-        if (browserType == BrowserType.FULL_FEATURE_BROWSER) {
-            if (Environment.isMac()) {
-                BrowserCore.initialize();
-            }
-            logger.debug("Suppressing browser logs");
-            LoggerProvider.setLevel(Level.SEVERE);
         }
     }
 
@@ -132,7 +116,6 @@ public class BrowserManager {
                                                                   browserNoOfPages - 1);
         try {
             List<Page> pages = hyperBrowser.get().loadUrls(person.profilePageUrl(), listOfFutureUrl);
-            configureGithubPageTasks(pages);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             assert false : "Preconditions of loadUrls is not fulfilled.";
@@ -156,9 +139,5 @@ public class BrowserManager {
             return new AnchorPane();
         }
         return hyperBrowser.get().getHyperBrowserView();
-    }
-
-    private void configureGithubPageTasks(List<Page> pages) {
-        pages.stream().map(GithubProfilePage::new).forEach(GithubProfilePage::setupPageAutomation);
     }
 }

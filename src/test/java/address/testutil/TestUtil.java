@@ -242,12 +242,6 @@ public class TestUtil {
         FxToolkit.cleanupStages();
     }
 
-    public static void initBrowserInStatic() {
-        BrowserManager manager = new BrowserManager(FXCollections.emptyObservableList(),
-                1, BrowserType.FULL_FEATURE_BROWSER);
-        manager.initBrowser();
-    }
-
     public static CloudAddressBook generateCloudAddressBook(AddressBook addressBook) {
         List<CloudPerson> cloudPersonList = new ArrayList<>();
         addressBook.getPersonList().forEach(p -> {

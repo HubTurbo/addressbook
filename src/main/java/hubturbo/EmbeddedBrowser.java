@@ -1,7 +1,5 @@
 package hubturbo;
 
-import hubturbo.embeddedbrowser.EbAttachListener;
-import hubturbo.embeddedbrowser.EbDocument;
 import hubturbo.embeddedbrowser.EbLoadListener;
 import javafx.scene.Node;
 
@@ -30,13 +28,6 @@ public interface EmbeddedBrowser {
      * @return The graphical view of the browser casted in Node form.
      */
     Node getBrowserView();
-
-    /**
-     * Checks whether the browser is loading a web page.
-     * @return true if browser is loading a web page
-     *         false if browser is not loading a web page.
-     */
-    boolean isLoading();
 
     /**
      * Dispose the browser. Frees up memory allocated to the browser.
@@ -70,18 +61,6 @@ public interface EmbeddedBrowser {
      */
     URL getOriginUrl() throws MalformedURLException;
 
-    /**
-     * Gets the DOM model of the displayed webpage.
-     * @return The DOM model.
-     */
-    EbDocument getDomElement();
-
-    /**
-     * Executes browser command.
-     * @param command The command. For e.g. To scroll to the end of the document
-     *                                      Use EbEditorCommand.SCROLL_TO_END_OF_DOCUMENT
-     */
-    void executeCommand(int command);
 
     /**
      * Adds a listener to listen to web page loaded successfully.
@@ -89,15 +68,5 @@ public interface EmbeddedBrowser {
      */
     void setLoadListener(EbLoadListener listener);
 
-    /**
-     * Adds a listener to listen when the browser is (re)attached to a scene.
-     * @param listener An EbAttachListener interface.
-     */
-    void setAttachListener(EbAttachListener listener);
-
-    /**
-     * Resets the browser to its initial state.
-     */
-    void reset();
 
 }

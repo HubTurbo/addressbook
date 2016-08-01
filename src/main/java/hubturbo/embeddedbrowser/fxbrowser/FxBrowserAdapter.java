@@ -1,9 +1,7 @@
 package hubturbo.embeddedbrowser.fxbrowser;
 
-import hubturbo.embeddedbrowser.EbAttachListener;
 import hubturbo.embeddedbrowser.EbLoadListener;
 import hubturbo.EmbeddedBrowser;
-import hubturbo.embeddedbrowser.EbDocument;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
@@ -20,15 +18,10 @@ public class FxBrowserAdapter implements EmbeddedBrowser, ChangeListener<Worker.
 
     private WebView webView;
 
-    private volatile Worker.State state;
-
     private EbLoadListener listener;
 
     public FxBrowserAdapter(WebView webview) {
         webView = webview;
-        webView.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
-            state = newValue;
-        });
     }
 
     @Override
@@ -44,11 +37,6 @@ public class FxBrowserAdapter implements EmbeddedBrowser, ChangeListener<Worker.
     @Override
     public Node getBrowserView() {
         return webView;
-    }
-
-    @Override
-    public boolean isLoading() {
-        return state != Worker.State.SUCCEEDED;
     }
 
     @Override
@@ -77,32 +65,9 @@ public class FxBrowserAdapter implements EmbeddedBrowser, ChangeListener<Worker.
     }
 
     @Override
-    public EbDocument getDomElement() {
-        if (this.webView.getEngine().getDocument() == null) {
-            return null;
-        }
-        return new FxBrowserDocAdapter(this.webView.getEngine().getDocument());
-    }
-
-    @Override
-    public void executeCommand(int command) {
-        throw new RuntimeException("executeCommand() not supported by FxBrowserAdapter");
-    }
-
-    @Override
     public void setLoadListener(EbLoadListener listener) {
         this.listener = listener;
         this.webView.getEngine().getLoadWorker().stateProperty().addListener(this);
-    }
-
-    @Override
-    public void setAttachListener(EbAttachListener listener) {
-        throw new RuntimeException("setAttachListener() not supported by FxBrowserAdapter");
-    }
-
-    @Override
-    public void reset() {
-        throw new RuntimeException("reset() not supported by FxBrowserAdapter");
     }
 
     @Override

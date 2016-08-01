@@ -15,7 +15,6 @@ public class Config {
     private static final Level DEFAULT_LOGGING_LEVEL = Level.INFO;
     private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVELS = new HashMap<>();
     private static final int DEFAULT_BROWSER_NO_OF_PAGES = 3;
-    private static final BrowserType DEFAULT_BROWSER_TYPE = BrowserType.FULL_FEATURE_BROWSER;
     private static final String DEFAULT_LOCAL_DATA_FILE_PATH = "data/addressbook.xml";
     private static final String DEFAULT_CLOUD_DATA_FILE_PATH = null; // For use in CloudManipulator for manual testing
     private static final String DEFAULT_ADDRESS_BOOK_NAME = "MyAddressBook";
@@ -28,7 +27,7 @@ public class Config {
     private HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
     private File prefsFileLocation = new File("preferences.json"); //Default user preferences file
     private int browserNoOfPages = DEFAULT_BROWSER_NO_OF_PAGES;
-    private BrowserType browserType = DEFAULT_BROWSER_TYPE;
+    private BrowserType browserType = BrowserType.LIMITED_FEATURE_BROWSER;
     private String localDataFilePath = DEFAULT_LOCAL_DATA_FILE_PATH;
     private String cloudDataFilePath = DEFAULT_CLOUD_DATA_FILE_PATH;
     private String addressBookName = DEFAULT_ADDRESS_BOOK_NAME;

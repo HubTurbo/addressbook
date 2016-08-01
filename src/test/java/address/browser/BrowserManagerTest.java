@@ -1,6 +1,7 @@
 package address.browser;
 
 import address.testutil.TestUtil;
+import commons.PlatformExecUtil;
 import hubturbo.embeddedbrowser.BrowserType;
 import javafx.collections.FXCollections;
 import org.junit.AfterClass;
@@ -22,7 +23,6 @@ public class BrowserManagerTest {
     @BeforeClass
     public static void setup() throws TimeoutException {
         TestUtil.initRuntime();
-        TestUtil.initBrowserInStatic();
     }
 
     @AfterClass
@@ -35,8 +35,8 @@ public class BrowserManagerTest {
                                                                         InvocationTargetException,
                                                                         IllegalAccessException {
         BrowserManager manager = new BrowserManager(FXCollections.observableArrayList(), 3,
-                                                    BrowserType.FULL_FEATURE_BROWSER);
-        manager.start();
+                                                    BrowserType.LIMITED_FEATURE_BROWSER);
+        PlatformExecUtil.runLaterAndWait(() -> manager.start());
         assertNotNull(manager.getHyperBrowserView());
         Method method = manager.getClass().getDeclaredMethod("getBrowserInitialScreen");
         method.setAccessible(true);
