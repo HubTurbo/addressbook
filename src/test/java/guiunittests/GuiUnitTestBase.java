@@ -2,9 +2,6 @@ package guiunittests;
 
 import guitests.GuiRobot;
 import guitests.guihandles.EditPersonDialogHandle;
-import javafx.application.Application;
-import javafx.application.HostServices;
-import javafx.application.Preloader;
 import javafx.stage.Stage;
 import org.junit.After;
 import org.junit.Before;
@@ -17,7 +14,7 @@ import org.testfx.framework.junit.ApplicationFixture;
 import java.util.concurrent.TimeoutException;
 
 /**
- *
+ * A test base class for GUI unit tests classes that does the basic low level initialization for GUI testing.
  */
 public abstract class GuiUnitTestBase implements ApplicationFixture {
 
