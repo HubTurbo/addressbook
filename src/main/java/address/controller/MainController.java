@@ -104,7 +104,7 @@ public class MainController extends UiController{
         this.config = config;
         this.prefs = prefs;
         this.personList = modelManager.getAllViewablePersonsReadOnly();
-        this.browserManager = new BrowserManager(personList, config.getBrowserNoOfPages(), config.getBrowserType());
+        this.browserManager = new BrowserManager(personList);
     }
 
     public void start(Stage primaryStage) {
