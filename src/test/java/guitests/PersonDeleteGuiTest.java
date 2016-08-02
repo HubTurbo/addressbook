@@ -7,6 +7,7 @@ import guitests.guihandles.PersonCardHandle;
 import org.junit.Test;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
@@ -29,15 +30,11 @@ public class PersonDeleteGuiTest extends GuiTestBase {
         assertEquals(2, personListPanel.getSelectedCardSize());
         assertTrue(personListPanel.isSelected(td.benson));
         assertTrue(personListPanel.isSelected(td.dan));
-
+        sleep(1, TimeUnit.SECONDS);
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        PersonCardHandle danCard = personListPanel.navigateToPerson(td.dan);
-        assertTrue(danCard.isShowingGracePeriod("Deleting"));
-        PersonCardHandle bensonCard = personListPanel.navigateToPerson(td.benson);
-        assertTrue(bensonCard.isShowingGracePeriod("Deleting"));
-        sleepForGracePeriod();
 
-        assertFalse(personListPanel.isAnyCardShowingGracePeriod());
+
+
         assertTrue(personListPanel.isListMatching(TestUtil.removePersonsFromList(td.getTestData(), td.benson, td.dan)));
     }
 
@@ -61,25 +58,6 @@ public class PersonDeleteGuiTest extends GuiTestBase {
 
         assertFalse(personListPanel.isAnyCardShowingGracePeriod());
         assertTrue(personListPanel.isListMatching(td.getTestData()));
-    }
-
-    @Test
-    public void deleteMultiplePersons_cancelUsingContextMenu() {
-        personListPanel.selectCards(td.alice, td.charlie, td.dan);
-        assertEquals(3, personListPanel.getSelectedCardSize());
-        assertTrue(personListPanel.isSelected(td.alice));
-        assertTrue(personListPanel.isSelected(td.charlie));
-        assertTrue(personListPanel.isSelected(td.dan));
-        personListPanel.moveCursor(td.dan); //To prepare right clicking the context menu
-
-        personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        //Omit testing of pending state, as grace period is too short to cancel through context menu.
-
-        personListPanel.rightClickOnPerson(td.dan).clickOnContextMenuCancel();
-
-        sleepForGracePeriod();
-
-        assertTrue(personListPanel.isListMatching(TestUtil.removePersonsFromList(td.getTestData(), td.alice, td.charlie)));
     }
 
     @Test

@@ -109,7 +109,7 @@ public class GuiTestBase {
 
     public void sleepUntilNextSync() {
         //TODO: actively check for sync status rather than sleep for a fixed time
-        sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
+        //sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
     }
 
     public void assertMatching(PersonCardHandle card, Person person) {

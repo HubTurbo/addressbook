@@ -56,17 +56,9 @@ public class KeyBindingsGuiTest extends GuiTestBase {
         personListPanel.clickOnPerson(td.dan);
 
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        assertTrue(personListPanel.contains(td.dan)); // still in the list due to grace period
-        sleepForGracePeriod();
         assertFalse(personListPanel.contains(td.dan)); // removed from list after grace period
 
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
-
-        personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        assertTrue(personListPanel.contains(td.charlie)); // still in the list due to grace period
-        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        sleepForGracePeriod();
-        assertTrue(personListPanel.contains(td.charlie)); // still in the list even after grace period
 
         TagPersonDialogHandle tagPersonDialog = personListPanel.use_PERSON_TAG_ACCELERATOR();
         tagPersonDialog.close();
