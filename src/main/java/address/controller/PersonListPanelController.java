@@ -5,7 +5,6 @@ import address.events.parser.FilterCommittedEvent;
 import address.model.ModelManager;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
-import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
@@ -31,7 +30,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static address.keybindings.KeyBindingsManager.getAcceleratorKeyCombo;
-import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState.REQUEST_FAILED;
 
 /**
  * Dialog to view the list of persons and their details
@@ -50,13 +48,13 @@ public class PersonListPanelController extends UiController {
     @FXML
     private Button deleteButton;
     @FXML
-    private ListView<ReadOnlyViewablePerson> personListView;
+    private ListView<ReadOnlyPerson> personListView;
     @FXML
     private TextField filterField;
 
     private MainController mainController;
     private ModelManager modelManager;
-    private FilteredList<ReadOnlyViewablePerson> filteredPersonList;
+    private FilteredList<ReadOnlyPerson> filteredPersonList;
     private Parser parser;
 
     public PersonListPanelController() {
@@ -65,7 +63,7 @@ public class PersonListPanelController extends UiController {
     }
 
     public void setConnections(MainController mainController, ModelManager modelManager,
-                               ObservableList<ReadOnlyViewablePerson> personList) {
+                               ObservableList<ReadOnlyPerson> personList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
         filteredPersonList = new FilteredList<>(personList, new PredExpr(new TrueQualifier())::satisfies);
@@ -75,12 +73,11 @@ public class PersonListPanelController extends UiController {
         loadGithubProfilePageWhenPersonIsSelected(mainController);
         setupListviewSelectionModelSettings();
         disableEditCommandForMultipleSelection();
-        enableRetryCommandOnlyIfSelectionContainsFailedRequests();
     }
 
     private void setupListviewSelectionModelSettings() {
         personListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        personListView.getItems().addListener((ListChangeListener<ReadOnlyViewablePerson>) c -> {
+        personListView.getItems().addListener((ListChangeListener<ReadOnlyPerson>) c -> {
             while(c.next()) {
                 if (c.wasRemoved()) {
                     ObservableList<Integer> currentIndices = personListView.getSelectionModel().getSelectedIndices();
@@ -111,11 +108,6 @@ public class PersonListPanelController extends UiController {
         personListView.getSelectionModel().getSelectedIndices().addListener(listener);
     }
 
-    private void enableRetryCommandOnlyIfSelectionContainsFailedRequests() {
-        final ListChangeListener<ReadOnlyViewablePerson> listener = change ->  shouldAllowRetry.set(
-                change.getList().stream().anyMatch(p -> p.getOngoingCommandState() == REQUEST_FAILED));
-        personListView.getSelectionModel().getSelectedItems().addListener(listener);
-    }
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -167,7 +159,7 @@ public class PersonListPanelController extends UiController {
     @FXML
     private void handleDeletePersons() {
         if (checkAndHandleInvalidSelection()) {
-            final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
+            final List<ReadOnlyPerson> selected = personListView.getSelectionModel().getSelectedItems();
             selected.forEach(modelManager::deletePersonThroughUI);
         }
     }
@@ -177,20 +169,11 @@ public class PersonListPanelController extends UiController {
      */
     private void handleRetagPersons() {
         if (checkAndHandleInvalidSelection()) {
-            final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
+            final List<ReadOnlyPerson> selected = personListView.getSelectionModel().getSelectedItems();
             modelManager.retagPersonsThroughUI(selected, mainController.getPersonsTagsInput(selected));
         }
     }
 
-    /**
-     * Retries all currently failed commands for selected persons
-     */
-    private void handleRetryFailedCommands() {
-        if (checkAndHandleInvalidSelection()) {
-            final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
-            selected.forEach(modelManager::retryFailedPersonCommand);
-        }
-    }
 
     @FXML
     private void handleFilterChanged() {
@@ -215,12 +198,6 @@ public class PersonListPanelController extends UiController {
                 getAcceleratorKeyCombo("PERSON_EDIT_ACCELERATOR").get(), this::handleEditPerson);
         editMenuItem.setId(generateMenuItemId("edit"));
         editMenuItem.disableProperty().bind(shouldDisableEdit); // disable if multiple selected
-
-        final MenuItem retryFailedMenuItem = initContextMenuItem("Retry",
-                getAcceleratorKeyCombo("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR").get(),
-                this::handleRetryFailedCommands);
-        retryFailedMenuItem.setId(generateMenuItemId("retryFailed"));
-        retryFailedMenuItem.visibleProperty().bind(shouldAllowRetry);
 
         contextMenu.getItems().addAll(
                 editMenuItem,

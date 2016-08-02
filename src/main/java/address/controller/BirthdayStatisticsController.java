@@ -1,6 +1,6 @@
 package address.controller;
 
-import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -46,7 +46,7 @@ public class BirthdayStatisticsController extends UiController {
      * 
      * @param persons
      */
-    public void setPersonData(List<ReadOnlyViewablePerson> persons) {
+    public void setPersonData(List<ReadOnlyPerson> persons) {
         // Count the number of people having their birthday in a specific month.
         int[] monthCounter = new int[12];
         persons.forEach(person -> {

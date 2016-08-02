@@ -80,6 +80,6 @@ public class RootLayoutController extends UiController {
     @FXML
     private void handleShowTags() {
         logger.debug("Attempting to show tag list.");
-        mainController.showTagList(modelManager.getAllViewableTagsReadOnly());
+        mainController.showTagList(modelManager.getTagsAsReadOnlyObservableList());
     }
 }

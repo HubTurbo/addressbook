@@ -1,8 +1,8 @@
 package address.parser.expr;
 
-import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 
 public interface Expr {
-    boolean satisfies(ReadOnlyViewablePerson person);
+    boolean satisfies(ReadOnlyPerson person);
     String toString();
 }

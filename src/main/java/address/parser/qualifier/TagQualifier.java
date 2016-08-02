@@ -1,6 +1,6 @@
 package address.parser.qualifier;
 
-import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 import commons.StringUtil;
 
 public class TagQualifier implements Qualifier {
@@ -11,7 +11,7 @@ public class TagQualifier implements Qualifier {
     }
 
     @Override
-    public boolean run(ReadOnlyViewablePerson person) {
+    public boolean run(ReadOnlyPerson person) {
         return person.getTagList().stream()
                 .filter(tag -> StringUtil.containsIgnoreCase(tag.getName(), this.tagName))
                 .findAny()

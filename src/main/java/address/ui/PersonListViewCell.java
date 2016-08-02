@@ -1,17 +1,17 @@
 package address.ui;
 
 import address.controller.PersonCardController;
-import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 import javafx.scene.control.ListCell;
 
-public class PersonListViewCell extends ListCell<ReadOnlyViewablePerson> {
+public class PersonListViewCell extends ListCell<ReadOnlyPerson> {
 
     public PersonListViewCell() {
 
     }
 
     @Override
-    protected void updateItem(ReadOnlyViewablePerson person, boolean empty) {
+    protected void updateItem(ReadOnlyPerson person, boolean empty) {
         super.updateItem(person, empty);
 
         if (empty || person == null) {

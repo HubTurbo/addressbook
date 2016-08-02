@@ -229,7 +229,7 @@ public interface ReadOnlyPerson extends ExtractableObservables {
         };
     }
 
-    static List<Tag> getCommonTags(Collection<ReadOnlyViewablePerson> persons) {
+    static List<Tag> getCommonTags(Collection<ReadOnlyPerson> persons) {
         Set<Tag> tags = new HashSet<>();
         persons.stream().forEach(p -> tags.addAll(p.getTagList()));
         List<Tag> assignedTags = tags.stream().filter(tag ->

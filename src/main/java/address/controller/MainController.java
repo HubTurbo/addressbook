@@ -5,14 +5,12 @@ import address.browser.BrowserManager;
 import address.events.controller.MinimizeAppRequestEvent;
 import address.events.controller.ResizeAppRequestEvent;
 import address.events.hotkey.KeyBindingEvent;
-import address.events.model.SingleTargetCommandResultEvent;
 import address.events.storage.FileOpeningExceptionEvent;
 import address.events.storage.FileSavingExceptionEvent;
 import address.exceptions.DuplicateTagException;
 import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.model.datatypes.person.ReadOnlyPerson;
-import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.tag.Tag;
 import address.util.AppLogger;
 import address.util.Config;
@@ -86,12 +84,7 @@ public class MainController extends UiController{
     private StatusBarHeaderController statusBarHeaderController;
     private StatusBarFooterController statusBarFooterController;
 
-    private UnmodifiableObservableList<ReadOnlyViewablePerson> personList;
-    private final ObservableList<SingleTargetCommandResultEvent> finishedCommandResults;
-
-    {
-        finishedCommandResults = FXCollections.observableArrayList();
-    }
+    private UnmodifiableObservableList<ReadOnlyPerson> personList;
 
     /**
      * Constructor for mainController
@@ -106,7 +99,7 @@ public class MainController extends UiController{
         this.modelManager = modelManager;
         this.config = config;
         this.prefs = prefs;
-        this.personList = modelManager.getAllViewablePersonsReadOnly();
+        this.personList = modelManager.getPersonsAsReadOnlyObservableList();
         this.browserManager = new BrowserManager();
     }
 
@@ -176,7 +169,7 @@ public class MainController extends UiController{
     }
 
     private void showHeaderStatusBar() {
-        statusBarHeaderController = new StatusBarHeaderController(this, this.finishedCommandResults);
+        statusBarHeaderController = new StatusBarHeaderController(this);
         AnchorPane sbPlaceHolder = (AnchorPane) rootLayout.lookup("#headerStatusbarPlaceholder");
 
         assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in rootLayout";
@@ -258,7 +251,7 @@ public class MainController extends UiController{
         }
     }
 
-    public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyViewablePerson> persons) {
+    public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyPerson> persons) {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
         AnchorPane pane = (AnchorPane) loadLoader(loader, "Error launching tag selection dialog");
@@ -454,32 +447,9 @@ public class MainController extends UiController{
 
         // Set the persons into the controller.
         BirthdayStatisticsController controller = loader.getController();
-        controller.setPersonData(modelManager.getAllViewablePersonsReadOnly());
+        controller.setPersonData(modelManager.getPersonsAsReadOnlyObservableList());
 
         dialogStage.show();
-    }
-
-    public void showActivityHistoryDialog() {
-        logger.debug("Loading Activity History.");
-        final String fxmlResourcePath = FXML_ACTIVITY_HISTORY;
-        try {
-            // Load the fxml file and create a new stage for the popup.
-            FXMLLoader loader = loadFxml(fxmlResourcePath);
-            AnchorPane page = loader.load();
-
-            Scene scene = new Scene(page);
-            Stage dialogStage = loadDialogStage("Activity History", primaryStage, scene);
-            dialogStage.getIcons().add(getImage(ICON_INFO));
-            // Set the persons into the controller.
-            ActivityHistoryController controller = loader.getController();
-            controller.setConnections(finishedCommandResults);
-            controller.init();
-            dialogStage.show();
-        } catch (IOException e) {
-            logger.fatal("Error loading activity history view: {}", e);
-            showFatalErrorDialogAndShutdown("FXML Load Error", "Cannot load fxml for activity history.",
-                    "IOException when trying to load ", fxmlResourcePath);
-        }
     }
 
     /**
@@ -534,7 +504,7 @@ public class MainController extends UiController{
         browserManager.freeBrowserResources();
     }
 
-    public void loadGithubProfilePage(ReadOnlyViewablePerson person){
+    public void loadGithubProfilePage(ReadOnlyPerson person){
         browserManager.loadProfilePage(person);
     }
 
@@ -558,11 +528,6 @@ public class MainController extends UiController{
     private void handleMinimizeAppRequestEvent(MinimizeAppRequestEvent event){
         logger.debug("Handling the minimize app window request");
         Platform.runLater(this::minimizeWindow);
-    }
-
-    @Subscribe
-    private void handleSingleTargetCommandResultEvent(SingleTargetCommandResultEvent evt) {
-        PlatformExecUtil.runAndWait(() -> finishedCommandResults.add(evt));
     }
 
     protected void setDefaultSize() {

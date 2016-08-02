@@ -1,8 +1,8 @@
 package address.parser.qualifier;
 
-import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 
 public interface Qualifier {
-    boolean run(ReadOnlyViewablePerson person);
+    boolean run(ReadOnlyPerson person);
     String toString();
 }

@@ -1,6 +1,6 @@
 package address.browser;
 
-import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 import address.util.AppLogger;
 import address.util.LoggerManager;
 import commons.FxViewUtil;
@@ -8,7 +8,6 @@ import commons.UrlUtil;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.web.WebView;
 
@@ -64,7 +63,7 @@ public class BrowserManager {
      * Loads the person's profile page to the browser.
      * PreCondition: filteredModelPersons.size() >= 1
      */
-    public synchronized void loadProfilePage(ReadOnlyViewablePerson person) {
+    public synchronized void loadProfilePage(ReadOnlyPerson person) {
 
         selectedPersonUsername.removeListener(listener);
 

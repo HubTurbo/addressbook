@@ -3,7 +3,6 @@ package address.testutil;
 import address.TestApp;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
-import address.model.datatypes.person.ViewablePerson;
 import address.model.datatypes.tag.Tag;
 import address.storage.StorageAddressBook;
 import address.sync.cloud.model.CloudAddressBook;

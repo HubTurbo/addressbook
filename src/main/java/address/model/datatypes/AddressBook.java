@@ -43,10 +43,6 @@ public class AddressBook implements ReadOnlyAddressBook {
         resetData(persons, tags);
     }
 
-    public ViewableAddressBook createVisibleAddressBook() {
-        return new ViewableAddressBook(this);
-    }
-
 //// list overwrite operations
 
     public ObservableList<Person> getPersons() {

@@ -1,6 +1,6 @@
 package address.parser.expr;
 
-import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 
 public class NotExpr implements Expr {
     Expr expr;
@@ -10,7 +10,7 @@ public class NotExpr implements Expr {
     }
 
     @Override
-    public boolean satisfies(ReadOnlyViewablePerson person) {
+    public boolean satisfies(ReadOnlyPerson person) {
         return !expr.satisfies(person);
     }
 

@@ -1,6 +1,5 @@
 package address.parser;
 
-import address.model.datatypes.person.ReadOnlyViewablePerson;
 import address.model.datatypes.tag.Tag;
 import address.parser.expr.Expr;
 import org.junit.Before;

@@ -5,15 +5,11 @@ import address.TestApp;
 import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
-import address.model.datatypes.person.ReadOnlyViewablePerson;
-import address.model.datatypes.person.ViewablePerson;
 import address.testutil.TestUtil;
-import address.ui.PersonListViewCell;
 import guitests.GuiRobot;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.geometry.Point2D;
-import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.input.ContextMenuEvent;
@@ -23,7 +19,6 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertTrue;
