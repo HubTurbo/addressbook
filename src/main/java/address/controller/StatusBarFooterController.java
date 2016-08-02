@@ -3,19 +3,14 @@ package address.controller;
 import address.events.sync.SyncCompletedEvent;
 import address.events.sync.SyncFailedEvent;
 import address.events.sync.SyncStartedEvent;
-import address.events.update.ApplicationUpdateFailedEvent;
-import address.events.update.ApplicationUpdateFinishedEvent;
-import address.events.update.ApplicationUpdateInProgressEvent;
 import address.util.TickingTimer;
 import com.google.common.eventbus.Subscribe;
 import commons.DateTimeUtil;
 import commons.FxViewUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.StatusBar;
 
 import java.util.concurrent.TimeUnit;
@@ -23,11 +18,10 @@ import java.util.concurrent.TimeUnit;
 public class StatusBarFooterController extends UiController {
 
     private static StatusBar syncStatusBar;
-    private static StatusBar updaterStatusBar;
-    private final Label secondaryStatusBarLabel;
+    private static StatusBar saveLocStatusBar;
 
     @FXML
-    private AnchorPane updaterStatusBarPane;
+    private AnchorPane saveLocStatusBarPane;
     @FXML
     private AnchorPane syncStatusBarPane;
 
@@ -36,7 +30,6 @@ public class StatusBarFooterController extends UiController {
 
     public StatusBarFooterController() {
         super();
-        this.secondaryStatusBarLabel = new Label("");
     }
 
     /**
@@ -99,57 +92,25 @@ public class StatusBarFooterController extends UiController {
 
     private void initAddressBookLabel(String addressBookName) {
         updateSaveLocationDisplay(addressBookName);
-        secondaryStatusBarLabel.setTextAlignment(TextAlignment.LEFT);
-        setTooltip(secondaryStatusBarLabel);
+        setTooltip(saveLocStatusBar);
     }
 
     private void initStatusBar() {
         this.syncStatusBar = new StatusBar();
-        this.updaterStatusBar = new StatusBar();
+        this.saveLocStatusBar = new StatusBar();
         FxViewUtil.applyAnchorBoundaryParameters(syncStatusBar, 0.0, 0.0, 0.0, 0.0);
-        FxViewUtil.applyAnchorBoundaryParameters(updaterStatusBar, 0.0, 0.0, 0.0, 0.0);
+        FxViewUtil.applyAnchorBoundaryParameters(saveLocStatusBar, 0.0, 0.0, 0.0, 0.0);
         syncStatusBarPane.getChildren().add(syncStatusBar);
-        updaterStatusBarPane.getChildren().add(updaterStatusBar);
+        saveLocStatusBarPane.getChildren().add(saveLocStatusBar);
     }
 
-    private void setTooltip(Label label) {
+    private void setTooltip(StatusBar statusBar) {
         Tooltip tp = new Tooltip();
-        tp.textProperty().bind(label.textProperty());
-        label.setTooltip(tp);
-    }
-
-    @Subscribe
-    private void handleApplicationUpdateFailedEvent(ApplicationUpdateFailedEvent aufe) {
-        Platform.runLater(() -> {
-            updaterStatusBar.setText(aufe.getMessage());
-            updaterStatusBar.setProgress(0);
-            showSecondaryStatusBarLabel();
-        });
-    }
-
-    @Subscribe
-    private void handleApplicationUpdateInProgressEvent(ApplicationUpdateInProgressEvent auipe) {
-        Platform.runLater(() -> {
-            updaterStatusBar.setText(auipe.getMessage());
-            updaterStatusBar.setProgress(auipe.getProgress());
-        });
-    }
-
-    @Subscribe
-    private void handleApplicationUpdateFinishedEvent(ApplicationUpdateFinishedEvent aufe) {
-        Platform.runLater(() -> {
-            updaterStatusBar.setText(aufe.getMessage());
-            updaterStatusBar.setProgress(0);
-            showSecondaryStatusBarLabel();
-        });
-    }
-
-    private void showSecondaryStatusBarLabel() {
-        secondaryStatusBarLabel.setVisible(true);
-        updaterStatusBar.getRightItems().add(secondaryStatusBarLabel);
+        tp.textProperty().bind(statusBar.textProperty());
+        statusBar.setTooltip(tp);
     }
 
     private void updateSaveLocationDisplay(String addressBookName) {
-        secondaryStatusBarLabel.setText(addressBookName);
+        saveLocStatusBar.setText(addressBookName);
     }
 }

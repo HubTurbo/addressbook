@@ -8,6 +8,6 @@
 </columnConstraints>
  <children>
       <AnchorPane styleClass="anchor-pane" id="syncStatusBarPane" fx:id="syncStatusBarPane" minWidth="0.0" />
-      <AnchorPane styleClass="anchor-pane" id="updaterStatusBarPane" fx:id="updaterStatusBarPane" minWidth="0.0" GridPane.columnIndex="1" />
+      <AnchorPane styleClass="anchor-pane" id="updaterStatusBarPane" fx:id="saveLocStatusBarPane" minWidth="0.0" GridPane.columnIndex="1" />
  </children>
 </GridPane>
