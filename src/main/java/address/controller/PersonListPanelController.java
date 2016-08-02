@@ -1,6 +1,7 @@
 package address.controller;
 
 import address.events.controller.JumpToListRequestEvent;
+import address.events.model.LocalModelChangedEvent;
 import address.events.parser.FilterCommittedEvent;
 import address.model.ModelManager;
 import address.model.datatypes.person.Person;
@@ -160,8 +161,9 @@ public class PersonListPanelController extends UiController {
     private void handleDeletePersons() {
         if (checkAndHandleInvalidSelection()) {
             final List<ReadOnlyPerson> selected = personListView.getSelectionModel().getSelectedItems();
-            selected.forEach(modelManager::deletePersonThroughUI);
+            modelManager.deletePersonsThroughUI(selected);
         }
+
     }
 
     /**

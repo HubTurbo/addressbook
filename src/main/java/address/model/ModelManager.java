@@ -113,7 +113,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         updateBackingStorage();
     }
 
-    private void updateBackingStorage() {
+    public void updateBackingStorage() {
         raise(new LocalModelChangedEvent(backingModel));
     }
 
@@ -134,7 +134,16 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      * period for cancellation, editing, or deleting.
      */
     public synchronized void deletePersonThroughUI(ReadOnlyPerson target) {
-        backingModel.removePerson(target);
+        try {
+            backingModel.removePerson(target);
+            updateBackingStorage();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void deletePersonsThroughUI(List<ReadOnlyPerson> targets) {
+        new ArrayList<>(targets).forEach(backingModel::removePerson);
         updateBackingStorage();
     }
 
