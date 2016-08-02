@@ -255,7 +255,7 @@ public class PersonListPanelHandle extends GuiHandle {
 
     private boolean isContextMenuShown() {
         return isNodePresent(EDIT_CONTEXT_MENU_ITEM_FIELD_ID) && isNodePresent(TAG_CONTEXT_MENU_ITEM_FIELD_ID)
-               && isNodePresent(CANCEL_CONTEXT_MENU_ITEM_FIELD_ID) && isNodePresent(DELETE_CONTEXT_MENU_ITEM_FIELD_ID);
+               && isNodePresent(DELETE_CONTEXT_MENU_ITEM_FIELD_ID);
     }
 
     private boolean isNodePresent(String fieldId) {
