@@ -8,12 +8,10 @@ import address.sync.RemoteManager;
 import address.sync.SyncManager;
 import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
-import address.update.UpdateManager;
 import address.util.AppLogger;
 import address.util.Config;
 import address.util.DependencyChecker;
 import address.util.LoggerManager;
-import commons.Version;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -44,7 +42,6 @@ public class MainApp extends Application {
     protected StorageManager storageManager;
     protected ModelManager modelManager;
     protected SyncManager syncManager;
-    protected UpdateManager updateManager;
     protected RemoteManager remoteManager;
     protected Ui ui;
     protected KeyBindingsManager keyBindingsManager;
@@ -81,11 +78,6 @@ public class MainApp extends Application {
         remoteManager = initRemoteManager(config);
         syncManager = initSyncManager(remoteManager, config);
         keyBindingsManager = initKeyBindingsManager();
-        updateManager = initUpdateManager(VERSION);
-    }
-
-    protected UpdateManager initUpdateManager(Version version) {
-        return new UpdateManager(version);
     }
 
     protected KeyBindingsManager initKeyBindingsManager() {
@@ -116,7 +108,6 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         logger.info("Starting application: {}", MainApp.VERSION);
         ui.start(primaryStage);
-        updateManager.start();
         storageManager.start();
         syncManager.start();
     }
@@ -128,7 +119,6 @@ public class MainApp extends Application {
         storageManager.savePrefsToFile(userPrefs);
         syncManager.stop();
         keyBindingsManager.stop();
-        updateManager.stop();
         quit();
     }
 
