@@ -186,7 +186,7 @@ public class MainController extends UiController{
         GridPane gridPane = (GridPane) loadLoader(loader, "Error Loading footer status bar");
         gridPane.getStyleClass().add("grid-pane");
         statusBarFooterController = loader.getController();
-        statusBarFooterController.init(config.getUpdateInterval(), config.getAddressBookName());
+        statusBarFooterController.init(config.getAddressBookName());
         AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
         FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
         placeHolder.getChildren().add(gridPane);

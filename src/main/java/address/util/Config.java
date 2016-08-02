@@ -10,22 +10,18 @@ import java.util.HashMap;
  */
 public class Config {
     // Default values
-    private static final long DEFAULT_UPDATE_INTERVAL = 10000;
     private static final Level DEFAULT_LOGGING_LEVEL = Level.INFO;
     private static final HashMap<String, Level> DEFAULT_SPECIAL_LOG_LEVELS = new HashMap<>();
     private static final String DEFAULT_LOCAL_DATA_FILE_PATH = "data/addressbook.xml";
-    private static final String DEFAULT_CLOUD_DATA_FILE_PATH = null; // For use in CloudManipulator for manual testing
     private static final String DEFAULT_ADDRESS_BOOK_NAME = "MyAddressBook";
 
     // Config values
     private String appTitle = "Address App";
     // Customizable through config file
-    private long updateInterval = DEFAULT_UPDATE_INTERVAL;
     private Level currentLogLevel = DEFAULT_LOGGING_LEVEL;
     private HashMap<String, Level> specialLogLevels = DEFAULT_SPECIAL_LOG_LEVELS;
     private File prefsFileLocation = new File("preferences.json"); //Default user preferences file
     private String localDataFilePath = DEFAULT_LOCAL_DATA_FILE_PATH;
-    private String cloudDataFilePath = DEFAULT_CLOUD_DATA_FILE_PATH;
     private String addressBookName = DEFAULT_ADDRESS_BOOK_NAME;
 
 
@@ -38,14 +34,6 @@ public class Config {
 
     public void setAppTitle(String appTitle) {
         this.appTitle = appTitle;
-    }
-
-    public long getUpdateInterval() {
-        return updateInterval;
-    }
-
-    public void setUpdateInterval(long updateInterval) {
-        this.updateInterval = updateInterval;
     }
 
     public Level getCurrentLogLevel() {
@@ -78,14 +66,6 @@ public class Config {
 
     public void setLocalDataFilePath(String localDataFilePath) {
         this.localDataFilePath = localDataFilePath;
-    }
-
-    public String getCloudDataFilePath() {
-        return cloudDataFilePath;
-    }
-
-    public void setCloudDataFilePath(String cloudDataFilePath) {
-        this.cloudDataFilePath = cloudDataFilePath;
     }
 
     public String getAddressBookName() {
