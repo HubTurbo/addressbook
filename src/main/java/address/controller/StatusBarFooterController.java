@@ -38,6 +38,8 @@ public class StatusBarFooterController extends UiController {
     private void initStatusBar() {
         this.syncStatusBar = new StatusBar();
         this.saveLocStatusBar = new StatusBar();
+        this.syncStatusBar.setText("");
+        this.saveLocStatusBar.setText("");
         FxViewUtil.applyAnchorBoundaryParameters(syncStatusBar, 0.0, 0.0, 0.0, 0.0);
         FxViewUtil.applyAnchorBoundaryParameters(saveLocStatusBar, 0.0, 0.0, 0.0, 0.0);
         syncStatusBarPane.getChildren().add(syncStatusBar);

@@ -49,16 +49,8 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(editPersonDialog.isShowingPerson(td.elizabeth));
         editPersonDialog.enterNewValues(elizabethEdited).clickOk();
 
-        //Ensure pending state correctness
-        assertTrue(elizabethCard.isShowingGracePeriod("Editing"));
-        assertMatching(elizabethCard, elizabethEdited);
-
-        //Delete during pending state
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        assertTrue(elizabethCard.isShowingGracePeriod("Deleting"));
-        sleepForGracePeriod();
 
-        assertFalse(personListPanel.isAnyCardShowingGracePeriod());
         assertTrue(personListPanel.isListMatching(TestUtil.removePersonsFromList(td.getTestData(), td.elizabeth)));
     }
 
@@ -107,33 +99,15 @@ public class PersonEditGuiTest extends GuiTestBase {
 
         editPersonDialog.enterNewValues(aliceEdited).pressEnter();
 
-        //Confirm pending state correctness
-        assertTrue(aliceCard.isShowingGracePeriod("Editing"));
         assertMatching(aliceCard, aliceEdited);
 
         //Confirm the right card is selected after the edit
         assertTrue(personListPanel.isSelected(aliceEdited));
 
-
-        // Confirm right values are displayed after grace period is over
-        sleepForGracePeriod();
         assertMatching(aliceCard, aliceEdited);
-
-        // Confirm cancel operation does not cancel the edit after the grace period.
-        personListPanel.use_PERSON_CHANGE_CANCEL_ACCELERATOR();
-        //Confirm the underlying person object has the right values
-        assertMatching(aliceCard, aliceEdited);
-
-        //Confirm again after the next sync
-        sleepUntilNextSync();
-        assertEquals(aliceEdited.toString(), personListPanel.getFirstSelectedPerson().toString());
 
         // Confirm other cards are unaffected.
         assertTrue(personListPanel.isListMatching(1, td.benson, td.charlie, td.dan, td.elizabeth));
-
-        //Confirm status bar is updated correctly
-        assertEquals(HeaderStatusBarHandle.formatEditSuccessMessage(td.alice.fullName(), Optional.of(aliceEdited.fullName())),
-                     statusBar.getText());
     }
 
     @Test
@@ -142,8 +116,6 @@ public class PersonEditGuiTest extends GuiTestBase {
         EditPersonDialogHandle editPersonDialog =  personListPanel.clickEdit();
         assertTrue(editPersonDialog.isShowingPerson(td.elizabeth));
         editPersonDialog.enterNewValues(elizabethEdited).clickOk();
-        sleepForGracePeriod();
-
         assertTrue(personListPanel.isListMatching(TestUtil.replacePersonFromList(td.getTestData(), elizabethEdited, 4)));
         //Full edit process is done at editPerson_usingContextMenu()
     }
@@ -155,7 +127,6 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(editPersonDialogHandle.isShowingPerson(td.benson));
         editPersonDialogHandle.enterNewValues(bensonEdited);
         editPersonDialogHandle.clickOk();
-        sleepForGracePeriod();
         assertTrue(personListPanel.isListMatching(TestUtil.replacePersonFromList(td.getTestData(), bensonEdited, 1)));
         //Full edit process is done at editPerson_usingContextMenu()
     }
@@ -249,24 +220,14 @@ public class PersonEditGuiTest extends GuiTestBase {
         assertTrue(editPersonDialog.isShowingPerson(td.alice));
         editPersonDialog.enterNewValues(aliceEdited).pressEnter();
 
-        //Ensure grace period is showing
-        assertTrue(aliceCard.isShowingGracePeriod("Editing"));
-
-        //Edit Alice again during pending state.
+        //Edit Alice again
        editPersonDialog = personListPanel.editPerson(aliceEdited);
 
         //Ensure grace period is not counting down while editing person.
-        assertTrue(aliceCard.isGracePeriodFrozen());
         Person newerAlice = new PersonBuilder(aliceEdited.copy()).withFirstName("Abba").withLastName("Yellowstone")
                 .withStreet("street updated").withCity("Malaysia").withPostalCode("321321")
                 .withBirthday("11.11.1979").withGithubUsername("yellowstone").withTags(td.colleagues).build();
         editPersonDialog.enterNewValues(newerAlice).pressEnter();
-        //TODO: Verify that the countdown is restarted.
-
-        //Ensure card is displaying Abba before and after grace period.
-        assertMatching(aliceCard, newerAlice);
-        sleepForGracePeriod();
-        assertMatching(aliceCard, newerAlice);
 
         //Verify the other cards are not affected.
         assertTrue(personListPanel.isListMatching(1, td.benson, td.charlie, td.dan, td.elizabeth));
