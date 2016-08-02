@@ -263,6 +263,11 @@ public class Person extends UniqueData implements ReadOnlyPerson {
         return new UnmodifiableObservableList<>(tags);
     }
 
+    @Override
+    public boolean hasName(String firstName, String lastName) {
+        return this.firstName.get().equals(firstName) && this.lastName.get().equals(lastName);
+    }
+
     @JsonProperty("tags")
     public List<Tag> getTags() {
         return tags;

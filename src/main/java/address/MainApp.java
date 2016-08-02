@@ -4,9 +4,6 @@ import address.keybindings.KeyBindingsManager;
 import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.storage.StorageManager;
-import address.sync.RemoteManager;
-import address.sync.SyncManager;
-import address.sync.cloud.CloudSimulator;
 import address.ui.Ui;
 import address.update.UpdateManager;
 import address.util.AppLogger;
@@ -43,9 +40,7 @@ public class MainApp extends Application {
 
     protected StorageManager storageManager;
     protected ModelManager modelManager;
-    protected SyncManager syncManager;
     protected UpdateManager updateManager;
-    protected RemoteManager remoteManager;
     protected Ui ui;
     protected KeyBindingsManager keyBindingsManager;
     protected Config config;
@@ -78,8 +73,6 @@ public class MainApp extends Application {
         modelManager = initModelManager(config);
         storageManager = initStorageManager(modelManager, config, userPrefs);
         ui = initUi(config, modelManager);
-        remoteManager = initRemoteManager(config);
-        syncManager = initSyncManager(remoteManager, config);
         keyBindingsManager = initKeyBindingsManager();
         updateManager = initUpdateManager(VERSION);
     }
@@ -90,14 +83,6 @@ public class MainApp extends Application {
 
     protected KeyBindingsManager initKeyBindingsManager() {
         return new KeyBindingsManager();
-    }
-
-    protected RemoteManager initRemoteManager(Config config) {
-        return new RemoteManager(new CloudSimulator(config));
-    }
-
-    protected SyncManager initSyncManager(RemoteManager remoteManager, Config config) {
-        return new SyncManager(remoteManager, config, config.getAddressBookName());
     }
 
     protected Ui initUi(Config config, ModelManager modelManager) {
@@ -118,7 +103,6 @@ public class MainApp extends Application {
         ui.start(primaryStage);
         updateManager.start();
         storageManager.start();
-        syncManager.start();
     }
 
     @Override
@@ -126,7 +110,6 @@ public class MainApp extends Application {
         logger.info("Stopping application.");
         ui.stop();
         storageManager.savePrefsToFile(userPrefs);
-        syncManager.stop();
         keyBindingsManager.stop();
         updateManager.stop();
         quit();

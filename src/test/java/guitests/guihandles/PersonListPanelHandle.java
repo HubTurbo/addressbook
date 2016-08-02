@@ -79,17 +79,17 @@ public class PersonListPanelHandle extends GuiHandle {
         return this.isSelected(person.getFirstName(), person.getLastName());
     }
 
-    public List<ReadOnlyViewablePerson> getSelectedPersons() {
-        ListView<ReadOnlyViewablePerson> personList = getListView();
+    public List<ReadOnlyPerson> getSelectedPersons() {
+        ListView<ReadOnlyPerson> personList = getListView();
         return personList.getSelectionModel().getSelectedItems();
     }
 
-    public ReadOnlyViewablePerson getFirstSelectedPerson() {
+    public ReadOnlyPerson getFirstSelectedPerson() {
         return this.getSelectedPersons().get(0);
     }
 
-    public ListView<ReadOnlyViewablePerson> getListView() {
-        return (ListView<ReadOnlyViewablePerson>) getNode(PERSON_LIST_VIEW_ID);
+    public ListView<ReadOnlyPerson> getListView() {
+        return (ListView<ReadOnlyPerson>) getNode(PERSON_LIST_VIEW_ID);
     }
 
     /**
@@ -362,9 +362,7 @@ public class PersonListPanelHandle extends GuiHandle {
      * @param listOfPersons
      */
     public void selectMultiplePersons(List<Person> listOfPersons) {
-        listOfPersons.stream()
-                .map(ViewablePerson::fromBacking)
-                .forEach(vPerson -> getListView().getSelectionModel().select(vPerson));
+        listOfPersons.stream().forEach(vPerson -> getListView().getSelectionModel().select(vPerson));
     }
 
     /**
@@ -391,7 +389,7 @@ public class PersonListPanelHandle extends GuiHandle {
      * Returns true if the {@code persons} appear as the sub list (in that order) at position {@code startPosition}.
      */
     public boolean containsInOrder(int startPosition, Person... persons) {
-        List<ReadOnlyViewablePerson> personsInList = getListView().getItems();
+        List<ReadOnlyPerson> personsInList = getListView().getItems();
 
         // Return false if the list in panel is too short to contain the given list
         if (startPosition + persons.length > personsInList.size()){
@@ -412,7 +410,7 @@ public class PersonListPanelHandle extends GuiHandle {
      * Returns the position of the person given, {@code NOT_FOUND} if not found in the list.
      */
     public int getPersonIndex(Person targetPerson) {
-        List<ReadOnlyViewablePerson> personsInList = getListView().getItems();
+        List<ReadOnlyPerson> personsInList = getListView().getItems();
         for (int i = 0; i < personsInList.size(); i++) {
             if(personsInList.get(i).getFirstName().equals(targetPerson.getFirstName())){
                 return i;
@@ -516,7 +514,7 @@ public class PersonListPanelHandle extends GuiHandle {
     }
 
     public List<PersonCardHandle> getSelectedCards() {
-        ObservableList<ReadOnlyViewablePerson> persons = getListView().getSelectionModel().getSelectedItems();
+        ObservableList<ReadOnlyPerson> persons = getListView().getSelectionModel().getSelectedItems();
         return persons.stream().map(p -> getPersonCardHandle(new Person(p)))
                                .collect(Collectors.toCollection(ArrayList::new));
     }

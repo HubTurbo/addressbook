@@ -3,9 +3,6 @@ package address;
 import address.model.UserPrefs;
 import address.model.datatypes.ReadOnlyAddressBook;
 import address.storage.StorageAddressBook;
-import address.sync.RemoteManager;
-import address.sync.cloud.CloudManipulator;
-import address.sync.cloud.model.CloudAddressBook;
 import address.testutil.TestUtil;
 import address.util.Config;
 import address.util.GuiSettings;
@@ -27,19 +24,15 @@ public class TestApp extends MainApp {
     public static final String APP_TITLE = "Test App";
     protected static final String ADDRESS_BOOK_NAME = "Test";
     protected Supplier<ReadOnlyAddressBook> initialDataSupplier = () -> null;
-    protected Supplier<CloudAddressBook> initialCloudDataSupplier = () -> null;
     protected String saveFileLocation = SAVE_LOCATION_FOR_TESTING;
-    protected CloudManipulator remote;
 
     public TestApp() {
     }
 
-    public TestApp(Supplier<ReadOnlyAddressBook> initialDataSupplier, String saveFileLocation,
-                   Supplier<CloudAddressBook> initialCloudDataSupplier) {
+    public TestApp(Supplier<ReadOnlyAddressBook> initialDataSupplier, String saveFileLocation) {
         super();
         this.initialDataSupplier = initialDataSupplier;
         this.saveFileLocation = saveFileLocation;
-        this.initialCloudDataSupplier = initialCloudDataSupplier;
 
         // If some initial local data has been provided, write those to the file
         if (initialDataSupplier.get() != null) {
@@ -56,8 +49,6 @@ public class TestApp extends MainApp {
         config.setLocalDataFilePath(saveFileLocation);
         config.setPrefsFileLocation(new File(DEFAULT_PREF_FILE_LOCATION_FOR_TESTING));
         config.setAddressBookName(ADDRESS_BOOK_NAME);
-        // Use default cloud test data if no data is supplied
-        if (initialCloudDataSupplier.get() == null) config.setCloudDataFilePath(DEFAULT_CLOUD_LOCATION_FOR_TESTING);
         return config;
     }
 
@@ -70,23 +61,12 @@ public class TestApp extends MainApp {
         return userPrefs;
     }
 
-    @Override
-    protected RemoteManager initRemoteManager(Config config) {
-        if (initialCloudDataSupplier.get() == null) {
-            remote = new CloudManipulator(config);
-        } else {
-            remote = new CloudManipulator(config, initialCloudDataSupplier.get());
-        }
-        return new RemoteManager(remote);
-    }
 
     @Override
     public void start(Stage primaryStage) {
         ui.start(primaryStage);
         updateManager.start();
         storageManager.start();
-        syncManager.start();
-        remote.start(primaryStage);
     }
 
     public Config getTestingConfig() {

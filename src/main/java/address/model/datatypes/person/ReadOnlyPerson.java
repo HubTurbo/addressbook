@@ -239,4 +239,6 @@ public interface ReadOnlyPerson extends ExtractableObservables {
                 .collect(Collectors.toCollection(ArrayList::new));
         return assignedTags;
     }
+
+    boolean hasName(String firstName, String lastName);
 }

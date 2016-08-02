@@ -5,9 +5,6 @@ import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
 import address.storage.StorageAddressBook;
-import address.sync.cloud.model.CloudAddressBook;
-import address.sync.cloud.model.CloudPerson;
-import address.sync.cloud.model.CloudTag;
 import com.google.common.io.Files;
 import commons.FileUtil;
 import commons.OsDetector;
@@ -92,10 +89,6 @@ public class TestUtil {
 
     public static List<Person> generateSamplePersonData() {
         return Arrays.asList(samplePersonData);
-    }
-
-    public static List<ViewablePerson> generateSampleViewablePersonData() {
-        return generateSamplePersonData().stream().map(ViewablePerson::fromBacking).collect(Collectors.toList());
     }
 
     /**
@@ -236,31 +229,6 @@ public class TestUtil {
 
     public static void tearDownRuntime() throws Exception {
         FxToolkit.cleanupStages();
-    }
-
-    public static CloudAddressBook generateCloudAddressBook(AddressBook addressBook) {
-        List<CloudPerson> cloudPersonList = new ArrayList<>();
-        addressBook.getPersonList().forEach(p -> {
-            CloudPerson cloudPerson = new CloudPerson(p.getFirstName(), p.getLastName(), p.getId());
-            cloudPerson.setBirthday(p.getBirthday());
-            cloudPerson.setCity(p.getCity());
-            cloudPerson.setStreet(p.getStreet());
-            cloudPerson.setGithubUsername(p.getGithubUsername());
-            cloudPerson.setPostalCode(p.getPostalCode());
-            cloudPerson.setTags(p.getTagList().stream().map(t -> new CloudTag(t.getName())).collect(Collectors.toList()));
-
-            cloudPersonList.add(cloudPerson);
-        });
-
-        List<CloudTag> cloudTagList = new ArrayList<>();
-        addressBook.getTagList().forEach(t ->
-                cloudTagList.add(new CloudTag(t.getName())));
-
-        CloudAddressBook cloudAddressBook = new CloudAddressBook("Test");
-        cloudAddressBook.setPersonsList(cloudPersonList);
-        cloudAddressBook.setTagsList(cloudTagList);
-
-        return cloudAddressBook;
     }
 
     /**
