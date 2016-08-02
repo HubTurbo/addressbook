@@ -35,20 +35,16 @@ public class PersonNewGuiTest extends GuiTestBase {
         addPersonDialog.enterNewValues(td.fiona).clickOk();
 
         PersonCardHandle fionaCard = personListPanel.navigateToPerson(td.fiona);
-        assertTrue(fionaCard.isShowingGracePeriod("Adding"));
         assertMatching(fionaCard, td.fiona);
 
         //Delete Fiona
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        sleepForGracePeriod();
         assertFalse(personListPanel.contains(td.fiona));
 
         //Add George
         addPersonDialog = personListPanel.clickNew();
         addPersonDialog.enterNewValues(td.george).clickOk();
         PersonCardHandle georgeCard = personListPanel.navigateToPerson(td.george);
-        assertTrue(georgeCard.isShowingGracePeriod("Adding"));
-        sleepForGracePeriod();
         assertTrue(personListPanel.isListMatching(TestUtil.addPersonsToList(td.getTestData(), td.george)));
     }
 
@@ -58,16 +54,13 @@ public class PersonNewGuiTest extends GuiTestBase {
         EditPersonDialogHandle addPersonDialog = personListPanel.clickNew();
         addPersonDialog.enterNewValues(td.fiona).clickOk();
         PersonCardHandle fionaCard = personListPanel.navigateToPerson(td.fiona);
-        assertTrue(fionaCard.isShowingGracePeriod("Adding"));
         assertMatching(fionaCard, td.fiona);
 
         addPersonDialog = personListPanel.clickNew();
         addPersonDialog.enterNewValues(td.george).clickOk();
         PersonCardHandle georgeCard = personListPanel.navigateToPerson(td.george);
-        assertTrue(georgeCard.isShowingGracePeriod("Adding"));
         assertMatching(georgeCard, td.george);
 
-        sleepForGracePeriod();
         assertTrue(personListPanel.isListMatching(TestUtil.addPersonsToList(td.getTestData(), td.fiona, td.george)));
     }
 
