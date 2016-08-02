@@ -1,10 +1,6 @@
 package address.model;
 
 import address.events.model.LocalModelChangedEvent;
-import address.events.sync.CreateTagOnRemoteRequestEvent;
-import address.events.sync.DeleteTagOnRemoteRequestEvent;
-import address.events.sync.EditTagOnRemoteRequestEvent;
-import address.events.sync.SyncCompletedEvent;
 import address.exceptions.DuplicateTagException;
 import address.main.ComponentManager;
 import address.model.datatypes.AddressBook;
@@ -16,7 +12,6 @@ import address.util.AppLogger;
 import address.util.Config;
 import address.util.LoggerManager;
 import address.util.collections.UnmodifiableObservableList;
-import com.google.common.eventbus.Subscribe;
 import commons.PlatformExecUtil;
 import javafx.collections.ObservableList;
 
@@ -181,7 +176,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
             throw new DuplicateTagException(tagToAdd);
         }
         backingTagList().add(tagToAdd);
-        raise(new CreateTagOnRemoteRequestEvent(new CompletableFuture<>(), addressBookNameToUse, tagToAdd));
     }
 
 //// UPDATE
@@ -200,8 +194,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         }
         String originalName = original.getName();
         original.update(updated);
-        raise(new EditTagOnRemoteRequestEvent(new CompletableFuture<>(),
-                addressBookNameToUse, originalName, updated));
     }
 
 //// DELETE
@@ -213,24 +205,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      */
     public synchronized boolean deleteTag(Tag tagToDelete) {
         boolean result = backingTagList().remove(tagToDelete);
-        raise(new DeleteTagOnRemoteRequestEvent(new CompletableFuture<>(),
-                addressBookNameToUse, tagToDelete.getName()));
         return result;
-    }
-
-//// EVENT HANDLERS
-
-    @Subscribe
-    private void handleSyncCompletedEvent(SyncCompletedEvent uce) {
-        boolean changed = false;
-        // Sync is done outside FX Application thread
-        if (uce.getLatestTags().isPresent()) {
-            changed |= syncTags(uce.getLatestTags().get());
-        }
-        changed |= syncPersons(uce.getUpdatedPersons());
-        if (changed) {
-            raise(new LocalModelChangedEvent(this));
-        }
     }
 
     /**
