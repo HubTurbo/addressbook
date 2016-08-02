@@ -28,6 +28,7 @@ import javafx.scene.input.KeyCombination;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static address.keybindings.KeyBindingsManager.getAcceleratorKeyCombo;
 import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState.REQUEST_FAILED;
@@ -144,8 +145,8 @@ public class PersonListPanelController extends UiController {
      */
     @FXML
     private void handleNewPerson() {
-        modelManager.createPersonThroughUI(() ->
-                mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person"));
+        Optional<ReadOnlyPerson> personDataInput = mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person");
+        modelManager.createPersonThroughUI(personDataInput);
     }
 
     /**
@@ -155,8 +156,8 @@ public class PersonListPanelController extends UiController {
     private void handleEditPerson() {
         if (checkAndHandleInvalidSelection()) {
             final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
-            modelManager.editPersonThroughUI(editTarget,
-                    () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
+            Optional<ReadOnlyPerson> personDataInput = mainController.getPersonDataInput(editTarget, "Edit Person");
+            modelManager.editPersonThroughUI(editTarget, personDataInput);
         }
     }
 
@@ -177,17 +178,7 @@ public class PersonListPanelController extends UiController {
     private void handleRetagPersons() {
         if (checkAndHandleInvalidSelection()) {
             final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
-            modelManager.retagPersonsThroughUI(selected, () -> mainController.getPersonsTagsInput(selected));
-        }
-    }
-
-    /**
-     * Cancels all ongoing commands for selected persons
-     */
-    private void handleCancelCommands() {
-        if (checkAndHandleInvalidSelection()) {
-            final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
-            selected.forEach(modelManager::cancelPersonCommand);
+            modelManager.retagPersonsThroughUI(selected, mainController.getPersonsTagsInput(selected));
         }
     }
 
@@ -236,10 +227,7 @@ public class PersonListPanelController extends UiController {
                 initContextMenuItem("Delete",
                         getAcceleratorKeyCombo("PERSON_DELETE_ACCELERATOR").get(), this::handleDeletePersons),
                 initContextMenuItem("Tag",
-                        getAcceleratorKeyCombo("PERSON_TAG_ACCELERATOR").get(), this::handleRetagPersons),
-                initContextMenuItem("Cancel",
-                        getAcceleratorKeyCombo("PERSON_CANCEL_COMMAND_ACCELERATOR").get(), this::handleCancelCommands),
-                retryFailedMenuItem
+                        getAcceleratorKeyCombo("PERSON_TAG_ACCELERATOR").get(), this::handleRetagPersons)
         );
         contextMenu.setId("personListContextMenu");
         logger.debug("Context menu for listview card created: " + contextMenu.toString());

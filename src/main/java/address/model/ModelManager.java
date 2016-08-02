@@ -157,42 +157,62 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     /**
      * Request to create a person. Simulates the change optimistically until remote confirmation, and provides a grace
      * period for cancellation, editing, or deleting.
-     * @param userInputRetriever a callback to retrieve the user's input. Will be run on fx application thread
      */
-    public synchronized void createPersonThroughUI(Callable<Optional<ReadOnlyPerson>> userInputRetriever) {
+    public synchronized void createPersonThroughUI(Optional<ReadOnlyPerson> person) {
+        Person toAdd;
+        do { // make sure no id clashes.
+            toAdd = new Person(Math.abs(UUID.randomUUID().hashCode()));
+        } while (backingModel.getPersonList().contains(toAdd));
+        toAdd.update(person.get());
+        backingModel.addPerson(toAdd);
+        updateBackingStorage();
+        /*
         final Supplier<Optional<ReadOnlyPerson>> fxThreadInputRetriever = () ->
                 PlatformExecUtil.callAndWait(userInputRetriever, Optional.empty());
         execNewAddPersonCommand(fxThreadInputRetriever);
+        */
     }
 
     /**
      * Request to update a person. Simulates the change optimistically until remote confirmation, and provides a grace
      * period for cancellation, editing, or deleting. TODO listen on Person properties and not manually raise events
      * @param target The Person to be changed.
-     * @param userInputRetriever callback to retrieve user's input. Will be run on fx application thread
      */
     public synchronized void editPersonThroughUI(ReadOnlyPerson target,
-                                                 Callable<Optional<ReadOnlyPerson>> userInputRetriever) {
+                                                 Optional<ReadOnlyPerson> editedTarget) {
+        /*
         final Supplier<Optional<ReadOnlyPerson>> fxThreadInputRetriever = () ->
                 PlatformExecUtil.callAndWait(userInputRetriever, Optional.empty());
+                */
 
+        backingModel.findPerson(target).get().update(editedTarget.get());
+        updateBackingStorage();
+
+        /*
         if (personHasOngoingChange(target)) {
             getOngoingChangeForPerson(target.getId()).overrideWithEditPerson(fxThreadInputRetriever);
         } else {
             final ViewablePerson toEdit = visibleModel.findPerson(target).get();
             execNewEditPersonCommand(toEdit, fxThreadInputRetriever);
         }
+        */
+    }
+
+    private void updateBackingStorage() {
+        raise(new LocalModelChangedEvent(backingModel));
     }
 
     /**
      * Request to set the tags for a group of Persons. Simulates change optimistically until remote confirmation,
      * and provides a grace period for cancellation, editing, or deleting.
      * @param targets Persons to be retagged
-     * @param newTagsRetriever callback to retrieve the tags to set for every person in {@code targets}.
-     *                         Will be run on fx application thread
      */
     public void retagPersonsThroughUI(Collection<? extends ReadOnlyPerson> targets,
-                                      Callable<Optional<? extends Collection<Tag>>> newTagsRetriever) {
+                                      Optional<? extends Collection<Tag>> newTags) {
+
+        targets.stream().forEach(p -> backingModel.findPerson(p).get().setTags(newTags.get()));
+        updateBackingStorage();
+        /*
 
         final CompletableFuture<Optional<? extends Collection<Tag>>> chosenTags = new CompletableFuture<>();
         final AtomicBoolean alreadyRetrieved = new AtomicBoolean(false);
@@ -228,6 +248,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
                 execNewEditPersonCommand(toEdit, editInputRetrieverFactory.apply(target));
             }
         });
+        */
     }
 
     /**
@@ -235,12 +256,16 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      * period for cancellation, editing, or deleting.
      */
     public synchronized void deletePersonThroughUI(ReadOnlyPerson target) {
+        backingModel.removePerson(target);
+        updateBackingStorage();
+        /*
         if (personHasOngoingChange(target)) {
             getOngoingChangeForPerson(target.getId()).overrideWithDeletePerson();
         } else {
             final ViewablePerson toDelete = visibleModel.findPerson(target).get();
             execNewDeletePersonCommand(toDelete);
         }
+        */
     }
 
     /**
