@@ -12,13 +12,9 @@ import address.util.AppLogger;
 import address.util.Config;
 import address.util.LoggerManager;
 import address.util.collections.UnmodifiableObservableList;
-import commons.PlatformExecUtil;
 import javafx.collections.ObservableList;
 
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * Represents the in-memory model of the address book data.
@@ -29,18 +25,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
 
     private final AddressBook backingModel;
 
-    private final Executor commandExecutor;
-    private final AtomicInteger commandCounter;
-
-    private String saveFilePath;
-    private String addressBookNameToUse;
-
     public static final int GRACE_PERIOD_DURATION = 3;
-
-    {
-        commandExecutor = Executors.newCachedThreadPool();
-        commandCounter = new AtomicInteger(0);
-    }
 
     /**
      * Initializes a ModelManager with the given AddressBook
@@ -55,9 +40,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         logger.debug("Initializing with address book: {}", src);
 
         backingModel = new AddressBook(src);
-
-        this.saveFilePath = config.getLocalDataFilePath();
-        this.addressBookNameToUse = config.getAddressBookName();
     }
 
     public ModelManager(Config config) {
@@ -73,14 +55,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      */
     public void resetData(ReadOnlyAddressBook newData) {
         backingModel.resetData(newData);
-    }
-
-    public void initData(ReadOnlyAddressBook initialData) {
-        resetData(initialData);
-    }
-
-    public void clearModel() {
-        backingModel.clearData();
     }
 
 //// EXPOSING MODEL
@@ -192,7 +166,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
         if (!original.equals(updated) && backingTagList().contains(updated)) {
             throw new DuplicateTagException(updated);
         }
-        String originalName = original.getName();
         original.update(updated);
     }
 
@@ -204,51 +177,6 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
      * @return true if there was a successful removal
      */
     public synchronized boolean deleteTag(Tag tagToDelete) {
-        boolean result = backingTagList().remove(tagToDelete);
-        return result;
-    }
-
-    /**
-     * @return true if there were changes (syncdata not empty)
-     */
-    private boolean syncPersons(Collection<Person> syncData) {
-        Set<Integer> deletedPersonIds = new HashSet<>();
-        Map<Integer, ReadOnlyPerson> newOrUpdatedPersons = new HashMap<>();
-        syncData.forEach(p -> {
-            if (p.isDeleted()) {
-                deletedPersonIds.add(p.getId());
-            } else {
-                newOrUpdatedPersons.put(p.getId(), p);
-            }
-        });
-        PlatformExecUtil.runAndWait(() -> {
-            // removal
-            backingModel.getPersons().removeAll(backingModel.getPersons().stream()
-                    .filter(p -> deletedPersonIds.contains(p.getId())).collect(Collectors.toList()));
-            // edits
-            backingModel.getPersons().forEach(p -> {
-                if (newOrUpdatedPersons.containsKey(p.getId())) {
-                    p.update(newOrUpdatedPersons.remove(p.getId()));
-                }
-            });
-            // new
-            backingModel.getPersons().addAll(newOrUpdatedPersons.values().stream()
-                    .map(Person::new).collect(Collectors.toList()));
-        });
-        return !syncData.isEmpty();
-    }
-
-    /**
-     * @return true if there were changes
-     */
-    private boolean syncTags(Collection<Tag> syncData) {
-        Set<Tag> latestTags = new HashSet<>(syncData);
-        return backingModel.getTags().retainAll(latestTags) // delete
-                // non short circuiting OR
-                | PlatformExecUtil.callAndWait(() -> {
-                    latestTags.removeAll(backingModel.getTags()); // latest tags no longer contains tags already in model
-                    backingModel.getTags().addAll(latestTags); // add
-                    return !latestTags.isEmpty();
-                }, true);
+        return backingTagList().remove(tagToDelete);
     }
 }

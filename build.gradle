@@ -59,8 +59,6 @@ allprojects {
         // Commons and Updater versions to be updated here on release
         commonsArchiveName = 'commons-0.0.2.jar'
 
-        updaterArchiveName = "updater.jar"
-
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         mainAppMainClass = 'address.MainApp'
 
@@ -72,7 +70,6 @@ allprojects {
 
         generateVersionDataMainClass = 'address.util.VersionDataGenerator'
         libDir = 'lib'
-        updaterDestDir = 'src/main/resources/updater'
     }
 
     jacocoTestReport {
@@ -89,17 +86,6 @@ allprojects {
                 srcDir 'src/main/java'
                 include('address/**/*')
                 include('hubturbo/**/*')
-                include('commons/**/*')
-            }
-            resources {
-                srcDir 'src/main/resources'
-            }
-        }
-        updater {
-            java {
-                srcDir 'src/main/java'
-                include('updater/**/*')
-                exclude('updater/VersionDataGenerator.java')
                 include('commons/**/*')
             }
             resources {
@@ -210,17 +196,6 @@ allprojects {
     createCommonsJar.dependsOn copyAllDependenciesToLibrary
     compileCommonsJava.mustRunAfter copyAllDependenciesToLibrary
 
-    // Updater jar
-    task createUpdaterJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
-        archiveName = "$updaterArchiveName"
-
-        from sourceSets.updater.output
-
-        configurations = [project.configurations.updaterCompile]
-        destinationDir = file("$updaterDestDir/")
-    }
-    createUpdaterJar.dependsOn createCommonsJar
-
     // Main application jar
     jar {
         archiveName = "$mainAppArchiveName"
@@ -238,8 +213,7 @@ allprojects {
         destinationDir = file("$libDir/")
     }
     jar.dependsOn createUpdaterJar
-    compileJava.mustRunAfter createUpdaterJar // jar adds compileJava, but it runs at the beginning (which fails without update.jar)
-                                              // delay this until update.jar is created
+    compileJava.mustRunAfter createCommonsJar
 
     // Creates the launcher, which launches the main application with custom arguments
     task createLauncherJar(type: Jar) {
