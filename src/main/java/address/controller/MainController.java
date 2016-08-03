@@ -59,7 +59,6 @@ public class MainController extends UiController{
     private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
     private static final String FXML_PERSON_LIST_PANEL = "/view/PersonListPanel.fxml";
     private static final String FXML_TAG_LIST = "/view/TagList.fxml";
-    private static final String FXML_BIRTHDAY_STATISTICS = "/view/BirthdayStatistics.fxml";
     private static final String FXML_ROOT_LAYOUT = "/view/RootLayout.fxml";
     private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
     private static final String ICON_APPLICATION = "/images/address_book_32.png";
@@ -427,27 +426,6 @@ public class MainController extends UiController{
         dialogStage.setMaximized(true);
         // Show the dialog and wait until the user closes it
         dialogStage.showAndWait();
-    }
-
-    /**
-     * Opens a dialog to show birthday statistics.
-     */
-    public void showBirthdayStatistics() {
-        logger.debug("Loading birthday statistics.");
-        final String fxmlResourcePath = FXML_BIRTHDAY_STATISTICS;
-        // Load the fxml file and create a new stage for the popup.
-        FXMLLoader loader = loadFxml(fxmlResourcePath);
-        AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading birthday statistics view");
-
-        Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage("Birthday Statistics", primaryStage, scene);
-        dialogStage.getIcons().add(getImage(ICON_CALENDAR));
-
-        // Set the persons into the controller.
-        BirthdayStatisticsController controller = loader.getController();
-        controller.setPersonData(modelManager.getPersonsAsReadOnlyObservableList());
-
-        dialogStage.show();
     }
 
     /**

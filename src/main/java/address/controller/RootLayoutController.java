@@ -61,14 +61,6 @@ public class RootLayoutController extends UiController {
     private void handleExit() {
         mainApp.stop();
     }
-    
-    /**
-     * Opens the birthday statistics.
-     */
-    @FXML
-    private void handleShowBirthdayStatistics() {
-        mainController.showBirthdayStatistics();
-    }
 
 
     @FXML

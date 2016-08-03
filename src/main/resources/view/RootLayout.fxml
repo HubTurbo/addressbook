@@ -17,11 +17,6 @@
                   <MenuItem mnemonicParsing="false" onAction="#handleShowTags" text="Manage Tags" />
                </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Statistics">
-               <items>
-                  <MenuItem mnemonicParsing="false" onAction="#handleShowBirthdayStatistics" text="Show Statistics" />
-               </items>
-            </Menu>
             <Menu mnemonicParsing="false" text="Help">
                <items>
                   <MenuItem fx:id="helpMenuItem" mnemonicParsing="false" onAction="#handleHelp" text="Help" />
