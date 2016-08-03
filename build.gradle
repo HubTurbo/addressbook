@@ -153,12 +153,6 @@ allprojects {
         installerCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         installerCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
 
-        updaterCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-        updaterCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
-        updaterCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
-        updaterCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-        updaterCompile files("$libDir/$commonsArchiveName")
-
         commonsCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         commonsCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         commonsCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
@@ -195,57 +189,6 @@ allprojects {
     }
     createCommonsJar.dependsOn copyAllDependenciesToLibrary
     compileCommonsJava.mustRunAfter copyAllDependenciesToLibrary
-
-    // Main application jar
-    jar {
-        archiveName = "$mainAppArchiveName"
-
-        manifest {
-            attributes "Class-Path": configurations.runtime.files.collect { "$libDir/${it.name}" }.join(" ") // required for DependencyChecker
-        }
-        from sourceSets.main.output
-        from(rootDir) {
-            include "VersionData.json"
-        }
-        from(tasks.createUpdaterJar.destinationDir) {
-            include "$updaterArchiveName"
-        }
-        destinationDir = file("$libDir/")
-    }
-    jar.dependsOn createUpdaterJar
-    compileJava.mustRunAfter createCommonsJar
-
-    // Creates the launcher, which launches the main application with custom arguments
-    task createLauncherJar(type: Jar) {
-        archiveName = "$launcherArchiveName"
-        manifest {
-            attributes "Main-Class": "$launcherMainClass",
-                       "Class-Path": configurations.compile.files.collect { "$libDir/${it.name}" }.join(" ")
-        }
-        from sourceSets.launcher.output
-        destinationDir = file(".")
-    }
-    createLauncherJar.dependsOn jar
-
-    // Creates the installer, which will pack necessary classes for installation and all dependencies found in lib/
-    task createInstallerJar(type: Jar) {
-        archiveName = "$installerArchiveName"
-
-        manifest {
-            attributes "Main-Class": "$installerMainClass",
-                       "Class-Path": configurations.installerRuntime.files.collect { "$libDir/${it.name}" }.join(" ")
-        }
-        from sourceSets.installer.output
-    }
-    createInstallerJar.dependsOn createLauncherJar
-    compileInstallerJava.mustRunAfter createLauncherJar // Compile installer only after its dependencies & resources are done
-
-    task generateVersionData(type: JavaExec) {
-        main = "$generateVersionDataMainClass"
-        def arguments = "$mainAppArchiveName " + "$launcherArchiveName " + configurations.runtime.files.collect { "$it.name" }.join(" ")
-        classpath = sourceSets.generateVersionData.runtimeClasspath
-        args arguments.split()
-    }
 
     jacoco {
         toolVersion = "0.7.5.201505241946"
