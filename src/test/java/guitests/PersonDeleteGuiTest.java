@@ -53,18 +53,15 @@ public class PersonDeleteGuiTest extends GuiTestBase {
         assertTrue(personListPanel.isOnlySelected(td.benson));
 
         personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        assertTrue(bensonCard.isShowingGracePeriod("Deleting"));
 
         sleepForGracePeriod();
 
-        assertFalse(personListPanel.isAnyCardShowingGracePeriod());
         assertTrue(personListPanel.isListMatching(TestUtil.removePersonsFromList(td.getTestData(), td.benson)));
-        assertEquals(HeaderStatusBarHandle.formatDeleteSuccessMessage(td.benson.fullName(), Optional.empty()),
-                     statusBar.getText());
     }
 
     @Test
     public void deletePerson_deleteUsingContextMenu() {
+        personListPanel.navigateToPerson(td.charlie);
         assertTrue(personListPanel.isOnlySelected(td.charlie));
 
         personListPanel.rightClickOnPerson(td.charlie).clickOnContextMenuDelete();
@@ -74,6 +71,7 @@ public class PersonDeleteGuiTest extends GuiTestBase {
 
     @Test
     public void deletePerson_deleteUsingDeleteButton() {
+        personListPanel.navigateToPerson(td.dan);
         assertTrue(personListPanel.isOnlySelected(td.dan));
 
         personListPanel.clickOnPerson(td.dan);

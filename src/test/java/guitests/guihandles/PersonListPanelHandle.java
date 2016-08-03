@@ -108,14 +108,9 @@ public class PersonListPanelHandle extends GuiHandle {
         Point2D screenPoint = TestUtil.getScreenMidPoint(getListView());
         Point2D scenePoint = TestUtil.getSceneMidPoint(getListView());
         Event event = new ContextMenuEvent(ContextMenuEvent.CONTEXT_MENU_REQUESTED, scenePoint.getX(), scenePoint.getY(),
-                                           screenPoint.getX(), screenPoint.getY(), false,
-                                           new PickResult(getListView(), screenPoint.getX(), screenPoint.getY()));
+                screenPoint.getX(), screenPoint.getY(), false,
+                new PickResult(getListView(), screenPoint.getX(), screenPoint.getY()));
         guiRobot.interact(() -> Event.fireEvent(getListView(), event));
-    }
-
-    public void use_PERSON_CHANGE_CANCEL_ACCELERATOR() {
-        guiRobot.push(new Bindings().PERSON_CANCEL_COMMAND_ACCELERATOR);
-        guiRobot.sleep(1000);
     }
 
     public void use_LIST_JUMP_TO_INDEX_SHORTCUT(int index) {
@@ -170,19 +165,6 @@ public class PersonListPanelHandle extends GuiHandle {
         });
         guiRobot.sleep(100);
         return getPersonCardHandle(person);
-    }
-
-    public boolean isEntireListShowingGracePeriod(String displayText) {
-        for (int i = 0; i < getListView().getItems().size(); i++) {
-            final int index = i;
-            guiRobot.interact(() -> this.getListView().scrollTo(index));
-            guiRobot.sleep(150);
-            final PersonCardHandle personCard = getPersonCardHandle(i);
-            if (!personCard.isShowingGracePeriod(displayText)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public void use_LIST_GOTO_TOP_SEQUENCE() {
@@ -377,12 +359,6 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public void clearSelection() {
         getListView().getSelectionModel().clearSelection();
-    }
-
-    public boolean isAnyCardShowingGracePeriod() {
-        return getAllCardNodes().stream()
-                                .filter(c -> new PersonCardHandle(guiRobot, primaryStage, c).isShowingGracePeriod())
-                                .findAny().isPresent();
     }
 
     /**
