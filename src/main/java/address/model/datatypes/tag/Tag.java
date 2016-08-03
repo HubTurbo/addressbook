@@ -67,7 +67,7 @@ public class Tag extends UniqueData implements ExtractableObservables {
 
     @Override
     public String toString() {
-        return "Tag: " + getName();
+        return getName();
     }
 
 }

@@ -39,7 +39,6 @@ public class PersonListPanelHandle extends GuiHandle {
     public static final String EDIT_CONTEXT_MENU_ITEM_FIELD_ID = "#editMenuItem";
     public static final String TAG_CONTEXT_MENU_ITEM_FIELD_ID = "#tagMenuItem";
     public static final String DELETE_CONTEXT_MENU_ITEM_FIELD_ID = "#deleteMenuItem";
-    public static final String CANCEL_CONTEXT_MENU_ITEM_FIELD_ID = "#cancelMenuItem";
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage, TestApp.APP_TITLE);
@@ -261,10 +260,6 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public void clickOnContextMenuDelete() {
         clickOn(DELETE_CONTEXT_MENU_ITEM_FIELD_ID);
-    }
-
-    public void clickOnContextMenuCancel() {
-        clickOn(CANCEL_CONTEXT_MENU_ITEM_FIELD_ID);
     }
 
     public void clickOnPerson(String personName) {

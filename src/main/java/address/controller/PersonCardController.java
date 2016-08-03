@@ -27,14 +27,6 @@ public class PersonCardController extends UiController {
     private Label birthday;
     @FXML
     private Label tags;
-    @FXML
-    private HBox commandStateDisplayRootNode;
-    @FXML
-    private Label commandTypeLabel;
-    @FXML
-    private ProgressIndicator remoteRequestOngoingIndicator;
-    @FXML
-    private Label commandStateInfoLabel;
 
     private ReadOnlyPerson person;
     private StringProperty idTooltipString = new SimpleStringProperty("");
@@ -88,7 +80,7 @@ public class PersonCardController extends UiController {
             }
             @Override
             protected String computeValue() {
-                return person.tagsString();
+                return person.tagsString().equals("") ? "" : " [ " + person.tagsString() + " ]";
             }
         });
 

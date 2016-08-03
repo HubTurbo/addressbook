@@ -16,7 +16,7 @@ import java.net.URL;
 
 /**
  * Manages the AddressBook browser.
- * To begin using this class: call start() once.
+ * To begin using this class: call start().
  */
 public class BrowserManager {
 

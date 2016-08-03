@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.Group?>
 <?import javafx.scene.layout.*?>
 <?import java.net.URL?>
 <HBox id="cardPane" fx:id="cardPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
@@ -13,7 +12,7 @@
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="10.0" prefWidth="100.0" />
             </columnConstraints>
             <children>
-                <VBox alignment="CENTER_LEFT" maxHeight="180.0" minHeight="155.0" prefHeight="155.0" GridPane.columnIndex="0">
+                <VBox alignment="CENTER_LEFT" maxHeight="150.0" minHeight="105.0" prefHeight="115.0" GridPane.columnIndex="0">
                     <stylesheets>
                         <URL value="@DarkTheme.css" />
                         <URL value="@Extensions.css" />
@@ -23,31 +22,15 @@
                     </padding>
 
                     <children>
-                        <HBox spacing="5">
+                        <HBox spacing="5" alignment="CENTER_LEFT">
                             <children>
-                                <Label fx:id="firstName" text="\$first" />
-                                <Label fx:id="lastName" text="\$last" />
+                                <Label fx:id="firstName" text="\$first" styleClass="cell_big_label"/>
+                                <Label fx:id="lastName" text="\$last" styleClass="cell_big_label"/>
+                                <Label fx:id="tags" styleClass="cell_small_label" text="\$tags" />
                             </children>
                         </HBox>
                         <Label fx:id="address" styleClass="cell_small_label" text="\$address" />
                         <Label fx:id="birthday" styleClass="cell_small_label" text="\$birthday" />
-                        <Label fx:id="tags" styleClass="cell_small_label" text="\$tags" />
-                          <Group>
-                             <children>
-                                <HBox id="commandStateDisplayRootNode" fx:id="commandStateDisplayRootNode" maxHeight="20.0" minHeight="20.0" spacing="5" visible="false">
-                                   <children>
-                                     <Label id="commandTypeLabel" fx:id="commandTypeLabel" alignment="CENTER_LEFT" maxHeight="20.0" minHeight="20.0" />
-                                      <StackPane>
-                                         <children>
-                                            <ProgressIndicator id="remoteRequestOngoingIndicator" fx:id="remoteRequestOngoingIndicator" minHeight="10.0" minWidth="10.0" prefHeight="10.0" prefWidth="10.0" visible="false">
-                                            </ProgressIndicator>
-                                            <Label id="commandStateInfoLabel" fx:id="commandStateInfoLabel" text="Label" visible="false"/>
-                                         </children>
-                                      </StackPane>
-                                   </children>
-                                </HBox>
-                             </children>
-                          </Group>
                     </children>
                 </VBox>
             </children>

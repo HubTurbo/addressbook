@@ -52,7 +52,6 @@ public class MainController extends UiController{
     public static final String DIALOG_TITLE_TAG_NEW = "New Tag";
     public static final String DIALOG_TITLE_TAG_EDIT = "Edit Tag";
     private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
-    private static final String FXML_ACTIVITY_HISTORY = "/view/ActivityHistory.fxml";
     private static final String FXML_HELP = "/view/Help.fxml";
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
     private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
@@ -63,8 +62,6 @@ public class MainController extends UiController{
     private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
     private static final String ICON_APPLICATION = "/images/address_book_32.png";
     private static final String ICON_EDIT = "/images/edit.png";
-    private static final String ICON_CALENDAR = "/images/calendar.png";
-    private static final String ICON_INFO = "/images/info_icon.png";
     private static final String ICON_HELP = "/images/help_icon.png";
     public static final int MIN_HEIGHT = 600;
     public static final int MIN_WIDTH = 450;
