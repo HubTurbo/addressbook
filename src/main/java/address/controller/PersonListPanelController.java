@@ -1,7 +1,6 @@
 package address.controller;
 
 import address.events.controller.JumpToListRequestEvent;
-import address.events.model.LocalModelChangedEvent;
 import address.events.parser.FilterCommittedEvent;
 import address.model.ModelManager;
 import address.model.datatypes.person.Person;
@@ -175,7 +174,6 @@ public class PersonListPanelController extends UiController {
             modelManager.retagPersonsThroughUI(selected, mainController.getPersonsTagsInput(selected));
         }
     }
-
 
     @FXML
     private void handleFilterChanged() {

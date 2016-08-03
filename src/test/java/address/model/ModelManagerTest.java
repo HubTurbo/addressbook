@@ -10,7 +10,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.function.Supplier;
 
 import static org.mockito.Mockito.*;
 

@@ -6,8 +6,6 @@ import guitests.GuiRobot;
 import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
 
-import java.util.Optional;
-
 /**
  * A handler for the HeaderStatusBar of the UI
  */

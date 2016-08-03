@@ -94,8 +94,6 @@ public class PersonCardController extends UiController {
 
     }
 
-
-
     private void initIdTooltip() {
         Tooltip tp = new Tooltip();
         tp.textProperty().bind(idTooltipString);

@@ -5,14 +5,10 @@ import address.model.datatypes.person.Person;
 import address.testutil.PersonBuilder;
 import address.testutil.TestUtil;
 import guitests.guihandles.EditPersonDialogHandle;
-import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
 import org.junit.Test;
 
-import java.util.Optional;
-
 import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**

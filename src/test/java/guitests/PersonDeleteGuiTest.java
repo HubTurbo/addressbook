@@ -2,14 +2,11 @@ package guitests;
 
 import address.model.datatypes.AddressBook;
 import address.testutil.TestUtil;
-import guitests.guihandles.HeaderStatusBarHandle;
 import guitests.guihandles.PersonCardHandle;
 import org.junit.Test;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

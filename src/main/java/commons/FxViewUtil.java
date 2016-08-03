@@ -1,14 +1,9 @@
 package commons;
 
-import com.sun.javafx.scene.control.skin.VirtualScrollBar;
-import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Circle;
-
-import java.util.Optional;
 
 /**
  * Contains utility methods for JavaFX views
