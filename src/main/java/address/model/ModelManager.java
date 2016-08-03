@@ -143,7 +143,7 @@ public class ModelManager extends ComponentManager implements ReadOnlyAddressBoo
     }
 
     public synchronized void deletePersonsThroughUI(List<ReadOnlyPerson> targets) {
-        new ArrayList<>(targets).forEach(backingModel::removePerson);
+        targets.forEach(backingModel::removePerson);
         updateBackingStorage();
     }
 

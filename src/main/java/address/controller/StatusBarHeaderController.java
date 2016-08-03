@@ -20,4 +20,8 @@ public class StatusBarHeaderController extends UiController{
     public StatusBar getHeaderStatusBarView() {
         return headerStatusBar;
     }
+
+    public void postMessage(String message) {
+        headerStatusBar.setText(message);
+    }
 }

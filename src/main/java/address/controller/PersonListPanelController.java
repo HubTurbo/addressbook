@@ -25,9 +25,11 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static address.keybindings.KeyBindingsManager.getAcceleratorKeyCombo;
 
@@ -138,7 +140,13 @@ public class PersonListPanelController extends UiController {
     @FXML
     private void handleNewPerson() {
         Optional<ReadOnlyPerson> personDataInput = mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person");
+
+        if (!personDataInput.isPresent()) {
+            return;
+        }
+
         modelManager.createPersonThroughUI(personDataInput);
+        mainController.getStatusBarHeaderController().postMessage(personDataInput.get().fullName() + " added");
     }
 
     /**
@@ -149,7 +157,13 @@ public class PersonListPanelController extends UiController {
         if (checkAndHandleInvalidSelection()) {
             final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
             Optional<ReadOnlyPerson> personDataInput = mainController.getPersonDataInput(editTarget, "Edit Person");
+
+            if (!personDataInput.isPresent()) {
+                return;
+            }
+
             modelManager.editPersonThroughUI(editTarget, personDataInput);
+            mainController.getStatusBarHeaderController().postMessage(personDataInput.get().fullName() + " edited");
         }
     }
 
@@ -159,10 +173,16 @@ public class PersonListPanelController extends UiController {
     @FXML
     private void handleDeletePersons() {
         if (checkAndHandleInvalidSelection()) {
-            final List<ReadOnlyPerson> selected = personListView.getSelectionModel().getSelectedItems();
+            final List<ReadOnlyPerson> selected = new ArrayList<>(personListView.getSelectionModel().getSelectedItems());
             modelManager.deletePersonsThroughUI(selected);
+            mainController.getStatusBarHeaderController().postMessage(collateNames(selected) + " deleted");
         }
+    }
 
+    private String collateNames(List<ReadOnlyPerson> list) {
+        StringBuilder sb = new StringBuilder();
+        list.stream().forEach(p -> sb.append(p.fullName() + ", "));
+        return sb.toString().substring(0, sb.toString().length() - 2);
     }
 
     /**
