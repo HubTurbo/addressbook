@@ -40,16 +40,6 @@ public class TagCardController extends UiController{
         }
     }
 
-    public static VBox getDummyTagCard(TagListController tagListController, MainController mainController) {
-        VBox vBox = new VBox();
-        Label label = new Label("Click to add new tag");
-        label.setPrefWidth(280);
-        vBox.getChildren().add(label);
-        vBox.setPadding(new Insets(10, 10, 10, 10));
-
-        return vBox;
-    }
-
     @FXML
     public void initialize() {
         tagName.setText(tag.getName());
