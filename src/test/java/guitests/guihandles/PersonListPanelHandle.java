@@ -165,11 +165,6 @@ public class PersonListPanelHandle extends GuiHandle {
         guiRobot.pushKeySequence(new Bindings().LIST_GOTO_TOP_SEQUENCE);
     }
 
-    public void use_PERSON_DELETE_ACCELERATOR() {
-        guiRobot.push(new Bindings().PERSON_DELETE_ACCELERATOR);
-        guiRobot.sleep(500);
-    }
-
     public void navigateUp() {
         guiRobot.push(KeyCode.UP);
     }

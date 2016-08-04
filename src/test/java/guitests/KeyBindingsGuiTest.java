@@ -50,9 +50,6 @@ public class KeyBindingsGuiTest extends GuiTestBase {
 
         personListPanel.clickOnPerson(td.dan);
 
-        personListPanel.use_PERSON_DELETE_ACCELERATOR();
-        assertFalse(personListPanel.contains(td.dan)); // removed from list after grace period
-
         personListPanel.use_LIST_JUMP_TO_INDEX_SHORTCUT(3);
 
         //======== others ============================
