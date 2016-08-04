@@ -1,9 +1,7 @@
 package commons;
 
 import javafx.scene.Node;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.shape.Circle;
 
 /**
  * Contains utility methods for JavaFX views

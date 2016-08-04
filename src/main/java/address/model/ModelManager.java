@@ -14,7 +14,10 @@ import address.util.LoggerManager;
 import address.util.collections.UnmodifiableObservableList;
 import javafx.collections.ObservableList;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Represents the in-memory model of the address book data.

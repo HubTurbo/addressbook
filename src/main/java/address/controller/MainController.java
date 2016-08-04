@@ -7,7 +7,6 @@ import address.events.controller.ResizeAppRequestEvent;
 import address.events.hotkey.KeyBindingEvent;
 import address.events.storage.FileOpeningExceptionEvent;
 import address.events.storage.FileSavingExceptionEvent;
-import address.exceptions.DuplicateTagException;
 import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.model.datatypes.person.ReadOnlyPerson;
@@ -28,20 +27,14 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * The controller that creates the other controllers

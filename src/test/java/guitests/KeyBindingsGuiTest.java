@@ -5,7 +5,8 @@ import address.model.datatypes.person.Person;
 import address.testutil.TestUtil;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests key bindings through the GUI

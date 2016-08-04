@@ -19,16 +19,12 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.*;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static address.keybindings.KeyBindingsManager.getAcceleratorKeyCombo;
 
 /**
  * Dialog to view the list of persons and their details
@@ -100,7 +96,7 @@ public class PersonListPanelController extends UiController {
      */
     @FXML
     private void initialize() {
-        personListView.setContextMenu(createContextMenu());
+
     }
 
     /**
@@ -114,17 +110,6 @@ public class PersonListPanelController extends UiController {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Deletes selected persons
-     */
-    private void handleDeletePersons() {
-        if (checkAndHandleInvalidSelection()) {
-            final List<ReadOnlyPerson> selected = new ArrayList<>(personListView.getSelectionModel().getSelectedItems());
-            modelManager.deletePersonsThroughUI(selected);
-            mainController.getStatusBarHeaderController().postMessage(collateNames(selected) + " deleted");
-        }
     }
 
     private String collateNames(List<ReadOnlyPerson> list) {
@@ -146,30 +131,6 @@ public class PersonListPanelController extends UiController {
         }
 
         raise(new FilterCommittedEvent(filterExpression));
-    }
-
-    private ContextMenu createContextMenu() {
-        logger.debug("Creating context menu for listview card");
-        final ContextMenu contextMenu = new ContextMenu();
-        contextMenu.getItems().addAll(
-                initContextMenuItem("Delete",
-                        getAcceleratorKeyCombo("PERSON_DELETE_ACCELERATOR").get(), this::handleDeletePersons)
-        );
-        contextMenu.setId("personListContextMenu");
-        logger.debug("Context menu for listview card created: " + contextMenu.toString());
-        return contextMenu;
-    }
-
-    private MenuItem initContextMenuItem(String name, KeyCombination accel, Runnable action) {
-        final MenuItem menuItem = new MenuItem(name);
-        menuItem.setId(generateMenuItemId(name));
-        menuItem.setAccelerator(accel);
-        menuItem.setOnAction(e -> action.run());
-        return menuItem;
-    }
-
-    private String generateMenuItemId(String menuItemName) {
-        return menuItemName.toLowerCase() + "MenuItem";
     }
 
     @Subscribe
