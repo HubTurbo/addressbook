@@ -15,8 +15,6 @@ import address.util.LoggerManager;
 import address.util.collections.FilteredList;
 import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

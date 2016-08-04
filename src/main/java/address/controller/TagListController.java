@@ -60,9 +60,4 @@ public class TagListController extends UiController {
         });
         return vBox;
     }
-
-    public void refreshList() {
-        setTags(modelManager.getTagsAsReadOnlyObservableList());
-        stage.sizeToScene();
-    }
 }

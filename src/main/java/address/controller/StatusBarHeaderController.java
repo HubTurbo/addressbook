@@ -1,8 +1,10 @@
 package address.controller;
 
-
 import org.controlsfx.control.StatusBar;
 
+/**
+ * A controller for the status bar that is displayed at the header of the application.
+ */
 public class StatusBarHeaderController extends UiController{
 
     public static final String HEADER_STATUS_BAR_ID = "headerStatusBar";

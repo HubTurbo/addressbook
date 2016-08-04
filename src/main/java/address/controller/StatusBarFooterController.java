@@ -6,7 +6,9 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import org.controlsfx.control.StatusBar;
 
-
+/**
+ * A controller for the status bar that is displayed at the footer of the application.
+ */
 public class StatusBarFooterController extends UiController {
 
     private static StatusBar syncStatusBar;

@@ -12,7 +12,13 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 
+/**
+ * A controller for TagList's card
+ */
 public class TagCardController extends UiController{
+
+    private static final String VIEW_TAG_LIST_CARD_FXML = "/view/TagListCard.fxml";
+
     @FXML
     private VBox box;
     @FXML
@@ -27,7 +33,7 @@ public class TagCardController extends UiController{
         this.tag = tag;
         this.tagListController = tagListController;
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/TagListCard.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(VIEW_TAG_LIST_CARD_FXML));
         loader.setController(this);
 
         try {

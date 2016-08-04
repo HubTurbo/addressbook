@@ -16,14 +16,4 @@ public class FxViewUtil {
         AnchorPane.setRightAnchor(node, right);
         AnchorPane.setTopAnchor(node, top);
     }
-
-    /**
-     * Configure the image view to be circular in shape.
-     * @param imageView
-     */
-    public static void configureCircularImageView(ImageView imageView) {
-        double xyPositionAndRadius = imageView.getFitHeight() / 2.0;
-        imageView.setClip(new Circle(xyPositionAndRadius, xyPositionAndRadius, xyPositionAndRadius));
-    }
-
 }

@@ -47,10 +47,7 @@ import java.util.Optional;
  * The controller that creates the other controllers
  */
 public class MainController extends UiController{
-    public static final String DIALOG_TITLE_TAG_SELECTION = "Tag Selection";
     public static final String DIALOG_TITLE_TAG_LIST = "List of Tags";
-    public static final String DIALOG_TITLE_TAG_NEW = "New Tag";
-    public static final String DIALOG_TITLE_TAG_EDIT = "Edit Tag";
     private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
     private static final String FXML_HELP = "/view/Help.fxml";
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
@@ -59,8 +56,13 @@ public class MainController extends UiController{
     private static final String FXML_ROOT_LAYOUT = "/view/RootLayout.fxml";
     private static final String ICON_APPLICATION = "/images/address_book_32.png";
     private static final String ICON_HELP = "/images/help_icon.png";
-    public static final int MIN_HEIGHT = 600;
-    public static final int MIN_WIDTH = 450;
+    private static final int MIN_HEIGHT = 600;
+    private static final int MIN_WIDTH = 450;
+
+    private static final String PERSON_LIST_PANEL_FIELD_ID = "#personListPanel";
+    private static final String HEADER_STATUSBAR_PLACEHOLDER_FIELD_ID = "#headerStatusbarPlaceholder";
+    private static final String FOOTER_STATUSBAR_PLACEHOLDER_FIELD_ID = "#footerStatusbarPlaceholder";
+    private static final String PERSON_WEBPAGE_PLACE_HOLDER_FIELD_ID = "#personWebpage";
 
     private Stage primaryStage;
     private VBox rootLayout;
@@ -135,6 +137,10 @@ public class MainController extends UiController{
         primaryStage.show();
     }
 
+    public StatusBarHeaderController getStatusBarHeaderController() {
+        return statusBarHeaderController;
+    }
+
     /**
      * Shows the person list panel inside the root layout.
      */
@@ -144,23 +150,18 @@ public class MainController extends UiController{
         // Load person overview.
         FXMLLoader loader = loadFxml(fxmlResourcePath);
         VBox personListPanel = (VBox) loadLoader(loader, "Error loading person list panel");
-        AnchorPane pane = (AnchorPane) rootLayout.lookup("#personListPanel");
+        AnchorPane pane = (AnchorPane) rootLayout.lookup(PERSON_LIST_PANEL_FIELD_ID);
         SplitPane.setResizableWithParent(pane, false);
         // Give the personListPanelController access to the main app and modelManager.
         PersonListPanelController personListPanelController = loader.getController();
         personListPanelController.setConnections(this, modelManager, personList);
 
         pane.getChildren().add(personListPanel);
-
-    }
-
-    public StatusBarHeaderController getStatusBarHeaderController() {
-        return statusBarHeaderController;
     }
 
     private void showHeaderStatusBar() {
         statusBarHeaderController = new StatusBarHeaderController(this);
-        AnchorPane sbPlaceHolder = (AnchorPane) rootLayout.lookup("#headerStatusbarPlaceholder");
+        AnchorPane sbPlaceHolder = (AnchorPane) rootLayout.lookup(HEADER_STATUSBAR_PLACEHOLDER_FIELD_ID);
 
         assert sbPlaceHolder != null : "headerStatusbarPlaceHolder node not found in rootLayout";
 
@@ -177,9 +178,15 @@ public class MainController extends UiController{
         gridPane.getStyleClass().add("grid-pane");
         statusBarFooterController = loader.getController();
         statusBarFooterController.init(config.getAddressBookName());
-        AnchorPane placeHolder = (AnchorPane) rootLayout.lookup("#footerStatusbarPlaceholder");
+        AnchorPane placeHolder = (AnchorPane) rootLayout.lookup(FOOTER_STATUSBAR_PLACEHOLDER_FIELD_ID);
         FxViewUtil.applyAnchorBoundaryParameters(gridPane, 0.0, 0.0, 0.0, 0.0);
         placeHolder.getChildren().add(gridPane);
+    }
+
+    public void showPersonWebPage() {
+        AnchorPane pane = (AnchorPane) rootLayout.lookup(PERSON_WEBPAGE_PLACE_HOLDER_FIELD_ID);
+        disableKeyboardShortcutOnNode(pane);
+        pane.getChildren().add(browserManager.getBrowserView());
     }
 
     private Node loadLoader(FXMLLoader loader, String errorMsg) {
@@ -206,32 +213,6 @@ public class MainController extends UiController{
         dialogStage.initOwner(primaryStage);
         dialogStage.setScene(scene);
         return dialogStage;
-    }
-
-    /**
-     * Attempts to delete tag data from the model
-     *
-     * @param tag
-     * @return true if successful
-     */
-    public boolean deleteTagData(Tag tag) {
-        return modelManager.deleteTag(tag);
-    }
-
-    /**
-     * Attempts to update the given tag in the model, and returns the result
-     *
-     * @param newTag
-     * @return true if update is successful
-     */
-    private boolean isUpdateSuccessful(Tag originalTag, Tag newTag) {
-        try {
-            modelManager.updateTag(originalTag, newTag);
-            return true;
-        } catch (DuplicateTagException e) {
-            showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag", e.toString());
-            return false;
-        }
     }
 
     public void showTagList(ObservableList<Tag> tags) {
@@ -327,12 +308,6 @@ public class MainController extends UiController{
 
     public void loadGithubProfilePage(ReadOnlyPerson person){
         browserManager.loadProfilePage(person);
-    }
-
-    public void showPersonWebPage() {
-        AnchorPane pane = (AnchorPane) rootLayout.lookup("#personWebpage");
-        disableKeyboardShortcutOnNode(pane);
-        pane.getChildren().add(browserManager.getBrowserView());
     }
 
     private void disableKeyboardShortcutOnNode(Node pane) {

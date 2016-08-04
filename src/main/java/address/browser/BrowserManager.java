@@ -53,15 +53,15 @@ public class BrowserManager {
 
     /**
      * Starts the browser manager.
+     * Precondition: FX runtime is initialized and in FX application thread.
      */
     public void start() {
         logger.info("Initializing browser");
-        browser = new WebView();
+        browser = new WebView(); //Webview need to be initialize after FX runtime is initialized
     }
 
     /**
      * Loads the person's profile page to the browser.
-     * PreCondition: filteredModelPersons.size() >= 1
      */
     public synchronized void loadProfilePage(ReadOnlyPerson person) {
 
