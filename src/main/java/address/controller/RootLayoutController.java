@@ -4,6 +4,8 @@ import address.MainApp;
 import address.events.parser.FilterCommittedEvent;
 import address.keybindings.KeyBindingsManager;
 import address.model.ModelManager;
+import address.parser.Command;
+import address.parser.CommandParser;
 import address.parser.ParseException;
 import address.parser.Parser;
 import address.parser.expr.Expr;
@@ -52,6 +54,13 @@ public class RootLayoutController extends UiController {
 
     @FXML
     private void handleFilterChanged() {
+
+        if (CommandParser.isCommandInput(filterField.getText())) {
+            Command cmd = CommandParser.parse(filterField.getText());
+            cmd.execute(modelManager);
+            return;
+        }
+
         Expr filterExpression;
         try {
             filterExpression = parser.parse(filterField.getText());
