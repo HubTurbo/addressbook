@@ -54,14 +54,10 @@ public class MainController extends UiController{
     private static final AppLogger logger = LoggerManager.getLogger(MainController.class);
     private static final String FXML_HELP = "/view/Help.fxml";
     private static final String FXML_STATUS_BAR_FOOTER = "/view/StatusBarFooter.fxml";
-    private static final String FXML_TAG_EDIT_DIALOG = "/view/TagEditDialog.fxml";
-    private static final String FXML_PERSON_EDIT_DIALOG = "/view/PersonEditDialog.fxml";
     private static final String FXML_PERSON_LIST_PANEL = "/view/PersonListPanel.fxml";
     private static final String FXML_TAG_LIST = "/view/TagList.fxml";
     private static final String FXML_ROOT_LAYOUT = "/view/RootLayout.fxml";
-    private static final String FXML_TAG_SELECTION_EDIT_DIALOG = "/view/TagSelectionEditDialog.fxml";
     private static final String ICON_APPLICATION = "/images/address_book_32.png";
-    private static final String ICON_EDIT = "/images/edit.png";
     private static final String ICON_HELP = "/images/help_icon.png";
     public static final int MIN_HEIGHT = 600;
     public static final int MIN_WIDTH = 450;
@@ -203,74 +199,6 @@ public class MainController extends UiController{
         return loader;
     }
 
-    /**
-     * Opens a dialog to edit details for a Person object. If the user
-     * clicks OK, the input data is recorded in a new Person object and returned.
-     *
-     * @param initialData the person object determining the initial data in the input fields
-     * @param dialogTitle the title of the dialog shown
-     * @return an optional containing the new data, or an empty optional if there was an error
-     *         creating the dialog or the user clicked cancel
-     */
-    public Optional<ReadOnlyPerson> getPersonDataInput(ReadOnlyPerson initialData, String dialogTitle) {
-        logger.debug("Loading dialog for person edit.");
-        final String fxmlResourcePath = FXML_PERSON_EDIT_DIALOG;
-            // Load the fxml file and create a new stage for the popup dialog.
-        FXMLLoader loader = loadFxml(fxmlResourcePath);
-        AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading person edit dialog");
-
-        Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage(dialogTitle, primaryStage, scene);
-        dialogStage.getIcons().add(getImage(ICON_EDIT));
-
-        scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ESCAPE) {
-                dialogStage.close();
-            }
-        });
-
-        // Pass relevant data into the controller.
-        PersonEditDialogController controller = loader.getController();
-        controller.setDialogStage(dialogStage);
-        controller.setInitialPersonData(initialData);
-        controller.setTags(modelManager.getTagsAsReadOnlyObservableList(),
-                new ArrayList<>(initialData.getObservableTagList()));
-
-        dialogStage.showAndWait();
-        if (controller.isOkClicked()) {
-            logger.debug("Person collected: " + controller.getEditedPerson().toString());
-            return Optional.of(controller.getEditedPerson());
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public Optional<List<Tag>> getPersonsTagsInput(List<ReadOnlyPerson> persons) {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(MainApp.class.getResource(FXML_TAG_SELECTION_EDIT_DIALOG));
-        AnchorPane pane = (AnchorPane) loadLoader(loader, "Error launching tag selection dialog");
-
-        // Create the dialog Stage.
-        Stage dialogStage = new Stage();
-        dialogStage.initModality(Modality.WINDOW_MODAL);
-        dialogStage.initOwner(primaryStage);
-        dialogStage.initStyle(StageStyle.TRANSPARENT);
-        dialogStage.setTitle(DIALOG_TITLE_TAG_SELECTION);
-        Scene scene = new Scene(pane, Color.TRANSPARENT);
-        dialogStage.setScene(scene);
-
-        TagSelectionEditDialogController controller = loader.getController();
-        controller.setTags(modelManager.getTagsAsReadOnlyObservableList(), ReadOnlyPerson.getCommonTags(persons));
-        controller.setDialogStage(dialogStage);
-
-        dialogStage.showAndWait();
-
-        if (controller.isOkClicked()) {
-            return Optional.of(controller.getFinalAssignedTags());
-        }
-        return Optional.empty();
-    }
-
     private Stage loadDialogStage(String value, Stage primaryStage, Scene scene) {
         Stage dialogStage = new Stage();
         dialogStage.setTitle(value);
@@ -291,53 +219,6 @@ public class MainController extends UiController{
     }
 
     /**
-     * Attempts to add new tag data to the model
-     *
-     * Tag data is obtained from prompting the user repeatedly until a valid tag is given or until the user cancels
-     * @return
-     */
-    public boolean addTagData() {
-        Optional<Tag> newTag = Optional.of(new Tag());
-        do {
-            newTag = getTagDataInput(newTag.get(), DIALOG_TITLE_TAG_NEW);
-        } while (newTag.isPresent() && !isAddSuccessful(newTag.get()));
-
-        return newTag.isPresent();
-    }
-
-    /**
-     * Attempts to edit the given tag and update the resulting tag in the model
-     *
-     * Tag data is obtained from prompting the user repeatedly until a valid tag is given or until the user cancels
-     * @param tag
-     * @return
-     */
-    public boolean editTagData(Tag tag) {
-        Optional<Tag> editedTag = Optional.of(tag);
-        do {
-            editedTag = getTagDataInput(editedTag.get(), DIALOG_TITLE_TAG_EDIT);
-        } while (editedTag.isPresent() && !isUpdateSuccessful(tag, editedTag.get()));
-
-        return editedTag.isPresent();
-    }
-
-    /**
-     * Attempts to add the given new tag to the model, and returns the result
-     *
-     * @param newTag
-     * @return true if add is successful
-     */
-    private boolean isAddSuccessful(Tag newTag) {
-        try {
-            modelManager.addTagToBackingModel(newTag);
-            return true;
-        } catch (DuplicateTagException e) {
-            showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag", e.toString());
-            return false;
-        }
-    }
-
-    /**
      * Attempts to update the given tag in the model, and returns the result
      *
      * @param newTag
@@ -350,39 +231,6 @@ public class MainController extends UiController{
         } catch (DuplicateTagException e) {
             showAlertDialogAndWait(AlertType.WARNING, "Warning", "Cannot have duplicate tag", e.toString());
             return false;
-        }
-    }
-
-    /**
-     * Opens a dialog to edit details for the specified tag. If the user
-     * clicks OK, the changes are recorded in a new Tag and returned.
-     *
-     * @param tag the tag object determining the initial data in the input fields
-     * @param dialogTitle the title of the dialog to be shown
-     * @return an optional containing the new data, or an empty optional if there was an error
-     *         creating the dialog or the user clicked cancel
-     */
-    public Optional<Tag> getTagDataInput(Tag tag, String dialogTitle) {
-        logger.debug("Loading dialog for tag edit.");
-        final String fxmlResourcePath = FXML_TAG_EDIT_DIALOG;
-            // Load the fxml file and create a new stage for the popup dialog.
-        FXMLLoader loader = loadFxml(fxmlResourcePath);
-        AnchorPane page = (AnchorPane) loadLoader(loader, "Error loading tag edit dialog");
-
-        Scene scene = new Scene(page);
-        Stage dialogStage = loadDialogStage(dialogTitle, primaryStage, scene);
-        dialogStage.getIcons().add(getImage(ICON_EDIT));
-
-        // Pass relevant data to the controller.
-        TagEditDialogController controller = loader.getController();
-        controller.setDialogStage(dialogStage);
-        controller.setInitialTagData(tag);
-
-        dialogStage.showAndWait();
-        if (controller.isOkClicked()) {
-            return Optional.of(controller.getEditedTag());
-        } else {
-            return Optional.empty();
         }
     }
 

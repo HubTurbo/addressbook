@@ -44,75 +44,16 @@ public class TagCardController extends UiController{
         vBox.getChildren().add(label);
         vBox.setPadding(new Insets(10, 10, 10, 10));
 
-        vBox.setOnMouseClicked(mouseEv -> {
-            switch (mouseEv.getButton()) {
-                case PRIMARY:
-                    if (mouseEv.getClickCount() == 1) {
-                        mainController.addTagData();
-                        tagListController.refreshList();
-                    }
-                    break;
-            }
-        });
         return vBox;
     }
 
     @FXML
     public void initialize() {
         tagName.setText(tag.getName());
-        setListeners();
-    }
-
-    private void setListeners() {
-        box.setOnMouseClicked(mouseEv -> {
-            switch (mouseEv.getButton()) {
-                case PRIMARY:
-                    if (mouseEv.getClickCount() >= 2) {
-                        handleEditTagAction();
-                    }
-                    break;
-                case SECONDARY:
-                    if (mouseEv.getClickCount() == 1) {
-                        getContextMenu().show(tagName, Side.BOTTOM, 0, 0);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        });
     }
 
     public VBox getLayout() {
         return box;
     }
 
-    private ContextMenu getContextMenu() {
-        ContextMenu contextMenu = new ContextMenu();
-
-        MenuItem newTagItem = new MenuItem("New");
-        newTagItem.setOnAction(event -> handleAddTagAction());
-        MenuItem editTag = new MenuItem("Edit");
-        editTag.setOnAction(event -> handleEditTagAction());
-        MenuItem removeTag = new MenuItem("Remove");
-        removeTag.setOnAction(event -> handleDeleteTagAction());
-
-        contextMenu.getItems().addAll(newTagItem, editTag, removeTag);
-
-        return contextMenu;
-    }
-
-    private void handleAddTagAction() {
-        mainController.addTagData();
-        tagListController.refreshList();
-    }
-
-    private void handleEditTagAction() {
-        mainController.editTagData(tag);
-        tagListController.refreshList();
-    }
-
-    private void handleDeleteTagAction() {
-        mainController.deleteTagData(tag);
-        tagListController.refreshList();
-    }
 }

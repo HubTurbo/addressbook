@@ -62,13 +62,6 @@ public class RootLayoutController extends UiController {
         mainApp.stop();
     }
 
-
-    @FXML
-    private void handleNewTag() {
-        logger.debug("Adding a new tag from the root layout.");
-        mainController.addTagData();
-    }
-
     @FXML
     private void handleShowTags() {
         logger.debug("Attempting to show tag list.");

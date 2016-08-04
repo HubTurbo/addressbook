@@ -13,7 +13,6 @@
             </Menu>
             <Menu mnemonicParsing="false" text="Tags">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#handleNewTag" text="New Tag" />
                   <MenuItem mnemonicParsing="false" onAction="#handleShowTags" text="Manage Tags" />
                </items>
             </Menu>

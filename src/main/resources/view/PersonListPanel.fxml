@@ -11,12 +11,5 @@
     <children>
         <TextField fx:id="filterField" onAction="#handleFilterChanged" />
         <ListView fx:id="personListView" VBox.vgrow="ALWAYS" />
-        <HBox>
-            <children>
-                <Button fx:id="deleteButton" styleClass="button" mnemonicParsing="false" onAction="#handleDeletePersons" prefHeight="33.0" maxWidth="Infinity" HBox.hgrow="ALWAYS" text="Delete" />
-                <Button fx:id="newButton" styleClass="button" mnemonicParsing="false" onAction="#handleNewPerson" prefHeight="33.0" maxWidth="Infinity" HBox.hgrow="ALWAYS" text="New" />
-                <Button fx:id="editButton" styleClass="button" mnemonicParsing="false" onAction="#handleEditPerson" prefHeight="33.0" maxWidth="Infinity" HBox.hgrow="ALWAYS" text="Edit" />
-            </children>
-        </HBox>
     </children>
 </VBox>

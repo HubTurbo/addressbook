@@ -3,7 +3,6 @@ package address.controller;
 import address.events.controller.JumpToListRequestEvent;
 import address.events.parser.FilterCommittedEvent;
 import address.model.ModelManager;
-import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.parser.ParseException;
 import address.parser.Parser;
@@ -40,15 +39,7 @@ import static address.keybindings.KeyBindingsManager.getAcceleratorKeyCombo;
  */
 public class PersonListPanelController extends UiController {
     private static AppLogger logger = LoggerManager.getLogger(PersonListPanelController.class);
-    private final BooleanProperty shouldDisableEdit = new SimpleBooleanProperty(false);
-    private final BooleanProperty shouldAllowRetry = new SimpleBooleanProperty(false);
 
-    @FXML
-    private Button newButton;
-    @FXML
-    private Button editButton;
-    @FXML
-    private Button deleteButton;
     @FXML
     private ListView<ReadOnlyPerson> personListView;
     @FXML
@@ -74,7 +65,6 @@ public class PersonListPanelController extends UiController {
         personListView.setCellFactory(listView -> new PersonListViewCell());
         loadGithubProfilePageWhenPersonIsSelected(mainController);
         setupListviewSelectionModelSettings();
-        disableEditCommandForMultipleSelection();
     }
 
     private void setupListviewSelectionModelSettings() {
@@ -105,11 +95,6 @@ public class PersonListPanelController extends UiController {
         });
     }
 
-    private void disableEditCommandForMultipleSelection() {
-        final ListChangeListener<Integer> listener = change -> shouldDisableEdit.set(change.getList().size() > 1);
-        personListView.getSelectionModel().getSelectedIndices().addListener(listener);
-    }
-
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -118,7 +103,6 @@ public class PersonListPanelController extends UiController {
     @FXML
     private void initialize() {
         personListView.setContextMenu(createContextMenu());
-        editButton.disableProperty().bind(shouldDisableEdit);
     }
 
     /**
@@ -135,42 +119,8 @@ public class PersonListPanelController extends UiController {
     }
 
     /**
-     * Opens a dialog to edit details for a new person.
-     */
-    @FXML
-    private void handleNewPerson() {
-        Optional<ReadOnlyPerson> personDataInput = mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person");
-
-        if (!personDataInput.isPresent()) {
-            return;
-        }
-
-        modelManager.createPersonThroughUI(personDataInput);
-        mainController.getStatusBarHeaderController().postMessage(personDataInput.get().fullName() + " added");
-    }
-
-    /**
-     * Opens a dialog to edit details for the selected person.
-     */
-    @FXML
-    private void handleEditPerson() {
-        if (checkAndHandleInvalidSelection()) {
-            final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
-            Optional<ReadOnlyPerson> personDataInput = mainController.getPersonDataInput(editTarget, "Edit Person");
-
-            if (!personDataInput.isPresent()) {
-                return;
-            }
-
-            modelManager.editPersonThroughUI(editTarget, personDataInput);
-            mainController.getStatusBarHeaderController().postMessage(personDataInput.get().fullName() + " edited");
-        }
-    }
-
-    /**
      * Deletes selected persons
      */
-    @FXML
     private void handleDeletePersons() {
         if (checkAndHandleInvalidSelection()) {
             final List<ReadOnlyPerson> selected = new ArrayList<>(personListView.getSelectionModel().getSelectedItems());
@@ -183,16 +133,6 @@ public class PersonListPanelController extends UiController {
         StringBuilder sb = new StringBuilder();
         list.stream().forEach(p -> sb.append(p.fullName() + ", "));
         return sb.toString().substring(0, sb.toString().length() - 2);
-    }
-
-    /**
-     * Retags all selected persons
-     */
-    private void handleRetagPersons() {
-        if (checkAndHandleInvalidSelection()) {
-            final List<ReadOnlyPerson> selected = personListView.getSelectionModel().getSelectedItems();
-            modelManager.retagPersonsThroughUI(selected, mainController.getPersonsTagsInput(selected));
-        }
     }
 
     @FXML
@@ -213,18 +153,9 @@ public class PersonListPanelController extends UiController {
     private ContextMenu createContextMenu() {
         logger.debug("Creating context menu for listview card");
         final ContextMenu contextMenu = new ContextMenu();
-
-        final MenuItem editMenuItem = initContextMenuItem("Edit",
-                getAcceleratorKeyCombo("PERSON_EDIT_ACCELERATOR").get(), this::handleEditPerson);
-        editMenuItem.setId(generateMenuItemId("edit"));
-        editMenuItem.disableProperty().bind(shouldDisableEdit); // disable if multiple selected
-
         contextMenu.getItems().addAll(
-                editMenuItem,
                 initContextMenuItem("Delete",
-                        getAcceleratorKeyCombo("PERSON_DELETE_ACCELERATOR").get(), this::handleDeletePersons),
-                initContextMenuItem("Tag",
-                        getAcceleratorKeyCombo("PERSON_TAG_ACCELERATOR").get(), this::handleRetagPersons)
+                        getAcceleratorKeyCombo("PERSON_DELETE_ACCELERATOR").get(), this::handleDeletePersons)
         );
         contextMenu.setId("personListContextMenu");
         logger.debug("Context menu for listview card created: " + contextMenu.toString());

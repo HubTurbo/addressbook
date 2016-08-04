@@ -1,7 +1,6 @@
 package guiunittests;
 
 import guitests.GuiRobot;
-import guitests.guihandles.EditPersonDialogHandle;
 import javafx.stage.Stage;
 import org.junit.After;
 import org.junit.Before;
@@ -17,7 +16,6 @@ import java.util.concurrent.TimeoutException;
  */
 public abstract class GuiUnitTestBase implements ApplicationFixture {
 
-    public EditPersonDialogHandle handle;
     public GuiRobot guiRobot = new GuiRobot();
 
     @BeforeClass
