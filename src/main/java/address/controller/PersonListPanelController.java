@@ -36,17 +36,14 @@ public class PersonListPanelController extends UiController {
 
     @FXML
     private ListView<ReadOnlyPerson> personListView;
-    @FXML
-    private TextField filterField;
 
     private MainController mainController;
     private ModelManager modelManager;
     private FilteredList<ReadOnlyPerson> filteredPersonList;
-    private Parser parser;
+
 
     public PersonListPanelController() {
         super();
-        parser = new Parser();
     }
 
     public void setConnections(MainController mainController, ModelManager modelManager,
@@ -116,21 +113,6 @@ public class PersonListPanelController extends UiController {
         StringBuilder sb = new StringBuilder();
         list.stream().forEach(p -> sb.append(p.fullName() + ", "));
         return sb.toString().substring(0, sb.toString().length() - 2);
-    }
-
-    @FXML
-    private void handleFilterChanged() {
-        Expr filterExpression;
-        try {
-            filterExpression = parser.parse(filterField.getText());
-            if (filterField.getStyleClass().contains("error")) filterField.getStyleClass().remove("error");
-        } catch (ParseException e) {
-            logger.debug("Invalid filter found: {}", e);
-            filterExpression = PredExpr.TRUE;
-            if (!filterField.getStyleClass().contains("error")) filterField.getStyleClass().add("error");
-        }
-
-        raise(new FilterCommittedEvent(filterExpression));
     }
 
     @Subscribe
