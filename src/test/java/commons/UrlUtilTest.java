@@ -4,8 +4,6 @@ import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -14,26 +12,6 @@ import static org.junit.Assert.assertTrue;
  * Tests the UrlUtil methods.
  */
 public class UrlUtilTest {
-    
-    private List<URL> listOfUrl;
-    private final String GITHUB_ROOT_URL = "https://github.com/";
-
-    public UrlUtilTest() throws MalformedURLException {
-        listOfUrl = new ArrayList<>();
-        listOfUrl.add(new URL(GITHUB_ROOT_URL + 1));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL + 2));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL + 3));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL + 4));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL + 5));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL + "a"));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL));
-        listOfUrl.add(new URL(GITHUB_ROOT_URL));
-    }
 
     @Test
     public void testCompareBaseUrls_differentCapital_success() throws MalformedURLException {

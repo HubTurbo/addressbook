@@ -4,9 +4,6 @@ import address.events.controller.JumpToListRequestEvent;
 import address.events.parser.FilterCommittedEvent;
 import address.model.ModelManager;
 import address.model.datatypes.person.ReadOnlyPerson;
-import address.parser.ParseException;
-import address.parser.Parser;
-import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.parser.qualifier.TrueQualifier;
 import address.ui.PersonListViewCell;
@@ -21,7 +18,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TextField;
 
 import java.util.List;
 import java.util.Objects;

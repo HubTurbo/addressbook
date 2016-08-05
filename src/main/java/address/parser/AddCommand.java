@@ -2,7 +2,6 @@ package address.parser;
 
 import address.model.ModelManager;
 import address.model.datatypes.person.Person;
-import address.model.datatypes.person.ReadOnlyPerson;
 
 import java.util.Optional;
 

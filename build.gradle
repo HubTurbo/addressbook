@@ -47,9 +47,7 @@ allprojects {
         jKeyMasterVersion = '1.2'
         junitVersion = '4.12'
         log4jVersion = '2.6'
-        mockitoVersion = '1+'
         mockServerVersion = '3.10.1'
-        powermockVersion = '1.6.5'
         testFxVersion = '3.1.0'
         monocleVersion = '1.8.0_20'
         slf4jSimpleVersion = '1.6.4'
@@ -142,9 +140,7 @@ allprojects {
         testCompile "org.testfx:testfx-legacy:4.0.+", {
             exclude group: "junit", module: "junit"
         }
-        testCompile "org.mockito:mockito-core:$mockitoVersion"
-        testCompile "org.powermock:powermock-api-mockito:$powermockVersion"
-        testCompile "org.powermock:powermock-module-junit4:$powermockVersion"
+
         testCompile "org.testfx:openjfx-monocle:$monocleVersion"
 
         installerCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
