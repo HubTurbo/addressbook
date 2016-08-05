@@ -28,20 +28,4 @@ public class ModelManagerTest {
         modelSpy = spy(new ModelManager(config));
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void createPersonThroughUi_spawnsNewAddCommand() {
-        doCallRealMethod().when(modelMock).createPersonThroughUI(any());
-        Callable<Optional<ReadOnlyPerson>> addInputRetriever = Optional::empty;
-        /* TODO: Fix conflicts
-        modelMock.createPersonThroughUI(addInputRetriever);
-        verify(modelMock).execNewAddPersonCommand(notNull(Supplier.class));
-        */
-    }
-
-    @Test
-    public void editPersonThroughUi_spawnsNewEditCommand_ifTargetHasNoChangeInProgress() {
-//        doCallRealMethod().when(modelMock).editPersonThroughUI(any());
-
-    }
 }

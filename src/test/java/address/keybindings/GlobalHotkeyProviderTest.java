@@ -3,55 +3,54 @@ package address.keybindings;
 import address.events.BaseEvent;
 import address.events.EventManager;
 import address.events.hotkey.GlobalHotkeyEvent;
+import address.testutil.BaseEventSubscriber;
 import address.util.LoggerManager;
+import com.google.common.eventbus.Subscribe;
 import com.tulskiy.keymaster.common.Provider;
 import javafx.scene.input.KeyCodeCombination;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
-import javax.swing.*;
-import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertTrue;
 
 public class GlobalHotkeyProviderTest {
 
-    EventManager eventManagerMock = Mockito.mock(EventManager.class);
+    EventManager eventManager = EventManager.getInstance();
     GlobalHotkeyProvider globalHotkeyProvider;
-    Provider providerMock = Mockito.mock(Provider.class);
+    Provider provider;
 
     @Before
     public void setup(){
-        globalHotkeyProvider = new GlobalHotkeyProvider(eventManagerMock, LoggerManager.getLogger(KeyBindingsManager.class));
-        globalHotkeyProvider.provider = providerMock;
-    }
-
-    @Test
-    public void registerGlobalHotkeys() throws Exception {
-        List<GlobalHotkey> hotkeys = new Bindings().getHotkeys();
-        globalHotkeyProvider.registerGlobalHotkeys(hotkeys);
-
-        // Verify that the number of hotkeys registered is same as the number of keys in the list
-        verify(providerMock, times(hotkeys.size())).register(any(KeyStroke.class), Matchers.any());
+        globalHotkeyProvider = new GlobalHotkeyProvider(eventManager, LoggerManager.getLogger(KeyBindingsManager.class));
+        provider = globalHotkeyProvider.provider;
     }
 
     @Test
     public void handleGlobalHotkeyEvent() throws Exception {
+
+        CountDownLatch latch = new CountDownLatch(1);
+        eventManager.registerHandler(new BaseEventSubscriber() {
+            @Subscribe
+            @Override
+            public void receive(BaseEvent e) {
+                latch.countDown();
+            }
+        });
+
         globalHotkeyProvider.handleGlobalHotkeyEvent(new GlobalHotkeyEvent(KeyCodeCombination.valueOf("SHIFT + A")));
 
         //verify an event was posted
-        verify(eventManagerMock, times(1)).post(any(BaseEvent.class));
+        assertTrue(latch.await(10, TimeUnit.SECONDS));
+
     }
 
-    @Test
-    public void clear() throws Exception {
-        globalHotkeyProvider.clear();
-        verify(providerMock, times(1)).reset();
-        verify(providerMock, times(1)).stop();
+    @After
+    public void after() {
+        EventManager.clearSubscribers();
     }
 
 }
