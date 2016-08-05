@@ -43,11 +43,7 @@ public class Bindings {
     public KeySequence LIST_GOTO_TOP_SEQUENCE;
     public KeySequence LIST_GOTO_BOTTOM_SEQUENCE;
     public Shortcut LIST_ENTER_SHORTCUT;
-    public Accelerator PERSON_CANCEL_COMMAND_ACCELERATOR;
-    public Accelerator PERSON_RETRY_FAILED_COMMAND_ACCELERATOR;
     public Accelerator PERSON_DELETE_ACCELERATOR;
-    public Accelerator PERSON_EDIT_ACCELERATOR;
-    public Accelerator PERSON_TAG_ACCELERATOR;
     public Accelerator HELP_PAGE_ACCELERATOR;
 
 
@@ -59,18 +55,13 @@ public class Bindings {
 
         /*====== bindings A-Z keys (in alphabetical order of main key =====================*/
 
-        PERSON_TAG_ACCELERATOR = setAccelerator("PERSON_TAG_ACCELERATOR", "A");
         PERSON_DELETE_ACCELERATOR = setAccelerator("PERSON_DELETE_ACCELERATOR", "D");
-        PERSON_EDIT_ACCELERATOR = setAccelerator("PERSON_EDIT_ACCELERATOR", "E");
         LIST_GOTO_BOTTOM_SEQUENCE = setSequence("LIST_GOTO_BOTTOM_SEQUENCE", "G", "B", new JumpToListRequestEvent(-1));
         LIST_GOTO_TOP_SEQUENCE = setSequence("LIST_GOTO_TOP_SEQUENCE", "G", "T", new JumpToListRequestEvent(1));
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "CTRL + ALT + X", new MinimizeAppRequestEvent()));
         APP_MINIMIZE_HOTKEY.add(setHotkey("APP_MINIMIZE_HOTKEY", "META + ALT + X", new MinimizeAppRequestEvent()));
         APP_RESIZE_HOTKEY.add(setHotkey("APP_RESIZE_HOTKEY", "CTRL + SHIFT + X", new ResizeAppRequestEvent()));
         APP_RESIZE_HOTKEY.add(setHotkey("APP_RESIZE_HOTKEY", "META + SHIFT + X", new ResizeAppRequestEvent()));
-        PERSON_RETRY_FAILED_COMMAND_ACCELERATOR = setAccelerator("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR",
-                                                                 "SHORTCUT + Y");
-        PERSON_CANCEL_COMMAND_ACCELERATOR = setAccelerator("PERSON_CANCEL_COMMAND_ACCELERATOR", "SHORTCUT + Z");
         HELP_PAGE_ACCELERATOR = setAccelerator("HELP_PAGE_ACCELERATOR", "F1");
 
         /*====== other keys ======================================================*/
