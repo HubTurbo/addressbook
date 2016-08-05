@@ -3,6 +3,7 @@ package address.controller;
 import address.model.datatypes.tag.Tag;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
