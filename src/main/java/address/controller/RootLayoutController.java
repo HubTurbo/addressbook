@@ -2,7 +2,6 @@ package address.controller;
 
 import address.MainApp;
 import address.events.parser.FilterCommittedEvent;
-import address.keybindings.KeyBindingsManager;
 import address.model.ModelManager;
 import address.parser.Command;
 import address.parser.CommandParser;
@@ -16,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCombination;
 
 /**
  * The controller for the root layout. The root layout provides the basic
@@ -49,7 +49,7 @@ public class RootLayoutController extends UiController {
     }
 
     public void setAccelerators() {
-        helpMenuItem.setAccelerator(KeyBindingsManager.getAcceleratorKeyCombo("HELP_PAGE_ACCELERATOR").get());
+        helpMenuItem.setAccelerator(KeyCombination.valueOf("F1"));
     }
 
     @FXML

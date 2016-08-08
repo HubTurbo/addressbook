@@ -1,6 +1,5 @@
 package address;
 
-import address.keybindings.KeyBindingsManager;
 import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.storage.StorageManager;
@@ -40,7 +39,6 @@ public class MainApp extends Application {
     protected ModelManager modelManager;
 
     protected Ui ui;
-    protected KeyBindingsManager keyBindingsManager;
     protected Config config;
     protected UserPrefs userPrefs;
 
@@ -71,11 +69,6 @@ public class MainApp extends Application {
         modelManager = initModelManager(config);
         storageManager = initStorageManager(modelManager, config, userPrefs);
         ui = initUi(config, modelManager);
-        keyBindingsManager = initKeyBindingsManager();
-    }
-
-    protected KeyBindingsManager initKeyBindingsManager() {
-        return new KeyBindingsManager();
     }
 
     protected Ui initUi(Config config, ModelManager modelManager) {
@@ -102,7 +95,6 @@ public class MainApp extends Application {
         logger.info("Stopping application.");
         ui.stop();
         storageManager.savePrefsToFile(userPrefs);
-        keyBindingsManager.stop();
         quit();
     }
 
