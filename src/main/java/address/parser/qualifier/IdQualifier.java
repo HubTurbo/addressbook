@@ -1,6 +1,6 @@
 package address.parser.qualifier;
 
-import address.model.datatypes.person.ReadOnlyViewablePerson;
+import address.model.datatypes.person.ReadOnlyPerson;
 
 public class IdQualifier implements Qualifier {
     private final int id;
@@ -10,7 +10,7 @@ public class IdQualifier implements Qualifier {
     }
 
     @Override
-    public boolean run(ReadOnlyViewablePerson person) {
+    public boolean run(ReadOnlyPerson person) {
         return person.getId() == id;
     }
 

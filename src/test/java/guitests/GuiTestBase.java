@@ -4,10 +4,9 @@ import address.TestApp;
 import address.events.EventManager;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
-import address.sync.cloud.model.CloudAddressBook;
 import address.testutil.ScreenShotRule;
-import address.testutil.TypicalTestData;
 import address.testutil.TestUtil;
+import address.testutil.TypicalTestData;
 import address.util.Config;
 import guitests.guihandles.*;
 import javafx.stage.Stage;
@@ -23,7 +22,6 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class GuiTestBase {
@@ -67,8 +65,7 @@ public class GuiTestBase {
             this.stage = stage;
         });
         EventManager.clearSubscribers();
-        testApp = (TestApp) FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation(),
-                                                     this::selectFromInitialCloudData));
+        testApp = (TestApp) FxToolkit.setupApplication(() -> new TestApp(this::getInitialData, getDataFileLocation()));
         FxToolkit.showStage();
         while(!stage.isShowing());
         mainGui.focusOnMainApp();
@@ -80,20 +77,6 @@ public class GuiTestBase {
      */
     protected AddressBook getInitialData() {
         return TestUtil.generateSampleAddressBook();
-    }
-
-    private CloudAddressBook selectFromInitialCloudData() {
-        return getInitialCloudData() == null
-            ?  TestUtil.generateCloudAddressBook(getInitialData())
-            : getInitialCloudData();
-    }
-
-    /**
-     * Override this in child classes to set the initial cloud data.
-     * If not overridden, cloud data will be the same as local data.
-     */
-    protected CloudAddressBook getInitialCloudData() {
-        return null;
     }
 
     /**
@@ -113,7 +96,6 @@ public class GuiTestBase {
         File file = GuiTest.captureScreenshot();
         TestUtil.renameFile(file, this.getClass().getName() + name.getMethodName() + ".png");
         FxToolkit.cleanupStages();
-        testApp.deregisterHotKeys();
     }
 
     public void sleep(long duration, TimeUnit timeunit) {
@@ -126,7 +108,7 @@ public class GuiTestBase {
 
     public void sleepUntilNextSync() {
         //TODO: actively check for sync status rather than sleep for a fixed time
-        sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
+        //sleep(getTestingConfig().getUpdateInterval(), TimeUnit.MILLISECONDS);
     }
 
     public void assertMatching(PersonCardHandle card, Person person) {

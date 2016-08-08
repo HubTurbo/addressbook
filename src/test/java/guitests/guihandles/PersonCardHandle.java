@@ -1,6 +1,5 @@
 package guitests.guihandles;
 
-import address.TestApp;
 import address.controller.PersonCardController;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.tag.Tag;
@@ -37,41 +36,6 @@ public class PersonCardHandle extends GuiHandle {
     public PersonCardHandle(GuiRobot guiRobot, Stage primaryStage, Node node){
         super(guiRobot, primaryStage, null);
         this.node = node;
-    }
-
-    private boolean isPendingStateLabelVisible() {
-        return node.lookup(PENDING_STATE_LABEL_FIELD_ID).isVisible();
-    }
-
-    private boolean isPendingStateProgressIndicatorVisible() {
-        return node.lookup(PENDING_STATE_PROGRESS_INDICATOR_FIELD_ID).isVisible();
-    }
-
-    private boolean isPendingStateRootVisible() {
-        return node.lookup(PENDING_STATE_ROOT_FIELD_ID).isVisible();
-    }
-
-    /**
-     * Checks if grace period is shown with the displayText
-     * @param displayText
-     * @return
-     */
-    public boolean isShowingGracePeriod(String displayText) {
-        return this.isPendingStateRootVisible() && this.isPendingStateLabelVisible()
-                && !this.isPendingStateProgressIndicatorVisible() && this.getPendingStateLabel().equals(displayText);
-    }
-
-    /**
-     * Checks if grace period is shown.
-     * @return
-     */
-    public boolean isShowingGracePeriod() {
-        return this.isPendingStateRootVisible() && this.isPendingStateLabelVisible()
-                && !this.isPendingStateProgressIndicatorVisible();
-    }
-
-    public String getPendingStateLabel() {
-        return getTextFromLabel(PENDING_STATE_LABEL_FIELD_ID);
     }
 
     public String getLastName(){

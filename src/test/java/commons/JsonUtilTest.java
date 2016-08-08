@@ -2,11 +2,11 @@ package commons;
 
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.ReadOnlyAddressBook;
+import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.model.datatypes.tag.Tag;
-import address.model.datatypes.person.Person;
 import address.storage.StorageAddressBook;
-import commons.JsonUtil;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**

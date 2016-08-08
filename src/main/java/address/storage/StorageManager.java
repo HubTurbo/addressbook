@@ -6,11 +6,11 @@ import address.exceptions.DataConversionException;
 import address.main.ComponentManager;
 import address.model.UserPrefs;
 import address.model.datatypes.ReadOnlyAddressBook;
-import address.util.*;
-import com.google.common.eventbus.Subscribe;
 import address.util.AppLogger;
-import commons.FileUtil;
+import address.util.Config;
 import address.util.LoggerManager;
+import com.google.common.eventbus.Subscribe;
+import commons.FileUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -6,13 +6,11 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 /**
@@ -42,25 +40,4 @@ public class ManageTagsDialogHandle extends GuiHandle {
         return getTagNames().stream().filter(value::equals).findAny().isPresent();
     }
 
-    public void openEditTagDialog(String tag) {
-        guiRobot.doubleClickOn(tag);
-        focusOnWindow(MainController.DIALOG_TITLE_TAG_EDIT);
-    }
-
-    public String getEditTagDialogText() {
-        return getTextFieldText(EDIT_TAG_TEXT_FIELD);
-    }
-
-    public void changeEditTagDialogText(String text) {
-        guiRobot.clickOn(EDIT_TAG_TEXT_FIELD).push(KeyCode.SHORTCUT, KeyCode.A).eraseText(1).write(text);
-        guiRobot.sleep(500);//For edit to take effect.
-    }
-
-    public boolean isChangeEditTagDialogOpen() {
-        try{
-            return guiRobot.window(MainController.DIALOG_TITLE_TAG_EDIT) != null;
-        } catch (NoSuchElementException e) {
-            return false;
-        }
-    }
 }

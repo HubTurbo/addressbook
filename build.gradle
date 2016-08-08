@@ -35,7 +35,6 @@ allprojects {
         mavenCentral()
         maven { url "https://repo.eclipse.org/content/repositories/egit-releases/" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "http://maven.teamdev.com/repository/products" }
     }
 
     // This part is similar to global variables
@@ -46,12 +45,9 @@ allprojects {
         jacksonVersion = '2.7.0'
         jacksonDataTypeVersion = '2.7.4'
         jKeyMasterVersion = '1.2'
-        jxBrowserVersion = '6.4'
         junitVersion = '4.12'
         log4jVersion = '2.6'
-        mockitoVersion = '1+'
         mockServerVersion = '3.10.1'
-        powermockVersion = '1.6.5'
         testFxVersion = '3.1.0'
         monocleVersion = '1.8.0_20'
         slf4jSimpleVersion = '1.6.4'
@@ -59,8 +55,6 @@ allprojects {
 
         // Commons and Updater versions to be updated here on release
         commonsArchiveName = 'commons-0.0.2.jar'
-
-        updaterArchiveName = "updater.jar"
 
         mainAppArchiveName = 'resource-' + project.version + '.jar'
         mainAppMainClass = 'address.MainApp'
@@ -71,11 +65,8 @@ allprojects {
         launcherArchiveName = 'addressbook-' + project.version + '.jar'
         launcherMainClass = 'launcher.Launcher'
 
-        licenceArchiveName = 'licence.jar'
-
         generateVersionDataMainClass = 'address.util.VersionDataGenerator'
         libDir = 'lib'
-        updaterDestDir = 'src/main/resources/updater'
     }
 
     jacocoTestReport {
@@ -98,17 +89,6 @@ allprojects {
                 srcDir 'src/main/resources'
             }
         }
-        updater {
-            java {
-                srcDir 'src/main/java'
-                include('updater/**/*')
-                exclude('updater/VersionDataGenerator.java')
-                include('commons/**/*')
-            }
-            resources {
-                srcDir 'src/main/resources'
-            }
-        }
         commons {
             java {
                 srcDir 'src/main/java'
@@ -124,7 +104,6 @@ allprojects {
             resources {
                 srcDir "."
                 include("$libDir/*")
-                exclude("$libDir/jxbrowser-*-*.jar") // platform-specific jxbrowser
                 include("$launcherArchiveName")
                 include('VersionData.json')
             }
@@ -151,13 +130,8 @@ allprojects {
         compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         compile "com.google.guava:guava:$guavaVersion"
-        compile "com.teamdev.jxbrowser:jxbrowser-win:$jxBrowserVersion"
-        compile "com.teamdev.jxbrowser:jxbrowser-mac:$jxBrowserVersion"
-        compile "com.teamdev.jxbrowser:jxbrowser-linux32:$jxBrowserVersion"
-        compile "com.teamdev.jxbrowser:jxbrowser-linux64:$jxBrowserVersion"
         compile "org.controlsfx:controlsfx:$controlsFxVersion"
         compile "com.github.tulskiy:jkeymaster:$jKeyMasterVersion"
-        compile files("$libDir/$licenceArchiveName")
         compile files("$libDir/$commonsArchiveName")
 
         testCompile "junit:junit:$junitVersion"
@@ -166,21 +140,13 @@ allprojects {
         testCompile "org.testfx:testfx-legacy:4.0.+", {
             exclude group: "junit", module: "junit"
         }
-        testCompile "org.mockito:mockito-core:$mockitoVersion"
-        testCompile "org.powermock:powermock-api-mockito:$powermockVersion"
-        testCompile "org.powermock:powermock-module-junit4:$powermockVersion"
+
         testCompile "org.testfx:openjfx-monocle:$monocleVersion"
 
         installerCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         installerCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
         installerCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         installerCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-
-        updaterCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-        updaterCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
-        updaterCompile "org.apache.logging.log4j:log4j-api:$log4jVersion"
-        updaterCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-        updaterCompile files("$libDir/$commonsArchiveName")
 
         commonsCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         commonsCompile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
@@ -203,7 +169,6 @@ allprojects {
     // Copy downloaded dependencies from Gradle's cache into the library directory
     task copyAllDependenciesToLibrary(type: Copy) {
         from(configurations.compile) {
-            exclude("$licenceArchiveName")
         }
         into "$libDir/"
     }
@@ -219,69 +184,6 @@ allprojects {
     }
     createCommonsJar.dependsOn copyAllDependenciesToLibrary
     compileCommonsJava.mustRunAfter copyAllDependenciesToLibrary
-
-    // Updater jar
-    task createUpdaterJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
-        archiveName = "$updaterArchiveName"
-
-        from sourceSets.updater.output
-
-        configurations = [project.configurations.updaterCompile]
-        destinationDir = file("$updaterDestDir/")
-    }
-    createUpdaterJar.dependsOn createCommonsJar
-
-    // Main application jar
-    jar {
-        archiveName = "$mainAppArchiveName"
-
-        manifest {
-            attributes "Class-Path": configurations.runtime.files.collect { "$libDir/${it.name}" }.join(" ") // required for DependencyChecker
-        }
-        from sourceSets.main.output
-        from(rootDir) {
-            include "VersionData.json"
-        }
-        from(tasks.createUpdaterJar.destinationDir) {
-            include "$updaterArchiveName"
-        }
-        destinationDir = file("$libDir/")
-    }
-    jar.dependsOn createUpdaterJar
-    compileJava.mustRunAfter createUpdaterJar // jar adds compileJava, but it runs at the beginning (which fails without update.jar)
-                                              // delay this until update.jar is created
-
-    // Creates the launcher, which launches the main application with custom arguments
-    task createLauncherJar(type: Jar) {
-        archiveName = "$launcherArchiveName"
-        manifest {
-            attributes "Main-Class": "$launcherMainClass",
-                       "Class-Path": configurations.compile.files.collect { "$libDir/${it.name}" }.join(" ")
-        }
-        from sourceSets.launcher.output
-        destinationDir = file(".")
-    }
-    createLauncherJar.dependsOn jar
-
-    // Creates the installer, which will pack necessary classes for installation and all dependencies found in lib/
-    task createInstallerJar(type: Jar) {
-        archiveName = "$installerArchiveName"
-
-        manifest {
-            attributes "Main-Class": "$installerMainClass",
-                       "Class-Path": configurations.installerRuntime.files.collect { "$libDir/${it.name}" }.join(" ")
-        }
-        from sourceSets.installer.output
-    }
-    createInstallerJar.dependsOn createLauncherJar
-    compileInstallerJava.mustRunAfter createLauncherJar // Compile installer only after its dependencies & resources are done
-
-    task generateVersionData(type: JavaExec) {
-        main = "$generateVersionDataMainClass"
-        def arguments = "$mainAppArchiveName " + "$launcherArchiveName " + configurations.runtime.files.collect { "$it.name" }.join(" ")
-        classpath = sourceSets.generateVersionData.runtimeClasspath
-        args arguments.split()
-    }
 
     jacoco {
         toolVersion = "0.7.5.201505241946"

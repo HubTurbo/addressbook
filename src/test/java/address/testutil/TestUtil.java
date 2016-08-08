@@ -1,22 +1,15 @@
 package address.testutil;
 
 import address.TestApp;
-import address.browser.BrowserManager;
 import address.model.datatypes.AddressBook;
 import address.model.datatypes.person.Person;
-import address.model.datatypes.person.ViewablePerson;
 import address.model.datatypes.tag.Tag;
 import address.storage.StorageAddressBook;
-import address.sync.cloud.model.CloudAddressBook;
-import address.sync.cloud.model.CloudPerson;
-import address.sync.cloud.model.CloudTag;
 import com.google.common.io.Files;
 import commons.FileUtil;
 import commons.OsDetector;
 import commons.XmlUtil;
 import guitests.guihandles.PersonCardHandle;
-import hubturbo.embeddedbrowser.BrowserType;
-import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -32,10 +25,10 @@ import org.testfx.api.FxToolkit;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.time.LocalDate;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -96,10 +89,6 @@ public class TestUtil {
 
     public static List<Person> generateSamplePersonData() {
         return Arrays.asList(samplePersonData);
-    }
-
-    public static List<ViewablePerson> generateSampleViewablePersonData() {
-        return generateSamplePersonData().stream().map(ViewablePerson::fromBacking).collect(Collectors.toList());
     }
 
     /**
@@ -240,37 +229,6 @@ public class TestUtil {
 
     public static void tearDownRuntime() throws Exception {
         FxToolkit.cleanupStages();
-    }
-
-    public static void initBrowserInStatic() {
-        BrowserManager manager = new BrowserManager(FXCollections.emptyObservableList(),
-                1, BrowserType.FULL_FEATURE_BROWSER);
-        manager.initBrowser();
-    }
-
-    public static CloudAddressBook generateCloudAddressBook(AddressBook addressBook) {
-        List<CloudPerson> cloudPersonList = new ArrayList<>();
-        addressBook.getPersonList().forEach(p -> {
-            CloudPerson cloudPerson = new CloudPerson(p.getFirstName(), p.getLastName(), p.getId());
-            cloudPerson.setBirthday(p.getBirthday());
-            cloudPerson.setCity(p.getCity());
-            cloudPerson.setStreet(p.getStreet());
-            cloudPerson.setGithubUsername(p.getGithubUsername());
-            cloudPerson.setPostalCode(p.getPostalCode());
-            cloudPerson.setTags(p.getTagList().stream().map(t -> new CloudTag(t.getName())).collect(Collectors.toList()));
-
-            cloudPersonList.add(cloudPerson);
-        });
-
-        List<CloudTag> cloudTagList = new ArrayList<>();
-        addressBook.getTagList().forEach(t ->
-                cloudTagList.add(new CloudTag(t.getName())));
-
-        CloudAddressBook cloudAddressBook = new CloudAddressBook("Test");
-        cloudAddressBook.setPersonsList(cloudPersonList);
-        cloudAddressBook.setTagsList(cloudTagList);
-
-        return cloudAddressBook;
     }
 
     /**

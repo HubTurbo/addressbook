@@ -3,7 +3,6 @@ package commons;
 import javafx.application.Platform;
 
 import java.util.concurrent.*;
-import java.util.function.Supplier;
 
 /**
  * Contains utility methods for running code in various ways,

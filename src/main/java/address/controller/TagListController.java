@@ -1,9 +1,11 @@
 package address.controller;
 
-import address.model.datatypes.tag.Tag;
 import address.model.ModelManager;
+import address.model.datatypes.tag.Tag;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
@@ -49,9 +51,10 @@ public class TagListController extends UiController {
 
     public VBox getTagsVBox(ObservableList<Tag> tagList, MainController mainController) {
         VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER_LEFT);
 
         if (tagList.size() == 0) {
-            vBox.getChildren().add(TagCardController.getDummyTagCard(this, mainController));
+            vBox.getChildren().add(new Label("No Tags to show"));
             return vBox;
         }
         tagList.forEach(tag -> {
@@ -59,10 +62,5 @@ public class TagListController extends UiController {
             vBox.getChildren().add(tagCardController.getLayout());
         });
         return vBox;
-    }
-
-    public void refreshList() {
-        setTags(modelManager.getTagsAsReadOnlyObservableList());
-        stage.sizeToScene();
     }
 }

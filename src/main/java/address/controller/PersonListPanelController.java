@@ -1,35 +1,23 @@
 package address.controller;
 
-import static address.keybindings.KeyBindingsManager.*;
-import static address.model.datatypes.person.ReadOnlyViewablePerson.ongoingCommandState.*;
-
 import address.events.controller.JumpToListRequestEvent;
 import address.events.parser.FilterCommittedEvent;
 import address.model.ModelManager;
-import address.model.datatypes.person.ReadOnlyViewablePerson;
-import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
-import address.parser.ParseException;
-import address.parser.Parser;
-import address.parser.expr.Expr;
 import address.parser.expr.PredExpr;
 import address.parser.qualifier.TrueQualifier;
 import address.ui.PersonListViewCell;
-import address.util.collections.FilteredList;
 import address.util.AppLogger;
 import address.util.LoggerManager;
-import address.util.collections.ReorderedList;
+import address.util.collections.FilteredList;
 import com.google.common.eventbus.Subscribe;
-
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 
 import java.util.List;
 import java.util.Objects;
@@ -41,48 +29,34 @@ import java.util.Objects;
  */
 public class PersonListPanelController extends UiController {
     private static AppLogger logger = LoggerManager.getLogger(PersonListPanelController.class);
-    private final BooleanProperty shouldDisableEdit = new SimpleBooleanProperty(false);
-    private final BooleanProperty shouldAllowRetry = new SimpleBooleanProperty(false);
 
     @FXML
-    private Button newButton;
-    @FXML
-    private Button editButton;
-    @FXML
-    private Button deleteButton;
-    @FXML
-    private ListView<ReadOnlyViewablePerson> personListView;
-    @FXML
-    private TextField filterField;
+    private ListView<ReadOnlyPerson> personListView;
 
     private MainController mainController;
     private ModelManager modelManager;
-    private FilteredList<ReadOnlyViewablePerson> filteredPersonList;
-    private Parser parser;
+    private FilteredList<ReadOnlyPerson> filteredPersonList;
+
 
     public PersonListPanelController() {
         super();
-        parser = new Parser();
     }
 
     public void setConnections(MainController mainController, ModelManager modelManager,
-                               ObservableList<ReadOnlyViewablePerson> personList) {
+                               ObservableList<ReadOnlyPerson> personList) {
         this.mainController = mainController;
         this.modelManager = modelManager;
         filteredPersonList = new FilteredList<>(personList, new PredExpr(new TrueQualifier())::satisfies);
 
-        ReorderedList<ReadOnlyViewablePerson> orderedList = new ReorderedList<>(filteredPersonList);
-        personListView.setItems(orderedList);
-        personListView.setCellFactory(listView -> new PersonListViewCell(orderedList));
+        personListView.setItems(filteredPersonList);
+        personListView.setCellFactory(listView -> new PersonListViewCell());
         loadGithubProfilePageWhenPersonIsSelected(mainController);
         setupListviewSelectionModelSettings();
-        disableEditCommandForMultipleSelection();
-        enableRetryCommandOnlyIfSelectionContainsFailedRequests();
     }
 
     private void setupListviewSelectionModelSettings() {
         personListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        personListView.getItems().addListener((ListChangeListener<ReadOnlyViewablePerson>) c -> {
+        personListView.getItems().addListener((ListChangeListener<ReadOnlyPerson>) c -> {
             while(c.next()) {
                 if (c.wasRemoved()) {
                     ObservableList<Integer> currentIndices = personListView.getSelectionModel().getSelectedIndices();
@@ -108,16 +82,6 @@ public class PersonListPanelController extends UiController {
         });
     }
 
-    private void disableEditCommandForMultipleSelection() {
-        final ListChangeListener<Integer> listener = change -> shouldDisableEdit.set(change.getList().size() > 1);
-        personListView.getSelectionModel().getSelectedIndices().addListener(listener);
-    }
-
-    private void enableRetryCommandOnlyIfSelectionContainsFailedRequests() {
-        final ListChangeListener<ReadOnlyViewablePerson> listener = change ->  shouldAllowRetry.set(
-                change.getList().stream().anyMatch(p -> p.getOngoingCommandState() == REQUEST_FAILED));
-        personListView.getSelectionModel().getSelectedItems().addListener(listener);
-    }
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -125,8 +89,7 @@ public class PersonListPanelController extends UiController {
      */
     @FXML
     private void initialize() {
-        personListView.setContextMenu(createContextMenu());
-        editButton.disableProperty().bind(shouldDisableEdit);
+
     }
 
     /**
@@ -142,123 +105,10 @@ public class PersonListPanelController extends UiController {
         return true;
     }
 
-    /**
-     * Opens a dialog to edit details for a new person.
-     */
-    @FXML
-    private void handleNewPerson() {
-        modelManager.createPersonThroughUI(() ->
-                mainController.getPersonDataInput(Person.createPersonDataContainer(), "New Person"));
-    }
-
-    /**
-     * Opens a dialog to edit details for the selected person.
-     */
-    @FXML
-    private void handleEditPerson() {
-        if (checkAndHandleInvalidSelection()) {
-            final ReadOnlyPerson editTarget = personListView.getSelectionModel().getSelectedItem();
-            modelManager.editPersonThroughUI(editTarget,
-                    () -> mainController.getPersonDataInput(editTarget, "Edit Person"));
-        }
-    }
-
-    /**
-     * Deletes selected persons
-     */
-    @FXML
-    private void handleDeletePersons() {
-        if (checkAndHandleInvalidSelection()) {
-            final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
-            selected.forEach(modelManager::deletePersonThroughUI);
-        }
-    }
-
-    /**
-     * Retags all selected persons
-     */
-    private void handleRetagPersons() {
-        if (checkAndHandleInvalidSelection()) {
-            final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
-            modelManager.retagPersonsThroughUI(selected, () -> mainController.getPersonsTagsInput(selected));
-        }
-    }
-
-    /**
-     * Cancels all ongoing commands for selected persons
-     */
-    private void handleCancelCommands() {
-        if (checkAndHandleInvalidSelection()) {
-            final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
-            selected.forEach(modelManager::cancelPersonCommand);
-        }
-    }
-
-    /**
-     * Retries all currently failed commands for selected persons
-     */
-    private void handleRetryFailedCommands() {
-        if (checkAndHandleInvalidSelection()) {
-            final List<ReadOnlyViewablePerson> selected = personListView.getSelectionModel().getSelectedItems();
-            selected.forEach(modelManager::retryFailedPersonCommand);
-        }
-    }
-
-    @FXML
-    private void handleFilterChanged() {
-        Expr filterExpression;
-        try {
-            filterExpression = parser.parse(filterField.getText());
-            if (filterField.getStyleClass().contains("error")) filterField.getStyleClass().remove("error");
-        } catch (ParseException e) {
-            logger.debug("Invalid filter found: {}", e);
-            filterExpression = PredExpr.TRUE;
-            if (!filterField.getStyleClass().contains("error")) filterField.getStyleClass().add("error");
-        }
-
-        raise(new FilterCommittedEvent(filterExpression));
-    }
-
-    private ContextMenu createContextMenu() {
-        logger.debug("Creating context menu for listview card");
-        final ContextMenu contextMenu = new ContextMenu();
-
-        final MenuItem editMenuItem = initContextMenuItem("Edit",
-                getAcceleratorKeyCombo("PERSON_EDIT_ACCELERATOR").get(), this::handleEditPerson);
-        editMenuItem.setId(generateMenuItemId("edit"));
-        editMenuItem.disableProperty().bind(shouldDisableEdit); // disable if multiple selected
-
-        final MenuItem retryFailedMenuItem = initContextMenuItem("Retry",
-                getAcceleratorKeyCombo("PERSON_RETRY_FAILED_COMMAND_ACCELERATOR").get(),
-                this::handleRetryFailedCommands);
-        retryFailedMenuItem.setId(generateMenuItemId("retryFailed"));
-        retryFailedMenuItem.visibleProperty().bind(shouldAllowRetry);
-
-        contextMenu.getItems().addAll(
-                editMenuItem,
-                initContextMenuItem("Delete",
-                        getAcceleratorKeyCombo("PERSON_DELETE_ACCELERATOR").get(), this::handleDeletePersons),
-                initContextMenuItem("Tag",
-                        getAcceleratorKeyCombo("PERSON_TAG_ACCELERATOR").get(), this::handleRetagPersons),
-                initContextMenuItem("Cancel",
-                        getAcceleratorKeyCombo("PERSON_CANCEL_COMMAND_ACCELERATOR").get(), this::handleCancelCommands),
-                retryFailedMenuItem
-        );
-        contextMenu.setId("personListContextMenu");
-        logger.debug("Context menu for listview card created: " + contextMenu.toString());
-        return contextMenu;
-    }
-
-    private MenuItem initContextMenuItem(String name, KeyCombination accel, Runnable action) {
-        final MenuItem menuItem = new MenuItem(name);
-        menuItem.setId(generateMenuItemId(name));
-        menuItem.setAccelerator(accel);
-        menuItem.setOnAction(e -> action.run());
-        return menuItem;
-    }
-
-    private String generateMenuItemId(String menuItemName) {
-        return menuItemName.toLowerCase() + "MenuItem";
+    private String collateNames(List<ReadOnlyPerson> list) {
+        StringBuilder sb = new StringBuilder();
+        list.stream().forEach(p -> sb.append(p.fullName() + ", "));
+        return sb.toString().substring(0, sb.toString().length() - 2);
     }
 
     @Subscribe

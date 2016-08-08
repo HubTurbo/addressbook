@@ -1,95 +1,60 @@
 package address.storage;
 
-import address.events.EventManager;
+
 import address.events.model.LocalModelChangedEvent;
-import address.events.storage.FileOpeningExceptionEvent;
-import address.events.storage.LoadDataRequestEvent;
 import address.events.storage.SaveDataRequestEvent;
-import address.events.storage.SavePrefsRequestEvent;
 import address.exceptions.DataConversionException;
+import address.exceptions.DuplicateTagException;
 import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.model.datatypes.AddressBook;
-import address.util.Config;
-import commons.FileUtil;
+import address.model.datatypes.ReadOnlyAddressBook;
+import address.testutil.AddressBookBuilder;
 import address.testutil.SerializableTestClass;
 import address.testutil.TestUtil;
+
+import address.util.Config;
+import commons.FileUtil;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.*;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
+import static org.junit.Assert.assertNotEquals;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({XmlFileStorage.class, FileUtil.class})
-@PowerMockIgnore({"javax.management.*"})// Defer loading of javax.management.* in log4j to system class loader
 public class StorageManagerTest {
-    private static final String DUMMY_DATA_FILE_PATH = TestUtil.appendToSandboxPath("dummyAddressBook.xml");
-    private static final File DUMMY_DATA_FILE = new File(TestUtil.appendToSandboxPath("dummyAddressBook.xml"));
-    private static final File DUMMY_PREFS_FILE = new File(TestUtil.appendToSandboxPath("dummyUserPrefs.json"));
     private static final File SERIALIZATION_FILE = new File(TestUtil.appendToSandboxPath("serialize.json"));
-    private static final File INEXISTENT_FILE = new File(TestUtil.appendToSandboxPath("inexistent"));
-    private static final File EMPTY_FILE = new File(TestUtil.appendToSandboxPath("empty.json"));
-
-    private static final StorageAddressBook EMPTY_ADDRESSBOOK = new StorageAddressBook(new AddressBook());
-    private static final UserPrefs EMPTY_USERPREFS = new UserPrefs();
-
-    ModelManager modelManagerMock;
-    EventManager eventManagerMock;
-    Config configMock;
-    UserPrefs userPrefsMock;
-    StorageManager storageManager;
-    StorageManager storageManagerSpy;
+    private static final String DEFAULT_CONFIG_FILE = TestUtil.appendToSandboxPath("config.json");
+    private static final String DEFAULT_PREF_FILE = TestUtil.appendToSandboxPath("preferences.json");
+    private static final String TESTING_DATA_FILE_PATH = TestUtil.appendToSandboxPath("dummyAddressBook.xml");
+    private static final File TESTING_DATA_FILE = new File(TESTING_DATA_FILE_PATH);
+    private static final String TEMP_SAVE_FILE_PATH = TestUtil.appendToSandboxPath("tempAddressBook.xml");
+    private static final File TEMP_SAVE_FILE = new File(TEMP_SAVE_FILE_PATH);
+    private StorageManager storageManager;
+    private ModelManager modelManager;
+    private Config config;
+    private UserPrefs prefs;
 
     @Before
-    public void setup() {
-        //mock the dependent static class
-        PowerMockito.mockStatic(XmlFileStorage.class);
-
-        //create mocks for dependencies and inject them into StorageManager object under test
-        eventManagerMock = Mockito.mock(EventManager.class);
-        configMock = Mockito.mock(Config.class);
-        when(configMock.getPrefsFileLocation()).thenReturn(DUMMY_PREFS_FILE);
-        when(configMock.getLocalDataFilePath()).thenReturn(DUMMY_DATA_FILE_PATH);
-        modelManagerMock = Mockito.mock(ModelManager.class);
-        doCallRealMethod().when(modelManagerMock).getDefaultAddressBook();
-        storageManager = new StorageManager(modelManagerMock::resetData, modelManagerMock::getDefaultAddressBook, configMock, userPrefsMock);
-        storageManager.setEventManager(eventManagerMock);
-
-        // This spy will be used to mock only one method of the object under test
-        storageManagerSpy = spy(storageManager);
-        doNothing().when(storageManagerSpy).saveDataToFile(DUMMY_DATA_FILE,EMPTY_ADDRESSBOOK);
+    public void before() throws IOException, DataConversionException {
+        StorageManager.saveAddressBook(TESTING_DATA_FILE, new AddressBook());
+        config = StorageManager.getConfig(DEFAULT_CONFIG_FILE);
+        config.setLocalDataFilePath(TESTING_DATA_FILE_PATH);
+        prefs = StorageManager.getUserPrefs(new File(DEFAULT_PREF_FILE));
+        modelManager = new ModelManager(config);
+        storageManager = new StorageManager(modelManager::resetData, modelManager::getDefaultAddressBook,
+                config, prefs);
     }
 
-    @Test
-    public void getConfig_fileInexistent_newConfigCreated() throws Exception {
-        Config dummyConfig = new Config();
-        FileUtil.deleteFileIfExists(INEXISTENT_FILE);
-        assertFalse(INEXISTENT_FILE.exists());
-        TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("DEFAULT_CONFIG_FILE"), INEXISTENT_FILE.getPath());
-        PowerMockito.whenNew(Config.class).withAnyArguments().thenReturn(dummyConfig);
-        StorageManager.getConfig(null);
-        PowerMockito.verifyNew(Config.class);
-    }
-
-    @Test
-    public void getConfig_fileExistent_correspondingMethodCalled() throws Exception {
-        FileUtil.createIfMissing(EMPTY_FILE);
-        TestUtil.setFinalStatic(StorageManager.class.getDeclaredField("DEFAULT_CONFIG_FILE"), EMPTY_FILE.getPath());
-        StorageManager.getConfig(null);
-        PowerMockito.verifyPrivate(StorageManager.class).invoke("readFromConfigFile", EMPTY_FILE);
+    @After
+    public void after() {
+        TESTING_DATA_FILE.delete();
     }
 
     @Test
@@ -106,120 +71,19 @@ public class StorageManagerTest {
      * real methods to be called, hence leaving other unrelated methods untested
      */
     @Test
-    public void saveDataToFile() {}
-
-    /**
-     * This is not implemented due to the need to mock static methods of StorageManager which will prevent some
-     * real methods to be called, hence leaving other unrelated methods untested
-     */
-    @Test
     public void savePrefsToFile_correspondingMethodCalled() {}
 
     @Test
     public void loadDataFromFile() {} // This is not implemented as it requires reflection
 
     @Test
-    public void getData_correspondingMethodCalled() throws FileNotFoundException, DataConversionException {
-        storageManagerSpy.getData();
-        PowerMockito.verifyStatic();
-        XmlFileStorage.loadDataFromSaveFile(any(File.class));
+    public void testHandleLoadDataRequestEvent() {
+        //Not tested, can't figure out a proper way to load new data and check if the model is updated.
     }
 
     @Test
-    public void start_correspondingMethodCalled() throws Exception {
-        storageManagerSpy.start();
-        PowerMockito.verifyPrivate(storageManagerSpy).invoke("loadDataFromFile", new File(configMock.getLocalDataFilePath()));
-    }
-
-    @Test
-    public void saveAddressBook_noException() throws IOException, DataConversionException {
-        PowerMockito.mockStatic(FileUtil.class);
-
-        StorageManager.saveAddressBook(DUMMY_DATA_FILE, EMPTY_ADDRESSBOOK);
-
-        PowerMockito.verifyStatic();
-        FileUtil.createIfMissing(DUMMY_DATA_FILE);
-    }
-
-    @Test
-    public void handleSaveDataRequestEvent(){
-
-        //mock dependent method of same object (that method is tested elsewhere)
-        storageManagerSpy.handleSaveDataRequestEvent(
-                new SaveDataRequestEvent(DUMMY_DATA_FILE, EMPTY_ADDRESSBOOK));
-
-        //verify that method is called correctly
-        verify(storageManagerSpy, times(1)).saveDataToFile(any(File.class), any(AddressBook.class));
-        //TODO: make the above verification stronger by comparing actual parameters instead of 'any'
-    }
-
-    @Test
-    public void handleLocalModelChangedEvent(){
-
-        //mock dependent method of same object (that method is tested elsewhere)
-        storageManagerSpy.handleLocalModelChangedEvent(new LocalModelChangedEvent(EMPTY_ADDRESSBOOK));
-
-        //verify that method is called correctly
-        verify(storageManagerSpy, times(1)).saveDataToFile(any(File.class), any(AddressBook.class));
-        //TODO: make the above verification stronger by comparing actual parameters instead of 'any'
-    }
-
-    @Test
-    public void handleLoadDataRequestEvent_noError_noEventRaised() throws FileNotFoundException, DataConversionException {
-
-        //set up response from dependent method
-        PowerMockito.when(XmlFileStorage.loadDataFromSaveFile(DUMMY_DATA_FILE)).thenReturn(EMPTY_ADDRESSBOOK);
-
-        //invoke method under test
-        storageManager.handleLoadDataRequestEvent(new LoadDataRequestEvent(DUMMY_DATA_FILE));
-
-        //verify the dependent method was called
-        PowerMockito.verifyStatic();
-        XmlFileStorage.loadDataFromSaveFile(DUMMY_DATA_FILE);
-
-        //verify modelManager was updated with correct data
-        verify(modelManagerMock, times(1)).resetData(EMPTY_ADDRESSBOOK);
-    }
-
-    @Test
-    public void handleLoadDataRequestEvent_fileNotFound_exceptionEventRaised()
-            throws FileNotFoundException, DataConversionException {
-
-        //set up to throw exception from dependent method
-        PowerMockito.when(XmlFileStorage.loadDataFromSaveFile(DUMMY_DATA_FILE))
-                .thenThrow(new FileNotFoundException("dummy exception"));
-
-        //invoke method under test
-        storageManager.handleLoadDataRequestEvent(new LoadDataRequestEvent(DUMMY_DATA_FILE));
-
-        //verify the relevant event was raised
-        verify(eventManagerMock, times(1)).post(Mockito.any(FileOpeningExceptionEvent.class));
-    }
-
-    @Test
-    public void handleLoadDataRequestEvent_dataConversionError_exceptionEventRaised()
-            throws FileNotFoundException, DataConversionException {
-
-        //set up to throw exception from dependent method
-        PowerMockito.when(XmlFileStorage.loadDataFromSaveFile(DUMMY_DATA_FILE))
-                .thenThrow(new DataConversionException(new Exception("dummy exception")));
-
-        //invoke method under test
-        storageManager.handleLoadDataRequestEvent(new LoadDataRequestEvent(DUMMY_DATA_FILE));
-
-        //verify the relevant event was raised
-        verify(eventManagerMock, times(1)).post(Mockito.any(FileOpeningExceptionEvent.class));
-    }
-
-    @Test
-    public void handleSavePrefsRequestEvent(){
-
-        //mock dependent method of same object (that method is tested elsewhere)
-        storageManagerSpy.handleSavePrefsRequestEvent(
-                new SavePrefsRequestEvent(EMPTY_USERPREFS));
-
-        //verify that method is called correctly
-        verify(storageManagerSpy, times(1)).savePrefsToFile(EMPTY_USERPREFS);
+    public void testGetConfig() {
+        //This is called in the before() method. Already tested indirectly.
     }
 
     @Test
@@ -243,4 +107,47 @@ public class StorageManagerTest {
         assertEquals(serializableTestClass.getListOfLocalDateTimes(), SerializableTestClass.getListTestValues());
         assertEquals(serializableTestClass.getMapOfIntegerToString(), SerializableTestClass.getHashMapTestValues());
     }
+
+    @Test
+    public void saveDataToFile() throws FileNotFoundException, DataConversionException {
+        ReadOnlyAddressBook oldAb = new AddressBook(storageManager.getData());
+        AddressBook editedAb = new AddressBookBuilder(new AddressBook(storageManager.getData())).withPerson("second", "person").build();
+        assertNotEquals(editedAb, oldAb);
+
+        storageManager.saveDataToFile(TEMP_SAVE_FILE, editedAb);
+
+        ReadOnlyAddressBook savedAddressbook = new AddressBook(XmlFileStorage.loadDataFromSaveFile(TEMP_SAVE_FILE));
+
+        assertEquals(editedAb.getPersonList(), savedAddressbook.getPersonList());
+        assertEquals(editedAb.getTagList(), savedAddressbook.getTagList());
+    }
+
+    @Test
+    public void testConfig_openConfigFile_exist() {
+        Config config = StorageManager.getConfig(DEFAULT_CONFIG_FILE);
+        assertNotNull(config);
+    }
+
+    @Test
+    public void testHandleLocalModelChangedEvent() throws DuplicateTagException, InterruptedException, FileNotFoundException, DataConversionException {
+        ReadOnlyAddressBook oldAb = new AddressBook(storageManager.getData());
+        AddressBook editedAb = new AddressBookBuilder(new AddressBook(storageManager.getData())).withPerson("second", "person").build();
+        assertNotEquals(editedAb, oldAb);
+
+        storageManager.handleLocalModelChangedEvent(new LocalModelChangedEvent(editedAb));
+        AddressBook newAb = new AddressBook(storageManager.getData());
+
+        assertEquals(editedAb.getPersonList(), newAb.getPersonList());
+        assertEquals(editedAb.getTagList(), newAb.getTagList());
+    }
+
+    @Test
+    public void testHandleSaveDataRequestEvent() throws FileNotFoundException, DataConversionException {
+        storageManager.handleSaveDataRequestEvent(new SaveDataRequestEvent(TEMP_SAVE_FILE, storageManager.getData()));
+        StorageAddressBook storageAddressBook = XmlFileStorage.loadDataFromSaveFile(TEMP_SAVE_FILE);
+        assertEquals(storageAddressBook.getPersonList(), storageManager.getData().getPersonList());
+        assertEquals(storageAddressBook.getTagList(), storageManager.getData().getTagList());
+    }
+
+    //TODO: finish the rest of the public methods in StorageManager
 }

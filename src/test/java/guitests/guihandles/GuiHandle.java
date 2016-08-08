@@ -4,7 +4,6 @@ import address.TestApp;
 import address.model.datatypes.person.Person;
 import address.util.AppLogger;
 import address.util.LoggerManager;
-import com.google.common.base.Optional;
 import guitests.GuiRobot;
 import javafx.scene.Node;
 import javafx.scene.control.Label;

@@ -3,16 +3,16 @@ package address.model.datatypes.person;
 import address.model.datatypes.UniqueData;
 import address.model.datatypes.tag.Tag;
 import address.util.collections.UnmodifiableObservableList;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
@@ -261,6 +261,11 @@ public class Person extends UniqueData implements ReadOnlyPerson {
     @Override
     public UnmodifiableObservableList<Tag> getObservableTagList() {
         return new UnmodifiableObservableList<>(tags);
+    }
+
+    @Override
+    public boolean hasName(String firstName, String lastName) {
+        return this.firstName.get().equals(firstName) && this.lastName.get().equals(lastName);
     }
 
     @JsonProperty("tags")

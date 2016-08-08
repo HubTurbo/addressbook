@@ -6,7 +6,6 @@ import address.model.ModelManager;
 import address.model.UserPrefs;
 import address.util.Config;
 import address.util.GuiSettings;
-import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 /**
@@ -23,10 +22,6 @@ public class Ui {
 
     public void start(Stage primaryStage) {
         mainController.start(primaryStage);
-    }
-
-    public void showAlertDialogAndWait(Alert.AlertType alertType, String alertTitle, String headerText, String contentText) {
-        mainController.showAlertDialogAndWait(alertType, alertTitle, headerText, contentText);
     }
 
     public void stop() {

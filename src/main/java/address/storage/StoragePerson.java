@@ -107,4 +107,9 @@ public class StoragePerson implements ReadOnlyPerson {
     public List<Tag> getTagList() {
         return Collections.unmodifiableList(tags);
     }
+
+    @Override
+    public boolean hasName(String firstName, String lastName) {
+        return this.firstName.equals(firstName) && this.lastName.equals(lastName);
+    }
 }

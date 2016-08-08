@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 
 /**
  * Launcher for the address book application
- * Will also launch the update migrator before the application to apply any pending updates
  */
 public class Launcher extends Application {
     private static final String CLASS_PATH = File.pathSeparator + "lib" + File.separator + "*";

@@ -1,7 +1,6 @@
 package address.util;
 
 import address.util.collections.UnmodifiableObservableList;
-
 import javafx.collections.FXCollections;
 import org.junit.Before;
 import org.junit.Rule;
@@ -10,8 +9,8 @@ import org.junit.rules.ExpectedException;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
 import static address.testutil.TestUtil.assertThrows;
+import static org.junit.Assert.assertSame;
 
 public class UnmodifiableObservableListTest {
 
