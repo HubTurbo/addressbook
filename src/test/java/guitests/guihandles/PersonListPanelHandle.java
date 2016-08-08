@@ -2,7 +2,6 @@ package guitests.guihandles;
 
 
 import address.TestApp;
-import address.keybindings.Bindings;
 import address.model.datatypes.person.Person;
 import address.model.datatypes.person.ReadOnlyPerson;
 import address.testutil.TestUtil;
@@ -37,10 +36,6 @@ public class PersonListPanelHandle extends GuiHandle {
 
     public PersonListPanelHandle(GuiRobot guiRobot, Stage primaryStage) {
         super(guiRobot, primaryStage, TestApp.APP_TITLE);
-    }
-
-    public void use_LIST_ENTER_SHORTCUT() {
-        guiRobot.push(new Bindings().LIST_ENTER_SHORTCUT);
     }
 
     public boolean contains(String firstName, String lastName) {
@@ -141,10 +136,6 @@ public class PersonListPanelHandle extends GuiHandle {
         }
     }
 
-    public void use_LIST_GOTO_BOTTOM_SEQUENCE() {
-        guiRobot.pushKeySequence(new Bindings().LIST_GOTO_BOTTOM_SEQUENCE);
-    }
-
     /**
      * Navigate the listview to display and select the person.
      * @param person
@@ -159,10 +150,6 @@ public class PersonListPanelHandle extends GuiHandle {
         });
         guiRobot.sleep(100);
         return getPersonCardHandle(person);
-    }
-
-    public void use_LIST_GOTO_TOP_SEQUENCE() {
-        guiRobot.pushKeySequence(new Bindings().LIST_GOTO_TOP_SEQUENCE);
     }
 
     public void navigateUp() {

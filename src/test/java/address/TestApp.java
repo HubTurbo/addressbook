@@ -71,10 +71,6 @@ public class TestApp extends MainApp {
         return this.config;
     }
 
-    public void deregisterHotKeys(){
-        keyBindingsManager.stop();
-    }
-
     public static void main(String[] args) {
         launch(args);
     }

@@ -96,7 +96,6 @@ public class GuiTestBase {
         File file = GuiTest.captureScreenshot();
         TestUtil.renameFile(file, this.getClass().getName() + name.getMethodName() + ".png");
         FxToolkit.cleanupStages();
-        testApp.deregisterHotKeys();
     }
 
     public void sleep(long duration, TimeUnit timeunit) {

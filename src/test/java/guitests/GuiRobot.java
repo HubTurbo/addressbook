@@ -1,7 +1,5 @@
 package guitests;
 
-import address.keybindings.KeyBinding;
-import address.keybindings.KeySequence;
 import address.testutil.TestUtil;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -22,11 +20,6 @@ public class GuiRobot extends FxRobot {
         return (GuiRobot) super.push(TestUtil.scrub(keyCodeCombination));
     }
 
-    public GuiRobot push(KeyBinding keyBinding){
-        KeyCodeCombination keyCodeCombination = (KeyCodeCombination)keyBinding.getKeyCombination();
-        return this.push(TestUtil.scrub(keyCodeCombination));
-    }
-
     public GuiRobot press(KeyCode... keyCodes) {
         return (GuiRobot) super.press(TestUtil.scrub(keyCodes));
     }
@@ -37,11 +30,6 @@ public class GuiRobot extends FxRobot {
 
     public GuiRobot type(KeyCode... keyCodes) {
         return (GuiRobot) super.type(TestUtil.scrub(keyCodes));
-    }
-
-    public void pushKeySequence(KeySequence keySequence) {
-        push((KeyCodeCombination)keySequence.getKeyCombination());
-        push((KeyCodeCombination)keySequence.getSecondKeyCombination());
     }
 
     @Override
